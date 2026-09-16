@@ -109,8 +109,8 @@ export async function syncStations(
 
     // An unchanged station still gets its timestamp, so "last synced" means
     // last checked, not last changed. No page reads the row, so skip the cache
-    // bust; the write itself is cheap enough for a button pressed a few times a
-    // season.
+    // bust; the write itself is cheap enough for a run that happens at most
+    // once a day.
     if (
       unchanged(
         identityFrom({

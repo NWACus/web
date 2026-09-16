@@ -9,7 +9,7 @@ import type { PayloadHandler } from 'payload'
  * Pull the current station list from SnowObs for the center the admin is
  * looking at. The only way rows get here. The Stations list calls it with
  * `?ifStale` when it opens, which is a no-op inside SYNC_STALE_AFTER_HOURS of
- * the last run; the button calls it without, to force one.
+ * the last run; without the flag it always runs, for a script or a curl.
  */
 export const syncStationsNow: PayloadHandler = async (req) => {
   const { payload, user, headers } = req
