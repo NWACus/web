@@ -1,5 +1,5 @@
 import { byTenantRole } from '@/access/byTenantRole'
-import { syncIsDue, syncStationsForTenant } from '@/services/snowobs/syncStations'
+import { syncStationsForTenant } from '@/services/snowobs/syncStations'
 import { stationPagesTag } from '@/services/stations/revalidate'
 import { getTenantSlugFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 import { revalidateTag } from 'next/cache'
@@ -7,9 +7,8 @@ import type { PayloadHandler } from 'payload'
 
 /**
  * Pull the current station list from SnowObs for the center the admin is
- * looking at. The only way rows get here. The Stations list calls it with
- * `?ifStale` when it opens, which is a no-op inside SYNC_STALE_AFTER_HOURS of
- * the last run; without the flag it always runs, for a script or a curl.
+ * looking at. The only way rows get here; the Stations list's "Update from
+ * SnowObs" button calls it.
  */
 export const syncStationsNow: PayloadHandler = async (req) => {
   const { payload, user, headers } = req
@@ -39,22 +38,6 @@ export const syncStationsNow: PayloadHandler = async (req) => {
   const tenant = docs[0]
   if (!tenant) {
     return Response.json({ error: `No center named ${slug}` }, { status: 404 })
-  }
-
-  const url = new URL(req.url ?? '', 'http://localhost')
-  if (url.searchParams.has('ifStale')) {
-    const { docs: newest } = await payload.find({
-      collection: 'stations',
-      where: { tenant: { equals: tenant.id } },
-      sort: '-lastSyncedAt',
-      limit: 1,
-      depth: 0,
-      select: { lastSyncedAt: true },
-    })
-    const lastSyncedAt = newest[0]?.lastSyncedAt
-    if (!syncIsDue(lastSyncedAt)) {
-      return Response.json({ skipped: true, lastSyncedAt })
-    }
   }
 
   try {

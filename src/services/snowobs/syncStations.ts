@@ -10,15 +10,6 @@ export type StationSyncResult = {
   unchanged: number
 }
 
-// SnowObs station identity moves a few times a year, so a day-old sync is fresh
-// enough for the admin list to open on without asking SnowObs again.
-export const SYNC_STALE_AFTER_HOURS = 24
-
-export function syncIsDue(lastSyncedAt: string | null | undefined, now = new Date()): boolean {
-  const ms = lastSyncedAt ? Date.parse(lastSyncedAt) : Number.NaN
-  return Number.isNaN(ms) || now.getTime() - ms > SYNC_STALE_AFTER_HOURS * 60 * 60 * 1000
-}
-
 // Identity fields only. Editorial choices -- which page shows a station, whether
 // its gauge is hidden from the precip table -- are never overwritten by the sync.
 function identityFrom(station: {
@@ -109,8 +100,8 @@ export async function syncStations(
 
     // An unchanged station still gets its timestamp, so "last synced" means
     // last checked, not last changed. No page reads the row, so skip the cache
-    // bust; the write itself is cheap enough for a run that happens at most
-    // once a day.
+    // bust; the write itself is cheap enough for a button pressed a few times a
+    // season.
     if (
       unchanged(
         identityFrom({

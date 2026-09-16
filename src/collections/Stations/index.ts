@@ -40,9 +40,8 @@ export const Stations: CollectionConfig = {
     useAsTitle: 'name',
     components: {
       // Renders where the collection description normally does: under the
-      // title, above the search bar. Carries the description text itself and
-      // runs the SnowObs update when the list opens.
-      Description: '@/collections/Stations/components/StationsSyncOnOpen#StationsSyncOnOpen',
+      // title, above the search bar. Carries the description text itself.
+      Description: '@/collections/Stations/components/SyncStationsButton#SyncStationsButton',
     },
   },
   defaultSort: 'name',
