@@ -1,21 +1,16 @@
-import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
 import {
-  getStationRegistry,
   MAX_COMPARE_STATIONS,
-  type StationRegistry,
-} from '@/constants/weatherStations'
+  STATION_GRAPH_PRESETS,
+} from '@/components/WeatherStations/stationGraphPresets'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
+import type { StationPage } from '@/services/stations/getStationPages'
+import { allStationIds, getStationPages } from '@/services/stations/getStationPages'
 import { NextResponse } from 'next/server'
 
 // Serves the station Graphs tab. Reads SnowObs server-side (token stays
 // hidden); windows longer than 30 days aggregate to daily min/mean/max.
 
-// Caps sized to the Graphs tab's single fetch: the page's station group plus
-// every comparison pick, and the union of all preset variables.
-function maxStations(registry: StationRegistry): number {
-  return (1 + MAX_COMPARE_STATIONS) * Math.max(...registry.groups.map((g) => g.stids.length))
-}
 const MAX_VARIABLES = new Set(STATION_GRAPH_PRESETS.flatMap((p) => p.variables)).size
 const MAX_WINDOW_MS = 5 * 366 * 24 * 60 * 60 * 1000 // ~5 years, verified against SnowObs
 const REVALIDATE_SECONDS = 300
@@ -37,17 +32,23 @@ function listBounds(name: string, values: string[], max: number): string | null 
   return values.length === 0 || values.length > max ? `${name} must list 1-${max} entries` : null
 }
 
-function unknownStids(registry: StationRegistry, stids: string[]): string | null {
-  const known = new Set(registry.groups.flatMap((g) => g.stids))
+// Caps sized to the Graphs tab's single fetch: the page's stations plus every
+// comparison pick, and the union of all preset variables.
+function maxStations(pages: StationPage[]): number {
+  const largestPage = Math.max(1, ...pages.map((page) => page.stids.length))
+  return (1 + MAX_COMPARE_STATIONS) * largestPage
+}
+
+function unknownStids(stids: string[], known: Set<string>): string | null {
   const unknown = stids.filter((stid) => !known.has(stid))
   return unknown.length > 0 ? `unknown stids: ${unknown.join(',')}` : null
 }
 
-function validateLists(registry: StationRegistry, stids: string[], vars: string[]): string | null {
+function validateLists(stids: string[], vars: string[], pages: StationPage[]): string | null {
   return (
-    listBounds('stids', stids, maxStations(registry)) ??
+    listBounds('stids', stids, maxStations(pages)) ??
     listBounds('vars', vars, MAX_VARIABLES) ??
-    unknownStids(registry, stids)
+    unknownStids(stids, allStationIds(pages))
   )
 }
 
@@ -65,14 +66,14 @@ function dateParam(url: URL, name: string): Date {
 }
 
 function parseQuery(
-  registry: StationRegistry,
   url: URL,
+  pages: StationPage[],
 ): NextResponse | { stids: string[]; vars: string[]; from: Date; to: Date } {
   const stids = csvParam(url.searchParams.get('stids'))
   const vars = csvParam(url.searchParams.get('vars'))
   const from = dateParam(url, 'from')
   const to = dateParam(url, 'to')
-  const error = validateLists(registry, stids, vars) ?? validateWindow(from, to)
+  const error = validateLists(stids, vars, pages) ?? validateWindow(from, to)
   return error ? badRequest(error) : { stids, vars, from, to }
 }
 
@@ -83,12 +84,12 @@ export async function GET(
   { params }: { params: Promise<Params> },
 ): Promise<NextResponse> {
   const { center } = await params
-  const registry = getStationRegistry(center)
-  if (!registry) {
+  const pages = await getStationPages(center)
+  if (pages.length === 0) {
     return NextResponse.json({ error: 'not found' }, { status: 404 })
   }
 
-  const parsed = parseQuery(registry, new URL(request.url))
+  const parsed = parseQuery(new URL(request.url), pages)
   if (parsed instanceof NextResponse) return parsed
   const { stids, vars, from, to } = parsed
 

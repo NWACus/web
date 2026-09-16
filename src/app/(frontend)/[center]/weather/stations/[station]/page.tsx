@@ -9,15 +9,16 @@ import { resolveTablePeriod } from '@/components/WeatherStations/stationPeriods'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
-import {
-  CENTERS_WITH_STATIONS,
-  getStationGroup,
-  getStationRegistry,
-  type WeatherStationGroup,
-} from '@/constants/weatherStations'
+import { deriveColumns } from '@/services/snowobs/deriveColumns'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
+import type { StationPage, StationPageSummary } from '@/services/stations/getStationPages'
+import {
+  allStationPageParams,
+  getStationPages,
+  toPageSummaries,
+} from '@/services/stations/getStationPages'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
@@ -30,27 +31,23 @@ type Args = {
 }
 
 export async function generateStaticParams() {
-  return CENTERS_WITH_STATIONS.flatMap((center) =>
-    (getStationRegistry(center)?.groups ?? []).map((group) => ({ center, station: group.slug })),
-  )
+  return allStationPageParams()
 }
 
-type StationPage = { center: string; group: WeatherStationGroup }
-
 // Notes ride with the station metadata, so a 1-hour window is enough.
-async function loadStationNotes({ center, group }: StationPage) {
-  const meta = await fetchStationTimeseries(center, group.stids, { revalidate, windowHours: 1 })
+async function loadStationNotes(center: string, page: StationPage) {
+  const meta = await fetchStationTimeseries(center, page.stids, { revalidate, windowHours: 1 })
   return stationNotes(meta.STATION)
 }
 
-// Datalogger dropdown options for the CSV form: the group's station ids labeled with
+// Datalogger dropdown options for the CSV form: the page's station ids labeled with
 // each logger's name + elevation (from a cheap 1-hour metadata fetch).
-async function loadDataloggers({
-  center,
-  group,
-}: StationPage): Promise<{ stid: string; label: string }[]> {
-  const meta = await fetchStationTimeseries(center, group.stids, { windowHours: 1 })
-  return group.stids.map((stid) => {
+async function loadDataloggers(
+  center: string,
+  page: StationPage,
+): Promise<{ stid: string; label: string }[]> {
+  const meta = await fetchStationTimeseries(center, page.stids, { windowHours: 1 })
+  return page.stids.map((stid) => {
     const station = meta.STATION.find((s) => s.stid === stid)
     if (!station?.name) return { stid, label: stid }
     return {
@@ -72,7 +69,14 @@ type TabView = {
   tabContent?: ReactNode
 }
 
-async function csvTabView(page: StationPage): Promise<TabView> {
+type TabContext = {
+  center: string
+  page: StationPage
+  pages: StationPageSummary[]
+  periodParam?: string
+}
+
+async function csvTabView({ center, page }: TabContext): Promise<TabView> {
   return {
     table: null,
     tabContent: (
@@ -81,8 +85,8 @@ async function csvTabView(page: StationPage): Promise<TabView> {
           <StationRangeTabs activeKey="csv" />
         </StationViewBar>
         <StationCsvForm
-          slug={page.group.slug}
-          dataloggers={await loadDataloggers(page)}
+          slug={page.slug}
+          dataloggers={await loadDataloggers(center, page)}
           years={csvYears()}
         />
       </>
@@ -90,31 +94,30 @@ async function csvTabView(page: StationPage): Promise<TabView> {
   }
 }
 
-function graphsTabView({ group }: StationPage): TabView {
+function graphsTabView({ page, pages }: TabContext): TabView {
   return {
     table: null,
     tabContent: (
       <StationGraphs
-        stids={group.stids}
+        stids={page.stids}
         presets={STATION_GRAPH_PRESETS}
-        currentSlug={group.slug}
+        currentSlug={page.slug}
+        pages={pages}
         tabs={<StationRangeTabs activeKey="graphs" />}
       />
     ),
   }
 }
 
-async function tableTabView(
-  { center, group }: StationPage,
-  periodParam?: string,
-): Promise<TabView> {
+async function tableTabView({ center, page, periodParam }: TabContext): Promise<TabView> {
   const period = resolveTablePeriod(periodParam)
-  const response = await fetchStationTimeseries(center, group.stids, {
+  const response = await fetchStationTimeseries(center, page.stids, {
     revalidate,
     windowHours: period.hoursBack(new Date()),
     rawData: true,
   })
-  const table = buildStationTable(response, group.columns)
+  // Columns follow what the loggers report, so a new sensor shows up on its own.
+  const table = buildStationTable(response, deriveColumns(response, page.stids))
   return {
     table,
     tabContent: (
@@ -128,49 +131,48 @@ async function tableTabView(
 }
 
 // An archived station's table and graphs are empty, so downloads lead.
-function defaultTabKey(group: WeatherStationGroup): string {
-  return group.archived ? 'csv' : 'table'
+function defaultTabKey(page: StationPage): string {
+  return page.archived ? 'csv' : 'table'
 }
 
-const TAB_VIEWS: Record<string, (page: StationPage) => TabView | Promise<TabView>> = {
+const TAB_VIEWS: Record<string, (context: TabContext) => TabView | Promise<TabView>> = {
   csv: csvTabView,
   graphs: graphsTabView,
 }
 
 async function resolveTabView(
-  page: StationPage,
+  context: TabContext,
   rangeParam?: string,
   periodParam?: string,
 ): Promise<TabView> {
-  const build = TAB_VIEWS[rangeParam ?? defaultTabKey(page.group)]
+  const build = TAB_VIEWS[rangeParam ?? defaultTabKey(context.page)]
   // Anything else is the table, including legacy `?range=24h` links.
-  return build ? build(page) : tableTabView(page, periodParam ?? rangeParam)
+  return build
+    ? build(context)
+    : tableTabView({ ...context, periodParam: periodParam ?? rangeParam })
 }
 
 export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
   const { range: rangeParam, period: periodParam } = await searchParams
 
-  const group = getStationGroup(center, station)
-  if (!group) {
+  const pages = await getStationPages(center)
+  const page = pages.find((p) => p.slug === station)
+  if (!page) {
     notFound()
   }
 
-  const page = { center, group }
   const [view, notes] = await Promise.all([
-    resolveTabView(page, rangeParam, periodParam),
-    loadStationNotes(page),
+    resolveTabView({ center, page, pages: toPageSummaries(pages) }, rangeParam, periodParam),
+    loadStationNotes(center, page),
   ])
 
   return (
     <>
-      <Breadcrumbs
-        center={center}
-        path={`/weather/stations/${station}`}
-        title={group.displayName}
-      />
+      <Breadcrumbs center={center} path={`/weather/stations/${station}`} title={page.displayName} />
       <StationPageView
-        group={group}
+        page={page}
+        pages={toPageSummaries(pages)}
         table={view.table}
         notes={notes}
         tabContent={view.tabContent}
@@ -190,10 +192,11 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { center, station } = await props.params
   const parentMeta = await parent
-  const group = getStationGroup(center, station)
+  const pages = await getStationPages(center)
+  const page = pages.find((p) => p.slug === station)
 
   const parentTitle = resolveParentTitle(parentMeta)
-  const routeTitle = group ? group.displayName : 'Weather Station'
+  const routeTitle = page ? page.displayName : 'Weather Station'
   const canonical = `/weather/stations/${station}`
 
   return {

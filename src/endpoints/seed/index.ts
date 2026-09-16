@@ -16,6 +16,7 @@ import type {
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
+import { seedStationPages } from '@/migrations/data/seedStationPages'
 import { getAnnouncementsData } from './announcements'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
@@ -267,6 +268,8 @@ export const seed = async ({
               'events',
               'eventGroups',
               'eventTags',
+              'stations',
+              'stationPages',
             ],
             actions: ['*'],
           },
@@ -1236,7 +1239,7 @@ export const seed = async ({
             'A list of weather links.',
             'weather-tools',
           ),
-          // Only NWAC has native station pages; this page fronts them at /weather/stations.
+          // Only NWAC has station pages; this one fronts them at /weather/stations.
           ...(tenant.slug === 'nwac'
             ? [
                 page(
@@ -1251,6 +1254,15 @@ export const seed = async ({
         ])
         .flat(),
     )
+
+    // The migration that seeds these on a deployed environment runs before any
+    // tenant exists locally, so the seed does it here.
+    const nwac = Object.values(tenants).find((tenant) => tenant.slug === 'nwac')
+    if (nwac) {
+      payload.logger.info(`— Seeding NWAC station pages...`)
+      const seeded = await seedStationPages(payload, nwac.id)
+      payload.logger.info(seeded, 'station pages seeded')
+    }
 
     payload.logger.info(`— Updating home page quick links...`)
     for (const tenant of Object.values(tenants)) {

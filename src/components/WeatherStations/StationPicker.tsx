@@ -3,53 +3,49 @@
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
 import { useRouter } from 'next/navigation'
-import { useStationRegistry } from './useStationRegistry'
 
 // Restores the native-select look on the shadcn SelectTrigger.
 export const stationSelectTriggerClass =
   'h-auto w-auto gap-2 rounded-md text-sm shadow-sm focus:ring-offset-0'
 
+// Every page as an option, alphabetical, minus the ones a caller rules out.
 export function StationSelectGroups({
+  pages,
   excludeSlugs = [],
   excludeArchived = false,
 }: {
+  pages: StationPageSummary[]
   excludeSlugs?: string[]
   excludeArchived?: boolean
 }) {
-  const registry = useStationRegistry()
-  if (!registry) return null
-  return registry.regions.map((region) => {
-    const groups = registry.groups.filter(
-      (group) =>
-        group.region === region &&
-        !excludeSlugs.includes(group.slug) &&
-        !(excludeArchived && group.archived),
-    )
-    if (groups.length === 0) return null
-    return (
-      <SelectGroup key={region}>
-        <SelectLabel className="pl-2 font-normal text-muted-foreground">{region}</SelectLabel>
-        {groups.map((group) => (
-          <SelectItem key={group.slug} value={group.slug}>
-            {group.displayName}
-          </SelectItem>
-        ))}
-      </SelectGroup>
-    )
-  })
+  const listed = pages.filter(
+    (page) => !excludeSlugs.includes(page.slug) && !(excludeArchived && page.archived),
+  )
+  return listed.map((page) => (
+    <SelectItem key={page.slug} value={page.slug}>
+      {page.displayName}
+    </SelectItem>
+  ))
 }
 
-// Region-grouped dropdown that navigates to a station's page. Reused on both the
-// stations index and the per-station detail page.
-export function StationPicker({ current, className }: { current?: string; className?: string }) {
+// Dropdown that navigates to a station's page. Reused on both the
+// accumulated precipitation table and the per-station detail page.
+export function StationPicker({
+  pages,
+  current,
+  className,
+}: {
+  pages: StationPageSummary[]
+  current?: string
+  className?: string
+}) {
   const router = useRouter()
 
   return (
@@ -65,7 +61,7 @@ export function StationPicker({ current, className }: { current?: string; classN
         <SelectValue placeholder="Jump to a station…">Jump to a station…</SelectValue>
       </SelectTrigger>
       <SelectContent position="item-aligned">
-        <StationSelectGroups />
+        <StationSelectGroups pages={pages} />
       </SelectContent>
     </Select>
   )

@@ -1,6 +1,6 @@
-import { getStationGroup } from '@/constants/weatherStations'
 import { buildStationCsv } from '@/services/snowobs/csv'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { getStationPage } from '@/services/stations/getStationPages'
 import { passesCaptcha } from '@/services/turnstile'
 import { TZDate } from '@date-fns/tz'
 
@@ -12,7 +12,7 @@ type Args = {
 }
 
 // GET /weather/stations/[station]/csv?stid=&year= — full-year hourly CSV for one
-// datalogger. Validates stid against the station group and year against range so
+// datalogger. Validates stid against the station page and year against range so
 // this isn't an open SnowObs proxy.
 // CRAP is inflated by the lack of unit coverage on this route handler.
 // fallow-ignore-next-line complexity
@@ -22,11 +22,11 @@ export async function GET(request: Request, { params }: Args) {
   const stid = url.searchParams.get('stid')
   const year = Number(url.searchParams.get('year'))
 
-  const group = getStationGroup(center, station)
-  if (!group) {
+  const page = await getStationPage(center, station)
+  if (!page) {
     return new Response('Unknown station', { status: 404 })
   }
-  if (!stid || !group.stids.includes(stid)) {
+  if (!stid || !page.stids.includes(stid)) {
     return new Response('Unknown or invalid datalogger', { status: 400 })
   }
   const currentYear = new Date().getUTCFullYear()
@@ -56,7 +56,7 @@ export async function GET(request: Request, { params }: Args) {
   return new Response(csv, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${group.slug}-${stid}-${year}.csv"`,
+      'Content-Disposition': `attachment; filename="${page.slug}-${stid}-${year}.csv"`,
     },
   })
 }
