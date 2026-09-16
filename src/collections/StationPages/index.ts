@@ -31,6 +31,8 @@ export const StationPages: CollectionConfig = {
       'The weather station pages. Assign stations to a page from the Stations list; the table columns follow what those stations report.',
   },
   defaultSort: 'displayName',
+  // The slug is the URL; two pages sharing one would shadow each other.
+  indexes: [{ fields: ['tenant', 'slug'], unique: true }],
   fields: [
     tenantField(),
     {

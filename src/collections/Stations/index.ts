@@ -9,6 +9,11 @@ import {
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig } from 'payload'
 
+// SnowObs owns these fields. The admin shows them read-only and the API refuses
+// writes; the sync and the seed go through the local API, which overrides
+// field access, so they are the only writers.
+const upstreamOwned = { update: () => false }
+
 // One row per SnowObs station. SnowObs is the source of truth for what a
 // station *is*, so the identity fields are read-only (seeded from a snapshot
 // here; the SnowObs sync that refreshes them is a follow-up); the rest of the
@@ -73,6 +78,7 @@ export const Stations: CollectionConfig = {
       type: 'text',
       required: true,
       index: true,
+      access: upstreamOwned,
       admin: { readOnly: true, description: 'SnowObs station id.' },
     },
     {
@@ -80,19 +86,36 @@ export const Stations: CollectionConfig = {
       type: 'text',
       required: true,
       index: true,
+      access: upstreamOwned,
       admin: { readOnly: true, description: 'The SnowObs source this station came from.' },
     },
     {
       name: 'name',
       type: 'text',
+      access: upstreamOwned,
       admin: { readOnly: true },
     },
     {
       type: 'row',
       fields: [
-        { name: 'elevation', type: 'number', admin: { readOnly: true, width: '33%' } },
-        { name: 'latitude', type: 'number', admin: { readOnly: true, width: '33%' } },
-        { name: 'longitude', type: 'number', admin: { readOnly: true, width: '33%' } },
+        {
+          name: 'elevation',
+          type: 'number',
+          access: upstreamOwned,
+          admin: { readOnly: true, width: '33%' },
+        },
+        {
+          name: 'latitude',
+          type: 'number',
+          access: upstreamOwned,
+          admin: { readOnly: true, width: '33%' },
+        },
+        {
+          name: 'longitude',
+          type: 'number',
+          access: upstreamOwned,
+          admin: { readOnly: true, width: '33%' },
+        },
       ],
     },
     {
@@ -100,11 +123,13 @@ export const Stations: CollectionConfig = {
       name: 'weatherStationPartner',
       type: 'text',
       label: 'Partner',
+      access: upstreamOwned,
       admin: { readOnly: true },
     },
     {
       name: 'lastSyncedAt',
       type: 'date',
+      access: upstreamOwned,
       admin: { readOnly: true, position: 'sidebar' },
     },
     contentHashField(),

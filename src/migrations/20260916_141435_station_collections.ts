@@ -25,6 +25,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`station_pages_created_at_idx\` ON \`station_pages\` (\`created_at\`);`,
   )
+  await db.run(
+    sql`CREATE UNIQUE INDEX \`tenant_slug_idx\` ON \`station_pages\` (\`tenant_id\`,\`slug\`);`,
+  )
   await db.run(sql`CREATE TABLE \`stations\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`tenant_id\` integer NOT NULL,
