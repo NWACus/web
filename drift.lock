@@ -48,7 +48,7 @@ sig = "670dda646337e58d"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/decisions/README.md"
-sig = "9fb46886db1de04a"
+sig = "c84c836e60774d7f"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -409,6 +409,46 @@ sig = "aa5c97cdf628a83b"
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/timezones.ts"
 sig = "f445ae3bb3f380ef"
+
+[[bindings]]
+doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+target = "src/collections/StationPages/index.ts"
+sig = "14e88120043810e4"
+
+[[bindings]]
+doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+target = "src/collections/Stations/index.ts"
+sig = "ff95399b98d080a0"
+
+[[bindings]]
+doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+target = "src/migrations/data/seedStationPages.ts"
+sig = "cc52b194474e31b5"
+
+[[bindings]]
+doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+target = "src/services/snowobs/deriveColumns.ts"
+sig = "6e3cb4dd1f920376"
+
+[[bindings]]
+doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+target = "src/services/snowobs/snowobs.ts"
+sig = "7ad261846f996bc4"
+
+[[bindings]]
+doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+target = "src/services/stations/getStationPages.ts"
+sig = "ddd58b6df7d03575"
+
+[[bindings]]
+doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+target = "src/services/stations/revalidate.ts"
+sig = "ddb05da22d641484"
+
+[[bindings]]
+doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+target = "src/services/stations/stationPages.ts"
+sig = "dfcef6adb3fea0a6"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
