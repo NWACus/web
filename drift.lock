@@ -157,8 +157,13 @@ sig = "2f6941731c97ccaa"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/danger-over-time/page.tsx"
+sig = "0f7fa42214bedf1a"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/page.tsx"
-sig = "b4e81ee0b8579465"
+sig = "179550e45d6f965c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -184,6 +189,16 @@ sig = "fd5b4e8d904a5cfa"
 doc = "docs/afp-products/architecture.md"
 target = "src/collections/Settings/index.ts"
 sig = "afa29bc8184dea8e"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/charts/EChart.tsx"
+sig = "b1f0bc9db83681c4"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/charts/useIsNarrowViewport.ts"
+sig = "cba8777313e93140"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -222,6 +237,11 @@ sig = "0866471943652586"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/archive/dangerOverTimeExport.ts"
+sig = "94663c549592f762"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/forecastPrintSections.ts"
 sig = "82f2b9acb2d74be0"
 
@@ -243,7 +263,7 @@ sig = "620e3b1733d93855"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/forecastArchive.ts"
-sig = "e0674a66dba8cf39"
+sig = "3e744f1e8618f880"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
