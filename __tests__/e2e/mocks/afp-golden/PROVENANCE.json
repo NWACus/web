@@ -52,6 +52,11 @@
       "bytes": 125
     },
     {
+      "name": "v2_public_product_weather.json",
+      "sha256": "a46e0cba0e4a56cd5bb5813d2d4a53622c4047365d39f7e98b30c0d9d305d71e",
+      "bytes": 4232
+    },
+    {
       "name": "v2_public_products_list_SNFAC.json",
       "sha256": "df8a19c28418a0e7b74be521bcbd9ffcb722286935b85a166489a3a96a663902",
       "bytes": 8189

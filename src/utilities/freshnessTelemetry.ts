@@ -30,6 +30,7 @@ import { createCooldown } from './cooldown'
 export type IndeterminateCause =
   | 'zones-unreachable'
   | 'no-fresh-forecast'
+  | 'no-fresh-weather'
   | 'warning-vanished'
   | 'warnings-unreachable'
 

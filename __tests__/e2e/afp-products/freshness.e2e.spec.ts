@@ -3,14 +3,15 @@ import { ZONE, loadPage, stubExternalAssets, tenant, zoneSlug } from './helpers'
 
 const FRESHNESS_URL = `${tenant('snfac')}/forecasts/avalanche/${zoneSlug(ZONE.freshness)}`
 const STABLE_URL = `${tenant('snfac')}/forecasts/avalanche/${zoneSlug(ZONE.forecast)}`
+const WEATHER_URL = `${tenant('snfac')}/weather/forecast`
 
 /**
  * Must be armed *before* navigating: RevalidateOnView fires on mount, and hydration can finish
  * before `page.goto` returns — a wait registered afterwards would miss that first check outright.
  * (It also re-checks on visibility and on an interval, but neither fires inside a spec.)
  */
-function armFreshnessCheck(page: Page) {
-  return page.waitForResponse((r) => r.url().includes('forecast-freshness'))
+function armFreshnessCheck(page: Page, route = 'forecast-freshness') {
+  return page.waitForResponse((r) => r.url().includes(route))
 }
 
 /**
@@ -68,5 +69,20 @@ test.describe('Revalidate on view', () => {
     expect(response.headers()['cache-control']).toContain('s-maxage=')
 
     await expect(page.getByText(/Refer to the Galena Summit & Eastern Mtns forecast/)).toBeVisible()
+  })
+
+  test('the mountain weather page asks its own route, and is current for a stable product', async ({
+    page,
+  }) => {
+    await stubExternalAssets(page)
+    const freshnessCheck = armFreshnessCheck(page, 'weather-freshness')
+    await loadPage(page, WEATHER_URL)
+
+    const response = await freshnessCheck
+    expect(response.status()).toBe(200)
+    expect(await response.json()).toEqual({ changed: false })
+    expect(response.headers()['cache-control']).toContain('s-maxage=')
+
+    await expect(page.getByText(/Models do not predict any snowfall/)).toBeVisible()
   })
 })
