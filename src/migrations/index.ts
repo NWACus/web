@@ -59,6 +59,7 @@ import * as migration_20260921_124724_station_pages_backfill from './20260921_12
 import * as migration_20260922_180955_precip_table_block from './20260922_180955_precip_table_block'
 import * as migration_20260701_224854_native_products_flags from './20260701_224854_native_products_flags'
 import * as migration_20260807_190252_native_danger_map_flag from './20260807_190252_native_danger_map_flag'
+import * as migration_20260915_010640_native_weather_flag from './20260915_010640_native_weather_flag'
 
 export const migrations = [
   {
@@ -365,5 +366,10 @@ export const migrations = [
     up: migration_20260807_190252_native_danger_map_flag.up,
     down: migration_20260807_190252_native_danger_map_flag.down,
     name: '20260807_190252_native_danger_map_flag',
+  },
+  {
+    up: migration_20260915_010640_native_weather_flag.up,
+    down: migration_20260915_010640_native_weather_flag.down,
+    name: '20260915_010640_native_weather_flag',
   },
 ]

@@ -41,6 +41,8 @@ export interface ForecastSource {
 
 `v2/` implements these against the legacy API — `forecastSourceV2`, `warningSourceV2`, `mapLayerSourceV2`, `weatherSourceV2`, with the actual translation isolated in `v2/mappers.ts`. **The mappers are the unit-tested seam.** They are pure functions from wire shape to model, which is what makes v2-vs-v3 equivalence a testable claim rather than an aspiration.
 
+`WeatherSource` is the one interface with more than a read-and-fresh pair. Beyond the by-id read a forecast's pointer needs, it has a current-product read (plus its fresh twin) for the standalone Mountain Weather page, and a by-date read for the one archive that predates the pointer — see [sharp edges](#sharp-edges). The decision of *which* of those a forecast needs is not in the source at all: `src/services/nac/weatherForForecast.ts` makes it once, for the live forecast page and the dated history route alike.
+
 `index.ts` resolves which implementation a center gets. Pages call `getForecastSource(centerSlug)` and never import an implementation directly.
 
 The v3 branches exist and currently throw:
@@ -92,10 +94,11 @@ The consequence that surprises people: **NWAC's `platforms.weather` is hard-code
 | Route                                         | Strategy        | Revalidate | Notes                                                                           |
 | --------------------------------------------- | --------------- | ---------- | ------------------------------------------------------------------------------- |
 | `/[center]/forecasts/avalanche`               | SSG + ISR       | 300s       | All-zones grid; asks one freshness address per card                            |
-| `/[center]/forecasts/avalanche/[zone]`        | SSG + ISR       | 300s       | `generateStaticParams` over every zone of every center; `dynamicParams = false` |
+| `/[center]/forecasts/avalanche/[zone]`        | SSG + ISR       | 300s       | `generateStaticParams` over every zone of every center; `dynamicParams = true`, so a hard tag purge regenerates on demand rather than 404ing |
 | `/[center]/forecasts/avalanche/[zone]/[date]` | On-demand + ISR | 30 days    | `dynamicParams = true`, no static params, `robots: noindex`                     |
 | `/[center]/forecasts/avalanche/archive`       | Per request     | —          | The filters are the query string; data is one 30-minute `unstable_cache` entry per season |
 | `/[center]/forecasts/avalanche/archive/danger-over-time` | Per request | —      | The archive's chart tab; same query string and cache entry as the list                    |
+| `/[center]/weather/forecast`                  | SSG + ISR       | 300s       | Standalone Mountain Weather; asks one center-scoped freshness address                   |
 
 The current forecast is pre-rendered for every zone, so a request is normally served from a page that already exists — this is where the project's speed benefit comes from. See [ADR 011](../decisions/011-incremental-static-regeneration.md) for the platform's ISR conventions.
 
@@ -150,6 +153,8 @@ That path purge is also the only purge on either route that a *caller* can reach
 
 Weather is deliberately **not** in either address. The mountain-weather product is fetched by the id the forecast points at (same NAC v2 product API, not a separate backend), so fingerprinting it would mean a third upstream fetch on every origin miss. Instead it rides along: a changed forecast purges `weatherCacheTag` too, so a refresh renders forecast + weather together. The residual gap — a weather product corrected without its forecast being reissued — is bounded by the 300s data-cache window and the page's ISR window, and weather is not the life-safety half of the page.
 
+The **standalone Mountain Weather page** (`/[center]/weather/forecast`) is where weather *is* the whole page, so it has an address of its own: `weatherPageFingerprint(weather)`, asked at `/api/<center>/weather-freshness/<fingerprint>`. It is center-scoped like the home-page banner, because one weather product covers every zone — the route fetches the current product through the center's first active zone, exactly as the page and the legacy widget's Weather tab do. A change purges the current-product tag the page renders from *and* the product's by-id tag, so a forecast page whose inline weather card shares that product comes back corrected too. The same three answers, the same indeterminate handling for an unreachable zone list or an absent product, and the same "none published" tell that keeps an off-season center from reporting itself every view.
+
 ### Three answers, and only one of them is cacheable
 
 `src/utilities/freshnessResponses.ts` owns the vocabulary. Every answer is a `200` with a JSON body; the cache policy is the safety-critical part.
@@ -177,7 +182,7 @@ Because the indeterminate answer changes nothing on screen, it is also the one f
 
 ### Freshness is an open-tab guarantee, not just a page-load one
 
-These pages get left open all day — patrol rooms, forecast offices, wall displays — so `RevalidateOnView` keeps asking: on every return to visibility, and on an interval (2 min) while visible, skipping while hidden. A `router.refresh()` re-renders the page with the current products, which changes the fingerprints in the URLs, which re-arms the check. Every native surface that renders a live danger rating or alert mounts one: the zone forecast page, the all-zones grid, and the home-page warnings banner. Nothing that shows one of these products should ship without it — the ISR window alone is a five-minute hole.
+These pages get left open all day — patrol rooms, forecast offices, wall displays — so `RevalidateOnView` keeps asking: on every return to visibility, and on an interval (2 min) while visible, skipping while hidden. A `router.refresh()` re-renders the page with the current products, which changes the fingerprints in the URLs, which re-arms the check. Every native surface that renders a live danger rating or alert mounts one: the zone forecast page, the all-zones grid, and the home-page warnings banner — and the Mountain Weather page, which is ISR on the same window and would otherwise hold a corrected weather product for five minutes. Nothing that shows one of these products should ship without it — the ISR window alone is a five-minute hole.
 
 **There are two detection numbers, and they are not the same.** For a page being loaded now, it is the 60s budget above: 30s fresh-fetch cache plus 30s at the edge. For a tab already open and untouched, it is that budget *plus* the re-check interval. That is why the interval is two minutes rather than five: at five, an untouched tab's worst case was ~360s — longer than the 300s ISR window this whole path exists because it considers too long — and quoting the 60s budget for it would have been wrong. At two minutes the worst case is 180s, inside the backstop.
 
@@ -226,10 +231,10 @@ Known and deliberate, but easy to be caught by.
 - **v3 is a seam, not an implementation.** All four v3 branches throw. Control 2 is complete — env vars, canary allowlists, resolver — which can read as "v3 is a flip away." It isn't.
 - **Weather follows forecast.** `getWeatherSource` resolves off the **forecast** selection, because a weather product is fetched by an id the forecast points at. So flipping forecast to v3 drags weather with it, including through the canary allowlist. Live footgun in the canary path.
 - **NWAC's weather doesn't come from the AFP.** It is authored in-house and migrating into the AFP stack as the Mountain Weather Forecast variant, with no `weather_product_id` pointer — AM/PM issuances derive from center plus service date. The pointer-driven inline weather summary finds nothing for NWAC.
-- **v2 will serve a shape it never used to.** The MWF migration stores an object-shaped variant envelope in `weather_data`. v3 excludes those rows from generic product reads; the legacy PHP v2 does not. That was accepted upstream because "NWAC has no live v2 weather consumers" — and our native pages default to v2, which makes us one. Shape detection must degrade rather than throw.
+- **v2 will serve a shape it never used to.** The MWF migration stores an object-shaped variant envelope in `weather_data`. v3 excludes those rows from generic product reads; the legacy PHP v2 does not. That was accepted upstream because "NWAC has no live v2 weather consumers" — and our native pages default to v2, which makes us one. So the wire schema accepts the envelope (`weatherVariantEnvelopeSchema`, discriminator only), the mapper degrades it to a product with no tables, and the Mountain Weather page says visibly that there is nothing to tabulate rather than rendering an empty card. Anything that is neither tables nor an envelope is still rejected.
 - **Two weather-table formats.** Chosen by shape detection (`periods` key present → V1, else columns/rows), inherited from the widget.
 - **Warning expiry is the API's job, not ours.** The `type=warning` query returns a product only while it is inside its start/end window, approved and uncancelled; otherwise it returns a five-key all-null placeholder. The client check (`published_time` truthy, collapsed to `null` by the mapper) only distinguishes a product from that placeholder. **Do not add a client-side expiry check** — it would double-filter and could hide a warning the AFP considers active. Note the field naming invites exactly that mistake: `published_time` is the warning's effective **start** (`start_date`), not when it was written.
-- **SNFAC forecasts before 2020-05-01 carry no weather pointer.** They predate `weather_data.weather_product_id`, so weather has to be located by center + zone + date instead. It belongs in the weather source rather than a page, so it stays one branch in one place. Only reachable through the archive; ~488 forecasts across a single season.
+- **SNFAC forecasts before 2020-05-01 carry no weather pointer.** They predate `weather_data.weather_product_id`, so weather has to be located by center + zone + date instead — v2's `published_time` query, which answers with the latest weather product published on or before that day. That is `getWeatherForForecast` in `src/services/nac/weatherForForecast.ts`, the one place that decides how a forecast's weather is found, so neither forecast route carries the branch. Only reachable through the archive; ~488 forecasts across a single season.
 - **The two info-exchange centers have no `config` object at all.** `EWYAIX` and `SOAIX` return center metadata without one, so any code reading `widget_config.*` for map settings must tolerate its absence rather than assuming defaults exist.
 
 ## Where things live
@@ -241,6 +246,7 @@ Known and deliberate, but easy to be caught by.
 | `src/services/nac/sources/v2/`            | Legacy-API implementations and mappers          |
 | `src/services/nac/types/`                 | v2 wire schemas (zod)                           |
 | `src/services/nac/forecastFingerprint.ts` | The address a page asks freshness about         |
+| `src/services/nac/weatherForForecast.ts`  | How a forecast's weather product is located     |
 | `src/app/api/[center]/*-freshness/`       | Freshness route handlers, content-addressed     |
 | `src/utilities/freshnessResponses.ts`     | The three freshness answers and their cache policy |
 | `src/components/freshness/`               | Revalidate-on-view, shared by every product page |
