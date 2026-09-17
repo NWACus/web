@@ -3,6 +3,12 @@ import { ProductType } from '@/services/nac/model/forecast'
 import { mapV2ForecastResult } from '@/services/nac/sources/v2/mappers'
 import { forecastResultSchema } from '@/services/nac/types/forecastSchemas'
 import { warningFixture } from '../fixtures/warningProducts'
+import {
+  CACHEABLE,
+  STALE_ETAG,
+  answer,
+  expectIndeterminate,
+} from '../helpers/freshnessRouteAnswers'
 import nwacForecastActive from './fixtures/nwac-forecast-active.json'
 
 const mockRevalidateTag = jest.fn()
@@ -49,35 +55,12 @@ const forecast = mapV2ForecastResult(forecastResultSchema.parse(nwacForecastActi
 const warning = warningFixture(ProductType.Warning)
 /** What a viewer rendered when the zone had a forecast and no active alert. */
 const etag = forecastPageFingerprint(forecast, null)
-/** A well-formed fingerprint that no product will ever hash to. */
-const STALE_ETAG = 'f'.repeat(40)
-
-const CACHEABLE = 'public, max-age=0, s-maxage=30'
 const ZONE = 'west-slopes-north'
 
 /** Ask the endpoint on behalf of a viewer whose page rendered `fingerprint`. */
 function check(fingerprint: string, zone = ZONE, center = 'nwac') {
   const url = `http://localhost/api/${center}/forecast-freshness/${zone}/${fingerprint}`
   return GET(new Request(url), { params: Promise.resolve({ center, zone, fingerprint }) })
-}
-
-async function answer(res: Response) {
-  return {
-    status: res.status,
-    cacheControl: res.headers.get('Cache-Control'),
-    body: await res.json(),
-  }
-}
-
-/**
- * The uncacheable "we could not establish the current product" answer, having changed nothing.
- * Every branch that reaches it is a different failure; what they must share is this reply.
- */
-function expectIndeterminate(res: Awaited<ReturnType<typeof answer>>) {
-  expect(res.status).toBe(200)
-  expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
-  expect(res.cacheControl).toBe('no-store')
-  expect(mockRevalidateTag).not.toHaveBeenCalled()
 }
 
 /**
@@ -161,7 +144,7 @@ describe('forecast-freshness route', () => {
     // and must not be cached as "you're current" for every viewer at that POP.
     mockGetForecastFresh.mockResolvedValue(null)
 
-    expectIndeterminate(await answer(await check(etag)))
+    expectIndeterminate(await answer(await check(etag)), mockRevalidateTag)
 
     // Nothing downstream of the missing forecast is even consulted.
     expect(mockGetForecast).not.toHaveBeenCalled()
@@ -175,7 +158,10 @@ describe('forecast-freshness route', () => {
     // season. Reporting that would bury the outage it looks identical to.
     mockGetForecastFresh.mockResolvedValue(null)
 
-    expectIndeterminate(await answer(await check(forecastPageFingerprint(null, null))))
+    expectIndeterminate(
+      await answer(await check(forecastPageFingerprint(null, null))),
+      mockRevalidateTag,
+    )
 
     expect(mockReportIndeterminate).not.toHaveBeenCalled()
   })
@@ -233,7 +219,10 @@ describe('forecast-freshness route', () => {
     // A vanished warning is a suspected blip: hold the cached alert and tell nobody.
     alertVanishedUpstream()
 
-    expectIndeterminate(await answer(await check(forecastPageFingerprint(forecast, warning))))
+    expectIndeterminate(
+      await answer(await check(forecastPageFingerprint(forecast, warning))),
+      mockRevalidateTag,
+    )
     expect(mockReportIndeterminate).toHaveBeenCalledWith('warning-vanished', 'nwac')
   })
 
@@ -308,7 +297,7 @@ describe('forecast-freshness route', () => {
     // whose whole design is that only one of its answers may be cached.
     mockResolveZone.mockRejectedValue(new Error('NAC API request failed with status 503'))
 
-    expectIndeterminate(await answer(await check(etag)))
+    expectIndeterminate(await answer(await check(etag)), mockRevalidateTag)
 
     expect(mockGetForecastFresh).not.toHaveBeenCalled()
     expect(mockReportIndeterminate).toHaveBeenCalledWith('zones-unreachable', 'nwac')

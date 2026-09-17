@@ -79,7 +79,11 @@ export function mapV2ForecastResult(wire: V2ForecastResult): ForecastResult {
   return wire.product_type === ProductType.Forecast ? mapForecast(wire) : mapSummary(wire)
 }
 
-/** Map a v2 weather product into the normalized model (structural — the wire shape matches). */
+/**
+ * Map a v2 weather product into the normalized model. Structural apart from `weather_data`: v2 can
+ * serve an object-shaped MWF envelope there (see `weatherVariantEnvelopeSchema`), which the model
+ * represents as a product with no tables rather than as a product we cannot render.
+ */
 export function mapV2Weather(p: V2Weather): Weather {
   return {
     id: p.id,
@@ -92,7 +96,7 @@ export function mapV2Weather(p: V2Weather): Weather {
     announcement: p.announcement,
     danger_level_text: p.danger_level_text,
     weather_discussion: p.weather_discussion,
-    weather_data: p.weather_data,
+    weather_data: Array.isArray(p.weather_data) ? p.weather_data : [],
     avalanche_center: p.avalanche_center,
     forecast_zone: p.forecast_zone,
   }

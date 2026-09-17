@@ -2,13 +2,16 @@ import {
   forecastFreshnessEndpoint,
   forecastPageFingerprint,
   productFingerprint,
+  weatherFreshnessEndpoint,
+  weatherPageFingerprint,
 } from '@/services/nac/forecastFingerprint'
 import { ProductType } from '@/services/nac/model/forecast'
-import { mapV2ForecastResult } from '@/services/nac/sources/v2/mappers'
-import { forecastResultSchema } from '@/services/nac/types/forecastSchemas'
+import { mapV2ForecastResult, mapV2Weather } from '@/services/nac/sources/v2/mappers'
+import { forecastResultSchema, weatherSchema } from '@/services/nac/types/forecastSchemas'
 import { isFingerprint } from '@/utilities/freshnessResponses'
 import { warningFixture } from '../fixtures/warningProducts'
 import nwacForecastActive from './fixtures/nwac-forecast-active.json'
+import sacWeather from './fixtures/sac-weather.json'
 
 const warning = warningFixture(ProductType.Warning)
 
@@ -130,5 +133,45 @@ describe('forecastFreshnessEndpoint', () => {
     expect(forecastFreshnessEndpoint('nwac', ZONE, base, null)).not.toBe(
       forecastFreshnessEndpoint('nwac', ZONE, { ...base, bottom_line: 'CORRECTED' }, null),
     )
+  })
+})
+
+describe('weatherPageFingerprint', () => {
+  const base = mapV2Weather(weatherSchema.parse(sacWeather))
+
+  it('is addressable, and gives "nothing published" its own address', () => {
+    expect(isFingerprint(weatherPageFingerprint(base))).toBe(true)
+    expect(isFingerprint(weatherPageFingerprint(null))).toBe(true)
+    expect(weatherPageFingerprint(null)).not.toBe(weatherPageFingerprint(base))
+  })
+
+  it('is stable for identical content, and moves on a correction or a re-issue', () => {
+    const again = mapV2Weather(weatherSchema.parse(sacWeather))
+    expect(weatherPageFingerprint(again)).toBe(weatherPageFingerprint(base))
+
+    const corrected = { ...base, weather_discussion: `${base.weather_discussion} (corrected)` }
+    const reissued = { ...base, updated_at: '2099-01-01T00:00:00+00:00' }
+    expect(weatherPageFingerprint(corrected)).not.toBe(weatherPageFingerprint(base))
+    expect(weatherPageFingerprint(reissued)).not.toBe(weatherPageFingerprint(base))
+  })
+
+  it('is not the address of a forecast page showing the same bytes', () => {
+    // A weather product and a forecast page must never share an edge cache entry.
+    expect(weatherPageFingerprint(null)).not.toBe(forecastPageFingerprint(null, null))
+  })
+})
+
+describe('weatherFreshnessEndpoint', () => {
+  const base = mapV2Weather(weatherSchema.parse(sacWeather))
+
+  it('builds the center-scoped path shape the route matches', () => {
+    expect(weatherFreshnessEndpoint('sac', base)).toBe(
+      `/api/sac/weather-freshness/${weatherPageFingerprint(base)}`,
+    )
+  })
+
+  it('ends in a segment the route will accept', () => {
+    const segments = weatherFreshnessEndpoint('sac', null).split('/')
+    expect(isFingerprint(segments[segments.length - 1])).toBe(true)
   })
 })
