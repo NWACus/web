@@ -3,15 +3,15 @@ import type { SearchParams } from 'nuqs/server'
 
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { ArchiveRoute } from '@/components/forecast/archive/ArchiveRoute'
-import { ARCHIVE_CRUMB, ARCHIVE_PATH } from '@/services/nac/forecastArchive'
+import { ARCHIVE_CRUMB, ARCHIVE_DANGER_PATH, ARCHIVE_PATH } from '@/services/nac/forecastArchive'
 import { centerRouteMetadata, type CenterRouteArgs } from '@/utilities/centerRoutePage'
 
-/**
- * The filters are the query string, so this route renders per request. The cost is small: the
- * season's archive is one 30-minute `unstable_cache` entry shared by every reader, and the rest of
- * the page is pure functions over it.
- */
+/** Per request for the same reason as the forecast list: the filters are the query string. */
 export const dynamic = 'force-dynamic'
+
+const TITLE = 'Danger Over Time'
+
+const BREADCRUMB_LABELS = { [ARCHIVE_PATH]: ARCHIVE_CRUMB }
 
 type Args = CenterRouteArgs & {
   searchParams: Promise<SearchParams>
@@ -24,8 +24,15 @@ export default async function Page({ params, searchParams }: Args) {
     <ArchiveRoute
       center={center}
       searchParams={searchParams}
-      view="forecasts"
-      breadcrumbs={<Breadcrumbs center={center} path={ARCHIVE_PATH} title={ARCHIVE_CRUMB} />}
+      view="danger"
+      breadcrumbs={
+        <Breadcrumbs
+          center={center}
+          path={ARCHIVE_DANGER_PATH}
+          title={TITLE}
+          labels={BREADCRUMB_LABELS}
+        />
+      }
     />
   )
 }
@@ -38,8 +45,8 @@ export async function generateMetadata(
 
   return centerRouteMetadata({
     parent,
-    label: 'Forecast Archive',
-    path: ARCHIVE_PATH,
+    label: `Forecast Archive: ${TITLE}`,
+    path: ARCHIVE_DANGER_PATH,
     center,
   })
 }

@@ -4,6 +4,7 @@ import {
   archiveDangerLevel,
   archiveRowHref,
   buildArchiveRows,
+  buildDangerOverTime,
   dangerCounts,
   paginateArchiveRows,
   resolveArchiveFilters,
@@ -150,6 +151,16 @@ describe('resolveArchiveFilters', () => {
     expect(resolveArchiveFilters(query({ page: 0 }), OPTIONS).page).toBe(1)
     expect(resolveArchiveFilters(query({ page: -3 }), OPTIONS).page).toBe(1)
     expect(resolveArchiveFilters(query({ page: 4 }), OPTIONS).page).toBe(4)
+  })
+})
+
+describe('resolveArchiveFilters date validity', () => {
+  it('falls back from a date that matches the shape but is not on the calendar', () => {
+    const filters = resolveArchiveFilters(query({ from: '2025-11-31', to: '2026-02-30' }), OPTIONS)
+
+    expect(filters.from).toBe('2025-09-01')
+    expect(filters.to).toBe('2026-01-15')
+    expect(filters.isDateFiltered).toBe(false)
   })
 })
 
@@ -319,5 +330,68 @@ describe('archiveRowHref', () => {
     expect(
       archiveRowHref({ zoneSlug: 'soldier-&-wood-river-valley-mtns', date: '2026-04-05' }),
     ).toBe('/forecasts/avalanche/soldier-&-wood-river-valley-mtns/2026-04-05')
+  })
+})
+
+describe('buildDangerOverTime', () => {
+  const west = { zoneId: 2, zoneSlug: 'west-slopes-north', zoneName: 'West Slopes North' }
+  const season = [
+    row({ date: '2025-11-20', dangerLevel: 2 }),
+    row({ date: '2025-12-01', dangerLevel: 3 }),
+    row({ date: '2025-12-02', dangerLevel: 0 }),
+    row({ date: '2025-12-03', dangerLevel: 1 }),
+    row({ date: '2025-12-01', dangerLevel: 4, ...west }),
+    row({ date: '2026-03-15', dangerLevel: 2, ...west }),
+  ]
+  const range = { from: '2025-09-01', to: '2026-04-30' }
+
+  it('charts each rated zone-day, ascending, in the center zone order', () => {
+    const data = buildDangerOverTime(season, season, range, ZONES)
+
+    expect(data?.zones.map((zone) => zone.zone.slug)).toEqual(['olympics', 'west-slopes-north'])
+    expect(data?.zones[0].points).toEqual([
+      { date: '2025-11-20', dangerLevel: 2 },
+      { date: '2025-12-01', dangerLevel: 3 },
+      { date: '2025-12-03', dangerLevel: 1 },
+    ])
+  })
+
+  it('leaves unrated days out, as the legacy chart did', () => {
+    const data = buildDangerOverTime(season, season, range, ZONES)
+
+    expect(data?.zones[0].points.some((point) => point.date === '2025-12-02')).toBe(false)
+  })
+
+  it("spans the season's first rated day to its last, clipped to the selected range", () => {
+    expect(buildDangerOverTime(season, season, range, ZONES)?.extent).toEqual({
+      from: '2025-11-20',
+      to: '2026-03-15',
+    })
+    expect(
+      buildDangerOverTime(season, season, { from: '2025-12-01', to: '2026-01-31' }, ZONES)?.extent,
+    ).toEqual({ from: '2025-12-01', to: '2026-01-31' })
+  })
+
+  it("bounds the extent by the whole season's rated rows, not only the filtered ones", () => {
+    const filtered = season.filter((r) => r.zoneSlug === 'olympics')
+    const data = buildDangerOverTime(season, filtered, range, ZONES)
+
+    expect(data?.zones.map((zone) => zone.zone.slug)).toEqual(['olympics'])
+    expect(data?.extent).toEqual({ from: '2025-11-20', to: '2026-03-15' })
+  })
+
+  it('omits a zone with no rated day in the filtered rows', () => {
+    const filtered = season.filter((r) => r.zoneSlug === 'west-slopes-north')
+
+    expect(
+      buildDangerOverTime(season, filtered, range, ZONES)?.zones.map((zone) => zone.zone.slug),
+    ).toEqual(['west-slopes-north'])
+  })
+
+  it('has nothing to chart when every filtered row is unrated', () => {
+    const filtered = season.filter((r) => r.dangerLevel === 0)
+
+    expect(buildDangerOverTime(season, filtered, range, ZONES)).toBeNull()
+    expect(buildDangerOverTime(season, [], range, ZONES)).toBeNull()
   })
 })
