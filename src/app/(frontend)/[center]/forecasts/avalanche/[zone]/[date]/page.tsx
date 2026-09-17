@@ -8,7 +8,6 @@ import {
   initialArchiveWindow,
   validDateForProduct,
 } from '@/services/nac/archiveDates'
-import type { ForecastResult } from '@/services/nac/model/forecast'
 import {
   fetchProductArchive,
   fetchProductById,
@@ -16,7 +15,8 @@ import {
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { getForecastSource, getWeatherSource } from '@/services/nac/sources'
+import { getForecastSource } from '@/services/nac/sources'
+import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
 import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
@@ -60,17 +60,6 @@ async function assertDatedForecastAvailable(center: string, date: string) {
   if (!useNative) {
     notFound()
   }
-}
-
-/**
- * The archived forecast references the mountain-weather product that was current when it was
- * issued; fetch that (immutable, by id) so historical views show the matching weather.
- */
-async function fetchArchivedWeather(center: string, forecastResult: ForecastResult) {
-  const weatherProductId = forecastResult.weather_data?.weather_product_id ?? null
-  if (weatherProductId === null) return null
-
-  return getWeatherSource(center).getWeather(weatherProductId)
 }
 
 /**
@@ -126,7 +115,14 @@ export default async function Page({ params }: Args) {
   }
 
   const currentDate = liveProductDate(currentProduct, metadata.timezone)
-  const weather = await fetchArchivedWeather(center, forecastResult)
+  // The weather that was current when this forecast was issued — by the id it points at, or for
+  // the pointerless SNFAC archive, by its published day.
+  const weather = await getWeatherForForecast(
+    center,
+    resolvedZone.zone.id,
+    forecastResult,
+    metadata.timezone,
+  )
 
   return (
     <>

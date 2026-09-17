@@ -48,4 +48,19 @@ export interface MapLayerSource {
 export interface WeatherSource {
   /** A weather product by id (from a forecast's `weather_data.weather_product_id`), or `null`. */
   getWeather(weatherProductId: number): Promise<Weather | null>
+  /**
+   * The center's current weather product — what the standalone Mountain Weather page shows. One
+   * product covers every zone, so any zone id of the center's finds it; pages pass the first.
+   */
+  getCurrentWeather(centerId: string, zoneId: number): Promise<Weather | null>
+  /**
+   * The center's current weather product fetched fresh (short-cached), for the weather page's
+   * revalidate-on-view freshness check.
+   */
+  getCurrentWeatherFresh(centerId: string, zoneId: number): Promise<Weather | null>
+  /**
+   * The weather product that was current on a calendar day (`YYYY-MM-DD`), for forecasts that
+   * predate the weather pointer (inventory row F26). Historical, so cached long.
+   */
+  getWeatherForDate(centerId: string, zoneId: number, date: string): Promise<Weather | null>
 }

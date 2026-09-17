@@ -70,6 +70,13 @@
       "type": "warning",
       "fixture": "v2_public_product_warning.json",
       "scenario": "active warning banner"
+    },
+    {
+      "center": "SNFAC",
+      "zone": 2904,
+      "type": "weather",
+      "fixture": "v2_public_product_weather.json",
+      "scenario": "the center's current mountain-weather product, asked for through its first zone (rank 1) as the widget did \u2014 a real discussion, but an empty weather_data, so no tables render (see the blocked product_weather_SNFAC_populated case)"
     }
   ],
   "productsById": {
@@ -130,22 +137,26 @@
     "snfac": {
       "forecast": true,
       "warning": true,
-      "dangerMap": true
+      "dangerMap": true,
+      "weather": true
     },
     "dvac": {
       "forecast": false,
       "warning": false,
-      "dangerMap": false
+      "dangerMap": false,
+      "weather": false
     },
     "nwac": {
       "forecast": true,
       "warning": true,
-      "dangerMap": true
+      "dangerMap": true,
+      "weather": true
     },
     "sac": {
       "forecast": false,
       "warning": false,
-      "dangerMap": false
+      "dangerMap": false,
+      "weather": false
     }
   }
 }
