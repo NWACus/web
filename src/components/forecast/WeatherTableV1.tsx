@@ -9,23 +9,28 @@ import type { InlineWeatherData } from '@/services/nac/model/forecast'
 import { sanitizeHtml } from './sanitizeHtml'
 import { WeatherInfoHint } from './WeatherInfoHint'
 
-/** Static help for the well-known inline fields (hardcoded in the legacy widget). */
+/**
+ * Static help for the well-known inline fields (hardcoded in the legacy widget), in the same HTML
+ * shape the v2 API sends `rows[].help` in, so both tables' hints read the same.
+ */
 const FIELD_HELP: Record<string, string> = {
   'Ridgeline Wind Speed':
-    'Ridgetop Wind Speed. CALM - No air motion. Smoke rises vertically. LIGHT - Light to gentle breeze, flags and twigs in motion. MODERATE - Fresh breeze. Small trees sway. Flags stretched. Snow begins to drift. STRONG - Strong breeze. Whole trees in motion. EXTREME - Gale force or higher.',
+    '<h5>Ridgetop Wind Speed</h5><strong>CALM</strong> - No air motion. Smoke rises vertically.<br><strong>LIGHT</strong> - Light to gentle breeze, flags and twigs in motion.<br><strong>MODERATE</strong> - Fresh breeze. Small trees sway. Flags stretched. Snow begins to drift.<br><strong>STRONG</strong> - Strong breeze. Whole trees in motion.<br><strong>EXTREME</strong> - Gale force or higher.',
   Snowfall:
-    'Snowfall. Values are estimates from middle and upper elevation. 24hr — snow total from yesterday morning through this morning. 12hr — snow total from last night through this morning.',
+    '<h5>Snowfall</h5>Values are estimates from middle and upper elevation.<br><strong>24hr</strong> - Snow total from yesterday morning through this morning.<br><strong>12hr</strong> - Snow total from last night through this morning.',
   'Snow Water Equivalent':
-    'Snow Water Equivalent (SWE). The depth of water that would result if you melted the snowfall. SWE is a better estimate of weight added to the snowpack than snowfall.',
+    '<h5>Snow Water Equivalent (SWE)</h5>The depth of water that would result if you melted the snowfall. SWE is a better estimate of weight added to the snowpack than snowfall.',
 }
 
 export function WeatherTableV1({ table }: { table: InlineWeatherData }) {
   return (
     <div className="my-3 overflow-x-auto">
       <table className="w-full min-w-[640px] border-collapse text-sm">
-        <thead>
+        {/* The heavier rule under the heading row wins the border-collapse tie on width. */}
+        <thead className="border-b-2 border-b-muted-foreground">
           <tr>
-            <th className="border bg-muted p-2 text-left align-middle font-semibold">
+            {/* Row headings never wrap; the zone name is long enough to eat a phone's whole table width. */}
+            <th className="border bg-muted px-3 py-2 text-left align-middle font-semibold md:whitespace-nowrap">
               {table.zone_name}
             </th>
             {table.periods.map((heading, i) => (
@@ -40,9 +45,11 @@ export function WeatherTableV1({ table }: { table: InlineWeatherData }) {
         <tbody>
           {table.data.map((row, rowIndex) => (
             <tr key={rowIndex}>
-              <td className="border p-2 text-left align-middle">
+              <td className="whitespace-nowrap border px-3 py-2 text-left align-middle">
                 <span className="font-medium">{row.field}</span>
-                {FIELD_HELP[row.field] && <WeatherInfoHint content={FIELD_HELP[row.field]} />}
+                {FIELD_HELP[row.field] && (
+                  <WeatherInfoHint html={FIELD_HELP[row.field]} field={row.field} />
+                )}
               </td>
               {row.values.map((value, i) => (
                 <td key={i} className="border p-2 text-center align-middle">

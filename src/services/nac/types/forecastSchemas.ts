@@ -413,6 +413,26 @@ export const inlineWeatherDataSchema = z.object({
 })
 export type InlineWeatherData = z.infer<typeof inlineWeatherDataSchema>
 
+// Inline first: every column/row key is optional, so an inline table with no rows would otherwise
+// parse as a columns/rows table (zod strips `periods`) and lose its shape. A columns/rows table
+// can never parse as inline, which requires `periods`.
+export const weatherTableSchema = inlineWeatherDataSchema.or(rowColumnWeatherDataSchema)
+export type WeatherTable = z.infer<typeof weatherTableSchema>
+
+/**
+ * The object-shaped variant envelope NWAC's Mountain Weather Forecast stores in `weather_data`
+ * (`{ variant: 'mwf', schema_version, issuance, content, … }`). v3 excludes those rows from
+ * generic product reads; the legacy PHP v2 does not, and our pages default to v2. Only the
+ * discriminator is modeled — the envelope is recognized so it can be degraded, not rendered.
+ */
+export const weatherVariantEnvelopeSchema = z
+  .object({
+    variant: z.string(),
+    schema_version: z.number().optional(),
+  })
+  .passthrough()
+export type WeatherVariantEnvelope = z.infer<typeof weatherVariantEnvelopeSchema>
+
 export const weatherSchema = forecastSchema
   .omit({
     bottom_line: true,
@@ -424,7 +444,7 @@ export const weatherSchema = forecastSchema
   })
   .extend({
     product_type: z.literal(ProductType.Weather),
-    weather_data: z.array(rowColumnWeatherDataSchema.or(inlineWeatherDataSchema)),
+    weather_data: z.array(weatherTableSchema).or(weatherVariantEnvelopeSchema),
     weather_discussion: z.string().optional().nullable(),
   })
 export type Weather = z.infer<typeof weatherSchema>

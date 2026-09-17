@@ -61,6 +61,7 @@ import * as migration_20260923_033051_add_shared_media from './20260923_033051_a
 import * as migration_20260925_202502_add_collections_to_mcp_api_keys from './20260925_202502_add_collections_to_mcp_api_keys'
 import * as migration_20260701_224854_native_products_flags from './20260701_224854_native_products_flags'
 import * as migration_20260807_190252_native_danger_map_flag from './20260807_190252_native_danger_map_flag'
+import * as migration_20260915_010640_native_weather_flag from './20260915_010640_native_weather_flag'
 
 export const migrations = [
   {
@@ -377,5 +378,10 @@ export const migrations = [
     up: migration_20260807_190252_native_danger_map_flag.up,
     down: migration_20260807_190252_native_danger_map_flag.down,
     name: '20260807_190252_native_danger_map_flag',
+  },
+  {
+    up: migration_20260915_010640_native_weather_flag.up,
+    down: migration_20260915_010640_native_weather_flag.down,
+    name: '20260915_010640_native_weather_flag',
   },
 ]
