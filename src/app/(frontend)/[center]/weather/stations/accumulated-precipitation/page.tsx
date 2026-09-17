@@ -27,7 +27,8 @@ function PageHeader() {
   return (
     <div className="container flex flex-wrap items-start justify-between gap-3 pb-4">
       <div className="prose dark:prose-invert max-w-none">
-        <h1 className="font-bold">{ROUTE_TITLE}</h1>
+        {/* Sized as the rest of the station pages are. */}
+        <h1 className="text-3xl font-bold sm:text-4xl">{ROUTE_TITLE}</h1>
       </div>
       <div className="flex flex-col items-end">
         <StationPicker />

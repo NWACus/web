@@ -612,6 +612,16 @@ export function getStationGroup(slug: string): WeatherStationGroup | undefined {
   return STATION_GROUPS_BY_SLUG.get(slug)
 }
 
+// A group combines several loggers (Alpental is three), so several stids resolve to one page.
+const STATION_GROUPS_BY_STID = new Map(
+  NWAC_WEATHER_STATION_GROUPS.flatMap((g) => g.stids.map((stid) => [stid, g] as const)),
+)
+
+/** The group whose page shows this SnowObs station, if any — how the station map links through. */
+export function getStationGroupByStid(stid: string): WeatherStationGroup | undefined {
+  return STATION_GROUPS_BY_STID.get(stid)
+}
+
 // Graphs-tab comparison cap; the graph-data route derives its station cap from this.
 export const MAX_COMPARE_STATIONS = 3
 

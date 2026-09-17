@@ -81,7 +81,8 @@ function Intro() {
   return (
     <div className="container">
       <div className="prose dark:prose-invert max-w-none">
-        <h1 className="font-bold">Weather Stations</h1>
+        {/* Sized to match the station map this page links to, which gives ground on a phone. */}
+        <h1 className="text-3xl font-bold sm:text-4xl">Weather Stations</h1>
         <p>
           Hourly readings from NWAC&apos;s weather stations. Each station has a table of recent
           observations, graphs back to the start of the season, and CSV downloads.

@@ -50,7 +50,10 @@ function assertScenarios(value: unknown): asserts value is {
   }[]
   productsById: Record<string, string>
   absent: { match: string; fixture?: string; status?: number }[]
-  tenants: Record<string, { forecast: boolean; warning: boolean; dangerMap: boolean }>
+  tenants: Record<
+    string,
+    { forecast: boolean; warning: boolean; dangerMap: boolean; stationMap: boolean }
+  >
 } {
   if (!value || typeof value !== 'object') throw new Error('scenarios.json is not an object')
 }
@@ -150,8 +153,8 @@ describe('E2E mock wiring', () => {
     // Both halves must agree or a spec asserts the native page against a widget-mode tenant.
     const seed = readFileSync(resolve(__dirname, '../../src/endpoints/seed/index.ts'), 'utf8')
     for (const [slug, flags] of Object.entries(scenarios.tenants)) {
-      if (!flags.forecast && !flags.warning && !flags.dangerMap) continue
-      const declared = `${slug}: { forecast: ${flags.forecast}, warning: ${flags.warning}, dangerMap: ${flags.dangerMap} }`
+      if (!flags.forecast && !flags.warning && !flags.dangerMap && !flags.stationMap) continue
+      const declared = `${slug}: { forecast: ${flags.forecast}, warning: ${flags.warning}, dangerMap: ${flags.dangerMap}, stationMap: ${flags.stationMap} }`
       expect({ slug, inSeed: seed.includes(declared) }).toEqual({ slug, inSeed: true })
     }
   })
