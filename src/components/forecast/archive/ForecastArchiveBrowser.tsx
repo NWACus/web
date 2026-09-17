@@ -1,8 +1,9 @@
 /**
  * The native forecast archive browser: every forecast and summary product a center has published,
- * filterable by season and date range, zone, danger and product type, fifty to a page, each row
- * linking to its dated forecast view. Rebuilds the legacy afp archive browser's forecast list
- * (inventory row F3); the danger-over-time and mountain-weather tabs are separate work.
+ * filterable by season and date range, zone, danger and product type — as a list, fifty to a
+ * page, each row linking to its dated forecast view, or as a danger-over-time chart per zone.
+ * Rebuilds the legacy afp archive browser's forecast list and visual tabs (inventory rows F3 and
+ * F8); the mountain-weather tab is separate work.
  *
  * Server-rendered from the URL: the filters live in the query string, the season's archive comes
  * from the same trimmed, 30-minute-cached fetch the date picker uses, and everything else is
@@ -18,6 +19,7 @@ import {
   DEFAULT_ARCHIVE_START_SEASON,
   applyArchiveFilters,
   buildArchiveRows,
+  buildDangerOverTime,
   dangerCounts,
   paginateArchiveRows,
   resolveArchiveFilters,
@@ -25,6 +27,7 @@ import {
   todayInTimezone,
   type ArchiveQuery,
   type ArchiveRow,
+  type ArchiveView,
   type ArchiveZone,
   type ArchiveFilters as ResolvedArchiveFilters,
 } from '@/services/nac/forecastArchive'
@@ -39,27 +42,37 @@ import { ArchiveFilters, type ArchiveFiltersProps } from './ArchiveFilters'
 import { ArchiveMobileFilters } from './ArchiveMobileFilters.client'
 import { ArchivePagination } from './ArchivePagination'
 import { ArchiveProductRow } from './ArchiveProductRow'
+import { ArchiveTabs } from './ArchiveTabs'
 import { DangerCountBar } from './DangerCountBar'
+import { DangerOverTimeCharts } from './DangerOverTimeCharts.client'
 
 interface ForecastArchiveBrowserProps {
   centerSlug: string
   query: ArchiveQuery
+  view: ArchiveView
 }
 
-export async function ForecastArchiveBrowser({ centerSlug, query }: ForecastArchiveBrowserProps) {
+export async function ForecastArchiveBrowser({
+  centerSlug,
+  query,
+  view,
+}: ForecastArchiveBrowserProps) {
   const { zones, metadata, startSeason, filters } = await resolveArchive(centerSlug, query)
 
   // The whole season is one cache entry shared by every reader; the range narrows it in-process.
-  const rows = await loadRows(centerSlug, filters, zones, metadata.timezone)
+  const archive = await loadArchive(centerSlug, filters, zones, metadata.timezone)
 
   const filterProps = archiveFilterProps(zones, filters, startSeason)
 
   return (
-    <ArchiveLayout sidebar={<ArchiveFilters {...filterProps} />}>
+    <ArchiveLayout
+      tabs={<ArchiveTabs active={view} query={query} />}
+      sidebar={<ArchiveFilters {...filterProps} />}
+    >
       <div className="md:hidden">
         <ArchiveMobileFilters
           {...filterProps}
-          total={rows?.length ?? 0}
+          total={archive?.rows.length ?? 0}
           hasActiveFilters={filters.isFiltered}
         />
       </div>
@@ -72,23 +85,26 @@ export async function ForecastArchiveBrowser({ centerSlug, query }: ForecastArch
         types={filters.type}
         isFiltered={filters.isFiltered}
       />
-      <ArchiveBody rows={rows} query={query} page={filters.page} />
+      <ArchiveContent view={view} archive={archive} query={query} filters={filters} zones={zones} />
       <ForecastDisclaimer centerType={metadata.type} centerName={metadata.name} />
     </ArchiveLayout>
   )
 }
 
-/** The page shell: heading, the list column, and the filter sidebar from `md` up. */
+/** The page shell: heading, tabs, the content column, and the filter sidebar from `md` up. */
 function ArchiveLayout({
+  tabs,
   sidebar,
   children,
 }: {
+  tabs: React.ReactNode
   sidebar: React.ReactNode
   children: React.ReactNode
 }) {
   return (
     <div className="container py-6">
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Forecast Archive</h1>
+      <div className="mt-4">{tabs}</div>
       <div className="mt-6 flex flex-col gap-8 md:flex-row md:gap-16">
         <div className="min-w-0 grow space-y-4">{children}</div>
         <aside className="hidden shrink-0 md:flex md:w-[240px] md:flex-col lg:w-[300px]">
@@ -140,39 +156,54 @@ async function resolveArchive(centerSlug: string, query: ArchiveQuery) {
   return { zones, metadata, startSeason, filters }
 }
 
+/** The season's rows, and the subset the filters select. */
+interface LoadedArchive {
+  seasonRows: ArchiveRow[]
+  rows: ArchiveRow[]
+}
+
 /**
- * The season's rows after filtering, or `null` when the archive could not be fetched. Null rather
- * than an empty list because those must render differently: "no products match" is an answer,
- * "the archive is down" is not, and a life-safety archive that shows the first for the second
- * would be failing silently.
+ * The season's rows, or `null` when the archive could not be fetched. Null rather than an empty
+ * list because those must render differently: "no products match" is an answer, "the archive is
+ * down" is not, and a life-safety archive that shows the first for the second would be failing
+ * silently.
  */
-async function loadRows(
+async function loadArchive(
   centerSlug: string,
   filters: ResolvedArchiveFilters,
   zones: ArchiveZone[],
   timezone: string | null | undefined,
-): Promise<ArchiveRow[] | null> {
+): Promise<LoadedArchive | null> {
   try {
     const archive = await fetchProductArchiveOrThrow(centerSlug, filters.window)
-    return applyArchiveFilters(buildArchiveRows(archive, zones, timezone), filters)
+    const seasonRows = buildArchiveRows(archive, zones, timezone)
+    return { seasonRows, rows: applyArchiveFilters(seasonRows, filters) }
   } catch {
     return null
   }
 }
 
-/** The list, or the reason there is none — a failed fetch and an empty match look different. */
-function ArchiveBody({
-  rows,
+/**
+ * The tab's content, or the reason there is none — a failed fetch and an empty match look
+ * different.
+ */
+function ArchiveContent({
+  view,
+  archive,
   query,
-  page,
+  filters,
+  zones,
 }: {
-  rows: ArchiveRow[] | null
+  view: ArchiveView
+  archive: LoadedArchive | null
   query: ArchiveQuery
-  page: number
+  filters: ResolvedArchiveFilters
+  zones: ArchiveZone[]
 }) {
-  if (rows === null) return <ArchiveUnavailable />
-  if (rows.length === 0) return <NoProductsFound />
-  return <ArchiveList rows={rows} query={query} page={page} />
+  if (archive === null) return <ArchiveUnavailable />
+  if (archive.rows.length === 0) return <NoProductsFound />
+  if (view === 'danger') return <DangerCharts archive={archive} range={filters} zones={zones} />
+  return <ArchiveList rows={archive.rows} query={query} page={filters.page} />
 }
 
 /** The count, the danger tally and one page of rows. */
@@ -213,13 +244,50 @@ function ArchiveList({
   )
 }
 
-/** The legacy widget's empty state, verbatim. */
-function NoProductsFound() {
+/**
+ * The danger-over-time charts, or the reason there are none. The legacy tab shows nothing at all
+ * when the filtered products are all unrated; here that says so, since a blank tab and a broken
+ * one look the same.
+ */
+function DangerCharts({
+  archive,
+  range,
+  zones,
+}: {
+  archive: LoadedArchive
+  range: { from: string; to: string }
+  zones: ArchiveZone[]
+}) {
+  const data = buildDangerOverTime(archive.seasonRows, archive.rows, range, zones)
+  if (data === null) {
+    return (
+      <NoProductsFound
+        message="No danger ratings to chart"
+        hint="The products in this range carry no danger rating"
+      />
+    )
+  }
+
+  return (
+    <ForecastErrorBoundary fallbackMessage="Unable to display the danger-over-time charts">
+      <DangerOverTimeCharts data={data} />
+    </ForecastErrorBoundary>
+  )
+}
+
+/** The legacy widget's empty state, verbatim by default. */
+function NoProductsFound({
+  message = 'No products found',
+  hint = 'Try adjusting the filter criteria',
+}: {
+  message?: string
+  hint?: string
+}) {
   return (
     <div className="flex flex-col items-center gap-2 py-12 text-center">
       <Search className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
-      <p className="text-lg font-semibold">No products found</p>
-      <p className="text-muted-foreground">Try adjusting the filter criteria</p>
+      <p className="text-lg font-semibold">{message}</p>
+      <p className="text-muted-foreground">{hint}</p>
     </div>
   )
 }
