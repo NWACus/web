@@ -137,6 +137,46 @@ describe('mapV2Weather', () => {
     }
     expect(model).toEqual(wire)
   })
+
+  it('keeps an inline table with no rows detectable as inline', () => {
+    // Every columns/rows key is optional, so with the union the other way round this table parsed
+    // as columns/rows, lost its `periods`, and rendered as nothing.
+    const table = inlineWeather.weather_data[0]
+    const wire = weatherSchema.parse({ ...inlineWeather, weather_data: [{ ...table, data: [] }] })
+
+    const tables = wire.weather_data
+    expect(Array.isArray(tables) && 'periods' in tables[0]).toBe(true)
+  })
+
+  it('degrades an object-shaped MWF envelope to a product with no tables, without throwing', () => {
+    // The MWF migration stores a variant envelope in `weather_data`. v3 excludes those rows from
+    // generic product reads; the legacy v2 we default to does not, so the wire schema must accept
+    // it and the model must come out renderable — as a product with nothing to tabulate.
+    const envelope = {
+      ...sacWeather,
+      weather_data: {
+        variant: 'mwf',
+        schema_version: 1,
+        issuance: 'morning',
+        revision: 1,
+        service_date: '2026-01-15',
+        supersedes_product_id: null,
+        content: { discussion: { synopsis: 'A ridge builds over the region.' } },
+      },
+    }
+
+    const model = mapV2Weather(weatherSchema.parse(envelope))
+
+    expect(model.weather_data).toEqual([])
+    expect(model.product_type).toBe(ProductType.Weather)
+  })
+
+  it('still rejects a weather_data shape that is neither tables nor an envelope', () => {
+    expect(weatherSchema.safeParse({ ...sacWeather, weather_data: 'nope' }).success).toBe(false)
+    expect(weatherSchema.safeParse({ ...sacWeather, weather_data: { content: {} } }).success).toBe(
+      false,
+    )
+  })
 })
 
 describe('mapV2MapLayer', () => {

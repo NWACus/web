@@ -58,7 +58,7 @@ A gap we already know about is different: it goes in `scenarios.json` under `abs
 
 ## Rollout state lives in the seed
 
-`src/endpoints/seed/index.ts` fixes Control 1 per tenant: **snfac** and **nwac** render every native product (forecast, warning and danger map), **dvac** and **sac** stay on the widget. Every spec reads that state and none writes it — a test that flipped a shared tenant's flag would race the other workers, and would not reach an already-prerendered page anyway. dvac and nwac are deliberately on opposite sides: they are the same center upstream, so the pair is what shows that Control 1 is per tenant rather than per center. One of the two has to stay on the widget for that to mean anything.
+`src/endpoints/seed/index.ts` fixes Control 1 per tenant: **snfac** and **nwac** render every native product (forecast, warning, danger map and weather), **dvac** and **sac** stay on the widget. Every spec reads that state and none writes it — a test that flipped a shared tenant's flag would race the other workers, and would not reach an already-prerendered page anyway. dvac and nwac are deliberately on opposite sides: they are the same center upstream, so the pair is what shows that Control 1 is per tenant rather than per center. One of the two has to stay on the widget for that to mean anything.
 
 ## Changing a native product page
 
@@ -87,7 +87,7 @@ These specs are written and `test.skip` themselves with a reason until the fixtu
 | --- | --- | --- |
 | A forecast with populated `forecast_avalanche_problems`, non-null `danger`, and a `video` media item | `product_forecast_SNFAC_with_problems` | Problem cards, the locator rose, the sliders, every coloured danger rating, the lightbox's YouTube branch, a video attached to a problem |
 | A forecast whose authored HTML carries an `afp-photoswipe` figure, an `afp-video-modal` figure and a pasted `iframe` | `product_forecast_SNFAC_embedded_media` | Everything #1228 added to the discussion: the expand chip, the play button, an inline provider frame, the blocked-embed note |
-| A weather product at an id a forecast points at, with non-empty `weather_data` | `product_weather_SNFAC_populated` | Both mountain-weather table shapes, and the print picker's Mountain Weather checkbox |
+| A weather product at an id a forecast points at, with non-empty `weather_data` | `product_weather_SNFAC_populated` | Both mountain-weather table shapes — inline on the forecast page and per zone on the Mountain Weather page — and the print picker's Mountain Weather checkbox. The corpus's one weather golden is the center's current product, served for the Mountain Weather page, but its `weather_data` is empty — when the populated capture lands, repoint the `type: weather` scenario at it too, or the Mountain Weather table spec turns on against empty tables |
 | A by-id golden for archive product 184562 | `product_by_id_SNFAC_summary` | The archive's second date |
 | `/v2/public/avalanche-center/{NWAC,SAC}` | `center_NWAC`, `center_SAC` | Nothing today — held in `provisional/` |
 | Map layers with real danger levels, `off_season`, or an active warning | `map_layer_*` | Danger-map styling, outside this suite's scope |

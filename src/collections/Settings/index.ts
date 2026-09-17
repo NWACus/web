@@ -251,6 +251,15 @@ const featuresFields: Field[] = [
             'Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.',
         },
       },
+      {
+        name: 'weather',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC. Centers without one have no Mountain Weather page either way.',
+        },
+      },
     ],
   },
 ]

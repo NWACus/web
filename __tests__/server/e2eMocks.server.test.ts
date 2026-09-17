@@ -1,5 +1,9 @@
 import { afpApiHost, nacApiHost } from '@/services/nac/hosts'
-import { forecastResultSchema, warningResultSchema } from '@/services/nac/types/forecastSchemas'
+import {
+  forecastResultSchema,
+  warningResultSchema,
+  weatherSchema,
+} from '@/services/nac/types/forecastSchemas'
 import { productListSchema } from '@/services/nac/types/productListSchemas'
 import {
   allAvalancheCenterCapabilitiesSchema,
@@ -50,7 +54,10 @@ function assertScenarios(value: unknown): asserts value is {
   }[]
   productsById: Record<string, string>
   absent: { match: string; fixture?: string; status?: number }[]
-  tenants: Record<string, { forecast: boolean; warning: boolean; dangerMap: boolean }>
+  tenants: Record<
+    string,
+    { forecast: boolean; warning: boolean; dangerMap: boolean; weather: boolean }
+  >
 } {
   if (!value || typeof value !== 'object') throw new Error('scenarios.json is not an object')
 }
@@ -88,6 +95,13 @@ describe('E2E golden corpus', () => {
   })
 })
 
+/** The schema the app parses a `type=…` product query's answer with. */
+function schemaForProductType(type: string) {
+  if (type === 'warning') return warningResultSchema
+  if (type === 'weather') return weatherSchema
+  return forecastResultSchema
+}
+
 describe('E2E fixtures against the wire schemas', () => {
   it('parses every center metadata fixture', () => {
     for (const [centerId, center] of Object.entries(scenarios.centers)) {
@@ -107,7 +121,7 @@ describe('E2E fixtures against the wire schemas', () => {
   it('parses every product fixture with the schema its request would use', () => {
     const names = new Set<string>()
     for (const product of scenarios.products) {
-      const schema = product.type === 'warning' ? warningResultSchema : forecastResultSchema
+      const schema = schemaForProductType(product.type)
       const fixtures = product.phase ? Object.values(product.phase) : [product.fixture]
       for (const name of fixtures) {
         if (!name || names.has(`${product.type}:${name}`)) continue
@@ -150,8 +164,8 @@ describe('E2E mock wiring', () => {
     // Both halves must agree or a spec asserts the native page against a widget-mode tenant.
     const seed = readFileSync(resolve(__dirname, '../../src/endpoints/seed/index.ts'), 'utf8')
     for (const [slug, flags] of Object.entries(scenarios.tenants)) {
-      if (!flags.forecast && !flags.warning && !flags.dangerMap) continue
-      const declared = `${slug}: { forecast: ${flags.forecast}, warning: ${flags.warning}, dangerMap: ${flags.dangerMap} }`
+      if (!flags.forecast && !flags.warning && !flags.dangerMap && !flags.weather) continue
+      const declared = `${slug}: { forecast: ${flags.forecast}, warning: ${flags.warning}, dangerMap: ${flags.dangerMap}, weather: ${flags.weather} }`
       expect({ slug, inSeed: seed.includes(declared) }).toEqual({ slug, inSeed: true })
     }
   })

@@ -47,6 +47,7 @@ export type {
   WeatherDataLabel,
   WeatherDatum,
   WeatherPeriodLabel,
+  WeatherTable,
 } from '../types/forecastSchemas'
 
 import type {
@@ -54,9 +55,8 @@ import type {
   AvalancheDangerForecast,
   AvalancheForecastZoneSummary,
   AvalancheProblem,
-  InlineWeatherData,
   MediaItem,
-  RowColumnWeatherData,
+  WeatherTable,
 } from '../types/forecastSchemas'
 import { ProductStatus, ProductType } from '../types/forecastSchemas'
 
@@ -104,7 +104,9 @@ export type ForecastResult = Forecast | Summary
 /**
  * A mountain-weather product, issued separately from the forecast and pointed to by
  * `Forecast.weather_data.weather_product_id`. Its `weather_data` is an array of per-zone tables,
- * each in one of two shapes (columns/rows or inline/periods) detected by a `periods` key.
+ * each in one of two shapes (columns/rows or inline/periods) detected by a `periods` key. A
+ * product whose wire `weather_data` is a shape we cannot render (the object-shaped MWF envelope)
+ * arrives here with no tables, so a consumer only ever sees an array.
  */
 export interface Weather {
   id: number
@@ -117,7 +119,7 @@ export interface Weather {
   announcement?: string | null
   danger_level_text?: string | null
   weather_discussion?: string | null
-  weather_data: (RowColumnWeatherData | InlineWeatherData)[]
+  weather_data: WeatherTable[]
   avalanche_center: AvalancheCenterMetadata
   forecast_zone: AvalancheForecastZoneSummary[]
 }

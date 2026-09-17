@@ -339,6 +339,15 @@ export function weatherCacheTag(weatherProductId: number): string {
 }
 
 /**
+ * The Next data-cache tag for a center's CURRENT mountain-weather product (the `type=weather`
+ * query, as opposed to a product fetched by id). The weather freshness handler revalidates this
+ * when the current product changes, which also invalidates the weather page's route cache.
+ */
+export function currentWeatherCacheTag(centerId: string, zoneId: number): string {
+  return `weather-current:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
+}
+
+/**
  * The Next data-cache tag for a zone's active warning/watch/special. The warning freshness handler
  * revalidates this when a zone's alert changes, which also invalidates the route cache of any page
  * that rendered it — notably the (statically generated) home-page banner. Kept consistent with
@@ -585,19 +594,114 @@ export async function fetchWeatherProduct(id: number): Promise<Weather | null> {
       tags: [weatherCacheTag(id)],
     })
 
-    // v2 returns a 200 null-object (avalanche_center: null, …) when the id is missing or expired.
-    // That's "no weather product", not a malformed response, so return null without logging noise.
-    if (data && typeof data === 'object' && data.avalanche_center === null) {
-      return null
-    }
+    return await parseWeatherResponse(data)
+  } catch {
+    return null
+  }
+}
 
-    const parsed = weatherSchema.safeParse(data)
-    if (!parsed.success) {
-      await logNacError(parsed.error, 'Failed to parse weather product response')
-      return null
-    }
+/**
+ * Parse a weather product answer, by id or by `type=weather` query. v2 returns a 200 null-object
+ * (avalanche_center: null, …) when the id is missing or the center has never published one.
+ * That's "no weather product", not a malformed response, so it is null without logging noise.
+ * (The other "none" answer, the legacy PHP error page, fails JSON parsing before reaching here.)
+ */
+async function parseWeatherResponse(data: unknown): Promise<Weather | null> {
+  if (
+    data &&
+    typeof data === 'object' &&
+    'avalanche_center' in data &&
+    data.avalanche_center === null
+  ) {
+    return null
+  }
 
-    return parsed.data
+  const parsed = weatherSchema.safeParse(data)
+  if (!parsed.success) {
+    await logNacError(parsed.error, 'Failed to parse weather product response')
+    return null
+  }
+
+  return parsed.data
+}
+
+/**
+ * The center's current mountain-weather product — the legacy widget's Weather tab query. The
+ * product covers every zone, so any of the center's zone ids finds it; callers pass the first
+ * active zone, as the widget did. Same short data cache as the forecast, tagged so the weather
+ * freshness handler can purge it. Returns null when there is none or the response doesn't parse.
+ */
+export async function fetchCurrentWeatherProduct(
+  centerId: string,
+  zoneId: number,
+): Promise<Weather | null> {
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
+
+  try {
+    const data = await nacFetch(
+      `/v2/public/product?type=weather&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+      { cachedTime: 300, tags: [currentWeatherCacheTag(centerId, zoneId)] },
+    )
+
+    return await parseWeatherResponse(data)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The center's current mountain-weather product fetched fresh (30s cache), for the weather
+ * freshness check — the same shape as `fetchForecastFresh`, and the same half of the staleness
+ * budget.
+ */
+export async function fetchCurrentWeatherProductFresh(
+  centerId: string,
+  zoneId: number,
+): Promise<Weather | null> {
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
+
+  const getCached = unstable_cache(
+    async () => {
+      const data = await nacFetch(
+        `/v2/public/product?type=weather&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+        { noStore: true },
+      )
+      // Parsed directly rather than through parseWeatherResponse: like the other fresh fetches,
+      // this path is silent — the cached fetch already logged the same response's failure.
+      const parsed = weatherSchema.safeParse(data)
+      return parsed.success ? parsed.data : null
+    },
+    ['nac-weather-fresh', centerIdToUse, String(zoneId)],
+    { revalidate: 30 },
+  )
+
+  try {
+    return await getCached()
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The mountain-weather product that was current on a calendar day (`YYYY-MM-DD`): v2 answers with
+ * the latest weather product published on or before that date. Exists for the SNFAC forecasts
+ * published before 2020-05-01, which predate `weather_data.weather_product_id` and so cannot point
+ * at their weather (inventory row F26); see `getWeatherForForecast`. The answer is historical and
+ * cannot change, so it takes the long default cache.
+ */
+export async function fetchWeatherProductForDate(
+  centerId: string,
+  zoneId: number,
+  date: string,
+): Promise<Weather | null> {
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
+
+  try {
+    const data = await nacFetch(
+      `/v2/public/product?type=weather&center_id=${centerIdToUse}&zone_id=${zoneId}&published_time=${encodeURIComponent(date)}`,
+    )
+
+    return await parseWeatherResponse(data)
   } catch {
     return null
   }
