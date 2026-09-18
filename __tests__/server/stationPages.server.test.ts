@@ -1,8 +1,4 @@
-import {
-  allStations,
-  assembleStationPages,
-  precipStations,
-} from '../../src/services/stations/stationPages'
+import { allStations, assembleStationPages } from '../../src/services/stations/stationPages'
 
 type PageDoc = Parameters<typeof assembleStationPages>[0][number]
 
@@ -54,16 +50,5 @@ describe('allStations', () => {
     expect(allStations(pages).get('snotel:1011')).toEqual({ stid: '1011', source: 'snotel' })
     expect(allStations(pages).has('nwac:1011')).toBe(false)
     expect(allStations(pages).has('nwac:245')).toBe(false)
-  })
-})
-
-describe('precipStations', () => {
-  it('lists every station on a live page once, in page order', () => {
-    const pages = assembleStationPages([
-      pageDoc({ slug: 'a', displayName: 'A', stations: [ref('2'), ref('1')] }),
-      pageDoc({ slug: 'b', displayName: 'B', stations: [ref('1'), ref('3')] }),
-      pageDoc({ slug: 'gone', archived: true, stations: [ref('40')] }),
-    ])
-    expect(precipStations(pages).map((s) => s.stid)).toEqual(['2', '1', '3'])
   })
 })

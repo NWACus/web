@@ -72,6 +72,7 @@ export interface Config {
     builtInPages: BuiltInPage;
     pages: Page;
     stationPages: StationPage;
+    weatherStationSettings: WeatherStationSetting;
     posts: Post;
     media: Media;
     galleries: Gallery;
@@ -126,6 +127,7 @@ export interface Config {
     builtInPages: BuiltInPagesSelect<false> | BuiltInPagesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     stationPages: StationPagesSelect<false> | StationPagesSelect<true>;
+    weatherStationSettings: WeatherStationSettingsSelect<false> | WeatherStationSettingsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     galleries: GalleriesSelect<false> | GalleriesSelect<true>;
@@ -1756,6 +1758,30 @@ export interface StationPage {
   createdAt: string;
 }
 /**
+ * Settings for the weather station pages that belong to the whole center.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "weatherStationSettings".
+ */
+export interface WeatherStationSetting {
+  id: number;
+  tenant: number | Tenant;
+  centerName?: string | null;
+  /**
+   * Which columns the table shows after the station name. Clearing every column shows them all.
+   */
+  precipColumns?:
+    | ('1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '72h' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation')[]
+    | null;
+  precipStations?: {
+    stid: string;
+    source: string;
+  }[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "announcements".
  */
@@ -3335,6 +3361,10 @@ export interface PayloadLockedDocument {
         value: number | StationPage;
       } | null)
     | ({
+        relationTo: 'weatherStationSettings';
+        value: number | WeatherStationSetting;
+      } | null)
+    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -3925,6 +3955,19 @@ export interface StationPagesSelect<T extends boolean = true> {
   stations?: T;
   columns?: T;
   archived?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "weatherStationSettings_select".
+ */
+export interface WeatherStationSettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  centerName?: T;
+  precipColumns?: T;
+  precipStations?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
