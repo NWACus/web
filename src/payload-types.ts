@@ -344,6 +344,7 @@ export interface Tenant {
     | 'coaa'
     | 'dvac'
     | 'esac'
+    | 'ewyaix'
     | 'fac'
     | 'gnfac'
     | 'hac'

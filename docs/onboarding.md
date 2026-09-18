@@ -2,6 +2,12 @@
 
 Steps for bringing a new avalanche center (tenant) on board.
 
+## Prerequisite: center is new to the AFP
+
+Skip this if the center already appears in the tenant slug dropdown on the admin panel. That dropdown is the static `AVALANCHE_CENTERS` list in `src/utilities/tenancy/avalancheCenters.ts`, so a center recently added to the AFP won't be in it yet.
+
+Run `pnpm check:centers`. It lists AFP centers missing from `AVALANCHE_CENTERS`, with their platforms, name, and timezone, or the reason their metadata doesn't parse yet. For the new center, add an entry keyed by its lowercased AFP id (e.g. `EWYAIX` → `ewyaix`) with its domain as `customDomain`, run `pnpm check:centers` again to confirm it passes, and run `pnpm generate:types`. Ship that before creating the tenant.
+
 ## Automated
 
 Create the tenant in the admin panel → provisioning runs automatically via `provisionAfterChange`. An **Onboarding Checklist** on the tenant edit page tracks progress. This requires super admin permissions. Creates the tenant record and runs all steps below.
@@ -27,6 +33,8 @@ The outcome of each provisioning run is stored on the tenant's `provisioning` gr
 Forecast pages are determined by AFP zone data\*. Non-forecast pages come from the static `BUILT_IN_PAGES` list in `src/collections/Tenants/endpoints/provisionTenant.ts` — edit that list to change what new tenants get.
 
 \* If a center has a single forecast zone, it gets an "Avalanche Forecast" page pointing to that zone. Multi-zone centers get an "All Forecasts" page plus individual zone pages. If AFP is unavailable, a default "All Forecasts" page is created.
+
+Zone slugs come from the last path segment of each AFP zone's `url`, so confirm with the NAC that those URLs are AvyWeb paths (`https://<domain>/forecasts/avalanche/<zone>`) before creating the tenant. A URL with no zone path, like a bare domain, produces a wrong forecast page.
 
 | Title | URL | Source |
 |-------|-----|--------|

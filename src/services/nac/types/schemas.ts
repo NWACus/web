@@ -61,6 +61,7 @@ export enum AvalancheCenterType {
   State = 'state',
   USFS = 'usfs',
   Volunteer = 'volunteer',
+  Other = 'other',
 }
 
 export const avalancheCenterTypeSchema = z.nativeEnum(AvalancheCenterType)
@@ -215,7 +216,7 @@ export const avalancheCenterSchema = z.object({
   id: z.string(),
   name: z.string(),
   url: z.string(),
-  city: z.string(),
+  city: z.string().nullable(),
   state: z.string(),
   timezone: z.string(),
   email: z.string(),
@@ -223,7 +224,8 @@ export const avalancheCenterSchema = z.object({
   center_point: z.null(),
   created_at: z.string(),
   wkb_geometry: z.null(),
-  config: avalancheCenterConfigurationSchema,
+  // Newer centers (e.g. EWYAIX) are registered without a config object.
+  config: avalancheCenterConfigurationSchema.nullable(),
   type: avalancheCenterTypeSchema,
   widget_config: avalancheCenterWidgetConfigurationSchema,
   zones: z.array(avalancheForecastZoneSchema),

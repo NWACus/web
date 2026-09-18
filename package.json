@@ -41,7 +41,7 @@
     "test:e2e:frontend": "playwright test --project=frontend",
     "test:all": "pnpm test && pnpm test:e2e",
     "migrate": "payload migrate",
-    "check:center-timezones": "tsx ./src/scripts/check-center-timezones.ts",
+    "check:centers": "tsx ./src/scripts/check-centers.ts",
     "migrate:check": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/check-migrations.ts",
     "migrate:diff": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/analyze-migration-diff.ts",
     "email:build": "email build",

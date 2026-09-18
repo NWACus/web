@@ -2,19 +2,11 @@
  * US avalanche centers with valid NAC API configurations
  *
  * This serves as the single source of truth for valid tenant slugs.
- * Only centers that return a complete config from the NAC API
- * (/v2/public/avalanche-center/{CENTER}) are included here.
  * Custom domains are used for production routing - they should match
  * the actual domains configured in Vercel.
  *
- * Excluded centers (missing required config fields in NAC API):
- * - AAIC (Alaska Avalanche Information Center) — no config fields returned
- * - CAC (Cordova Avalanche Center) — only blog_title returned
- * - CAIC (Colorado Avalanche Information Center) — no config fields returned
- * - EARAC (Eastern Alaska Range Avalanche Center) — only blog_title returned
- * - EWYAIX (Eastern Wyoming Avalanche Info Exchange) — no config object at all
- * - SOAIX (Southern Oregon Avalanche Info Exchange) — no config object at all
- * - UAC (Utah Avalanche Center) — no config object at all
+ * `pnpm check:centers` verifies every entry against the NAC and AFP APIs and lists AFP centers
+ * that aren't here yet, including whether their metadata parses.
  */
 import { US_TIMEZONES, type USTimezone } from '@/utilities/timezones'
 
@@ -23,7 +15,7 @@ type AvalancheCenterInfo = {
   readonly customDomain: string
   /**
    * IANA timezone the center operates in, as reported by the NAC center metadata API.
-   * Verify against the API with `pnpm check:center-timezones` when adding or changing a center.
+   * Verify against the API with `pnpm check:centers` when adding or changing a center.
    */
   readonly timezone: USTimezone
 }
@@ -68,6 +60,11 @@ export const AVALANCHE_CENTERS = {
     name: 'Eastern Sierra Avalanche Center',
     customDomain: 'www.esavalanche.org',
     timezone: US_TIMEZONES.PACIFIC,
+  },
+  ewyaix: {
+    name: 'Eastern Wyoming Avalanche Info Exchange',
+    customDomain: 'ewyoavalanche.org',
+    timezone: US_TIMEZONES.MOUNTAIN,
   },
   fac: {
     name: 'Flathead Avalanche Center',
