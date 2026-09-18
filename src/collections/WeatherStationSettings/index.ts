@@ -41,7 +41,7 @@ export const WeatherStationSettings: CollectionConfig = {
         {
           label: 'Precipitation Table',
           description:
-            'The Accumulated Precipitation page shows these stations in the same order as they are saved here.',
+            'The Accumulated Precipitation page shows these stations in the same order as they are saved here. Drag to reorder. Day-to-day gaps show as "missing" on their own.',
           fields: [
             stationsField({
               name: 'precipStations',
