@@ -2193,16 +2193,16 @@ export interface WeatherStationSetting {
   id: number;
   tenant: number | Tenant;
   centerName?: string | null;
-  precipStations?: {
-    stid: string;
-    source: string;
-  }[];
   /**
    * Which columns the table shows after the station name. Clearing every column shows them all.
    */
   precipColumns?:
     | ('1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '72h' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation')[]
     | null;
+  precipStations?: {
+    stid: string;
+    source: string;
+  }[];
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -4416,8 +4416,8 @@ export interface StationPagesSelect<T extends boolean = true> {
 export interface WeatherStationSettingsSelect<T extends boolean = true> {
   tenant?: T;
   centerName?: T;
-  precipStations?: T;
   precipColumns?: T;
+  precipStations?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

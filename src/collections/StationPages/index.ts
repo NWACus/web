@@ -49,8 +49,6 @@ export const StationPages: CollectionConfig = {
     stationsField({
       name: 'stations',
       label: 'Stations',
-      description:
-        'Left to right in the table is this order; drag to rearrange. The list to pick from is what this center tracks in SnowObs.',
     }),
     {
       name: 'archived',
