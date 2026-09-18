@@ -1,9 +1,31 @@
-import type { BasePayload } from 'payload'
+import type { StationPageDoc } from '@/payload-types'
+import type { Where } from 'payload'
 import { NWAC_STATION_PAGES } from './nwacStationPages'
 
 const SOURCE = 'nwac'
 
 export type SeedResult = { pagesCreated: number }
+
+type StationPageSeed = Pick<StationPageDoc, 'slug' | 'displayName' | 'archived' | 'stations'> & {
+  tenant: number
+}
+
+// The slice of the local API the seed uses. Payload's client satisfies it, and
+// so does a plain object in a test, with no type assertion.
+export type SeedPayload = {
+  find(args: {
+    collection: 'stationPages'
+    where: Where
+    limit: number
+    depth: number
+    select: { slug: true }
+  }): Promise<{ docs: { slug: string }[] }>
+  create(args: {
+    collection: 'stationPages'
+    data: StationPageSeed
+    context: { disableRevalidate: boolean }
+  }): Promise<unknown>
+}
 
 /**
  * Put NWAC's station pages in place for one tenant, once: a page that already
@@ -13,7 +35,7 @@ export type SeedResult = { pagesCreated: number }
  * so it disables the cache hooks -- there is no request to revalidate against.
  */
 export async function seedStationPages(
-  payload: BasePayload,
+  payload: SeedPayload,
   tenantId: number,
 ): Promise<SeedResult> {
   const { docs: existing } = await payload.find({

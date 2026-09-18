@@ -1,22 +1,19 @@
 import { NWAC_STATION_PAGES } from '@/migrations/data/nwacStationPages'
+import type { SeedPayload } from '@/migrations/data/seedStationPages'
 import { seedStationPages } from '@/migrations/data/seedStationPages'
-import type { BasePayload } from 'payload'
-
-type Row = { id: number; [key: string]: unknown }
 
 // Enough of the local API for the seed: `find` returns the tenant's pages,
 // `create` records what the seed decided.
-function fakePayload(existing: Row[] = []) {
-  const created: Record<string, unknown>[] = []
-  const payload = {
-    find: jest.fn(async () => ({ docs: existing })),
-    create: jest.fn(async ({ data }: { data: Record<string, unknown> }) => {
+function fakePayload(existing: { slug: string }[] = []) {
+  const created: Parameters<SeedPayload['create']>[0]['data'][] = []
+  const payload: SeedPayload = {
+    find: async () => ({ docs: existing }),
+    create: async ({ data }) => {
       created.push(data)
       return { id: 1000 + created.length, ...data }
-    }),
+    },
   }
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  return { payload: payload as unknown as BasePayload, created }
+  return { payload, created }
 }
 
 describe('seedStationPages', () => {
@@ -34,7 +31,7 @@ describe('seedStationPages', () => {
   })
 
   it('leaves a page that already exists exactly as it is', async () => {
-    const { payload, created } = fakePayload([{ id: 1, slug: NWAC_STATION_PAGES[0].slug }])
+    const { payload, created } = fakePayload([{ slug: NWAC_STATION_PAGES[0].slug }])
     const result = await seedStationPages(payload, 7)
 
     expect(result.pagesCreated).toBe(NWAC_STATION_PAGES.length - 1)
