@@ -74,8 +74,8 @@ describe('buildPrecipAccumulationTable', () => {
     return row
   }
 
-  it('sorts rows north to south by latitude', () => {
-    expect(table.rows.map((r) => r.name)).toEqual(['North Fresh', 'Mid Silent', 'South Lagging'])
+  it('keeps rows in the order requested', () => {
+    expect(table.rows.map((r) => r.name)).toEqual(['North Fresh', 'South Lagging', 'Mid Silent'])
   })
 
   it('sums trailing windows with null passthrough', () => {

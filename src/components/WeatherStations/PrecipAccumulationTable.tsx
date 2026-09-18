@@ -287,8 +287,8 @@ function HeaderRow({
 
 // Station x trailing-window precip matrix, matching the legacy
 // /data-portal/accumulations/precipitation/ table: 1H..72H sums (in/mm),
-// last report, latitude, elevation. Default order (north -> south) comes from
-// the server; clicking a header sorts client-side, toggling direction.
+// last report, latitude, elevation. Default order is the center's Page
+// Settings list; clicking a header sorts client-side, toggling direction.
 export function PrecipAccumulationTable({
   table,
   columns = ALL_PRECIP_COLUMNS,

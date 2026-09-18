@@ -22,8 +22,8 @@ function buildRow(overrides: Partial<PrecipAccumulationRow>): PrecipAccumulation
   }
 }
 
-// Server order is north -> south; names deliberately not alphabetical so the
-// name sort visibly reorders.
+// Server order is the center's list; names deliberately not alphabetical so
+// the name sort visibly reorders.
 const zeta = buildRow({ stid: 'Z', name: 'Zeta', latitude: 48.5, lastUpdateMs: 2000 })
 const alta = buildRow({
   stid: 'A',
