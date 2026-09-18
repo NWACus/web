@@ -2192,6 +2192,7 @@ export interface StationPageDoc {
 export interface WeatherStationSetting {
   id: number;
   tenant: number | Tenant;
+  centerName?: string | null;
   precipStations?: {
     stid: string;
     source: string;
@@ -4414,6 +4415,7 @@ export interface StationPagesSelect<T extends boolean = true> {
  */
 export interface WeatherStationSettingsSelect<T extends boolean = true> {
   tenant?: T;
+  centerName?: T;
   precipStations?: T;
   precipColumns?: T;
   contentHash?: T;

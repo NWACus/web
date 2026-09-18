@@ -16,16 +16,24 @@ import { CollectionConfig } from 'payload'
 // too rather than in a new collection.
 export const WeatherStationSettings: CollectionConfig = {
   slug: 'weatherStationSettings',
-  labels: { singular: 'Page Config', plural: 'Page Config' },
+  labels: { singular: 'Page Settings', plural: 'Page Settings' },
   access: accessByTenantRole('weatherStationSettings'),
   admin: {
     baseListFilter: filterByTenant,
     group: 'Weather',
-    defaultColumns: ['tenant', 'updatedAt'],
+    useAsTitle: 'centerName',
+    defaultColumns: ['centerName', 'updatedAt'],
     description: 'Settings for the weather station pages that belong to the whole center.',
   },
   fields: [
     tenantField({ unique: true }),
+    {
+      // The document's title: the center's name, read through the tenant.
+      name: 'centerName',
+      type: 'text',
+      virtual: 'tenant.name',
+      admin: { hidden: true },
+    },
     {
       type: 'tabs',
       tabs: [
