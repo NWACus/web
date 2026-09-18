@@ -1,44 +1,40 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { notFound } from 'next/navigation'
+import { NativeWeatherPage } from '@/components/forecast/NativeWeatherPage'
+import {
+  assertCenterPlatform,
+  centerRouteMetadata,
+  centerStaticParams,
+  type CenterRouteArgs,
+} from '@/utilities/centerRoutePage'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 
-export const dynamic = 'force-static'
+// Short ISR backstop (5 min), matching the forecast routes: the native page renders the current
+// weather product, so it must not be frozen at build time. The revalidate-on-view path catches a
+// correction faster than this.
+export const revalidate = 300
 
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
-    collection: 'tenants',
-    limit: 0,
-    select: {
-      slug: true,
-    },
-  })
+export const generateStaticParams = centerStaticParams
 
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
-}
-
-type Args = {
-  params: Promise<PathArgs>
-}
-
-type PathArgs = {
-  center: string
-}
-
-export default async function Page({ params }: Args) {
+export default async function Page({ params }: CenterRouteArgs) {
   const { center } = await params
 
-  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
+  // The AFP's capability flag gates above our rollout flag: a center with no NAC weather product
+  // (NWAC authors its own) has no Mountain Weather page whatever Settings says.
+  await assertCenterPlatform(center, 'weather')
 
-  if (!avalancheCenterPlatforms.weather) {
-    notFound()
+  const useNative = await getNativeProductFlag(center, 'weather')
+
+  if (useNative) {
+    return (
+      <>
+        <Breadcrumbs center={center} path="/weather/forecast" />
+        <NativeWeatherPage centerSlug={center} />
+      </>
+    )
   }
 
   return (
@@ -58,31 +54,15 @@ export default async function Page({ params }: Args) {
 }
 
 export async function generateMetadata(
-  props: Args,
+  props: CenterRouteArgs,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const { center } = await props.params
-  const parentMeta = await parent
 
-  const parentTitle =
-    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
-      ? parentMeta.title.absolute
-      : parentMeta.title
-
-  const parentOg = parentMeta.openGraph
-
-  return {
-    title: `Mountain Weather | ${parentTitle}`,
-    alternates: {
-      canonical: '/weather/forecast',
-    },
-    openGraph: {
-      ...parentOg,
-      title: `Mountain Weather | ${parentTitle}`,
-      url: '/weather/forecast',
-      images: [
-        { url: `/api/${center}/og?routeTitle=Mountain%20Weather`, width: 1200, height: 630 },
-      ],
-    },
-  }
+  return centerRouteMetadata({
+    parent,
+    label: 'Mountain Weather',
+    path: '/weather/forecast',
+    center,
+  })
 }
