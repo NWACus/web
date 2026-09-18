@@ -60,20 +60,3 @@ export function allStations(pages: StationPage[]): Map<string, StationRef> {
   }
   return byStid
 }
-
-// The Accumulated Precipitation rows: every station on a live page, in page
-// order, as the legacy table showed. Archived pages are left out because a
-// decommissioned gauge would read "missing" forever.
-export function precipStations(pages: StationPage[]): StationRef[] {
-  const seen = new Set<string>()
-  const refs: StationRef[] = []
-  for (const page of pages) {
-    if (page.archived) continue
-    for (const { stid, source } of page.stations) {
-      if (seen.has(stid)) continue
-      seen.add(stid)
-      refs.push({ stid, source })
-    }
-  }
-  return refs
-}

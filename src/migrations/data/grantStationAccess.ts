@@ -1,9 +1,9 @@
 import type { BasePayload } from 'payload'
 
-const STATION_COLLECTIONS = ['stationPages']
+const STATION_COLLECTIONS = ['stationPages', 'weatherStationSettings']
 
 /**
- * Let each center's Admin role manage the station pages.
+ * Let each center's Admin role manage the station pages and settings.
  *
  * Tenant roles list their collections explicitly, so a new collection is
  * invisible to every existing Admin until someone edits the role. Finds the

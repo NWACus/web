@@ -243,3 +243,29 @@ export const NWAC_STATION_PAGES: SeedStationPage[] = [
     stids: ['47', '46'],
   },
 ]
+
+// The Accumulated Precipitation table's stations: the loggers above with a
+// precipitation gauge, in page order. Checked against SnowObs on 2026-09-18
+// (a station whose latest observations carry `precip_accum_one_hour`); the
+// admin marks any that stop reporting.
+export const NWAC_PRECIP_STATIONS: string[] = [
+  '4',
+  '5',
+  '12',
+  '13',
+  '50',
+  '1',
+  '21',
+  '28',
+  '35',
+  '33',
+  '39',
+  '7',
+  '8',
+  '48',
+  '11',
+  '53',
+  '43',
+  '44',
+  '46',
+]

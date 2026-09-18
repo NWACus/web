@@ -32,6 +32,7 @@ import { Tags } from '@/collections/Tags'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
 import { Users } from '@/collections/Users'
+import { WeatherStationSettings } from '@/collections/WeatherStationSettings'
 
 import { getEmailAdapter } from '@/email-adapter'
 import { defaultLexical } from '@/fields/defaultLexical'
@@ -190,6 +191,7 @@ export default buildConfig({
     Tenants,
     // Weather
     StationPages,
+    WeatherStationSettings,
     // Settings
     Navigations,
     Settings,
