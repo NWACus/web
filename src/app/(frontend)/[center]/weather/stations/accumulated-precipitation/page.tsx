@@ -6,11 +6,8 @@ import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
-import {
-  getStationPages,
-  precipStations,
-  toPageSummaries,
-} from '@/services/stations/getStationPages'
+import { getStationPages, toPageSummaries } from '@/services/stations/getStationPages'
+import { getWeatherStationSettings } from '@/services/stations/getWeatherStationSettings'
 import { notFound } from 'next/navigation'
 
 // Rendered per request (the [center] layout's generateStaticParams otherwise forces
@@ -44,8 +41,10 @@ function PageHeader({ pages }: { pages: StationPageSummary[] }) {
 export default async function Page({ params }: Args) {
   const { center } = await params
 
-  const pages = await getStationPages(center)
-  const stations = precipStations(pages)
+  const [pages, { precipStations: stations, precipColumns }] = await Promise.all([
+    getStationPages(center),
+    getWeatherStationSettings(center),
+  ])
   if (stations.length === 0) {
     notFound()
   }
@@ -63,7 +62,7 @@ export default async function Page({ params }: Args) {
       <div className="mb-10 flex flex-col gap-4">
         <PageHeader pages={toPageSummaries(pages)} />
         <div className="container flex flex-col gap-3">
-          <PrecipAccumulationTable table={table} />
+          <PrecipAccumulationTable table={table} columns={precipColumns} />
           <p className="text-sm text-muted-foreground">
             Data not quality controlled. Accumulated precipitation does not reflect weather station
             outages or other technical errors.

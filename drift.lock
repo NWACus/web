@@ -473,7 +473,7 @@ sig = "89238abc0da25343"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/getStationPages.ts"
-sig = "abf317cea3d80f57"
+sig = "1039a442d99ea1b8"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -493,7 +493,7 @@ sig = "0f6500fe941f2549"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/stationPages.ts"
-sig = "a618000530aefba7"
+sig = "dd3f749b86884bf1"
 
 [[bindings]]
 doc = "docs/doc-drift.md"

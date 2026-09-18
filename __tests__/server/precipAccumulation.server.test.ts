@@ -52,6 +52,19 @@ const response: SnowObsTimeseriesResponse = {
         precip_accum_one_hour: [],
       },
     },
+    {
+      id: '4',
+      stid: '4',
+      name: 'Wind Only',
+      latitude: 47.0,
+      longitude: -121.3,
+      elevation: 6000,
+      observations: {
+        // No precipitation series at all: a wind station, not a gauge.
+        date_time: [iso(1), iso(0)],
+        wind_speed: [10, 12],
+      },
+    },
   ],
 }
 
@@ -66,8 +79,8 @@ describe('buildPrecipAccumulationTable', () => {
     return row
   }
 
-  it('sorts rows north to south by latitude', () => {
-    expect(table.rows.map((r) => r.name)).toEqual(['North Fresh', 'Mid Silent', 'South Lagging'])
+  it('keeps rows in the order requested', () => {
+    expect(table.rows.map((r) => r.name)).toEqual(['North Fresh', 'South Lagging', 'Mid Silent'])
   })
 
   it('sums trailing windows with null passthrough', () => {
@@ -97,6 +110,11 @@ describe('buildPrecipAccumulationTable', () => {
     expect(silent.hasData).toBe(false)
     expect(silent.totals[72]).toBeNull()
     expect(silent.lastUpdate).toBe('')
+  })
+
+  it('leaves out a station with no precipitation series, gauge or not', () => {
+    const withWind = buildPrecipAccumulationTable(response, ['1', '4'])
+    expect(withWind.rows.map((r) => r.stid)).toEqual(['1'])
   })
 
   it('dedupes requested stids and skips stations absent from the response', () => {

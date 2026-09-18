@@ -59,17 +59,3 @@ export function allStations(pages: AssembledStationPage[]): Map<string, StationR
   }
   return byKey
 }
-// Archived pages are left out: a decommissioned gauge would read "missing" forever.
-export function precipStations(pages: AssembledStationPage[]): StationRef[] {
-  const seen = new Set<string>()
-  const refs: StationRef[] = []
-  for (const page of pages) {
-    if (page.archived) continue
-    for (const { stid, source } of page.stations) {
-      if (seen.has(stid)) continue
-      seen.add(stid)
-      refs.push({ stid, source })
-    }
-  }
-  return refs
-}
