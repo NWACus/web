@@ -254,9 +254,12 @@ export function buildPrecipAccumulationTable(
   stids: string[],
 ): PrecipAccumulationTable {
   const stationByStid = new Map(response.STATION.map((s) => [s.stid, s]))
+  // A station with no precipitation series in the window has no gauge (or one
+  // that has been silent the whole time); either way it gets no row. A gauge
+  // that reported the series but no values shows as "missing".
   const stations = Array.from(new Set(stids)).flatMap((stid) => {
     const station = stationByStid.get(stid)
-    return station ? [{ stid, station }] : []
+    return station && PRECIP_HOURLY in station.observations ? [{ stid, station }] : []
   })
 
   // Windows anchor at the newest observation across ALL stations, so a lagging

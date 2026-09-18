@@ -45,7 +45,8 @@ export const WeatherStationSettings: CollectionConfig = {
             stationsField({
               name: 'precipStations',
               label: 'Stations',
-              description: 'Only stations that report precipitation get a row.',
+              description:
+                'A station with no precipitation gauge is left off the table on its own; one whose gauge has gone quiet shows as missing.',
             }),
           ],
         },
