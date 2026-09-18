@@ -48,7 +48,7 @@ sig = "670dda646337e58d"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/decisions/README.md"
-sig = "c84c836e60774d7f"
+sig = "b9f748a89983d3d2"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -411,44 +411,59 @@ target = "src/utilities/timezones.ts"
 sig = "f445ae3bb3f380ef"
 
 [[bindings]]
-doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/collections/StationPages/components/StationPicker.tsx"
+sig = "c82100b8a9af7048"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/collections/StationPages/endpoints/trackedStations.ts"
+sig = "13d6181b5ece35b7"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/collections/StationPages/hooks/ensureStationsUnique.ts"
+sig = "bd97ef33edcff9d8"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/index.ts"
-sig = "14e88120043810e4"
+sig = "5ff3ad738b90bae2"
 
 [[bindings]]
-doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
-target = "src/collections/Stations/index.ts"
-sig = "ff95399b98d080a0"
-
-[[bindings]]
-doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/migrations/data/seedStationPages.ts"
-sig = "cc52b194474e31b5"
+sig = "ceee4e60a5db491d"
 
 [[bindings]]
-doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/deriveColumns.ts"
 sig = "6e3cb4dd1f920376"
 
 [[bindings]]
-doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/snowobs.ts"
-sig = "7ad261846f996bc4"
+sig = "e3f06d2f007cc8b8"
 
 [[bindings]]
-doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/snowobs/stationTracking.ts"
+sig = "81ef12d1f1e07fae"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/getStationPages.ts"
-sig = "ddd58b6df7d03575"
+sig = "5efb59687e57e59b"
 
 [[bindings]]
-doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/revalidate.ts"
 sig = "ddb05da22d641484"
 
 [[bindings]]
-doc = "docs/decisions/021-station-pages-are-a-payload-overlay-on-snowobs.md"
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/stationPages.ts"
-sig = "dfcef6adb3fea0a6"
+sig = "2f20f703b599c98c"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
@@ -558,7 +573,7 @@ sig = "ba88cf9a8263b060"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "6ea40edfdc6b0c9a"
+sig = "f5167f9ba0a02b02"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
