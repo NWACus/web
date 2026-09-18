@@ -43,11 +43,6 @@ export const WeatherStationSettings: CollectionConfig = {
           description:
             'The Accumulated Precipitation page shows these stations in the same order as they are saved here. Drag to reorder. Day-to-day gaps show as "missing" on their own.',
           fields: [
-            stationsField({
-              name: 'precipStations',
-              label: 'Stations',
-              requiredVariable: { variable: PRECIP_HOURLY, label: 'Precip' },
-            }),
             {
               name: 'precipColumns',
               type: 'select',
@@ -60,6 +55,11 @@ export const WeatherStationSettings: CollectionConfig = {
                   'Which columns the table shows after the station name. Clearing every column shows them all.',
               },
             },
+            stationsField({
+              name: 'precipStations',
+              label: 'Stations',
+              requiredVariable: { variable: PRECIP_HOURLY, label: 'Precip' },
+            }),
           ],
         },
       ],

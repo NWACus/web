@@ -428,7 +428,7 @@ sig = "c017843e18d30e15"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/WeatherStationSettings/index.ts"
-sig = "d54668f81ba4acd2"
+sig = "c80fced7dd035678"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
