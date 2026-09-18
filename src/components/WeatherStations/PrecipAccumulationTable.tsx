@@ -1,6 +1,5 @@
 'use client'
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type {
@@ -8,10 +7,11 @@ import type {
   PrecipAccumulationRow,
 } from '@/services/snowobs/tableHelpers'
 import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
+import type { PrecipColumn } from '@/services/stations/precipColumns'
+import { ALL_PRECIP_COLUMNS } from '@/services/stations/precipColumns'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { NoteIcon, StationNoteList } from './StationNotes'
 import { StationTableFrame, StationTableHeader } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
@@ -147,46 +147,79 @@ function formatElevation(row: PrecipAccumulationRow, unit: Unit): string {
   return value.toLocaleString()
 }
 
-function StationRow({ row, unit }: { row: PrecipAccumulationRow; unit: Unit }) {
+// Which trailing windows and which metadata columns a center chose to show.
+type Visible = {
+  windows: (typeof PRECIP_ACCUMULATION_WINDOWS)[number][]
+  has: (c: PrecipColumn) => boolean
+}
+
+function visibleColumns(columns: PrecipColumn[]): Visible {
+  const set = new Set(columns)
+  return {
+    windows: PRECIP_ACCUMULATION_WINDOWS.filter((hours) => set.has(`${hours}h`)),
+    has: (c) => set.has(c),
+  }
+}
+
+function StationRow({
+  row,
+  unit,
+  visible,
+}: {
+  row: PrecipAccumulationRow
+  unit: Unit
+  visible: Visible
+}) {
   const noReport = !row.lastUpdate
   return (
     <TableRow className="bg-background even:bg-muted">
       <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-2 py-1.5 font-medium">
-        <span className="inline-flex items-center gap-1">
-          {row.name}
-          {row.notes.length > 0 && <StationNoteFlag row={row} />}
-        </span>
+        {row.name}
       </TableCell>
-      <AccumulationCells row={row} unit={unit} />
-      <TableCell
-        className={cn(
-          'whitespace-nowrap px-2 py-1.5 text-right',
-          noReport && 'text-muted-foreground',
-        )}
-      >
-        {noReport ? 'no report in 72H' : row.lastUpdate}
-      </TableCell>
-      <TableCell className="px-2 py-1.5 text-right">{formatLatitude(row)}</TableCell>
-      <TableCell className="px-2 py-1.5 text-right">{formatLongitude(row)}</TableCell>
-      <TableCell className="px-2 py-1.5 text-right">{formatElevation(row, unit)}</TableCell>
+      <AccumulationCells row={row} unit={unit} windows={visible.windows} />
+      {visible.has('lastUpdate') && (
+        <TableCell
+          className={cn(
+            'whitespace-nowrap px-2 py-1.5 text-right',
+            noReport && 'text-muted-foreground',
+          )}
+        >
+          {noReport ? 'no report in 72H' : row.lastUpdate}
+        </TableCell>
+      )}
+      {visible.has('latitude') && (
+        <TableCell className="px-2 py-1.5 text-right">{formatLatitude(row)}</TableCell>
+      )}
+      {visible.has('longitude') && (
+        <TableCell className="px-2 py-1.5 text-right">{formatLongitude(row)}</TableCell>
+      )}
+      {visible.has('elevation') && (
+        <TableCell className="px-2 py-1.5 text-right">{formatElevation(row, unit)}</TableCell>
+      )}
     </TableRow>
   )
 }
 
 // The 1H..72H sum cells for one station; a station with no observations in the
 // widest window collapses to a single "missing" cell, like the legacy page.
-function AccumulationCells({ row, unit }: { row: PrecipAccumulationRow; unit: Unit }) {
+function AccumulationCells({
+  row,
+  unit,
+  windows,
+}: {
+  row: PrecipAccumulationRow
+  unit: Unit
+  windows: Visible['windows']
+}) {
+  if (windows.length === 0) return null
   if (!row.hasData) {
     return (
-      <TableCell
-        colSpan={PRECIP_ACCUMULATION_WINDOWS.length}
-        className="px-2 py-1.5 text-center text-muted-foreground"
-      >
+      <TableCell colSpan={windows.length} className="px-2 py-1.5 text-center text-muted-foreground">
         missing
       </TableCell>
     )
   }
-  return PRECIP_ACCUMULATION_WINDOWS.map((hours) => {
+  return windows.map((hours) => {
     const value = row.totals[hours]
     return (
       <TableCell
@@ -204,11 +237,13 @@ function HeaderRow({
   onSort,
   unit,
   timezoneLabel,
+  visible,
 }: {
   sort: SortState | null
   onSort: (key: SortKey) => void
   unit: Unit
   timezoneLabel: string
+  visible: Visible
 }) {
   const stateFor = (key: SortKey): HeadSortState => ({
     active: sort?.key === key,
@@ -218,7 +253,7 @@ function HeaderRow({
   return (
     <TableRow>
       <SortableHead label="Station" state={stateFor('name')} sticky />
-      {PRECIP_ACCUMULATION_WINDOWS.map((hours) => (
+      {visible.windows.map((hours) => (
         <SortableHead
           key={hours}
           label={`${hours}H`}
@@ -226,27 +261,42 @@ function HeaderRow({
           state={stateFor(hours)}
         />
       ))}
-      <SortableHead
-        label="Last update"
-        sublabel={timezoneLabel || undefined}
-        state={stateFor('lastUpdate')}
-      />
-      <SortableHead label="Latitude" sublabel="°N" state={stateFor('latitude')} />
-      <SortableHead label="Longitude" sublabel="°W" state={stateFor('longitude')} />
-      <SortableHead
-        label="Elevation"
-        sublabel={ELEVATION_UNIT[unit]}
-        state={stateFor('elevation')}
-      />
+      {visible.has('lastUpdate') && (
+        <SortableHead
+          label="Last update"
+          sublabel={timezoneLabel || undefined}
+          state={stateFor('lastUpdate')}
+        />
+      )}
+      {visible.has('latitude') && (
+        <SortableHead label="Latitude" sublabel="°N" state={stateFor('latitude')} />
+      )}
+      {visible.has('longitude') && (
+        <SortableHead label="Longitude" sublabel="°W" state={stateFor('longitude')} />
+      )}
+      {visible.has('elevation') && (
+        <SortableHead
+          label="Elevation"
+          sublabel={ELEVATION_UNIT[unit]}
+          state={stateFor('elevation')}
+        />
+      )}
     </TableRow>
   )
 }
 
 // Station x trailing-window precip matrix, matching the legacy
 // /data-portal/accumulations/precipitation/ table: 1H..72H sums (in/mm),
-// last report, latitude, elevation. Default order (north -> south) comes from
-// the server; clicking a header sorts client-side, toggling direction.
-export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationData }) {
+// last report, latitude, elevation. Default order is the center's Page
+// Settings list; clicking a header sorts client-side, toggling direction.
+export function PrecipAccumulationTable({
+  table,
+  columns = ALL_PRECIP_COLUMNS,
+}: {
+  table: PrecipAccumulationData
+  columns?: PrecipColumn[]
+}) {
+  const visible = useMemo(() => visibleColumns(columns), [columns])
   const [sort, setSort] = useState<SortState | null>(null)
   const [unit, setUnit] = useState<Unit>('imperial')
 
@@ -274,42 +324,20 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
         className="mx-auto w-auto text-base"
       >
         <StationTableHeader>
-          <HeaderRow sort={sort} onSort={onSort} unit={unit} timezoneLabel={table.timezoneLabel} />
+          <HeaderRow
+            sort={sort}
+            onSort={onSort}
+            unit={unit}
+            timezoneLabel={table.timezoneLabel}
+            visible={visible}
+          />
         </StationTableHeader>
         <TableBody>
           {rows.map((row) => (
-            <StationRow key={row.stid} row={row} unit={unit} />
+            <StationRow key={row.stid} row={row} unit={unit} visible={visible} />
           ))}
         </TableBody>
       </StationTableFrame>
-      <StationNoteLegend rows={rows} />
     </div>
-  )
-}
-
-// The note itself lives on the station page; the flag gets the reader there.
-function StationNoteFlag({ row }: { row: PrecipAccumulationRow }) {
-  const status = row.notes.some((note) => note.status === 'active') ? 'active' : 'static'
-  return (
-    <Popover>
-      <PopoverTrigger className="inline-flex" aria-label={`${row.name} has a station note`}>
-        <NoteIcon status={status} className="h-3.5 w-3.5" />
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto max-w-sm p-3">
-        <StationNoteList notes={row.notes} />
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-function StationNoteLegend({ rows }: { rows: PrecipAccumulationRow[] }) {
-  if (!rows.some((row) => row.notes.length > 0)) return null
-  return (
-    <p className="mt-3 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
-      <NoteIcon status="active" className="h-3.5 w-3.5 shrink-0" />
-      marks a station with a current issue,
-      <NoteIcon status="static" className="h-3.5 w-3.5 shrink-0" />
-      marks a station with a standing note.
-    </p>
   )
 }

@@ -5,7 +5,7 @@ import { stationPagesTag } from './revalidate'
 import type { StationPage } from './stationPages'
 import { assembleStationPages } from './stationPages'
 
-export { allStations, precipStations, toPageSummaries } from './stationPages'
+export { allStations, toPageSummaries } from './stationPages'
 export type { StationPage, StationPageSummary } from './stationPages'
 
 async function loadStationPages(center: string): Promise<StationPage[]> {

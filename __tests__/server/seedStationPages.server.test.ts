@@ -1,4 +1,4 @@
-import { NWAC_STATION_PAGES } from '@/migrations/data/nwacStationPages'
+import { NWAC_PRECIP_STATIONS, NWAC_STATION_PAGES } from '@/migrations/data/nwacStationPages'
 import type { SeedPayload } from '@/migrations/data/seedStationPages'
 import { seedStationPages } from '@/migrations/data/seedStationPages'
 
@@ -6,10 +6,15 @@ type Created = { collection: string; data: Record<string, unknown> }
 
 // Enough of the local API for the seed: `find` answers per collection,
 // `create` records what the seed decided.
-function fakePayload({ pages = [] }: { pages?: { slug: string }[] } = {}) {
+function fakePayload({
+  pages = [],
+  settings = [],
+}: { pages?: { slug: string }[]; settings?: { slug: string }[] } = {}) {
   const created: Created[] = []
   const payload: SeedPayload = {
-    find: async () => ({ docs: pages }),
+    find: async ({ collection }: { collection: string }) => ({
+      docs: collection === 'stationPages' ? pages : settings,
+    }),
     create: async ({ collection, data }: Created) => {
       created.push({ collection, data })
       return { id: 1000 + created.length, ...data }
@@ -32,13 +37,30 @@ describe('seedStationPages', () => {
     expect(row?.data.tenant).toBe(7)
   })
 
-  it('leaves a page that already exists exactly as it is', async () => {
-    const { payload, created } = fakePayload({ pages: [{ slug: NWAC_STATION_PAGES[0].slug }] })
+  it('seeds the precip table with the stations that have a gauge, in page order', async () => {
+    const { payload, created } = fakePayload()
     const result = await seedStationPages(payload, 7)
 
-    expect(result).toEqual({ pagesCreated: NWAC_STATION_PAGES.length - 1 })
+    const settings = created.find((c) => c.collection === 'weatherStationSettings')
+    const onPages = new Set(NWAC_STATION_PAGES.flatMap((p) => p.stids))
+    expect(result.settingsCreated).toBe(true)
+    expect(settings?.data.precipStations).toEqual(
+      NWAC_PRECIP_STATIONS.map((stid) => ({ stid, source: 'nwac' })),
+    )
+    expect(NWAC_PRECIP_STATIONS.every((stid) => onPages.has(stid))).toBe(true)
+  })
+
+  it('leaves a page and settings that already exist exactly as they are', async () => {
+    const { payload, created } = fakePayload({
+      pages: [{ slug: NWAC_STATION_PAGES[0].slug }],
+      settings: [{ slug: 'nwac' }],
+    })
+    const result = await seedStationPages(payload, 7)
+
+    expect(result).toEqual({ pagesCreated: NWAC_STATION_PAGES.length - 1, settingsCreated: false })
     expect(createdPages(created).some((c) => c.data.slug === NWAC_STATION_PAGES[0].slug)).toBe(
       false,
     )
+    expect(created.some((c) => c.collection === 'weatherStationSettings')).toBe(false)
   })
 })

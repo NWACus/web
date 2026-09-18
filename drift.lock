@@ -427,6 +427,11 @@ sig = "ef8278e5b4292c76"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/collections/WeatherStationSettings/index.ts"
+sig = "c80fced7dd035678"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationsInput.tsx"
 sig = "5ccfc64c6254f67d"
 
@@ -443,7 +448,7 @@ sig = "2f46673998744e5e"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/migrations/data/seedStationPages.ts"
-sig = "9ae5ea36db309bba"
+sig = "5318841f6631bff8"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -468,7 +473,17 @@ sig = "89238abc0da25343"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/getStationPages.ts"
-sig = "5efb59687e57e59b"
+sig = "c66b65288eeed769"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/getWeatherStationSettings.ts"
+sig = "7bd05394358d20f7"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/precipColumns.ts"
+sig = "3661a34397901055"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -478,7 +493,7 @@ sig = "ddb05da22d641484"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/stationPages.ts"
-sig = "c218a198f27169ef"
+sig = "d5215902efe3da34"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
@@ -583,7 +598,7 @@ sig = "3436eed2ed79916b"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = ".husky/check-migrations"
-sig = "f3230eac010baa8c"
+sig = "ba88cf9a8263b060"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

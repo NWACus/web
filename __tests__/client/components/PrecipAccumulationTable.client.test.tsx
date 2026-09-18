@@ -22,8 +22,8 @@ function buildRow(overrides: Partial<PrecipAccumulationRow>): PrecipAccumulation
   }
 }
 
-// Server order is north -> south; names deliberately not alphabetical so the
-// name sort visibly reorders.
+// Server order is the center's list; names deliberately not alphabetical so
+// the name sort visibly reorders.
 const zeta = buildRow({ stid: 'Z', name: 'Zeta', latitude: 48.5, lastUpdateMs: 2000 })
 const alta = buildRow({
   stid: 'A',
@@ -110,59 +110,5 @@ describe('PrecipAccumulationTable', () => {
     render(<PrecipAccumulationTable table={{ rows: [], timezoneLabel: '' }} />)
 
     expect(screen.getByText('No station observations in the last 72 hours.')).toBeInTheDocument()
-  })
-})
-
-function note(text: string, status: 'active' | 'static' = 'active') {
-  return { stid: '44', stationName: 'Timberline', note: text, status, startDate: null }
-}
-
-describe('station notes', () => {
-  beforeAll(() => {
-    class ResizeObserverStub {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    }
-    globalThis.ResizeObserver = ResizeObserverStub
-  })
-
-  it('opens the notes in a popover', () => {
-    const broken = buildRow({
-      stid: '44',
-      name: 'Timberline',
-      notes: [note('The precipitation gauge is not recording correctly.')],
-    })
-    render(<PrecipAccumulationTable table={{ rows: [broken], timezoneLabel: 'PST' }} />)
-
-    const flag = screen.getByLabelText('Timberline has a station note')
-    expect(flag.querySelector('svg')).toHaveClass('lucide-triangle-alert')
-    expect(screen.getByText(/current issue/)).toBeInTheDocument()
-
-    fireEvent.click(flag)
-    expect(
-      screen.getByText('The precipitation gauge is not recording correctly.'),
-    ).toBeInTheDocument()
-  })
-
-  it('uses the info icon for a station with only a standing note', () => {
-    const row = buildRow({
-      stid: '44',
-      name: 'Timberline',
-      notes: [note('Unheated wind gauge rimes over in storms.', 'static')],
-    })
-    render(<PrecipAccumulationTable table={{ rows: [row], timezoneLabel: 'PST' }} />)
-    const flag = screen.getByLabelText('Timberline has a station note')
-    expect(flag.querySelector('svg')).toHaveClass('lucide-info')
-  })
-
-  it('leaves unflagged stations unmarked', () => {
-    render(
-      <PrecipAccumulationTable
-        table={{ rows: [buildRow({ name: 'Paradise' })], timezoneLabel: 'PST' }}
-      />,
-    )
-    expect(screen.queryByLabelText(/has a station note/)).not.toBeInTheDocument()
-    expect(screen.queryByText(/current issue/)).not.toBeInTheDocument()
   })
 })

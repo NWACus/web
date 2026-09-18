@@ -92,6 +92,7 @@ export interface Config {
     globalRoleAssignments: GlobalRoleAssignment;
     tenants: Tenant;
     stationPages: StationPageDoc;
+    weatherStationSettings: WeatherStationSetting;
     navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
@@ -146,6 +147,7 @@ export interface Config {
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     stationPages: StationPagesSelect<false> | StationPagesSelect<true>;
+    weatherStationSettings: WeatherStationSettingsSelect<false> | WeatherStationSettingsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -2183,6 +2185,30 @@ export interface StationPageDoc {
   createdAt: string;
 }
 /**
+ * Settings for the weather station pages that belong to the whole center.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "weatherStationSettings".
+ */
+export interface WeatherStationSetting {
+  id: number;
+  tenant: number | Tenant;
+  centerName?: string | null;
+  /**
+   * Which columns the table shows after the station name. Clearing every column shows them all.
+   */
+  precipColumns?:
+    | ('1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '72h' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation')[]
+    | null;
+  precipStations?: {
+    stid: string;
+    source: string;
+  }[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations".
  */
@@ -3395,6 +3421,10 @@ export interface PayloadLockedDocument {
         value: number | StationPageDoc;
       } | null)
     | ({
+        relationTo: 'weatherStationSettings';
+        value: number | WeatherStationSetting;
+      } | null)
+    | ({
         relationTo: 'navigations';
         value: number | Navigation;
       } | null)
@@ -4376,6 +4406,19 @@ export interface StationPagesSelect<T extends boolean = true> {
   slug?: T;
   stations?: T;
   archived?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "weatherStationSettings_select".
+ */
+export interface WeatherStationSettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  centerName?: T;
+  precipColumns?: T;
+  precipStations?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
