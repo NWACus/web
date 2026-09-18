@@ -155,8 +155,8 @@ function StationsTable({
   )
 }
 
-// A searchable select over the stations not yet listed, and an Add button
-// that appends the chosen one.
+// A searchable select over the stations not yet listed; pick one or several,
+// and Add appends them in the order picked.
 function AddStation({
   path,
   options,
@@ -164,32 +164,38 @@ function AddStation({
 }: {
   path: string
   options: Option[]
-  onAdd: (ref: StationRef) => void
+  onAdd: (refs: StationRef[]) => void
 }) {
-  const [chosen, setChosen] = useState<Option | null>(null)
+  const [chosen, setChosen] = useState<Option[]>([])
   const add = () => {
-    if (!chosen) return
-    onAdd({ stid: chosen.stid, source: chosen.source })
-    setChosen(null)
+    if (chosen.length === 0) return
+    onAdd(chosen.map((o) => ({ stid: o.stid, source: o.source })))
+    setChosen([])
+  }
+  const pick = (picked: unknown) => {
+    const values = new Set((Array.isArray(picked) ? picked : []).map((p) => String(p?.value)))
+    setChosen(options.filter((o) => values.has(o.value)))
   }
   return (
     <div className="stations-table__add">
-      <Select
-        inputId={`${path}-add`}
-        isSearchable
-        isClearable
-        placeholder="Search by name, id or source…"
-        options={options}
-        value={chosen ?? undefined}
-        onChange={(picked) =>
-          setChosen(
-            options.find((o) => !Array.isArray(picked) && o.value === picked?.value) ?? null,
-          )
-        }
-      />
-      <Button buttonStyle="secondary" size="small" disabled={!chosen} onClick={add}>
-        Add
-      </Button>
+      <label className="field-label" htmlFor={`${path}-add`}>
+        Add station
+      </label>
+      <div className="stations-table__add-row">
+        <Select
+          inputId={`${path}-add`}
+          isMulti
+          isSearchable
+          isClearable
+          placeholder="Search by name, id or source…"
+          options={options}
+          value={chosen}
+          onChange={pick}
+        />
+        <Button buttonStyle="secondary" disabled={chosen.length === 0} onClick={add}>
+          {chosen.length > 1 ? `Add ${chosen.length}` : 'Add'}
+        </Button>
+      </div>
     </div>
   )
 }
@@ -207,7 +213,7 @@ function Footer({
   tracked: TrackedStations
   options: Option[]
   description?: StaticDescription
-  onAdd: (ref: StationRef) => void
+  onAdd: (refs: StationRef[]) => void
 }) {
   if (tracked.status === 'error') {
     return (
@@ -243,7 +249,7 @@ export function StationsInput({ path, field }: JSONFieldClientProps) {
         tracked={tracked}
         options={options}
         description={field.admin?.description}
-        onAdd={(ref) => setValue([...refs, ref])}
+        onAdd={(added) => setValue([...refs, ...added])}
       />
       <FieldError path={path} message={errorMessage} showError={showError} />
     </div>

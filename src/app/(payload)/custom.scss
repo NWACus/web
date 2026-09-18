@@ -79,13 +79,26 @@
   }
 
   .stations-table__add {
+    margin-bottom: calc(var(--base) * 0.5);
+  }
+
+  // Search and button on one line. The button matches the control's
+  // single-line height and stays at the top as chosen stations wrap below.
+  .stations-table__add-row {
     display: flex;
     align-items: flex-start;
     gap: calc(var(--base) * 0.5);
-    margin-bottom: calc(var(--base) * 0.5);
 
     .react-select {
-      flex: 1;
+      min-width: 32rem;
+      max-width: 100%;
+    }
+
+    .btn {
+      margin: 0;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
     }
   }
 }
