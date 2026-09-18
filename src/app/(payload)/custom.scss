@@ -102,3 +102,10 @@
     }
   }
 }
+
+// Payload gives a tabs field a top margin unless it is the first field. On a
+// document whose only earlier field is a hidden input (Page Settings' title),
+// the tabs are the first thing shown and the margin is a stray gap.
+.document-fields__fields > input[type='hidden']:first-child + .tabs-field {
+  margin-top: 0;
+}
