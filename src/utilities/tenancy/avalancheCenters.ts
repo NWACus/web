@@ -12,7 +12,6 @@
  * - CAC (Cordova Avalanche Center) — only blog_title returned
  * - CAIC (Colorado Avalanche Information Center) — no config fields returned
  * - EARAC (Eastern Alaska Range Avalanche Center) — only blog_title returned
- * - EWYAIX (Eastern Wyoming Avalanche Info Exchange) — no config object at all
  * - SOAIX (Southern Oregon Avalanche Info Exchange) — no config object at all
  * - UAC (Utah Avalanche Center) — no config object at all
  */
@@ -68,6 +67,11 @@ export const AVALANCHE_CENTERS = {
     name: 'Eastern Sierra Avalanche Center',
     customDomain: 'www.esavalanche.org',
     timezone: US_TIMEZONES.PACIFIC,
+  },
+  ewyaix: {
+    name: 'Eastern Wyoming Avalanche Info Exchange',
+    customDomain: 'ewyoavalanche.org',
+    timezone: US_TIMEZONES.MOUNTAIN,
   },
   fac: {
     name: 'Flathead Avalanche Center',

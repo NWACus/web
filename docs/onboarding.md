@@ -2,6 +2,10 @@
 
 Steps for bringing a new avalanche center (tenant) on board.
 
+## Prerequisite: register the slug
+
+The tenant slug dropdown in the admin panel is a static list. Before a center can be created, add it to `AVALANCHE_CENTERS` in `src/utilities/tenancy/avalancheCenters.ts`, using the center's AFP id lowercased as the key (e.g. `EWYAIX` → `ewyaix`), their domain as `customDomain`, and the timezone from `https://api.avalanche.org/v2/public/avalanche-center/<ID>`. Verify with `pnpm check:center-timezones`, run `pnpm generate:types`, and ship it before creating the tenant.
+
 ## Automated
 
 Create the tenant in the admin panel → provisioning runs automatically via `provisionAfterChange`. An **Onboarding Checklist** on the tenant edit page tracks progress. This requires super admin permissions. Creates the tenant record and runs all steps below.

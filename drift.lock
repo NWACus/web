@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "1305c6039963f400"
+sig = "f550e12b2e778218"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -303,7 +303,7 @@ sig = "ff301eba57dc04e2"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "aa5c97cdf628a83b"
+sig = "dec7bbbee1e758ae"
 
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
@@ -403,7 +403,7 @@ sig = "7086eb538048cbad"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "aa5c97cdf628a83b"
+sig = "dec7bbbee1e758ae"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
@@ -553,7 +553,7 @@ sig = "22a227eec96485e6"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "aa5c97cdf628a83b"
+sig = "dec7bbbee1e758ae"
 
 [[bindings]]
 doc = "docs/revalidation.md"

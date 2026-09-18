@@ -1,0 +1,106 @@
+{
+  "id": "EWYAIX",
+  "name": "Eastern Wyoming Avalanche Info Exchange",
+  "url": "https://ewyoavalanche.org",
+  "center_point": null,
+  "off_season": false,
+  "state": "WY",
+  "wkb_geometry": null,
+  "timezone": "America/Denver",
+  "city": null,
+  "email": "chris@avalanche.org",
+  "phone": null,
+  "config": null,
+  "type": "other",
+  "widget_config": {
+    "danger_map": {
+      "height": 500,
+      "saturation": -100,
+      "search": true,
+      "geolocate": true,
+      "advice": true,
+      "center": {
+        "lat": 43.78210034221688,
+        "lng": -107.24763125000001
+      },
+      "zoom": 6
+    },
+    "stations": {
+      "center": {
+        "lat": 44.44,
+        "lng": -106
+      },
+      "zoom": 8,
+      "saturation": -100,
+      "center_id": "EWYAIX",
+      "alternate_zones": null,
+      "units": "english",
+      "timezone": "local",
+      "color_rules": true,
+      "source_legend": false,
+      "sources": ["mesowest", "snotel"],
+      "source_marker_color": true,
+      "within": 180,
+      "external_modal_links": [],
+      "token": "test-token"
+    },
+    "observation_viewer": {
+      "saturation": -100,
+      "alternate_zones": null,
+      "color": "0170B9",
+      "obs_tab": false,
+      "obs_view_url": "https://ewyoavalanche.org/#/view",
+      "obs_form_url": "https://ewyoavalanche.org/#/form"
+    }
+  },
+  "created_at": "2026-01-20 16:45:47.595577",
+  "zones": [
+    {
+      "id": 2841,
+      "name": "Big Horns",
+      "url": "https://ewyoavalanche.org",
+      "zone_id": "big_horns",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "active",
+      "rank": 1
+    },
+    {
+      "id": 2843,
+      "name": "Sierra Madre",
+      "url": "https://ewyoavalanche.org",
+      "zone_id": "sierra_madre",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "active",
+      "rank": null
+    },
+    {
+      "id": 2842,
+      "name": "Snowy Range",
+      "url": "https://ewyoavalanche.org",
+      "zone_id": "snowy_range",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "active",
+      "rank": null
+    }
+  ],
+  "nws_zones": [],
+  "nws_offices": []
+}
