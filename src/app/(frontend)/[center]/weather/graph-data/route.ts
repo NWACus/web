@@ -1,21 +1,16 @@
-import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
 import {
   MAX_COMPARE_STATIONS,
-  NWAC_WEATHER_STATION_GROUPS,
-  STATIONS_TENANT_SLUG,
-} from '@/constants/weatherStations'
+  STATION_GRAPH_PRESETS,
+} from '@/components/WeatherStations/stationGraphPresets'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
+import type { StationPage } from '@/services/stations/getStationPages'
+import { allStations, getStationPages } from '@/services/stations/getStationPages'
 import { NextResponse } from 'next/server'
 
 // Serves the station Graphs tab. Reads SnowObs server-side (token stays
 // hidden); windows longer than 30 days aggregate to daily min/mean/max.
 
-const KNOWN_STIDS = new Set(NWAC_WEATHER_STATION_GROUPS.flatMap((g) => g.stids))
-// Caps sized to the Graphs tab's single fetch: the page's station group plus
-// every comparison pick, and the union of all preset variables.
-const MAX_GROUP_STIDS = Math.max(...NWAC_WEATHER_STATION_GROUPS.map((g) => g.stids.length))
-const MAX_STATIONS = (1 + MAX_COMPARE_STATIONS) * MAX_GROUP_STIDS
 const MAX_VARIABLES = new Set(STATION_GRAPH_PRESETS.flatMap((p) => p.variables)).size
 const MAX_WINDOW_MS = 5 * 366 * 24 * 60 * 60 * 1000 // ~5 years, verified against SnowObs
 const REVALIDATE_SECONDS = 300
@@ -37,16 +32,23 @@ function listBounds(name: string, values: string[], max: number): string | null 
   return values.length === 0 || values.length > max ? `${name} must list 1-${max} entries` : null
 }
 
-function unknownStids(stids: string[]): string | null {
-  const unknown = stids.filter((stid) => !KNOWN_STIDS.has(stid))
+// Caps sized to the Graphs tab's single fetch: the page's stations plus every
+// comparison pick, and the union of all preset variables.
+function maxStations(pages: StationPage[]): number {
+  const largestPage = Math.max(1, ...pages.map((page) => page.stids.length))
+  return (1 + MAX_COMPARE_STATIONS) * largestPage
+}
+
+function unknownStids(stids: string[], known: Set<string>): string | null {
+  const unknown = stids.filter((stid) => !known.has(stid))
   return unknown.length > 0 ? `unknown stids: ${unknown.join(',')}` : null
 }
 
-function validateLists(stids: string[], vars: string[]): string | null {
+function validateLists(stids: string[], vars: string[], pages: StationPage[]): string | null {
   return (
-    listBounds('stids', stids, MAX_STATIONS) ??
+    listBounds('stids', stids, maxStations(pages)) ??
     listBounds('vars', vars, MAX_VARIABLES) ??
-    unknownStids(stids)
+    unknownStids(stids, new Set(allStations(pages).keys()))
   )
 }
 
@@ -65,12 +67,13 @@ function dateParam(url: URL, name: string): Date {
 
 function parseQuery(
   url: URL,
+  pages: StationPage[],
 ): NextResponse | { stids: string[]; vars: string[]; from: Date; to: Date } {
   const stids = csvParam(url.searchParams.get('stids'))
   const vars = csvParam(url.searchParams.get('vars'))
   const from = dateParam(url, 'from')
   const to = dateParam(url, 'to')
-  const error = validateLists(stids, vars) ?? validateWindow(from, to)
+  const error = validateLists(stids, vars, pages) ?? validateWindow(from, to)
   return error ? badRequest(error) : { stids, vars, from, to }
 }
 
@@ -81,16 +84,20 @@ export async function GET(
   { params }: { params: Promise<Params> },
 ): Promise<NextResponse> {
   const { center } = await params
-  if (center !== STATIONS_TENANT_SLUG) {
+  const pages = await getStationPages(center)
+  if (pages.length === 0) {
     return NextResponse.json({ error: 'not found' }, { status: 404 })
   }
 
-  const parsed = parseQuery(new URL(request.url))
+  const parsed = parseQuery(new URL(request.url), pages)
   if (parsed instanceof NextResponse) return parsed
   const { stids, vars, from, to } = parsed
 
   try {
-    const response = await fetchStationTimeseries(stids, {
+    // Every stid passed validation, so each has a page and a source.
+    const known = allStations(pages)
+    const stations = stids.flatMap((stid) => known.get(stid) ?? [])
+    const response = await fetchStationTimeseries(center, stations, {
       start: from,
       end: to,
       revalidate: REVALIDATE_SECONDS,

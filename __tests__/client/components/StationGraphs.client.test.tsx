@@ -1,9 +1,43 @@
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { buildChartOption } from '@/components/WeatherStations/stationGraphOptions'
-import { NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
+import type { StationPageSummary } from '@/services/stations/stationPages'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+
+// Five pages, so the compare picker has enough to fill and overflow its cap.
+const PAGES: StationPageSummary[] = [
+  {
+    slug: 'alpental',
+    displayName: 'Alpental Ski Area',
+    archived: false,
+    stids: ['3', '2', '1'],
+  },
+  {
+    slug: 'hurricane-ridge',
+    displayName: 'Hurricane Ridge',
+    archived: false,
+    stids: ['4'],
+  },
+  {
+    slug: 'mt-baker-ski-area',
+    displayName: 'Mt. Baker Ski Area',
+    archived: false,
+    stids: ['6', '5'],
+  },
+  {
+    slug: 'paradise',
+    displayName: 'Paradise',
+    archived: false,
+    stids: ['35', '36'],
+  },
+  {
+    slug: 'white-pass',
+    displayName: 'White Pass Ski Area',
+    archived: false,
+    stids: ['39', '37', '49'],
+  },
+]
 
 const TEMP_PRESET = { key: 'temp', title: 'Temperature', variables: ['air_temp'] }
 const RH_PRESET = { key: 'rh', title: 'Relative Humidity', variables: ['relative_humidity'] }
@@ -195,8 +229,7 @@ describe('buildChartOption wind band', () => {
 })
 
 describe('StationGraphs compare picker', () => {
-  const [current, other, third, fourth, fifth] = NWAC_WEATHER_STATION_GROUPS
-  if (!fifth) throw new Error('registry needs at least five groups')
+  const [current, other, third, fourth] = PAGES
 
   const emptyData: GraphData = { series: [], aggregated: false, timezone: 'x' }
 
@@ -214,7 +247,12 @@ describe('StationGraphs compare picker', () => {
 
   function renderGraphs() {
     render(
-      <StationGraphs stids={current.stids} presets={[TEMP_PRESET]} currentSlug={current.slug} />,
+      <StationGraphs
+        stids={current.stids}
+        presets={[TEMP_PRESET]}
+        currentSlug={current.slug}
+        pages={PAGES}
+      />,
     )
   }
 
@@ -273,7 +311,7 @@ describe('StationGraphs compare picker', () => {
 })
 
 describe('StationGraphs chart arrangement', () => {
-  const current = NWAC_WEATHER_STATION_GROUPS[0]
+  const current = PAGES[0]
   const fetchMock = jest.fn()
   // One response serves both charts: a series per preset variable.
   const dataWithSeries: GraphData = {
@@ -295,6 +333,7 @@ describe('StationGraphs chart arrangement', () => {
         stids={current.stids}
         presets={[TEMP_PRESET, RH_PRESET]}
         currentSlug={current.slug}
+        pages={PAGES}
       />,
     )
   }
@@ -348,6 +387,7 @@ describe('StationGraphs chart arrangement', () => {
         stids={current.stids}
         presets={[TEMP_PRESET, { ...RH_PRESET, defaultHidden: true }]}
         currentSlug={current.slug}
+        pages={PAGES}
       />,
     )
     expect(screen.getByRole('button', { name: 'Edit graphs 1 hidden' })).toBeInTheDocument()
