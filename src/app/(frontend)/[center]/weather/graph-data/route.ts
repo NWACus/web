@@ -5,7 +5,7 @@ import {
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
 import type { StationPage } from '@/services/stations/getStationPages'
-import { allStationIds, getStationPages } from '@/services/stations/getStationPages'
+import { allStations, getStationPages } from '@/services/stations/getStationPages'
 import { NextResponse } from 'next/server'
 
 // Serves the station Graphs tab. Reads SnowObs server-side (token stays
@@ -48,7 +48,7 @@ function validateLists(stids: string[], vars: string[], pages: StationPage[]): s
   return (
     listBounds('stids', stids, maxStations(pages)) ??
     listBounds('vars', vars, MAX_VARIABLES) ??
-    unknownStids(stids, allStationIds(pages))
+    unknownStids(stids, new Set(allStations(pages).keys()))
   )
 }
 
@@ -94,7 +94,10 @@ export async function GET(
   const { stids, vars, from, to } = parsed
 
   try {
-    const response = await fetchStationTimeseries(center, stids, {
+    // Every stid passed validation, so each has a page and a source.
+    const known = allStations(pages)
+    const stations = stids.flatMap((stid) => known.get(stid) ?? [])
+    const response = await fetchStationTimeseries(center, stations, {
       start: from,
       end: to,
       revalidate: REVALIDATE_SECONDS,

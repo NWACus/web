@@ -5,6 +5,22 @@ import { seedStationPages } from './data/seedStationPages'
 const TENANT_SLUG = 'nwac'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  await db.run(sql`CREATE TABLE \`station_pages_stations\` (
+  	\`_order\` integer NOT NULL,
+  	\`_parent_id\` integer NOT NULL,
+  	\`id\` text PRIMARY KEY NOT NULL,
+  	\`stid\` text NOT NULL,
+  	\`source\` text NOT NULL,
+  	\`hidden_on_precip_table\` integer DEFAULT false,
+  	FOREIGN KEY (\`_parent_id\`) REFERENCES \`station_pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`station_pages_stations_order_idx\` ON \`station_pages_stations\` (\`_order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`station_pages_stations_parent_id_idx\` ON \`station_pages_stations\` (\`_parent_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`station_pages\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`tenant_id\` integer NOT NULL,
@@ -28,49 +44,16 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE UNIQUE INDEX \`tenant_slug_idx\` ON \`station_pages\` (\`tenant_id\`,\`slug\`);`,
   )
-  await db.run(sql`CREATE TABLE \`stations\` (
-  	\`id\` integer PRIMARY KEY NOT NULL,
-  	\`tenant_id\` integer NOT NULL,
-  	\`page_id\` integer,
-  	\`page_order\` numeric,
-  	\`hidden_on_precip_table\` integer DEFAULT false,
-  	\`stid\` text NOT NULL,
-  	\`source\` text NOT NULL,
-  	\`name\` text,
-  	\`elevation\` numeric,
-  	\`latitude\` numeric,
-  	\`longitude\` numeric,
-  	\`weather_station_partner\` text,
-  	\`last_synced_at\` text,
-  	\`content_hash\` text,
-  	\`updated_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
-  	\`created_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
-  	FOREIGN KEY (\`tenant_id\`) REFERENCES \`tenants\`(\`id\`) ON UPDATE no action ON DELETE set null,
-  	FOREIGN KEY (\`page_id\`) REFERENCES \`station_pages\`(\`id\`) ON UPDATE no action ON DELETE set null
-  );
-  `)
-  await db.run(sql`CREATE INDEX \`stations_tenant_idx\` ON \`stations\` (\`tenant_id\`);`)
-  await db.run(sql`CREATE INDEX \`stations_page_idx\` ON \`stations\` (\`page_id\`);`)
-  await db.run(sql`CREATE INDEX \`stations_stid_idx\` ON \`stations\` (\`stid\`);`)
-  await db.run(sql`CREATE INDEX \`stations_source_idx\` ON \`stations\` (\`source\`);`)
-  await db.run(sql`CREATE INDEX \`stations_updated_at_idx\` ON \`stations\` (\`updated_at\`);`)
-  await db.run(sql`CREATE INDEX \`stations_created_at_idx\` ON \`stations\` (\`created_at\`);`)
-  await db.run(
-    sql`CREATE UNIQUE INDEX \`tenant_source_stid_idx\` ON \`stations\` (\`tenant_id\`,\`source\`,\`stid\`);`,
-  )
   await db.run(
     sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`station_pages_id\` integer REFERENCES station_pages(id);`,
   )
   await db.run(
-    sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`stations_id\` integer REFERENCES stations(id);`,
-  )
-  await db.run(
     sql`CREATE INDEX \`payload_locked_documents_rels_station_pages_id_idx\` ON \`payload_locked_documents_rels\` (\`station_pages_id\`);`,
   )
-  await db.run(
-    sql`CREATE INDEX \`payload_locked_documents_rels_stations_id_idx\` ON \`payload_locked_documents_rels\` (\`stations_id\`);`,
-  )
 
+  // NWAC's 32 pages, as ported from the legacy site. Idempotent: a page that
+  // exists is left alone. Locally the seed script does this instead, because
+  // this runs before any tenant exists.
   const { docs: tenants } = await payload.find({
     collection: 'tenants',
     where: { slug: { equals: TENANT_SLUG } },
@@ -86,12 +69,12 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   const seeded = await seedStationPages(payload, tenant.id)
   payload.logger.info(seeded, 'station pages seeded')
   const granted = await grantStationAccess(payload)
-  payload.logger.info({ roles: granted }, 'Admin roles granted station access')
+  payload.logger.info({ roles: granted }, 'Admin roles granted station page access')
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+  await db.run(sql`DROP TABLE \`station_pages_stations\`;`)
   await db.run(sql`DROP TABLE \`station_pages\`;`)
-  await db.run(sql`DROP TABLE \`stations\`;`)
   await db.run(sql`PRAGMA foreign_keys=OFF;`)
   await db.run(sql`CREATE TABLE \`__new_payload_locked_documents_rels\` (
   	\`id\` integer PRIMARY KEY NOT NULL,

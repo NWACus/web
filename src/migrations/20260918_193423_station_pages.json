@@ -18465,6 +18465,80 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "station_pages_stations": {
+      "name": "station_pages_stations",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stid": {
+          "name": "stid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "hidden_on_precip_table": {
+          "name": "hidden_on_precip_table",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "station_pages_stations_order_idx": {
+          "name": "station_pages_stations_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "station_pages_stations_parent_id_idx": {
+          "name": "station_pages_stations_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "station_pages_stations_parent_id_fk": {
+          "name": "station_pages_stations_parent_id_fk",
+          "tableFrom": "station_pages_stations",
+          "tableTo": "station_pages",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "station_pages": {
       "name": "station_pages",
       "columns": {
@@ -18561,186 +18635,6 @@
           "tableFrom": "station_pages",
           "tableTo": "tenants",
           "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "stations": {
-      "name": "stations",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "page_id": {
-          "name": "page_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "page_order": {
-          "name": "page_order",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "hidden_on_precip_table": {
-          "name": "hidden_on_precip_table",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": false
-        },
-        "stid": {
-          "name": "stid",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "elevation": {
-          "name": "elevation",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "latitude": {
-          "name": "latitude",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "longitude": {
-          "name": "longitude",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "weather_station_partner": {
-          "name": "weather_station_partner",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "last_synced_at": {
-          "name": "last_synced_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "content_hash": {
-          "name": "content_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
-        }
-      },
-      "indexes": {
-        "stations_tenant_idx": {
-          "name": "stations_tenant_idx",
-          "columns": ["tenant_id"],
-          "isUnique": false
-        },
-        "stations_page_idx": {
-          "name": "stations_page_idx",
-          "columns": ["page_id"],
-          "isUnique": false
-        },
-        "stations_stid_idx": {
-          "name": "stations_stid_idx",
-          "columns": ["stid"],
-          "isUnique": false
-        },
-        "stations_source_idx": {
-          "name": "stations_source_idx",
-          "columns": ["source"],
-          "isUnique": false
-        },
-        "stations_updated_at_idx": {
-          "name": "stations_updated_at_idx",
-          "columns": ["updated_at"],
-          "isUnique": false
-        },
-        "stations_created_at_idx": {
-          "name": "stations_created_at_idx",
-          "columns": ["created_at"],
-          "isUnique": false
-        },
-        "tenant_source_stid_idx": {
-          "name": "tenant_source_stid_idx",
-          "columns": ["tenant_id", "source", "stid"],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "stations_tenant_id_tenants_id_fk": {
-          "name": "stations_tenant_id_tenants_id_fk",
-          "tableFrom": "stations",
-          "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "stations_page_id_station_pages_id_fk": {
-          "name": "stations_page_id_station_pages_id_fk",
-          "tableFrom": "stations",
-          "tableTo": "station_pages",
-          "columnsFrom": ["page_id"],
           "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
@@ -26183,13 +26077,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "stations_id": {
-          "name": "stations_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "navigations_id": {
           "name": "navigations_id",
           "type": "integer",
@@ -26367,11 +26254,6 @@
         "payload_locked_documents_rels_station_pages_id_idx": {
           "name": "payload_locked_documents_rels_station_pages_id_idx",
           "columns": ["station_pages_id"],
-          "isUnique": false
-        },
-        "payload_locked_documents_rels_stations_id_idx": {
-          "name": "payload_locked_documents_rels_stations_id_idx",
-          "columns": ["stations_id"],
           "isUnique": false
         },
         "payload_locked_documents_rels_navigations_id_idx": {
@@ -26627,15 +26509,6 @@
           "tableFrom": "payload_locked_documents_rels",
           "tableTo": "station_pages",
           "columnsFrom": ["station_pages_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "payload_locked_documents_rels_stations_fk": {
-          "name": "payload_locked_documents_rels_stations_fk",
-          "tableFrom": "payload_locked_documents_rels",
-          "tableTo": "stations",
-          "columnsFrom": ["stations_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -27075,6 +26948,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "ed7532df-bd09-4677-9455-e2d97f47813d",
+  "id": "b1fb11e6-9b16-40f1-b3f0-048818027461",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

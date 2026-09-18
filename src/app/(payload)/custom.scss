@@ -19,3 +19,15 @@
 .tooltip .tooltip-content {
   text-wrap: auto;
 }
+
+// The station picker on a station page. A custom field component loses the
+// row width Payload would apply, and react-select sizes to its content, which
+// shrinks the control while typing and clips the menu.
+.station-picker {
+  flex: 1 1 0;
+  flex-direction: column;
+
+  .react-select {
+    width: 100%;
+  }
+}

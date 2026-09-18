@@ -26,7 +26,8 @@ export async function GET(request: Request, { params }: Args) {
   if (!page) {
     return new Response('Unknown station', { status: 404 })
   }
-  if (!stid || !page.stids.includes(stid)) {
+  const datalogger = page.stations.find((s) => s.stid === stid)
+  if (!datalogger) {
     return new Response('Unknown or invalid datalogger', { status: 400 })
   }
   const currentYear = new Date().getUTCFullYear()
@@ -45,18 +46,18 @@ export async function GET(request: Request, { params }: Args) {
   const start = new Date(new TZDate(year, 0, 1, 0, 0, 0, 0, TZ).getTime())
   const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, TZ).getTime())
 
-  const response = await fetchStationTimeseries(center, [stid], {
+  const response = await fetchStationTimeseries(center, [datalogger], {
     start,
     end,
     revalidate: 3600,
     rawData: true,
   })
-  const csv = buildStationCsv(response, stid, units)
+  const csv = buildStationCsv(response, datalogger.stid, units)
 
   return new Response(csv, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${page.slug}-${stid}-${year}.csv"`,
+      'Content-Disposition': `attachment; filename="${page.slug}-${datalogger.stid}-${year}.csv"`,
     },
   })
 }

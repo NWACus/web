@@ -28,7 +28,6 @@ import { Roles } from '@/collections/Roles'
 import { Settings } from '@/collections/Settings'
 import { Sponsors } from '@/collections/Sponsors'
 import { StationPages } from '@/collections/StationPages'
-import { Stations } from '@/collections/Stations'
 import { Tags } from '@/collections/Tags'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
@@ -191,7 +190,6 @@ export default buildConfig({
     Tenants,
     // Weather
     StationPages,
-    Stations,
     // Settings
     Navigations,
     Settings,

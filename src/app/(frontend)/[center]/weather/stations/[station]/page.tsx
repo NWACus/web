@@ -36,7 +36,7 @@ export async function generateStaticParams() {
 
 // Notes ride with the station metadata, so a 1-hour window is enough.
 async function loadStationNotes(center: string, page: StationPage) {
-  const meta = await fetchStationTimeseries(center, page.stids, { revalidate, windowHours: 1 })
+  const meta = await fetchStationTimeseries(center, page.stations, { revalidate, windowHours: 1 })
   return stationNotes(meta.STATION)
 }
 
@@ -46,7 +46,7 @@ async function loadDataloggers(
   center: string,
   page: StationPage,
 ): Promise<{ stid: string; label: string }[]> {
-  const meta = await fetchStationTimeseries(center, page.stids, { windowHours: 1 })
+  const meta = await fetchStationTimeseries(center, page.stations, { windowHours: 1 })
   return page.stids.map((stid) => {
     const station = meta.STATION.find((s) => s.stid === stid)
     if (!station?.name) return { stid, label: stid }
@@ -111,7 +111,7 @@ function graphsTabView({ page, pages }: TabContext): TabView {
 
 async function tableTabView({ center, page, periodParam }: TabContext): Promise<TabView> {
   const period = resolveTablePeriod(periodParam)
-  const response = await fetchStationTimeseries(center, page.stids, {
+  const response = await fetchStationTimeseries(center, page.stations, {
     revalidate,
     windowHours: period.hoursBack(new Date()),
     rawData: true,

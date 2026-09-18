@@ -5,30 +5,19 @@ import { stationPagesTag } from './revalidate'
 import type { StationPage } from './stationPages'
 import { assembleStationPages } from './stationPages'
 
-export { allStationIds, precipStationIds, toPageSummaries } from './stationPages'
+export { allStations, precipStations, toPageSummaries } from './stationPages'
 export type { StationPage, StationPageSummary } from './stationPages'
 
 async function loadStationPages(center: string): Promise<StationPage[]> {
   const payload = await getPayload({ config: configPromise })
-
-  const [{ docs: pages }, { docs: stations }] = await Promise.all([
-    payload.find({
-      collection: 'stationPages',
-      where: { 'tenant.slug': { equals: center } },
-      depth: 0,
-      limit: 0,
-      pagination: false,
-    }),
-    payload.find({
-      collection: 'stations',
-      where: { and: [{ 'tenant.slug': { equals: center } }, { page: { exists: true } }] },
-      depth: 0,
-      limit: 0,
-      pagination: false,
-    }),
-  ])
-
-  return assembleStationPages(pages, stations)
+  const { docs } = await payload.find({
+    collection: 'stationPages',
+    where: { 'tenant.slug': { equals: center } },
+    depth: 0,
+    limit: 0,
+    pagination: false,
+  })
+  return assembleStationPages(docs)
 }
 
 // Cached per center and busted by the collection hooks, so an admin edit shows

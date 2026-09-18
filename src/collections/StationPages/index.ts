@@ -8,15 +8,18 @@ import {
   revalidateStationPagesDelete,
 } from '@/services/stations/revalidate'
 import { CollectionConfig } from 'payload'
+import { trackedStations } from './endpoints/trackedStations'
+import { ensureStationsUnique } from './hooks/ensureStationsUnique'
 
-// A page under /weather/stations. Not a station: 17 of the 32 cover more than
-// one logger, because a forecaster reading Alpental wants the temperature at
-// all three elevations side by side.
+// A page under /weather/stations. Not a station: 17 of NWAC's 32 cover more
+// than one logger, because a forecaster reading Alpental wants the temperature
+// at all three elevations side by side.
 //
-// This is everything SnowObs cannot say about a page -- its URL and its name --
-// and nothing SnowObs can. Which stations are on it is recorded on the stations
-// themselves (each points at its page), and which columns it shows is derived
-// from what those stations report.
+// This is everything SnowObs cannot say about a page -- its URL, its name and
+// which stations it shows, in what order -- and nothing SnowObs can. A station
+// is only ever a (source, stid) reference; its name, elevation and coordinates
+// are read live from SnowObs, both here (the picker) and on the public page.
+// Which columns the table shows is derived from what those stations report.
 export const StationPages: CollectionConfig = {
   slug: 'stationPages',
   // The generated `StationPage` name belongs to the assembled page in services/stations.
@@ -28,11 +31,12 @@ export const StationPages: CollectionConfig = {
     defaultColumns: ['displayName', 'slug', 'archived'],
     useAsTitle: 'displayName',
     description:
-      'The weather station pages. Assign stations to a page from the Stations list; the table columns follow what those stations report.',
+      'The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report.',
   },
   defaultSort: 'displayName',
   // The slug is the URL; two pages sharing one would shadow each other.
   indexes: [{ fields: ['tenant', 'slug'], unique: true }],
+  endpoints: [{ path: '/tracked-stations', method: 'get', handler: trackedStations }],
   fields: [
     tenantField(),
     {
@@ -43,12 +47,52 @@ export const StationPages: CollectionConfig = {
     slugField('displayName'),
     {
       name: 'stations',
-      type: 'join',
-      collection: 'stations',
-      on: 'page',
+      type: 'array',
+      labels: { singular: 'Station', plural: 'Stations' },
       admin: {
-        description: 'Set on each station. Ordered by "page order", then elevation.',
+        description:
+          'Top to bottom here is left to right in the table. Drag to reorder. The list to pick from is what this center tracks in SnowObs.',
+        initCollapsed: true,
+        components: {
+          RowLabel: '@/collections/StationPages/components/StationRowLabel#StationRowLabel',
+        },
       },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'stid',
+              type: 'text',
+              required: true,
+              label: 'Station',
+              admin: {
+                width: '75%',
+                components: {
+                  Field: '@/collections/StationPages/components/StationPicker#StationPicker',
+                },
+              },
+            },
+            {
+              // Set by the picker alongside `stid`; shown so the pair is visible.
+              name: 'source',
+              type: 'text',
+              required: true,
+              admin: { width: '25%', readOnly: true },
+            },
+          ],
+        },
+        {
+          name: 'hiddenOnPrecipTable',
+          type: 'checkbox',
+          label: 'Hidden on precip table',
+          defaultValue: false,
+          admin: {
+            description:
+              'Drop this gauge from the Accumulated Precipitation page while it has a long-term fault. Day-to-day gaps show as "missing" on their own.',
+          },
+        },
+      ],
     },
     {
       name: 'archived',
@@ -63,6 +107,7 @@ export const StationPages: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
+    beforeValidate: [ensureStationsUnique],
     afterChange: [revalidateStationPages],
     afterDelete: [revalidateStationPagesDelete],
   },

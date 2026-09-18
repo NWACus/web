@@ -1,14 +1,11 @@
-import type { Station, StationPageDoc } from '@/payload-types'
+import type { StationPageDoc } from '@/payload-types'
+import type { StationRef } from '@/services/snowobs/snowobs'
 
-export type StationPageStation = {
-  stid: string
-  name: string | null
-  elevation: number | null
-  hiddenOnPrecipTable: boolean
-}
+export type StationPageStation = StationRef & { hiddenOnPrecipTable: boolean }
 
-// A page under /weather/stations, assembled from its row and the stations that
-// point at it. Everything a route needs; nothing a route has to look up again.
+// A page under /weather/stations: its row, with the stations in the order the
+// editor arranged them. Everything a route needs; nothing a route has to look
+// up again.
 export type StationPage = {
   slug: string
   displayName: string
@@ -22,30 +19,7 @@ export type StationPage = {
 // as a prop, and free of anything that changes per request.
 export type StationPageSummary = Pick<StationPage, 'slug' | 'displayName' | 'archived' | 'stids'>
 
-type PageRow = Pick<StationPageDoc, 'id' | 'slug' | 'displayName' | 'archived'>
-type StationRow = Pick<
-  Station,
-  'stid' | 'name' | 'elevation' | 'page' | 'pageOrder' | 'hiddenOnPrecipTable'
->
-
-function pageIdOf(station: StationRow): number | null {
-  const page = station.page
-  if (typeof page === 'number') return page
-  if (page && typeof page === 'object') return page.id
-  return null
-}
-
-// Explicit order first; blanks fall back to elevation, highest first, so a
-// Summit / Mid / Base page reads top-down without anyone typing numbers.
-function byPagePosition(a: StationRow, b: StationRow): number {
-  const orderA = a.pageOrder ?? Number.POSITIVE_INFINITY
-  const orderB = b.pageOrder ?? Number.POSITIVE_INFINITY
-  if (orderA !== orderB) return orderA - orderB
-  const elevationA = a.elevation ?? Number.NEGATIVE_INFINITY
-  const elevationB = b.elevation ?? Number.NEGATIVE_INFINITY
-  if (elevationA !== elevationB) return elevationB - elevationA
-  return (a.name ?? '').localeCompare(b.name ?? '')
-}
+type PageRow = Pick<StationPageDoc, 'slug' | 'displayName' | 'archived' | 'stations'>
 
 // A flat, alphabetical list: with a dropdown to jump between pages, headings
 // bought less than they cost.
@@ -54,30 +28,20 @@ function byName(a: StationPage, b: StationPage): number {
 }
 
 // Pure so it can be tested without a database.
-export function assembleStationPages(pages: PageRow[], stations: StationRow[]): StationPage[] {
-  const stationsByPage = new Map<number, StationRow[]>()
-  for (const station of stations) {
-    const pageId = pageIdOf(station)
-    if (pageId == null) continue
-    const list = stationsByPage.get(pageId) ?? []
-    list.push(station)
-    stationsByPage.set(pageId, list)
-  }
-
+export function assembleStationPages(pages: PageRow[]): StationPage[] {
   return pages
     .map((page): StationPage => {
-      const members = (stationsByPage.get(page.id) ?? []).sort(byPagePosition)
+      const stations = (page.stations ?? []).map((s) => ({
+        stid: s.stid,
+        source: s.source,
+        hiddenOnPrecipTable: s.hiddenOnPrecipTable ?? false,
+      }))
       return {
         slug: page.slug,
         displayName: page.displayName,
         archived: page.archived ?? false,
-        stations: members.map((s) => ({
-          stid: s.stid,
-          name: s.name ?? null,
-          elevation: s.elevation ?? null,
-          hiddenOnPrecipTable: s.hiddenOnPrecipTable ?? false,
-        })),
-        stids: members.map((s) => s.stid),
+        stations,
+        stids: stations.map((s) => s.stid),
       }
     })
     .sort(byName)
@@ -92,9 +56,14 @@ export function toPageSummaries(pages: StationPage[]): StationPageSummary[] {
   }))
 }
 
-// Every station on a live page: the allowlist for the graph-data route.
-export function allStationIds(pages: StationPage[]): Set<string> {
-  return new Set(pages.flatMap((page) => page.stids))
+// Every station on any page, by stid: the allowlist for the graph-data route
+// and the way a bare stid from a query string gets its source back.
+export function allStations(pages: StationPage[]): Map<string, StationRef> {
+  const byStid = new Map<string, StationRef>()
+  for (const page of pages) {
+    for (const { stid, source } of page.stations) byStid.set(stid, { stid, source })
+  }
+  return byStid
 }
 
 // The Accumulated Precipitation rows: every station on a live page whose gauge
@@ -102,14 +71,16 @@ export function allStationIds(pages: StationPage[]): Set<string> {
 // response -- a station without the sensor simply has no row. Archived pages
 // are left out because a decommissioned gauge would read "missing" forever,
 // which is why the legacy page omitted them too.
-export function precipStationIds(pages: StationPage[]): string[] {
-  return Array.from(
-    new Set(
-      pages
-        .filter((page) => !page.archived)
-        .flatMap((page) => page.stations)
-        .filter((station) => !station.hiddenOnPrecipTable)
-        .map((station) => station.stid),
-    ),
-  )
+export function precipStations(pages: StationPage[]): StationRef[] {
+  const seen = new Set<string>()
+  const refs: StationRef[] = []
+  for (const page of pages) {
+    if (page.archived) continue
+    for (const { stid, source, hiddenOnPrecipTable } of page.stations) {
+      if (hiddenOnPrecipTable || seen.has(stid)) continue
+      seen.add(stid)
+      refs.push({ stid, source })
+    }
+  }
+  return refs
 }

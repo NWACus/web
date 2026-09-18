@@ -8,7 +8,7 @@ import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import {
   getStationPages,
-  precipStationIds,
+  precipStations,
   toPageSummaries,
 } from '@/services/stations/getStationPages'
 import { notFound } from 'next/navigation'
@@ -45,17 +45,20 @@ export default async function Page({ params }: Args) {
   const { center } = await params
 
   const pages = await getStationPages(center)
-  const stids = precipStationIds(pages)
-  if (stids.length === 0) {
+  const stations = precipStations(pages)
+  if (stations.length === 0) {
     notFound()
   }
 
   // One 72h fetch covers every trailing window (1H..72H are sums over it).
-  const response = await fetchStationTimeseries(center, stids, {
+  const response = await fetchStationTimeseries(center, stations, {
     revalidate: REVALIDATE_SECONDS,
     windowHours: 72,
   })
-  const table = buildPrecipAccumulationTable(response, stids)
+  const table = buildPrecipAccumulationTable(
+    response,
+    stations.map((s) => s.stid),
+  )
 
   return (
     <>
