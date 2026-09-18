@@ -3,6 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { stationsField } from '@/fields/stations'
 import { tenantField } from '@/fields/tenantField'
+import { ALL_PRECIP_COLUMNS, PRECIP_COLUMNS } from '@/services/stations/precipColumns'
 import {
   revalidateStationPages,
   revalidateStationPagesDelete,
@@ -10,17 +11,18 @@ import {
 import { CollectionConfig } from 'payload'
 
 // One document per center for station settings that belong to no single page
-// (a unique-tenant "global", per ADR 016). Today that is the Accumulated
-// Precipitation table's station list; center-wide graph defaults would land
-// here too rather than in a new collection.
+// (a unique-tenant "global", per ADR 016): the Accumulated Precipitation
+// table's stations and columns. Center-wide graph defaults would land here
+// too rather than in a new collection.
 export const WeatherStationSettings: CollectionConfig = {
   slug: 'weatherStationSettings',
+  labels: { singular: 'Page Config', plural: 'Page Config' },
   access: accessByTenantRole('weatherStationSettings'),
   admin: {
     baseListFilter: filterByTenant,
     group: 'Weather',
     defaultColumns: ['tenant', 'updatedAt'],
-    description: 'Station settings for the whole center, as opposed to one page.',
+    description: 'Settings for the weather station pages that belong to the whole center.',
   },
   fields: [
     tenantField({ unique: true }),
@@ -30,13 +32,31 @@ export const WeatherStationSettings: CollectionConfig = {
         {
           label: 'Precipitation Table',
           description:
-            'The Accumulated Precipitation page shows these gauges, top to bottom, whatever page each is on. Remove one while it has a long-term fault; day-to-day gaps show as "missing" on their own.',
+            'The Accumulated Precipitation page shows these stations, top to bottom, whatever page each is on. Remove one while it has a long-term fault; day-to-day gaps show as "missing" on their own.',
           fields: [
             stationsField({
               name: 'precipStations',
-              label: 'Gauges',
+              label: 'Stations',
               description: 'Only stations that report precipitation get a row.',
             }),
+          ],
+        },
+        {
+          label: 'Precipitation Columns',
+          description:
+            'Which columns the Accumulated Precipitation table shows. The station name is always shown.',
+          fields: [
+            {
+              name: 'precipColumns',
+              type: 'select',
+              label: 'Columns',
+              hasMany: true,
+              options: [...PRECIP_COLUMNS],
+              defaultValue: ALL_PRECIP_COLUMNS,
+              admin: {
+                description: 'Clearing every column shows them all.',
+              },
+            },
           ],
         },
       ],

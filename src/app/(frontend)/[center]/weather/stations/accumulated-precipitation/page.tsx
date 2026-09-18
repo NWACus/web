@@ -41,7 +41,7 @@ function PageHeader({ pages }: { pages: StationPageSummary[] }) {
 export default async function Page({ params }: Args) {
   const { center } = await params
 
-  const [pages, { precipStations: stations }] = await Promise.all([
+  const [pages, { precipStations: stations, precipColumns }] = await Promise.all([
     getStationPages(center),
     getWeatherStationSettings(center),
   ])
@@ -65,7 +65,7 @@ export default async function Page({ params }: Args) {
       <div className="mb-10 flex flex-col gap-4">
         <PageHeader pages={toPageSummaries(pages)} />
         <div className="container flex flex-col gap-3">
-          <PrecipAccumulationTable table={table} />
+          <PrecipAccumulationTable table={table} columns={precipColumns} />
           <p className="text-sm text-muted-foreground">
             Data not quality controlled. Accumulated precipitation does not reflect weather station
             outages or other technical errors.

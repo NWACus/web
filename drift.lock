@@ -428,12 +428,12 @@ sig = "c017843e18d30e15"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/WeatherStationSettings/index.ts"
-sig = "4bdcf3433afecac3"
+sig = "b58dce4545066820"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationsInput.tsx"
-sig = "c1c1d5f4749f320f"
+sig = "784ab6b0aa5c102e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -468,7 +468,12 @@ sig = "c66b65288eeed769"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/getWeatherStationSettings.ts"
-sig = "88d31d5b093de845"
+sig = "7bd05394358d20f7"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/precipColumns.ts"
+sig = "3661a34397901055"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -588,7 +593,7 @@ sig = "ba88cf9a8263b060"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "a4fa367e993c64d9"
+sig = "92e814cb99c0b859"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

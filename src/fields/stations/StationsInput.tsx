@@ -86,6 +86,7 @@ function StationRow({
               <span className="stations-table__note"> — not tracked in SnowObs</span>
             )}
           </td>
+          <td className="stations-table__id">{entry.stid}</td>
           <td>{entry.source}</td>
           <td>{view.elevation}</td>
           <td>{view.partner}</td>
@@ -109,7 +110,8 @@ const TABLE_HEAD = (
     <tr>
       <th />
       <th />
-      <th>Station</th>
+      <th>Name</th>
+      <th>ID</th>
       <th>Source</th>
       <th>Elevation</th>
       <th>Partner</th>
@@ -153,7 +155,8 @@ function StationsTable({
   )
 }
 
-// A searchable select that appears on "Add station" and appends on pick.
+// A searchable select over the stations not yet listed, and an Add button
+// that appends the chosen one.
 function AddStation({
   path,
   options,
@@ -163,31 +166,29 @@ function AddStation({
   options: Option[]
   onAdd: (ref: StationRef) => void
 }) {
-  const [open, setOpen] = useState(false)
-  if (!open) {
-    return (
-      <Button buttonStyle="icon-label" icon="plus" size="small" onClick={() => setOpen(true)}>
-        Add station
-      </Button>
-    )
+  const [chosen, setChosen] = useState<Option | null>(null)
+  const add = () => {
+    if (!chosen) return
+    onAdd({ stid: chosen.stid, source: chosen.source })
+    setChosen(null)
   }
   return (
     <div className="stations-table__add">
       <Select
         inputId={`${path}-add`}
         isSearchable
-        isClearable={false}
-        menuIsOpen
+        isClearable
         placeholder="Search by name, id or source…"
         options={options}
-        onChange={(picked) => {
-          const option = options.find((o) => !Array.isArray(picked) && o.value === picked?.value)
-          if (option) onAdd({ stid: option.stid, source: option.source })
-          setOpen(false)
-        }}
+        value={chosen ?? undefined}
+        onChange={(picked) =>
+          setChosen(
+            options.find((o) => !Array.isArray(picked) && o.value === picked?.value) ?? null,
+          )
+        }
       />
-      <Button buttonStyle="secondary" size="small" onClick={() => setOpen(false)}>
-        Cancel
+      <Button buttonStyle="secondary" size="small" disabled={!chosen} onClick={add}>
+        Add
       </Button>
     </div>
   )

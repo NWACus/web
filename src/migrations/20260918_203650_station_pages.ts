@@ -29,6 +29,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE UNIQUE INDEX \`tenant_slug_idx\` ON \`station_pages\` (\`tenant_id\`,\`slug\`);`,
   )
+  await db.run(sql`CREATE TABLE \`weather_station_settings_precip_columns\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` integer NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`weather_station_settings\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`weather_station_settings_precip_columns_order_idx\` ON \`weather_station_settings_precip_columns\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`weather_station_settings_precip_columns_parent_idx\` ON \`weather_station_settings_precip_columns\` (\`parent_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`weather_station_settings\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`tenant_id\` integer NOT NULL,
@@ -83,6 +97,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
   await db.run(sql`DROP TABLE \`station_pages\`;`)
+  await db.run(sql`DROP TABLE \`weather_station_settings_precip_columns\`;`)
   await db.run(sql`DROP TABLE \`weather_station_settings\`;`)
   await db.run(sql`PRAGMA foreign_keys=OFF;`)
   await db.run(sql`CREATE TABLE \`__new_payload_locked_documents_rels\` (

@@ -18578,6 +18578,65 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "weather_station_settings_precip_columns": {
+      "name": "weather_station_settings_precip_columns",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "weather_station_settings_precip_columns_order_idx": {
+          "name": "weather_station_settings_precip_columns_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "weather_station_settings_precip_columns_parent_idx": {
+          "name": "weather_station_settings_precip_columns_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "weather_station_settings_precip_columns_parent_fk": {
+          "name": "weather_station_settings_precip_columns_parent_fk",
+          "tableFrom": "weather_station_settings_precip_columns",
+          "tableTo": "weather_station_settings",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "weather_station_settings": {
       "name": "weather_station_settings",
       "columns": {
@@ -26984,6 +27043,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "049f6209-ecd2-4adf-a3bb-ab8137a1db99",
+  "id": "78f6cbd2-9169-4755-bc30-9ebc73eb8442",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

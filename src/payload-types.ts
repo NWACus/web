@@ -2184,7 +2184,7 @@ export interface StationPageDoc {
   createdAt: string;
 }
 /**
- * Station settings for the whole center, as opposed to one page.
+ * Settings for the weather station pages that belong to the whole center.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "weatherStationSettings".
@@ -2196,6 +2196,12 @@ export interface WeatherStationSetting {
     stid: string;
     source: string;
   }[];
+  /**
+   * Clearing every column shows them all.
+   */
+  precipColumns?:
+    | ('1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '72h' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation')[]
+    | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -4409,6 +4415,7 @@ export interface StationPagesSelect<T extends boolean = true> {
 export interface WeatherStationSettingsSelect<T extends boolean = true> {
   tenant?: T;
   precipStations?: T;
+  precipColumns?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
