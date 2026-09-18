@@ -433,7 +433,7 @@ sig = "f339250b6a19ecd4"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationsInput.tsx"
-sig = "b394c898b7e8865f"
+sig = "b2ba0103eae39120"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

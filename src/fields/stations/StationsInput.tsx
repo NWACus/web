@@ -34,10 +34,10 @@ function reports(station: TrackedStation, required?: RequiredVariable): boolean 
   return station.variables.includes(required.variable)
 }
 
-// Picker entries read "Name · source"; the table has the rest.
+// Picker entries read "Name · id · source"; the table has the rest.
 function optionFor(station: TrackedStation): Option {
   return {
-    label: `${station.name ?? station.stid} · ${station.source}`,
+    label: `${station.name ?? station.stid} · ${station.stid} · ${station.source}`,
     value: key(station),
     stid: station.stid,
     source: station.source,
