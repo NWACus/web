@@ -1,36 +1,38 @@
 import { StationLatestObservation } from '@/components/WeatherStations/StationLatestObservation'
 import { StationNotes } from '@/components/WeatherStations/StationNotes'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
-import type { WeatherStationGroup } from '@/constants/weatherStations'
 import type { StationNote, StationTable } from '@/services/snowobs/tableHelpers'
+import type { StationPage, StationPageSummary } from '@/services/stations/getStationPages'
 import { TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 type StationPageViewProps = {
-  group: WeatherStationGroup
+  page: StationPage
+  pages: StationPageSummary[]
   table: StationTable | null
   notes: StationNote[]
   tabContent?: ReactNode
 }
 
 function StationHeader({
-  group,
+  page,
+  pages,
   table,
 }: {
-  group: WeatherStationGroup
+  page: StationPage
+  pages: StationPageSummary[]
   table: StationTable | null
 }) {
   return (
     <div className="container flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p className="mb-1 text-sm text-muted-foreground">{group.region}</p>
         <div className="prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">{group.displayName}</h1>
+          <h1 className="font-bold">{page.displayName}</h1>
         </div>
       </div>
       <div className="flex flex-col items-end gap-1">
         {table && <StationLatestObservation table={table} />}
-        <StationPicker current={group.slug} />
+        <StationPicker pages={pages} current={page.slug} />
       </div>
     </div>
   )
@@ -54,11 +56,11 @@ function ArchivedNotice() {
 }
 
 // The tab bar lives inside `tabContent` so it can pin with that view's filters.
-export function StationPageView({ group, table, notes, tabContent }: StationPageViewProps) {
+export function StationPageView({ page, pages, table, notes, tabContent }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
-      <StationHeader group={group} table={table} />
-      {group.archived && <ArchivedNotice />}
+      <StationHeader page={page} pages={pages} table={table} />
+      {page.archived && <ArchivedNotice />}
       {notes.length > 0 && (
         <div className="container">
           <StationNotes notes={notes} />

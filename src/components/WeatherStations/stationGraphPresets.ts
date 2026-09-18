@@ -24,6 +24,8 @@ export type GraphPreset = {
   defaultHidden?: boolean
 }
 
+// Graphs-tab comparison cap; the graph-data route derives its station cap from this.
+export const MAX_COMPARE_STATIONS = 3
 // Every station gets the full preset list — loggers report more sensors than
 // the registry's NOW-table columns. Charts with no data hide themselves, and
 // the default-hidden ones sort last to keep the Edit graphs list tidy.

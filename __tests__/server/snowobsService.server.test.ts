@@ -19,6 +19,8 @@ import { getPayload } from 'payload'
 
 const TIMESERIES_URL = 'https://api.snowobs.com/wx/v1/station/data/timeseries/'
 
+const ref = (stid: string, source = 'nwac') => ({ stid, source })
+
 const validResponse: SnowObsTimeseriesResponse = {
   UNITS: { air_temp: 'fahrenheit' },
   VARIABLES: [{ variable: 'air_temp', long_name: 'Air Temperature' }],
@@ -65,8 +67,21 @@ beforeEach(() => {
 })
 
 describe('fetchStationTimeseries', () => {
+  it('sends every source once and every stid, so one request spans sources', async () => {
+    const seen: URLSearchParams[] = []
+    server.use(
+      http.get(TIMESERIES_URL, ({ request }) => {
+        seen.push(new URL(request.url).searchParams)
+        return HttpResponse.json(validResponse)
+      }),
+    )
+    await fetchStationTimeseries('nwac', [ref('1'), ref('1011', 'snotel'), ref('2')])
+    expect(seen[0].get('source')).toBe('nwac,snotel')
+    expect(seen[0].get('stid')).toBe('1,1011,2')
+  })
+
   it('returns the validated timeseries on success', async () => {
-    const result = await fetchStationTimeseries(['4'])
+    const result = await fetchStationTimeseries('nwac', [ref('4')])
     expect(result.STATION[0].stid).toBe('4')
     expect(result.STATION[0].observations.air_temp).toEqual([30])
   })
@@ -79,33 +94,33 @@ describe('fetchStationTimeseries', () => {
         return HttpResponse.json(validResponse)
       }),
     )
-    await fetchStationTimeseries(['4'], { rawData: true })
-    await fetchStationTimeseries(['4'])
+    await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
+    await fetchStationTimeseries('nwac', [ref('4')])
     expect(seenParams).toEqual(['true', null])
   })
 
   it('throws SnowObsError with the status on a non-2xx response', async () => {
     server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
-    await expect(fetchStationTimeseries(['4'])).rejects.toThrow(SnowObsError)
-    await expect(fetchStationTimeseries(['4'])).rejects.toThrow(/status 500/)
+    await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(SnowObsError)
+    await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(/status 500/)
   })
 
   it('wraps network failures in a SnowObsError', async () => {
     server.use(http.get(TIMESERIES_URL, () => HttpResponse.error()))
-    await expect(fetchStationTimeseries(['4'])).rejects.toThrow(
+    await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(
       /Failed to fetch SnowObs station timeseries/,
     )
   })
 
   it("takes the token from the center's AFP config", async () => {
     const seen = captureTokenParam()
-    await fetchStationTimeseries(['4'])
+    await fetchStationTimeseries('nwac', [ref('4')])
     expect(seen).toEqual(['afp-token'])
   })
 
   it('throws when the AFP config carries no token', async () => {
     mockAfpToken(undefined)
-    await expect(fetchStationTimeseries(['4'])).rejects.toThrow(
+    await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(
       /No SnowObs token in the AFP config/,
     )
   })
