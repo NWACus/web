@@ -17,10 +17,12 @@ import type { JSONFieldClientProps, StaticDescription } from 'payload'
 import { useState } from 'react'
 import type { RequiredVariable, StationsInputClientProps } from './index'
 import { toStationRefs } from './index'
+import type { StationStatus } from './status'
+import { stationStatus, STATUS_LABEL } from './status'
 import type { TrackedStations } from './useTrackedStations'
 import { useCenterSlug, useTrackedStations } from './useTrackedStations'
 
-type Option = { label: string; value: string; stid: string; source: string }
+type Option = { label: string; value: string; stid: string; source: string; status: StationStatus }
 
 function key(ref: StationRef): string {
   return `${ref.source}:${ref.stid}`
@@ -34,10 +36,41 @@ function reports(station: TrackedStation, required?: RequiredVariable): boolean 
   return station.variables.includes(required.variable)
 }
 
+// SnowObs's status as a colored dot; the label is in the title.
+function StatusDot({ status }: { status: StationStatus }) {
+  return (
+    <span
+      className={`stations-status stations-status--${status}`}
+      title={STATUS_LABEL[status]}
+      aria-label={STATUS_LABEL[status]}
+    />
+  )
+}
+
+// react-select renders the menu entries through this: the dot, then the label.
+function StatusOption(props: {
+  innerRef: (el: HTMLDivElement | null) => void
+  innerProps: Record<string, unknown>
+  isFocused: boolean
+  data: Option
+}) {
+  return (
+    <div
+      ref={props.innerRef}
+      {...props.innerProps}
+      className={`rs__option${props.isFocused ? ' rs__option--is-focused' : ''} stations-option`}
+    >
+      <StatusDot status={props.data.status} />
+      {props.data.label}
+    </div>
+  )
+}
+
 // Picker entries read "Name · id · source"; the table has the rest.
 function optionFor(station: TrackedStation): Option {
   return {
     label: `${station.name ?? station.stid} · ${station.stid} · ${station.source}`,
+    status: stationStatus(station),
     value: key(station),
     stid: station.stid,
     source: station.source,
@@ -55,7 +88,13 @@ function moved<T>(list: T[], from: number, to: number): T[] {
 // SnowObs no longer lists it.
 // `note` is the reason a row is flagged, or empty: SnowObs no longer lists
 // the station, or its latest report lacks the sensor the list needs.
-type RowView = { name: string; elevation: string; partner: string; note: string }
+type RowView = {
+  name: string
+  elevation: string
+  partner: string
+  note: string
+  status: StationStatus
+}
 
 function sensorNote(station: TrackedStation, required?: RequiredVariable): string {
   if (!required || reports(station, required) !== false) return ''
@@ -68,6 +107,7 @@ function trackedView(station: TrackedStation, required?: RequiredVariable): RowV
     elevation: station.elevation != null ? `${Math.round(station.elevation)} ft` : '',
     partner: station.partner ?? '',
     note: sensorNote(station, required),
+    status: stationStatus(station),
   }
 }
 
@@ -79,7 +119,7 @@ function rowView(
   const station = tracked.stations.find((s) => s.stid === entry.stid && s.source === entry.source)
   if (station) return trackedView(station, required)
   const note = tracked.status === 'ready' ? ' — not tracked in SnowObs' : ''
-  return { name: entry.stid, elevation: '', partner: '', note }
+  return { name: entry.stid, elevation: '', partner: '', note, status: 'untracked' }
 }
 
 function NameCell({ view }: { view: RowView }) {
@@ -115,6 +155,9 @@ function StationRow({
           <td>{entry.source}</td>
           <td>{view.elevation}</td>
           <td>{view.partner}</td>
+          <td className="stations-table__status">
+            <StatusDot status={view.status} /> {STATUS_LABEL[view.status]}
+          </td>
           <td className="stations-table__remove">
             <Button
               buttonStyle="icon-label"
@@ -141,6 +184,7 @@ function TableHead() {
         <th>Source</th>
         <th>Elevation</th>
         <th>Partner</th>
+        <th>Status</th>
         <th />
       </tr>
     </thead>
@@ -220,6 +264,7 @@ function AddStation({
           options={options}
           value={chosen}
           onChange={pick}
+          components={{ Option: StatusOption }}
         />
         <Button buttonStyle="secondary" disabled={chosen.length === 0} onClick={add}>
           {chosen.length > 1 ? `Add ${chosen.length}` : 'Add'}

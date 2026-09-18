@@ -1,8 +1,8 @@
 import { resolveSnowObsToken } from '@/services/snowobs/access'
 import {
-  fetchCurrentVariables,
+  fetchCurrentObservations,
   fetchTrackedStations,
-  withCurrentVariables,
+  withCurrentObservations,
 } from '@/services/snowobs/stationTracking'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import type { PayloadHandler } from 'payload'
@@ -26,9 +26,9 @@ export const trackedStations: PayloadHandler = async (req) => {
     const token = await resolveSnowObsToken(center)
     const [tracked, current] = await Promise.all([
       fetchTrackedStations(token),
-      fetchCurrentVariables(token),
+      fetchCurrentObservations(token),
     ])
-    return Response.json({ stations: withCurrentVariables(tracked, current) })
+    return Response.json({ stations: withCurrentObservations(tracked, current) })
   } catch (error) {
     req.payload.logger.error({ err: error, center }, 'tracked stations lookup failed')
     return Response.json(

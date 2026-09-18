@@ -413,7 +413,7 @@ sig = "f445ae3bb3f380ef"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/endpoints/trackedStations.ts"
-sig = "7f8b9a46628e60bb"
+sig = "4536c03b833c604d"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -433,12 +433,17 @@ sig = "f339250b6a19ecd4"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationsInput.tsx"
-sig = "b2ba0103eae39120"
+sig = "5ccfc64c6254f67d"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/index.ts"
 sig = "cd9d74b123fae0a3"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/fields/stations/status.ts"
+sig = "6c247032dff345a8"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -458,7 +463,7 @@ sig = "e3f06d2f007cc8b8"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/stationTracking.ts"
-sig = "c84f48b69001ee68"
+sig = "e3f13bdd610616c6"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

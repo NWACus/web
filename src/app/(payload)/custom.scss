@@ -78,6 +78,16 @@
     font-size: 0.85rem;
   }
 
+  .stations-table__status {
+    white-space: nowrap;
+  }
+
+  .stations-option {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--base) * 0.4);
+  }
+
   .stations-table__add {
     margin-bottom: calc(var(--base) * 0.5);
   }
@@ -108,4 +118,30 @@
 // the tabs are the first thing shown and the margin is a stray gap.
 .document-fields__fields > input[type='hidden']:first-child + .tabs-field {
   margin-top: 0;
+}
+
+// SnowObs station status, as on its own site: current, stale or unknown.
+.stations-status {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: calc(var(--base) * 0.15);
+
+  &--current {
+    background: #2e9e5b;
+  }
+
+  &--stale {
+    background: #e0a11b;
+  }
+
+  &--unknown {
+    background: #d64545;
+  }
+
+  &--untracked {
+    background: var(--theme-elevation-400); // grey: nothing to say
+  }
 }

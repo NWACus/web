@@ -1,6 +1,6 @@
 jest.mock('../../src/payload.config', () => ({}))
 
-import { withCurrentVariables } from '@/services/snowobs/stationTracking'
+import { withCurrentObservations } from '@/services/snowobs/stationTracking'
 
 const station = (stid: string, source = 'nwac') => ({
   stid,
@@ -9,20 +9,25 @@ const station = (stid: string, source = 'nwac') => ({
   elevation: null,
   partner: null,
   variables: [],
+  observedAt: null,
 })
 
-describe('withCurrentVariables', () => {
-  it('gives each tracked station the variables of its current observation', () => {
+describe('withCurrentObservations', () => {
+  it('gives each tracked station what its current observation reports, and when', () => {
     const current = new Map([
-      ['nwac:1', ['air_temp', 'precip_accum_one_hour']],
-      ['snotel:1', ['snow_depth']],
+      [
+        'nwac:1',
+        { variables: ['air_temp', 'precip_accum_one_hour'], observedAt: '2026-09-18T19:00:00Z' },
+      ],
+      ['snotel:1', { variables: ['snow_depth'], observedAt: '2026-09-18T18:00:00Z' }],
     ])
-    const [nwac, snotel, none] = withCurrentVariables(
+    const [nwac, snotel, none] = withCurrentObservations(
       [station('1'), station('1', 'snotel'), station('2')],
       current,
     )
     expect(nwac.variables).toEqual(['air_temp', 'precip_accum_one_hour'])
+    expect(nwac.observedAt).toBe('2026-09-18T19:00:00Z')
     expect(snotel.variables).toEqual(['snow_depth'])
-    expect(none.variables).toEqual([])
+    expect(none).toMatchObject({ variables: [], observedAt: null })
   })
 })

@@ -23,6 +23,8 @@ export type TrackedStation = {
   partner: string | null
   /** Variables in the station's latest observation; empty when it has none. */
   variables: string[]
+  /** When that observation was taken (ISO), or null when it has none. */
+  observedAt: string | null
 }
 
 const responseSchema = z.array(trackedStationSchema)
@@ -75,6 +77,7 @@ export async function fetchTrackedStations(token: string): Promise<TrackedStatio
     elevation: s.elevation ?? null,
     partner: s.meta?.weather_station_partner ?? null,
     variables: [],
+    observedAt: null,
   }))
 }
 
@@ -91,13 +94,25 @@ const currentSchema = z.object({
   ),
 })
 
-export type CurrentVariables = Map<string, string[]>
+export type CurrentObservation = { variables: string[]; observedAt: string | null }
+export type CurrentObservations = Map<string, CurrentObservation>
+
+function latestObservation(observations: Record<string, unknown>[]): CurrentObservation {
+  const variables = Array.from(new Set(observations.flatMap((o) => Object.keys(o)))).filter(
+    (k) => k !== 'date_time',
+  )
+  const times = observations
+    .map((o) => o.date_time)
+    .filter((t): t is string => typeof t === 'string')
+    .sort()
+  return { variables, observedAt: times.at(-1) ?? null }
+}
 
 function stationKey(source: string | null | undefined, stid: string): string {
   return `${source ?? ''}:${stid}`
 }
 
-export async function fetchCurrentVariables(token: string): Promise<CurrentVariables> {
+export async function fetchCurrentObservations(token: string): Promise<CurrentObservations> {
   const current = await readClientFeed(
     'station/data/current/',
     token,
@@ -107,21 +122,19 @@ export async function fetchCurrentVariables(token: string): Promise<CurrentVaria
   return new Map(
     (current?.STATION ?? []).map((s) => [
       stationKey(s.source, s.stid),
-      Array.from(new Set((s.observations ?? []).flatMap((o) => Object.keys(o)))).filter(
-        (k) => k !== 'date_time',
-      ),
+      latestObservation(s.observations ?? []),
     ]),
   )
 }
 
-// Pure so it can be tested: each tracked station gets the variables its
-// current observation reports, or none.
-export function withCurrentVariables(
+// Pure so it can be tested: each tracked station gets what its current
+// observation reports and when, or nothing.
+export function withCurrentObservations(
   stations: TrackedStation[],
-  current: CurrentVariables,
+  current: CurrentObservations,
 ): TrackedStation[] {
   return stations.map((s) => ({
     ...s,
-    variables: current.get(stationKey(s.source, s.stid)) ?? [],
+    ...(current.get(stationKey(s.source, s.stid)) ?? { variables: [], observedAt: null }),
   }))
 }
