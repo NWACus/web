@@ -1,7 +1,7 @@
 import type { StationPageDoc, WeatherStationSetting } from '@/payload-types'
 import type { StationRef } from '@/services/snowobs/snowobs'
 import type { Where } from 'payload'
-import { NWAC_STATION_PAGES } from './nwacStationPages'
+import { NWAC_PRECIP_STATIONS, NWAC_STATION_PAGES } from './nwacStationPages'
 
 const SOURCE = 'nwac'
 
@@ -40,11 +40,8 @@ export type SeedPayload = {
   }): Promise<unknown>
 }
 
-// The legacy precip table listed every gauge on a live page, in page order.
-function legacyPrecipStations(): StationRef[] {
-  return NWAC_STATION_PAGES.filter((page) => !page.archived).flatMap((page) =>
-    page.stids.map((stid) => ({ stid, source: SOURCE })),
-  )
+function precipStations(): StationRef[] {
+  return NWAC_PRECIP_STATIONS.map((stid) => ({ stid, source: SOURCE }))
 }
 
 /**
@@ -95,7 +92,7 @@ export async function seedStationPages(
   if (settings.length === 0) {
     await payload.create({
       collection: 'weatherStationSettings',
-      data: { tenant: tenantId, precipStations: legacyPrecipStations() },
+      data: { tenant: tenantId, precipStations: precipStations() },
       context,
     })
     result.settingsCreated = true

@@ -1,4 +1,4 @@
-import { NWAC_STATION_PAGES } from '@/migrations/data/nwacStationPages'
+import { NWAC_PRECIP_STATIONS, NWAC_STATION_PAGES } from '@/migrations/data/nwacStationPages'
 import type { SeedPayload } from '@/migrations/data/seedStationPages'
 import { seedStationPages } from '@/migrations/data/seedStationPages'
 
@@ -37,14 +37,17 @@ describe('seedStationPages', () => {
     expect(row?.data.tenant).toBe(7)
   })
 
-  it('seeds the precip table with every gauge on a live page, in page order', async () => {
+  it('seeds the precip table with the stations that have a gauge, in page order', async () => {
     const { payload, created } = fakePayload()
     const result = await seedStationPages(payload, 7)
 
     const settings = created.find((c) => c.collection === 'weatherStationSettings')
-    const live = NWAC_STATION_PAGES.filter((p) => !p.archived).flatMap((p) => p.stids)
+    const onPages = new Set(NWAC_STATION_PAGES.flatMap((p) => p.stids))
     expect(result.settingsCreated).toBe(true)
-    expect(settings?.data.precipStations).toEqual(live.map((stid) => ({ stid, source: 'nwac' })))
+    expect(settings?.data.precipStations).toEqual(
+      NWAC_PRECIP_STATIONS.map((stid) => ({ stid, source: 'nwac' })),
+    )
+    expect(NWAC_PRECIP_STATIONS.every((stid) => onPages.has(stid))).toBe(true)
   })
 
   it('leaves a page and settings that already exist exactly as they are', async () => {

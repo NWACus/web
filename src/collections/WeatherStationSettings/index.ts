@@ -3,6 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { stationsField } from '@/fields/stations'
 import { tenantField } from '@/fields/tenantField'
+import { PRECIP_HOURLY } from '@/services/snowobs/constants'
 import { ALL_PRECIP_COLUMNS, PRECIP_COLUMNS } from '@/services/stations/precipColumns'
 import {
   revalidateStationPages,
@@ -45,8 +46,8 @@ export const WeatherStationSettings: CollectionConfig = {
             stationsField({
               name: 'precipStations',
               label: 'Stations',
-              description:
-                'A station with no precipitation gauge is left off the table on its own; one whose gauge has gone quiet shows as missing.',
+              description: 'Top to bottom here is top to bottom on the page; drag to rearrange.',
+              requiredVariable: { variable: PRECIP_HOURLY, label: 'Precip' },
             }),
           ],
         },

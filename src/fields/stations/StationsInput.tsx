@@ -15,6 +15,7 @@ import {
 } from '@payloadcms/ui'
 import type { JSONFieldClientProps, StaticDescription } from 'payload'
 import { useState } from 'react'
+import type { RequiredVariable, StationsInputClientProps } from './index'
 import { toStationRefs } from './index'
 import type { TrackedStations } from './useTrackedStations'
 import { useCenterSlug, useTrackedStations } from './useTrackedStations'
@@ -25,10 +26,18 @@ function key(ref: StationRef): string {
   return `${ref.source}:${ref.stid}`
 }
 
+// Whether a station reports the sensor the list needs: yes, no, or unknown
+// when it has no current observation to judge by.
+function reports(station: TrackedStation, required?: RequiredVariable): boolean | null {
+  if (!required) return null
+  if (station.variables.length === 0) return null
+  return station.variables.includes(required.variable)
+}
+
+// Picker entries read "Name · source"; the table has the rest.
 function optionFor(station: TrackedStation): Option {
-  const elevation = station.elevation != null ? ` · ${Math.round(station.elevation)} ft` : ''
   return {
-    label: `${station.name ?? station.stid}${elevation} · ${station.source}`,
+    label: `${station.name ?? station.stid} · ${station.source}`,
     value: key(station),
     stid: station.stid,
     source: station.source,
@@ -44,21 +53,42 @@ function moved<T>(list: T[], from: number, to: number): T[] {
 
 // What a row shows: the live station, or the bare id with a note when
 // SnowObs no longer lists it.
-type RowView = { name: string; elevation: string; partner: string; untracked: boolean }
+// `note` is the reason a row is flagged, or empty: SnowObs no longer lists
+// the station, or its latest report lacks the sensor the list needs.
+type RowView = { name: string; elevation: string; partner: string; note: string }
 
-function trackedView(station: TrackedStation): RowView {
+function sensorNote(station: TrackedStation, required?: RequiredVariable): string {
+  if (!required || reports(station, required) !== false) return ''
+  return ` — no ${required.label.toLowerCase()} in its latest report`
+}
+
+function trackedView(station: TrackedStation, required?: RequiredVariable): RowView {
   return {
     name: station.name ?? station.stid,
     elevation: station.elevation != null ? `${Math.round(station.elevation)} ft` : '',
     partner: station.partner ?? '',
-    untracked: false,
+    note: sensorNote(station, required),
   }
 }
 
-function rowView(entry: StationRef, tracked: TrackedStations): RowView {
+function rowView(
+  entry: StationRef,
+  tracked: TrackedStations,
+  required?: RequiredVariable,
+): RowView {
   const station = tracked.stations.find((s) => s.stid === entry.stid && s.source === entry.source)
-  if (station) return trackedView(station)
-  return { name: entry.stid, elevation: '', partner: '', untracked: tracked.status === 'ready' }
+  if (station) return trackedView(station, required)
+  const note = tracked.status === 'ready' ? ' — not tracked in SnowObs' : ''
+  return { name: entry.stid, elevation: '', partner: '', note }
+}
+
+function NameCell({ view }: { view: RowView }) {
+  return (
+    <td className={view.note ? 'stations-table__untracked' : undefined}>
+      {view.name}
+      {view.note && <span className="stations-table__note">{view.note}</span>}
+    </td>
+  )
 }
 
 function StationRow({
@@ -80,12 +110,7 @@ function StationRow({
             <DragHandleIcon />
           </td>
           <td className="stations-table__order">{index + 1}</td>
-          <td className={view.untracked ? 'stations-table__untracked' : undefined}>
-            {view.name}
-            {view.untracked && (
-              <span className="stations-table__note"> — not tracked in SnowObs</span>
-            )}
-          </td>
+          <NameCell view={view} />
           <td className="stations-table__id">{entry.stid}</td>
           <td>{entry.source}</td>
           <td>{view.elevation}</td>
@@ -105,28 +130,32 @@ function StationRow({
   )
 }
 
-const TABLE_HEAD = (
-  <thead>
-    <tr>
-      <th />
-      <th />
-      <th>Name</th>
-      <th>ID</th>
-      <th>Source</th>
-      <th>Elevation</th>
-      <th>Partner</th>
-      <th />
-    </tr>
-  </thead>
-)
+function TableHead() {
+  return (
+    <thead>
+      <tr>
+        <th />
+        <th />
+        <th>Name</th>
+        <th>ID</th>
+        <th>Source</th>
+        <th>Elevation</th>
+        <th>Partner</th>
+        <th />
+      </tr>
+    </thead>
+  )
+}
 
 function StationsTable({
   refs,
   tracked,
+  required,
   onChange,
 }: {
   refs: StationRef[]
   tracked: TrackedStations
+  required?: RequiredVariable
   onChange: (refs: StationRef[]) => void
 }) {
   const rows = refs.map((entry, index) => (
@@ -134,7 +163,7 @@ function StationsTable({
       key={key(entry)}
       entry={entry}
       index={index}
-      view={rowView(entry, tracked)}
+      view={rowView(entry, tracked, required)}
       onRemove={() => onChange(refs.filter((_, i) => i !== index))}
     />
   ))
@@ -148,7 +177,7 @@ function StationsTable({
   return (
     <DraggableSortable ids={refs.map(key)} onDragEnd={onDragEnd}>
       <table className="stations-table">
-        {TABLE_HEAD}
+        <TableHead />
         <tbody>{rows}</tbody>
       </table>
     </DraggableSortable>
@@ -233,17 +262,32 @@ function Footer({
 
 // The page's stations as a table, in table order: drag to reorder, remove
 // with the X, add from the center's SnowObs tracking list.
-export function StationsInput({ path, field }: JSONFieldClientProps) {
+export function StationsInput({
+  path,
+  field,
+  requiredVariable,
+}: JSONFieldClientProps & StationsInputClientProps) {
   const { value, setValue, showError, errorMessage } = useField<unknown>({ path })
   const tracked = useTrackedStations(useCenterSlug())
   const refs = toStationRefs(value)
   const onPage = new Set(refs.map(key))
-  const options = tracked.stations.map(optionFor).filter((o) => !onPage.has(o.value))
+  // Offer only stations that report what the list needs, and not ones already on it.
+  const options = tracked.stations
+    .filter((s) => !requiredVariable || reports(s, requiredVariable) === true)
+    .map(optionFor)
+    .filter((o) => !onPage.has(o.value))
 
   return (
     <div className="field-type json stations-input mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
-      {refs.length > 0 && <StationsTable refs={refs} tracked={tracked} onChange={setValue} />}
+      {refs.length > 0 && (
+        <StationsTable
+          refs={refs}
+          tracked={tracked}
+          required={requiredVariable}
+          onChange={setValue}
+        />
+      )}
       <Footer
         path={path}
         tracked={tracked}

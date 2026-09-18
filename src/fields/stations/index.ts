@@ -30,20 +30,29 @@ export function validateStations(value: unknown): true | string {
   return repeat ? `${repeat.replace(':', ' ')} is listed twice.` : true
 }
 
+// A sensor the list cares about: the admin table gets a column saying whether
+// each station reports it, and the picker marks stations that do not.
+export type RequiredVariable = { variable: string; label: string }
+
+export type StationsInputClientProps = { requiredVariable?: RequiredVariable }
+
 /**
  * An ordered list of SnowObs stations, picked from what the center tracks.
  * Stored as JSON rather than an array field so the admin can render it as a
- * single sortable multi-select; the value is only ever `(source, stid)` pairs.
+ * table with its own add control; the value is only ever `(source, stid)` pairs.
  */
 export function stationsField({
   name,
   label,
   description,
+  requiredVariable,
 }: {
   name: string
   label: string
   description: string
+  requiredVariable?: RequiredVariable
 }): JSONField {
+  const clientProps: StationsInputClientProps = { requiredVariable }
   return {
     name,
     type: 'json',
@@ -51,7 +60,9 @@ export function stationsField({
     defaultValue: [],
     admin: {
       description,
-      components: { Field: '@/fields/stations/StationsInput#StationsInput' },
+      components: {
+        Field: { path: '@/fields/stations/StationsInput#StationsInput', clientProps },
+      },
     },
     typescriptSchema: [
       () => ({
