@@ -428,17 +428,17 @@ sig = "c017843e18d30e15"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/WeatherStationSettings/index.ts"
-sig = "e8e746361cb287dd"
+sig = "46b9a258c0ef9ed3"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationsInput.tsx"
-sig = "c4a72b741adb585c"
+sig = "b394c898b7e8865f"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/index.ts"
-sig = "3cdfd83769b48bd5"
+sig = "cd9d74b123fae0a3"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

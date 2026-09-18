@@ -49,7 +49,7 @@ export function stationsField({
 }: {
   name: string
   label: string
-  description: string
+  description?: string
   requiredVariable?: RequiredVariable
 }): JSONField {
   const clientProps: StationsInputClientProps = { requiredVariable }

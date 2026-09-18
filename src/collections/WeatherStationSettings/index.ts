@@ -46,7 +46,6 @@ export const WeatherStationSettings: CollectionConfig = {
             stationsField({
               name: 'precipStations',
               label: 'Stations',
-              description: 'Top to bottom here is top to bottom on the page; drag to rearrange.',
               requiredVariable: { variable: PRECIP_HOURLY, label: 'Precip' },
             }),
           ],

@@ -255,7 +255,7 @@ function Footer({
   return (
     <>
       <AddStation path={path} options={options} onAdd={onAdd} />
-      {description != null && <FieldDescription path={path} description={description} />}
+      {description && <FieldDescription path={path} description={description} />}
     </>
   )
 }
