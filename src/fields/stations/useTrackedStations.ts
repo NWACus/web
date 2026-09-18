@@ -78,8 +78,3 @@ export function useTrackedStations(center: string | null): TrackedStations {
   }, [center])
   return state
 }
-
-export function describeStation(station: TrackedStation): string {
-  const elevation = station.elevation != null ? `${Math.round(station.elevation)} ft` : null
-  return [station.name ?? station.stid, elevation, station.source].filter(Boolean).join(' · ')
-}

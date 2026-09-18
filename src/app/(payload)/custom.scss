@@ -20,13 +20,72 @@
   text-wrap: auto;
 }
 
-// The stations multi-select: react-select sizes to its content, which clips
-// the menu and squeezes the chips.
-.stations-input .react-select {
-  width: 100%;
+// The stations table on a station page and the precip settings.
+.stations-input {
+  .stations-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: calc(var(--base) * 0.5);
 
-  // Chips carry name, elevation and source; the default cap cuts the name.
-  [class*='multi-value'] {
-    max-width: 24rem;
+    th,
+    td {
+      text-align: left;
+      padding: calc(var(--base) * 0.15) calc(var(--base) * 0.5);
+      border-bottom: 1px solid var(--theme-elevation-150);
+      vertical-align: middle;
+      line-height: 1.3;
+    }
+
+    // Payload buttons carry their own vertical margin; the row sets height.
+    .btn {
+      margin: 0;
+    }
+
+    th {
+      font-weight: 600;
+      color: var(--theme-elevation-600);
+      font-size: 0.85rem;
+    }
+
+    tr {
+      background: var(--theme-elevation-0);
+    }
+  }
+
+  &__handle,
+  .stations-table__handle {
+    width: 1.5rem;
+    cursor: grab;
+    color: var(--theme-elevation-500);
+    padding-right: 0;
+  }
+
+  .stations-table__order {
+    width: 2rem;
+    color: var(--theme-elevation-500);
+  }
+
+  .stations-table__remove {
+    width: 2.5rem;
+    text-align: right;
+  }
+
+  .stations-table__untracked {
+    color: var(--theme-warning-600);
+  }
+
+  .stations-table__note {
+    font-size: 0.85rem;
+  }
+
+  .stations-table__add {
+    display: flex;
+    align-items: flex-start;
+    gap: calc(var(--base) * 0.5);
+    margin-bottom: calc(var(--base) * 0.5);
+
+    .react-select {
+      flex: 1;
+    }
   }
 }

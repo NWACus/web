@@ -2,102 +2,248 @@
 
 import type { StationRef } from '@/services/snowobs/snowobs'
 import type { TrackedStation } from '@/services/snowobs/stationTracking'
-import { FieldDescription, FieldError, FieldLabel, Select, useField } from '@payloadcms/ui'
+import {
+  Button,
+  DraggableSortable,
+  DraggableSortableItem,
+  DragHandleIcon,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+  Select,
+  useField,
+} from '@payloadcms/ui'
 import type { JSONFieldClientProps, StaticDescription } from 'payload'
+import { useState } from 'react'
 import { toStationRefs } from './index'
 import type { TrackedStations } from './useTrackedStations'
-import { describeStation, useCenterSlug, useTrackedStations } from './useTrackedStations'
+import { useCenterSlug, useTrackedStations } from './useTrackedStations'
 
-type Option = { label: string; value: string; stid: string; source: string; tracked: boolean }
+type Option = { label: string; value: string; stid: string; source: string }
 
 function key(ref: StationRef): string {
   return `${ref.source}:${ref.stid}`
 }
 
-function trackedOption(station: TrackedStation): Option {
+function optionFor(station: TrackedStation): Option {
+  const elevation = station.elevation != null ? ` · ${Math.round(station.elevation)} ft` : ''
   return {
-    label: describeStation(station),
+    label: `${station.name ?? station.stid}${elevation} · ${station.source}`,
     value: key(station),
     stid: station.stid,
     source: station.source,
-    tracked: true,
   }
 }
 
-// A stored station SnowObs no longer lists still shows, marked, so it can be
-// seen and removed rather than silently dropped.
-function storedOption(ref: StationRef, options: Option[], ready: boolean): Option {
+function moved<T>(list: T[], from: number, to: number): T[] {
+  const next = [...list]
+  const [item] = next.splice(from, 1)
+  next.splice(to, 0, item)
+  return next
+}
+
+// What a row shows: the live station, or the bare id with a note when
+// SnowObs no longer lists it.
+type RowView = { name: string; elevation: string; partner: string; untracked: boolean }
+
+function trackedView(station: TrackedStation): RowView {
+  return {
+    name: station.name ?? station.stid,
+    elevation: station.elevation != null ? `${Math.round(station.elevation)} ft` : '',
+    partner: station.partner ?? '',
+    untracked: false,
+  }
+}
+
+function rowView(entry: StationRef, tracked: TrackedStations): RowView {
+  const station = tracked.stations.find((s) => s.stid === entry.stid && s.source === entry.source)
+  if (station) return trackedView(station)
+  return { name: entry.stid, elevation: '', partner: '', untracked: tracked.status === 'ready' }
+}
+
+function StationRow({
+  entry,
+  index,
+  view,
+  onRemove,
+}: {
+  entry: StationRef
+  index: number
+  view: RowView
+  onRemove: () => void
+}) {
   return (
-    options.find((o) => o.value === key(ref)) ?? {
-      label: `${ref.stid} (${ref.source})${ready ? ' — not tracked in SnowObs' : ''}`,
-      value: key(ref),
-      stid: ref.stid,
-      source: ref.source,
-      tracked: false,
-    }
+    <DraggableSortableItem id={key(entry)}>
+      {({ attributes, listeners, setNodeRef, transform, transition }) => (
+        <tr ref={setNodeRef} style={{ transform, transition }}>
+          <td className="stations-table__handle" {...attributes} {...listeners}>
+            <DragHandleIcon />
+          </td>
+          <td className="stations-table__order">{index + 1}</td>
+          <td className={view.untracked ? 'stations-table__untracked' : undefined}>
+            {view.name}
+            {view.untracked && (
+              <span className="stations-table__note"> — not tracked in SnowObs</span>
+            )}
+          </td>
+          <td>{entry.source}</td>
+          <td>{view.elevation}</td>
+          <td>{view.partner}</td>
+          <td className="stations-table__remove">
+            <Button
+              buttonStyle="icon-label"
+              icon="x"
+              size="small"
+              aria-label={`Remove ${view.name}`}
+              onClick={onRemove}
+            />
+          </td>
+        </tr>
+      )}
+    </DraggableSortableItem>
   )
 }
 
-// react-select hands back option objects; resolve them by key rather than
-// trust their shape.
-function pickedRefs(picked: unknown, byKey: Map<string, Option>): StationRef[] {
-  if (!Array.isArray(picked)) return []
-  return picked.flatMap((p: { value?: unknown }) => {
-    const option = byKey.get(String(p?.value))
-    return option ? [{ stid: option.stid, source: option.source }] : []
-  })
+const TABLE_HEAD = (
+  <thead>
+    <tr>
+      <th />
+      <th />
+      <th>Station</th>
+      <th>Source</th>
+      <th>Elevation</th>
+      <th>Partner</th>
+      <th />
+    </tr>
+  </thead>
+)
+
+function StationsTable({
+  refs,
+  tracked,
+  onChange,
+}: {
+  refs: StationRef[]
+  tracked: TrackedStations
+  onChange: (refs: StationRef[]) => void
+}) {
+  const rows = refs.map((entry, index) => (
+    <StationRow
+      key={key(entry)}
+      entry={entry}
+      index={index}
+      view={rowView(entry, tracked)}
+      onRemove={() => onChange(refs.filter((_, i) => i !== index))}
+    />
+  ))
+  const onDragEnd = ({
+    moveFromIndex,
+    moveToIndex,
+  }: {
+    moveFromIndex: number
+    moveToIndex: number
+  }) => onChange(moved(refs, moveFromIndex, moveToIndex))
+  return (
+    <DraggableSortable ids={refs.map(key)} onDragEnd={onDragEnd}>
+      <table className="stations-table">
+        {TABLE_HEAD}
+        <tbody>{rows}</tbody>
+      </table>
+    </DraggableSortable>
+  )
 }
 
-function Notes({
+// A searchable select that appears on "Add station" and appends on pick.
+function AddStation({
+  path,
+  options,
+  onAdd,
+}: {
+  path: string
+  options: Option[]
+  onAdd: (ref: StationRef) => void
+}) {
+  const [open, setOpen] = useState(false)
+  if (!open) {
+    return (
+      <Button buttonStyle="icon-label" icon="plus" size="small" onClick={() => setOpen(true)}>
+        Add station
+      </Button>
+    )
+  }
+  return (
+    <div className="stations-table__add">
+      <Select
+        inputId={`${path}-add`}
+        isSearchable
+        isClearable={false}
+        menuIsOpen
+        placeholder="Search by name, id or source…"
+        options={options}
+        onChange={(picked) => {
+          const option = options.find((o) => !Array.isArray(picked) && o.value === picked?.value)
+          if (option) onAdd({ stid: option.stid, source: option.source })
+          setOpen(false)
+        }}
+      />
+      <Button buttonStyle="secondary" size="small" onClick={() => setOpen(false)}>
+        Cancel
+      </Button>
+    </div>
+  )
+}
+
+// Below the table: the add control and the field's own description, or the
+// reason neither is available.
+function Footer({
   path,
   tracked,
+  options,
   description,
+  onAdd,
 }: {
   path: string
   tracked: TrackedStations
+  options: Option[]
   description?: StaticDescription
+  onAdd: (ref: StationRef) => void
 }) {
   if (tracked.status === 'error') {
     return (
       <FieldDescription
         path={path}
-        description={`Could not load the SnowObs list (${tracked.message}). The stored stations are shown as ids.`}
+        description={`Could not load the SnowObs list (${tracked.message}). Stations show as ids and none can be added until it is back.`}
       />
     )
   }
-  return description != null ? <FieldDescription path={path} description={description} /> : null
+  return (
+    <>
+      <AddStation path={path} options={options} onAdd={onAdd} />
+      {description != null && <FieldDescription path={path} description={description} />}
+    </>
+  )
 }
 
-// One searchable multi-select over the center's SnowObs tracking list. The
-// chips are the page's stations in order; drag to reorder, backspace to drop.
+// The page's stations as a table, in table order: drag to reorder, remove
+// with the X, add from the center's SnowObs tracking list.
 export function StationsInput({ path, field }: JSONFieldClientProps) {
   const { value, setValue, showError, errorMessage } = useField<unknown>({ path })
   const tracked = useTrackedStations(useCenterSlug())
   const refs = toStationRefs(value)
-
-  const options = tracked.stations.map(trackedOption)
-  const selected = refs.map((ref) => storedOption(ref, options, tracked.status === 'ready'))
-  const byKey = new Map([...options, ...selected].map((o) => [o.value, o]))
-
-  const onChange = (picked: unknown) => setValue(pickedRefs(picked, byKey))
+  const onPage = new Set(refs.map(key))
+  const options = tracked.stations.map(optionFor).filter((o) => !onPage.has(o.value))
 
   return (
     <div className="field-type json stations-input mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
-      <Select
-        inputId={path}
-        isMulti
-        isSortable
-        isSearchable
-        isClearable={false}
-        isLoading={tracked.status === 'loading'}
-        disabled={tracked.status === 'error'}
-        placeholder="Search by name, id or source…"
+      {refs.length > 0 && <StationsTable refs={refs} tracked={tracked} onChange={setValue} />}
+      <Footer
+        path={path}
+        tracked={tracked}
         options={options}
-        value={selected}
-        onChange={onChange}
+        description={field.admin?.description}
+        onAdd={(ref) => setValue([...refs, ref])}
       />
-      <Notes path={path} tracked={tracked} description={field.admin?.description} />
       <FieldError path={path} message={errorMessage} showError={showError} />
     </div>
   )
