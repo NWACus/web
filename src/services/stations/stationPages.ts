@@ -1,7 +1,6 @@
+import { toStationRefs } from '@/fields/stations'
 import type { StationPageDoc } from '@/payload-types'
 import type { StationRef } from '@/services/snowobs/snowobs'
-
-export type StationPageStation = StationRef & { hiddenOnPrecipTable: boolean }
 
 // A page under /weather/stations: its row, with the stations in the order the
 // editor arranged them. Everything a route needs; nothing a route has to look
@@ -10,7 +9,7 @@ export type StationPage = {
   slug: string
   displayName: string
   archived: boolean
-  stations: StationPageStation[]
+  stations: StationRef[]
   /** Station ids in page order -- the fetch list for tables, graphs and CSV. */
   stids: string[]
 }
@@ -31,11 +30,7 @@ function byName(a: StationPage, b: StationPage): number {
 export function assembleStationPages(pages: PageRow[]): StationPage[] {
   return pages
     .map((page): StationPage => {
-      const stations = (page.stations ?? []).map((s) => ({
-        stid: s.stid,
-        source: s.source,
-        hiddenOnPrecipTable: s.hiddenOnPrecipTable ?? false,
-      }))
+      const stations = toStationRefs(page.stations)
       return {
         slug: page.slug,
         displayName: page.displayName,
@@ -64,23 +59,4 @@ export function allStations(pages: StationPage[]): Map<string, StationRef> {
     for (const { stid, source } of page.stations) byStid.set(stid, { stid, source })
   }
   return byStid
-}
-
-// The Accumulated Precipitation rows: every station on a live page whose gauge
-// isn't flagged. Which of those actually report precip is decided by the
-// response -- a station without the sensor simply has no row. Archived pages
-// are left out because a decommissioned gauge would read "missing" forever,
-// which is why the legacy page omitted them too.
-export function precipStations(pages: StationPage[]): StationRef[] {
-  const seen = new Set<string>()
-  const refs: StationRef[] = []
-  for (const page of pages) {
-    if (page.archived) continue
-    for (const { stid, source, hiddenOnPrecipTable } of page.stations) {
-      if (hiddenOnPrecipTable || seen.has(stid)) continue
-      seen.add(stid)
-      refs.push({ stid, source })
-    }
-  }
-  return refs
 }

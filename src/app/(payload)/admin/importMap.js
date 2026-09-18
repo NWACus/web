@@ -43,8 +43,7 @@ import { OnboardingChecklist as OnboardingChecklist_e43d4b78209dd849b6f9ccc557d9
 import { SyncTenantsOnSave as SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1 } from '@/collections/Tenants/components/SyncTenantsOnSave'
 import { DeleteTenantModal as DeleteTenantModal_4179c7e18c353aeb4f324f76e2ac1d6e } from '@/collections/Tenants/components/DeleteTenantModal'
 import { AutoFillNameFromSlug as AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10 } from '@/collections/Tenants/components/AutoFillNameFromSlug'
-import { StationPicker as StationPicker_ca45b2d3d76be0e524ca58d80c5bcd7b } from '@/collections/StationPages/components/StationPicker'
-import { StationRowLabel as StationRowLabel_407802d5e0449d4a445b7a44b7f99d8c } from '@/collections/StationPages/components/StationRowLabel'
+import { StationsInput as StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd } from '@/fields/stations/StationsInput'
 import { default as default_82dc161b944e4ac13e65d7b8b57c6182 } from '@/components/Navigations/DisplayModePicker'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { BannerDescription as BannerDescription_3edfb41266bd8db9320658009eba5899 } from '@/components/BannerDescription'
@@ -114,8 +113,7 @@ export const importMap = {
   "@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave": SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1,
   "@/collections/Tenants/components/DeleteTenantModal#DeleteTenantModal": DeleteTenantModal_4179c7e18c353aeb4f324f76e2ac1d6e,
   "@/collections/Tenants/components/AutoFillNameFromSlug#AutoFillNameFromSlug": AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10,
-  "@/collections/StationPages/components/StationPicker#StationPicker": StationPicker_ca45b2d3d76be0e524ca58d80c5bcd7b,
-  "@/collections/StationPages/components/StationRowLabel#StationRowLabel": StationRowLabel_407802d5e0449d4a445b7a44b7f99d8c,
+  "@/fields/stations/StationsInput#StationsInput": StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd,
   "@/components/Navigations/DisplayModePicker#default": default_82dc161b944e4ac13e65d7b8b57c6182,
   "@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription": LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
   "@/components/BannerDescription#BannerDescription": BannerDescription_3edfb41266bd8db9320658009eba5899,

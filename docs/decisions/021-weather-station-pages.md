@@ -22,13 +22,19 @@ The other obvious alternative, per-tenant constants keyed by center slug, would 
 
 ## Decision
 
-**AvyWeb stores only what SnowObs cannot know: the pages, and which SnowObs stations each page shows, in what order. A station is a `(source, stid)` reference and nothing more. Columns are derived from the SnowObs data, not stored. The index is an ordinary Payload page. There is no local copy of SnowObs's station list and nothing to sync.**
+**AvyWeb stores only what SnowObs cannot know: the pages, which SnowObs stations each page shows and in what order, and which gauges the precipitation table shows. A station is a `(source, stid)` reference and nothing more. Columns are derived from the SnowObs data, not stored. The index is an ordinary Payload page. There is no local copy of SnowObs's station list and nothing to sync.**
 
-### One collection: pages that reference stations
+### Pages reference stations; one field type does the picking
 
-`stationPages` is tenant-scoped and holds `displayName`, `slug` (unique per tenant, since it is the URL), `archived`, and a `stations` array of `{ stid, source, hiddenOnPrecipTable }`. Array position is page order, so a Summit / Mid / Base page is arranged by dragging rows. A `beforeValidate` hook rejects a station listed twice on one page or already on another page in the tenant, naming that page.
+`stationPages` is tenant-scoped and holds `displayName`, `slug` (unique per tenant, since it is the URL), `archived`, and `stations`: an ordered list of `{ stid, source }`. A `beforeValidate` hook rejects a station listed twice on one page or already on another page in the tenant, naming that page.
 
-No name, elevation or coordinates are stored. The public pages read them from the timeseries response, as the legacy site did. The admin reads them live too: the `stid` field is a searchable picker backed by a collection endpoint that proxies `station/tracking/` for the page's center, cached an hour server-side so the token never reaches the browser. The picker writes `stid` and `source` together, and each collapsed row shows the live name, elevation and source. A stid that has dropped out of the center's tracking list is flagged in place, which is the diff-against-SnowObs view the mirror would have needed a sync to produce. If SnowObs is unreachable the picker degrades to the stored id in a plain input.
+The list is a `stationsField()`, a JSON field whose admin component is a single searchable multi-select over the center's SnowObs tracking list, with the chosen stations as sortable chips. JSON rather than an array field because Payload's array UI is rows of sub-fields, and once a station carries no per-row data the rows are only in the way; the value is only ever pairs, validated on save. The options come from a collection endpoint that proxies `station/tracking/` for the page's center, cached an hour server-side so the token never reaches the browser. Each chip shows the live name, elevation and source; a stored station that has dropped out of the tracking list is marked in place, which is the diff-against-SnowObs view the mirror would have needed a sync to produce. If SnowObs is unreachable the field shows the stored ids and stays read-only.
+
+No name, elevation or coordinates are stored anywhere. The public pages read them from the timeseries response, as the legacy site did.
+
+### The precipitation table is a center setting, not a side effect
+
+The Accumulated Precipitation page used to show every station on a live page minus a per-station "hidden" flag, in page order. That made the table impossible to order or to explain, and it could not include a gauge that is on no page. `weatherStationSettings` is a unique-tenant collection ([ADR 016](016-per-tenant-globals-as-unique-tenant-collections.md)) with one document per center; its Precipitation Table tab holds its own `stationsField()` list, and the page shows exactly that, top to bottom. It is the home for other center-wide station settings later (default graph order, axis limits), so they do not each become a collection.
 
 This is the reverse of [ADR 020](020-center-timezone-is-a-hardcoded-fact.md)'s "AvyWeb owns, upstream advises" rule, and deliberately so: ADR 020 covers values an admin might reasonably edit, where a silent upstream overwrite would surprise them. Station identity is not editorial. Nobody should be correcting a logger's elevation in AvyWeb, so the honest model is to not store it at all.
 
@@ -46,7 +52,7 @@ The center's slug is not assumed to be a source anywhere. For SAC and SNFAC it i
 
 ### The public pages read one cached object
 
-The assembled `StationPage` (page row plus its ordered station refs plus a flat `stids` list) is built once per center in `unstable_cache` under a single tag, `station-pages:<center>`, and the collection's `afterChange` / `afterDelete` hooks bust that one tag. The graph-data route's allowlist and request caps derive from the same object, so moving a station between pages in the admin changes the table, the graphs, the CSV form, the precip table and the allowlist together on the next request.
+The assembled `StationPage` (page row plus its ordered station refs plus a flat `stids` list) is built once per center in `unstable_cache` under a single tag, `station-pages:<center>`; the settings document is cached under the same tag, and both collections' `afterChange` / `afterDelete` hooks bust it. The graph-data route's allowlist and request caps derive from the same object, so moving a station between pages in the admin changes the table, the graphs, the CSV form, the precip table and the allowlist together on the next request.
 
 ### A center has station pages when it has rows
 
@@ -58,7 +64,7 @@ The native `weather/stations/page.tsx` and its "Weather Data" built-in row are d
 
 ### Seeding is the page list, nothing else
 
-The migration `20260918_193423_station_pages` creates the table, then for the `nwac` tenant creates the 32 pages with their station references from `migrations/data/nwacStationPages.ts`, every reference on the `nwac` source. No station identity is snapshotted, so there is nothing to go stale. `seedStationPages()` creates only pages that do not exist and never touches one that does, so re-running it cannot undo an admin's arrangement. The same function runs from `pnpm seed`, because locally the migration runs before any tenant exists. The migration also appends `stationPages` to every tenant's `Admin` role rule, since tenant roles list collections explicitly and a new collection is otherwise invisible to every existing admin.
+The migration `20260918_201403_station_pages` creates both tables, then for the `nwac` tenant creates the 32 pages with their station references from `migrations/data/nwacStationPages.ts`, every reference on the `nwac` source, and a settings document whose precipitation list is every gauge on a live page in page order, which is what the legacy table showed. No station identity is snapshotted, so there is nothing to go stale. `seedStationPages()` creates only pages and settings that do not exist and never touches one that does, so re-running it cannot undo an admin's arrangement. The same function runs from `pnpm seed`, because locally the migration runs before any tenant exists. The migration also appends both collections to every tenant's `Admin` role rule, since tenant roles list collections explicitly and a new collection is otherwise invisible to every existing admin.
 
 ## Consequences
 
@@ -72,10 +78,11 @@ The migration `20260918_193423_station_pages` creates the table, then for the `n
 - **The `/weather/stations` cutover is content, done by hand.** The migration does not create the `stations` page, repoint the nav or delete the "Weather Data" built-in row; NWAC's was built in the production admin ahead of the deploy. A center enabling station pages later does the same three steps.
 - **Any station edit busts the whole center.** One tag covers the index, every station page, the precip table and the graph-data allowlist. That is cheap because they re-read on the next request only, and it means there is no per-page revalidation to reason about. Lengthening ISR windows ([#1281](https://github.com/NWACus/web/issues/1281)) does not change this.
 - **The static build enumerates every page across every tenant.** `allStationPageParams()` is a full scan of `stationPages` at build time. Fine at 32 pages; revisit if a center lands hundreds.
-- **Two archived-page behaviors are encoded in code, not data.** An archived page defaults to the CSV tab and is excluded from the precip table (a decommissioned gauge would read "missing" forever, which is why the legacy page omitted them too). These follow the flag automatically; they are not separate switches.
+- **Archiving a page does not touch the precip table.** An archived page defaults to the CSV tab; whether its gauge stays on the precip table is the settings list's call. The seed leaves archived pages' gauges out, as the legacy table did, but nothing keeps it that way afterwards.
+- **Center-wide station settings go on the settings document.** Do not add a collection per setting. A tab per concern on `weatherStationSettings` is the pattern.
 - **Multi-source fetches were verified small.** Three stations over a six-hour window. A page mixing sources at NWAC's real sizes and a season-length graph window should be checked before a center relies on it.
 - **The public token's read surface is not guaranteed.** `station/metadata/client/` is already OAuth-only; `station/tracking/` could go the same way. The spec also declares the public token as accepted on the tracking write endpoints, which was not probed. Both are questions for Snowbound.
 - **Per-center variable config is a follow-up.** `variable/tracking/` would replace `SENSOR_LABELS`, `UNIT_LABELS` and `metricUnits.ts`; note SnowObs declares wind's metric unit as m/s where we hardcode km/h. Not derived yet.
-- **The registry's tests went with it.** `weatherStations.server.test.ts` (the hand-checked column lists) is replaced by `deriveColumns.server.test.ts`, `stationPages.server.test.ts` and `ensureStationsUnique.server.test.ts`, which test the derivation, assembly and uniqueness as pure functions against fixtures, not against NWAC's 32 pages.
+- **The registry's tests went with it.** `weatherStations.server.test.ts` (the hand-checked column lists) is replaced by `deriveColumns.server.test.ts`, `stationPages.server.test.ts`, `stationsField.server.test.ts` and `ensureStationsUnique.server.test.ts`, which test the derivation, assembly, field validation and uniqueness as pure functions against fixtures, not against NWAC's 32 pages.
 
 Follow-ups: [#1303](https://github.com/NWACus/web/issues/1303) (display timezone from `AVALANCHE_CENTERS`, per ADR 020), [#1304](https://github.com/NWACus/web/issues/1304) (authoring a second center's pages).

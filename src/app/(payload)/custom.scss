@@ -20,14 +20,13 @@
   text-wrap: auto;
 }
 
-// The station picker on a station page. A custom field component loses the
-// row width Payload would apply, and react-select sizes to its content, which
-// shrinks the control while typing and clips the menu.
-.station-picker {
-  flex: 1 1 0;
-  flex-direction: column;
+// The stations multi-select: react-select sizes to its content, which clips
+// the menu and squeezes the chips.
+.stations-input .react-select {
+  width: 100%;
 
-  .react-select {
-    width: 100%;
+  // Chips carry name, elevation and source; the default cap cuts the name.
+  [class*='multi-value'] {
+    max-width: 24rem;
   }
 }

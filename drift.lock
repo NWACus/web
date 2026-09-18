@@ -412,28 +412,38 @@ sig = "f445ae3bb3f380ef"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
-target = "src/collections/StationPages/components/StationPicker.tsx"
-sig = "c82100b8a9af7048"
-
-[[bindings]]
-doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/endpoints/trackedStations.ts"
 sig = "13d6181b5ece35b7"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/hooks/ensureStationsUnique.ts"
-sig = "bd97ef33edcff9d8"
+sig = "3afefb488d3a18a4"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/index.ts"
-sig = "5ff3ad738b90bae2"
+sig = "c017843e18d30e15"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/collections/WeatherStationSettings/index.ts"
+sig = "4bdcf3433afecac3"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/fields/stations/StationsInput.tsx"
+sig = "bbe81cc9c55a4fb4"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/fields/stations/index.ts"
+sig = "763ea193fcc7fef7"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/migrations/data/seedStationPages.ts"
-sig = "bc0e0a974b0107b0"
+sig = "08585d8ecddc0f97"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -453,7 +463,12 @@ sig = "81ef12d1f1e07fae"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/getStationPages.ts"
-sig = "5efb59687e57e59b"
+sig = "c66b65288eeed769"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/getWeatherStationSettings.ts"
+sig = "88d31d5b093de845"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -463,7 +478,7 @@ sig = "ddb05da22d641484"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/stationPages.ts"
-sig = "2f20f703b599c98c"
+sig = "d5215902efe3da34"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
@@ -573,7 +588,7 @@ sig = "ba88cf9a8263b060"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "f5167f9ba0a02b02"
+sig = "a4fa367e993c64d9"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

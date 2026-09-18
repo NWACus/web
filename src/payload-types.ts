@@ -92,6 +92,7 @@ export interface Config {
     globalRoleAssignments: GlobalRoleAssignment;
     tenants: Tenant;
     stationPages: StationPageDoc;
+    weatherStationSettings: WeatherStationSetting;
     navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
@@ -146,6 +147,7 @@ export interface Config {
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     stationPages: StationPagesSelect<false> | StationPagesSelect<true>;
+    weatherStationSettings: WeatherStationSettingsSelect<false> | WeatherStationSettingsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -2169,24 +2171,31 @@ export interface StationPageDoc {
    * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
    */
   slug: string;
-  /**
-   * Top to bottom here is left to right in the table. Drag to reorder. The list to pick from is what this center tracks in SnowObs.
-   */
-  stations?:
-    | {
-        stid: string;
-        source: string;
-        /**
-         * Drop this gauge from the Accumulated Precipitation page while it has a long-term fault. Day-to-day gaps show as "missing" on their own.
-         */
-        hiddenOnPrecipTable?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
+  stations?: {
+    stid: string;
+    source: string;
+  }[];
   /**
    * The hardware is gone but the history is still queryable, so the page stays up for downloads.
    */
   archived?: boolean | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Station settings for the whole center, as opposed to one page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "weatherStationSettings".
+ */
+export interface WeatherStationSetting {
+  id: number;
+  tenant: number | Tenant;
+  precipStations?: {
+    stid: string;
+    source: string;
+  }[];
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -3404,6 +3413,10 @@ export interface PayloadLockedDocument {
         value: number | StationPageDoc;
       } | null)
     | ({
+        relationTo: 'weatherStationSettings';
+        value: number | WeatherStationSetting;
+      } | null)
+    | ({
         relationTo: 'navigations';
         value: number | Navigation;
       } | null)
@@ -4383,15 +4396,19 @@ export interface StationPagesSelect<T extends boolean = true> {
   tenant?: T;
   displayName?: T;
   slug?: T;
-  stations?:
-    | T
-    | {
-        stid?: T;
-        source?: T;
-        hiddenOnPrecipTable?: T;
-        id?: T;
-      };
+  stations?: T;
   archived?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "weatherStationSettings_select".
+ */
+export interface WeatherStationSettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  precipStations?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -269,6 +269,7 @@ export const seed = async ({
               'eventGroups',
               'eventTags',
               'stationPages',
+              'weatherStationSettings',
             ],
             actions: ['*'],
           },

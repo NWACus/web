@@ -2,6 +2,7 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
+import { stationsField } from '@/fields/stations'
 import { tenantField } from '@/fields/tenantField'
 import {
   revalidateStationPages,
@@ -45,55 +46,12 @@ export const StationPages: CollectionConfig = {
       required: true,
     },
     slugField('displayName'),
-    {
+    stationsField({
       name: 'stations',
-      type: 'array',
-      labels: { singular: 'Station', plural: 'Stations' },
-      admin: {
-        description:
-          'Top to bottom here is left to right in the table. Drag to reorder. The list to pick from is what this center tracks in SnowObs.',
-        initCollapsed: true,
-        components: {
-          RowLabel: '@/collections/StationPages/components/StationRowLabel#StationRowLabel',
-        },
-      },
-      fields: [
-        {
-          type: 'row',
-          fields: [
-            {
-              name: 'stid',
-              type: 'text',
-              required: true,
-              label: 'Station',
-              admin: {
-                width: '75%',
-                components: {
-                  Field: '@/collections/StationPages/components/StationPicker#StationPicker',
-                },
-              },
-            },
-            {
-              // Set by the picker alongside `stid`; shown so the pair is visible.
-              name: 'source',
-              type: 'text',
-              required: true,
-              admin: { width: '25%', readOnly: true },
-            },
-          ],
-        },
-        {
-          name: 'hiddenOnPrecipTable',
-          type: 'checkbox',
-          label: 'Hidden on precip table',
-          defaultValue: false,
-          admin: {
-            description:
-              'Drop this gauge from the Accumulated Precipitation page while it has a long-term fault. Day-to-day gaps show as "missing" on their own.',
-          },
-        },
-      ],
-    },
+      label: 'Stations',
+      description:
+        'Left to right in the table is this order; drag to rearrange. The list to pick from is what this center tracks in SnowObs.',
+    }),
     {
       name: 'archived',
       type: 'checkbox',

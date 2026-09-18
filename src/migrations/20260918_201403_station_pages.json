@@ -18465,80 +18465,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "station_pages_stations": {
-      "name": "station_pages_stations",
-      "columns": {
-        "_order": {
-          "name": "_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "_parent_id": {
-          "name": "_parent_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "stid": {
-          "name": "stid",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "hidden_on_precip_table": {
-          "name": "hidden_on_precip_table",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": false
-        }
-      },
-      "indexes": {
-        "station_pages_stations_order_idx": {
-          "name": "station_pages_stations_order_idx",
-          "columns": ["_order"],
-          "isUnique": false
-        },
-        "station_pages_stations_parent_id_idx": {
-          "name": "station_pages_stations_parent_id_idx",
-          "columns": ["_parent_id"],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "station_pages_stations_parent_id_fk": {
-          "name": "station_pages_stations_parent_id_fk",
-          "tableFrom": "station_pages_stations",
-          "tableTo": "station_pages",
-          "columnsFrom": ["_parent_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
     "station_pages": {
       "name": "station_pages",
       "columns": {
@@ -18569,6 +18495,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "stations": {
+          "name": "stations",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'[]'"
         },
         "archived": {
           "name": "archived",
@@ -18633,6 +18567,87 @@
         "station_pages_tenant_id_tenants_id_fk": {
           "name": "station_pages_tenant_id_tenants_id_fk",
           "tableFrom": "station_pages",
+          "tableTo": "tenants",
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "weather_station_settings": {
+      "name": "weather_station_settings",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "precip_stations": {
+          "name": "precip_stations",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'[]'"
+        },
+        "content_hash": {
+          "name": "content_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        }
+      },
+      "indexes": {
+        "weather_station_settings_tenant_idx": {
+          "name": "weather_station_settings_tenant_idx",
+          "columns": ["tenant_id"],
+          "isUnique": true
+        },
+        "weather_station_settings_updated_at_idx": {
+          "name": "weather_station_settings_updated_at_idx",
+          "columns": ["updated_at"],
+          "isUnique": false
+        },
+        "weather_station_settings_created_at_idx": {
+          "name": "weather_station_settings_created_at_idx",
+          "columns": ["created_at"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "weather_station_settings_tenant_id_tenants_id_fk": {
+          "name": "weather_station_settings_tenant_id_tenants_id_fk",
+          "tableFrom": "weather_station_settings",
           "tableTo": "tenants",
           "columnsFrom": ["tenant_id"],
           "columnsTo": ["id"],
@@ -26077,6 +26092,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "weather_station_settings_id": {
+          "name": "weather_station_settings_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "navigations_id": {
           "name": "navigations_id",
           "type": "integer",
@@ -26254,6 +26276,11 @@
         "payload_locked_documents_rels_station_pages_id_idx": {
           "name": "payload_locked_documents_rels_station_pages_id_idx",
           "columns": ["station_pages_id"],
+          "isUnique": false
+        },
+        "payload_locked_documents_rels_weather_station_settings_i_idx": {
+          "name": "payload_locked_documents_rels_weather_station_settings_i_idx",
+          "columns": ["weather_station_settings_id"],
           "isUnique": false
         },
         "payload_locked_documents_rels_navigations_id_idx": {
@@ -26509,6 +26536,15 @@
           "tableFrom": "payload_locked_documents_rels",
           "tableTo": "station_pages",
           "columnsFrom": ["station_pages_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payload_locked_documents_rels_weather_station_settings_fk": {
+          "name": "payload_locked_documents_rels_weather_station_settings_fk",
+          "tableFrom": "payload_locked_documents_rels",
+          "tableTo": "weather_station_settings",
+          "columnsFrom": ["weather_station_settings_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -26948,6 +26984,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "b1fb11e6-9b16-40f1-b3f0-048818027461",
+  "id": "049f6209-ecd2-4adf-a3bb-ab8137a1db99",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

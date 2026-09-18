@@ -1,3 +1,4 @@
+import { toStationRefs } from '@/fields/stations'
 import type { StationRef } from '@/services/snowobs/snowobs'
 import type { CollectionBeforeValidateHook } from 'payload'
 import { APIError } from 'payload'
@@ -32,21 +33,12 @@ export function findStationConflict(
   return null
 }
 
-function refsOf(stations: unknown): StationRef[] {
-  if (!Array.isArray(stations)) return []
-  return stations.flatMap((s) =>
-    s && typeof s.stid === 'string' && typeof s.source === 'string'
-      ? [{ stid: s.stid, source: s.source }]
-      : [],
-  )
-}
-
 export const ensureStationsUnique: CollectionBeforeValidateHook = async ({
   data,
   originalDoc,
   req,
 }) => {
-  const stations = refsOf(data?.stations)
+  const stations = toStationRefs(data?.stations)
   if (stations.length === 0) return data
 
   const tenant = data?.tenant ?? originalDoc?.tenant
@@ -70,7 +62,7 @@ export const ensureStationsUnique: CollectionBeforeValidateHook = async ({
 
   const conflict = findStationConflict(
     stations,
-    docs.map((doc) => ({ displayName: doc.displayName, stations: refsOf(doc.stations) })),
+    docs.map((doc) => ({ displayName: doc.displayName, stations: toStationRefs(doc.stations) })),
   )
   if (conflict) throw new APIError(conflict, 400)
   return data
