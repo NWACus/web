@@ -48,13 +48,6 @@ export const WeatherStationSettings: CollectionConfig = {
               label: 'Stations',
               requiredVariable: { variable: PRECIP_HOURLY, label: 'Precip' },
             }),
-          ],
-        },
-        {
-          label: 'Precipitation Columns',
-          description:
-            'Which columns the Accumulated Precipitation table shows. The station name is always shown.',
-          fields: [
             {
               name: 'precipColumns',
               type: 'select',
@@ -63,7 +56,8 @@ export const WeatherStationSettings: CollectionConfig = {
               options: [...PRECIP_COLUMNS],
               defaultValue: ALL_PRECIP_COLUMNS,
               admin: {
-                description: 'Clearing every column shows them all.',
+                description:
+                  'Which columns the table shows after the station name. Clearing every column shows them all.',
               },
             },
           ],

@@ -19,10 +19,23 @@ export class SnowObsError extends Error {
 // (`widget_config.stations.token`), the same public token the legacy widgets
 // use. It scopes every SnowObs call to the center's client, across sources.
 export async function resolveSnowObsToken(centerSlug: string): Promise<string> {
+  return (await resolveSnowObsAccess(centerSlug)).token
+}
+
+// Networks anyone can read; a center's own loggers report under any other
+// source its AFP config lists (NWAC's under `nwac`).
+const PUBLIC_NETWORKS = new Set(['snotel', 'mesowest'])
+
+export type SnowObsAccess = { token: string; ownSources: string[] }
+
+export async function resolveSnowObsAccess(centerSlug: string): Promise<SnowObsAccess> {
   const metadata = await getAvalancheCenterMetadata(centerSlug)
-  const token = metadata.widget_config.stations?.token
-  if (!token) {
+  const stations = metadata.widget_config.stations
+  if (!stations?.token) {
     throw new SnowObsError(`No SnowObs token in the AFP config for ${centerSlug}`)
   }
-  return token
+  return {
+    token: stations.token,
+    ownSources: (stations.sources ?? []).filter((s) => !PUBLIC_NETWORKS.has(s)),
+  }
 }

@@ -2198,7 +2198,7 @@ export interface WeatherStationSetting {
     source: string;
   }[];
   /**
-   * Clearing every column shows them all.
+   * Which columns the table shows after the station name. Clearing every column shows them all.
    */
   precipColumns?:
     | ('1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '72h' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation')[]

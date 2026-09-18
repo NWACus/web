@@ -1,6 +1,6 @@
 jest.mock('../../src/payload.config', () => ({}))
 
-import { withCurrentObservations } from '@/services/snowobs/stationTracking'
+import { withCurrentObservations, withUntracked } from '@/services/snowobs/stationTracking'
 
 const station = (stid: string, source = 'nwac') => ({
   stid,
@@ -10,6 +10,7 @@ const station = (stid: string, source = 'nwac') => ({
   partner: null,
   variables: [],
   observedAt: null,
+  tracked: true,
 })
 
 describe('withCurrentObservations', () => {
@@ -29,5 +30,19 @@ describe('withCurrentObservations', () => {
     expect(nwac.observedAt).toBe('2026-09-18T19:00:00Z')
     expect(snotel.variables).toEqual(['snow_depth'])
     expect(none).toMatchObject({ variables: [], observedAt: null })
+  })
+})
+
+describe('withUntracked', () => {
+  it('appends catalogue stations the tracking list lacks, marked untracked', () => {
+    const catalogue = [
+      { ...station('1'), tracked: false },
+      { ...station('40'), name: 'Coldwater', tracked: false },
+    ]
+    const merged = withUntracked([station('1')], catalogue)
+    expect(merged.map((s) => [s.stid, s.tracked])).toEqual([
+      ['1', true],
+      ['40', false],
+    ])
   })
 })

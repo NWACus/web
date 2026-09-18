@@ -19,7 +19,7 @@ export function stationStatus(
   station: TrackedStation | undefined,
   now = new Date(),
 ): StationStatus {
-  if (!station) return 'untracked'
+  if (!station?.tracked) return 'untracked'
   const observed = station.observedAt ? Date.parse(station.observedAt) : Number.NaN
   if (Number.isNaN(observed)) return 'unknown'
   return now.getTime() - observed <= STALE_AFTER_HOURS * 60 * 60 * 1000 ? 'current' : 'stale'

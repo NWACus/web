@@ -9,6 +9,7 @@ const station = (observedAt: string | null) => ({
   partner: null,
   variables: observedAt ? ['air_temp'] : [],
   observedAt,
+  tracked: true,
 })
 
 describe('stationStatus', () => {
@@ -24,7 +25,10 @@ describe('stationStatus', () => {
     expect(stationStatus(station(null), now)).toBe('unknown')
   })
 
-  it('is untracked when SnowObs no longer lists the station', () => {
+  it('is untracked when SnowObs no longer lists the station, listed or not', () => {
     expect(stationStatus(undefined, now)).toBe('untracked')
+    expect(stationStatus({ ...station('2026-09-18T19:00:00Z'), tracked: false }, now)).toBe(
+      'untracked',
+    )
   })
 })

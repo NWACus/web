@@ -25,6 +25,8 @@ export type TrackedStation = {
   variables: string[]
   /** When that observation was taken (ISO), or null when it has none. */
   observedAt: string | null
+  /** False for a station in the center's catalogue but off its tracking list. */
+  tracked: boolean
 }
 
 const responseSchema = z.array(trackedStationSchema)
@@ -40,8 +42,9 @@ async function readClientFeed<S extends z.ZodTypeAny>(
   token: string,
   schema: S,
   what: string,
+  query: Record<string, string> = {},
 ): Promise<z.output<S> | null> {
-  const params = new URLSearchParams({ token })
+  const params = new URLSearchParams({ token, ...query })
   const url = `${SNOWOBS_API}/${path}?${params.toString()}`
 
   let res: Response
@@ -63,14 +66,11 @@ async function readClientFeed<S extends z.ZodTypeAny>(
   return parsed.data
 }
 
-export async function fetchTrackedStations(token: string): Promise<TrackedStation[]> {
-  const stations = await readClientFeed(
-    'station/tracking/',
-    token,
-    responseSchema,
-    'station tracking',
-  )
-  return (stations ?? []).map((s) => ({
+type Listed = z.infer<typeof trackedStationSchema>
+
+// Identity only; the current observation is merged in afterwards.
+function toStation(s: Listed, tracked: boolean): TrackedStation {
+  return {
     stid: s.stid,
     source: s.source,
     name: s.name ?? null,
@@ -78,7 +78,42 @@ export async function fetchTrackedStations(token: string): Promise<TrackedStatio
     partner: s.meta?.weather_station_partner ?? null,
     variables: [],
     observedAt: null,
-  }))
+    tracked,
+  }
+}
+
+export async function fetchTrackedStations(token: string): Promise<TrackedStation[]> {
+  const stations = await readClientFeed(
+    'station/tracking/',
+    token,
+    responseSchema,
+    'station tracking',
+  )
+  return (stations ?? []).map((s) => toStation(s, true))
+}
+
+// The whole catalogue for one of the center's own sources: what tracking
+// lists plus retired loggers. Only sensible for a source the center owns;
+// SNOTEL is nationwide and Mesowest runs to tens of thousands.
+export async function fetchCatalogue(token: string, source: string): Promise<TrackedStation[]> {
+  const stations = await readClientFeed(
+    'station/metadata/',
+    token,
+    responseSchema,
+    `${source} catalogue`,
+    { source },
+  )
+  return (stations ?? []).map((s) => toStation(s, false))
+}
+
+// Pure so it can be tested: catalogue stations not on the tracking list join
+// the end of it, marked untracked.
+export function withUntracked(
+  tracked: TrackedStation[],
+  catalogue: TrackedStation[],
+): TrackedStation[] {
+  const listed = new Set(tracked.map((s) => stationKey(s.source, s.stid)))
+  return [...tracked, ...catalogue.filter((s) => !listed.has(stationKey(s.source, s.stid)))]
 }
 
 // `station/data/current/` returns every tracked station with its latest
