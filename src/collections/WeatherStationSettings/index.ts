@@ -41,7 +41,7 @@ export const WeatherStationSettings: CollectionConfig = {
         {
           label: 'Precipitation Table',
           description:
-            'The Accumulated Precipitation page shows these stations, top to bottom, whatever page each is on. Remove one while it has a long-term fault; day-to-day gaps show as "missing" on their own.',
+            'The Accumulated Precipitation page shows these stations in the same order as they are saved here.',
           fields: [
             stationsField({
               name: 'precipStations',
