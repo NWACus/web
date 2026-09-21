@@ -1,8 +1,5 @@
 import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
 
-// These station groups are NWAC's SnowObs loggers, so the pages are NWAC-only.
-export const STATIONS_TENANT_SLUG = 'nwac'
-
 // Canonical region order for grouping the station index, matching the legacy
 // nwac.us /weatherdata/ directory.
 export const NWAC_STATION_REGIONS = [

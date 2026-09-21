@@ -4,9 +4,9 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import {
   NWAC_STATION_REGIONS,
   NWAC_WEATHER_STATION_GROUPS,
-  STATIONS_TENANT_SLUG,
   type WeatherStationGroup,
 } from '@/constants/weatherStations'
+import { hasStationRegistry, stationRegistryCenters } from '@/services/stations/registry'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -17,7 +17,7 @@ type Args = {
 }
 
 export async function generateStaticParams() {
-  return [{ center: STATIONS_TENANT_SLUG }]
+  return (await stationRegistryCenters()).map((center) => ({ center }))
 }
 
 function StationLink({ group }: { group: WeatherStationGroup }) {
@@ -94,7 +94,7 @@ function Intro() {
 export default async function Page({ params }: Args) {
   const { center } = await params
 
-  if (center !== STATIONS_TENANT_SLUG) {
+  if (!(await hasStationRegistry(center))) {
     notFound()
   }
 
