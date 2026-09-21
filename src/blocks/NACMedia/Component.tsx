@@ -1,5 +1,6 @@
 'use client'
 
+import { blockSpacing } from '@/components/BackgroundColorWrapper'
 import { NACWidget } from '@/components/NACWidget'
 import type { NACMediaBlock as NACMediaBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
@@ -13,8 +14,8 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
 
   const center = typeof tenant === 'object' && tenant !== null ? tenant.slug : null
 
-  const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
+  const spacing = blockSpacing(backgroundColor, true)
 
   if (!center) {
     Sentry.captureException('NACMediaWidget: center not defined')
@@ -22,8 +23,8 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
   }
 
   return (
-    <div className={cn(bgColorClass)}>
-      <div className={cn('container py-4 w-full text-center ', textColor)}>
+    <div className={cn(spacing.outer, spacing.bg)}>
+      <div className={cn('container w-full text-center', spacing.inner, textColor)}>
         <NACWidget center={center} widget={'media'} mediaMode={mode} />
       </div>
     </div>
