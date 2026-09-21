@@ -50,6 +50,7 @@ import type {
   VideoEmbedBlock as VideoEmbedBlockProps,
 } from '@/payload-types'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
+import { trimTrailingEmptyNodes } from '@/utilities/trimTrailingEmptyNodes'
 import { cn } from '@/utilities/ui'
 
 type LinkDocRelationTo = (typeof LINK_ENABLED_COLLECTIONS)[number]
@@ -163,10 +164,11 @@ type Props = {
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function RichText(props: Props) {
-  const { className, enableGutter = true, ...rest } = props
+  const { className, data, enableGutter = true, ...rest } = props
   return (
     <RichTextLexical
       converters={jsxConverters}
+      data={trimTrailingEmptyNodes(data)}
       className={cn(
         'mx-auto prose md:prose-md dark:prose-invert',
         {
