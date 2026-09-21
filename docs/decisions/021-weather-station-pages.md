@@ -22,7 +22,7 @@ The other obvious alternative, per-tenant constants keyed by center slug, would 
 
 ## Decision
 
-**AvyWeb stores only what SnowObs cannot know: the pages, and which SnowObs stations each page shows and in what order. A station is a `(source, stid)` reference and nothing more. Columns are derived from the SnowObs data, not stored. There is no local copy of SnowObs's station list and nothing to sync.**
+**AvyWeb stores only what SnowObs cannot know: the pages, and which SnowObs stations each page shows and in what order. A station is a `(source, stid)` reference and nothing more. Columns are derived from the SnowObs data unless a page chooses its own. There is no local copy of SnowObs's station list and nothing to sync.**
 
 ### Pages reference stations; one field type does the picking
 
@@ -36,11 +36,13 @@ No name, elevation or coordinates are stored anywhere. The public pages read the
 
 The Accumulated Precipitation page shows every station on a live page, in page order, as the legacy table did. Which of those actually report precipitation is decided by the response. A per-center setting for the table's stations and columns is the next step, on top of this.
 
-### Columns are derived, not stored
+### Columns are derived unless a page chooses them
 
 `deriveColumns()` builds a page's table from the variables its loggers actually report in the timeseries response: every reported variable in a fixed variable-major order (`TABLE_VARIABLE_ORDER`), loggers in page order within each, `battery_voltage` and the timestamp series excluded. A variable SnowObs starts sending that we have no order for lands after the known ones, alphabetically.
 
-This reproduces the legacy layout for 30 of the 32 pages. The two that hand-interleaved a pair of snow readings now read variable-major like the rest. We took that over a stored per-page column list because the list would be the one thing on the page an admin would have to maintain by hand and could get wrong, and because a new sensor appearing on its own is the behavior the forecasters actually want.
+This reproduces the legacy layout for 30 of the 32 pages. The two that hand-interleaved a pair of snow readings now read variable-major like the rest. Derivation is the default because a new sensor appearing on its own is the behavior the forecasters actually want, and because a stored list is the one thing on a page an admin has to maintain by hand.
+
+A page can still choose. `columns` is a second `columnsField()` next to the stations: an ordered list of `{ stid, variable }` pairs, each a reading from one of the page's stations, picked in the admin from what that station's latest observation reports. When the list is empty the table is derived; when it has entries the table is exactly those columns in that order, and a reading the station stops sending is dropped by the table builder as it always was. The field validates that every station in the list is on the page.
 
 ### Sources ride with the stations
 
