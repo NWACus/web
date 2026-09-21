@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "1305c6039963f400"
+sig = "80e69afedc706be3"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -629,11 +629,6 @@ sig = "cfd1e1c11f46932b"
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/fields/startAndEndDateField/index.ts"
 sig = "2692f90f08a4a4d1"
-
-[[bindings]]
-doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
-target = "src/scripts/check-center-timezones.ts"
-sig = "7086eb538048cbad"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
