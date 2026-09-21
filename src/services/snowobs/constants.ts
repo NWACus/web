@@ -86,7 +86,3 @@ export const TABLE_VARIABLE_ORDER = [
   'pressure',
   'equip_temperature',
 ] as const
-
-// Reported by most loggers but never a table column: it belongs on the battery
-// graph and, later, the alerting, not next to the weather.
-export const HIDDEN_TABLE_VARIABLES: ReadonlySet<string> = new Set(['battery_voltage'])

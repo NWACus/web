@@ -418,17 +418,7 @@ sig = "8364b5c2c9c54525"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/index.ts"
-sig = "8406735007d4bd01"
-
-[[bindings]]
-doc = "docs/decisions/021-weather-station-pages.md"
-target = "src/fields/stationColumns/ColumnsInput.tsx"
-sig = "cbedebda084936ce"
-
-[[bindings]]
-doc = "docs/decisions/021-weather-station-pages.md"
-target = "src/fields/stationColumns/index.ts"
-sig = "2d9410126baab436"
+sig = "88fe03b0017ce81c"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -474,6 +464,11 @@ sig = "89238abc0da25343"
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/revalidate.ts"
 sig = "ddb05da22d641484"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/stationColumns.ts"
+sig = "0f6500fe941f2549"
 
 [[bindings]]
 doc = "docs/doc-drift.md"

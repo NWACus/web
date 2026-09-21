@@ -2,13 +2,13 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
-import { columnsField } from '@/fields/stationColumns'
 import { stationsField } from '@/fields/stations'
 import { tenantField } from '@/fields/tenantField'
 import {
   revalidateStationPages,
   revalidateStationPagesDelete,
 } from '@/services/stations/revalidate'
+import { STATION_COLUMNS } from '@/services/stations/stationColumns'
 import { CollectionConfig } from 'payload'
 import { trackedStations } from './endpoints/trackedStations'
 
@@ -49,12 +49,17 @@ export const StationPages: CollectionConfig = {
       name: 'stations',
       label: 'Stations',
     }),
-    columnsField({
+    {
       name: 'columns',
+      type: 'select',
       label: 'Table columns',
-      description:
-        'Leave empty to show every reading the stations report, grouped by reading. Add columns to choose exactly which readings the table shows, in this order.',
-    }),
+      hasMany: true,
+      options: STATION_COLUMNS,
+      admin: {
+        description:
+          'Which readings the table shows, for every station on the page. Clearing every reading shows all the stations report.',
+      },
+    },
     {
       name: 'archived',
       type: 'checkbox',

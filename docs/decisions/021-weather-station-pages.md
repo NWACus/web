@@ -42,7 +42,7 @@ The Accumulated Precipitation page shows every station on a live page, in page o
 
 This reproduces the legacy layout for 30 of the 32 pages. The two that hand-interleaved a pair of snow readings now read variable-major like the rest. Derivation is the default because a new sensor appearing on its own is the behavior the forecasters actually want, and because a stored list is the one thing on a page an admin has to maintain by hand.
 
-A page can still choose. `columns` is a second `columnsField()` next to the stations: an ordered list of `{ stid, variable }` pairs, each a reading from one of the page's stations, picked in the admin from what that station's latest observation reports. When the list is empty the table is derived; when it has entries the table is exactly those columns in that order, and a reading the station stops sending is dropped by the table builder as it always was. The field validates that every station in the list is on the page.
+A page can still narrow it. `columns` is a multi-select of readings (`STATION_COLUMNS`, the same list as `TABLE_VARIABLE_ORDER`) next to the stations, like the precipitation block's column select. Empty means every reading the stations report; a selection keeps only those readings, in the same variable-major order, for every station on the page. Which stations report each one is still SnowObs's call.
 
 ### Sources ride with the stations
 

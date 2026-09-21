@@ -1727,10 +1727,26 @@ export interface StationPage {
     stid: string;
     source: string;
   }[];
-  columns?: {
-    stid: string;
-    variable: string;
-  }[];
+  /**
+   * Which readings the table shows, for every station on the page. Clearing every reading shows all the stations report.
+   */
+  columns?:
+    | (
+        | 'air_temp'
+        | 'relative_humidity'
+        | 'wind_speed_min'
+        | 'wind_speed'
+        | 'wind_gust'
+        | 'wind_direction'
+        | 'precip_accum_one_hour'
+        | 'snow_depth_24h'
+        | 'snow_depth'
+        | 'intermittent_snow'
+        | 'solar_radiation'
+        | 'pressure'
+        | 'equip_temperature'
+      )[]
+    | null;
   /**
    * The hardware is gone but the history is still queryable, so the page stays up for downloads.
    */
