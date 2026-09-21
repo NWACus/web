@@ -12817,11 +12817,6 @@
           "name": "station_pages_created_at_idx",
           "columns": ["created_at"],
           "isUnique": false
-        },
-        "tenant_slug_idx": {
-          "name": "tenant_slug_idx",
-          "columns": ["tenant_id", "slug"],
-          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -27507,6 +27502,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "9aefb211-a8f9-4fc4-9fcb-bbc55d084566",
+  "id": "3dd5d8b5-8651-4b9d-83ca-1ec933507f7b",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
