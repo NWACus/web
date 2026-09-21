@@ -1,4 +1,3 @@
-import { accumulatedPrecipitationPage } from '@/endpoints/seed/pages/accumulated-precipitation-page'
 import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
@@ -1239,8 +1238,7 @@ export const seed = async ({
             'A list of weather links.',
             'weather-tools',
           ),
-          // Only NWAC has station pages; the first fronts them at /weather/stations
-          // and the second carries the precipitation table block.
+          // Only NWAC has station pages; this one fronts them at /weather/stations.
           ...(tenant.slug === 'nwac'
             ? [
                 page(
@@ -1250,7 +1248,6 @@ export const seed = async ({
                   'Current conditions and history from the NWAC weather station network.',
                   'stations',
                 ),
-                accumulatedPrecipitationPage(tenant, images[tenant.slug]['image2']),
               ]
             : []),
         ])
