@@ -252,7 +252,7 @@ A reusable layout component that wraps content with configurable background colo
 - `containerClassName` - Optional - additional classes for the inner container div
 - `outerClassName` - Optional - additional classes for the outer wrapper div
 
-**Spacing:** the outer div carries `my-10`, so neighboring blocks sit 40px apart (margins collapse). The inner container pads itself with `py-10` only when the block has a real background color (`hasBackgroundColor`, exported beside it: not `transparent` or `white`), so the background keeps room around the content. Blocks that don't use the wrapper follow the same rule.
+**Spacing:** a layout block with no real background color (`hasBackgroundColor`, exported beside it: not `transparent` or `white`) carries `my-10` on its outer div, so neighbors sit 40px apart (margins collapse). A block with a background carries no margin and instead pads its inner container with `py-10`, so two colored blocks touch and the color keeps room around its content. Inline Lexical blocks get neither. Blocks that don't use the wrapper follow the same rule.
 
 **Usage:**
 ```tsx
@@ -270,7 +270,7 @@ Use this instead of manually creating nested divs with background colors and con
 
 Not using `BackgroundColorWrapper`
 - `DocumentComponent`
-- `HeaderComponent` — carries no margin of its own; neighbors' `my-10` sets the gap. It pads `pt-4` always and `pb-4` only with a background, so a heading sits closer to the content below it than to the block above.
+- `HeaderComponent` — same margin rule, but it pads `pt-4` always and `pb-4` only with a background, so a heading sits closer to the content below it than to the block above.
 
 
 ## Theme Preview
