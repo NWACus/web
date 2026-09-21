@@ -6,9 +6,11 @@ import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { toPrecipColumns } from '@/services/stations/precipColumns'
 
 // The fetch's revalidate also becomes the page's: Next takes the shortest
-// revalidate of any fetch on the route, so a static page carrying this block
-// regenerates on the legacy five-minute cadence rather than the page default.
-const REVALIDATE_SECONDS = 300
+// revalidate of any fetch on the route. That regenerates the whole page (nav,
+// footer, every other block and their database reads), not just the table,
+// six times more often than the page default of an hour. Ten minutes matches
+// the station pages; the legacy route refreshed every five.
+const REVALIDATE_SECONDS = 600
 
 type Props = PrecipTableBlockProps & { center: string }
 
@@ -28,6 +30,8 @@ export async function PrecipTableBlockComponent({ center, stations, columns }: P
       refs.map((s) => s.stid),
     )
   } catch {
+    // Already logged with its context by fetchStationTimeseries; the page must
+    // still render, so the table's place says so instead of the error boundary.
     return (
       <div className="container">
         <p className="text-sm text-muted-foreground">
