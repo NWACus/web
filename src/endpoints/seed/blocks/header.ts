@@ -11,5 +11,6 @@ export const headerBlock: RequiredDataFromCollectionSlug<'pages'>['layout'] = [
     blockType: 'headerBlock',
     richText: headingContent('Stay Informed, Stay Safe', 'h3'),
     backgroundColor: 'transparent',
+    horizontalLine: true,
   },
 ]
