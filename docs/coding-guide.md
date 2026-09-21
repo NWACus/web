@@ -252,7 +252,7 @@ A reusable layout component that wraps content with configurable background colo
 - `containerClassName` - Optional - additional classes for the inner container div
 - `outerClassName` - Optional - additional classes for the outer wrapper div
 
-**Spacing:** the outer div carries `my-10`, so neighboring blocks sit 40px apart (margins collapse). The inner container pads itself with `py-10` only when the block has a real background color (`hasBackgroundColor`: not `transparent` or `white`), so the background keeps room around the content. Blocks that don't use the wrapper follow the same rule.
+**Spacing:** the outer div carries `my-10`, so neighboring blocks sit 40px apart (margins collapse). The inner container pads itself with `py-10` only when the block has a real background color (`hasBackgroundColor`, exported beside it: not `transparent` or `white`), so the background keeps room around the content. Blocks that don't use the wrapper follow the same rule.
 
 **Usage:**
 ```tsx
