@@ -38,14 +38,17 @@ export const Documents: CollectionConfig = {
   ],
   upload: {
     staticDir: path.resolve(dirname, '../../../public/documents'),
+    // An explicit allowlist bypasses Payload's built-in restricted-type blocklist (which rejects
+    // text/html), while keeping executables and the image/video types owned by Media out.
     mimeTypes: [
       'application/pdf',
-      'text/x-php',
-      'text/php',
       'application/xml',
+      'text/xml',
       'application/octet-stream',
       'application/vnd.google-earth.kml+xml',
       '.kml',
+      'text/html',
+      'text/csv',
     ],
   },
   hooks: {
