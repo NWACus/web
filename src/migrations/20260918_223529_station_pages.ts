@@ -7,7 +7,6 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   	\`display_name\` text NOT NULL,
   	\`slug\` text NOT NULL,
   	\`stations\` text DEFAULT '[]',
-  	\`columns\` text DEFAULT '[]',
   	\`archived\` integer DEFAULT false,
   	\`content_hash\` text,
   	\`updated_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
@@ -17,6 +16,20 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   `)
   await db.run(sql`CREATE INDEX \`station_pages_tenant_idx\` ON \`station_pages\` (\`tenant_id\`);`)
   await db.run(sql`CREATE INDEX \`station_pages_slug_idx\` ON \`station_pages\` (\`slug\`);`)
+  await db.run(sql`CREATE TABLE \`station_pages_columns\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` integer NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`station_pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`station_pages_columns_order_idx\` ON \`station_pages_columns\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`station_pages_columns_parent_idx\` ON \`station_pages_columns\` (\`parent_id\`);`,
+  )
   await db.run(
     sql`CREATE INDEX \`station_pages_updated_at_idx\` ON \`station_pages\` (\`updated_at\`);`,
   )
@@ -35,6 +48,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+  await db.run(sql`DROP TABLE \`station_pages_columns\`;`)
   await db.run(sql`DROP TABLE \`station_pages\`;`)
   await db.run(sql`PRAGMA foreign_keys=OFF;`)
   await db.run(sql`CREATE TABLE \`__new_payload_locked_documents_rels\` (
