@@ -34,8 +34,6 @@ export const StationPages: CollectionConfig = {
       'The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.',
   },
   defaultSort: 'displayName',
-  // The slug is the URL; two pages sharing one would shadow each other.
-  indexes: [{ fields: ['tenant', 'slug'], unique: true }],
   endpoints: [{ path: '/tracked-stations', method: 'get', handler: trackedStations }],
   fields: [
     tenantField(),
