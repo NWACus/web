@@ -6,7 +6,6 @@ import {
   Button,
   DraggableSortable,
   DraggableSortableItem,
-  DragHandleIcon,
   FieldDescription,
   FieldError,
   FieldLabel,
@@ -17,6 +16,7 @@ import type { JSONFieldClientProps, StaticDescription } from 'payload'
 import { useState } from 'react'
 import type { RequiredVariable, StationsInputClientProps } from './index'
 import { toStationRefs } from './index'
+import { HandleCells, reorder } from './sortable'
 import type { StationStatus } from './status'
 import { stationStatus, STATUS_LABEL } from './status'
 import type { TrackedStations } from './useTrackedStations'
@@ -75,13 +75,6 @@ function optionFor(station: TrackedStation): Option {
     stid: station.stid,
     source: station.source,
   }
-}
-
-function moved<T>(list: T[], from: number, to: number): T[] {
-  const next = [...list]
-  const [item] = next.splice(from, 1)
-  next.splice(to, 0, item)
-  return next
 }
 
 // What a row shows: the live station, or the bare id with a note when
@@ -146,10 +139,7 @@ function StationRow({
     <DraggableSortableItem id={key(entry)}>
       {({ attributes, listeners, setNodeRef, transform, transition }) => (
         <tr ref={setNodeRef} style={{ transform, transition }}>
-          <td className="stations-table__handle" {...attributes} {...listeners}>
-            <DragHandleIcon />
-          </td>
-          <td className="stations-table__order">{index + 1}</td>
+          <HandleCells index={index} handle={{ ...attributes, ...listeners }} />
           <NameCell view={view} />
           <td className="stations-table__id">{entry.stid}</td>
           <td>{entry.source}</td>
@@ -211,15 +201,8 @@ function StationsTable({
       onRemove={() => onChange(refs.filter((_, i) => i !== index))}
     />
   ))
-  const onDragEnd = ({
-    moveFromIndex,
-    moveToIndex,
-  }: {
-    moveFromIndex: number
-    moveToIndex: number
-  }) => onChange(moved(refs, moveFromIndex, moveToIndex))
   return (
-    <DraggableSortable ids={refs.map(key)} onDragEnd={onDragEnd}>
+    <DraggableSortable ids={refs.map(key)} onDragEnd={reorder(refs, onChange)}>
       <table className="stations-table">
         <TableHead />
         <tbody>{rows}</tbody>
