@@ -10,8 +10,9 @@ export type TrackedStations =
   | { status: 'ready'; stations: TrackedStation[] }
   | { status: 'error'; stations: []; message: string }
 
-// One request per center per page load, shared by every picker and row label
-// on the form. Module scope survives re-renders and row reorders.
+// One request per center per admin tab, shared by every picker and row label
+// on the form. Module scope survives re-renders, row reorders and client-side
+// navigation, so a station SnowObs starts tracking shows after a full reload.
 const cache = new Map<string, Promise<TrackedStation[]>>()
 
 async function load(center: string): Promise<TrackedStation[]> {

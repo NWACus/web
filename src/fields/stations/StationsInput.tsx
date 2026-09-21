@@ -66,10 +66,13 @@ function StatusOption(props: {
   )
 }
 
-// Picker entries read "Name · id · source"; the table has the rest.
-function optionFor(station: TrackedStation): Option {
+// Picker entries read "Name · id · source"; the table has the rest. A station
+// with no current observation cannot prove it reports the required sensor, so
+// it stays pickable and says why.
+function optionFor(station: TrackedStation, required?: RequiredVariable): Option {
+  const unproven = reports(station, required) === null && required ? ' · no recent report' : ''
   return {
-    label: `${station.name ?? station.stid} · ${station.stid} · ${station.source}`,
+    label: `${station.name ?? station.stid} · ${station.stid} · ${station.source}${unproven}`,
     status: stationStatus(station),
     value: key(station),
     stid: station.stid,
@@ -316,10 +319,11 @@ export function StationsInput({
   const tracked = useTrackedStations(useCenterSlug())
   const refs = toStationRefs(value)
   const onPage = new Set(refs.map(key))
-  // Offer only stations that report what the list needs, and not ones already on it.
+  // Offer stations that report what the list needs, or have no recent report to
+  // judge by, and not ones already on it.
   const options = tracked.stations
-    .filter((s) => !requiredVariable || reports(s, requiredVariable) === true)
-    .map(optionFor)
+    .filter((s) => reports(s, requiredVariable) !== false)
+    .map((s) => optionFor(s, requiredVariable))
     .filter((o) => !onPage.has(o.value))
 
   return (
