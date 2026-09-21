@@ -413,7 +413,7 @@ sig = "f445ae3bb3f380ef"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/blocks/PrecipTable/Component.tsx"
-sig = "97ab5004e03ec5f5"
+sig = "dad0aeb3cd44affd"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
