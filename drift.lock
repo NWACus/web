@@ -448,7 +448,7 @@ sig = "2f46673998744e5e"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/migrations/20260918_223529_station_pages.ts"
-sig = "4fef0e56c4c66eea"
+sig = "18452c5ab1f0e52b"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

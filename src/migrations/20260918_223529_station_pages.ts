@@ -13,6 +13,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`display_name\` text NOT NULL,
   	\`slug\` text NOT NULL,
   	\`stations\` text DEFAULT '[]',
+  	\`columns\` text DEFAULT '[]',
   	\`archived\` integer DEFAULT false,
   	\`content_hash\` text,
   	\`updated_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,

@@ -18504,6 +18504,14 @@
           "autoincrement": false,
           "default": "'[]'"
         },
+        "columns": {
+          "name": "columns",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'[]'"
+        },
         "archived": {
           "name": "archived",
           "type": "integer",
