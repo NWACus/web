@@ -2,10 +2,11 @@ import type { BasePayload, CollectionAfterChangeHook, CollectionAfterDeleteHook 
 
 import { revalidateTag } from 'next/cache'
 
-// One cache tag per center covers every page that reads the station overlay:
-// the index, each station page, the precip table and the graph-data route's
-// allowlist. Any edit to a station or a group busts all of them at once, which
-// is cheap because they re-read on the next request only.
+// One cache tag per center covers everything that reads the station pages:
+// each station page, the CSV route and the graph-data route's allowlist. Any
+// edit to a page busts all of them at once, which is cheap because they
+// re-read on the next request only. The precipitation block holds its own
+// stations on its page and revalidates with that page instead.
 export function stationPagesTag(center: string): string {
   return `station-pages:${center}`
 }
