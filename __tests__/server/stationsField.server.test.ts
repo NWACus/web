@@ -26,6 +26,17 @@ describe('validateStations', () => {
   })
 })
 
+describe('validateStations, one station per id', () => {
+  it('rejects the same id under two sources', () => {
+    expect(
+      validate([
+        { stid: '5', source: 'nwac' },
+        { stid: '5', source: 'snotel' },
+      ]),
+    ).toMatch(/listed under two sources/)
+  })
+})
+
 describe('toStationRefs', () => {
   it('keeps only well-formed pairs, in order', () => {
     expect(toStationRefs([{ stid: '2', source: 'nwac' }, { stid: 3 }, null])).toEqual([

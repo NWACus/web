@@ -5,7 +5,7 @@ import {
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
 import type { AssembledStationPage } from '@/services/stations/getStationPages'
-import { allStations, getStationPages } from '@/services/stations/getStationPages'
+import { allStations, ambiguousStids, getStationPages } from '@/services/stations/getStationPages'
 import { NextResponse } from 'next/server'
 
 // Serves the station Graphs tab. Reads SnowObs server-side (token stays
@@ -44,6 +44,14 @@ function unknownStids(stids: string[], known: Set<string>): string | null {
   return unknown.length > 0 ? `unknown stids: ${unknown.join(',')}` : null
 }
 
+// An id that sits under two sources on different pages cannot be fetched by
+// id alone; refuse it rather than guess the source.
+function ambiguousRequested(stids: string[], pages: AssembledStationPage[]): string | null {
+  const ambiguous = ambiguousStids(pages)
+  const hit = stids.filter((stid) => ambiguous.has(stid))
+  return hit.length > 0 ? `stids under more than one source: ${hit.join(',')}` : null
+}
+
 function validateLists(
   stids: string[],
   vars: string[],
@@ -52,6 +60,7 @@ function validateLists(
   return (
     listBounds('stids', stids, maxStations(pages)) ??
     listBounds('vars', vars, MAX_VARIABLES) ??
+    ambiguousRequested(stids, pages) ??
     unknownStids(stids, new Set(allStations(pages).keys()))
   )
 }

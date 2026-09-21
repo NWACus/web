@@ -60,13 +60,31 @@ export function toPageSummaries(pages: AssembledStationPage[]): StationPageSumma
 }
 
 // Every station on any page, by stid: the allowlist for the graph-data route
-// and the way a bare stid from a query string gets its source back.
+// and the way a bare stid from a query string gets its source back. The field
+// keeps a stid unique within a page; across pages the same id could sit under
+// two sources, and such an id is left out so the route refuses it rather than
+// fetching the wrong source.
 export function allStations(pages: AssembledStationPage[]): Map<string, StationRef> {
   const byStid = new Map<string, StationRef>()
+  for (const stid of ambiguousStids(pages)) byStid.set(stid, { stid, source: '' })
   for (const page of pages) {
-    for (const { stid, source } of page.stations) byStid.set(stid, { stid, source })
+    for (const { stid, source } of page.stations) {
+      if (!byStid.has(stid)) byStid.set(stid, { stid, source })
+    }
   }
+  for (const stid of ambiguousStids(pages)) byStid.delete(stid)
   return byStid
+}
+
+// Station ids that appear under more than one source across a center's pages.
+export function ambiguousStids(pages: AssembledStationPage[]): Set<string> {
+  const sourcesByStid = new Map<string, Set<string>>()
+  for (const page of pages) {
+    for (const { stid, source } of page.stations) {
+      sourcesByStid.set(stid, (sourcesByStid.get(stid) ?? new Set()).add(source))
+    }
+  }
+  return new Set(Array.from(sourcesByStid).flatMap(([stid, s]) => (s.size > 1 ? [stid] : [])))
 }
 
 // The Accumulated Precipitation rows: every station on a live page, in page
