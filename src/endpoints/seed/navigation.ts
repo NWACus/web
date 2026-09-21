@@ -142,12 +142,7 @@ export const navigationSeed = (
             label: 'Weather Stations',
           }),
         },
-        ...(tenant.slug === 'nwac'
-          ? [
-              { link: pageLink({ slug: 'stations' }) },
-              { link: pageLink({ slug: 'accumulated-precipitation' }) },
-            ]
-          : []),
+        ...(tenant.slug === 'nwac' ? [{ link: pageLink({ slug: 'stations' }) }] : []),
         {
           link: pageLink({
             slug: 'weather-tools',
