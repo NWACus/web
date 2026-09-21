@@ -124,7 +124,7 @@ export const allBlocksPage = ({
       {
         ...singleEventBlock,
         event: events[1]?.id || 0, // Use second event
-        backgroundColor: 'gray',
+        backgroundColor: 'brand-100',
       },
       sectionLabel('Event Table'),
       {
