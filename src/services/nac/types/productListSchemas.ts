@@ -20,8 +20,8 @@ export const productListItemSchema = z
     // Top-level overall danger rating (0-5; -1 = general info). Used to color the date picker.
     danger_rating: z.number().nullable().optional(),
     author: z.string().nullable().optional(),
-    // Null on the ~1,200 NWAC forecasts bulk-imported from the pre-AFP system (2019–2020), which
-    // the legacy archive browser hides. Kept so the native browser can apply the same rule.
+    // Null on stub forecasts (NWAC 2019–2020, SAC 2019–2021), which every legacy view hides.
+    // Kept so the native pages can apply the same rule.
     updated_at: z.string().nullable().optional(),
     forecast_zone: z.array(
       z
