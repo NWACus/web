@@ -1,4 +1,4 @@
-import { hasBackgroundColor } from '@/components/BackgroundColorWrapper'
+import { blockSpacing, hasBackgroundColor } from '@/components/BackgroundColorWrapper'
 import RichText from '@/components/RichText'
 import type { HeaderBlock as HeaderBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
@@ -18,7 +18,7 @@ export const HeaderBlockComponent = (props: Props) => {
   return (
     <div
       className={cn(
-        isLayoutBlock && !hasBackgroundColor(backgroundColor) && 'my-10',
+        blockSpacing(backgroundColor, isLayoutBlock).outer,
         fullWidthColor && bgColorClass,
       )}
     >

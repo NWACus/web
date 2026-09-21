@@ -252,7 +252,7 @@ A reusable layout component that wraps content with configurable background colo
 - `containerClassName` - Optional - additional classes for the inner container div
 - `outerClassName` - Optional - additional classes for the outer wrapper div
 
-**Spacing:** a layout block with no real background color (`hasBackgroundColor`, exported beside it: not `transparent` or `white`) carries `my-10` on its outer div, so neighbors sit 40px apart (margins collapse). A block with a background carries no margin and instead pads its inner container with `py-10`, so two colored blocks touch and the color keeps room around its content. Inline Lexical blocks get neither. Blocks that don't use the wrapper follow the same rule.
+**Spacing:** `blockSpacing(backgroundColor, isLayoutBlock)`, exported beside the wrapper, is the one rule. A layout block with no real background color (`hasBackgroundColor`: not `transparent` or `white`) carries `BLOCK_MARGIN` (`my-6 md:my-10`) on its outer div, so neighbors sit 24px apart on phones and 40px from `md` (margins collapse). A block with a background carries no margin and instead pads its inner container with `BLOCK_PADDING` (`py-6 md:py-10`), so two colored blocks touch and the color keeps room around its content. Inline Lexical blocks get neither. Blocks that don't use the wrapper call `blockSpacing` themselves, or use `BLOCK_MARGIN` when they never take a background.
 
 **Usage:**
 ```tsx
@@ -271,6 +271,7 @@ Use this instead of manually creating nested divs with background colors and con
 Not using `BackgroundColorWrapper`
 - `DocumentComponent`
 - `HeaderComponent` — same margin rule, but it pads `pt-4` always and `pb-4` only with a background, so a heading sits closer to the content below it than to the block above.
+- `EmbedLayout`, `LinkPreview`, `NACMedia`, `Team`, `Document`, `Form`, `Gallery`, `ImageLinkGrid` — same rule via `blockSpacing` / `BLOCK_MARGIN`.
 
 
 ## Theme Preview

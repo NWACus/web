@@ -1,11 +1,12 @@
 'use client'
+
+import { BLOCK_MARGIN } from '@/components/BackgroundColorWrapper'
 import { type DocumentBlock as DocumentBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import { getMediaURL } from '@/utilities/getURL'
 import { isValidRelationship } from '@/utilities/relationships'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { cn } from '@/utilities/ui'
-
 type Props = DocumentBlockProps & {
   isLayoutBlock: boolean
 }
@@ -21,7 +22,7 @@ export const DocumentBlockComponent = (props: Props) => {
   const src = getMediaURL(document.url, null, getHostnameFromTenant(tenant))
 
   return (
-    <div className={cn('my-4', { container: isLayoutBlock })}>
+    <div className={cn(isLayoutBlock ? ['container', BLOCK_MARGIN] : 'my-4')}>
       <iframe src={src} width="100%" height="600px" title="Document PDF" />
     </div>
   )
