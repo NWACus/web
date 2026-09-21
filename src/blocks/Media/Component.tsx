@@ -5,9 +5,9 @@ import { cn } from '@/utilities/ui'
 
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
+import { hasBackgroundColor } from '@/components/BackgroundColorWrapper'
 import { Media } from '@/components/Media'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
-import { hasBackgroundColor } from '@/utilities/hasBackgroundColor'
 
 type Props = MediaBlockProps & {
   isLayoutBlock: boolean

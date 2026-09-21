@@ -1,4 +1,4 @@
-import { hasBackgroundColor } from '@/utilities/hasBackgroundColor'
+import { hasBackgroundColor } from '@/components/BackgroundColorWrapper'
 
 describe('hasBackgroundColor', () => {
   it('is true only for a brand shade', () => {

@@ -1,7 +1,7 @@
+import { hasBackgroundColor } from '@/components/BackgroundColorWrapper'
 import RichText from '@/components/RichText'
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
-import { hasBackgroundColor } from '@/utilities/hasBackgroundColor'
 import { cn } from '@/utilities/ui'
 
 export const ContentBlockComponent = (props: ContentBlockProps) => {
