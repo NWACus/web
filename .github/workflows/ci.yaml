@@ -183,7 +183,7 @@ jobs:
     name: e2e
     if: github.event_name == 'merge_group'
     environment: Preview
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
     container: mcr.microsoft.com/playwright:v1.58.0-noble
     env:
@@ -200,7 +200,8 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 24.x
-          cache: pnpm
+          # No `cache: pnpm` here: inside the Playwright container the pnpm store path
+          # differs from the host jobs, so the cache never hits and saving it costs ~50s.
       - name: 📦 Install dependencies
         run: pnpm ii
         shell: bash
