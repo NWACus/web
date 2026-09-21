@@ -9,7 +9,7 @@ import { resolveTablePeriod } from '@/components/WeatherStations/stationPeriods'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
-import { deriveColumns } from '@/services/snowobs/deriveColumns'
+import { resolveColumns } from '@/services/snowobs/deriveColumns'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
@@ -116,8 +116,8 @@ async function tableTabView({ center, page, periodParam }: TabContext): Promise<
     windowHours: period.hoursBack(new Date()),
     rawData: true,
   })
-  // Columns follow what the loggers report, so a new sensor shows up on its own.
-  const table = buildStationTable(response, deriveColumns(response, page.stids))
+  // Columns follow what the loggers report unless the page chose its own.
+  const table = buildStationTable(response, resolveColumns(response, page))
   return {
     table,
     tabContent: (

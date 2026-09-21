@@ -1,4 +1,4 @@
-import { deriveColumns } from '../../src/services/snowobs/deriveColumns'
+import { deriveColumns, resolveColumns } from '../../src/services/snowobs/deriveColumns'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
 
 function station(stid: string, variables: string[]): SnowObsTimeseriesResponse['STATION'][number] {
@@ -48,5 +48,23 @@ describe('deriveColumns', () => {
   it('skips a station the response did not include', () => {
     const res = response(station('4', ['air_temp']))
     expect(deriveColumns(res, ['4', '99'])).toEqual([['4', 'air_temp']])
+  })
+})
+
+describe('resolveColumns', () => {
+  const res = response(station('1', ['air_temp', 'wind_speed']))
+
+  it('keeps only the readings a page chose, in table order', () => {
+    expect(resolveColumns(res, { stids: ['1'], columns: ['wind_speed'] })).toEqual([
+      ['1', 'wind_speed'],
+    ])
+    expect(resolveColumns(res, { stids: ['1'], columns: ['snow_depth'] })).toEqual([])
+  })
+
+  it('derives when the page chose none', () => {
+    expect(resolveColumns(res, { stids: ['1'], columns: [] })).toEqual([
+      ['1', 'air_temp'],
+      ['1', 'wind_speed'],
+    ])
   })
 })

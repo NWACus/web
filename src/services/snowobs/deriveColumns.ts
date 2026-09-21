@@ -1,25 +1,6 @@
+import { TABLE_VARIABLE_ORDER } from './constants'
 import type { StationColumnConfig } from './tableHelpers'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
-
-// Left-to-right order of readings in a station table. Variable-major, the way
-// the legacy nwac.us tables read: every logger's temperature, then every
-// logger's humidity, and so on down the list. A reading SnowObs starts sending
-// that isn't listed here lands after these, alphabetically.
-export const TABLE_VARIABLE_ORDER = [
-  'air_temp',
-  'relative_humidity',
-  'wind_speed_min',
-  'wind_speed',
-  'wind_gust',
-  'wind_direction',
-  'precip_accum_one_hour',
-  'snow_depth_24h',
-  'snow_depth',
-  'intermittent_snow',
-  'solar_radiation',
-  'pressure',
-  'equip_temperature',
-] as const
 
 // Reported by most loggers but never a table column: it belongs on the battery
 // graph and, later, the alerting, not next to the weather.
@@ -71,4 +52,16 @@ export function deriveColumns(
     }
   }
   return columns
+}
+
+// A page's table columns: the derived set, narrowed to the readings the page
+// chose when it chose any.
+export function resolveColumns(
+  response: SnowObsTimeseriesResponse,
+  page: { stids: string[]; columns: string[] },
+): StationColumnConfig[] {
+  const derived = deriveColumns(response, page.stids)
+  if (page.columns.length === 0) return derived
+  const chosen = new Set<string>(page.columns)
+  return derived.filter(([, variable]) => chosen.has(variable))
 }

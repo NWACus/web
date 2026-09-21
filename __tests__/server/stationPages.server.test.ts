@@ -30,6 +30,15 @@ describe('assembleStationPages', () => {
     expect(pages[0].stations[1]).toEqual({ stid: '2', source: 'nwac' })
   })
 
+  it('carries the chosen readings, or none', () => {
+    const pages = assembleStationPages([
+      pageDoc({ slug: 'a', stations: [ref('1')], columns: ['air_temp'] }),
+      pageDoc({ slug: 'b', columns: undefined }),
+    ])
+    expect(pages[0].columns).toEqual(['air_temp'])
+    expect(pages[1].columns).toEqual([])
+  })
+
   it('treats a page with no stations as empty rather than missing', () => {
     const pages = assembleStationPages([pageDoc({ slug: 'a', stations: undefined })])
     expect(pages[0].stations).toEqual([])

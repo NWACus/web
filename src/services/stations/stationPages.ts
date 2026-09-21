@@ -1,6 +1,8 @@
 import { toStationRefs } from '@/fields/stations'
 import type { StationPage } from '@/payload-types'
 import type { StationRef } from '@/services/snowobs/snowobs'
+import type { StationColumn } from './stationColumns'
+import { toStationColumns } from './stationColumns'
 
 // A page under /weather/stations: its row, with the stations in the order the
 // editor arranged them. Everything a route needs; nothing a route has to look
@@ -12,6 +14,8 @@ export type AssembledStationPage = {
   stations: StationRef[]
   /** Station ids in page order -- the fetch list for tables, graphs and CSV. */
   stids: string[]
+  /** The readings the table shows, for every station; empty means all reported. */
+  columns: StationColumn[]
 }
 
 // What the client-side pickers need to list every page: small enough to pass
@@ -21,7 +25,7 @@ export type StationPageSummary = Pick<
   'slug' | 'displayName' | 'archived' | 'stids'
 >
 
-type PageRow = Pick<StationPage, 'slug' | 'displayName' | 'archived' | 'stations'>
+type PageRow = Pick<StationPage, 'slug' | 'displayName' | 'archived' | 'stations' | 'columns'>
 
 // A flat, alphabetical list: with a dropdown to jump between pages, headings
 // bought less than they cost.
@@ -40,6 +44,7 @@ export function assembleStationPages(pages: PageRow[]): AssembledStationPage[] {
         archived: page.archived ?? false,
         stations,
         stids: stations.map((s) => s.stid),
+        columns: toStationColumns(page.columns),
       }
     })
     .sort(byName)
