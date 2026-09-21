@@ -11,10 +11,6 @@ export { SnowObsError } from './access'
 // A stid is unique only within a source, so the pair is the identity.
 export type StationRef = { stid: string; source: string }
 
-export function stationRefs(source: string, stids: string[]): StationRef[] {
-  return stids.map((stid) => ({ stid, source }))
-}
-
 // SnowObs expects UTC timestamps formatted as YYYYMMDDHHmm.
 function formatSnowObsDate(date: Date): string {
   return format(date, 'yyyyMMddHHmm', { in: tz('UTC') })

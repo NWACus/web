@@ -52,7 +52,7 @@ The center's slug is not assumed to be a source anywhere. For SAC and SNFAC it i
 
 ### The public pages read one cached object
 
-The assembled `StationPage` (page row plus its ordered station refs plus a flat `stids` list) is built once per center in `unstable_cache` under a single tag, `station-pages:<center>`; the settings document is cached under the same tag, and both collections' `afterChange` / `afterDelete` hooks bust it. The graph-data route's allowlist and request caps derive from the same object, so moving a station between pages in the admin changes the table, the graphs, the CSV form, the precip table and the allowlist together on the next request.
+The `AssembledStationPage` (page row plus its ordered station refs plus a flat `stids` list) is built once per center in `unstable_cache` under a single tag, `station-pages:<center>`; the settings document is cached under the same tag, and both collections' `afterChange` / `afterDelete` hooks bust it. The graph-data route's allowlist and request caps derive from the same object, so moving a station between pages in the admin changes the table, the graphs, the CSV form, the precip table and the allowlist together on the next request.
 
 ### A center has station pages when it has rows
 

@@ -452,13 +452,23 @@ sig = "8cedf6d23625a185"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/snowobs/deriveColumns.ts"
+sig = "6e3cb4dd1f920376"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/snowobs.ts"
-sig = "90f4bc994b89e680"
+sig = "04b37f3cbf869854"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/stationTracking.ts"
 sig = "89238abc0da25343"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/getStationPages.ts"
+sig = "ebf0566c1c6e0003"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -474,6 +484,11 @@ sig = "ec2f6f857fdc7e79"
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/stationColumns.ts"
 sig = "0f6500fe941f2549"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/stationPages.ts"
+sig = "280934a559d807c9"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
