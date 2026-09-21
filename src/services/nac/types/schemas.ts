@@ -14,6 +14,7 @@ export const avalancheCenterCapabilitiesSchema = z.object({
   display_id: z.string(),
   platforms: avalancheCenterPlatformsSchema,
 })
+export type AvalancheCenterCapabilities = z.infer<typeof avalancheCenterCapabilitiesSchema>
 
 export const allAvalancheCenterCapabilitiesSchema = z.object({
   centers: z.array(avalancheCenterCapabilitiesSchema),
@@ -55,8 +56,8 @@ export const avalancheCenterConfigurationSchema = z.object({
  *
  * Every member is load-bearing through `avalancheCenterTypeSchema` below: `z.nativeEnum` validates
  * against the member *values*, so dropping one would make zod reject a real center. Only USFS is
- * referenced by name (the forecast disclaimer names the Forest Service), which is why the other
- * three read as unused.
+ * referenced by name (the forecast disclaimer names the Forest Service), which is why the others
+ * read as unused.
  */
 export enum AvalancheCenterType {
   // fallow-ignore-next-line unused-enum-member
@@ -66,6 +67,7 @@ export enum AvalancheCenterType {
   USFS = 'usfs',
   // fallow-ignore-next-line unused-enum-member
   Volunteer = 'volunteer',
+  // fallow-ignore-next-line unused-enum-member
   Other = 'other',
 }
 
