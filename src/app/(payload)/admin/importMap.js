@@ -20,6 +20,7 @@ import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b
 import { UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { default as default_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
+import { StationsInput as StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd } from '@/fields/stations/StationsInput'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
@@ -27,7 +28,6 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
 import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
-import { StationsInput as StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd } from '@/fields/stations/StationsInput'
 import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } from '@/collections/Posts/components/ViewPostButton'
 import { DescriptionWithCharCount as DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b } from '@/components/DescriptionWithCharCount'
 import { InitialTimezoneSetter as InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643 } from '@/fields/startAndEndDateField/components/InitialTimezoneSetter'
@@ -90,6 +90,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnorderedListFeatureClient": UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/ColumnLayoutPicker#default": default_923dc5ccc0b72de4298251644cbfe39e,
   "@/blocks/Content/components/DefaultColumnAdder#DefaultColumnAdder": DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01,
+  "@/fields/stations/StationsInput#StationsInput": StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -97,7 +98,6 @@ export const importMap = {
   "@/fields/slug/SlugComponent#SlugComponent": SlugComponent_92cc057d0a2abb4f6cf0307edf59f986,
   "@/collections/Pages/components/ViewPageButton#ViewPageButton": ViewPageButton_5587abba969d5f30cb1f479b0a70bb80,
   "@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor": DuplicatePageFor_8f1d8961a356bec6784e5c591c016925,
-  "@/fields/stations/StationsInput#StationsInput": StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd,
   "@/collections/Posts/components/ViewPostButton#ViewPostButton": ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
   "@/components/DescriptionWithCharCount#DescriptionWithCharCount": DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b,
   "@/fields/startAndEndDateField/components/InitialTimezoneSetter#InitialTimezoneSetter": InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643,
