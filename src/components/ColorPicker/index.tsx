@@ -1,5 +1,8 @@
+// fallow-ignore-file unused-export
+// The admin import map references this component by its module path string.
 'use client'
 
+import { BACKGROUND_COLOR_OPTIONS } from '@/fields/color'
 import { getSlugFromTenantId } from '@/utilities/getSlugFromTenantId'
 import { cn } from '@/utilities/ui'
 import { FieldLabel, useDocumentInfo, useField } from '@payloadcms/ui'
@@ -7,8 +10,6 @@ import { TextFieldClientProps } from 'payload'
 import { useEffect, useState } from 'react'
 
 const ColorPicker = (props: TextFieldClientProps) => {
-  const brandShades = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
-  const colorOptions = ['transparent', 'white', ...brandShades.map((n) => `brand-${n}`)]
   const { path, field } = props
   const { data } = useDocumentInfo()
   const { value, setValue } = useField({ path })
@@ -27,7 +28,7 @@ const ColorPicker = (props: TextFieldClientProps) => {
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
       <ul className="flex flex-wrap list-none pl-0">
         {tenantSlug &&
-          colorOptions.map((color, i) => {
+          BACKGROUND_COLOR_OPTIONS.map((color, i) => {
             const bgColor = `bg-${color}`
             return (
               <li key={i} className={cn('border', { 'border-solid': color === value })}>
