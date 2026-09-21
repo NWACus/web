@@ -71,6 +71,7 @@ export interface Config {
     homePages: HomePage;
     builtInPages: BuiltInPage;
     pages: Page;
+    stationPages: StationPage;
     posts: Post;
     media: Media;
     galleries: Gallery;
@@ -91,7 +92,6 @@ export interface Config {
     globalRoles: GlobalRole;
     globalRoleAssignments: GlobalRoleAssignment;
     tenants: Tenant;
-    stationPages: StationPage;
     navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
@@ -125,6 +125,7 @@ export interface Config {
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
     builtInPages: BuiltInPagesSelect<false> | BuiltInPagesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    stationPages: StationPagesSelect<false> | StationPagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     galleries: GalleriesSelect<false> | GalleriesSelect<true>;
@@ -145,7 +146,6 @@ export interface Config {
     globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
-    stationPages: StationPagesSelect<false> | StationPagesSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -1710,6 +1710,36 @@ export interface VideoEmbedBlock {
   blockType: 'videoEmbed';
 }
 /**
+ * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationPages".
+ */
+export interface StationPage {
+  id: number;
+  tenant: number | Tenant;
+  displayName: string;
+  /**
+   * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
+  slug: string;
+  stations?: {
+    stid: string;
+    source: string;
+  }[];
+  columns?: {
+    stid: string;
+    variable: string;
+  }[];
+  /**
+   * The hardware is gone but the history is still queryable, so the page stays up for downloads.
+   */
+  archived?: boolean | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "announcements".
  */
@@ -2152,36 +2182,6 @@ export interface GlobalRole {
     actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
     id?: string | null;
   }[];
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "stationPages".
- */
-export interface StationPage {
-  id: number;
-  tenant: number | Tenant;
-  displayName: string;
-  /**
-   * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
-   */
-  slug: string;
-  stations?: {
-    stid: string;
-    source: string;
-  }[];
-  columns?: {
-    stid: string;
-    variable: string;
-  }[];
-  /**
-   * The hardware is gone but the history is still queryable, so the page stays up for downloads.
-   */
-  archived?: boolean | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -3315,6 +3315,10 @@ export interface PayloadLockedDocument {
         value: number | Page;
       } | null)
     | ({
+        relationTo: 'stationPages';
+        value: number | StationPage;
+      } | null)
+    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -3393,10 +3397,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tenants';
         value: number | Tenant;
-      } | null)
-    | ({
-        relationTo: 'stationPages';
-        value: number | StationPage;
       } | null)
     | ({
         relationTo: 'navigations';
@@ -3900,6 +3900,21 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationPages_select".
+ */
+export interface StationPagesSelect<T extends boolean = true> {
+  tenant?: T;
+  displayName?: T;
+  slug?: T;
+  stations?: T;
+  columns?: T;
+  archived?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -4367,21 +4382,6 @@ export interface TenantsSelect<T extends boolean = true> {
         lastRunAt?: T;
         failed?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "stationPages_select".
- */
-export interface StationPagesSelect<T extends boolean = true> {
-  tenant?: T;
-  displayName?: T;
-  slug?: T;
-  stations?: T;
-  columns?: T;
-  archived?: T;
-  contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
 }

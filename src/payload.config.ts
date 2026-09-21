@@ -164,6 +164,7 @@ export default buildConfig({
     HomePages,
     BuiltInPages,
     Pages,
+    StationPages,
     Posts,
     Media,
     Galleries,
@@ -188,8 +189,6 @@ export default buildConfig({
     GlobalRoles,
     GlobalRoleAssignments,
     Tenants,
-    // Weather
-    StationPages,
     // Settings
     Navigations,
     Settings,
