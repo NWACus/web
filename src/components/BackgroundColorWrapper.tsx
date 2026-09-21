@@ -29,7 +29,7 @@ export const BackgroundColorWrapper = ({
   return (
     <div
       className={cn(
-        'my-10',
+        isLayoutBlock && !hasBackgroundColor(backgroundColor) && 'my-10',
         hasBackgroundColor(backgroundColor) && `${bgColorClass} ${textColor}`,
         outerClassName,
       )}

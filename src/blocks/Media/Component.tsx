@@ -55,7 +55,13 @@ export const MediaBlockComponent = (props: Props) => {
   }
 
   return (
-    <div className={cn('my-10', bgColorClass, textColor)}>
+    <div
+      className={cn(
+        isLayoutBlock && !hasBackgroundColor(backgroundColor) && 'my-10',
+        bgColorClass,
+        textColor,
+      )}
+    >
       <div
         className={cn(
           isLayoutBlock && 'container',

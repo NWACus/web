@@ -42,7 +42,7 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
   const colsSpanClass = colsClasses[layoutCols]
 
   return (
-    <div className={cn('my-10', bgColorClass)}>
+    <div className={cn(hasBackgroundColor(backgroundColor) ? bgColorClass : 'my-10')}>
       <div className={cn('container', hasBackgroundColor(backgroundColor) && 'py-10')}>
         <div className="grid grid-cols-6 lg:grid-cols-12 gap-y-6 gap-x-10">
           {columns?.map((col, index) => {

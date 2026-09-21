@@ -16,7 +16,12 @@ export const HeaderBlockComponent = (props: Props) => {
   const textColor = getTextColorFromBgColor(backgroundColor)
 
   return (
-    <div className={cn(fullWidthColor && bgColorClass)}>
+    <div
+      className={cn(
+        isLayoutBlock && !hasBackgroundColor(backgroundColor) && 'my-10',
+        fullWidthColor && bgColorClass,
+      )}
+    >
       <div
         className={cn(
           'pt-4 w-full',
