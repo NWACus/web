@@ -1,4 +1,5 @@
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { hasBackgroundColor } from '@/utilities/hasBackgroundColor'
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
@@ -23,13 +24,15 @@ export const BackgroundColorWrapper = ({
   return (
     <div
       className={cn(
-        bgColorClass !== 'bg-transparent' && `${bgColorClass} ${textColor}`,
+        'my-10',
+        hasBackgroundColor(backgroundColor) && `${bgColorClass} ${textColor}`,
         outerClassName,
       )}
     >
       <div
         className={cn(
-          (isLayoutBlock || bgColorClass !== 'bg-transparent') && 'container py-10',
+          (isLayoutBlock || hasBackgroundColor(backgroundColor)) && 'container',
+          hasBackgroundColor(backgroundColor) && 'py-10',
           '@container',
           containerClassName,
         )}

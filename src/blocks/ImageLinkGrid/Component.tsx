@@ -48,7 +48,7 @@ export const ImageLinkGridBlockComponent = (props: Props) => {
   const imageSizes = getImageSizes(numOfCols)
 
   return (
-    <div className="container py-10">
+    <div className="container my-10">
       <div className="grid sm:grid-cols-12 gap-3">
         {columns &&
           columns?.length > 0 &&

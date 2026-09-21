@@ -7,6 +7,7 @@ import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { hasBackgroundColor } from '@/utilities/hasBackgroundColor'
 
 type Props = MediaBlockProps & {
   isLayoutBlock: boolean
@@ -54,10 +55,11 @@ export const MediaBlockComponent = (props: Props) => {
   }
 
   return (
-    <div className={cn(bgColorClass, textColor)}>
+    <div className={cn('my-10', bgColorClass, textColor)}>
       <div
         className={cn(
-          isLayoutBlock && 'container py-10',
+          isLayoutBlock && 'container',
+          isLayoutBlock && hasBackgroundColor(backgroundColor) && 'py-10',
           '@container',
           'flex flex-col',
           alignContent === 'left' && 'items-start',
