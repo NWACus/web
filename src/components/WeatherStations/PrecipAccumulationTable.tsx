@@ -287,8 +287,8 @@ function HeaderRow({
 
 // Station x trailing-window precip matrix, matching the legacy
 // /data-portal/accumulations/precipitation/ table: 1H..72H sums (in/mm),
-// last report, latitude, elevation. Default order is the center's Page
-// Settings list; clicking a header sorts client-side, toggling direction.
+// last report, latitude, elevation. Default order is the block's station
+// list; clicking a header sorts client-side, toggling direction.
 export function PrecipAccumulationTable({
   table,
   columns = ALL_PRECIP_COLUMNS,
@@ -311,7 +311,11 @@ export function PrecipAccumulationTable({
   )
 
   if (table.rows.length === 0) {
-    return <p className="text-muted-foreground">No station observations in the last 72 hours.</p>
+    return (
+      <p className="text-muted-foreground">
+        No precipitation readings from these stations in the last 72 hours.
+      </p>
+    )
   }
 
   return (

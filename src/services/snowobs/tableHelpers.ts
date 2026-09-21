@@ -190,8 +190,8 @@ export type PrecipAccumulationTable = {
   timezoneLabel: string
 }
 
-// One row per requested station, in the order requested (the center's Page
-// Settings list), summing hourly precip over each trailing window. Windows are
+// One row per requested station, in the order requested (the block's station
+// list), summing hourly precip over each trailing window. Windows are
 // anchored at the newest observation across ALL stations so a lagging logger
 // shows a stale lastUpdate rather than shifting everyone's window.
 // Newest valid timestamp in a series (0 when none).
