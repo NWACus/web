@@ -1,4 +1,5 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
+import { getStationPages } from '@/services/stations/getStationPages'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
@@ -34,6 +35,8 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center } = await params
+  // The stations crumb links only where the center has station pages to index.
+  const hasStationsIndex = (await getStationPages(center)).length > 0
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
@@ -44,7 +47,11 @@ export default async function Page({ params }: Args) {
   return (
     <>
       <WidgetRouterHandler initialPath="/" widgetPageKey="weather-stations" />
-      <Breadcrumbs center={center} path="/weather/stations/map" />
+      <Breadcrumbs
+        center={center}
+        path="/weather/stations/map"
+        hasStationsIndex={hasStationsIndex}
+      />
       <div className="flex flex-col gap-4">
         <div className="container mb-4">
           <div className="prose dark:prose-invert max-w-none">

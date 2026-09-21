@@ -62,7 +62,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <Breadcrumbs center={center} path={CANONICAL} />
+      <Breadcrumbs center={center} path={CANONICAL} hasStationsIndex={pages.length > 0} />
       <div className="mb-10 flex flex-col gap-4">
         <PageHeader pages={toPageSummaries(pages)} />
         <div className="container flex flex-col gap-3">

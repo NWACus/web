@@ -135,17 +135,18 @@ function defaultTabKey(page: AssembledStationPage): string {
   return page.archived ? 'csv' : 'table'
 }
 
-const TAB_VIEWS: Record<string, (context: TabContext) => TabView | Promise<TabView>> = {
-  csv: csvTabView,
-  graphs: graphsTabView,
-}
+// A Map, not an object: the key is raw user input (`?range=__proto__`).
+const TAB_VIEWS = new Map<string, (context: TabContext) => TabView | Promise<TabView>>([
+  ['csv', csvTabView],
+  ['graphs', graphsTabView],
+])
 
 async function resolveTabView(
   context: TabContext,
   rangeParam?: string,
   periodParam?: string,
 ): Promise<TabView> {
-  const build = TAB_VIEWS[rangeParam ?? defaultTabKey(context.page)]
+  const build = TAB_VIEWS.get(rangeParam ?? defaultTabKey(context.page))
   // Anything else is the table, including legacy `?range=24h` links.
   return build
     ? build(context)
@@ -169,7 +170,12 @@ export default async function Page({ params, searchParams }: Args) {
 
   return (
     <>
-      <Breadcrumbs center={center} path={`/weather/stations/${station}`} title={page.displayName} />
+      <Breadcrumbs
+        center={center}
+        path={`/weather/stations/${station}`}
+        title={page.displayName}
+        hasStationsIndex
+      />
       <StationPageView
         page={page}
         pages={toPageSummaries(pages)}

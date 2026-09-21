@@ -88,7 +88,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <Breadcrumbs center={center} path="/weather/stations" />
+      <Breadcrumbs center={center} path="/weather/stations" hasStationsIndex />
       <div className="container mb-10 flex flex-col gap-6">
         <Intro />
         <section>
