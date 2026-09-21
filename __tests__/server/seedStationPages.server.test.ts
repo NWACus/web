@@ -1,9 +1,8 @@
-import type { SeedPayload } from '@/migrations/20260918_223529_station_pages'
-import { NWAC_STATION_PAGES, seedStationPages } from '@/migrations/20260918_223529_station_pages'
-
-// The migration module pulls in the sqlite adapter for `sql`; the seed under
-// test never runs SQL.
-jest.mock('@payloadcms/db-sqlite', () => ({ sql: () => '' }))
+import type { SeedPayload } from '@/migrations/20260921_124724_station_pages_backfill'
+import {
+  NWAC_STATION_PAGES,
+  seedStationPages,
+} from '@/migrations/20260921_124724_station_pages_backfill'
 
 type Created = { collection: string; data: Record<string, unknown> }
 

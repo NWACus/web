@@ -64,7 +64,7 @@ The `/weather/stations` index still renders natively, but from the collection: a
 
 ### Seeding is the page list, nothing else
 
-The migration `20260918_223529_station_pages` creates the table, then for the `nwac` tenant creates the 32 pages with their station references from the page list in the migration file, every reference on the `nwac` source. No station identity is snapshotted, so there is nothing to go stale. `seedStationPages()` creates only pages that do not exist and never touches one that does, so re-running it cannot undo an admin's arrangement. The same function runs from `pnpm seed`, because locally the migration runs before any tenant exists. The migration also appends `stationPages` to every tenant's `Admin` role rule, since tenant roles list collections explicitly and a new collection is otherwise invisible to every existing admin.
+The migration `20260918_223529_station_pages` creates the table. A second, `20260921_124724_station_pages_backfill`, holds the data: for the `nwac` tenant it creates the 32 pages with their station references from the page list in that file, every reference on the `nwac` source. No station identity is snapshotted, so there is nothing to go stale. `seedStationPages()` creates only pages that do not exist and never touches one that does, so re-running it cannot undo an admin's arrangement. The same function runs from `pnpm seed`, because locally the migrations run before any tenant exists. The backfill also appends `stationPages` to every tenant's `Admin` role rule, since tenant roles list collections explicitly and a new collection is otherwise invisible to every existing admin.
 
 ## Consequences
 

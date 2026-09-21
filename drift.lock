@@ -448,7 +448,12 @@ sig = "2f46673998744e5e"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/migrations/20260918_223529_station_pages.ts"
-sig = "18452c5ab1f0e52b"
+sig = "81959e9c27214a43"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/migrations/20260921_124724_station_pages_backfill.ts"
+sig = "d558beaf57d03442"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -578,7 +583,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "8c6e053cf49d72a6"
+sig = "465404a04647d082"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

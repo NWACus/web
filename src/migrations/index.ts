@@ -55,6 +55,7 @@ import * as migration_20260612_185209_split_generic_embed_blocks from './2026061
 import * as migration_20260617_215604_add_announcements from './20260617_215604_add_announcements'
 import * as migration_20260701_162212_add_galleries from './20260701_162212_add_galleries'
 import * as migration_20260918_223529_station_pages from './20260918_223529_station_pages'
+import * as migration_20260921_124724_station_pages_backfill from './20260921_124724_station_pages_backfill'
 
 export const migrations = [
   {
@@ -341,5 +342,10 @@ export const migrations = [
     up: migration_20260918_223529_station_pages.up,
     down: migration_20260918_223529_station_pages.down,
     name: '20260918_223529_station_pages',
+  },
+  {
+    up: migration_20260921_124724_station_pages_backfill.up,
+    down: migration_20260921_124724_station_pages_backfill.down,
+    name: '20260921_124724_station_pages_backfill',
   },
 ]
