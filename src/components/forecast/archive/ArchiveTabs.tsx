@@ -1,18 +1,20 @@
 /**
- * The archive browser's tabs — the forecast list and the danger-over-time charts — as the legacy
- * widget's tab bar offers them. Each tab is a route of its own, and every link carries the
- * reader's filters (all but the list's page number) so switching tabs keeps the selection.
+ * The archive browser's tabs — the forecast list, the danger-over-time charts and, for a center
+ * that publishes one, the mountain-weather list — as the legacy widget's tab bar offers them. Each
+ * tab is a route of its own, and every link carries the reader's filters (all but the list's page
+ * number) so switching tabs keeps the selection.
  *
  * Links in a `nav` rather than the ARIA tabs pattern: a tab in that pattern reveals a panel in the
  * same document, where activating one of these navigates. `aria-current` is what marks the one a
- * reader is on. Below `sm` they stack, because side by side the two labels wrap mid-phrase.
+ * reader is on. Below `sm` they stack, because side by side the labels wrap mid-phrase.
  */
-import { BarChart3, Mountain } from 'lucide-react'
+import { BarChart3, CloudSun, Mountain } from 'lucide-react'
 import Link from 'next/link'
 
 import {
   ARCHIVE_DANGER_PATH,
   ARCHIVE_PATH,
+  ARCHIVE_WEATHER_PATH,
   type ArchiveQuery,
   type ArchiveView,
 } from '@/services/nac/forecastArchive'
@@ -23,16 +25,24 @@ import { serializeArchiveSearchParams } from './archiveSearchParams'
 const TABS: { view: ArchiveView; label: string; path: string; Icon: typeof Mountain }[] = [
   { view: 'forecasts', label: 'Avalanche Forecasts', path: ARCHIVE_PATH, Icon: Mountain },
   { view: 'danger', label: 'Danger Over Time', path: ARCHIVE_DANGER_PATH, Icon: BarChart3 },
+  { view: 'weather', label: 'Mountain Weather', path: ARCHIVE_WEATHER_PATH, Icon: CloudSun },
 ]
 
 interface ArchiveTabsProps {
   active: ArchiveView
   /** The query as loaded from the URL, so the links carry the reader's filters verbatim. */
   query: ArchiveQuery
+  /**
+   * Whether the Mountain Weather tab is offered: wherever the center publishes NAC weather, native
+   * or not. The legacy widget always showed it; a center with no NAC weather product (NWAC among
+   * them) had a tab that could only ever be empty.
+   */
+  showWeather: boolean
 }
 
-export function ArchiveTabs({ active, query }: ArchiveTabsProps) {
+export function ArchiveTabs({ active, query, showWeather }: ArchiveTabsProps) {
   const search = serializeArchiveSearchParams({ ...query, page: null })
+  const tabs = showWeather ? TABS : TABS.filter((tab) => tab.view !== 'weather')
 
   return (
     <nav
@@ -41,7 +51,7 @@ export function ArchiveTabs({ active, query }: ArchiveTabsProps) {
       className="flex flex-col gap-1 border-b pb-5 sm:flex-row sm:pb-0"
       aria-label="Archive views"
     >
-      {TABS.map(({ view, label, path, Icon }) => {
+      {tabs.map(({ view, label, path, Icon }) => {
         const isActive = view === active
         return (
           <Link

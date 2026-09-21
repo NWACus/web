@@ -80,7 +80,8 @@
     }
   ],
   "productsById": {
-    "184531": "v2_public_product_by_id_SNFAC.json"
+    "184531": "v2_public_product_by_id_SNFAC.json",
+    "184563": "v2_public_product_weather.json"
   },
   "absent": [
     {

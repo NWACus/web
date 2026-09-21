@@ -5,6 +5,9 @@
  *
  * Every control writes the URL with `shallow: false` so the server re-renders the list, and clears
  * `page` so a narrowed list starts from its first page, as the legacy browser does.
+ *
+ * The mountain-weather tab shows the date filter alone, as the legacy widget's does: one weather
+ * product covers every zone and carries no danger rating.
  */
 import { CheckboxFilter } from '@/components/filters/CheckboxFilter'
 import { dangerLevelFromRating, dangerName } from '@/services/nac/dangerScale'
@@ -18,6 +21,8 @@ import { ArchiveDateFilter, type ArchiveDateFilterProps } from './ArchiveDateFil
 
 export interface ArchiveFiltersProps extends ArchiveDateFilterProps {
   zones: { slug: string; name: string }[]
+  /** Only the season and date range apply, so the other filters are left out. */
+  dateOnly: boolean
 }
 
 const DANGER_OPTIONS = ARCHIVE_DANGER_LEVELS.map((level) => ({
@@ -32,7 +37,9 @@ const PRODUCT_TYPE_OPTIONS = ARCHIVE_PRODUCT_TYPES.map((type) => ({
 
 const RESET_PAGE = ['page']
 
-export function ArchiveFilters({ zones, ...dateProps }: ArchiveFiltersProps) {
+export function ArchiveFilters({ zones, dateOnly, ...dateProps }: ArchiveFiltersProps) {
+  if (dateOnly) return <ArchiveDateFilter {...dateProps} showBottomBorder={false} />
+
   return (
     <>
       <ArchiveDateFilter {...dateProps} />
