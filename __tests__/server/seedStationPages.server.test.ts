@@ -1,8 +1,9 @@
-import type { SeedPayload } from '@/migrations/20260921_124724_station_pages_backfill'
+import type { GrantPayload, RoleRow, SeedPayload } from '@/services/stations/seedStationPages'
 import {
+  grantStationAccess,
   NWAC_STATION_PAGES,
   seedStationPages,
-} from '@/migrations/20260921_124724_station_pages_backfill'
+} from '@/services/stations/seedStationPages'
 
 type Created = { collection: string; data: Record<string, unknown> }
 
@@ -52,5 +53,45 @@ describe('seedStationPages', () => {
     expect(createdPages(created).map((c) => c.data.slug)).toEqual(
       NWAC_STATION_PAGES.slice(0, 2).map((p) => p.slug),
     )
+  })
+})
+
+describe('grantStationAccess', () => {
+  const adminRule = { collections: ['pages', 'settings'], actions: ['*'] }
+  const readRule = { collections: ['navigations', 'tenants'], actions: ['read'] }
+
+  function fakeRoles(roles: RoleRow[]) {
+    const updates: { id: number; rules: unknown }[] = []
+    const payload: GrantPayload = {
+      find: async () => ({ docs: roles }),
+      update: async ({ id, data }) => {
+        updates.push({ id, rules: data.rules })
+        return {}
+      },
+    }
+    return { payload, updates }
+  }
+
+  it('appends the collection to the full-access rule of every Admin role, once', async () => {
+    const { payload, updates } = fakeRoles([
+      { id: 1, rules: [adminRule, readRule] },
+      { id: 2, rules: [{ ...adminRule, collections: ['settings', 'stationPages'] }] },
+    ])
+    expect(await grantStationAccess(payload)).toBe(1)
+    expect(updates).toEqual([
+      {
+        id: 1,
+        rules: [{ ...adminRule, collections: ['pages', 'settings', 'stationPages'] }, readRule],
+      },
+    ])
+  })
+
+  it('leaves a role without a full-access settings rule alone', async () => {
+    const { payload, updates } = fakeRoles([
+      { id: 3, rules: [{ collections: ['settings'], actions: ['read'] }, readRule] },
+      { id: 4, rules: null },
+    ])
+    expect(await grantStationAccess(payload)).toBe(0)
+    expect(updates).toEqual([])
   })
 })

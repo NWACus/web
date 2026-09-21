@@ -443,7 +443,7 @@ sig = "ae90b62882f0da87"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/migrations/20260921_124724_station_pages_backfill.ts"
-sig = "d558beaf57d03442"
+sig = "448f0ac347be3739"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -464,6 +464,11 @@ sig = "89238abc0da25343"
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/revalidate.ts"
 sig = "ddb05da22d641484"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/seedStationPages.ts"
+sig = "ec2f6f857fdc7e79"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

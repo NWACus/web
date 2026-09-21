@@ -16,10 +16,7 @@ import type {
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
-import {
-  NWAC_STATION_PAGES,
-  seedStationPages,
-} from '@/migrations/20260921_124724_station_pages_backfill'
+import { NWAC_STATION_PAGES, seedStationPages } from '@/services/stations/seedStationPages'
 import { getAnnouncementsData } from './announcements'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
