@@ -12,12 +12,12 @@ import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import {
   getStationGroup,
   NWAC_WEATHER_STATION_GROUPS,
-  STATIONS_TENANT_SLUG,
   type WeatherStationGroup,
 } from '@/constants/weatherStations'
-import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { fetchStationTimeseries, stationRefs } from '@/services/snowobs/snowobs'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
+import { hasStationRegistry, stationRegistryCenters } from '@/services/stations/registry'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
@@ -30,24 +30,30 @@ type Args = {
 }
 
 export async function generateStaticParams() {
-  return NWAC_WEATHER_STATION_GROUPS.map((group) => ({
-    center: STATIONS_TENANT_SLUG,
-    station: group.slug,
-  }))
+  const centers = await stationRegistryCenters()
+  return centers.flatMap((center) =>
+    NWAC_WEATHER_STATION_GROUPS.map((group) => ({ center, station: group.slug })),
+  )
 }
 
 // Notes ride with the station metadata, so a 1-hour window is enough.
-async function loadStationNotes(group: WeatherStationGroup) {
-  const meta = await fetchStationTimeseries(group.stids, { revalidate, windowHours: 1 })
+async function loadStationNotes(center: string, group: WeatherStationGroup) {
+  const meta = await fetchStationTimeseries(center, stationRefs(center, group.stids), {
+    revalidate,
+    windowHours: 1,
+  })
   return stationNotes(meta.STATION)
 }
 
 // Datalogger dropdown options for the CSV form: the group's station ids labeled with
 // each logger's name + elevation (from a cheap 1-hour metadata fetch).
 async function loadDataloggers(
+  center: string,
   group: WeatherStationGroup,
 ): Promise<{ stid: string; label: string }[]> {
-  const meta = await fetchStationTimeseries(group.stids, { windowHours: 1 })
+  const meta = await fetchStationTimeseries(center, stationRefs(center, group.stids), {
+    windowHours: 1,
+  })
   return group.stids.map((stid) => {
     const station = meta.STATION.find((s) => s.stid === stid)
     if (!station?.name) return { stid, label: stid }
@@ -70,7 +76,7 @@ type TabView = {
   tabContent?: ReactNode
 }
 
-async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
+async function csvTabView(center: string, group: WeatherStationGroup): Promise<TabView> {
   return {
     table: null,
     tabContent: (
@@ -80,7 +86,7 @@ async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
         </StationViewBar>
         <StationCsvForm
           slug={group.slug}
-          dataloggers={await loadDataloggers(group)}
+          dataloggers={await loadDataloggers(center, group)}
           years={csvYears()}
         />
       </>
@@ -88,7 +94,7 @@ async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
   }
 }
 
-function graphsTabView(group: WeatherStationGroup): TabView {
+function graphsTabView(_center: string, group: WeatherStationGroup): TabView {
   return {
     table: null,
     tabContent: (
@@ -102,9 +108,13 @@ function graphsTabView(group: WeatherStationGroup): TabView {
   }
 }
 
-async function tableTabView(group: WeatherStationGroup, periodParam?: string): Promise<TabView> {
+async function tableTabView(
+  center: string,
+  group: WeatherStationGroup,
+  periodParam?: string,
+): Promise<TabView> {
   const period = resolveTablePeriod(periodParam)
-  const response = await fetchStationTimeseries(group.stids, {
+  const response = await fetchStationTimeseries(center, stationRefs(center, group.stids), {
     revalidate,
     windowHours: period.hoursBack(new Date()),
     rawData: true,
@@ -127,26 +137,30 @@ function defaultTabKey(group: WeatherStationGroup): string {
   return group.archived ? 'csv' : 'table'
 }
 
-const TAB_VIEWS: Record<string, (group: WeatherStationGroup) => TabView | Promise<TabView>> = {
+const TAB_VIEWS: Record<
+  string,
+  (center: string, group: WeatherStationGroup) => TabView | Promise<TabView>
+> = {
   csv: csvTabView,
   graphs: graphsTabView,
 }
 
 async function resolveTabView(
+  center: string,
   group: WeatherStationGroup,
   rangeParam?: string,
   periodParam?: string,
 ): Promise<TabView> {
   const build = TAB_VIEWS[rangeParam ?? defaultTabKey(group)]
   // Anything else is the table, including legacy `?range=24h` links.
-  return build ? build(group) : tableTabView(group, periodParam ?? rangeParam)
+  return build ? build(center, group) : tableTabView(center, group, periodParam ?? rangeParam)
 }
 
 export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
   const { range: rangeParam, period: periodParam } = await searchParams
 
-  if (center !== STATIONS_TENANT_SLUG) {
+  if (!(await hasStationRegistry(center))) {
     notFound()
   }
 
@@ -156,8 +170,8 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   const [view, notes] = await Promise.all([
-    resolveTabView(group, rangeParam, periodParam),
-    loadStationNotes(group),
+    resolveTabView(center, group, rangeParam, periodParam),
+    loadStationNotes(center, group),
   ])
 
   return (

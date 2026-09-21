@@ -1,6 +1,7 @@
 import { getStationGroup } from '@/constants/weatherStations'
 import { buildStationCsv } from '@/services/snowobs/csv'
-import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { fetchStationTimeseries, stationRefs } from '@/services/snowobs/snowobs'
+import { hasStationRegistry } from '@/services/stations/registry'
 import { passesCaptcha } from '@/services/turnstile'
 import { TZDate } from '@date-fns/tz'
 
@@ -17,13 +18,13 @@ type Args = {
 // CRAP is inflated by the lack of unit coverage on this route handler.
 // fallow-ignore-next-line complexity
 export async function GET(request: Request, { params }: Args) {
-  const { station } = await params
+  const { center, station } = await params
   const url = new URL(request.url)
   const stid = url.searchParams.get('stid')
   const year = Number(url.searchParams.get('year'))
 
   const group = getStationGroup(station)
-  if (!group) {
+  if (!group || !(await hasStationRegistry(center))) {
     return new Response('Unknown station', { status: 404 })
   }
   if (!stid || !group.stids.includes(stid)) {
@@ -45,7 +46,7 @@ export async function GET(request: Request, { params }: Args) {
   const start = new Date(new TZDate(year, 0, 1, 0, 0, 0, 0, TZ).getTime())
   const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, TZ).getTime())
 
-  const response = await fetchStationTimeseries([stid], {
+  const response = await fetchStationTimeseries(center, stationRefs(center, [stid]), {
     start,
     end,
     revalidate: 3600,

@@ -1,11 +1,8 @@
 import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
-import {
-  MAX_COMPARE_STATIONS,
-  NWAC_WEATHER_STATION_GROUPS,
-  STATIONS_TENANT_SLUG,
-} from '@/constants/weatherStations'
+import { MAX_COMPARE_STATIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
-import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
+import { fetchStationTimeseries, SnowObsError, stationRefs } from '@/services/snowobs/snowobs'
+import { hasStationRegistry } from '@/services/stations/registry'
 import { NextResponse } from 'next/server'
 
 // Serves the station Graphs tab. Reads SnowObs server-side (token stays
@@ -81,7 +78,7 @@ export async function GET(
   { params }: { params: Promise<Params> },
 ): Promise<NextResponse> {
   const { center } = await params
-  if (center !== STATIONS_TENANT_SLUG) {
+  if (!(await hasStationRegistry(center))) {
     return NextResponse.json({ error: 'not found' }, { status: 404 })
   }
 
@@ -90,7 +87,7 @@ export async function GET(
   const { stids, vars, from, to } = parsed
 
   try {
-    const response = await fetchStationTimeseries(stids, {
+    const response = await fetchStationTimeseries(center, stationRefs(center, stids), {
       start: from,
       end: to,
       revalidate: REVALIDATE_SECONDS,

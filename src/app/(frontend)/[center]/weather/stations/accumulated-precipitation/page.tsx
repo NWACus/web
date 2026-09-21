@@ -3,9 +3,10 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { PrecipAccumulationTable } from '@/components/WeatherStations/PrecipAccumulationTable'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
-import { PRECIP_STATION_STIDS, STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
-import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { PRECIP_STATION_STIDS } from '@/constants/weatherStations'
+import { fetchStationTimeseries, stationRefs } from '@/services/snowobs/snowobs'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
+import { hasStationRegistry } from '@/services/stations/registry'
 import { notFound } from 'next/navigation'
 
 // Rendered per request (the [center] layout's generateStaticParams otherwise forces
@@ -39,12 +40,12 @@ function PageHeader() {
 export default async function Page({ params }: Args) {
   const { center } = await params
 
-  if (center !== STATIONS_TENANT_SLUG) {
+  if (!(await hasStationRegistry(center))) {
     notFound()
   }
 
   // One 72h fetch covers every trailing window (1H..72H are sums over it).
-  const response = await fetchStationTimeseries(PRECIP_STATION_STIDS, {
+  const response = await fetchStationTimeseries(center, stationRefs(center, PRECIP_STATION_STIDS), {
     revalidate: REVALIDATE_SECONDS,
     windowHours: 72,
   })
