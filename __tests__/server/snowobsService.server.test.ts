@@ -99,6 +99,16 @@ describe('fetchStationTimeseries', () => {
     expect(seenParams).toEqual(['true', null])
   })
 
+  it('treats a 404 (no station left) as an empty timeseries', async () => {
+    server.use(
+      http.get(TIMESERIES_URL, () =>
+        HttpResponse.json({ detail: 'No stations found matching the request' }, { status: 404 }),
+      ),
+    )
+    const result = await fetchStationTimeseries('nwac', [ref('999999')])
+    expect(result.STATION).toEqual([])
+  })
+
   it('throws SnowObsError with the status on a non-2xx response', async () => {
     server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
     await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(SnowObsError)
