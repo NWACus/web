@@ -8,7 +8,7 @@ sig = "3d5ec9a1ab663b91"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "2319673c3f012151"
+sig = "975de9572e60294a"
 
 [[bindings]]
 doc = "CLAUDE.md"

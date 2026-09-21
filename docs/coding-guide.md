@@ -270,7 +270,7 @@ Use this instead of manually creating nested divs with background colors and con
 
 Not using `BackgroundColorWrapper`
 - `DocumentComponent`
-- `HeaderComponent`
+- `HeaderComponent` — carries no margin of its own; neighbors' `my-10` sets the gap. It pads `pt-4` always and `pb-4` only with a background, so a heading sits closer to the content below it than to the block above.
 
 
 ## Theme Preview
