@@ -1,6 +1,7 @@
 import RichText from '@/components/RichText'
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { hasBackgroundColor } from '@/utilities/hasBackgroundColor'
 import { cn } from '@/utilities/ui'
 
 export const ContentBlockComponent = (props: ContentBlockProps) => {
@@ -41,8 +42,8 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
   const colsSpanClass = colsClasses[layoutCols]
 
   return (
-    <div className={`${bgColorClass}`}>
-      <div className="container py-10">
+    <div className={cn('my-10', bgColorClass)}>
+      <div className={cn('container', hasBackgroundColor(backgroundColor) && 'py-10')}>
         <div className="grid grid-cols-6 lg:grid-cols-12 gap-y-6 gap-x-10">
           {columns?.map((col, index) => {
             const { richText } = col

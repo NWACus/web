@@ -20,7 +20,7 @@ export const GalleryBlockComponent = ({
   }
 
   return (
-    <div className="container py-10">
+    <div className="container my-10">
       {description && (
         <div className="mt-2 mb-6">
           <RichText data={description} enableGutter={false} />
