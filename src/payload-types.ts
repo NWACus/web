@@ -72,7 +72,6 @@ export interface Config {
     builtInPages: BuiltInPage;
     pages: Page;
     stationPages: StationPage;
-    weatherStationSettings: WeatherStationSetting;
     posts: Post;
     media: Media;
     galleries: Gallery;
@@ -127,7 +126,6 @@ export interface Config {
     builtInPages: BuiltInPagesSelect<false> | BuiltInPagesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     stationPages: StationPagesSelect<false> | StationPagesSelect<true>;
-    weatherStationSettings: WeatherStationSettingsSelect<false> | WeatherStationSettingsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     galleries: GalleriesSelect<false> | GalleriesSelect<true>;
@@ -302,6 +300,7 @@ export interface HomePage {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
     | SponsorsBlock
@@ -412,6 +411,7 @@ export interface Page {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
     | SponsorsBlock
@@ -1581,6 +1581,25 @@ export interface NACMediaBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PrecipTableBlock".
+ */
+export interface PrecipTableBlock {
+  /**
+   * Which columns the table shows after the station name. Clearing every column shows them all.
+   */
+  columns?:
+    | ('1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '72h' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation')[]
+    | null;
+  stations?: {
+    stid: string;
+    source: string;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'precipTable';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "SingleBlogPostBlock".
  */
 export interface SingleBlogPostBlock {
@@ -1753,30 +1772,6 @@ export interface StationPage {
    * The hardware is gone but the history is still queryable, so the page stays up for downloads.
    */
   archived?: boolean | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Settings for the weather station pages that belong to the whole center.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "weatherStationSettings".
- */
-export interface WeatherStationSetting {
-  id: number;
-  tenant: number | Tenant;
-  centerName?: string | null;
-  /**
-   * Which columns the table shows after the station name. Clearing every column shows them all.
-   */
-  precipColumns?:
-    | ('1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '72h' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation')[]
-    | null;
-  precipStations?: {
-    stid: string;
-    source: string;
-  }[];
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -3361,10 +3356,6 @@ export interface PayloadLockedDocument {
         value: number | StationPage;
       } | null)
     | ({
-        relationTo: 'weatherStationSettings';
-        value: number | WeatherStationSetting;
-      } | null)
-    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -3567,6 +3558,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
@@ -3831,6 +3823,16 @@ export interface NACMediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PrecipTableBlock_select".
+ */
+export interface PrecipTableBlockSelect<T extends boolean = true> {
+  columns?: T;
+  stations?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "SingleBlogPostBlock_select".
  */
 export interface SingleBlogPostBlockSelect<T extends boolean = true> {
@@ -3916,6 +3918,7 @@ export interface PagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
@@ -3955,19 +3958,6 @@ export interface StationPagesSelect<T extends boolean = true> {
   stations?: T;
   columns?: T;
   archived?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "weatherStationSettings_select".
- */
-export interface WeatherStationSettingsSelect<T extends boolean = true> {
-  tenant?: T;
-  centerName?: T;
-  precipColumns?: T;
-  precipStations?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -12,6 +12,7 @@ import { ImageLinkGridBlock } from '@/blocks/ImageLinkGrid/config'
 import { ImageTextBlock } from '@/blocks/ImageText/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/Media/config'
+import { PrecipTableBlock } from '@/blocks/PrecipTable/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
@@ -36,6 +37,7 @@ export const DEFAULT_BLOCKS = [
   LinkPreviewBlock,
   MediaBlock,
   GalleryBlock,
+  PrecipTableBlock,
   SponsorsBlock,
   TeamBlock,
 ]
