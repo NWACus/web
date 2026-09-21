@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation'
 export const stationSelectTriggerClass =
   'h-auto w-auto gap-2 rounded-md text-sm shadow-sm focus:ring-offset-0'
 
-export function StationSelectGroups({
+export function StationSelectItems({
   pages,
   excludeSlugs = [],
   excludeArchived = false,
@@ -58,7 +58,7 @@ export function StationPicker({
         <SelectValue placeholder="Jump to a station…">Jump to a station…</SelectValue>
       </SelectTrigger>
       <SelectContent position="item-aligned">
-        <StationSelectGroups pages={pages} />
+        <StationSelectItems pages={pages} />
       </SelectContent>
     </Select>
   )
