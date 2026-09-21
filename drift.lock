@@ -632,11 +632,6 @@ sig = "2692f90f08a4a4d1"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
-target = "src/scripts/check-center-timezones.ts"
-sig = "7086eb538048cbad"
-
-[[bindings]]
-doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/scripts/check-centers.ts"
 sig = "cf2a77a3852fcde8"
 
