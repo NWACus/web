@@ -2157,7 +2157,7 @@ export interface GlobalRole {
   createdAt: string;
 }
 /**
- * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report.
+ * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "stationPages".
@@ -2173,6 +2173,10 @@ export interface StationPage {
   stations?: {
     stid: string;
     source: string;
+  }[];
+  columns?: {
+    stid: string;
+    variable: string;
   }[];
   /**
    * The hardware is gone but the history is still queryable, so the page stays up for downloads.
@@ -4375,6 +4379,7 @@ export interface StationPagesSelect<T extends boolean = true> {
   displayName?: T;
   slug?: T;
   stations?: T;
+  columns?: T;
   archived?: T;
   contentHash?: T;
   updatedAt?: T;

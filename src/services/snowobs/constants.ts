@@ -66,3 +66,27 @@ export function zonedParts(
   }).formatToParts(date)
   return (type) => parts.find((part) => part.type === type)?.value ?? ''
 }
+
+// Left-to-right order of readings in a station table. Variable-major, the way
+// the legacy nwac.us tables read: every logger's temperature, then every
+// logger's humidity, and so on down the list. A reading SnowObs starts sending
+// that isn't listed here lands after these, alphabetically.
+export const TABLE_VARIABLE_ORDER = [
+  'air_temp',
+  'relative_humidity',
+  'wind_speed_min',
+  'wind_speed',
+  'wind_gust',
+  'wind_direction',
+  'precip_accum_one_hour',
+  'snow_depth_24h',
+  'snow_depth',
+  'intermittent_snow',
+  'solar_radiation',
+  'pressure',
+  'equip_temperature',
+] as const
+
+// Reported by most loggers but never a table column: it belongs on the battery
+// graph and, later, the alerting, not next to the weather.
+export const HIDDEN_TABLE_VARIABLES: ReadonlySet<string> = new Set(['battery_voltage'])

@@ -2,6 +2,7 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
+import { columnsField } from '@/fields/stationColumns'
 import { stationsField } from '@/fields/stations'
 import { tenantField } from '@/fields/tenantField'
 import {
@@ -19,17 +20,18 @@ import { trackedStations } from './endpoints/trackedStations'
 // which stations it shows, in what order -- and nothing SnowObs can. A station
 // is only ever a (source, stid) reference; its name, elevation and coordinates
 // are read live from SnowObs, both here (the picker) and on the public page.
-// Which columns the table shows is derived from what those stations report.
+// The table's columns follow what those stations report unless the page
+// lists its own.
 export const StationPages: CollectionConfig = {
   slug: 'stationPages',
   access: accessByTenantRole('stationPages'),
   admin: {
     baseListFilter: filterByTenant,
-    group: 'Weather',
+    group: 'Content',
     defaultColumns: ['displayName', 'slug', 'archived'],
     useAsTitle: 'displayName',
     description:
-      'The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report.',
+      'The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.',
   },
   defaultSort: 'displayName',
   // The slug is the URL; two pages sharing one would shadow each other.
@@ -46,6 +48,12 @@ export const StationPages: CollectionConfig = {
     stationsField({
       name: 'stations',
       label: 'Stations',
+    }),
+    columnsField({
+      name: 'columns',
+      label: 'Table columns',
+      description:
+        'Leave empty to show every reading the stations report, grouped by reading. Add columns to choose exactly which readings the table shows, in this order.',
     }),
     {
       name: 'archived',

@@ -418,12 +418,22 @@ sig = "8364b5c2c9c54525"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/index.ts"
-sig = "25c51013d5f9aa50"
+sig = "8406735007d4bd01"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/fields/stationColumns/ColumnsInput.tsx"
+sig = "cbedebda084936ce"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/fields/stationColumns/index.ts"
+sig = "2d9410126baab436"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationsInput.tsx"
-sig = "5ccfc64c6254f67d"
+sig = "39120bda9873e2bd"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
