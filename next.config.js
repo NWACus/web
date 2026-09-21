@@ -88,7 +88,6 @@ const nextConfig = {
     experimental: {
       // to solve https://github.com/WiseLibs/better-sqlite3/issues/1155
       workerThreads: false,
-      cpus: 1,
     },
   }),
 }
