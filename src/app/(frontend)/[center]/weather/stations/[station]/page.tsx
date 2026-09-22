@@ -21,6 +21,7 @@ import {
   getStationPages,
   toPageSummaries,
 } from '@/services/stations/getStationPages'
+import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
@@ -72,6 +73,7 @@ type TabContext = {
   center: string
   page: AssembledStationPage
   pages: StationPageSummary[]
+  timeZone: string
   periodParam?: string
 }
 
@@ -93,7 +95,7 @@ async function csvTabView({ center, page }: TabContext): Promise<TabView> {
   }
 }
 
-function graphsTabView({ page, pages }: TabContext): TabView {
+function graphsTabView({ page, pages, timeZone }: TabContext): TabView {
   return {
     table: null,
     tabContent: (
@@ -102,20 +104,21 @@ function graphsTabView({ page, pages }: TabContext): TabView {
         presets={STATION_GRAPH_PRESETS}
         currentSlug={page.slug}
         pages={pages}
+        timeZone={timeZone}
         tabs={<StationRangeTabs activeKey="graphs" />}
       />
     ),
   }
 }
 
-async function tableTabView({ center, page, periodParam }: TabContext): Promise<TabView> {
+async function tableTabView({ center, page, timeZone, periodParam }: TabContext): Promise<TabView> {
   const period = resolveTablePeriod(periodParam)
   const response = await fetchStationTimeseries(center, page.stations, {
     revalidate,
-    windowHours: period.hoursBack(new Date()),
+    windowHours: period.hoursBack(new Date(), timeZone),
     rawData: true,
   })
-  const table = buildStationTable(response, resolveColumns(response, page))
+  const table = buildStationTable(center, response, resolveColumns(response, page))
   return {
     table,
     tabContent: (
@@ -161,8 +164,13 @@ export default async function Page({ params, searchParams }: Args) {
     notFound()
   }
 
+  const timeZone = centerTimezone(center)
   const [view, notes] = await Promise.all([
-    resolveTabView({ center, page, pages: toPageSummaries(pages) }, rangeParam, periodParam),
+    resolveTabView(
+      { center, page, pages: toPageSummaries(pages), timeZone },
+      rangeParam,
+      periodParam,
+    ),
     loadStationNotes(center, page),
   ])
 
@@ -179,6 +187,7 @@ export default async function Page({ params, searchParams }: Args) {
         pages={toPageSummaries(pages)}
         table={view.table}
         notes={notes}
+        timeZone={timeZone}
         tabContent={view.tabContent}
       />
     </>

@@ -72,7 +72,7 @@ const response: SnowObsTimeseriesResponse = {
 const ref = (stid: string) => ({ stid, source: 'nwac' })
 
 describe('buildPrecipAccumulationTable', () => {
-  const table = buildPrecipAccumulationTable(response, [ref('1'), ref('2'), ref('3')])
+  const table = buildPrecipAccumulationTable('nwac', response, [ref('1'), ref('2'), ref('3')])
 
   const rowFor = (stid: string) => {
     const row = table.rows.find((r) => r.stid === stid)
@@ -96,6 +96,15 @@ describe('buildPrecipAccumulationTable', () => {
     expect(fresh.hasData).toBe(true)
   })
 
+  it("stamps lastUpdate in the center's own timezone", () => {
+    const mountain = buildPrecipAccumulationTable('btac', response, [ref('1')])
+    expect(mountain.timezoneLabel).toBe('MDT')
+    const pacific = rowFor('1')
+    const mountainRow = mountain.rows[0]
+    expect(mountainRow.lastUpdateMs).toBe(pacific.lastUpdateMs)
+    expect(mountainRow.lastUpdate).not.toBe(pacific.lastUpdate)
+  })
+
   it('anchors windows to the newest observation anywhere, not per station', () => {
     const lagging = rowFor('2')
     // Nothing inside 24H of the anchor -> null, not 0.
@@ -114,12 +123,12 @@ describe('buildPrecipAccumulationTable', () => {
   })
 
   it('leaves out a station with no precipitation series, gauge or not', () => {
-    const withWind = buildPrecipAccumulationTable(response, [ref('1'), ref('4')])
+    const withWind = buildPrecipAccumulationTable('nwac', response, [ref('1'), ref('4')])
     expect(withWind.rows.map((r) => r.stid)).toEqual(['1'])
   })
 
   it('dedupes requested stids and skips stations absent from the response', () => {
-    const dup = buildPrecipAccumulationTable(response, [ref('1'), ref('1'), ref('nope')])
+    const dup = buildPrecipAccumulationTable('nwac', response, [ref('1'), ref('1'), ref('nope')])
     expect(dup.rows).toHaveLength(1)
   })
 })

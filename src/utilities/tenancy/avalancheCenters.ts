@@ -158,6 +158,16 @@ export function isValidTenantSlug(slug: string): slug is ValidTenantSlug {
 }
 
 /**
+ * The zone a center's timestamps are displayed in.
+ *
+ * Falls back to Pacific for an unrecognized slug rather than throwing: callers are formatters
+ * running mid-render, and a route reached with an unknown center is already on its way to a 404.
+ */
+export function centerTimezone(center: string): USTimezone {
+  return isValidTenantSlug(center) ? AVALANCHE_CENTERS[center].timezone : US_TIMEZONES.PACIFIC
+}
+
+/**
  * Array of all valid tenant slugs.
  */
 export const VALID_TENANT_SLUGS: ValidTenantSlug[] =

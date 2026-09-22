@@ -116,7 +116,7 @@ export async function GET(
       revalidate: REVALIDATE_SECONDS,
       rawData: true,
     })
-    const data = buildGraphData(response, stations, vars, windowExceedsThreshold(from, to))
+    const data = buildGraphData(center, response, stations, vars, windowExceedsThreshold(from, to))
     return NextResponse.json(data, {
       headers: {
         'Cache-Control': `public, s-maxage=${REVALIDATE_SECONDS}, stale-while-revalidate=60`,

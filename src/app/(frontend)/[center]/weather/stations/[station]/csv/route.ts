@@ -3,9 +3,9 @@ import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { parseStationKey, stationKey } from '@/services/snowobs/stationKey'
 import { getStationPage } from '@/services/stations/getStationPages'
 import { passesCaptcha } from '@/services/turnstile'
+import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { TZDate } from '@date-fns/tz'
 
-const TZ = 'America/Vancouver'
 const MIN_YEAR = 2016
 
 type Args = {
@@ -41,9 +41,10 @@ export async function GET(request: Request, { params }: Args) {
     return new Response('Captcha verification failed', { status: 403 })
   }
 
-  // Calendar year in Pacific time, as UTC instants for the SnowObs request.
-  const start = new Date(new TZDate(year, 0, 1, 0, 0, 0, 0, TZ).getTime())
-  const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, TZ).getTime())
+  // Calendar year in the center's timezone, as UTC instants for the SnowObs request.
+  const timeZone = centerTimezone(center)
+  const start = new Date(new TZDate(year, 0, 1, 0, 0, 0, 0, timeZone).getTime())
+  const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, timeZone).getTime())
 
   const response = await fetchStationTimeseries(center, [datalogger], {
     start,
@@ -51,7 +52,7 @@ export async function GET(request: Request, { params }: Args) {
     revalidate: 3600,
     rawData: true,
   })
-  const csv = buildStationCsv(response, datalogger, units)
+  const csv = buildStationCsv(center, response, datalogger, units)
 
   return new Response(csv, {
     headers: {

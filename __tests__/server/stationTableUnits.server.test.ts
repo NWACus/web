@@ -1,5 +1,6 @@
 import {
   resolveTablePeriod,
+  seasonHours,
   TABLE_PERIODS,
 } from '../../src/components/WeatherStations/stationPeriods'
 import {
@@ -116,6 +117,27 @@ describe('resolveTablePeriod', () => {
   })
 })
 
+describe('seasonHours', () => {
+  it('anchors on the most recent Oct 1 in the given zone', () => {
+    // 05:00 UTC on Oct 1 is still Sep 30 in Pacific, so its season began a year earlier.
+    const justAfterUtcMidnight = new Date('2026-10-01T05:00:00Z')
+    expect(seasonHours(justAfterUtcMidnight, 'America/Los_Angeles')).toBeGreaterThan(8000)
+    expect(seasonHours(justAfterUtcMidnight, 'Pacific/Honolulu')).toBeGreaterThan(8000)
+  })
+
+  it('measures from the zone-local Oct 1 midnight', () => {
+    const midSeason = new Date('2026-12-01T20:00:00Z')
+    const pacific = seasonHours(midSeason, 'America/Los_Angeles')
+    const mountain = seasonHours(midSeason, 'America/Denver')
+    // Mountain reaches Oct 1 midnight an hour before Pacific does, so its season is an hour longer.
+    expect(mountain - pacific).toBe(1)
+  })
+
+  it('never reports less than a day', () => {
+    expect(seasonHours(new Date('2026-10-01T08:30:00Z'), 'America/Los_Angeles')).toBe(24)
+  })
+})
+
 describe('buildStationCsv metric', () => {
   const response: SnowObsTimeseriesResponse = {
     UNITS: { air_temp: 'fahrenheit', snow_depth: 'inches' },
@@ -142,16 +164,30 @@ describe('buildStationCsv metric', () => {
   }
 
   it('converts header units and values when metric', () => {
-    const [header, row] = buildStationCsv(response, { stid: '4', source: 'nwac' }, 'metric').split(
-      '\n',
-    )
-    expect(header).toBe('Time (Pacific),air_temp (°C),snow_depth (cm)')
+    const [header, row] = buildStationCsv(
+      'nwac',
+      response,
+      { stid: '4', source: 'nwac' },
+      'metric',
+    ).split('\n')
+    expect(header).toBe('Time (PST),air_temp (°C),snow_depth (cm)')
     expect(row.endsWith(',0,25.4')).toBe(true)
   })
 
   it('keeps imperial output unchanged by default', () => {
-    const [header, row] = buildStationCsv(response, { stid: '4', source: 'nwac' }).split('\n')
-    expect(header).toBe('Time (Pacific),air_temp (°F),snow_depth (in)')
+    const [header, row] = buildStationCsv('nwac', response, { stid: '4', source: 'nwac' }).split(
+      '\n',
+    )
+    expect(header).toBe('Time (PST),air_temp (°F),snow_depth (in)')
     expect(row.endsWith(',32,10')).toBe(true)
+  })
+
+  it("labels and stamps rows in the center's own timezone", () => {
+    const [header, row] = buildStationCsv('btac', response, { stid: '4', source: 'nwac' }).split(
+      '\n',
+    )
+    expect(header).toBe('Time (MST),air_temp (°F),snow_depth (in)')
+    // Midnight UTC is 17:00 the previous day in Mountain, 16:00 in Pacific.
+    expect(row.startsWith('2026-01-06 17:00')).toBe(true)
   })
 })

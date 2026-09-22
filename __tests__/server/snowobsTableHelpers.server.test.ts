@@ -67,7 +67,7 @@ describe('computePrecipCumsum', () => {
 })
 
 describe('buildStationTable', () => {
-  const table = buildStationTable(response, columnConfig)
+  const table = buildStationTable('nwac', response, columnConfig)
 
   it('auto-inserts a cumulative-precip column after hourly precip, in config order', () => {
     expect(table.columns.map((c) => c.key)).toEqual([
@@ -127,5 +127,13 @@ describe('buildStationTable', () => {
   it('reports the display timezone label and latest observation time', () => {
     expect(table.timezoneLabel).toBe('PDT')
     expect(table.latestObservation).toBe(new Date(T3).getTime())
+  })
+
+  it('reads the zone from the center, not a constant', () => {
+    const mountain = buildStationTable('btac', response, columnConfig)
+    expect(mountain.timezoneLabel).toBe('MDT')
+    // Same instants, one hour later on a Mountain clock.
+    expect(mountain.rows.map((r) => r.display)).not.toEqual(table.rows.map((r) => r.display))
+    expect(mountain.latestObservation).toBe(table.latestObservation)
   })
 })

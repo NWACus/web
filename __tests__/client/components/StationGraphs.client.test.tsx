@@ -259,6 +259,7 @@ describe('StationGraphs compare picker', () => {
         presets={[TEMP_PRESET]}
         currentSlug={current.slug}
         pages={PAGES}
+        timeZone="America/Los_Angeles"
       />,
     )
   }
@@ -341,6 +342,7 @@ describe('StationGraphs chart arrangement', () => {
         presets={[TEMP_PRESET, RH_PRESET]}
         currentSlug={current.slug}
         pages={PAGES}
+        timeZone="America/Los_Angeles"
       />,
     )
   }
@@ -395,6 +397,7 @@ describe('StationGraphs chart arrangement', () => {
         presets={[TEMP_PRESET, { ...RH_PRESET, defaultHidden: true }]}
         currentSlug={current.slug}
         pages={PAGES}
+        timeZone="America/Los_Angeles"
       />,
     )
     expect(screen.getByRole('button', { name: 'Edit graphs 1 hidden' })).toBeInTheDocument()
