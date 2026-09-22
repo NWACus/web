@@ -233,11 +233,13 @@ export const TenantSelectionProviderClient = ({
   }, [userID, userChanged, syncTenants, tenantOptions, initialValue, router])
 
   /**
-   * If there is no initial value, clear the tenant and refresh the router.
-   * Needed for stale tenant slugs set as a cookie.
+   * A cookie with no matching initial value is stale (unknown slug, or one this
+   * user can't access): clear it and refresh. With no cookie there is nothing to
+   * clear, and the refresh would re-render the edit view's server state and wipe
+   * whatever the user has typed in the meantime.
    */
   useEffect(() => {
-    if (!initialValue) {
+    if (!initialValue && getTenantCookie()) {
       setTenant({ slug: undefined, refresh: true })
     }
   }, [initialValue, setTenant])

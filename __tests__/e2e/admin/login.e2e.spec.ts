@@ -3,7 +3,7 @@ import { openNav } from '../fixtures/nav.fixture'
 import { testUsers } from '../fixtures/test-users'
 import { performLogin } from '../helpers'
 
-test.describe.configure({ mode: 'serial', timeout: 90000 })
+test.describe.configure({ timeout: 90000 })
 
 test.describe('Payload CMS Login', () => {
   test.beforeEach(async ({ page }) => {

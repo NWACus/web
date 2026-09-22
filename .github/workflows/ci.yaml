@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - main
+  # Manual runs (the "Run workflow" button) exercise the e2e job, which otherwise only runs in the merge queue.
+  workflow_dispatch: {}
 
 defaults:
   run:
@@ -179,13 +181,17 @@ jobs:
       - name: 🧹 Run fallow check (whole-repo regression)
         run: pnpm fallow:check
 
-  e2e:
-    name: e2e
-    if: github.event_name == 'merge_group'
+  e2e-shard:
+    name: e2e shard ${{ matrix.shard }}
+    if: github.event_name == 'merge_group' || github.event_name == 'workflow_dispatch'
     environment: Preview
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
     container: mcr.microsoft.com/playwright:v1.58.0-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     env:
       DATABASE_URI: 'file:./dev.db'
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
@@ -200,8 +206,10 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 24.x
-          # No `cache: pnpm` here: inside the Playwright container the pnpm store path
-          # differs from the host jobs, so the cache never hits and saving it costs ~50s.
+          # Inside the Playwright container the pnpm store path differs from the host
+          # jobs, so the cache never hits and saving it in the post-step costs ~50s.
+          # setup-node@v5 caches by default, so it has to be switched off explicitly.
+          package-manager-cache: false
       - name: 📦 Install dependencies
         run: pnpm ii
         shell: bash
@@ -221,14 +229,28 @@ jobs:
       - name: ⏳ Wait for server
         run: timeout 120 bash -c 'until curl -sf http://localhost:3000/admin/login > /dev/null; do sleep 2; done'
       - name: 🧪 Run E2E tests
-        run: pnpm test:e2e
+        run: pnpm test:e2e --shard=${{ matrix.shard }}/${{ strategy.job-total }}
       - name: 📤 Upload Playwright report
         uses: actions/upload-artifact@v6
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: playwright-report-shard-${{ matrix.shard }}
           path: playwright-report/
           retention-days: 14
+
+  # Branch protection requires a check named `e2e`, so this collects the shard results under that name.
+  e2e:
+    name: e2e
+    if: ${{ !cancelled() && (github.event_name == 'merge_group' || github.event_name == 'workflow_dispatch') }}
+    needs: e2e-shard
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    steps:
+      - name: Check shard results
+        run: |
+          if [[ "${{ needs.e2e-shard.result }}" != "success" ]]; then
+            echo "e2e shards finished with result: ${{ needs.e2e-shard.result }}"
+            exit 1
+          fi
 
   migrations-check:
     name: migrations-check
