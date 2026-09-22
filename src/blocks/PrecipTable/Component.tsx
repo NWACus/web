@@ -6,11 +6,11 @@ import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { toPrecipColumns } from '@/services/stations/precipColumns'
 
 // The fetch's revalidate also becomes the page's: Next takes the shortest
-// revalidate of any fetch on the route. That regenerates the whole page (nav,
-// footer, every other block and their database reads), not just the table,
-// six times more often than the page default of an hour. Ten minutes matches
-// the station pages; the legacy route refreshed every five.
-const REVALIDATE_SECONDS = 600
+// revalidate of any fetch on the route, and regenerating means the whole page
+// (nav, footer, every other block and their database reads), not just the
+// table. SnowObs ingests the loggers' hourly reports once an hour, so an hour
+// matches the data and leaves the page on its default cadence.
+const REVALIDATE_SECONDS = 3600
 
 type Props = PrecipTableBlockProps & { center: string }
 
