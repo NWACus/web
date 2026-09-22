@@ -8,6 +8,7 @@ const table: PrecipAccumulationData = {
   rows: [
     {
       stid: 'A',
+      source: 'nwac',
       name: 'Alta',
       latitude: 47,
       longitude: -121.5,

@@ -55,6 +55,7 @@ const response: SnowObsTimeseriesResponse = {
     {
       id: '4',
       stid: '4',
+      source: 'nwac',
       name: 'Wind Only',
       latitude: 47.0,
       longitude: -121.3,
@@ -113,7 +114,7 @@ describe('buildPrecipAccumulationTable', () => {
   })
 
   it('leaves out a station with no precipitation series, gauge or not', () => {
-    const withWind = buildPrecipAccumulationTable(response, ['1', '4'])
+    const withWind = buildPrecipAccumulationTable(response, [ref('1'), ref('4')])
     expect(withWind.rows.map((r) => r.stid)).toEqual(['1'])
   })
 

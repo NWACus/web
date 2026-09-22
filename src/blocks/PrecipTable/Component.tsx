@@ -25,10 +25,7 @@ export async function PrecipTableBlockComponent({ center, stations, columns }: P
       revalidate: REVALIDATE_SECONDS,
       windowHours: 72,
     })
-    table = buildPrecipAccumulationTable(
-      response,
-      refs.map((s) => s.stid),
-    )
+    table = buildPrecipAccumulationTable(response, refs)
   } catch {
     // Already logged with its context by fetchStationTimeseries; the page must
     // still render, so the table's place says so instead of the error boundary.
