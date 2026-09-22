@@ -19,8 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
+import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
 import type { DragEndEvent } from '@dnd-kit/core'
 import {
@@ -40,6 +40,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { ArrowDown, ArrowUp, GripVertical, SlidersHorizontal, X } from 'lucide-react'
 import type { GraphPreset } from './stationGraphPresets'
+import { MAX_COMPARE_STATIONS } from './stationGraphPresets'
 import type { StationPeriod } from './stationPeriods'
 import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
 import { StationSelectGroups, stationSelectTriggerClass } from './StationPicker'
@@ -87,11 +88,13 @@ export function PeriodSelect({
 }
 
 export function CompareSelect({
+  pages,
   currentSlug,
   compareSlugs,
   onCompareChange,
   className,
 }: {
+  pages: StationPageSummary[]
   currentSlug: string
   compareSlugs: string[]
   onCompareChange: (slugs: string[]) => void
@@ -113,28 +116,34 @@ export function CompareSelect({
         />
       </SelectTrigger>
       <SelectContent position="item-aligned">
-        <StationSelectGroups excludeSlugs={[currentSlug, ...compareSlugs]} excludeArchived />
+        <StationSelectGroups
+          pages={pages}
+          excludeSlugs={[currentSlug, ...compareSlugs]}
+          excludeArchived
+        />
       </SelectContent>
     </Select>
   )
 }
 
 export function CompareChips({
+  pages,
   compareSlugs,
   onRemove,
 }: {
+  pages: StationPageSummary[]
   compareSlugs: string[]
   onRemove: (slug: string) => void
 }) {
-  const selected = compareSlugs.flatMap((slug) => getStationGroup(slug) ?? [])
+  const selected = compareSlugs.flatMap((slug) => pages.find((page) => page.slug === slug) ?? [])
 
-  return selected.map((group) => (
-    <span key={group.slug} className={chipClass}>
-      {group.displayName}
+  return selected.map((page) => (
+    <span key={page.slug} className={chipClass}>
+      {page.displayName}
       <button
         type="button"
-        aria-label={`Remove ${group.displayName}`}
-        onClick={() => onRemove(group.slug)}
+        aria-label={`Remove ${page.displayName}`}
+        onClick={() => onRemove(page.slug)}
         className="text-muted-foreground hover:text-foreground"
       >
         <X className="h-3.5 w-3.5" />
@@ -157,6 +166,7 @@ function MobileViewControls(props: EditViewProps) {
       <div className="flex flex-col gap-2">
         <span className={sectionLabelClass}>Compare stations</span>
         <CompareSelect
+          pages={props.pages}
           currentSlug={props.currentSlug}
           compareSlugs={props.compareSlugs}
           onCompareChange={props.onCompareChange}
@@ -165,6 +175,7 @@ function MobileViewControls(props: EditViewProps) {
         {props.compareSlugs.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
             <CompareChips
+              pages={props.pages}
               compareSlugs={props.compareSlugs}
               onRemove={(slug) =>
                 props.onCompareChange(props.compareSlugs.filter((s) => s !== slug))
@@ -286,6 +297,7 @@ function GraphList({
 }
 
 export type EditViewProps = {
+  pages: StationPageSummary[]
   graphPeriod: StationPeriod
   onPeriodChange: (period: StationPeriod) => void
   unitSystem: UnitSystem

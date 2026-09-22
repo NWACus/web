@@ -29,7 +29,7 @@ describe('buildBreadcrumbs', () => {
       expect(items.map((item) => item.name)).toEqual(['observations', 'submit an obs'])
     })
 
-    it('does not link known paths without pages, including stations on a non-NWAC center', () => {
+    it('does not link known paths without pages, including stations on a center without station pages', () => {
       const items = buildBreadcrumbs({ center: 'dvac', path: '/weather/stations/map' })
 
       expect(items).toEqual([
@@ -39,8 +39,12 @@ describe('buildBreadcrumbs', () => {
       ])
     })
 
-    it('links the stations crumb on NWAC, which has a stations index page', () => {
-      const items = buildBreadcrumbs({ center: 'nwac', path: '/weather/stations/map' })
+    it('links the stations crumb on a center with a stations index', () => {
+      const items = buildBreadcrumbs({
+        center: 'sac',
+        path: '/weather/stations/map',
+        hasStationsIndex: true,
+      })
 
       expect(items).toEqual([
         { name: 'weather', href: null, isLast: false, isDerived: true },

@@ -5,7 +5,10 @@ import Script from 'next/script'
 import type { FormEvent, ReactNode, RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-type Datalogger = { stid: string; label: string }
+import type { StationRef } from '@/services/snowobs/stationKey'
+import { parseStationKey, stationKey } from '@/services/snowobs/stationKey'
+
+export type Datalogger = { station: StationRef; label: string }
 
 type TurnstileRenderParams = {
   sitekey: string
@@ -153,7 +156,8 @@ export function StationCsvForm({
     setDownloading(true)
     setFailed(false)
     try {
-      const name = `${slug}-${params.get('stid')}-${params.get('year')}.csv`
+      const stid = parseStationKey(params.get('station') ?? '')?.stid ?? 'station'
+      const name = `${slug}-${stid}-${params.get('year')}.csv`
       await downloadCsv(`${action}?${params.toString()}`, name)
     } catch {
       setFailed(true)
@@ -172,9 +176,9 @@ export function StationCsvForm({
       className="flex min-h-96 flex-col items-start gap-4"
     >
       <div className="flex flex-wrap items-end gap-3">
-        <FormSelect label="Datalogger" name="stid">
+        <FormSelect label="Datalogger" name="station">
           {dataloggers.map((datalogger) => (
-            <option key={datalogger.stid} value={datalogger.stid}>
+            <option key={stationKey(datalogger.station)} value={stationKey(datalogger.station)}>
               {datalogger.label}
             </option>
           ))}

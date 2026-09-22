@@ -14,6 +14,8 @@ export type BuildBreadcrumbsArgs = {
   title?: string
   /** Explicit labels for any crumb, keyed by the crumb's cumulative path. */
   labels?: Record<string, string>
+  /** Whether the center has a `/weather/stations` index to link the stations crumb to. */
+  hasStationsIndex?: boolean
 }
 
 // First path segments that are served by native Next.js routes rather than the CMS
@@ -23,14 +25,11 @@ const NATIVE_ROUTE_ROOTS = ['blog', 'events', 'forecasts', 'observations', 'weat
 
 const KNOWN_PATHS_WITHOUT_PAGES = ['/forecasts', '/weather', '/observations/avalanches']
 
-// Only NWAC has a /weather/stations index page, so only its crumb links.
-const STATIONS_INDEX_CENTER = 'nwac'
-
 export function buildBreadcrumbs({
-  center,
   path,
   title,
   labels = {},
+  hasStationsIndex = false,
 }: BuildBreadcrumbsArgs): BreadcrumbItemData[] {
   const segments = path
     .split('/')
@@ -40,7 +39,7 @@ export function buildBreadcrumbs({
   if (segments.length === 0) return []
 
   const pathsWithoutPages = [...KNOWN_PATHS_WITHOUT_PAGES]
-  if (center !== STATIONS_INDEX_CENTER) pathsWithoutPages.push('/weather/stations')
+  if (!hasStationsIndex) pathsWithoutPages.push('/weather/stations')
 
   const isCmsPath = !NATIVE_ROUTE_ROOTS.includes(segments[0])
 

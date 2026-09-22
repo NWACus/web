@@ -1,18 +1,18 @@
-import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
-import { MAX_COMPARE_STATIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
+import {
+  MAX_COMPARE_STATIONS,
+  STATION_GRAPH_PRESETS,
+} from '@/components/WeatherStations/stationGraphPresets'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
-import { fetchStationTimeseries, SnowObsError, stationRefs } from '@/services/snowobs/snowobs'
-import { hasStationRegistry } from '@/services/stations/registry'
+import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
+import type { StationRef } from '@/services/snowobs/stationKey'
+import { parseStationKey } from '@/services/snowobs/stationKey'
+import type { AssembledStationPage } from '@/services/stations/getStationPages'
+import { allStations, getStationPages } from '@/services/stations/getStationPages'
 import { NextResponse } from 'next/server'
 
 // Serves the station Graphs tab. Reads SnowObs server-side (token stays
 // hidden); windows longer than 30 days aggregate to daily min/mean/max.
 
-const KNOWN_STIDS = new Set(NWAC_WEATHER_STATION_GROUPS.flatMap((g) => g.stids))
-// Caps sized to the Graphs tab's single fetch: the page's station group plus
-// every comparison pick, and the union of all preset variables.
-const MAX_GROUP_STIDS = Math.max(...NWAC_WEATHER_STATION_GROUPS.map((g) => g.stids.length))
-const MAX_STATIONS = (1 + MAX_COMPARE_STATIONS) * MAX_GROUP_STIDS
 const MAX_VARIABLES = new Set(STATION_GRAPH_PRESETS.flatMap((p) => p.variables)).size
 const MAX_WINDOW_MS = 5 * 366 * 24 * 60 * 60 * 1000 // ~5 years, verified against SnowObs
 const REVALIDATE_SECONDS = 300
@@ -34,16 +34,34 @@ function listBounds(name: string, values: string[], max: number): string | null 
   return values.length === 0 || values.length > max ? `${name} must list 1-${max} entries` : null
 }
 
-function unknownStids(stids: string[]): string | null {
-  const unknown = stids.filter((stid) => !KNOWN_STIDS.has(stid))
-  return unknown.length > 0 ? `unknown stids: ${unknown.join(',')}` : null
+// Caps sized to the Graphs tab's single fetch: the page's stations plus every
+// comparison pick, and the union of all preset variables.
+function maxStations(pages: AssembledStationPage[]): number {
+  const largestPage = Math.max(1, ...pages.map((page) => page.stations.length))
+  return (1 + MAX_COMPARE_STATIONS) * largestPage
 }
 
-function validateLists(stids: string[], vars: string[]): string | null {
+function unknownStations(keys: string[], known: Set<string>): string | null {
+  const unknown = keys.filter((key) => !known.has(key))
+  return unknown.length > 0 ? `unknown stations: ${unknown.join(',')}` : null
+}
+
+function malformedKeys(keys: string[]): string | null {
+  return keys.some((key) => parseStationKey(key) === null)
+    ? 'stations must be source:stid pairs'
+    : null
+}
+
+function validateLists(
+  keys: string[],
+  vars: string[],
+  pages: AssembledStationPage[],
+): string | null {
   return (
-    listBounds('stids', stids, MAX_STATIONS) ??
+    listBounds('stations', keys, maxStations(pages)) ??
     listBounds('vars', vars, MAX_VARIABLES) ??
-    unknownStids(stids)
+    malformedKeys(keys) ??
+    unknownStations(keys, new Set(allStations(pages).keys()))
   )
 }
 
@@ -62,13 +80,17 @@ function dateParam(url: URL, name: string): Date {
 
 function parseQuery(
   url: URL,
-): NextResponse | { stids: string[]; vars: string[]; from: Date; to: Date } {
-  const stids = csvParam(url.searchParams.get('stids'))
+  pages: AssembledStationPage[],
+): NextResponse | { stations: StationRef[]; vars: string[]; from: Date; to: Date } {
+  const keys = csvParam(url.searchParams.get('stations'))
   const vars = csvParam(url.searchParams.get('vars'))
   const from = dateParam(url, 'from')
   const to = dateParam(url, 'to')
-  const error = validateLists(stids, vars) ?? validateWindow(from, to)
-  return error ? badRequest(error) : { stids, vars, from, to }
+  const error = validateLists(keys, vars, pages) ?? validateWindow(from, to)
+  if (error) return badRequest(error)
+  // Every key passed validation, so each resolves to a station on a page.
+  const known = allStations(pages)
+  return { stations: keys.flatMap((key) => known.get(key) ?? []), vars, from, to }
 }
 
 // CRAP is inflated by the lack of unit coverage on this route handler.
@@ -78,22 +100,23 @@ export async function GET(
   { params }: { params: Promise<Params> },
 ): Promise<NextResponse> {
   const { center } = await params
-  if (!(await hasStationRegistry(center))) {
+  const pages = await getStationPages(center)
+  if (pages.length === 0) {
     return NextResponse.json({ error: 'not found' }, { status: 404 })
   }
 
-  const parsed = parseQuery(new URL(request.url))
+  const parsed = parseQuery(new URL(request.url), pages)
   if (parsed instanceof NextResponse) return parsed
-  const { stids, vars, from, to } = parsed
+  const { stations, vars, from, to } = parsed
 
   try {
-    const response = await fetchStationTimeseries(center, stationRefs(center, stids), {
+    const response = await fetchStationTimeseries(center, stations, {
       start: from,
       end: to,
       revalidate: REVALIDATE_SECONDS,
       rawData: true,
     })
-    const data = buildGraphData(response, stids, vars, windowExceedsThreshold(from, to))
+    const data = buildGraphData(response, stations, vars, windowExceedsThreshold(from, to))
     return NextResponse.json(data, {
       headers: {
         'Cache-Control': `public, s-maxage=${REVALIDATE_SECONDS}, stale-while-revalidate=60`,

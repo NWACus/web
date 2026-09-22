@@ -13,7 +13,9 @@ const T = 1_700_000_000_000
 function rawSeries(variable: string, unit: string, value: number): GraphData['series'][number] {
   return {
     kind: 'raw',
+    key: 'nwac:1',
     stid: '1',
+    source: 'nwac',
     stationName: 'Station 1',
     variable,
     label: 'Station 1',
@@ -46,7 +48,9 @@ describe('convertGraphData', () => {
       series: [
         {
           kind: 'daily',
+          key: 'nwac:1',
           stid: '1',
+          source: 'nwac',
           stationName: 'Station 1',
           variable: 'air_temp',
           label: 'Station 1',
@@ -81,7 +85,9 @@ describe('clampNegativeValues', () => {
         rawSeries('snow_depth', 'in', -0.4),
         {
           kind: 'daily',
+          key: 'nwac:1',
           stid: '1',
+          source: 'nwac',
           stationName: 'Station 1',
           variable: 'wind_speed',
           label: 'Station 1',

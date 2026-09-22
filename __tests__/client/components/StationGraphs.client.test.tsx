@@ -1,9 +1,46 @@
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { buildChartOption } from '@/components/WeatherStations/stationGraphOptions'
-import { NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
+import type { StationPageSummary } from '@/services/stations/stationPages'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+
+const ref = (stid: string) => ({ stid, source: 'nwac' })
+const keysOf = (page: StationPageSummary) => page.stations.map((s) => `${s.source}:${s.stid}`)
+
+// Five pages, so the compare picker has enough to fill and overflow its cap.
+const PAGES: StationPageSummary[] = [
+  {
+    slug: 'alpental',
+    displayName: 'Alpental Ski Area',
+    archived: false,
+    stations: [ref('3'), ref('2'), ref('1')],
+  },
+  {
+    slug: 'hurricane-ridge',
+    displayName: 'Hurricane Ridge',
+    archived: false,
+    stations: [ref('4')],
+  },
+  {
+    slug: 'mt-baker-ski-area',
+    displayName: 'Mt. Baker Ski Area',
+    archived: false,
+    stations: [ref('6'), ref('5')],
+  },
+  {
+    slug: 'paradise',
+    displayName: 'Paradise',
+    archived: false,
+    stations: [ref('35'), ref('36')],
+  },
+  {
+    slug: 'white-pass',
+    displayName: 'White Pass Ski Area',
+    archived: false,
+    stations: [ref('39'), ref('37'), ref('49')],
+  },
+]
 
 const TEMP_PRESET = { key: 'temp', title: 'Temperature', variables: ['air_temp'] }
 const RH_PRESET = { key: 'rh', title: 'Relative Humidity', variables: ['relative_humidity'] }
@@ -42,7 +79,9 @@ function pickOption(name: string) {
 function series(stid: string, variable = 'air_temp'): GraphData['series'][number] {
   return {
     kind: 'raw',
+    key: `nwac:${stid}`,
     stid,
+    source: 'nwac',
     stationName: `Station ${stid}`,
     variable,
     label: `Station ${stid}`,
@@ -77,12 +116,12 @@ function seriesLineTypes(option: Record<string, unknown>): (string | undefined)[
 describe('buildChartOption comparison styling', () => {
   const data: GraphData = { series: [series('1'), series('9')], aggregated: false, timezone: 'x' }
 
-  it('dashes series from stations outside primaryStids', () => {
-    const option = buildChartOption(data, TEMP_PRESET, ['1'])
+  it('dashes series from stations outside primaryKeys', () => {
+    const option = buildChartOption(data, TEMP_PRESET, ['nwac:1'])
     expect(seriesLineTypes(option)).toEqual([undefined, 'dashed'])
   })
 
-  it('leaves everything solid when primaryStids is omitted', () => {
+  it('leaves everything solid when primaryKeys is omitted', () => {
     const option = buildChartOption(data, TEMP_PRESET)
     expect(seriesLineTypes(option)).toEqual([undefined, undefined])
   })
@@ -146,7 +185,9 @@ describe('buildChartOption wind band', () => {
   function wind(variable: string, value: number | null): GraphData['series'][number] {
     return {
       kind: 'raw',
+      key: 'nwac:1',
       stid: '1',
+      source: 'nwac',
       stationName: 'Station 1',
       variable,
       label: 'Station 1',
@@ -195,8 +236,7 @@ describe('buildChartOption wind band', () => {
 })
 
 describe('StationGraphs compare picker', () => {
-  const [current, other, third, fourth, fifth] = NWAC_WEATHER_STATION_GROUPS
-  if (!fifth) throw new Error('registry needs at least five groups')
+  const [current, other, third, fourth] = PAGES
 
   const emptyData: GraphData = { series: [], aggregated: false, timezone: 'x' }
 
@@ -214,7 +254,12 @@ describe('StationGraphs compare picker', () => {
 
   function renderGraphs() {
     render(
-      <StationGraphs stids={current.stids} presets={[TEMP_PRESET]} currentSlug={current.slug} />,
+      <StationGraphs
+        stations={current.stations}
+        presets={[TEMP_PRESET]}
+        currentSlug={current.slug}
+        pages={PAGES}
+      />,
     )
   }
 
@@ -233,13 +278,13 @@ describe('StationGraphs compare picker', () => {
     }
   }
 
-  it('refetches with the stids of each added station appended', () => {
+  it('refetches with the stations of each added page appended', () => {
     renderWithCompares(other, third)
 
-    const expected = [...current.stids, ...other.stids, ...third.stids].join(',')
-    expect(fetchedUrls().some((url) => url.includes(`stids=${encodeURIComponent(expected)}`))).toBe(
-      true,
-    )
+    const expected = [...keysOf(current), ...keysOf(other), ...keysOf(third)].join(',')
+    expect(
+      fetchedUrls().some((url) => url.includes(`stations=${encodeURIComponent(expected)}`)),
+    ).toBe(true)
   })
 
   it('removes a station via its toolbar chip', () => {
@@ -247,8 +292,8 @@ describe('StationGraphs compare picker', () => {
     fireEvent.click(screen.getByLabelText(`Remove ${other.displayName}`))
 
     const urls = fetchedUrls()
-    const expected = [...current.stids, ...third.stids].join(',')
-    expect(urls[urls.length - 1]).toContain(`stids=${encodeURIComponent(expected)}`)
+    const expected = [...keysOf(current), ...keysOf(third)].join(',')
+    expect(urls[urls.length - 1]).toContain(`stations=${encodeURIComponent(expected)}`)
   })
 
   it('shows removable chips for compared stations in the toolbar', () => {
@@ -273,7 +318,7 @@ describe('StationGraphs compare picker', () => {
 })
 
 describe('StationGraphs chart arrangement', () => {
-  const current = NWAC_WEATHER_STATION_GROUPS[0]
+  const current = PAGES[0]
   const fetchMock = jest.fn()
   // One response serves both charts: a series per preset variable.
   const dataWithSeries: GraphData = {
@@ -292,9 +337,10 @@ describe('StationGraphs chart arrangement', () => {
   function renderGraphs() {
     render(
       <StationGraphs
-        stids={current.stids}
+        stations={current.stations}
         presets={[TEMP_PRESET, RH_PRESET]}
         currentSlug={current.slug}
+        pages={PAGES}
       />,
     )
   }
@@ -345,9 +391,10 @@ describe('StationGraphs chart arrangement', () => {
   it('starts a defaultHidden graph off, still listed in the dialog', () => {
     render(
       <StationGraphs
-        stids={current.stids}
+        stations={current.stations}
         presets={[TEMP_PRESET, { ...RH_PRESET, defaultHidden: true }]}
         currentSlug={current.slug}
+        pages={PAGES}
       />,
     )
     expect(screen.getByRole('button', { name: 'Edit graphs 1 hidden' })).toBeInTheDocument()

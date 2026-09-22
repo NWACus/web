@@ -1,8 +1,10 @@
 'use client'
 
-import { getStationGroup } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
+import type { StationRef } from '@/services/snowobs/stationKey'
+import { stationKey } from '@/services/snowobs/stationKey'
+import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
 import { Loader2, X } from 'lucide-react'
@@ -38,9 +40,9 @@ function periodRange(period: StationPeriod): { from: Date; to: Date } {
   return { from: subHours(to, period.hoursBack(to)), to }
 }
 
-function graphDataUrl(stids: string[], variables: string[], from: Date, to: Date): string {
+function graphDataUrl(stations: StationRef[], variables: string[], from: Date, to: Date): string {
   const params = new URLSearchParams({
-    stids: stids.join(','),
+    stations: stations.map(stationKey).join(','),
     vars: variables.join(','),
     from: from.toISOString(),
     to: to.toISOString(),
@@ -50,7 +52,7 @@ function graphDataUrl(stids: string[], variables: string[], from: Date, to: Date
 
 // One fetch serves every chart: the union of all preset variables for all
 // selected stations.
-function useGraphData(stids: string[], variables: string[], period: StationPeriod) {
+function useGraphData(stations: StationRef[], variables: string[], period: StationPeriod) {
   const [data, setData] = useState<GraphData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -60,7 +62,7 @@ function useGraphData(stids: string[], variables: string[], period: StationPerio
     const controller = new AbortController()
     setError(null)
     setLoading(true)
-    fetch(graphDataUrl(stids, variables, from, to), { signal: controller.signal })
+    fetch(graphDataUrl(stations, variables, from, to), { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
       .then(setData)
       .catch((err: unknown) => {
@@ -70,7 +72,7 @@ function useGraphData(stids: string[], variables: string[], period: StationPerio
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [stids, variables, period])
+  }, [stations, variables, period])
 
   return { data, error, loading }
 }
@@ -89,12 +91,12 @@ function ChartFrame({ loading, children }: { loading: boolean; children: ReactNo
 function PresetChart({
   preset,
   data,
-  primaryStids,
+  primaryKeys,
   unitSystem,
 }: {
   preset: GraphPreset
   data: GraphData
-  primaryStids: string[]
+  primaryKeys: string[]
   unitSystem: UnitSystem
 }) {
   const presetData = useMemo(() => {
@@ -106,8 +108,8 @@ function PresetChart({
     return convertGraphData(clamped, unitSystem)
   }, [data, preset, unitSystem])
   const option = useMemo(
-    () => buildChartOption(presetData, convertPreset(preset, unitSystem), primaryStids),
-    [presetData, preset, unitSystem, primaryStids],
+    () => buildChartOption(presetData, convertPreset(preset, unitSystem), primaryKeys),
+    [presetData, preset, unitSystem, primaryKeys],
   )
   return <EChart option={option} group="station-graphs" />
 }
@@ -120,7 +122,7 @@ function emptyPresetKeys(data: GraphData | null, presets: GraphPreset[]): Set<st
 
 function GraphsCharts({
   presets,
-  primaryStids,
+  primaryKeys,
   arrangement,
   data,
   error,
@@ -128,7 +130,7 @@ function GraphsCharts({
   unitSystem,
 }: {
   presets: GraphPreset[]
-  primaryStids: string[]
+  primaryKeys: string[]
   arrangement: ReturnType<typeof useChartArrangement>
   data: GraphData | null
   error: string | null
@@ -161,7 +163,7 @@ function GraphsCharts({
             <PresetChart
               preset={preset}
               data={data}
-              primaryStids={primaryStids}
+              primaryKeys={primaryKeys}
               unitSystem={unitSystem}
             />
           </div>
@@ -181,6 +183,7 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
         <div className="hidden sm:contents">
           <CompareSelect
+            pages={props.pages}
             currentSlug={props.currentSlug}
             compareSlugs={compareSlugs}
             onCompareChange={onCompareChange}
@@ -189,6 +192,7 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
         {compareSlugs.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
             <CompareChips
+              pages={props.pages}
               compareSlugs={compareSlugs}
               onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
             />
@@ -208,39 +212,51 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
   )
 }
 
-// The page's stids plus each comparison group's, deduped in selection order.
-function combinedStids(stids: string[], compareSlugs: string[]): string[] {
-  const combined = [...stids]
+function combinedStations(
+  stations: StationRef[],
+  compareSlugs: string[],
+  pages: StationPageSummary[],
+): StationRef[] {
+  const combined = [...stations]
+  const seen = new Set(stations.map(stationKey))
   for (const slug of compareSlugs) {
-    for (const stid of getStationGroup(slug)?.stids ?? []) {
-      if (!combined.includes(stid)) combined.push(stid)
+    for (const station of pages.find((page) => page.slug === slug)?.stations ?? []) {
+      if (seen.has(stationKey(station))) continue
+      seen.add(stationKey(station))
+      combined.push(station)
     }
   }
   return combined
 }
 
 export function StationGraphs({
-  stids,
+  stations,
   presets,
   currentSlug,
+  pages,
   tabs,
 }: {
-  stids: string[]
+  stations: StationRef[]
   presets: GraphPreset[]
   currentSlug: string
+  pages: StationPageSummary[]
   tabs?: ReactNode
 }) {
   const [graphPeriod, setStationPeriod] = useState(DEFAULT_GRAPH_PERIOD)
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
   const [unitSystem, changeUnitSystem] = useUnitSystem()
 
-  const allStids = useMemo(() => combinedStids(stids, compareSlugs), [stids, compareSlugs])
+  const allStations = useMemo(
+    () => combinedStations(stations, compareSlugs, pages),
+    [stations, compareSlugs, pages],
+  )
+  const primaryKeys = useMemo(() => stations.map(stationKey), [stations])
   const variables = useMemo(
     () => Array.from(new Set(presets.flatMap((p) => p.variables))),
     [presets],
   )
 
-  const { data, error, loading } = useGraphData(allStids, variables, graphPeriod)
+  const { data, error, loading } = useGraphData(allStations, variables, graphPeriod)
 
   const emptyKeys = useMemo(() => emptyPresetKeys(data, presets), [data, presets])
 
@@ -254,6 +270,7 @@ export function StationGraphs({
     <div className="flex flex-col gap-6">
       <GraphsToolbar
         tabs={tabs}
+        pages={pages}
         graphPeriod={graphPeriod}
         onPeriodChange={setStationPeriod}
         unitSystem={unitSystem}
@@ -266,7 +283,7 @@ export function StationGraphs({
       />
       <GraphsCharts
         presets={presets}
-        primaryStids={stids}
+        primaryKeys={primaryKeys}
         arrangement={arrangement}
         data={data}
         error={error}

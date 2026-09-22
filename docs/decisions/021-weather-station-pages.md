@@ -52,7 +52,7 @@ The center's slug is not assumed to be a source anywhere. For SAC and SNFAC it i
 
 ### The public pages read one cached object
 
-The assembled `StationPage` (page row plus its ordered station refs plus a flat `stids` list) is built once per center in `unstable_cache` under a single tag, `station-pages:<center>`; the settings document is cached under the same tag, and both collections' `afterChange` / `afterDelete` hooks bust it. The graph-data route's allowlist and request caps derive from the same object, so moving a station between pages in the admin changes the table, the graphs, the CSV form, the precip table and the allowlist together on the next request.
+The `AssembledStationPage` (page row plus its ordered station refs plus a flat `stids` list) is built once per center in `unstable_cache` under a single tag, `station-pages:<center>`; the settings document is cached under the same tag, and both collections' `afterChange` / `afterDelete` hooks bust it. The graph-data route's allowlist and request caps derive from the same object, so moving a station between pages in the admin changes the table, the graphs, the CSV form, the precip table and the allowlist together on the next request.
 
 ### A center has station pages when it has rows
 
@@ -70,6 +70,7 @@ The migration `20260918_223529_station_pages` creates the table. A second, `2026
 
 - **Editors own station decisions.** Renaming a page, moving a logger between pages, ordering loggers, dropping a gauge from the precip table and archiving a page are admin edits that show on the next request. None of them is a deploy.
 - **There is no station list in AvyWeb to maintain, and there must not be one.** Do not add a `stations` collection, a sync, or a cron. A center curates its stations in SnowObs; AvyWeb picks from that list. A station SnowObs stops tracking is flagged on the page that shows it, and an admin decides whether to remove it.
+- **A station's identity is `(source, stid)` everywhere.** A stid is unique only within a source, and SnowObs tags each station in a response with its source, so every lookup, table column key, graph series key and query string uses the pair (`stationKey`, `nwac:1`). Nothing relies on ids being distinct across sources.
 - **A station can be on more than one page.** The registry never did this, but nothing enforces it; the graph-data and CSV routes key a bare stid back to its source through the pages, and the first page listing it wins.
 - **The admin depends on SnowObs at edit time.** The public site already hard-depends on SnowObs at render, so this adds no new runtime dependency, but an outage means the picker shows stored ids, not names. The endpoint's hour-long cache covers short blips.
 - **Any station edit busts the whole center.** One tag covers the index, every station page, the precip table and the graph-data allowlist. That is cheap because they re-read on the next request only, and it means there is no per-page revalidation to reason about. Lengthening ISR windows ([#1281](https://github.com/NWACus/web/issues/1281)) does not change this.

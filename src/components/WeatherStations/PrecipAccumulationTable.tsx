@@ -278,7 +278,7 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
         </StationTableHeader>
         <TableBody>
           {rows.map((row) => (
-            <StationRow key={row.stid} row={row} unit={unit} />
+            <StationRow key={`${row.source}:${row.stid}`} row={row} unit={unit} />
           ))}
         </TableBody>
       </StationTableFrame>

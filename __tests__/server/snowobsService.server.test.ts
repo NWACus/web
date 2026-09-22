@@ -28,6 +28,7 @@ const validResponse: SnowObsTimeseriesResponse = {
     {
       id: '4',
       stid: '4',
+      source: 'nwac',
       name: 'Test Station',
       elevation: 1000,
       observations: { date_time: ['2026-07-07T00:00:00Z'], air_temp: [30] },

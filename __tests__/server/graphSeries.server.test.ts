@@ -22,6 +22,7 @@ const response: SnowObsTimeseriesResponse = {
     {
       id: '4',
       stid: '4',
+      source: 'nwac',
       name: 'Hurricane Ridge',
       latitude: 47.9,
       longitude: -123.4,
@@ -35,9 +36,11 @@ const response: SnowObsTimeseriesResponse = {
   ],
 }
 
+const ref = (stid: string) => ({ stid, source: 'nwac' })
+
 describe('buildGraphData', () => {
   it('emits one raw series per station/variable with nulls preserved', () => {
-    const data = buildGraphData(response, ['4'], ['air_temp', 'snow_depth'], false)
+    const data = buildGraphData(response, [ref('4')], ['air_temp', 'snow_depth'], false)
     expect(data.aggregated).toBe(false)
     expect(data.series).toHaveLength(2)
     const temp = data.series[0]
@@ -48,12 +51,17 @@ describe('buildGraphData', () => {
   })
 
   it('skips unknown stations and absent variables', () => {
-    const data = buildGraphData(response, ['4', 'nope'], ['air_temp', 'wind_speed'], false)
+    const data = buildGraphData(
+      response,
+      [ref('4'), ref('nope')],
+      ['air_temp', 'wind_speed'],
+      false,
+    )
     expect(data.series).toHaveLength(1)
   })
 
   it('aggregates to daily min/mean/max when requested', () => {
-    const data = buildGraphData(response, ['4'], ['air_temp'], true)
+    const data = buildGraphData(response, [ref('4')], ['air_temp'], true)
     const series = data.series[0]
     if (series.kind !== 'daily') throw new Error('expected daily series')
     // 30 and 34 fall on the same display-timezone day; null dropped.

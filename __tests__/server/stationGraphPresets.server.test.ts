@@ -15,7 +15,9 @@ function data(variable: string, values: number[]): GraphData {
     series: [
       {
         kind: 'raw',
+        key: 'nwac:1',
         stid: '1',
+        source: 'nwac',
         stationName: 'Station 1',
         variable,
         label: 'Station 1',
@@ -58,7 +60,9 @@ describe('axis bounds', () => {
       series: [
         {
           kind: 'daily',
+          key: 'nwac:1',
           stid: '1',
+          source: 'nwac',
           stationName: 'Station 1',
           variable: 'precip_accum_one_hour',
           label: 'Station 1',

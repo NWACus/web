@@ -1,5 +1,7 @@
 import { differenceInHours } from 'date-fns'
 import { displayUnit, NWAC_DISPLAY_TIMEZONE } from './constants'
+import type { StationRef } from './stationKey'
+import { stationKey } from './stationKey'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 
 // The graph-data contract: series come back either raw (hourly points) or
@@ -10,7 +12,10 @@ export const DECIMATION_THRESHOLD_DAYS = 30
 
 export type RawGraphSeries = {
   kind: 'raw'
+  /** `source:stid` */
+  key: string
   stid: string
+  source: string
   stationName: string
   variable: string
   label: string
@@ -21,7 +26,9 @@ export type RawGraphSeries = {
 
 export type DailyGraphSeries = {
   kind: 'daily'
+  key: string
   stid: string
+  source: string
   stationName: string
   variable: string
   label: string
@@ -143,7 +150,9 @@ function buildSeries(
   const points = rawPoints(times, values)
   if (points.length === 0) return null
   const base = {
+    key: stationKey(station),
     stid: station.stid,
+    source: station.source,
     stationName: station.name ?? station.stid,
     variable,
     label: seriesLabel(station),
@@ -165,14 +174,14 @@ export function windowExceedsThreshold(from: Date, to: Date): boolean {
 
 export function buildGraphData(
   response: SnowObsTimeseriesResponse,
-  stids: string[],
+  stations: StationRef[],
   variables: string[],
   aggregated: boolean,
 ): GraphData {
-  const stationByStid = new Map(response.STATION.map((s) => [s.stid, s]))
+  const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
   const series: GraphSeries[] = []
-  for (const stid of stids) {
-    const station = stationByStid.get(stid)
+  for (const ref of stations) {
+    const station = byKey.get(stationKey(ref))
     if (!station) continue
     const times = parsedTimes(station)
     for (const variable of variables) {
