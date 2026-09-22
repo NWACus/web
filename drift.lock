@@ -8,7 +8,7 @@ sig = "6e9c5357969669d3"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "12b3582d0e406679"
+sig = "0e94e2f9882f7e7b"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -167,6 +167,11 @@ sig = "092a1be704297a39"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
+target = "src/blocks/Header/Component.tsx"
+sig = "05ca1d3d355b6293"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
 target = "src/blocks/RenderBlocks.tsx"
 sig = "fefbe64af15c5fc2"
 
@@ -178,7 +183,7 @@ sig = "f9e8741dfcaf1662"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/components/BackgroundColorWrapper.tsx"
-sig = "e14a42456b046aa3"
+sig = "6e336af586f5fa9a"
 
 [[bindings]]
 doc = "docs/coding-guide.md"

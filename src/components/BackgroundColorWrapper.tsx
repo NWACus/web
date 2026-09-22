@@ -8,12 +8,13 @@ export function hasBackgroundColor(backgroundColor?: string | null): boolean {
   return !!backgroundColor && backgroundColor !== 'transparent' && backgroundColor !== 'white'
 }
 
-export const BLOCK_MARGIN = 'my-6 md:my-10'
-export const BLOCK_PADDING = 'py-6 md:py-10'
+export const BLOCK_MARGIN = 'my-3 md:my-5'
+export const BLOCK_PADDING = 'py-3 md:py-5'
 
-// Neighboring layout blocks sit 24px apart (40px from md). A block with no background carries
-// that as margin, which collapses with its neighbor's; a block with a background carries it as
-// padding inside the color, so two colored blocks touch. Inline Lexical blocks get no margin.
+// Each block contributes half the gap, so any seam involving a background lands on 40px at md. A
+// block with no background carries its half as margin, which collapses with its neighbor's; a block
+// with a background carries it as padding inside the color, so two colored blocks touch and two
+// plain ones end up half as far apart. Inline Lexical blocks get no margin.
 // `bg` is the background class, only when there is one to paint.
 export function blockSpacing(backgroundColor: string | null | undefined, isLayoutBlock: boolean) {
   const hasBg = hasBackgroundColor(backgroundColor)
