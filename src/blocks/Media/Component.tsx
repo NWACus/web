@@ -7,6 +7,7 @@ import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { resolveMediaSource } from '@/utilities/resolveMediaSource'
 
 type Props = MediaBlockProps & {
   isLayoutBlock: boolean
@@ -24,11 +25,15 @@ export const MediaBlockComponent = (props: Props) => {
     isLayoutBlock = true,
     imgClassName,
     media,
+    sharedMedia,
+    source,
     staticImage,
     alignContent = 'left',
     backgroundColor,
     imageSize = 'original',
   } = props
+
+  const resource = resolveMediaSource({ source, media, sharedMedia })
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -66,7 +71,7 @@ export const MediaBlockComponent = (props: Props) => {
           className,
         )}
       >
-        {(media || staticImage) && (
+        {(resource || staticImage) && (
           <div
             className={cn(
               getImageSizeClasses(),
@@ -81,7 +86,7 @@ export const MediaBlockComponent = (props: Props) => {
                 imageSize !== 'original' && imageSize != null && 'w-full',
                 imgClassName,
               )}
-              resource={media}
+              resource={resource}
               src={staticImage}
               sizes="auto"
             />
