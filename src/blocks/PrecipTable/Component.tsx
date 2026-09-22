@@ -6,11 +6,13 @@ import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { toPrecipColumns } from '@/services/stations/precipColumns'
 
 // The fetch's revalidate also becomes the page's: Next takes the shortest
-// revalidate of any fetch on the route, and regenerating means the whole page
-// (nav, footer, every other block and their database reads), not just the
-// table. SnowObs ingests the loggers' hourly reports once an hour, so an hour
-// matches the data and leaves the page on its default cadence.
-const REVALIDATE_SECONDS = 3600
+// revalidate of any fetch on the route, so the whole page regenerates with the
+// table. ISR counts that window from the last render rather than the clock, so
+// an hourly window against SnowObs's hourly ingest can sit an hour behind the
+// newest reading; 15 minutes bounds it. SnowObs is still read once an hour,
+// since the fetch is cached and bucketed, so the extra cost is render time.
+// Moving the table to a client fetch would decouple the two cadences.
+const REVALIDATE_SECONDS = 900
 
 type Props = PrecipTableBlockProps & { center: string }
 
