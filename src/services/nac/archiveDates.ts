@@ -34,8 +34,8 @@ export interface ArchiveProductSummary {
   /** Forecaster name, for the archive browser's rows. Null on bulk-imported history. */
   author: string | null
   /**
-   * Null on products bulk-imported from a pre-AFP system, which the legacy archive browser hides
-   * (`updated_at != null`). Present only so the native browser can apply the same rule.
+   * Null on stub forecasts (NWAC 2019–2020, SAC 2019–2021: date, zone and overall rating only),
+   * which every legacy view hides (`updated_at != null`). Present only to apply the same rule.
    */
   updated_at: string | null
   forecast_zone: { id: number }[]
@@ -88,6 +88,9 @@ export function validDateHeading(
  * full center archive. Filters to renderable products that cover the zone, collapses
  * each valid date to its most-recently-published product (corrections/re-issues land on
  * the same date), and sorts newest-first.
+ *
+ * Null-`updated_at` stubs are skipped, so they neither appear in the picker nor resolve a
+ * dated URL — the legacy widget's picker and forecast view both hide them too.
  */
 export function buildZoneArchiveDates(
   items: ArchiveProductSummary[],
@@ -100,7 +103,7 @@ export function buildZoneArchiveDates(
   >()
 
   for (const item of items) {
-    if (!RENDERABLE_PRODUCT_TYPES.has(item.product_type)) continue
+    if (!RENDERABLE_PRODUCT_TYPES.has(item.product_type) || item.updated_at === null) continue
     if (!item.forecast_zone.some((zone) => zone.id === zoneId)) continue
 
     const date = validDateForProduct(item.published_time, timezone)
