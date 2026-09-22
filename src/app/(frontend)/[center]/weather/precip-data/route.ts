@@ -4,7 +4,9 @@ import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKeys, stationKey } from '@/services/snowobs/stationKey'
 import { fetchTrackedStations } from '@/services/snowobs/stationTracking'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
+import config from '@payload-config'
 import { NextResponse } from 'next/server'
+import { getPayload } from 'payload'
 
 // Serves the Precipitation Table block, as weather/graph-data serves the Graphs
 // tab. Reads SnowObs server-side so the token stays hidden, and keeps the
@@ -57,7 +59,14 @@ export async function GET(
       },
     })
   } catch (error) {
-    const message = error instanceof SnowObsError ? error.message : 'failed to load station data'
-    return NextResponse.json({ error: message }, { status: 502 })
+    // A SnowObs failure is expected and the fetch has already logged it with the
+    // stations it asked for; anything else is ours and would otherwise reach the
+    // block as a grey notice with nothing recorded.
+    if (error instanceof SnowObsError) {
+      return NextResponse.json({ error: error.message }, { status: 502 })
+    }
+    const payload = await getPayload({ config })
+    payload.logger.error({ err: error, center }, 'precip-data failed')
+    return NextResponse.json({ error: 'failed to load station data' }, { status: 502 })
   }
 }
