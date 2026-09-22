@@ -8,7 +8,7 @@ sig = "3d5ec9a1ab663b91"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "443d684a9c86b7bb"
+sig = "b6b93c253edb55e5"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -168,7 +168,7 @@ sig = "092a1be704297a39"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/blocks/RenderBlocks.tsx"
-sig = "e2013b5c7cc88864"
+sig = "fefbe64af15c5fc2"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -412,8 +412,18 @@ sig = "f445ae3bb3f380ef"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/app/(frontend)/[center]/weather/precip-data/route.ts"
+sig = "933c2ebbf0a7927b"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/blocks/PrecipTable/Component.tsx"
-sig = "ef372218ecba63db"
+sig = "5db1a330e242fbe0"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/blocks/PrecipTable/PrecipTable.client.tsx"
+sig = "e82558d0cab22fd8"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -473,7 +483,7 @@ sig = "9dc7ea95c9e7c91a"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/stationKey.ts"
-sig = "a937fb7084436865"
+sig = "a3666673abcc6281"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -663,7 +673,7 @@ sig = "57977783926aa724"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/app/(frontend)/[center]/page.tsx"
-sig = "c4833a0ef3e83983"
+sig = "da6c4e6ea3c599cc"
 
 [[bindings]]
 doc = "docs/revalidation.md"

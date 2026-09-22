@@ -93,7 +93,7 @@ export default async function Page({ params }: Args) {
             </div>
           )}
       </div>
-      {layout && <RenderBlocks blocks={layout} payload={payload} center={center} />}
+      {layout && <RenderBlocks blocks={layout} payload={payload} />}
     </>
   )
 }

@@ -92,7 +92,7 @@ export default async function Page({ params: paramsPromise }: Args) {
             <h1 className="font-bold">{page.title}</h1>
           </div>
         </div>
-        <RenderBlocks blocks={layout} payload={payload} center={center} />
+        <RenderBlocks blocks={layout} payload={payload} />
       </article>
     </>
   )

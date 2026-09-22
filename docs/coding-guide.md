@@ -225,7 +225,6 @@ When creating a new block, you must register it in the following locations:
 
 1. **`src/blocks/RenderBlocks.tsx`** - For standalone page blocks
    - Set `isLayoutBlock={true}` so the block gets its own `container` wrapper
-   - A server block that reads per-center data takes the `center` slug that `RenderBlocks` passes down (see `PrecipTable`)
 
 2. **`src/components/RichText/index.tsx`** - For blocks used inline within rich text editors
    - Set `isLayoutBlock={false}` to avoid double-wrapping (the RichText component already provides a container)

@@ -25,12 +25,8 @@ import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
 import { TeamBlockComponent } from '@/blocks/Team/Component'
 import { VideoEmbedBlockComponent } from '@/blocks/VideoEmbed/Component'
 
-export const RenderBlocks = (props: {
-  blocks: Page['layout'][0][]
-  payload: Payload
-  center: string
-}) => {
-  const { blocks, center } = props
+export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
+  const { blocks } = props
 
   const hasBlocks = blocks && Array.isArray(blocks) && blocks.length > 0
 
@@ -40,7 +36,7 @@ export const RenderBlocks = (props: {
         {blocks.map((block) => {
           return (
             <div key={`${block.id}__${block.blockType}`}>
-              <RenderBlock block={block} center={center} />
+              <RenderBlock block={block} />
             </div>
           )
         })}
@@ -51,7 +47,7 @@ export const RenderBlocks = (props: {
   return null
 }
 
-export const RenderBlock = ({ block, center }: { block: Page['layout'][0]; center: string }) => {
+export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
   const { blockType } = block
   // if a block has two variants - to make TS happy we fallback to the default for the block variant
   switch (blockType) {
@@ -88,7 +84,7 @@ export const RenderBlock = ({ block, center }: { block: Page['layout'][0]; cente
     case 'nacMediaBlock':
       return <NACMediaBlockComponent {...block} />
     case 'precipTable':
-      return <PrecipTableBlockComponent {...block} center={center} />
+      return <PrecipTableBlockComponent {...block} />
     case 'singleBlogPost':
       return <SingleBlogPostBlockComponent {...block} isLayoutBlock={true} />
     case 'singleEvent':
