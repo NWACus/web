@@ -57,6 +57,7 @@ import * as migration_20260701_162212_add_galleries from './20260701_162212_add_
 import * as migration_20260918_223529_station_pages from './20260918_223529_station_pages'
 import * as migration_20260921_124724_station_pages_backfill from './20260921_124724_station_pages_backfill'
 import * as migration_20260922_180955_precip_table_block from './20260922_180955_precip_table_block'
+import * as migration_20260922_220308_add_horizontal_line_to_header_block from './20260922_220308_add_horizontal_line_to_header_block'
 
 export const migrations = [
   {
@@ -353,5 +354,10 @@ export const migrations = [
     up: migration_20260922_180955_precip_table_block.up,
     down: migration_20260922_180955_precip_table_block.down,
     name: '20260922_180955_precip_table_block',
+  },
+  {
+    up: migration_20260922_220308_add_horizontal_line_to_header_block.up,
+    down: migration_20260922_220308_add_horizontal_line_to_header_block.down,
+    name: '20260922_220308_add_horizontal_line_to_header_block',
   },
 ]
