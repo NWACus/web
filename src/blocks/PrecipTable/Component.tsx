@@ -1,7 +1,7 @@
 import { PrecipAccumulationTable } from '@/components/WeatherStations/PrecipAccumulationTable'
 import { toStationRefs } from '@/fields/stations'
 import type { PrecipTableBlock as PrecipTableBlockProps } from '@/payload-types'
-import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { toPrecipColumns } from '@/services/stations/precipColumns'
 
@@ -26,9 +26,11 @@ export async function PrecipTableBlockComponent({ center, stations, columns }: P
       windowHours: 72,
     })
     table = buildPrecipAccumulationTable(response, refs)
-  } catch {
-    // Already logged with its context by fetchStationTimeseries; the page must
-    // still render, so the table's place says so instead of the error boundary.
+  } catch (error) {
+    // SnowObs being unreachable is expected, and the fetch has already logged it
+    // with the stations it asked for, so the page renders with the table's place
+    // saying so. Anything else is our own bug and belongs in the error boundary.
+    if (!(error instanceof SnowObsError)) throw error
     return (
       <div className="container">
         <p className="text-sm text-muted-foreground">
