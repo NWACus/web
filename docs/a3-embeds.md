@@ -183,6 +183,7 @@ Multiple filters (Rec 1 and Rec 2 courses for women):
 - Infinite scroll loads more courses as the user scrolls
 - Past courses display a "Past Course" badge
 - Each course links to its external registration URL
+- The location line shows the place name (or city if there is no place name), followed by the state code when one is set (e.g. "Mountain Education Center, WA")
 
 ## Using with iframe-resizer
 
