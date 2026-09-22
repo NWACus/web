@@ -5,9 +5,6 @@ import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationColumn } from './stationColumns'
 import { toStationColumns } from './stationColumns'
 
-// A page under /weather/stations: its row, with the stations in the order the
-// editor arranged them. Everything a route needs; nothing a route has to look
-// up again.
 export type AssembledStationPage = {
   slug: string
   displayName: string
@@ -17,8 +14,6 @@ export type AssembledStationPage = {
   columns: StationColumn[]
 }
 
-// What the client-side pickers need to list every page: small enough to pass
-// as a prop, and free of anything that changes per request.
 export type StationPageSummary = Pick<
   AssembledStationPage,
   'slug' | 'displayName' | 'archived' | 'stations'
@@ -32,7 +27,6 @@ function byName(a: AssembledStationPage, b: AssembledStationPage): number {
   return a.displayName.localeCompare(b.displayName)
 }
 
-// Pure so it can be tested without a database.
 export function assembleStationPages(pages: PageRow[]): AssembledStationPage[] {
   return pages
     .map((page): AssembledStationPage => {
@@ -57,8 +51,7 @@ export function toPageSummaries(pages: AssembledStationPage[]): StationPageSumma
   }))
 }
 
-// Every station on any page, by `source:stid`: the allowlist for the graph-data
-// route, which receives those keys and sends the references on to SnowObs.
+// The graph-data route's allowlist, by `source:stid`.
 export function allStations(pages: AssembledStationPage[]): Map<string, StationRef> {
   const byKey = new Map<string, StationRef>()
   for (const page of pages) {
@@ -66,9 +59,7 @@ export function allStations(pages: AssembledStationPage[]): Map<string, StationR
   }
   return byKey
 }
-// The Accumulated Precipitation rows: every station on a live page, in page
-// order, as the legacy table showed. Archived pages are left out because a
-// decommissioned gauge would read "missing" forever.
+// Archived pages are left out: a decommissioned gauge would read "missing" forever.
 export function precipStations(pages: AssembledStationPage[]): StationRef[] {
   const seen = new Set<string>()
   const refs: StationRef[] = []

@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation'
 export const stationSelectTriggerClass =
   'h-auto w-auto gap-2 rounded-md text-sm shadow-sm focus:ring-offset-0'
 
-// Every page as an option, alphabetical, minus the ones a caller rules out.
 export function StationSelectGroups({
   pages,
   excludeSlugs = [],
@@ -35,8 +34,6 @@ export function StationSelectGroups({
   ))
 }
 
-// Dropdown that navigates to a station's page. Reused on both the
-// accumulated precipitation table and the per-station detail page.
 export function StationPicker({
   pages,
   current,

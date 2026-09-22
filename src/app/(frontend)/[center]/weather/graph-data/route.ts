@@ -41,7 +41,6 @@ function maxStations(pages: AssembledStationPage[]): number {
   return (1 + MAX_COMPARE_STATIONS) * largestPage
 }
 
-// Stations arrive as `source:stid` keys and must all be on one of the center's pages.
 function unknownStations(keys: string[], known: Set<string>): string | null {
   const unknown = keys.filter((key) => !known.has(key))
   return unknown.length > 0 ? `unknown stations: ${unknown.join(',')}` : null

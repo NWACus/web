@@ -42,8 +42,7 @@ async function loadStationNotes(center: string, page: AssembledStationPage) {
   return stationNotes(meta.STATION)
 }
 
-// Datalogger dropdown options for the CSV form: the page's stations labeled with
-// each logger's name + elevation (from a cheap 1-hour metadata fetch).
+// A 1-hour window: only the station metadata is needed.
 async function loadDataloggers(center: string, page: AssembledStationPage): Promise<Datalogger[]> {
   const meta = await fetchStationTimeseries(center, page.stations, { windowHours: 1 })
   const byKey = new Map(meta.STATION.map((s) => [stationKey(s), s]))
@@ -116,7 +115,6 @@ async function tableTabView({ center, page, periodParam }: TabContext): Promise<
     windowHours: period.hoursBack(new Date()),
     rawData: true,
   })
-  // Columns follow what the loggers report unless the page chose its own.
   const table = buildStationTable(response, resolveColumns(response, page))
   return {
     table,

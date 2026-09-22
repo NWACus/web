@@ -13,7 +13,6 @@ import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
 import type { SnowObsObservations, SnowObsTimeseriesResponse } from './types/schemas'
 
-// One table column: a reading from one station.
 export type StationColumnConfig = { station: StationRef; variable: string }
 
 export type TableColumn = {

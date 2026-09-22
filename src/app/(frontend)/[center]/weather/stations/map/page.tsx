@@ -35,7 +35,6 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center } = await params
-  // The stations crumb links only where the center has station pages to index.
   const hasStationsIndex = (await getStationPages(center)).length > 0
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)

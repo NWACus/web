@@ -21,7 +21,6 @@ export const snowObsStationSchema = z.object({
   // "4" and a numeric 4 normalize to the string form the config keys on.
   id: z.union([z.number(), z.string()]).transform((v) => String(v)),
   stid: z.union([z.number(), z.string()]).transform((v) => String(v)),
-  // The network the station reports under; with stid, its identity.
   source: z.string(),
   name: z.string().nullish(),
   latitude: z.number().nullish(),

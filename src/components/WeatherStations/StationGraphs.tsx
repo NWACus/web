@@ -212,7 +212,6 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
   )
 }
 
-// The page's stations plus each comparison page's, deduped in selection order.
 function combinedStations(
   stations: StationRef[],
   compareSlugs: string[],

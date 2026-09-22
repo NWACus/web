@@ -19,15 +19,9 @@ function byTableOrder(a: string, b: string): number {
   return rank(a) - rank(b) || a.localeCompare(b)
 }
 
-/**
- * The table columns for a page, derived from what its loggers actually report.
- *
- * SnowObs knows which sensors each logger carries; the page only decides which
- * loggers it shows and in what order. So the columns are every reported
- * variable, in a fixed variable order, loggers in page order within each --
- * which reproduces the legacy layout for every page except the two that
- * hand-interleaved a pair of snow readings.
- */
+// Every variable the loggers report, in fixed variable order, loggers in page
+// order within each. Reproduces the legacy layout except for the two pages that
+// hand-interleaved a pair of snow readings.
 export function deriveColumns(
   response: SnowObsTimeseriesResponse,
   stations: StationRef[],
@@ -58,8 +52,6 @@ export function deriveColumns(
   return columns
 }
 
-// A page's table columns: the derived set, narrowed to the readings the page
-// chose when it chose any.
 export function resolveColumns(
   response: SnowObsTimeseriesResponse,
   page: { stations: StationRef[]; columns: string[] },

@@ -39,7 +39,6 @@ export async function getStationPage(
   return pages.find((page) => page.slug === slug) ?? null
 }
 
-// Every (center, slug) pair, for build-time prerendering of the station pages.
 export async function allStationPageParams(): Promise<{ center: string; station: string }[]> {
   const payload = await getPayload({ config: configPromise })
   const { docs } = await payload.find({

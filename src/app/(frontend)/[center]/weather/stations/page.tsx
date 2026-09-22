@@ -15,7 +15,6 @@ type Args = {
   params: Promise<{ center: string }>
 }
 
-// A center has station pages when the collection has rows for it.
 export async function generateStaticParams() {
   const centers = new Set((await allStationPageParams()).map((p) => p.center))
   return Array.from(centers).map((center) => ({ center }))

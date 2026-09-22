@@ -12,9 +12,7 @@ type Args = {
   params: Promise<{ center: string; station: string }>
 }
 
-// GET /weather/stations/[station]/csv?station=source:stid&year= — full-year hourly
-// CSV for one datalogger. Validates the station against the page and year against
-// range so this isn't an open SnowObs proxy.
+// Validates station and year against the page so this isn't an open SnowObs proxy.
 // CRAP is inflated by the lack of unit coverage on this route handler.
 // fallow-ignore-next-line complexity
 export async function GET(request: Request, { params }: Args) {

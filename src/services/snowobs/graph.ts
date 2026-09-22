@@ -12,7 +12,7 @@ export const DECIMATION_THRESHOLD_DAYS = 30
 
 export type RawGraphSeries = {
   kind: 'raw'
-  /** `source:stid`, the station's identity across sources. */
+  /** `source:stid` */
   key: string
   stid: string
   source: string
