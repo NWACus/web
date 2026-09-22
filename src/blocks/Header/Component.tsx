@@ -1,4 +1,4 @@
-import { blockSpacing, hasBackgroundColor } from '@/components/BackgroundColorWrapper'
+import { blockSpacing } from '@/components/BackgroundColorWrapper'
 import RichText from '@/components/RichText'
 import type { HeaderBlock as HeaderBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
@@ -14,18 +14,14 @@ export const HeaderBlockComponent = (props: Props) => {
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
+  const spacing = blockSpacing(backgroundColor, isLayoutBlock)
 
   return (
-    <div
-      className={cn(
-        blockSpacing(backgroundColor, isLayoutBlock).outer,
-        fullWidthColor && bgColorClass,
-      )}
-    >
+    <div className={cn(spacing.outer, fullWidthColor && bgColorClass)}>
       <div
         className={cn(
-          'pt-4 w-full',
-          hasBackgroundColor(backgroundColor) && 'pb-4',
+          'w-full',
+          spacing.inner,
           textColor,
           { container: isLayoutBlock },
           !fullWidthColor && `${bgColorClass}`,
