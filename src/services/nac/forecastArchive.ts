@@ -248,8 +248,8 @@ export function archiveDangerLevel(rating: number): number {
  *
  * Two rules from the legacy browser are kept: only forecast and summary products are listed
  * (synopsis posts and weather are other tabs), and a product with a null `updated_at` is hidden —
- * that marks the ~1,200 NWAC forecasts bulk-imported from the pre-AFP system, which carry no
- * author or danger text.
+ * that marks the stub forecasts (NWAC 2019–2020, SAC 2019–2021), which carry no author or text.
+ * `buildZoneArchiveDates` hides them too, so the picker and dated URLs agree with this list.
  *
  * One rule is deliberately different. A zone-day with more than one product (a re-issue later the
  * same day) is collapsed to its latest publication, because each row links to the dated forecast
