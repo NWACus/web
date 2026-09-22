@@ -24,7 +24,9 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
   payload: Payload,
   incremental: boolean,
   keyFunc: (obj: RequiredDataFromCollectionSlug<TSlug> | DataFromCollectionSlug<TSlug>) => string,
-  input: RequiredDataFromCollectionSlug<TSlug>[],
+  input:
+    | { data: RequiredDataFromCollectionSlug<TSlug>; file: File }[]
+    | RequiredDataFromCollectionSlug<TSlug>[],
 ): Promise<Record<string, DataFromCollectionSlug<TSlug>>> {
   payload.logger.info(`— Seeding ${collection}...`)
   const output: Record<string, DataFromCollectionSlug<TSlug>> = {}
@@ -39,7 +41,9 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
       existing[keyFunc(item)] = item
     }
   }
-  for (const item of input) {
+  for (const data of input) {
+    const item: RequiredDataFromCollectionSlug<TSlug> = 'file' in data ? data.data : data
+    const file: File | undefined = 'file' in data ? data.file : undefined
     const key = keyFunc(item)
     const representation = stringify(removeNonDeterministicKeys(JSON.parse(JSON.stringify(item))))
     if (!representation) {
@@ -82,9 +86,12 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
     payload.logger.info(
       `Creating ${collection}['${key}'] with hash ${item.contentHash.slice(0, 8)}...`,
     )
+    // Clone the file object to prevent mutation issues when the same file is reused
+    // (e.g., a beforeOperation hook renames file.name)
     const created = await payload.create({
       collection: collection,
       data: item,
+      file: file ? { ...file } : undefined,
       context: {
         disableRevalidate: true,
       },

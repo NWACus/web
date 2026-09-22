@@ -2,6 +2,7 @@ import { ButtonBlock } from '@/blocks/Button/config'
 import { CalloutBlock } from '@/blocks/Callout/config'
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
+import { isSharedContentCollection } from '@/constants/sharedContent'
 import type { Page } from '@/payload-types'
 import type { Field } from 'payload'
 
@@ -16,13 +17,23 @@ function isDataObject(value: unknown): value is DataObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+// A Shared Content reference is valid in any center, so a duplicated page keeps it. A polymorphic
+// field that can also hold a tenant-scoped document is cleared, since the field alone cannot say
+// which kind the stored value is.
+function pointsOnlyAtSharedContent(relationTo: string | string[]): boolean {
+  const targets = Array.isArray(relationTo) ? relationTo : [relationTo]
+  return targets.every(isSharedContentCollection)
+}
+
 function clearFieldValuesInPlace(data: DataObject, fields: Field[]): void {
   // Strip 'id' (not fields like 'videoId') so new IDs are assigned on create
   Reflect.deleteProperty(data, 'id')
 
   for (const field of fields) {
     if (field.type === 'relationship' || field.type === 'upload') {
-      Reflect.deleteProperty(data, field.name)
+      if (!pointsOnlyAtSharedContent(field.relationTo)) {
+        Reflect.deleteProperty(data, field.name)
+      }
     } else if (field.type === 'group') {
       if ('name' in field) {
         const groupData = data[field.name]
@@ -91,8 +102,8 @@ function clearLexicalBlockRelationshipsInPlace(lexicalData: DataObject): void {
 }
 
 /**
- * Clears relationship and upload fields from a page layout so
- * tenant-scoped references can be repopulated after duplication.
+ * Clears tenant-scoped relationship and upload fields from a page layout so
+ * they can be repopulated after duplication. Shared Content references are kept.
  */
 export function clearLayoutRelationships(layout: Page['layout']): Page['layout'] {
   if (!Array.isArray(layout)) return layout
