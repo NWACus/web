@@ -1,14 +1,17 @@
-import { NWAC_DISPLAY_TIMEZONE } from '@/services/snowobs/constants'
 import { TZDate } from '@date-fns/tz'
 import { differenceInHours } from 'date-fns'
 
-export type StationPeriod = { key: string; label: string; hoursBack: (now: Date) => number }
+export type StationPeriod = {
+  key: string
+  label: string
+  hoursBack: (now: Date, timeZone: string) => number
+}
 
-// Hours back to the most recent Oct 1 (the season anchor, display timezone).
-export function seasonHours(now: Date): number {
-  const local = new TZDate(now.getTime(), NWAC_DISPLAY_TIMEZONE)
+// Hours back to the most recent Oct 1, the season anchor in the center's zone.
+export function seasonHours(now: Date, timeZone: string): number {
+  const local = new TZDate(now.getTime(), timeZone)
   const year = local.getMonth() >= 9 ? local.getFullYear() : local.getFullYear() - 1
-  const seasonStart = new TZDate(year, 9, 1, NWAC_DISPLAY_TIMEZONE)
+  const seasonStart = new TZDate(year, 9, 1, timeZone)
   return Math.max(24, differenceInHours(now, seasonStart, { roundingMethod: 'ceil' }))
 }
 

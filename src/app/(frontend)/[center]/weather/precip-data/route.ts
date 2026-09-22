@@ -55,7 +55,7 @@ export async function GET(
       revalidate: REVALIDATE_SECONDS,
       windowHours: WINDOW_HOURS,
     })
-    return NextResponse.json(buildPrecipAccumulationTable(response, requested), {
+    return NextResponse.json(buildPrecipAccumulationTable(center, response, requested), {
       headers: {
         'Cache-Control': `public, s-maxage=${REVALIDATE_SECONDS}, stale-while-revalidate=60`,
       },

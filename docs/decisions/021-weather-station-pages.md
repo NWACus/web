@@ -70,4 +70,4 @@ The native index and its "Weather Data" built-in row are deleted, along with the
 - **The public token's read surface is not guaranteed.** `station/metadata/client/` is already OAuth-only and `station/tracking/` could follow. The spec also declares the public token accepted on the tracking write endpoints, which was not probed. Both are questions for Snowbound.
 - **Per-center variable config is a follow-up.** `variable/tracking/` would replace `SENSOR_LABELS`, `UNIT_LABELS` and `metricUnits.ts`; SnowObs declares wind's metric unit as m/s where we hardcode km/h.
 
-Follow-up: [#1303](https://github.com/NWACus/web/issues/1303), display timezone from `AVALANCHE_CENTERS` per ADR 020.
+- **Times display in the center's own timezone.** `centerTimezone(center)` reads it from `AVALANCHE_CENTERS` per [ADR 020](020-center-timezone-is-a-hardcoded-fact.md), and the table, CSV, graph and season-anchor helpers take the center the way the SnowObs service does. NWAC is unchanged, since Pacific is its zone either way.

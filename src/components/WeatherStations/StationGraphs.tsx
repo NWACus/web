@@ -35,9 +35,9 @@ const EChart = dynamic(() => import('./EChart').then((m) => m.EChart), {
 // a fresh Date per request would defeat the route's CDN caching.
 const CACHE_BUCKET_MS = 5 * 60 * 1000
 
-function periodRange(period: StationPeriod): { from: Date; to: Date } {
+function periodRange(period: StationPeriod, timeZone: string): { from: Date; to: Date } {
   const to = new Date(Math.floor(Date.now() / CACHE_BUCKET_MS) * CACHE_BUCKET_MS)
-  return { from: subHours(to, period.hoursBack(to)), to }
+  return { from: subHours(to, period.hoursBack(to, timeZone)), to }
 }
 
 function graphDataUrl(stations: StationRef[], variables: string[], from: Date, to: Date): string {
@@ -52,13 +52,18 @@ function graphDataUrl(stations: StationRef[], variables: string[], from: Date, t
 
 // One fetch serves every chart: the union of all preset variables for all
 // selected stations.
-function useGraphData(stations: StationRef[], variables: string[], period: StationPeriod) {
+function useGraphData(
+  stations: StationRef[],
+  variables: string[],
+  period: StationPeriod,
+  timeZone: string,
+) {
   const [data, setData] = useState<GraphData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const { from, to } = periodRange(period)
+    const { from, to } = periodRange(period, timeZone)
     const controller = new AbortController()
     setError(null)
     setLoading(true)
@@ -72,7 +77,7 @@ function useGraphData(stations: StationRef[], variables: string[], period: Stati
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [stations, variables, period])
+  }, [stations, variables, period, timeZone])
 
   return { data, error, loading }
 }
@@ -234,12 +239,14 @@ export function StationGraphs({
   presets,
   currentSlug,
   pages,
+  timeZone,
   tabs,
 }: {
   stations: StationRef[]
   presets: GraphPreset[]
   currentSlug: string
   pages: StationPageSummary[]
+  timeZone: string
   tabs?: ReactNode
 }) {
   const [graphPeriod, setStationPeriod] = useState(DEFAULT_GRAPH_PERIOD)
@@ -256,7 +263,7 @@ export function StationGraphs({
     [presets],
   )
 
-  const { data, error, loading } = useGraphData(allStations, variables, graphPeriod)
+  const { data, error, loading } = useGraphData(allStations, variables, graphPeriod, timeZone)
 
   const emptyKeys = useMemo(() => emptyPresetKeys(data, presets), [data, presets])
 

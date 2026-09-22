@@ -11,6 +11,7 @@ type StationPageViewProps = {
   pages: StationPageSummary[]
   table: StationTable | null
   notes: StationNote[]
+  timeZone: string
   tabContent?: ReactNode
 }
 
@@ -56,14 +57,21 @@ function ArchivedNotice() {
 }
 
 // The tab bar lives inside `tabContent` so it can pin with that view's filters.
-export function StationPageView({ page, pages, table, notes, tabContent }: StationPageViewProps) {
+export function StationPageView({
+  page,
+  pages,
+  table,
+  notes,
+  timeZone,
+  tabContent,
+}: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
       <StationHeader page={page} pages={pages} table={table} />
       {page.archived && <ArchivedNotice />}
       {notes.length > 0 && (
         <div className="container">
-          <StationNotes notes={notes} />
+          <StationNotes notes={notes} timeZone={timeZone} />
         </div>
       )}
       <div className="container flex flex-col gap-3">{tabContent}</div>

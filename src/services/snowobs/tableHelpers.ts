@@ -1,13 +1,13 @@
+import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
 import {
   displayUnit,
   fallbackSensorLabel,
-  NWAC_DISPLAY_TIMEZONE,
   PRECIP_CUMSUM,
   PRECIP_HOURLY,
   SENSOR_LABELS,
-  zonedParts,
+  timezoneAbbreviation,
 } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
@@ -28,7 +28,7 @@ export type TableColumn = {
 
 export type TableRow = {
   timestamp: number // ms epoch
-  display: string // "MM/DD HH:mm" in NWAC_DISPLAY_TIMEZONE
+  display: string // "MM/DD HH:mm" in the center's timezone
   values: Record<string, number | null> // keyed by TableColumn.key
 }
 
@@ -63,12 +63,12 @@ function timeSeries(obs: SnowObsObservations): string[] {
   return raw.map((v) => (typeof v === 'string' ? v : ''))
 }
 
-function formatDisplay(iso: string): string {
-  return format(new Date(iso), 'MM/dd HH:mm', { in: tz(NWAC_DISPLAY_TIMEZONE) })
+function formatDisplay(iso: string, timeZone: string): string {
+  return format(new Date(iso), 'MM/dd HH:mm', { in: tz(timeZone) })
 }
 
-function timezoneLabelFor(iso: string): string {
-  return zonedParts(new Date(iso), { timeZoneName: 'short' })('timeZoneName')
+function timezoneLabelFor(iso: string, timeZone: string): string {
+  return timezoneAbbreviation(new Date(iso), timeZone)
 }
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
@@ -172,7 +172,7 @@ export type PrecipAccumulationRow = {
   latitude: number | null
   longitude: number | null
   elevation: number | null
-  /** Latest report in NWAC_DISPLAY_TIMEZONE ("MM/DD HH:mm"), '' when never reported. */
+  /** Latest report in the center's timezone ("MM/DD HH:mm"), '' when never reported. */
   lastUpdate: string
   /** Latest report as ms epoch (null when never reported) — sortable form. */
   lastUpdateMs: number | null
@@ -221,6 +221,7 @@ function accumulationRow(
   ref: StationRef,
   station: ResponseStation,
   anchorMs: number,
+  timeZone: string,
 ): PrecipAccumulationRow {
   const { stid, source } = ref
   const times = timeSeries(station.observations)
@@ -239,7 +240,7 @@ function accumulationRow(
     latitude: station.latitude ?? null,
     longitude: station.longitude ?? null,
     elevation: station.elevation ?? null,
-    lastUpdate: lastMs > 0 ? formatDisplay(new Date(lastMs).toISOString()) : '',
+    lastUpdate: lastMs > 0 ? formatDisplay(new Date(lastMs).toISOString(), timeZone) : '',
     lastUpdateMs: lastMs > 0 ? lastMs : null,
     totals,
     hasData: Object.values(totals).some((v) => v !== null),
@@ -248,9 +249,11 @@ function accumulationRow(
 }
 
 export function buildPrecipAccumulationTable(
+  center: string,
   response: SnowObsTimeseriesResponse,
   requested: StationRef[],
 ): PrecipAccumulationTable {
+  const timeZone = centerTimezone(center)
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
   const seen = new Set<string>()
   // A station with no precipitation series in the window has no gauge (or one
@@ -273,17 +276,21 @@ export function buildPrecipAccumulationTable(
   const withTimes = stations.find(({ station }) => timeSeries(station.observations).length > 0)
 
   return {
-    rows: stations.map(({ ref, station }) => accumulationRow(ref, station, anchorMs)),
-    timezoneLabel: withTimes ? timezoneLabelFor(timeSeries(withTimes.station.observations)[0]) : '',
+    rows: stations.map(({ ref, station }) => accumulationRow(ref, station, anchorMs, timeZone)),
+    timezoneLabel: withTimes
+      ? timezoneLabelFor(timeSeries(withTimes.station.observations)[0], timeZone)
+      : '',
   }
 }
 
 // Builds a render-ready table: newest-first rows, full-outer-joined across the
 // group's stations, with a cumulative-precip column after each hourly-precip one.
 export function buildStationTable(
+  center: string,
   response: SnowObsTimeseriesResponse,
   columnConfig: StationColumnConfig[],
 ): StationTable {
+  const timeZone = centerTimezone(center)
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
   const longNameByVariable = new Map(response.VARIABLES.map((v) => [v.variable, v.long_name]))
 
@@ -332,13 +339,13 @@ export function buildStationTable(
     for (const column of columns) {
       values[column.key] = valueByColumn.get(column.key)?.get(iso) ?? null
     }
-    return { timestamp: new Date(iso).getTime(), display: formatDisplay(iso), values }
+    return { timestamp: new Date(iso).getTime(), display: formatDisplay(iso, timeZone), values }
   })
 
   return {
     columns,
     rows,
-    timezoneLabel: sortedTimes.length > 0 ? timezoneLabelFor(sortedTimes[0]) : '',
+    timezoneLabel: sortedTimes.length > 0 ? timezoneLabelFor(sortedTimes[0], timeZone) : '',
     latestObservation: rows.length > 0 ? rows[0].timestamp : null,
   }
 }

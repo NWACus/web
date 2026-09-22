@@ -303,7 +303,7 @@ sig = "ff301eba57dc04e2"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "9239ee25962a8d00"
+sig = "d9288e125c60a114"
 
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
@@ -403,7 +403,7 @@ sig = "cf2a77a3852fcde8"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "9239ee25962a8d00"
+sig = "d9288e125c60a114"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
@@ -413,7 +413,7 @@ sig = "f445ae3bb3f380ef"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/precip-data/route.ts"
-sig = "8c484cb4eb64f678"
+sig = "2501db20479bd53c"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -663,7 +663,7 @@ sig = "cf2a77a3852fcde8"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "9239ee25962a8d00"
+sig = "d9288e125c60a114"
 
 [[bindings]]
 doc = "docs/revalidation.md"

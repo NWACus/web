@@ -1,5 +1,6 @@
+import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { differenceInHours } from 'date-fns'
-import { displayUnit, NWAC_DISPLAY_TIMEZONE } from './constants'
+import { displayUnit } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
@@ -47,14 +48,22 @@ export type GraphData = {
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
 
-// Daily-aggregation bucket key (yyyy-mm-dd, display timezone). A cached Intl
-// formatter because this runs per point in the aggregation loop.
-const dayFormatter = new Intl.DateTimeFormat('en-CA', {
-  timeZone: NWAC_DISPLAY_TIMEZONE,
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-})
+// Daily-aggregation bucket key (yyyy-mm-dd, center timezone). Formatters are
+// cached per zone because this runs per point in the aggregation loop.
+const dayFormatters = new Map<string, Intl.DateTimeFormat>()
+
+function dayFormatterFor(timeZone: string): Intl.DateTimeFormat {
+  const cached = dayFormatters.get(timeZone)
+  if (cached) return cached
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+  dayFormatters.set(timeZone, formatter)
+  return formatter
+}
 
 // e.g. "Hurricane Ridge (5,250')" — the chart title already names the
 // variable, so the legend just distinguishes stations.
@@ -88,12 +97,14 @@ function rawPoints(
   })
 }
 
-// Per-day [dayStart, min, mean, max] rows (display-timezone days). Circular
-// variables get a vector mean with min/max pinned to it (no meaningful band).
+// Per-day [dayStart, min, mean, max] rows, days as the given zone reckons them.
+// Circular variables get a vector mean with min/max pinned to it (no band).
 export function aggregateDaily(
   points: [number, number | null][],
+  timeZone: string,
   circular = false,
 ): [number, number, number, number][] {
+  const dayFormatter = dayFormatterFor(timeZone)
   const byDay = new Map<string, { t: number; values: number[] }>()
   for (const [t, v] of points) {
     if (v === null) continue
@@ -144,6 +155,7 @@ function buildSeries(
   variable: string,
   units: Record<string, string>,
   aggregated: boolean,
+  timeZone: string,
 ): GraphSeries | null {
   const values = station.observations[variable]
   if (!values) return null
@@ -162,7 +174,7 @@ function buildSeries(
     return {
       kind: 'daily',
       ...base,
-      days: aggregateDaily(points, CIRCULAR_VARIABLES.has(variable)),
+      days: aggregateDaily(points, timeZone, CIRCULAR_VARIABLES.has(variable)),
     }
   }
   return { kind: 'raw', ...base, points }
@@ -173,11 +185,13 @@ export function windowExceedsThreshold(from: Date, to: Date): boolean {
 }
 
 export function buildGraphData(
+  center: string,
   response: SnowObsTimeseriesResponse,
   stations: StationRef[],
   variables: string[],
   aggregated: boolean,
 ): GraphData {
+  const timeZone = centerTimezone(center)
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
   const series: GraphSeries[] = []
   for (const ref of stations) {
@@ -185,9 +199,9 @@ export function buildGraphData(
     if (!station) continue
     const times = parsedTimes(station)
     for (const variable of variables) {
-      const built = buildSeries(station, times, variable, response.UNITS, aggregated)
+      const built = buildSeries(station, times, variable, response.UNITS, aggregated, timeZone)
       if (built) series.push(built)
     }
   }
-  return { series, aggregated, timezone: NWAC_DISPLAY_TIMEZONE }
+  return { series, aggregated, timezone: timeZone }
 }

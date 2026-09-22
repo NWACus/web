@@ -40,7 +40,7 @@ const ref = (stid: string) => ({ stid, source: 'nwac' })
 
 describe('buildGraphData', () => {
   it('emits one raw series per station/variable with nulls preserved', () => {
-    const data = buildGraphData(response, [ref('4')], ['air_temp', 'snow_depth'], false)
+    const data = buildGraphData('nwac', response, [ref('4')], ['air_temp', 'snow_depth'], false)
     expect(data.aggregated).toBe(false)
     expect(data.series).toHaveLength(2)
     const temp = data.series[0]
@@ -52,6 +52,7 @@ describe('buildGraphData', () => {
 
   it('skips unknown stations and absent variables', () => {
     const data = buildGraphData(
+      'nwac',
       response,
       [ref('4'), ref('nope')],
       ['air_temp', 'wind_speed'],
@@ -60,11 +61,20 @@ describe('buildGraphData', () => {
     expect(data.series).toHaveLength(1)
   })
 
+  it("reports the center's timezone", () => {
+    expect(buildGraphData('nwac', response, [ref('4')], ['air_temp'], false).timezone).toBe(
+      'America/Los_Angeles',
+    )
+    expect(buildGraphData('btac', response, [ref('4')], ['air_temp'], false).timezone).toBe(
+      'America/Denver',
+    )
+  })
+
   it('aggregates to daily min/mean/max when requested', () => {
-    const data = buildGraphData(response, [ref('4')], ['air_temp'], true)
+    const data = buildGraphData('nwac', response, [ref('4')], ['air_temp'], true)
     const series = data.series[0]
     if (series.kind !== 'daily') throw new Error('expected daily series')
-    // 30 and 34 fall on the same display-timezone day; null dropped.
+    // 30 and 34 fall on the same Pacific day; null dropped.
     expect(series.days).toHaveLength(1)
     const [, min, mean, max] = series.days[0]
     expect([min, mean, max]).toEqual([30, 32, 34])
@@ -72,12 +82,15 @@ describe('buildGraphData', () => {
 })
 
 describe('aggregateDaily', () => {
-  it('buckets by display-timezone day and omits all-null days', () => {
-    const days = aggregateDaily([
-      [T0, 10],
-      [T0 + 26 * HOUR, null],
-      [T0 + 48 * HOUR, 20],
-    ])
+  it('buckets by day in the given zone and omits all-null days', () => {
+    const days = aggregateDaily(
+      [
+        [T0, 10],
+        [T0 + 26 * HOUR, null],
+        [T0 + 48 * HOUR, 20],
+      ],
+      'America/Los_Angeles',
+    )
     expect(days).toHaveLength(2)
     expect(days[0][1]).toBe(10)
     expect(days[1][1]).toBe(20)
@@ -108,6 +121,7 @@ describe('vectorMeanDegrees', () => {
         [Date.UTC(2026, 0, 10, 12), 350],
         [Date.UTC(2026, 0, 10, 13), 10],
       ],
+      'America/Los_Angeles',
       true,
     )
     expect(days[0].slice(1)).toEqual([0, 0, 0])

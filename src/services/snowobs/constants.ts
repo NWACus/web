@@ -44,8 +44,6 @@ export function displayUnit(rawUnit: string | undefined): string {
 export const PRECIP_HOURLY = 'precip_accum_one_hour'
 export const PRECIP_CUMSUM = 'precip_cumsum'
 
-export const NWAC_DISPLAY_TIMEZONE = 'America/Vancouver'
-
 // Derive a fallback header label the way the legacy plugin did: initials of the
 // underscore/space-separated variable name, uppercased (e.g. "foo_bar" -> "FB").
 export function fallbackSensorLabel(variable: string): string {
@@ -53,18 +51,21 @@ export function fallbackSensorLabel(variable: string): string {
   return matches ? matches.join('').toUpperCase() : variable
 }
 
-// Format a date in the display timezone and return a getter for individual
-// parts (e.g. get('timeZoneName') -> "PDT") — Intl is the only way to get the
-// zone abbreviation, which date-fns `format` can't produce.
+// Format a date in a zone and return a getter for individual parts (e.g.
+// get('timeZoneName') -> "PDT") — Intl is the only way to get the zone
+// abbreviation, which date-fns `format` can't produce.
 export function zonedParts(
   date: Date,
+  timeZone: string,
   options: Intl.DateTimeFormatOptions,
 ): (type: string) => string {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: NWAC_DISPLAY_TIMEZONE,
-    ...options,
-  }).formatToParts(date)
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone, ...options }).formatToParts(date)
   return (type) => parts.find((part) => part.type === type)?.value ?? ''
+}
+
+// The zone abbreviation a center's readers expect, e.g. "PDT" or "MST".
+export function timezoneAbbreviation(date: Date, timeZone: string): string {
+  return zonedParts(date, timeZone, { timeZoneName: 'short' })('timeZoneName')
 }
 
 // Left-to-right order of readings in a station table. Variable-major, the way
