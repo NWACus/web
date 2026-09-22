@@ -68,6 +68,27 @@ describe('buildZoneArchiveDates', () => {
     expect(dates.find((d) => d.productId === 4)?.productType).toBe('summary')
   })
 
+  it('skips stub products with a null updated_at, so their dates neither show nor resolve', () => {
+    const items: ArchiveProductSummary[] = [
+      item({ id: 20, published_time: '2026-04-19T01:30:00+00:00' }),
+      item({ id: 21, published_time: '2026-04-18T01:30:00+00:00', updated_at: null }),
+    ]
+
+    const dates = buildZoneArchiveDates(items, 1646, TZ)
+
+    expect(dates.map((d) => d.date)).toEqual(['2026-04-19'])
+    expect(findProductIdForDate(dates, '2026-04-18')).toBeNull()
+  })
+
+  it('does not let a later stub displace a real product on the same date', () => {
+    const items: ArchiveProductSummary[] = [
+      item({ id: 30, published_time: '2026-02-01T02:00:00+00:00' }),
+      item({ id: 31, published_time: '2026-02-01T05:00:00+00:00', updated_at: null }),
+    ]
+
+    expect(buildZoneArchiveDates(items, 1646, TZ).map((d) => d.productId)).toEqual([30])
+  })
+
   it('collapses same-date products to the most recently published', () => {
     const items: ArchiveProductSummary[] = [
       item({ id: 10, published_time: '2026-02-01T02:00:00+00:00', danger_rating: 1 }), // 2026-01-31 18:00 PST → 2026-02-01

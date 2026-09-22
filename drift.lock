@@ -262,8 +262,13 @@ sig = "620e3b1733d93855"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/archiveDates.ts"
+sig = "14a5b8c8b1a0289a"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/forecastArchive.ts"
-sig = "3e744f1e8618f880"
+sig = "bc24ead36d26ff72"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
