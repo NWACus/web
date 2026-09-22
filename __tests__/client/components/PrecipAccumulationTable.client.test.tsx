@@ -110,6 +110,8 @@ describe('PrecipAccumulationTable', () => {
   it('renders an empty state when there are no rows', () => {
     render(<PrecipAccumulationTable table={{ rows: [], timezoneLabel: '' }} />)
 
-    expect(screen.getByText('No precipitation readings from these stations in the last 72 hours.')).toBeInTheDocument()
+    expect(
+      screen.getByText('No precipitation readings from these stations in the last 72 hours.'),
+    ).toBeInTheDocument()
   })
 })
