@@ -51,6 +51,9 @@ A User with one or more Global Role Assignments; permissions span all Tenants.
 **Super Admin**:
 A Global Role User whose Global Role grants every action on every collection (a wildcard rule, or rules covering everything). The highest permission level, not a distinct entity.
 
+**Shared Content Editor**:
+A Global Role User whose Global Role grants write actions on Shared Content; a Super Admin is one by definition. Shared Content appears on every Avalanche Center's site, so changing it is cross-Tenant power and is never granted through a Role Assignment. A facet, not a distinct entity.
+
 **Provider User**:
 A User linked to one or more Providers via a `providers` relationship; can manage their own Provider(s) and those providers' Courses.
 
@@ -70,16 +73,25 @@ The avalanche forecasting platform — a sibling system in the NAC software-cons
 
 ## Avalanche Education
 
-This cluster is **national/shared** — it lives outside per-Tenant isolation. One Provider's Courses form a single nationwide catalog, surfaced across the platform rather than owned by any one Avalanche Center.
+This cluster is **national** — it lives outside per-Tenant isolation. One Provider's Courses form a single nationwide catalog, surfaced across the platform rather than owned by any one Avalanche Center. It is not Shared Content: a Course is owned by its Provider.
 
 **Provider**:
-An organization that offers avalanche education courses under A3 accreditation. National/shared — not tenant-scoped — though an Avalanche Center that runs courses may have its own Provider record. Managed by its Provider Users and overseen by Provider Managers.
+An organization that offers avalanche education courses under A3 accreditation. National — not tenant-scoped — though an Avalanche Center that runs courses may have its own Provider record. Managed by its Provider Users and overseen by Provider Managers.
 _Also called_: Course Provider
 
 **Course**:
-An avalanche education class offered by a Provider — type (Rec 1/2, Pro 1/2, Rescue, Awareness), dates, location, interest groups, and mode of travel. National/shared and intended to surface on Avalanche Center sites (e.g. via blocks). A distinct entity from an Event.
+An avalanche education class offered by a Provider — type (Rec 1/2, Pro 1/2, Rescue, Awareness), dates, location, interest groups, and mode of travel. National and intended to surface on Avalanche Center sites (e.g. via blocks). A distinct entity from an Event.
 _Also called_: A3 course
 _Avoid_: Event (a Course is not an Event, despite some legacy "event" wording in the Courses config)
+
+## Shared Content
+
+**Shared Content**:
+Content that no Tenant owns — managed once and usable by every Avalanche Center. "Shared" names its relationship to Tenants (it belongs to all of them equally), not its geography. Every Tenant Role User can read it; only a Shared Content Editor can change it. It never contains a part that one Avalanche Center owns — a center adds its own material in its own content, which references the Shared Content. Contrast with tenant-scoped content, which belongs to exactly one Avalanche Center, and with one center's content shown on another center's site, which still has a single owning Tenant and is not Shared Content.
+_Avoid_: Global content ("global" already means a Payload Global, a Global Role, and a tenant-scoped global), National content (reserved for the Avalanche Education cluster, where it is literally true)
+
+**Shared Media**:
+A photo or video in a library every Avalanche Center can use. Shared Content: a center's content points at the original rather than taking its own copy, so there is one file and one description for everyone. Contrast with a center's own Media, which belongs to that Tenant.
 
 ## Events
 
