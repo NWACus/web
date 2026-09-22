@@ -95,6 +95,7 @@ export interface Config {
     navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
+    sharedMedia: SharedMedia;
     forms: Form;
     'form-submissions': FormSubmission;
     'payload-mcp-api-keys': PayloadMcpApiKey;
@@ -149,6 +150,7 @@ export interface Config {
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
+    sharedMedia: SharedMediaSelect<false> | SharedMediaSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
@@ -3170,6 +3172,53 @@ export interface Redirect {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sharedMedia".
+ */
+export interface SharedMedia {
+  id: number;
+  /**
+   * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
+   */
+  alt: string;
+  /**
+   * Who took the photo or video. Shown wherever a center chooses to display a credit.
+   */
+  credit?: string | null;
+  /**
+   * Words an editor at any center might search for when looking for this photo, e.g. "cornice wind slab cascades".
+   */
+  keywords?: string | null;
+  /**
+   * How many documents use this, across every avalanche center. Drafts included.
+   */
+  referenceCount?: number | null;
+  contentHash?: string | null;
+  blurDataUrl?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
@@ -3446,6 +3495,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'redirects';
         value: number | Redirect;
+      } | null)
+    | ({
+        relationTo: 'sharedMedia';
+        value: number | SharedMedia;
       } | null)
     | ({
         relationTo: 'forms';
@@ -4983,6 +5036,44 @@ export interface RedirectsSelect<T extends boolean = true> {
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sharedMedia_select".
+ */
+export interface SharedMediaSelect<T extends boolean = true> {
+  alt?: T;
+  credit?: T;
+  keywords?: T;
+  referenceCount?: T;
+  contentHash?: T;
+  blurDataUrl?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

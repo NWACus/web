@@ -578,7 +578,7 @@ sig = "60bbd2c2347a4abd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/plugins/index.ts"
-sig = "3436eed2ed79916b"
+sig = "f1fcd3c120bbd399"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -648,7 +648,7 @@ sig = "cdbcb90cb1c106cf"
 [[bindings]]
 doc = "docs/mcp-server.md"
 target = "src/plugins/index.ts"
-sig = "3436eed2ed79916b"
+sig = "f1fcd3c120bbd399"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

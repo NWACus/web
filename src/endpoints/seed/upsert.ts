@@ -13,9 +13,10 @@ import type {
   RequiredDataFromCollectionSlug,
 } from 'payload'
 
+// Collections with no tenant field: platform-wide records, plus Shared Content
 type GlobalCollectionWithHash = Extract<
   CollectionSlug,
-  'users' | 'tenants' | 'roles' | 'globalRoles' | 'providers' | 'courses'
+  'users' | 'tenants' | 'roles' | 'globalRoles' | 'providers' | 'courses' | 'sharedMedia'
 >
 
 export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(

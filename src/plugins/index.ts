@@ -77,6 +77,9 @@ export const plugins: Plugin[] = [
       media: {
         prefix: getEnvironmentFriendlyName(),
       },
+      sharedMedia: {
+        prefix: getEnvironmentFriendlyName(),
+      },
     },
     // Re-uploads to an existing blob key always overwrite (upstream behaviour since 3.87.0)
     clientUploads: true,
