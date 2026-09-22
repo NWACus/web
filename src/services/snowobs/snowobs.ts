@@ -70,6 +70,12 @@ async function parseTimeseriesResponse(
   res: Response,
   stids: string[],
 ): Promise<SnowObsTimeseriesResponse> {
+  // SnowObs answers 404 when none of the requested stations exist any more.
+  // For us that is an empty result, not a failure: the page renders with no
+  // data and the admin flags the station as not tracked.
+  if (res.status === 404) {
+    return { UNITS: {}, VARIABLES: [], STATION: [] }
+  }
   if (!res.ok) {
     throw new SnowObsError(`SnowObs request failed with status ${res.status}`, null, {
       stids,

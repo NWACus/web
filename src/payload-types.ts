@@ -71,6 +71,7 @@ export interface Config {
     homePages: HomePage;
     builtInPages: BuiltInPage;
     pages: Page;
+    stationPages: StationPage;
     posts: Post;
     media: Media;
     galleries: Gallery;
@@ -124,6 +125,7 @@ export interface Config {
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
     builtInPages: BuiltInPagesSelect<false> | BuiltInPagesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    stationPages: StationPagesSelect<false> | StationPagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     galleries: GalleriesSelect<false> | GalleriesSelect<true>;
@@ -1708,6 +1710,52 @@ export interface VideoEmbedBlock {
   blockType: 'videoEmbed';
 }
 /**
+ * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationPages".
+ */
+export interface StationPage {
+  id: number;
+  tenant: number | Tenant;
+  displayName: string;
+  /**
+   * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
+  slug: string;
+  stations?: {
+    stid: string;
+    source: string;
+  }[];
+  /**
+   * Which readings the table shows, for every station on the page. Clearing every reading shows all the stations report.
+   */
+  columns?:
+    | (
+        | 'air_temp'
+        | 'relative_humidity'
+        | 'wind_speed_min'
+        | 'wind_speed'
+        | 'wind_gust'
+        | 'wind_direction'
+        | 'precip_accum_one_hour'
+        | 'snow_depth_24h'
+        | 'snow_depth'
+        | 'intermittent_snow'
+        | 'solar_radiation'
+        | 'pressure'
+        | 'equip_temperature'
+      )[]
+    | null;
+  /**
+   * The hardware is gone but the history is still queryable, so the page stays up for downloads.
+   */
+  archived?: boolean | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "announcements".
  */
@@ -3283,6 +3331,10 @@ export interface PayloadLockedDocument {
         value: number | Page;
       } | null)
     | ({
+        relationTo: 'stationPages';
+        value: number | StationPage;
+      } | null)
+    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -3861,6 +3913,21 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationPages_select".
+ */
+export interface StationPagesSelect<T extends boolean = true> {
+  tenant?: T;
+  displayName?: T;
+  slug?: T;
+  stations?: T;
+  columns?: T;
+  archived?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
