@@ -1,9 +1,10 @@
 import { resolveSnowObsAccess } from '@/services/snowobs/access'
-import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
+import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKeys, stationKey } from '@/services/snowobs/stationKey'
 import { fetchTrackedStations } from '@/services/snowobs/stationTracking'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import config from '@payload-config'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
@@ -37,6 +38,9 @@ export async function GET(
   { params }: { params: Promise<Params> },
 ): Promise<NextResponse> {
   const { center } = await params
+  if (!isValidTenantSlug(center)) {
+    return NextResponse.json({ error: 'not found' }, { status: 404 })
+  }
   const url = new URL(request.url)
   const requested = parseStationKeys(url.searchParams.get('stations'), MAX_STATIONS)
   if (typeof requested === 'string') return badRequest(requested)
@@ -57,11 +61,9 @@ export async function GET(
       },
     })
   } catch (error) {
-    // SnowObs failures are expected and the fetch already logged them with their
-    // stations; anything else is ours and would vanish into the block's notice.
-    if (error instanceof SnowObsError) {
-      return NextResponse.json({ error: error.message }, { status: 502 })
-    }
+    // The message stays generic: a missing token or a SnowObs fault is ours to
+    // read in the log, not the caller's. The fetch logs its own failures; this
+    // names the route and catches everything it does not see.
     const payload = await getPayload({ config })
     payload.logger.error({ err: error, center }, 'precip-data failed')
     return NextResponse.json({ error: 'failed to load station data' }, { status: 502 })
