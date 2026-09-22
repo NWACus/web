@@ -47,12 +47,11 @@ export const CoursePreviewSmallRow = (props: {
     ? courseTypesData.find((ct) => ct.value === courseType)?.label
     : null
 
-  // Build location display text with fallbacks
+  // Build location display text with fallbacks, appending state when present
   const getLocationText = () => {
     if (!location) return null
-    if (location.placeName) return location.placeName
-    if (location.city && location.state) return `${location.city}, ${location.state}`
-    if (location.city) return location.city
+    const place = location.placeName || location.city
+    if (place) return location.state ? `${place}, ${location.state}` : place
     if (location.state) return location.state
     return 'Location'
   }
