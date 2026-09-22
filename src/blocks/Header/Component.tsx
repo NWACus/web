@@ -1,3 +1,4 @@
+import { blockSpacing } from '@/components/BackgroundColorWrapper'
 import RichText from '@/components/RichText'
 import type { HeaderBlock as HeaderBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
@@ -9,22 +10,25 @@ type Props = HeaderBlockProps & {
 }
 
 export const HeaderBlockComponent = (props: Props) => {
-  const { backgroundColor, fullWidthColor, richText, isLayoutBlock } = props
+  const { backgroundColor, fullWidthColor, richText, horizontalLine, isLayoutBlock } = props
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
+  const spacing = blockSpacing(backgroundColor, isLayoutBlock)
 
   return (
-    <div className={cn(fullWidthColor && bgColorClass)}>
+    <div className={cn(spacing.outer, fullWidthColor && bgColorClass)}>
       <div
         className={cn(
-          'py-4 w-full',
+          'w-full',
+          spacing.inner,
           textColor,
           { container: isLayoutBlock },
           !fullWidthColor && `${bgColorClass}`,
         )}
       >
         <RichText data={richText} enableGutter={false} className={cn(!isLayoutBlock && 'px-4')} />
+        {horizontalLine && <hr className={cn('mt-2 border-current', !isLayoutBlock && 'mx-4')} />}
       </div>
     </div>
   )

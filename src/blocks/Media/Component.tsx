@@ -5,6 +5,7 @@ import { cn } from '@/utilities/ui'
 
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
+import { blockSpacing } from '@/components/BackgroundColorWrapper'
 import { Media } from '@/components/Media'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 
@@ -32,6 +33,7 @@ export const MediaBlockComponent = (props: Props) => {
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
+  const spacing = blockSpacing(backgroundColor, isLayoutBlock)
 
   // `cqw` sizes the image relative to the block's `@container`; the browser reads the
   // rendered width via `sizes="auto"` (images are lazy-loaded) to pick the resolution.
@@ -54,10 +56,11 @@ export const MediaBlockComponent = (props: Props) => {
   }
 
   return (
-    <div className={cn(bgColorClass, textColor)}>
+    <div className={cn(spacing.outer, bgColorClass, textColor)}>
       <div
         className={cn(
-          isLayoutBlock && 'container py-10',
+          isLayoutBlock && 'container',
+          isLayoutBlock && spacing.inner,
           '@container',
           'flex flex-col',
           alignContent === 'left' && 'items-start',
