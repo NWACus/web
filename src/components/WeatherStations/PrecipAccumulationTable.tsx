@@ -147,7 +147,6 @@ function formatElevation(row: PrecipAccumulationRow, unit: Unit): string {
   return value.toLocaleString()
 }
 
-// Which trailing windows and which metadata columns a center chose to show.
 type Visible = {
   windows: (typeof PRECIP_ACCUMULATION_WINDOWS)[number][]
   has: (c: PrecipColumn) => boolean

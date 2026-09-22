@@ -9,8 +9,7 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
 // Serves the Precipitation Table block, as weather/graph-data serves the Graphs
-// tab. Reads SnowObs server-side so the token stays hidden, and keeps the
-// table's refresh cadence off the page carrying it.
+// tab: the token stays server-side and the table keeps its own cadence.
 
 const WINDOW_HOURS = 72
 const REVALIDATE_SECONDS = 900
@@ -23,8 +22,7 @@ function badRequest(message: string): NextResponse {
   return NextResponse.json({ error: message }, { status: 400 })
 }
 
-// Requested stations the center does not track: this serves a center's own
-// gauges, not whatever SnowObs will answer for.
+// This serves a center's own gauges, not whatever SnowObs will answer for.
 async function untracked(center: string, requested: StationRef[]): Promise<string[]> {
   const { token } = await resolveSnowObsAccess(center)
   const tracked = new Set((await fetchTrackedStations(token)).map(stationKey))
@@ -59,9 +57,8 @@ export async function GET(
       },
     })
   } catch (error) {
-    // A SnowObs failure is expected and the fetch has already logged it with the
-    // stations it asked for; anything else is ours and would otherwise reach the
-    // block as a grey notice with nothing recorded.
+    // SnowObs failures are expected and the fetch already logged them with their
+    // stations; anything else is ours and would vanish into the block's notice.
     if (error instanceof SnowObsError) {
       return NextResponse.json({ error: error.message }, { status: 502 })
     }

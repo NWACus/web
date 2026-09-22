@@ -3,9 +3,8 @@ import { PRECIP_HOURLY } from '@/services/snowobs/constants'
 import { ALL_PRECIP_COLUMNS, PRECIP_COLUMNS } from '@/services/stations/precipColumns'
 import type { Block } from 'payload'
 
-// The Accumulated Precipitation table on a Payload page: which columns it
-// shows and, in table order, which SnowObs gauges. The stations are read live
-// from SnowObs at render, so the block stores only references.
+// The block stores only references; names and readings come from SnowObs when
+// the table is fetched.
 export const PrecipTableBlock: Block = {
   slug: 'precipTable',
   interfaceName: 'PrecipTableBlock',

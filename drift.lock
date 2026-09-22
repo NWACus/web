@@ -413,7 +413,7 @@ sig = "f445ae3bb3f380ef"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/precip-data/route.ts"
-sig = "85298e621e90ef02"
+sig = "1457cd7954df01c6"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -423,12 +423,12 @@ sig = "5db1a330e242fbe0"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/blocks/PrecipTable/PrecipTable.client.tsx"
-sig = "e82558d0cab22fd8"
+sig = "a66b6809d33344dc"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/blocks/PrecipTable/config.ts"
-sig = "8ccd868189ef47e1"
+sig = "de934c0923dec4d3"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -498,7 +498,7 @@ sig = "1039a442d99ea1b8"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/revalidate.ts"
-sig = "c9d0338845559655"
+sig = "7b0c3163dddc0895"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

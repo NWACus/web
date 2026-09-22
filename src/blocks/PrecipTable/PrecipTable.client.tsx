@@ -12,9 +12,8 @@ type State =
   | { status: 'ready'; table: PrecipAccumulationData }
   | { status: 'error' }
 
-// Fetched here rather than on the server so the block sets its own refresh
-// cadence instead of the page's: a server fetch's revalidate becomes the
-// revalidate of every page an editor puts this block on.
+// Fetched in the browser so the block keeps its own refresh cadence: a server
+// fetch's revalidate becomes the revalidate of every page carrying the block.
 function usePrecipTable(stations: StationRef[]): State {
   const keys = stations.map(stationKey).join(',')
   const [state, setState] = useState<State>({ status: 'loading' })
