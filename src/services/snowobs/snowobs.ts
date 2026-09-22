@@ -8,8 +8,9 @@ import { snowObsTimeseriesResponseSchema } from './types/schemas'
 
 export { SnowObsError } from './access'
 
-// A stid is unique only within a source, so the pair is the identity.
-export type StationRef = { stid: string; source: string }
+import type { StationRef } from './stationKey'
+
+export type { StationRef } from './stationKey'
 
 // SnowObs expects UTC timestamps formatted as YYYYMMDDHHmm.
 function formatSnowObsDate(date: Date): string {

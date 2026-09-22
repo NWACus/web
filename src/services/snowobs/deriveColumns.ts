@@ -1,4 +1,6 @@
 import { TABLE_VARIABLE_ORDER } from './constants'
+import type { StationRef } from './stationKey'
+import { stationKey } from './stationKey'
 import type { StationColumnConfig } from './tableHelpers'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 
@@ -28,27 +30,29 @@ function byTableOrder(a: string, b: string): number {
  */
 export function deriveColumns(
   response: SnowObsTimeseriesResponse,
-  stids: string[],
+  stations: StationRef[],
 ): StationColumnConfig[] {
-  const stationByStid = new Map(response.STATION.map((s) => [s.stid, s]))
+  const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
 
   const reported = new Set<string>()
-  const variablesByStid = new Map<string, Set<string>>()
-  for (const stid of stids) {
-    const observations = stationByStid.get(stid)?.observations ?? {}
+  const variablesByStation = new Map<string, Set<string>>()
+  for (const station of stations) {
+    const observations = byKey.get(stationKey(station))?.observations ?? {}
     const variables = new Set(
       Object.keys(observations).filter(
         (v) => !NOT_A_READING.has(v) && !HIDDEN_TABLE_VARIABLES.has(v),
       ),
     )
-    variablesByStid.set(stid, variables)
+    variablesByStation.set(stationKey(station), variables)
     variables.forEach((v) => reported.add(v))
   }
 
   const columns: StationColumnConfig[] = []
   for (const variable of Array.from(reported).sort(byTableOrder)) {
-    for (const stid of stids) {
-      if (variablesByStid.get(stid)?.has(variable)) columns.push([stid, variable])
+    for (const station of stations) {
+      if (variablesByStation.get(stationKey(station))?.has(variable)) {
+        columns.push({ station, variable })
+      }
     }
   }
   return columns
@@ -58,10 +62,10 @@ export function deriveColumns(
 // chose when it chose any.
 export function resolveColumns(
   response: SnowObsTimeseriesResponse,
-  page: { stids: string[]; columns: string[] },
+  page: { stations: StationRef[]; columns: string[] },
 ): StationColumnConfig[] {
-  const derived = deriveColumns(response, page.stids)
+  const derived = deriveColumns(response, page.stations)
   if (page.columns.length === 0) return derived
   const chosen = new Set<string>(page.columns)
-  return derived.filter(([, variable]) => chosen.has(variable))
+  return derived.filter(({ variable }) => chosen.has(variable))
 }

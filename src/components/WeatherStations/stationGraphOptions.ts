@@ -167,16 +167,16 @@ type BandPair = { lower: GraphSeries; upper: GraphSeries }
 
 // Per station: when both band edges are present they render as a shaded band
 // instead of their own lines. Stations missing an edge keep plain lines.
-function bandPairsByStid(
+function bandPairsByStation(
   series: GraphSeries[],
   band: NonNullable<GraphPreset['band']>,
 ): Map<string, BandPair> {
   const pairs = new Map<string, BandPair>()
   for (const s of series) {
-    if (pairs.has(s.stid)) continue
-    const lower = series.find((c) => c.stid === s.stid && c.variable === band.lower)
-    const upper = series.find((c) => c.stid === s.stid && c.variable === band.upper)
-    if (lower && upper) pairs.set(s.stid, { lower, upper })
+    if (pairs.has(s.key)) continue
+    const lower = series.find((c) => c.key === s.key && c.variable === band.lower)
+    const upper = series.find((c) => c.key === s.key && c.variable === band.upper)
+    if (lower && upper) pairs.set(s.key, { lower, upper })
   }
   return pairs
 }
@@ -241,34 +241,35 @@ function unitTooltip(unit: string): object {
   }
 }
 
-// `primaryStids` marks the page's own station(s); series from any other station
-// (a comparison pick) render dashed so overlapping stations stay readable.
+// `primaryKeys` (`source:stid`) marks the page's own station(s); series from any
+// other station (a comparison pick) render dashed so overlapping stations stay
+// readable.
 export function buildChartOption(
   data: GraphData,
   preset: GraphPreset,
-  primaryStids?: string[],
+  primaryKeys?: string[],
 ): EChartOption {
   const title = preset.title
   const symbolsOnly = preset.symbolsOnly ?? false
   const minValueSpan = (data.aggregated ? 6 * 24 : 6) * 60 * 60 * 1000
   const bands = preset.band
-    ? bandPairsByStid(data.series, preset.band)
+    ? bandPairsByStation(data.series, preset.band)
     : new Map<string, BandPair>()
   const lineSeries = data.series.filter((s) => {
-    const pair = bands.get(s.stid)
+    const pair = bands.get(s.key)
     return !pair || (s !== pair.lower && s !== pair.upper)
   })
   const axes = unitAxes(lineSeries)
   const colorFor = (i: number) => SERIES_COLORS[i % SERIES_COLORS.length]
   const series: object[] = lineSeries.map((s, i) => {
     const yAxisIndex = axisIndexFor(s.unit, axes)
-    const dashed = primaryStids !== undefined && !primaryStids.includes(s.stid)
+    const dashed = primaryKeys !== undefined && !primaryKeys.includes(s.key)
     return seriesFor(s, yAxisIndex, colorFor(i), preset, dashed)
   })
   series.push(...refLineSeries(preset))
   // Each band shades in the color of its station's line so they read as one.
-  for (const [stid, pair] of bands) {
-    const lineIndex = lineSeries.findIndex((s) => s.stid === stid)
+  for (const [key, pair] of bands) {
+    const lineIndex = lineSeries.findIndex((s) => s.key === key)
     series.push(
       ...bandSeries(pair, axisIndexFor(pair.lower.unit, axes), colorFor(Math.max(lineIndex, 0))),
     )

@@ -8,7 +8,7 @@ function renderForm() {
   render(
     <StationCsvForm
       slug="alpental"
-      dataloggers={[{ stid: '4', label: 'Alpental Base' }]}
+      dataloggers={[{ station: { stid: '4', source: 'nwac' }, label: 'Alpental Base' }]}
       years={[2026]}
     />,
   )
@@ -48,7 +48,7 @@ describe('StationCsvForm', () => {
 
     expect(await screen.findByRole('button', { name: /Preparing CSV/ })).toBeDisabled()
     expect(global.fetch).toHaveBeenCalledWith(
-      '/weather/stations/alpental/csv?stid=4&year=2026&units=imperial',
+      '/weather/stations/alpental/csv?station=nwac%3A4&year=2026&units=imperial',
       { cache: 'no-store' },
     )
 

@@ -1,6 +1,7 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
+import type { Datalogger } from '@/components/WeatherStations/StationCsvForm'
 import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
 import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
@@ -11,6 +12,7 @@ import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import { resolveColumns } from '@/services/snowobs/deriveColumns'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
 import type { AssembledStationPage, StationPageSummary } from '@/services/stations/getStationPages'
@@ -40,19 +42,17 @@ async function loadStationNotes(center: string, page: AssembledStationPage) {
   return stationNotes(meta.STATION)
 }
 
-// Datalogger dropdown options for the CSV form: the page's station ids labeled with
+// Datalogger dropdown options for the CSV form: the page's stations labeled with
 // each logger's name + elevation (from a cheap 1-hour metadata fetch).
-async function loadDataloggers(
-  center: string,
-  page: AssembledStationPage,
-): Promise<{ stid: string; label: string }[]> {
+async function loadDataloggers(center: string, page: AssembledStationPage): Promise<Datalogger[]> {
   const meta = await fetchStationTimeseries(center, page.stations, { windowHours: 1 })
-  return page.stids.map((stid) => {
-    const station = meta.STATION.find((s) => s.stid === stid)
-    if (!station?.name) return { stid, label: stid }
+  const byKey = new Map(meta.STATION.map((s) => [stationKey(s), s]))
+  return page.stations.map((station) => {
+    const found = byKey.get(stationKey(station))
+    if (!found?.name) return { station, label: station.stid }
     return {
-      stid,
-      label: station.elevation != null ? `${station.name}, ${station.elevation}'` : station.name,
+      station,
+      label: found.elevation != null ? `${found.name}, ${found.elevation}'` : found.name,
     }
   })
 }
@@ -99,7 +99,7 @@ function graphsTabView({ page, pages }: TabContext): TabView {
     table: null,
     tabContent: (
       <StationGraphs
-        stids={page.stids}
+        stations={page.stations}
         presets={STATION_GRAPH_PRESETS}
         currentSlug={page.slug}
         pages={pages}

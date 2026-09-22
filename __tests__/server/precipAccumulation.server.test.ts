@@ -14,6 +14,7 @@ const response: SnowObsTimeseriesResponse = {
     {
       id: '1',
       stid: '1',
+      source: 'nwac',
       name: 'North Fresh',
       latitude: 48.5,
       longitude: -121.5,
@@ -27,6 +28,7 @@ const response: SnowObsTimeseriesResponse = {
     {
       id: '2',
       stid: '2',
+      source: 'nwac',
       name: 'South Lagging',
       latitude: 46.2,
       longitude: -121.7,
@@ -40,6 +42,7 @@ const response: SnowObsTimeseriesResponse = {
     {
       id: '3',
       stid: '3',
+      source: 'nwac',
       name: 'Mid Silent',
       latitude: 47.4,
       longitude: -121.4,
@@ -52,8 +55,10 @@ const response: SnowObsTimeseriesResponse = {
   ],
 }
 
+const ref = (stid: string) => ({ stid, source: 'nwac' })
+
 describe('buildPrecipAccumulationTable', () => {
-  const table = buildPrecipAccumulationTable(response, ['1', '2', '3'])
+  const table = buildPrecipAccumulationTable(response, [ref('1'), ref('2'), ref('3')])
 
   const rowFor = (stid: string) => {
     const row = table.rows.find((r) => r.stid === stid)
@@ -95,7 +100,7 @@ describe('buildPrecipAccumulationTable', () => {
   })
 
   it('dedupes requested stids and skips stations absent from the response', () => {
-    const dup = buildPrecipAccumulationTable(response, ['1', '1', 'nope'])
+    const dup = buildPrecipAccumulationTable(response, [ref('1'), ref('1'), ref('nope')])
     expect(dup.rows).toHaveLength(1)
   })
 })

@@ -55,10 +55,7 @@ export default async function Page({ params }: Args) {
     revalidate: REVALIDATE_SECONDS,
     windowHours: 72,
   })
-  const table = buildPrecipAccumulationTable(
-    response,
-    stations.map((s) => s.stid),
-  )
+  const table = buildPrecipAccumulationTable(response, stations)
 
   return (
     <>

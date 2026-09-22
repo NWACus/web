@@ -13,8 +13,9 @@ import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types
 const table: StationTable = {
   columns: [
     {
-      key: '4_air_temp',
+      key: 'nwac:4_air_temp',
       stid: '4',
+      source: 'nwac',
       variable: 'air_temp',
       label: 'Temp',
       longName: 'Air Temperature',
@@ -22,8 +23,9 @@ const table: StationTable = {
       elevation: 5250,
     },
     {
-      key: '4_precip_accum_one_hour',
+      key: 'nwac:4_precip_accum_one_hour',
       stid: '4',
+      source: 'nwac',
       variable: 'precip_accum_one_hour',
       label: 'Pcp1',
       longName: 'Precipitation',
@@ -31,8 +33,9 @@ const table: StationTable = {
       elevation: 5250,
     },
     {
-      key: '4_relative_humidity',
+      key: 'nwac:4_relative_humidity',
       stid: '4',
+      source: 'nwac',
       variable: 'relative_humidity',
       label: 'RH',
       longName: 'Relative Humidity',
@@ -45,9 +48,9 @@ const table: StationTable = {
       timestamp: 1_700_000_000_000,
       display: '11/14 14:13',
       values: {
-        '4_air_temp': 32,
-        '4_precip_accum_one_hour': 1,
-        '4_relative_humidity': 80,
+        'nwac:4_air_temp': 32,
+        'nwac:4_precip_accum_one_hour': 1,
+        'nwac:4_relative_humidity': 80,
       },
     },
   ],
@@ -61,21 +64,21 @@ describe('convertStationTable', () => {
     expect(metric.columns.map((c) => c.unit)).toEqual(['°C', 'mm', '%'])
     expect(metric.columns[0].elevation).toBe(1600)
     expect(metric.rows[0].values).toEqual({
-      '4_air_temp': 0,
-      '4_precip_accum_one_hour': 25.4,
-      '4_relative_humidity': 80,
+      'nwac:4_air_temp': 0,
+      'nwac:4_precip_accum_one_hour': 25.4,
+      'nwac:4_relative_humidity': 80,
     })
   })
 
   it('leaves imperial values unrounded and unconverted', () => {
     const raw = {
       ...table,
-      rows: [{ ...table.rows[0], values: { ...table.rows[0].values, '4_air_temp': 29.33 } }],
+      rows: [{ ...table.rows[0], values: { ...table.rows[0].values, 'nwac:4_air_temp': 29.33 } }],
     }
     const imperial = convertStationTable(raw, 'imperial')
     expect(imperial.columns.map((c) => c.unit)).toEqual(['°F', 'in', '%'])
     expect(imperial.columns[0].elevation).toBe(5250)
-    expect(imperial.rows[0].values['4_air_temp']).toBe(29.33)
+    expect(imperial.rows[0].values['nwac:4_air_temp']).toBe(29.33)
   })
 })
 
@@ -124,6 +127,7 @@ describe('buildStationCsv metric', () => {
       {
         id: '4',
         stid: '4',
+        source: 'nwac',
         name: 'Hurricane Ridge',
         latitude: null,
         longitude: null,
@@ -138,13 +142,15 @@ describe('buildStationCsv metric', () => {
   }
 
   it('converts header units and values when metric', () => {
-    const [header, row] = buildStationCsv(response, '4', 'metric').split('\n')
+    const [header, row] = buildStationCsv(response, { stid: '4', source: 'nwac' }, 'metric').split(
+      '\n',
+    )
     expect(header).toBe('Time (Pacific),air_temp (°C),snow_depth (cm)')
     expect(row.endsWith(',0,25.4')).toBe(true)
   })
 
   it('keeps imperial output unchanged by default', () => {
-    const [header, row] = buildStationCsv(response, '4').split('\n')
+    const [header, row] = buildStationCsv(response, { stid: '4', source: 'nwac' }).split('\n')
     expect(header).toBe('Time (Pacific),air_temp (°F),snow_depth (in)')
     expect(row.endsWith(',32,10')).toBe(true)
   })

@@ -1,5 +1,6 @@
 import { buildStationCsv } from '@/services/snowobs/csv'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { parseStationKey, stationKey } from '@/services/snowobs/stationKey'
 import { getStationPage } from '@/services/stations/getStationPages'
 import { passesCaptcha } from '@/services/turnstile'
 import { TZDate } from '@date-fns/tz'
@@ -11,22 +12,22 @@ type Args = {
   params: Promise<{ center: string; station: string }>
 }
 
-// GET /weather/stations/[station]/csv?stid=&year= — full-year hourly CSV for one
-// datalogger. Validates stid against the station page and year against range so
-// this isn't an open SnowObs proxy.
+// GET /weather/stations/[station]/csv?station=source:stid&year= — full-year hourly
+// CSV for one datalogger. Validates the station against the page and year against
+// range so this isn't an open SnowObs proxy.
 // CRAP is inflated by the lack of unit coverage on this route handler.
 // fallow-ignore-next-line complexity
 export async function GET(request: Request, { params }: Args) {
   const { center, station } = await params
   const url = new URL(request.url)
-  const stid = url.searchParams.get('stid')
+  const requested = parseStationKey(url.searchParams.get('station') ?? '')
   const year = Number(url.searchParams.get('year'))
 
   const page = await getStationPage(center, station)
   if (!page) {
     return new Response('Unknown station', { status: 404 })
   }
-  const datalogger = page.stations.find((s) => s.stid === stid)
+  const datalogger = requested && page.stations.find((s) => stationKey(s) === stationKey(requested))
   if (!datalogger) {
     return new Response('Unknown or invalid datalogger', { status: 400 })
   }
@@ -52,7 +53,7 @@ export async function GET(request: Request, { params }: Args) {
     revalidate: 3600,
     rawData: true,
   })
-  const csv = buildStationCsv(response, datalogger.stid, units)
+  const csv = buildStationCsv(response, datalogger, units)
 
   return new Response(csv, {
     headers: {

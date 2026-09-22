@@ -9,14 +9,17 @@ import {
   SENSOR_LABELS,
   zonedParts,
 } from './constants'
+import type { StationRef } from './stationKey'
+import { stationKey } from './stationKey'
 import type { SnowObsObservations, SnowObsTimeseriesResponse } from './types/schemas'
 
-// A [stid, variable] pair from the station registry describing one table column.
-export type StationColumnConfig = [string, string]
+// One table column: a reading from one station.
+export type StationColumnConfig = { station: StationRef; variable: string }
 
 export type TableColumn = {
-  key: string // `${stid}_${variable}`
+  key: string // `${source}:${stid}_${variable}`
   stid: string
+  source: string
   variable: string
   label: string
   longName: string
@@ -137,7 +140,7 @@ function columnSeries(
 
 // Header metadata for a config column.
 function columnMeta(
-  stid: string,
+  ref: StationRef,
   variable: string,
   station: ResponseStation | undefined,
   longNameByVariable: Map<string, string>,
@@ -145,8 +148,9 @@ function columnMeta(
 ): TableColumn {
   const isCumsum = variable === PRECIP_CUMSUM
   return {
-    key: `${stid}_${variable}`,
-    stid,
+    key: `${stationKey(ref)}_${variable}`,
+    stid: ref.stid,
+    source: ref.source,
     variable,
     label: SENSOR_LABELS[variable] ?? fallbackSensorLabel(variable),
     longName: isCumsum
@@ -164,6 +168,7 @@ export const PRECIP_ACCUMULATION_WINDOWS = [1, 3, 6, 12, 24, 48, 72] as const
 
 export type PrecipAccumulationRow = {
   stid: string
+  source: string
   name: string
   latitude: number | null
   longitude: number | null
@@ -214,10 +219,11 @@ function trailingSum(times: string[], hourly: (number | null)[], cutoff: number)
 }
 
 function accumulationRow(
-  stid: string,
+  ref: StationRef,
   station: ResponseStation,
   anchorMs: number,
 ): PrecipAccumulationRow {
+  const { stid, source } = ref
   const times = timeSeries(station.observations)
   const hourly = numericSeries(station.observations, PRECIP_HOURLY) ?? []
   const lastMs = latestMs(times)
@@ -229,6 +235,7 @@ function accumulationRow(
 
   return {
     stid,
+    source,
     name: station.name ?? stid,
     latitude: station.latitude ?? null,
     longitude: station.longitude ?? null,
@@ -251,12 +258,16 @@ function northToSouth(a: PrecipAccumulationRow, b: PrecipAccumulationRow): numbe
 
 export function buildPrecipAccumulationTable(
   response: SnowObsTimeseriesResponse,
-  stids: string[],
+  requested: StationRef[],
 ): PrecipAccumulationTable {
-  const stationByStid = new Map(response.STATION.map((s) => [s.stid, s]))
-  const stations = Array.from(new Set(stids)).flatMap((stid) => {
-    const station = stationByStid.get(stid)
-    return station ? [{ stid, station }] : []
+  const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
+  const seen = new Set<string>()
+  const stations = requested.flatMap((ref) => {
+    const key = stationKey(ref)
+    if (seen.has(key)) return []
+    seen.add(key)
+    const station = byKey.get(key)
+    return station ? [{ ref, station }] : []
   })
 
   // Windows anchor at the newest observation across ALL stations, so a lagging
@@ -269,7 +280,7 @@ export function buildPrecipAccumulationTable(
 
   return {
     rows: stations
-      .map(({ stid, station }) => accumulationRow(stid, station, anchorMs))
+      .map(({ ref, station }) => accumulationRow(ref, station, anchorMs))
       .sort(northToSouth),
     timezoneLabel: withTimes ? timezoneLabelFor(timeSeries(withTimes.station.observations)[0]) : '',
   }
@@ -281,7 +292,7 @@ export function buildStationTable(
   response: SnowObsTimeseriesResponse,
   columnConfig: StationColumnConfig[],
 ): StationTable {
-  const stationByStid = new Map(response.STATION.map((s) => [s.stid, s]))
+  const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
   const longNameByVariable = new Map(response.VARIABLES.map((v) => [v.variable, v.long_name]))
 
   const columns: TableColumn[] = []
@@ -289,18 +300,18 @@ export function buildStationTable(
   const valueByColumn = new Map<string, Map<string, number | null>>()
   const allTimes = new Set<string>()
 
-  const addColumn = (stid: string, variable: string) => {
-    const key = `${stid}_${variable}`
+  const addColumn = (ref: StationRef, variable: string) => {
+    const key = `${stationKey(ref)}_${variable}`
     if (valueByColumn.has(key)) return // de-dupe (e.g. explicit + auto-inserted cumsum)
 
-    const station = stationByStid.get(stid)
+    const station = byKey.get(stationKey(ref))
     const series = columnSeries(station, variable)
 
     // Unknown variable with no data and not in the response's variable list — skip
     // it, mirroring the legacy plugin which logs and drops such columns.
     if (!series && !longNameByVariable.has(variable) && variable !== PRECIP_CUMSUM) return
 
-    columns.push(columnMeta(stid, variable, station, longNameByVariable, response.UNITS))
+    columns.push(columnMeta(ref, variable, station, longNameByVariable, response.UNITS))
 
     const lookup = new Map<string, number | null>()
     if (station && series) {
@@ -313,10 +324,10 @@ export function buildStationTable(
     valueByColumn.set(key, lookup)
   }
 
-  for (const [stid, variable] of columnConfig) {
+  for (const { station, variable } of columnConfig) {
     if (variable === PRECIP_CUMSUM) continue // inserted automatically after hourly precip
-    addColumn(stid, variable)
-    if (variable === PRECIP_HOURLY) addColumn(stid, PRECIP_CUMSUM)
+    addColumn(station, variable)
+    if (variable === PRECIP_HOURLY) addColumn(station, PRECIP_CUMSUM)
   }
 
   // Newest-first rows across the union of all observed timestamps.

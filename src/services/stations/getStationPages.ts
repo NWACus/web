@@ -5,7 +5,7 @@ import { stationPagesTag } from './revalidate'
 import type { AssembledStationPage } from './stationPages'
 import { assembleStationPages } from './stationPages'
 
-export { allStations, ambiguousStids, precipStations, toPageSummaries } from './stationPages'
+export { allStations, precipStations, toPageSummaries } from './stationPages'
 export type { AssembledStationPage, StationPageSummary } from './stationPages'
 
 async function loadStationPages(center: string): Promise<AssembledStationPage[]> {

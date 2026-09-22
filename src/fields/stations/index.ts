@@ -19,9 +19,7 @@ export function toStationRefs(value: unknown): StationRef[] {
   return Array.isArray(value) ? value.filter(isStationRef) : []
 }
 
-// Well-formed pairs, no repeats, and one station per id: the tables, graphs
-// and CSV key a list's stations by stid alone, as SnowObs's response does.
-// Exported so it can be tested without a form.
+// Well-formed pairs, no repeats. Exported so it can be tested without a form.
 export function validateStations(value: unknown): true | string {
   if (value == null) return true
   if (!Array.isArray(value) || !value.every(isStationRef)) {
@@ -29,12 +27,7 @@ export function validateStations(value: unknown): true | string {
   }
   const keys = value.map((s) => `${s.source}:${s.stid}`)
   const repeat = keys.find((key, i) => keys.indexOf(key) !== i)
-  if (repeat) return `${repeat.replace(':', ' ')} is listed twice.`
-  const stids = value.map((s) => s.stid)
-  const shared = stids.find((stid, i) => stids.indexOf(stid) !== i)
-  return shared
-    ? `Station id ${shared} is listed under two sources; a list can hold it once.`
-    : true
+  return repeat ? `${repeat.replace(':', ' ')} is listed twice.` : true
 }
 
 // A sensor the list cares about: the admin table gets a column saying whether

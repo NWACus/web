@@ -9,6 +9,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 function buildRow(overrides: Partial<PrecipAccumulationRow>): PrecipAccumulationRow {
   return {
     stid: 'stid',
+    source: 'nwac',
     name: 'Station',
     latitude: 47,
     longitude: -121.5,

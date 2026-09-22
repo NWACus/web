@@ -1,6 +1,7 @@
 import { toStationRefs } from '@/fields/stations'
 import type { StationPage } from '@/payload-types'
-import type { StationRef } from '@/services/snowobs/snowobs'
+import type { StationRef } from '@/services/snowobs/stationKey'
+import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationColumn } from './stationColumns'
 import { toStationColumns } from './stationColumns'
 
@@ -12,8 +13,6 @@ export type AssembledStationPage = {
   displayName: string
   archived: boolean
   stations: StationRef[]
-  /** Station ids in page order -- the fetch list for tables, graphs and CSV. */
-  stids: string[]
   /** The readings the table shows, for every station; empty means all reported. */
   columns: StationColumn[]
 }
@@ -22,7 +21,7 @@ export type AssembledStationPage = {
 // as a prop, and free of anything that changes per request.
 export type StationPageSummary = Pick<
   AssembledStationPage,
-  'slug' | 'displayName' | 'archived' | 'stids'
+  'slug' | 'displayName' | 'archived' | 'stations'
 >
 
 type PageRow = Pick<StationPage, 'slug' | 'displayName' | 'archived' | 'stations' | 'columns'>
@@ -43,7 +42,6 @@ export function assembleStationPages(pages: PageRow[]): AssembledStationPage[] {
         displayName: page.displayName,
         archived: page.archived ?? false,
         stations,
-        stids: stations.map((s) => s.stid),
         columns: toStationColumns(page.columns),
       }
     })
@@ -51,42 +49,23 @@ export function assembleStationPages(pages: PageRow[]): AssembledStationPage[] {
 }
 
 export function toPageSummaries(pages: AssembledStationPage[]): StationPageSummary[] {
-  return pages.map(({ slug, displayName, archived, stids }) => ({
+  return pages.map(({ slug, displayName, archived, stations }) => ({
     slug,
     displayName,
     archived,
-    stids,
+    stations,
   }))
 }
 
-// Every station on any page, by stid: the allowlist for the graph-data route
-// and the way a bare stid from a query string gets its source back. The field
-// keeps a stid unique within a page; across pages the same id could sit under
-// two sources, and such an id is left out so the route refuses it rather than
-// fetching the wrong source.
+// Every station on any page, by `source:stid`: the allowlist for the graph-data
+// route, which receives those keys and sends the references on to SnowObs.
 export function allStations(pages: AssembledStationPage[]): Map<string, StationRef> {
-  const byStid = new Map<string, StationRef>()
-  for (const stid of ambiguousStids(pages)) byStid.set(stid, { stid, source: '' })
+  const byKey = new Map<string, StationRef>()
   for (const page of pages) {
-    for (const { stid, source } of page.stations) {
-      if (!byStid.has(stid)) byStid.set(stid, { stid, source })
-    }
+    for (const station of page.stations) byKey.set(stationKey(station), station)
   }
-  for (const stid of ambiguousStids(pages)) byStid.delete(stid)
-  return byStid
+  return byKey
 }
-
-// Station ids that appear under more than one source across a center's pages.
-export function ambiguousStids(pages: AssembledStationPage[]): Set<string> {
-  const sourcesByStid = new Map<string, Set<string>>()
-  for (const page of pages) {
-    for (const { stid, source } of page.stations) {
-      sourcesByStid.set(stid, (sourcesByStid.get(stid) ?? new Set()).add(source))
-    }
-  }
-  return new Set(Array.from(sourcesByStid).flatMap(([stid, s]) => (s.size > 1 ? [stid] : [])))
-}
-
 // The Accumulated Precipitation rows: every station on a live page, in page
 // order, as the legacy table showed. Archived pages are left out because a
 // decommissioned gauge would read "missing" forever.

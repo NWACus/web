@@ -1,6 +1,5 @@
 import {
   allStations,
-  ambiguousStids,
   assembleStationPages,
   precipStations,
 } from '../../src/services/stations/stationPages'
@@ -27,7 +26,7 @@ describe('assembleStationPages', () => {
     const pages = assembleStationPages([
       pageDoc({ slug: 'alpental', stations: [ref('3'), ref('2'), ref('1')] }),
     ])
-    expect(pages[0].stids).toEqual(['3', '2', '1'])
+    expect(pages[0].stations.map((s) => s.stid)).toEqual(['3', '2', '1'])
     expect(pages[0].stations[1]).toEqual({ stid: '2', source: 'nwac' })
   })
 
@@ -52,8 +51,9 @@ describe('allStations', () => {
       pageDoc({ slug: 'a', stations: [ref('1')] }),
       pageDoc({ slug: 'b', stations: [ref('1011', 'snotel')] }),
     ])
-    expect(allStations(pages).get('1011')).toEqual({ stid: '1011', source: 'snotel' })
-    expect(allStations(pages).has('245')).toBe(false)
+    expect(allStations(pages).get('snotel:1011')).toEqual({ stid: '1011', source: 'snotel' })
+    expect(allStations(pages).has('nwac:1011')).toBe(false)
+    expect(allStations(pages).has('nwac:245')).toBe(false)
   })
 })
 
@@ -65,14 +65,5 @@ describe('precipStations', () => {
       pageDoc({ slug: 'gone', archived: true, stations: [ref('40')] }),
     ])
     expect(precipStations(pages).map((s) => s.stid)).toEqual(['2', '1', '3'])
-  })
-
-  it('leaves out an id that two pages list under different sources', () => {
-    const pages = assembleStationPages([
-      pageDoc({ slug: 'a', stations: [ref('5', 'nwac'), ref('6')] }),
-      pageDoc({ slug: 'b', stations: [ref('5', 'snotel')] }),
-    ])
-    expect(ambiguousStids(pages)).toEqual(new Set(['5']))
-    expect(Array.from(allStations(pages).keys())).toEqual(['6'])
   })
 })

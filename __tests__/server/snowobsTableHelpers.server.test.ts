@@ -18,6 +18,7 @@ const response: SnowObsTimeseriesResponse = {
     {
       id: '4',
       stid: '4',
+      source: 'nwac',
       name: 'Hurricane Ridge',
       latitude: null,
       longitude: null,
@@ -31,6 +32,7 @@ const response: SnowObsTimeseriesResponse = {
     {
       id: '5',
       stid: '5',
+      source: 'nwac',
       name: 'Upper',
       latitude: null,
       longitude: null,
@@ -43,10 +45,11 @@ const response: SnowObsTimeseriesResponse = {
   ],
 }
 
-const columnConfig: [string, string][] = [
-  ['4', 'air_temp'],
-  ['4', 'precip_accum_one_hour'],
-  ['5', 'air_temp'],
+const ref = (stid: string) => ({ stid, source: 'nwac' })
+const columnConfig = [
+  { station: ref('4'), variable: 'air_temp' },
+  { station: ref('4'), variable: 'precip_accum_one_hour' },
+  { station: ref('5'), variable: 'air_temp' },
 ]
 
 describe('computePrecipCumsum', () => {
@@ -68,22 +71,22 @@ describe('buildStationTable', () => {
 
   it('auto-inserts a cumulative-precip column after hourly precip, in config order', () => {
     expect(table.columns.map((c) => c.key)).toEqual([
-      '4_air_temp',
-      '4_precip_accum_one_hour',
-      '4_precip_cumsum',
-      '5_air_temp',
+      'nwac:4_air_temp',
+      'nwac:4_precip_accum_one_hour',
+      'nwac:4_precip_cumsum',
+      'nwac:5_air_temp',
     ])
   })
 
   it('labels columns with short headers, long names, display units, and elevation', () => {
-    const temp = table.columns.find((c) => c.key === '4_air_temp')
+    const temp = table.columns.find((c) => c.key === 'nwac:4_air_temp')
     expect(temp).toMatchObject({
       label: 'Temp',
       longName: 'Air Temperature',
       unit: '°F',
       elevation: 5250,
     })
-    const cumsum = table.columns.find((c) => c.key === '4_precip_cumsum')
+    const cumsum = table.columns.find((c) => c.key === 'nwac:4_precip_cumsum')
     expect(cumsum).toMatchObject({
       label: 'PcpSum',
       longName: 'Cumulative Precipitation',
@@ -103,21 +106,21 @@ describe('buildStationTable', () => {
   it('full-outer-joins stations, filling gaps with null', () => {
     const [newest, second, third, oldest] = table.rows
     // T3: only station 5 reports
-    expect(newest.values).toMatchObject({ '4_air_temp': null, '5_air_temp': 42 })
+    expect(newest.values).toMatchObject({ 'nwac:4_air_temp': null, 'nwac:5_air_temp': 42 })
     // T2: both report; cumulative precip = 0.1 + 0.2
     expect(second.values).toMatchObject({
-      '4_air_temp': 62,
-      '4_precip_accum_one_hour': 0.2,
-      '4_precip_cumsum': 0.3,
-      '5_air_temp': 41,
+      'nwac:4_air_temp': 62,
+      'nwac:4_precip_accum_one_hour': 0.2,
+      'nwac:4_precip_cumsum': 0.3,
+      'nwac:5_air_temp': 41,
     })
     // T1: station 4 has a null reading; station 5 reports
-    expect(third.values).toMatchObject({ '4_air_temp': null, '5_air_temp': 40 })
+    expect(third.values).toMatchObject({ 'nwac:4_air_temp': null, 'nwac:5_air_temp': 40 })
     // T0: only station 4 reports; cumulative precip starts at 0.1
     expect(oldest.values).toMatchObject({
-      '4_air_temp': 60,
-      '4_precip_cumsum': 0.1,
-      '5_air_temp': null,
+      'nwac:4_air_temp': 60,
+      'nwac:4_precip_cumsum': 0.1,
+      'nwac:5_air_temp': null,
     })
   })
 

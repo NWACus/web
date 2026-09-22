@@ -3,6 +3,8 @@ import { format } from 'date-fns'
 import { displayUnit, NWAC_DISPLAY_TIMEZONE } from './constants'
 import type { UnitSystem } from './metricUnits'
 import { metricConversionFor } from './metricUnits'
+import type { StationRef } from './stationKey'
+import { stationKey } from './stationKey'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 
 // Full Pacific-local timestamp (YYYY-MM-DD HH:mm) for a CSV row.
@@ -44,10 +46,11 @@ function sensorValue(
  */
 export function buildStationCsv(
   response: SnowObsTimeseriesResponse,
-  stid: string,
+  station: StationRef,
   units: UnitSystem = 'imperial',
 ): string {
-  const observations = response.STATION.find((s) => s.stid === stid)?.observations ?? {}
+  const key = stationKey(station)
+  const observations = response.STATION.find((s) => stationKey(s) === key)?.observations ?? {}
   const times = observations['date_time'] ?? []
   const sensors = Object.keys(observations).filter((key) => key !== 'date_time')
 
