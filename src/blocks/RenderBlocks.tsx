@@ -18,6 +18,7 @@ import { ImageTextBlockComponent } from '@/blocks/ImageText/Component'
 import { LinkPreviewBlockComponent } from '@/blocks/LinkPreview/Component'
 import { MediaBlockComponent } from '@/blocks/Media/Component'
 import { NACMediaBlockComponent } from '@/blocks/NACMedia/Component'
+import { PrecipTableBlockComponent } from '@/blocks/PrecipTable/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
@@ -82,6 +83,8 @@ export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
       return <MediaBlockComponent {...block} isLayoutBlock={true} />
     case 'nacMediaBlock':
       return <NACMediaBlockComponent {...block} />
+    case 'precipTable':
+      return <PrecipTableBlockComponent {...block} />
     case 'singleBlogPost':
       return <SingleBlogPostBlockComponent {...block} isLayoutBlock={true} />
     case 'singleEvent':

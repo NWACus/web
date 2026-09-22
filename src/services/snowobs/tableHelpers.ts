@@ -190,8 +190,8 @@ export type PrecipAccumulationTable = {
   timezoneLabel: string
 }
 
-// One row per requested station, sorted north -> south (latitude desc, like the
-// legacy table), summing hourly precip over each trailing window. Windows are
+// One row per requested station, in the order requested (the block's station
+// list), summing hourly precip over each trailing window. Windows are
 // anchored at the newest observation across ALL stations so a lagging logger
 // shows a stale lastUpdate rather than shifting everyone's window.
 // Newest valid timestamp in a series (0 when none).
@@ -247,26 +247,21 @@ function accumulationRow(
   }
 }
 
-// North -> south; stations without a latitude sink to the bottom by name.
-function northToSouth(a: PrecipAccumulationRow, b: PrecipAccumulationRow): number {
-  if (a.latitude != null && b.latitude != null) return b.latitude - a.latitude
-  if (a.latitude != null) return -1
-  if (b.latitude != null) return 1
-  return a.name.localeCompare(b.name)
-}
-
 export function buildPrecipAccumulationTable(
   response: SnowObsTimeseriesResponse,
   requested: StationRef[],
 ): PrecipAccumulationTable {
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
   const seen = new Set<string>()
+  // A station with no precipitation series in the window has no gauge (or one
+  // that has been silent the whole time); either way it gets no row. A gauge
+  // that reported the series but no values shows as "missing".
   const stations = requested.flatMap((ref) => {
     const key = stationKey(ref)
     if (seen.has(key)) return []
     seen.add(key)
     const station = byKey.get(key)
-    return station ? [{ ref, station }] : []
+    return station && PRECIP_HOURLY in station.observations ? [{ ref, station }] : []
   })
 
   // Windows anchor at the newest observation across ALL stations, so a lagging
@@ -278,9 +273,7 @@ export function buildPrecipAccumulationTable(
   const withTimes = stations.find(({ station }) => timeSeries(station.observations).length > 0)
 
   return {
-    rows: stations
-      .map(({ ref, station }) => accumulationRow(ref, station, anchorMs))
-      .sort(northToSouth),
+    rows: stations.map(({ ref, station }) => accumulationRow(ref, station, anchorMs)),
     timezoneLabel: withTimes ? timezoneLabelFor(timeSeries(withTimes.station.observations)[0]) : '',
   }
 }

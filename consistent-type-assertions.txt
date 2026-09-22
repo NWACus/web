@@ -1,3 +1,4 @@
+__tests__/client/blocks/PrecipTable.client.test.tsx
 __tests__/server/duplicatePageToTenant.server.test.ts
 __tests__/server/revalidateDocument.server.test.ts
 __tests__/server/snowobsService.server.test.ts

@@ -300,6 +300,7 @@ export interface HomePage {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
     | SponsorsBlock
@@ -410,6 +411,7 @@ export interface Page {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
     | SponsorsBlock
@@ -1576,6 +1578,25 @@ export interface NACMediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'nacMediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PrecipTableBlock".
+ */
+export interface PrecipTableBlock {
+  /**
+   * Which columns the table shows after the station name. Clearing every column shows them all.
+   */
+  columns?:
+    | ('1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '72h' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation')[]
+    | null;
+  stations?: {
+    stid: string;
+    source: string;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'precipTable';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3537,6 +3558,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
@@ -3801,6 +3823,16 @@ export interface NACMediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PrecipTableBlock_select".
+ */
+export interface PrecipTableBlockSelect<T extends boolean = true> {
+  columns?: T;
+  stations?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "SingleBlogPostBlock_select".
  */
 export interface SingleBlogPostBlockSelect<T extends boolean = true> {
@@ -3886,6 +3918,7 @@ export interface PagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;

@@ -43,7 +43,7 @@ import type { GraphPreset } from './stationGraphPresets'
 import { MAX_COMPARE_STATIONS } from './stationGraphPresets'
 import type { StationPeriod } from './stationPeriods'
 import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
-import { StationSelectGroups, stationSelectTriggerClass } from './StationPicker'
+import { StationSelectItems, stationSelectTriggerClass } from './StationPicker'
 import { UnitToggle } from './UnitToggle'
 import type { useChartArrangement } from './useChartArrangement'
 
@@ -116,7 +116,7 @@ export function CompareSelect({
         />
       </SelectTrigger>
       <SelectContent position="item-aligned">
-        <StationSelectGroups
+        <StationSelectItems
           pages={pages}
           excludeSlugs={[currentSlug, ...compareSlugs]}
           excludeArchived
