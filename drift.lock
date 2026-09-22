@@ -522,6 +522,11 @@ sig = "072ab06f655b1a17"
 
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
+target = "src/access/bySharedContent.ts"
+sig = "245118ac891f9e42"
+
+[[bindings]]
+doc = "docs/decisions/022-shared-content.md"
 target = "src/utilities/clearLayoutRelationships.ts"
 sig = "3e72ce7cc3a7b3bb"
 
@@ -529,6 +534,11 @@ sig = "3e72ce7cc3a7b3bb"
 doc = "docs/decisions/022-shared-content.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
 sig = "8d4561becad4d144"
+
+[[bindings]]
+doc = "docs/decisions/022-shared-content.md"
+target = "src/utilities/rbac/canReadSharedContent.ts"
+sig = "95a2d8e00701bd99"
 
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
