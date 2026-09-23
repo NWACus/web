@@ -31,3 +31,26 @@ export function IssuedLine({
     </p>
   )
 }
+
+/** The page header's line: the switch beside it already names the issuance. */
+export function IssuedMeta({
+  issuance,
+  timezone,
+}: {
+  issuance: NwacWeatherIssuance
+  timezone: string | null | undefined
+}) {
+  const issued = formatIssued(issuance.issuedAt, timezone, "EEE, MMM d 'at' h:mm a zzz")
+  if (!issued && !issuance.author) return null
+  return (
+    <p className="text-muted-foreground">
+      {issued && (
+        <>
+          Issued <span className="font-semibold text-foreground">{issued}</span>
+        </>
+      )}
+      {issued && issuance.author && ' · '}
+      {issuance.author}
+    </p>
+  )
+}

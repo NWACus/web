@@ -1,4 +1,5 @@
-import { Overall } from '@/components/weather/nwac/Overall'
+import { IssuanceSwitch } from '@/components/weather/nwac/IssuanceSwitch.client'
+import { Overall, OverallSectionTabs } from '@/components/weather/nwac/Overall'
 import { ZoneSummary } from '@/components/weather/nwac/ZoneSummary'
 import { mapV3NwacWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
@@ -44,7 +45,6 @@ describe('Overall', () => {
       'href',
       '/forecasts/avalanche/olympics#mountain-weather',
     )
-    expect(screen.getByRole('navigation', { name: 'Forecast sections' })).toBeInTheDocument()
   })
 
   it('groups snow stations under their zones', () => {
@@ -57,6 +57,75 @@ describe('Overall', () => {
   it('has no extended table on a morning issuance', () => {
     render(<Overall issuance={morning} />)
     expect(screen.queryByRole('heading', { name: 'Extended Snow Level (ft)' })).toBeNull()
+  })
+})
+
+describe('OverallSectionTabs', () => {
+  it('links each section the issuance has', () => {
+    render(<OverallSectionTabs issuance={afternoon} />)
+    const nav = screen.getByRole('navigation', { name: 'Forecast sections' })
+    expect(within(nav).getByRole('link', { name: 'Sensible weather' })).toHaveAttribute(
+      'href',
+      '#afternoon-sensible',
+    )
+    expect(within(nav).getByRole('link', { name: 'Extended' })).toBeInTheDocument()
+  })
+
+  it('leaves out Extended on a morning issuance', () => {
+    render(<OverallSectionTabs issuance={morning} />)
+    expect(screen.queryByRole('link', { name: 'Extended' })).toBeNull()
+  })
+})
+
+describe('IssuanceSwitch with a heading', () => {
+  it('puts the switch beside the heading and swaps the issued line with the panel', () => {
+    render(
+      <IssuanceSwitch
+        heading={<h1>Mountain Weather</h1>}
+        panels={[
+          {
+            key: 'pm',
+            label: 'Afternoon',
+            time: '3:03 PM',
+            meta: 'Issued at 3:03',
+            content: 'PM body',
+          },
+          {
+            key: 'am',
+            label: 'Morning',
+            time: '7:00 AM',
+            meta: 'Issued at 7:00',
+            content: 'AM body',
+          },
+        ]}
+      />,
+    )
+    expect(screen.getByRole('radio', { name: /Afternoon.*Latest/ })).toBeInTheDocument()
+    expect(screen.getByText('Issued at 3:03')).toBeVisible()
+    expect(screen.getByText('Issued at 7:00')).not.toBeVisible()
+
+    fireEvent.click(screen.getByRole('radio', { name: /Morning/ }))
+    expect(screen.getByText('Issued at 7:00')).toBeVisible()
+    expect(screen.getByText('AM body')).toBeVisible()
+    expect(screen.getByText('PM body')).not.toBeVisible()
+  })
+})
+
+describe('IssuanceSwitch anchors', () => {
+  afterEach(() => window.history.replaceState(null, '', '/'))
+
+  it('opens the issuance a section link points into', () => {
+    window.history.replaceState(null, '', '/#morning-snow')
+    render(
+      <IssuanceSwitch
+        panels={[
+          { key: 'pm', label: 'Afternoon', time: null, anchor: 'afternoon', content: 'PM body' },
+          { key: 'am', label: 'Morning', time: null, anchor: 'morning', content: 'AM body' },
+        ]}
+      />,
+    )
+    expect(screen.getByText('AM body')).toBeVisible()
+    expect(screen.getByText('PM body')).not.toBeVisible()
   })
 })
 

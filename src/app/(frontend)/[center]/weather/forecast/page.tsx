@@ -35,9 +35,6 @@ export default async function Page({ params }: CenterRouteArgs) {
     return (
       <>
         <Breadcrumbs center={center} path="/weather/forecast" />
-        <div className="container py-6">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Mountain Weather</h1>
-        </div>
         <ForecastPage centerSlug={center} />
       </>
     )

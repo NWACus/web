@@ -29,6 +29,7 @@ import {
 import { cn } from '@/utilities/ui'
 
 import { RichText, textOrNull } from './RichText'
+import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import { LevelValue, SnowValue, TempValue, WindValue } from './Values'
 
 interface Column {
@@ -345,14 +346,14 @@ function ProseColumns({ table: t }: { table: Table }) {
 
 function GridTable({
   table: t,
-  issuanceId,
+  anchor,
   headingLevel = 'h3',
 }: {
   table: Table
-  issuanceId: number
+  anchor: string
   headingLevel?: 'h3' | 'h4'
 }) {
-  const headingId = `nwac-weather-${issuanceId}-${t.id}`
+  const headingId = `${anchor}-${t.id}`
   return (
     <section aria-labelledby={headingId} className="min-w-0 space-y-2">
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
@@ -369,31 +370,6 @@ function GridTable({
         </table>
       </div>
     </section>
-  )
-}
-
-function SectionNav({
-  issuanceId,
-  links,
-}: {
-  issuanceId: number
-  links: { id: string; label: string }[]
-}) {
-  return (
-    <nav aria-label="Forecast sections" className="print:hidden">
-      <ul className="flex flex-wrap gap-2 border-b pb-4">
-        {links.map((l) => (
-          <li key={l.id}>
-            <a
-              href={`#nwac-weather-${issuanceId}-${l.id}`}
-              className="inline-flex h-8 items-center rounded-full bg-muted px-3 text-sm font-semibold text-foreground no-underline hover:bg-accent"
-            >
-              {l.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
   )
 }
 
@@ -437,8 +413,8 @@ function ZoneLinks({
 }
 
 /** A table, or nothing when it has no rows worth showing. */
-function MaybeTable({ table, issuanceId }: { table: Table; issuanceId: number }) {
-  return hasContent(table) ? <GridTable table={table} issuanceId={issuanceId} /> : null
+function MaybeTable({ table, anchor }: { table: Table; anchor: string }) {
+  return hasContent(table) ? <GridTable table={table} anchor={anchor} /> : null
 }
 
 function SynopsisRow({
@@ -450,7 +426,7 @@ function SynopsisRow({
   synopsis: string | null
   zonePaths: ZonePaths
 }) {
-  const headingId = `nwac-weather-${issuance.id}-synopsis`
+  const headingId = `${issuance.type}-synopsis`
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
       {synopsis ? (
@@ -469,17 +445,17 @@ function SynopsisRow({
 }
 
 function ExtendedSection({
-  issuanceId,
+  anchor,
   extended,
   table,
 }: {
-  issuanceId: number
+  anchor: string
   extended: string | null
   table: Table
 }) {
   const showTable = hasContent(table)
   if (!extended && !showTable) return null
-  const headingId = `nwac-weather-${issuanceId}-extended`
+  const headingId = `${anchor}-extended`
   return (
     <section aria-labelledby={headingId} className="space-y-4 border-t pt-6">
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
@@ -487,18 +463,27 @@ function ExtendedSection({
       </h3>
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
         {extended ? <RichText html={extended} /> : <div />}
-        {showTable && <GridTable table={table} issuanceId={issuanceId} headingLevel="h4" />}
+        {showTable && <GridTable table={table} anchor={anchor} headingLevel="h4" />}
       </div>
     </section>
   )
 }
 
-function sectionLinks(synopsis: string | null, tables: Table[], hasExtended: boolean) {
+function sectionLinks(issuance: NwacWeatherIssuance): SectionLink[] {
+  const [sensible, snowLevel, temps, wind] = zoneTables(issuance)
+  const hasExtended = !!textOrNull(issuance.extendedOutlook) || hasContent(extendedTable(issuance))
   return [
-    ...(synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...tables.filter(hasContent).map((t) => ({ id: t.id, label: t.nav })),
+    ...(textOrNull(issuance.synopsis) ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
+    ...[sensible, snowLevel, temps, wind, snowTable(issuance)]
+      .filter(hasContent)
+      .map((t) => ({ id: t.id, label: t.nav })),
     ...(hasExtended ? [{ id: 'extended', label: 'Extended' }] : []),
-  ]
+  ].map((l) => ({ ...l, id: `${issuance.type}-${l.id}` }))
+}
+
+/** The issuance's section links, for the tabs across the top of its card. */
+export function OverallSectionTabs({ issuance }: { issuance: NwacWeatherIssuance }) {
+  return <SectionTabs links={sectionLinks(issuance)} />
 }
 
 export function Overall({
@@ -513,28 +498,23 @@ export function Overall({
   const [sensible, snowLevel, temps, wind] = zoneTables(issuance)
   const snow = snowTable(issuance)
   const ext = extendedTable(issuance)
-  const id = issuance.id
-  const links = sectionLinks(
-    synopsis,
-    [sensible, snowLevel, temps, wind, snow],
-    !!extended || hasContent(ext),
-  )
+  // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
+  const anchor = issuance.type
   const tempsOrWind = hasContent(temps) || hasContent(wind)
 
   return (
     <div className="space-y-8">
-      <SectionNav issuanceId={id} links={links} />
       <SynopsisRow issuance={issuance} synopsis={synopsis} zonePaths={zonePaths} />
-      <MaybeTable table={sensible} issuanceId={id} />
-      <MaybeTable table={snowLevel} issuanceId={id} />
+      <MaybeTable table={sensible} anchor={anchor} />
+      <MaybeTable table={snowLevel} anchor={anchor} />
       {tempsOrWind && (
         <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-          <MaybeTable table={temps} issuanceId={id} />
-          <MaybeTable table={wind} issuanceId={id} />
+          <MaybeTable table={temps} anchor={anchor} />
+          <MaybeTable table={wind} anchor={anchor} />
         </div>
       )}
-      <MaybeTable table={snow} issuanceId={id} />
-      <ExtendedSection issuanceId={id} extended={extended} table={ext} />
+      <MaybeTable table={snow} anchor={anchor} />
+      <ExtendedSection anchor={anchor} extended={extended} table={ext} />
     </div>
   )
 }
