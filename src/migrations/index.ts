@@ -57,7 +57,7 @@ import * as migration_20260701_162212_add_galleries from './20260701_162212_add_
 import * as migration_20260918_223529_station_pages from './20260918_223529_station_pages'
 import * as migration_20260921_124724_station_pages_backfill from './20260921_124724_station_pages_backfill'
 import * as migration_20260922_180955_precip_table_block from './20260922_180955_precip_table_block'
-import * as migration_20260915_010640_native_products_flags from './20260915_010640_native_products_flags'
+import * as migration_20260923_020331_native_products_flags from './20260923_020331_native_products_flags'
 
 export const migrations = [
   {
@@ -356,8 +356,8 @@ export const migrations = [
     name: '20260922_180955_precip_table_block',
   },
   {
-    up: migration_20260915_010640_native_products_flags.up,
-    down: migration_20260915_010640_native_products_flags.down,
-    name: '20260915_010640_native_products_flags',
+    up: migration_20260923_020331_native_products_flags.up,
+    down: migration_20260923_020331_native_products_flags.down,
+    name: '20260923_020331_native_products_flags',
   },
 ]
