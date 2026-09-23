@@ -7,6 +7,7 @@ import {
   mapWebcams,
   orderZoneNames,
   stationHref,
+  stationPageLookup,
   zonesFromMapLayer,
 } from '@/services/snowobs/stationMap/mappers'
 import type { StationMapZone } from '@/services/snowobs/stationMap/model'
@@ -40,8 +41,16 @@ describe('the current-data schema', () => {
   })
 })
 
+const nwac = (stid: string) => ({ stid, source: 'nwac' })
+
+// nwac:502 is a different station from the fixture's snotel:502.
+const stationPages = stationPageLookup([
+  { slug: 'white-chuck', archived: false, stations: [nwac('57')] },
+  { slug: 'not-the-snotel-station', archived: false, stations: [nwac('502')] },
+])
+
 describe('mapStations', () => {
-  const options = { centerSlug: 'nwac', stationsTenantSlug: 'nwac', zones: [northZone] }
+  const options = { stationPages, zones: [northZone] }
   const stations = mapStations(current, options)
 
   it('drops a station with no coordinates', () => {
@@ -63,24 +72,40 @@ describe('mapStations', () => {
     expect(stations[2].source).toBe('synoptic-data')
   })
 
-  it("links NWAC's registry stations to their native page and nothing else", () => {
+  it('links a station to the page that shows it, matched on source and stid', () => {
     expect(stations[0].href).toBe('/weather/stations/white-chuck')
     expect(stations[1].href).toBeNull()
   })
 
   it('links nothing for a center without native station pages', () => {
-    const other = mapStations(current, { ...options, centerSlug: 'sac' })
+    const other = mapStations(current, { ...options, stationPages: new Map() })
     expect(other.every((s) => s.href === null)).toBe(true)
   })
 })
 
-describe('stationHref', () => {
-  it('resolves a logger inside a multi-station group to the group page', () => {
-    expect(stationHref('nwac', '2', 'nwac')).toBe('/weather/stations/alpental')
+describe('stationPageLookup', () => {
+  it('links every station of a multi-station page to that page', () => {
+    const pages = stationPageLookup([
+      { slug: 'alpental', archived: false, stations: [nwac('1'), nwac('2')] },
+    ])
+    expect(stationHref(pages, nwac('2'))).toBe('/weather/stations/alpental')
   })
 
-  it('is null for an unknown stid', () => {
-    expect(stationHref('nwac', '999', 'nwac')).toBeNull()
+  it('prefers a live page over an archived one that lists the same station', () => {
+    const pages = stationPageLookup([
+      { slug: 'old-site', archived: true, stations: [nwac('1')] },
+      { slug: 'new-site', archived: false, stations: [nwac('1')] },
+    ])
+    expect(stationHref(pages, nwac('1'))).toBe('/weather/stations/new-site')
+  })
+
+  it('still links to an archived page when that is the only one', () => {
+    const pages = stationPageLookup([{ slug: 'old-site', archived: true, stations: [nwac('1')] }])
+    expect(stationHref(pages, nwac('1'))).toBe('/weather/stations/old-site')
+  })
+
+  it('is null for a station no page shows', () => {
+    expect(stationHref(stationPages, nwac('999'))).toBeNull()
   })
 })
 

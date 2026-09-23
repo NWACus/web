@@ -184,7 +184,7 @@ describe('failure logging', () => {
     const logged = captureLoggedErrors()
     server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
 
-    await expect(fetchStationTimeseries(['4'])).rejects.toThrow(SnowObsError)
+    await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(SnowObsError)
     expect(logged).toHaveBeenCalledWith(
       expect.objectContaining({ stids: ['4'] }),
       'fetchStationTimeseries error',

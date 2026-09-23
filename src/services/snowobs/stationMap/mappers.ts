@@ -5,8 +5,9 @@
  * be placed), every station is classified into the forecast zone it sits in, and the stations
  * this center has native pages for get their link here rather than in the component.
  */
-import { getStationGroupByStid } from '@/constants/weatherStations'
 import type { ZoneMapLayer } from '@/services/nac/model/mapLayer'
+import type { StationRef } from '@/services/snowobs/stationKey'
+import { stationKey } from '@/services/snowobs/stationKey'
 import { pointInPolygon } from '@/utilities/geo/pointInPolygon'
 
 import type { SnowObsCurrentGeojson, SnowObsWebcamResponse } from '../types/schemas'
@@ -73,32 +74,45 @@ function numericReadings(data: Record<string, number | string | null>): {
   return { observedAt, readings }
 }
 
+/** `source:stid` → the slug of the center's native station page that shows that station. */
+export type StationPageLookup = ReadonlyMap<string, string>
+
+interface LinkableStationPage {
+  slug: string
+  archived: boolean
+  stations: StationRef[]
+}
+
 /**
- * The native station page for a SnowObs station, when this center has one.
- *
- * The registry is NWAC's (see `STATIONS_TENANT_SLUG`); a station whose stid it lists links to
- * that group's page, and every other station — other centers' loggers, SNOTEL, Synoptic — has
- * no native page to go to.
+ * Which page each station links to. A station can sit on more than one page; a live page wins over
+ * an archived one (whose table is empty), and otherwise the first page listed does.
  */
-export function stationHref(
-  centerSlug: string,
-  stid: string,
-  stationsTenantSlug: string,
-): string | null {
-  if (centerSlug !== stationsTenantSlug) return null
-  const group = getStationGroupByStid(stid)
-  return group ? `/weather/stations/${group.slug}` : null
+export function stationPageLookup(pages: LinkableStationPage[]): StationPageLookup {
+  const lookup = new Map<string, string>()
+  const liveFirst = [...pages].sort((a, b) => Number(a.archived) - Number(b.archived))
+  for (const page of liveFirst) {
+    for (const station of page.stations) {
+      const key = stationKey(station)
+      if (!lookup.has(key)) lookup.set(key, page.slug)
+    }
+  }
+  return lookup
+}
+
+/** The native station page for a SnowObs station, when this center has one that shows it. */
+export function stationHref(pages: StationPageLookup, station: StationRef): string | null {
+  const slug = pages.get(stationKey(station))
+  return slug ? `/weather/stations/${slug}` : null
 }
 
 export interface MapStationsOptions {
-  centerSlug: string
-  stationsTenantSlug: string
+  stationPages: StationPageLookup
   zones: StationMapZone[]
 }
 
 export function mapStations(
   geojson: SnowObsCurrentGeojson,
-  { centerSlug, stationsTenantSlug, zones }: MapStationsOptions,
+  { stationPages, zones }: MapStationsOptions,
 ): StationMapStation[] {
   return geojson.features.flatMap((feature) => {
     const { properties } = feature
@@ -118,7 +132,7 @@ export function mapStations(
         observedAt,
         data: readings,
         zone: classifyZone(coordinates, zones),
-        href: stationHref(centerSlug, properties.stid, stationsTenantSlug),
+        href: stationHref(stationPages, properties),
       },
     ]
   })

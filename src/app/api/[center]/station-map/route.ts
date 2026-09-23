@@ -2,7 +2,6 @@
 // and predicts a runtime crash. Route groups keep the two trees separate — verified against a
 // production build for the sibling danger-map and freshness routes.
 // fallow-ignore-file dynamic-segment-name-conflicts
-import { STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
 import { getZoneMapLayer } from '@/services/nac/dangerMap/mapLayer'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { AvalancheForecastZoneStatus } from '@/services/nac/types/schemas'
@@ -10,15 +9,18 @@ import type { SnowObsUnits } from '@/services/snowobs/snowobs'
 import { fetchCurrentStationData, fetchWebcams } from '@/services/snowobs/snowobs'
 import { fetchAlternateZones } from '@/services/snowobs/stationMap/alternateZones'
 import { variableDisplayName } from '@/services/snowobs/stationMap/format'
+import type { StationPageLookup } from '@/services/snowobs/stationMap/mappers'
 import {
   alternateZoneNames,
   mapStations,
   mapWebcams,
   orderZoneNames,
+  stationPageLookup,
   zonesFromMapLayer,
 } from '@/services/snowobs/stationMap/mappers'
 import type { StationMapData, StationMapZone } from '@/services/snowobs/stationMap/model'
 import { resolveStationMapSettings } from '@/services/snowobs/stationMap/settings'
+import { getStationPages } from '@/services/stations/getStationPages'
 import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextRequest, NextResponse } from 'next/server'
@@ -45,6 +47,15 @@ async function loadOutlines(center: string): Promise<StationMapZone[]> {
     return zonesFromMapLayer(await getZoneMapLayer(center))
   } catch {
     return []
+  }
+}
+
+/** Which station pages the markers link to. The links are decoration, so a failed read costs them. */
+async function loadStationPages(center: string): Promise<StationPageLookup> {
+  try {
+    return stationPageLookup(await getStationPages(center))
+  } catch {
+    return new Map()
   }
 }
 
@@ -89,10 +100,11 @@ export async function GET(
   const units = requestedUnits(request)
 
   try {
-    const [metadata, current, outlines, webcamResult] = await Promise.all([
+    const [metadata, current, outlines, stationPages, webcamResult] = await Promise.all([
       getAvalancheCenterMetadata(center),
       fetchCurrentStationData(center, units),
       loadOutlines(center),
+      loadStationPages(center),
       fetchWebcams(center).then(
         (response) => ({ response, failed: false }),
         () => ({ response: { webcam: [] }, failed: true }),
@@ -110,11 +122,7 @@ export async function GET(
     )
 
     const body: StationMapData = {
-      stations: mapStations(current, {
-        centerSlug: center,
-        stationsTenantSlug: STATIONS_TENANT_SLUG,
-        zones,
-      }),
+      stations: mapStations(current, { stationPages, zones }),
       webcams: mapWebcams(webcamResult.response, zones),
       zones,
       zoneNames,

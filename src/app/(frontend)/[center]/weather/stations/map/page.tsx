@@ -8,7 +8,6 @@ import { getPayload } from 'payload'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { StationMapLoader } from '@/components/stationMap/StationMapLoader.client'
-import { STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { resolveStationMapSettings } from '@/services/snowobs/stationMap/settings'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
@@ -39,21 +38,26 @@ type PathArgs = {
 
 /**
  * The native map's server half: the center's station-map settings from the NAC dashboard, and
- * whether this center has native station tables for the map's markers and toolbar to link to.
+ * whether this center has native station pages for the toolbar to link to.
  * The stations themselves are fetched by the map on mount, so the readings are current rather
  * than as old as the static page.
  */
-async function NativeStationMap({ center }: { center: string }) {
+async function NativeStationMap({
+  center,
+  hasStationsIndex,
+}: {
+  center: string
+  hasStationsIndex: boolean
+}) {
   const metadata = await getAvalancheCenterMetadata(center)
   const settings = resolveStationMapSettings(metadata.widget_config.stations)
-  const hasNativeStationPages = center === STATIONS_TENANT_SLUG
 
   return (
     <div className="container">
       <StationMapLoader
         centerSlug={center}
         settings={settings}
-        tableHref={hasNativeStationPages ? '/weather/stations' : null}
+        tableHref={hasStationsIndex ? '/weather/stations' : null}
       />
     </div>
   )
@@ -89,7 +93,7 @@ export default async function Page({ params }: Args) {
           </div>
         </div>
         {useNative ? (
-          <NativeStationMap center={center} />
+          <NativeStationMap center={center} hasStationsIndex={hasStationsIndex} />
         ) : (
           <NACWidget center={center} widget={'stations'} />
         )}
