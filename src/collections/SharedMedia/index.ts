@@ -1,7 +1,7 @@
 import { type CollectionConfig } from 'payload'
 
 import { accessBySharedContentWithPermissiveRead } from '@/access/bySharedContent'
-import { SHARED_CONTENT_ADMIN_GROUP } from '@/constants/sharedContent'
+import { getSharedMediaBlobPrefix, SHARED_CONTENT_ADMIN_GROUP } from '@/constants/sharedContent'
 import { contentHashField } from '@/fields/contentHashField'
 import { referenceCountField } from '@/fields/referenceCountField'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
@@ -9,7 +9,6 @@ import { canReadSharedContent } from '@/utilities/rbac/canReadSharedContent'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { generateBlurDataUrl } from '../Media/hooks/generateBlurDataUrl'
-import { prefixSharedFilename } from './hooks/prefixSharedFilename'
 import { revalidateSharedMedia, revalidateSharedMediaDelete } from './hooks/revalidateSharedMedia'
 
 const filename = fileURLToPath(import.meta.url)
@@ -67,7 +66,7 @@ export const SharedMedia: CollectionConfig = {
     {
       name: 'prefix',
       type: 'text',
-      defaultValue: getEnvironmentFriendlyName(),
+      defaultValue: getSharedMediaBlobPrefix(getEnvironmentFriendlyName()),
       admin: {
         hidden: true,
         readOnly: true,
@@ -88,7 +87,6 @@ export const SharedMedia: CollectionConfig = {
     ],
   },
   hooks: {
-    beforeOperation: [prefixSharedFilename],
     beforeChange: [generateBlurDataUrl],
     afterChange: [revalidateSharedMedia],
     afterDelete: [revalidateSharedMediaDelete],

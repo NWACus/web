@@ -9,3 +9,8 @@ export const SHARED_CONTENT_COLLECTIONS: ReadonlySet<CollectionSlug> = new Set([
 const sharedContentSlugs: ReadonlySet<string> = SHARED_CONTENT_COLLECTIONS
 
 export const isSharedContentCollection = (slug: string): boolean => sharedContentSlugs.has(slug)
+
+// Shared uploads get a blob folder of their own under the environment's, because tenant
+// files in that folder are kept apart only by the tenant slug on their filename.
+export const getSharedMediaBlobPrefix = (environmentPrefix: string): string =>
+  `${environmentPrefix}/shared`
