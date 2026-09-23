@@ -1,5 +1,5 @@
 /** Who issued a Mountain Weather issuance and when, in the center's timezone. */
-import type { NwacWeatherIssuance } from '@/services/nac/model/nwacWeather'
+import type { NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
 import { formatDateTime } from '@/utilities/formatDateTime'
 
 export function formatIssued(iso: string, timezone: string | null | undefined, pattern: string) {
@@ -11,7 +11,7 @@ export function IssuedMeta({
   issuance,
   timezone,
 }: {
-  issuance: NwacWeatherIssuance
+  issuance: NWACWeatherIssuance
   timezone: string | null | undefined
 }) {
   const issued = formatIssued(issuance.issuedAt, timezone, "EEE, MMM d 'at' h:mm a zzz")

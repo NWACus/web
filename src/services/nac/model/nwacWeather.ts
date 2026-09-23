@@ -3,16 +3,16 @@
  * and every axis carries its calendar date.
  */
 
-export type NwacWeatherIssuanceType = 'morning' | 'afternoon'
+export type NWACWeatherIssuanceType = 'morning' | 'afternoon'
 
-export interface NwacWeatherZone {
+export interface NWACWeatherZone {
   id: string
   name: string
   /** The NAC avalanche zone this weather zone corresponds to, when the names match. */
   avalancheZoneId: number | null
 }
 
-export interface NwacWeatherPoint {
+export interface NWACWeatherPoint {
   code: string
   name: string
   zoneId: string | null
@@ -20,7 +20,7 @@ export interface NwacWeatherPoint {
   avalancheZoneId: number | null
 }
 
-export interface NwacWeatherPeriod {
+export interface NWACWeatherPeriod {
   key: string
   label: string
   short: string | null
@@ -31,7 +31,7 @@ export interface NwacWeatherPeriod {
   precip: boolean
 }
 
-export interface NwacWeatherBlock {
+export interface NWACWeatherBlock {
   key: string
   label: string
   /** Morning / Afternoon / Evening / Night */
@@ -40,7 +40,7 @@ export interface NwacWeatherBlock {
   period: string | null
 }
 
-export interface NwacWeatherExtendedBlock {
+export interface NWACWeatherExtendedBlock {
   key: string
   label: string
   part: string
@@ -48,30 +48,30 @@ export interface NwacWeatherExtendedBlock {
   date: string
 }
 
-export interface NwacWeatherPrecipCell {
+export interface NWACWeatherPrecipCell {
   qpf: number | null
   density: number | null
 }
-export interface NwacWeatherTempCell {
+export interface NWACWeatherTempCell {
   high: number | null
   low: number | null
 }
-export interface NwacWeatherWindCell {
+export interface NWACWeatherWindCell {
   dir: string | null
   speed: number | null
 }
-export interface NwacWeatherLevelCell {
+export interface NWACWeatherLevelCell {
   freezing: number | null
   drop: number | null
   mode: string | null
 }
 
 /** `outer id → slot key → cell` */
-export type NwacWeatherGrid<Cell> = Record<string, Record<string, Cell>>
+export type NWACWeatherGrid<Cell> = Record<string, Record<string, Cell>>
 
-export interface NwacWeatherIssuance {
+export interface NWACWeatherIssuance {
   id: number
-  type: NwacWeatherIssuanceType
+  type: NWACWeatherIssuanceType
   /** ISO instant. */
   issuedAt: string
   /** `YYYY-MM-DD` — Day 1 of the forecast. */
@@ -80,26 +80,26 @@ export interface NwacWeatherIssuance {
   /** Forecaster-authored HTML; sanitize before rendering. */
   synopsis: string | null
   extendedOutlook: string | null
-  zones: NwacWeatherZone[]
-  points: NwacWeatherPoint[]
-  periods: NwacWeatherPeriod[]
-  blocks: NwacWeatherBlock[]
-  extendedBlocks: NwacWeatherExtendedBlock[]
+  zones: NWACWeatherZone[]
+  points: NWACWeatherPoint[]
+  periods: NWACWeatherPeriod[]
+  blocks: NWACWeatherBlock[]
+  extendedBlocks: NWACWeatherExtendedBlock[]
   /** by point code, then period key */
-  precip: NwacWeatherGrid<NwacWeatherPrecipCell>
+  precip: NWACWeatherGrid<NWACWeatherPrecipCell>
   /** by zone id, then period key */
-  temp: NwacWeatherGrid<NwacWeatherTempCell>
+  temp: NWACWeatherGrid<NWACWeatherTempCell>
   /** by zone id, then block key */
-  wind: NwacWeatherGrid<NwacWeatherWindCell>
-  snowLevel: NwacWeatherGrid<NwacWeatherLevelCell>
+  wind: NWACWeatherGrid<NWACWeatherWindCell>
+  snowLevel: NWACWeatherGrid<NWACWeatherLevelCell>
   /** by zone id, then extended block key */
-  extendedSnowLevel: NwacWeatherGrid<NwacWeatherLevelCell>
+  extendedSnowLevel: NWACWeatherGrid<NWACWeatherLevelCell>
   /** by zone id, then slot (`morning` = Today / Tonight, `afternoon` = Tomorrow) */
-  sensible: NwacWeatherGrid<string>
+  sensible: NWACWeatherGrid<string>
 }
 
 /** Every issuance published for one forecast date, newest first. */
-export interface NwacWeatherForecastDay {
+export interface NWACWeatherForecastDay {
   serviceDate: string
-  issuances: NwacWeatherIssuance[]
+  issuances: NWACWeatherIssuance[]
 }

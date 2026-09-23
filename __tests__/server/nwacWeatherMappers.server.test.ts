@@ -18,8 +18,8 @@ import {
   zonesFor,
 } from '@/services/nac/nwacWeatherFormat'
 import {
-  mapV3NwacWeatherForecastDay,
-  mapV3NwacWeatherIssuance,
+  mapV3NWACWeatherForecastDay,
+  mapV3NWACWeatherIssuance,
 } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import {
   nwacWeatherForecastResponseSchema,
@@ -28,12 +28,12 @@ import {
 } from '@/services/nac/types/nwacWeatherSchemas'
 import fixture from './fixtures/nwac-weather-forecasts.json'
 
-const day = mapV3NwacWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
+const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
 if (!day) throw new Error('fixture should map to a forecast day')
 const afternoon = day.issuances[0]
 const morning = day.issuances[1]
 
-describe('mapV3NwacWeatherForecastDay', () => {
+describe('mapV3NWACWeatherForecastDay', () => {
   it('keeps both issuances of the date, newest first', () => {
     expect(day.serviceDate).toBe('2026-09-14')
     expect(day.issuances.map((i) => i.type)).toEqual(['afternoon', 'morning'])
@@ -76,7 +76,7 @@ describe('mapV3NwacWeatherForecastDay', () => {
 
   it('returns null for the empty answer', () => {
     expect(
-      mapV3NwacWeatherForecastDay({ available: false, serviceDate: null, forecasts: [] }),
+      mapV3NWACWeatherForecastDay({ available: false, serviceDate: null, forecasts: [] }),
     ).toBeNull()
     expect(nwacWeatherForecastResponseSchema.parse({ available: false })).toEqual({
       available: false,
@@ -84,7 +84,7 @@ describe('mapV3NwacWeatherForecastDay', () => {
   })
 
   it('maps a single issuance the same way', () => {
-    const one = mapV3NwacWeatherIssuance(nwacWeatherForecastSchema.parse(fixture.forecasts[0]))
+    const one = mapV3NWACWeatherIssuance(nwacWeatherForecastSchema.parse(fixture.forecasts[0]))
     expect(one).toEqual(afternoon)
   })
 })

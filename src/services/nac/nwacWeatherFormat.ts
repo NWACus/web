@@ -1,10 +1,10 @@
 /** How Mountain Weather values read on the page, matching the dashboard preview. Pure. */
 import type {
-  NwacWeatherBlock,
-  NwacWeatherGrid,
-  NwacWeatherIssuance,
-  NwacWeatherLevelCell,
-  NwacWeatherPeriod,
+  NWACWeatherBlock,
+  NWACWeatherGrid,
+  NWACWeatherIssuance,
+  NWACWeatherLevelCell,
+  NWACWeatherPeriod,
 } from './model/nwacWeather'
 
 export const DASH = '—'
@@ -38,7 +38,7 @@ export function fmtTemp(cell: { high: number | null; low: number | null } | unde
   return `${cell.high} / ${cell.low}`
 }
 
-export function fmtSnowLevel(cell: NwacWeatherLevelCell | undefined) {
+export function fmtSnowLevel(cell: NWACWeatherLevelCell | undefined) {
   const level = deriveSnowLevel(cell?.freezing, cell?.drop)
   return level == null ? DASH : `${level.toLocaleString('en-US')}'`
 }
@@ -95,7 +95,7 @@ export function rangeBucket(value: number | null, step = 2): string {
 }
 
 export function zoneSnow(
-  issuance: NwacWeatherIssuance,
+  issuance: NWACWeatherIssuance,
   zoneId: string,
   periodKey: string,
 ): number | null {
@@ -111,16 +111,16 @@ export function zoneSnow(
 }
 
 /** The periods the issuance forecasts precipitation for. */
-export function precipPeriods(issuance: NwacWeatherIssuance): NwacWeatherPeriod[] {
+export function precipPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] {
   return issuance.periods.filter((p) => p.precip)
 }
 
 /** The 6h blocks with a value for any zone, else the whole window; the wire doesn't say. */
 export function blocksWithData<Cell>(
-  issuance: NwacWeatherIssuance,
-  grid: NwacWeatherGrid<Cell>,
+  issuance: NWACWeatherIssuance,
+  grid: NWACWeatherGrid<Cell>,
   hasValue: (cell: Cell) => boolean,
-): NwacWeatherBlock[] {
+): NWACWeatherBlock[] {
   const used = new Set<string>()
   for (const cells of Object.values(grid)) {
     for (const [key, cell] of Object.entries(cells)) if (hasValue(cell)) used.add(key)
@@ -129,16 +129,16 @@ export function blocksWithData<Cell>(
   return shown.length ? shown : issuance.blocks
 }
 
-export function windBlocks(issuance: NwacWeatherIssuance): NwacWeatherBlock[] {
+export function windBlocks(issuance: NWACWeatherIssuance): NWACWeatherBlock[] {
   return blocksWithData(issuance, issuance.wind, (c) => c.speed != null)
 }
 
-export function snowLevelBlocks(issuance: NwacWeatherIssuance): NwacWeatherBlock[] {
+export function snowLevelBlocks(issuance: NWACWeatherIssuance): NWACWeatherBlock[] {
   return blocksWithData(issuance, issuance.snowLevel, (c) => c.freezing != null)
 }
 
 /** The periods a 12h table shows: those with a value for any zone, else the whole window. */
-export function tempPeriods(issuance: NwacWeatherIssuance): NwacWeatherPeriod[] {
+export function tempPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] {
   const used = new Set<string>()
   for (const cells of Object.values(issuance.temp)) {
     for (const [key, cell] of Object.entries(cells)) if (cell.high != null) used.add(key)
@@ -163,16 +163,16 @@ export const SENSIBLE_SLOTS = [
   { key: 'afternoon', label: 'Tomorrow' },
 ] as const
 
-export function issuanceLabel(type: NwacWeatherIssuance['type']): string {
+export function issuanceLabel(type: NWACWeatherIssuance['type']): string {
   return type === 'morning' ? 'Morning Forecast' : 'Afternoon Forecast'
 }
 
-export function issuanceShortLabel(type: NwacWeatherIssuance['type']): string {
+export function issuanceShortLabel(type: NWACWeatherIssuance['type']): string {
   return type === 'morning' ? 'Morning' : 'Afternoon'
 }
 
 /** Periods grouped by calendar date, for the By Zone header. */
-export function periodDateGroups(periods: NwacWeatherPeriod[]): { date: string; span: number }[] {
+export function periodDateGroups(periods: NWACWeatherPeriod[]): { date: string; span: number }[] {
   const out: { date: string; span: number }[] = []
   for (const p of periods) {
     const last = out[out.length - 1]
@@ -183,12 +183,12 @@ export function periodDateGroups(periods: NwacWeatherPeriod[]): { date: string; 
 }
 
 /** The date a 6h block falls on, via its parent period. */
-export function blockDate(issuance: NwacWeatherIssuance, block: NwacWeatherBlock): string | null {
+export function blockDate(issuance: NWACWeatherIssuance, block: NWACWeatherBlock): string | null {
   return issuance.periods.find((p) => p.key === block.period)?.date ?? null
 }
 
 /** The zones an issuance measured, narrowed to one avalanche zone when the page has one. */
-export function zonesFor(issuance: NwacWeatherIssuance, avalancheZoneId?: number | null) {
+export function zonesFor(issuance: NWACWeatherIssuance, avalancheZoneId?: number | null) {
   if (avalancheZoneId == null) return issuance.zones
   const match = issuance.zones.filter((z) => z.avalancheZoneId === avalancheZoneId)
   return match

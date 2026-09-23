@@ -1,13 +1,13 @@
 import { IssuanceSwitch } from '@/components/weather/nwac/IssuanceSwitch.client'
 import { IssuedMeta } from '@/components/weather/nwac/Issued'
 import { Overall, OverallSectionTabs } from '@/components/weather/nwac/Overall'
-import { mapV3NwacWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
+import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
-const day = mapV3NwacWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
+const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
 if (!day) throw new Error('fixture should map to a forecast day')
 const [afternoon, morning] = day.issuances
 
