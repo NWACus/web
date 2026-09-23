@@ -18,12 +18,7 @@ const TONES = [
 
 export function SnowValue({ text, some }: { text: string; some: boolean }) {
   return (
-    <span
-      className={cn(
-        'inline-block min-w-12 rounded-full px-2.5 py-0.5 text-center font-semibold tabular-nums',
-        some ? 'bg-sky-100 text-sky-900' : 'text-muted-foreground',
-      )}
-    >
+    <span className={cn('tabular-nums', some ? 'font-semibold' : 'text-muted-foreground')}>
       {text}
     </span>
   )
