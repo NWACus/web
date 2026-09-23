@@ -16,9 +16,6 @@ const TONES = [
   'bg-sky-700 text-white',
 ]
 
-/** Night columns and night period headers. */
-export const NIGHT = 'bg-muted'
-
 export function SnowValue({ text, some }: { text: string; some: boolean }) {
   return (
     <span

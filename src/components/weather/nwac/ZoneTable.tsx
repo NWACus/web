@@ -24,7 +24,7 @@ import {
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
-import { LevelValue, NIGHT, SnowValue, TempValue, WindValue } from './Values'
+import { LevelValue, SnowValue, TempValue, WindValue } from './Values'
 
 const HEAD = 'border-b border-l p-2 text-center font-semibold'
 const ROW_LABEL = 'border-t p-2 pl-3 text-left align-middle font-semibold'
@@ -40,7 +40,6 @@ interface PeriodView {
 }
 interface BlockView {
   block: NwacWeatherBlock
-  night: boolean
   level: number | null
   tone: number | null
   wind: NwacWeatherWindCell | undefined
@@ -59,15 +58,12 @@ function periodViews(issuance: NwacWeatherIssuance, zone: NwacWeatherZone): Peri
     tone: tones[i],
     wind: issuance.wind[zone.id]?.[block.key],
   }))
-  return issuance.periods.map((period) => {
-    const night = period.kind === 'night'
-    return {
-      period,
-      night,
-      label: fmtCalendarDate(period.date),
-      blocks: blocks.filter((b) => b.block.period === period.key).map((b) => ({ ...b, night })),
-    }
-  })
+  return issuance.periods.map((period) => ({
+    period,
+    night: period.kind === 'night',
+    label: fmtCalendarDate(period.date),
+    blocks: blocks.filter((b) => b.block.period === period.key),
+  }))
 }
 
 function ZoneSnow({
@@ -136,12 +132,7 @@ function PeriodHead({ periods }: { periods: PeriodView[] }) {
       <tr>
         <td />
         {periods.map((p) => (
-          <th
-            key={p.period.key}
-            scope="colgroup"
-            colSpan={periodSpan(p)}
-            className={cn(HEAD, p.night && NIGHT)}
-          >
+          <th key={p.period.key} scope="colgroup" colSpan={periodSpan(p)} className={HEAD}>
             <PeriodLabel p={p} />
           </th>
         ))}
@@ -161,9 +152,8 @@ function PartHead({ b, first }: { b: BlockView; first: boolean }) {
     <th
       scope="col"
       className={cn(
-        'border-b px-1 pb-2 text-center text-sm font-normal text-muted-foreground',
+        'border-b px-1 py-1.5 text-center text-sm font-normal text-muted-foreground',
         first && 'border-l',
-        b.night && NIGHT,
       )}
     >
       {b.block.part}
@@ -294,12 +284,7 @@ function PeriodCardHeader({
   p: PeriodView
 }) {
   return (
-    <div
-      className={cn(
-        'flex items-center justify-between gap-2 px-3 py-2',
-        p.night ? NIGHT : 'bg-muted/50',
-      )}
-    >
+    <div className="flex items-center justify-between gap-2 bg-muted/50 px-3 py-2">
       <h4 className="font-semibold">
         <PeriodLabel p={p} />
       </h4>
