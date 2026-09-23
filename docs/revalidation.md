@@ -51,6 +51,7 @@ Queries the `documentReferences` JSON field across all collections that have it:
 - Iterates over the `ROUTABLE_COLLECTIONS` array defined in `revalidateDocument.ts`
 - Returns published documents only. Pass `{ includeDrafts: true }` to see unpublished uses too — right for the "Where this is used" panel on a Shared Content document, where an editor is deciding whether a change is safe, and wrong for revalidation, which has no draft path to revalidate. With it set, draft-enabled collections are also queried with `draft: true`, because saving a draft of a published document writes only to the versions table and the main row never sees what that draft added
 - Each result carries `title` and `status` where the collection has them, so a caller can list what it found without a second query per document
+- Pass `req` to run inside a caller's transaction. A hook counting references for the document it is currently saving has to see that save, which has not been committed yet
 
 ## Collection Patterns
 

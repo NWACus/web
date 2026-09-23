@@ -78,7 +78,7 @@ sig = "80e69afedc706be3"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/revalidation.md"
-sig = "aca5b18cafdb9692"
+sig = "09dc5ab332f7bf29"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -538,7 +538,7 @@ sig = "5056989806c9df98"
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
-sig = "af3bff3bf57d6a91"
+sig = "ea90e25cc4e4ba06"
 
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
@@ -778,7 +778,7 @@ sig = "4ac8868f8d8d2ba3"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
-sig = "af3bff3bf57d6a91"
+sig = "ea90e25cc4e4ba06"
 
 [[bindings]]
 doc = "docs/revalidation.md"

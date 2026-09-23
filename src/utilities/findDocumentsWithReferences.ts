@@ -1,5 +1,5 @@
 import configPromise from '@payload-config'
-import type { CollectionSlug, Field, Payload, SelectType, Where } from 'payload'
+import type { CollectionSlug, Field, Payload, PayloadRequest, SelectType, Where } from 'payload'
 import { getPayload } from 'payload'
 import { isTenantValue } from './isTenantValue'
 import { DocumentReference } from './revalidateDocument'
@@ -16,6 +16,12 @@ export interface FindDocumentsWithReferencesOptions {
    * the unpublished uses too.
    */
   includeDrafts?: boolean
+  /**
+   * The request to run inside. A hook counting references for the document it is currently saving
+   * has to see that save, which has not been committed yet — without the request it queries outside
+   * the transaction and reads the state from before the hook ran.
+   */
+  req?: PayloadRequest
 }
 
 interface ReferencingCollection {
@@ -87,6 +93,7 @@ async function queryCollection(
   reference: ReferenceQuery,
   collection: ReferencingCollection & { slug: CollectionSlug },
   includeDrafts: boolean,
+  req: PayloadRequest | undefined,
 ): Promise<DocumentReference[]> {
   const query = async (draft: boolean) => {
     const res = await payload.find({
@@ -96,6 +103,7 @@ async function queryCollection(
       depth: 1,
       limit: 0,
       draft,
+      req,
     })
     return res.docs.flatMap((doc) => toDocumentReference(doc, collection))
   }
@@ -111,9 +119,9 @@ async function queryCollection(
 /** Find all documents whose `documentReferences` field contains a reference to the given document. */
 export async function findDocumentsWithReferences(
   reference: ReferenceQuery,
-  { includeDrafts = false }: FindDocumentsWithReferencesOptions = {},
+  { includeDrafts = false, req }: FindDocumentsWithReferencesOptions = {},
 ): Promise<DocumentReference[]> {
-  const payload = await getPayload({ config: configPromise })
+  const payload = req?.payload ?? (await getPayload({ config: configPromise }))
 
   const allSlugs = new Set(payload.config.collections.map((c) => c.slug))
   const hasField = (fields: Field[], name: string) =>
@@ -131,7 +139,7 @@ export async function findDocumentsWithReferences(
     collectionsWithReferences.map(async (collection) => {
       const { slug } = collection
       if (!isCollectionSlug(slug, allSlugs)) return []
-      return queryCollection(payload, reference, { ...collection, slug }, includeDrafts)
+      return queryCollection(payload, reference, { ...collection, slug }, includeDrafts, req)
     }),
   )
 
