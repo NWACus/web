@@ -3,6 +3,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
 import {
+  nwacWeatherArchiveSchema,
   nwacWeatherForecastsResponseSchema,
   type NwacWeatherForecastsWire,
 } from './types/nwacWeatherSchemas'
@@ -304,5 +305,21 @@ export async function fetchNwacWeatherForecasts(
     return parsed.data
   } catch {
     return null
+  }
+}
+
+/** The dates between `from` and `to` with a published NWAC weather forecast, oldest first. */
+export async function fetchNwacWeatherDates(from: string, to: string): Promise<string[]> {
+  const params = new URLSearchParams({ from, to })
+  try {
+    const data = await nacFetch(`/v3/public/nwac-weather/forecast/archive?${params}`, {
+      cachedTime: 300,
+      tags: [nwacWeatherCacheTag],
+    })
+    const parsed = nwacWeatherArchiveSchema.safeParse(data)
+    if (!parsed.success) return []
+    return [...new Set(parsed.data.map((r) => r.serviceDate))].sort()
+  } catch {
+    return []
   }
 }

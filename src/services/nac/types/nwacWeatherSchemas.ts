@@ -120,3 +120,6 @@ export const nwacWeatherForecastsResponseSchema = z.object({
   forecasts: z.array(nwacWeatherForecastSchema),
 })
 export type NwacWeatherForecastsWire = z.infer<typeof nwacWeatherForecastsResponseSchema>
+
+/** `/forecast/archive`: one entry per published issuance in a date range. */
+export const nwacWeatherArchiveSchema = z.array(z.object({ serviceDate: z.string() }))
