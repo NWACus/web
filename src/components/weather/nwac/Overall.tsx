@@ -231,7 +231,7 @@ function extendedTable(issuance: NwacWeatherIssuance): Table {
   return {
     id: 'extended-snow-level',
     nav: 'Extended',
-    title: 'Extended Snow Level (ft)',
+    title: 'Snow Levels (ft)',
     rowLabel: 'Zone',
     columns: blocks.map((b) => ({
       key: b.key,
@@ -402,7 +402,10 @@ function TableTitle({
 }) {
   return (
     <div>
-      <Heading id={headingId} className="scroll-mt-24 text-lg font-semibold">
+      <Heading
+        id={headingId}
+        className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
+      >
         {t.title}
       </Heading>
       {t.note && <p className="text-sm text-muted-foreground">{t.note}</p>}
@@ -535,10 +538,17 @@ function ExtendedSection({
   return (
     <section aria-labelledby={headingId} className="space-y-4 border-t pt-6">
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
-        Extended Outlook
+        Extended
       </h3>
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-        {extended ? <RichText html={extended} /> : <div />}
+        {extended ? (
+          <section className="space-y-2">
+            <h4 className="text-base font-semibold">Outlook</h4>
+            <RichText html={extended} />
+          </section>
+        ) : (
+          <div />
+        )}
         {showTable && <GridTable table={table} anchor={anchor} headingLevel="h4" />}
       </div>
     </section>
