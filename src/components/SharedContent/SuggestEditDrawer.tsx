@@ -1,36 +1,24 @@
 'use client'
 
 import { MAX_SUGGESTION_LENGTH } from '@/constants/sharedContent'
-import { isRecord } from '@/utilities/isRecord'
 import {
   Button,
   Drawer,
   Form,
+  formatDrawerSlug,
   FormSubmit,
   TextareaField,
   toast,
   useDocumentInfo,
+  useEditDepth,
   useModal,
 } from '@payloadcms/ui'
 import type { CollectionSlug, FormState } from 'payload'
 import { useCallback, useState } from 'react'
 import { suggestEditAction } from './suggestEditAction'
 
-const drawerSlug = 'suggest-shared-content-edit-drawer'
-
 const initialState: FormState = {
   suggestion: { initialValue: '', valid: true, value: '' },
-}
-
-// Whichever of these a shared collection happens to use as its human-readable name
-const TITLE_KEYS = ['title', 'filename', 'name', 'alt']
-
-const isNonEmptyString = (value: unknown): value is string =>
-  typeof value === 'string' && value.length > 0
-
-function titleFor(data: unknown): string {
-  const record: Record<string, unknown> = isRecord(data) ? { ...data } : {}
-  return TITLE_KEYS.map((key) => record[key]).find(isNonEmptyString) ?? 'this document'
 }
 
 type SuggestTarget = { collectionSlug: CollectionSlug; id: number }
@@ -56,16 +44,13 @@ function readSuggestion(formState: FormState): string {
   return typeof value === 'string' ? value : ''
 }
 
-function SuggestEditForm({
-  collectionSlug,
-  id,
-  documentTitle,
-}: {
-  collectionSlug: CollectionSlug
-  id: number
-  documentTitle: string
-}) {
+function SuggestEditForm({ collectionSlug, id }: SuggestTarget) {
   const { openModal, closeModal } = useModal()
+  // Unique per drawer depth, so the button still works inside a document opened in a drawer
+  const drawerSlug = formatDrawerSlug({
+    slug: 'suggest-shared-content-edit',
+    depth: useEditDepth(),
+  })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = useCallback(
@@ -75,7 +60,6 @@ function SuggestEditForm({
         const result = await suggestEditAction({
           collectionSlug,
           id,
-          documentTitle,
           suggestion: readSuggestion(formState),
         })
         if (result.success) {
@@ -88,7 +72,7 @@ function SuggestEditForm({
         setIsSubmitting(false)
       }
     },
-    [closeModal, collectionSlug, documentTitle, id],
+    [closeModal, collectionSlug, drawerSlug, id],
   )
 
   return (
@@ -134,7 +118,7 @@ function SuggestEditForm({
  * the list to spread.
  */
 export function SuggestEditDrawer() {
-  const { id, collectionSlug, docPermissions, savedDocumentData } = useDocumentInfo()
+  const { id, collectionSlug, docPermissions } = useDocumentInfo()
 
   const target = suggestTarget({
     id,
@@ -143,5 +127,5 @@ export function SuggestEditDrawer() {
   })
   if (!target) return null
 
-  return <SuggestEditForm {...target} documentTitle={titleFor(savedDocumentData)} />
+  return <SuggestEditForm {...target} />
 }

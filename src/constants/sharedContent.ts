@@ -8,7 +8,8 @@ export const SHARED_CONTENT_COLLECTIONS: ReadonlySet<CollectionSlug> = new Set([
 // The set is keyed by slug; callers walking field configs only hold a plain string.
 const sharedContentSlugs: ReadonlySet<string> = SHARED_CONTENT_COLLECTIONS
 
-export const isSharedContentCollection = (slug: string): boolean => sharedContentSlugs.has(slug)
+export const isSharedContentCollection = (slug: string): slug is CollectionSlug =>
+  sharedContentSlugs.has(slug)
 
 // Shared uploads get a blob folder of their own under the environment's, because tenant
 // files in that folder are kept apart only by the tenant slug on their filename.

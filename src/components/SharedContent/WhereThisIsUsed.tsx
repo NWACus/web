@@ -1,7 +1,9 @@
 import type { Payload, UIFieldServerProps } from 'payload'
 
+import { isSharedContentCollection } from '@/constants/sharedContent'
 import { collectionLabel } from '@/utilities/collectionLabel'
 import { findDocumentsWithReferences } from '@/utilities/findDocumentsWithReferences'
+import { hasGlobalRolePermission } from '@/utilities/rbac/hasGlobalOrTenantRolePermission'
 import type { DocumentReference } from '@/utilities/revalidateDocument'
 import { WhereThisIsUsedTable, type WhereUsedRow } from './WhereThisIsUsedTable'
 
@@ -54,10 +56,20 @@ function toRow(
  * would affect before making it. Drafts are included: an unpublished page that uses the photo is
  * exactly what the editor needs to know about.
  *
+ * Shown only to people who can edit the shared document: it lists every center's documents,
+ * drafts included, without checking whether the viewer could read each one.
+ *
  * One hop is enough today, because Pages, HomePages and Posts reference shared photos directly.
  */
-export const WhereThisIsUsed = async ({ id, collectionSlug, payload }: UIFieldServerProps) => {
+export const WhereThisIsUsed = async ({
+  id,
+  collectionSlug,
+  payload,
+  user,
+}: UIFieldServerProps) => {
   if (typeof id !== 'number') return null
+  if (!isSharedContentCollection(collectionSlug)) return null
+  if (!hasGlobalRolePermission({ method: 'update', collection: collectionSlug, user })) return null
 
   const references = await findDocumentsWithReferences(
     { collection: collectionSlug, id },

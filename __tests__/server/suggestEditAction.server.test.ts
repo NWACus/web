@@ -18,12 +18,14 @@ jest.mock('../../src/utilities/email/generateSharedContentSuggestionEmail', () =
 
 const mockAuth = jest.fn()
 const mockFindByID = jest.fn()
+const mockFind = jest.fn()
 const mockLogger = { error: jest.fn(), info: jest.fn() }
 
 jest.mock('payload', () => ({
   getPayload: jest.fn(async () => ({
     auth: mockAuth,
     findByID: mockFindByID,
+    find: mockFind,
     logger: mockLogger,
     config: {
       routes: { admin: '/admin' },
@@ -49,13 +51,8 @@ const suggester = {
       {
         id: 1,
         role: { id: 1, name: 'Admin', rules: [], ...timestamps },
-        tenant: {
-          id: 1,
-          slug: 'nwac',
-          name: 'Northwest Avalanche Center',
-          provisioning: { status: 'complete' },
-          ...timestamps,
-        },
+        // What Tenants' `defaultPopulate: { slug: true }` leaves on a populated tenant
+        tenant: { id: 1, slug: 'nwac' },
         ...timestamps,
       },
     ],
@@ -66,15 +63,20 @@ const suggester = {
 const validCall = {
   collectionSlug: 'sharedMedia' as const,
   id: 7,
-  documentTitle: 'shared-image-mountain.png',
   suggestion: '  The credit should name the photographer.  ',
 }
+
+// Each call lands a minute and a bit after the last, so the cooldown only bites where a test pins
+// the clock
+let clock = 0
 
 beforeEach(() => {
   jest.clearAllMocks()
   delete process.env.SHARED_CONTENT_SUGGESTIONS_EMAIL
+  jest.spyOn(Date, 'now').mockImplementation(() => (clock += 61_000))
   mockAuth.mockResolvedValue({ user: suggester })
-  mockFindByID.mockResolvedValue({ id: 7 })
+  mockFindByID.mockResolvedValue({ id: 7, filename: 'shared-image-mountain.png' })
+  mockFind.mockResolvedValue({ docs: [{ id: 1, name: 'Northwest Avalanche Center' }] })
 })
 
 describe('suggestEditAction', () => {
@@ -93,6 +95,33 @@ describe('suggestEditAction', () => {
     })
     expect(result).toEqual({ success: false, error: expect.any(String) })
     expect(sendEmail).not.toHaveBeenCalled()
+  })
+
+  it('refuses a suggestion that is not a string', async () => {
+    // @ts-expect-error - server-action arguments arrive untyped from the client
+    const result = await suggestEditAction({ ...validCall, suggestion: 42 })
+    expect(result).toEqual({ success: false, error: expect.any(String) })
+    expect(sendEmail).not.toHaveBeenCalled()
+  })
+
+  it('refuses a collection that is not Shared Content', async () => {
+    await expect(suggestEditAction({ ...validCall, collectionSlug: 'pages' })).resolves.toEqual({
+      success: false,
+      error: 'You are not allowed to perform that action.',
+    })
+    expect(mockFindByID).not.toHaveBeenCalled()
+    expect(sendEmail).not.toHaveBeenCalled()
+  })
+
+  it('asks for a minute between suggestions from the same person', async () => {
+    jest.spyOn(Date, 'now').mockReturnValue(clock)
+
+    await expect(suggestEditAction(validCall)).resolves.toEqual({ success: true })
+    await expect(suggestEditAction(validCall)).resolves.toEqual({
+      success: false,
+      error: expect.stringContaining('wait'),
+    })
+    expect(sendEmail).toHaveBeenCalledTimes(1)
   })
 
   it('refuses an anonymous caller', async () => {
@@ -127,6 +156,15 @@ describe('suggestEditAction', () => {
 
     expect(sendEmail).toHaveBeenCalledWith(
       expect.objectContaining({ to: 'shared@avy-fx.org', replyTo: 'admin@nwac.us' }),
+    )
+  })
+
+  it('names the document from what the server read, not from the client', async () => {
+    mockFindByID.mockResolvedValue({ id: 7 })
+    await suggestEditAction(validCall)
+
+    expect(generateSharedContentSuggestionEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ documentTitle: '#7' }),
     )
   })
 
