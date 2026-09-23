@@ -161,7 +161,7 @@ function PartHead({ b, first }: { b: BlockView; first: boolean }) {
     <th
       scope="col"
       className={cn(
-        'border-b px-1 pb-2 text-center text-xs font-normal text-muted-foreground',
+        'border-b px-1 pb-2 text-center text-sm font-normal text-muted-foreground',
         first && 'border-l',
         b.night && NIGHT,
       )}
@@ -417,7 +417,7 @@ export function ZoneExtended({
               {blocks.map((b) => (
                 <th key={b.key} scope="col" className="border-b p-2 text-center">
                   <span className="font-semibold">{fmtCalendarDate(b.date)}</span>
-                  <span className="block text-xs font-normal text-muted-foreground">{b.part}</span>
+                  <span className="block text-sm font-normal text-muted-foreground">{b.part}</span>
                 </th>
               ))}
             </tr>

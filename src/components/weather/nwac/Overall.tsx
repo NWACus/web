@@ -254,7 +254,7 @@ function TableHead({ table: t }: { table: Table }) {
           >
             <span className="whitespace-nowrap font-semibold">{c.date}</span>
             {c.sub && (
-              <span className="block whitespace-nowrap text-xs font-normal text-muted-foreground">
+              <span className="block whitespace-nowrap text-sm font-normal text-muted-foreground">
                 {c.sub}
               </span>
             )}
