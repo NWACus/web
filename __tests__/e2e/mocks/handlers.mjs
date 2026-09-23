@@ -38,6 +38,17 @@ const scenarios = JSON.parse(readFileSync(join(mocksDir, 'scenarios.json'), 'utf
 export const mockNacHost = process.env.NAC_HOST || 'https://api.avalanche.org'
 export const mockAfpHost = process.env.AFP_HOST || 'https://forecasts.avalanche.org'
 
+/** SnowObs has one production host and the app does not read it from the environment. */
+export const mockSnowObsHost = 'https://api.snowobs.com'
+
+function snowObsFixture(name) {
+  const key = `snowobs/${name}`
+  if (!fixtureCache.has(key)) {
+    fixtureCache.set(key, readFileSync(join(mocksDir, 'snowobs', name), 'utf8'))
+  }
+  return fixtureCache.get(key)
+}
+
 /** Answered only by this mock; the preload requests it at boot to prove interception is live. */
 export const PROBE_PATH = '/__e2e-mock-probe'
 
@@ -170,6 +181,32 @@ export function buildHandlers() {
       const absent = findAbsent(request)
       return absent ? absentResponse(absent) : recordMissing(request)
     }),
+
+    // SnowObs, behind the station map. Not a golden corpus (there is no v2→v3 parity obligation
+    // there — see architecture.md, "Where test data comes from"): ordinary fixtures recorded next
+    // to the spec that reads them. One response serves every center; the map's own classification
+    // and links are what the spec is asserting on, not the center's actual stations.
+    http.get(`${mockSnowObsHost}/wx/v1/station/data/current/`, () =>
+      HttpResponse.text(snowObsFixture('current.json'), {
+        headers: { 'content-type': 'application/vnd.geo+json' },
+      }),
+    ),
+    http.get(`${mockSnowObsHost}/v1/webcam`, () =>
+      HttpResponse.text(snowObsFixture('webcams.json'), {
+        headers: { 'content-type': 'application/json' },
+      }),
+    ),
+
+    // SAC's alternate station-map zones: the KML its center metadata fixture points at, served
+    // from the real file so the station-map spec exercises the parser the way production does.
+    http.get('https://www.sierraavalanchecenter.org/api/documents/file/:file', () =>
+      HttpResponse.text(
+        readFileSync(join(mocksDir, 'kml', 'sac-weather-station-zones.kml'), 'utf8'),
+        {
+          headers: { 'content-type': 'application/vnd.google-earth.kml+xml' },
+        },
+      ),
+    ),
 
     // Registered last: anything else on these two origins is an unmapped upstream call.
     http.all(`${mockNacHost}/*`, ({ request }) => recordMissing(request)),

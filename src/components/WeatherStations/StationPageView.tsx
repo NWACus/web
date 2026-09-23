@@ -28,7 +28,9 @@ function StationHeader({
     <div className="container flex flex-wrap items-end justify-between gap-3">
       <div>
         <div className="prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">{page.displayName}</h1>
+          {/* Sized as the station map's title is. Station names run long — "Stevens Pass -
+              WSDOT Schmidt Haus" takes three lines at full size on a phone, before any reading. */}
+          <h1 className="text-3xl font-bold sm:text-4xl">{page.displayName}</h1>
         </div>
       </div>
       <div className="flex flex-col items-end gap-1">
