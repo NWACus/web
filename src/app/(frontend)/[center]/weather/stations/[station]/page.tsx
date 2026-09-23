@@ -1,21 +1,8 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import type { Datalogger } from '@/components/WeatherStations/StationCsvForm'
-import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
-import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
-import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
-import { resolveTablePeriod } from '@/components/WeatherStations/stationPeriods'
-import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
-import { StationTableView } from '@/components/WeatherStations/StationTableView'
-import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
-import { resolveColumns } from '@/services/snowobs/deriveColumns'
-import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
-import { stationKey } from '@/services/snowobs/stationKey'
-import type { StationTable } from '@/services/snowobs/tableHelpers'
-import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
-import type { AssembledStationPage, StationPageSummary } from '@/services/stations/getStationPages'
+import { loadStationNotes, resolveTabView } from '@/components/WeatherStations/stationTabViews'
 import {
   allStationPageParams,
   getStationPages,
@@ -23,7 +10,6 @@ import {
 } from '@/services/stations/getStationPages'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
-import type { ReactNode } from 'react'
 
 // ISR: regenerate at most every 10 minutes; SnowObs stations report ~hourly.
 export const revalidate = 600
@@ -37,123 +23,6 @@ export async function generateStaticParams() {
   return allStationPageParams()
 }
 
-// Notes ride with the station metadata, so a 1-hour window is enough.
-async function loadStationNotes(center: string, page: AssembledStationPage) {
-  const meta = await fetchStationTimeseries(center, page.stations, { revalidate, windowHours: 1 })
-  return stationNotes(meta.STATION)
-}
-
-// A 1-hour window: only the station metadata is needed.
-async function loadDataloggers(center: string, page: AssembledStationPage): Promise<Datalogger[]> {
-  const meta = await fetchStationTimeseries(center, page.stations, { windowHours: 1 })
-  const byKey = new Map(meta.STATION.map((s) => [stationKey(s), s]))
-  return page.stations.map((station) => {
-    const found = byKey.get(stationKey(station))
-    if (!found?.name) return { station, label: station.stid }
-    return {
-      station,
-      label: found.elevation != null ? `${found.name}, ${found.elevation}'` : found.name,
-    }
-  })
-}
-
-function csvYears(): number[] {
-  const current = new Date().getUTCFullYear()
-  const years: number[] = []
-  for (let year = current; year >= 2016; year--) years.push(year)
-  return years
-}
-
-type TabView = {
-  table: StationTable | null
-  tabContent?: ReactNode
-}
-
-type TabContext = {
-  center: string
-  page: AssembledStationPage
-  pages: StationPageSummary[]
-  timeZone: string
-  periodParam?: string
-}
-
-async function csvTabView({ center, page }: TabContext): Promise<TabView> {
-  return {
-    table: null,
-    tabContent: (
-      <>
-        <StationViewBar>
-          <StationRangeTabs activeKey="csv" />
-        </StationViewBar>
-        <StationCsvForm
-          slug={page.slug}
-          dataloggers={await loadDataloggers(center, page)}
-          years={csvYears()}
-        />
-      </>
-    ),
-  }
-}
-
-function graphsTabView({ page, pages, timeZone }: TabContext): TabView {
-  return {
-    table: null,
-    tabContent: (
-      <StationGraphs
-        stations={page.stations}
-        presets={STATION_GRAPH_PRESETS}
-        currentSlug={page.slug}
-        pages={pages}
-        timeZone={timeZone}
-        tabs={<StationRangeTabs activeKey="graphs" />}
-      />
-    ),
-  }
-}
-
-async function tableTabView({ center, page, timeZone, periodParam }: TabContext): Promise<TabView> {
-  const period = resolveTablePeriod(periodParam)
-  const response = await fetchStationTimeseries(center, page.stations, {
-    revalidate,
-    windowHours: period.hoursBack(new Date(), timeZone),
-    rawData: true,
-  })
-  const table = buildStationTable(center, response, resolveColumns(response, page))
-  return {
-    table,
-    tabContent: (
-      <StationTableView
-        table={table}
-        activePeriodKey={period.key}
-        tabs={<StationRangeTabs activeKey="table" />}
-      />
-    ),
-  }
-}
-
-// An archived station's table and graphs are empty, so downloads lead.
-function defaultTabKey(page: AssembledStationPage): string {
-  return page.archived ? 'csv' : 'table'
-}
-
-// A Map, not an object: the key is raw user input (`?range=__proto__`).
-const TAB_VIEWS = new Map<string, (context: TabContext) => TabView | Promise<TabView>>([
-  ['csv', csvTabView],
-  ['graphs', graphsTabView],
-])
-
-async function resolveTabView(
-  context: TabContext,
-  rangeParam?: string,
-  periodParam?: string,
-): Promise<TabView> {
-  const build = TAB_VIEWS.get(rangeParam ?? defaultTabKey(context.page))
-  // Anything else is the table, including legacy `?range=24h` links.
-  return build
-    ? build(context)
-    : tableTabView({ ...context, periodParam: periodParam ?? rangeParam })
-}
-
 export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
   const { range: rangeParam, period: periodParam } = await searchParams
@@ -165,13 +34,14 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   const timeZone = centerTimezone(center)
+  const csv = { action: `/weather/stations/${page.slug}/csv`, filePrefix: page.slug }
   const [view, notes] = await Promise.all([
     resolveTabView(
-      { center, page, pages: toPageSummaries(pages), timeZone },
+      { center, subject: page, pages: toPageSummaries(pages), timeZone, csv },
       rangeParam,
       periodParam,
     ),
-    loadStationNotes(center, page),
+    loadStationNotes(center, page.stations),
   ])
 
   return (

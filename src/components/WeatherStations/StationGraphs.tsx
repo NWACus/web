@@ -244,7 +244,7 @@ export function StationGraphs({
 }: {
   stations: StationRef[]
   presets: GraphPreset[]
-  currentSlug: string
+  currentSlug: string | null
   pages: StationPageSummary[]
   timeZone: string
   tabs?: ReactNode

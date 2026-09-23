@@ -95,7 +95,7 @@ export function CompareSelect({
   className,
 }: {
   pages: StationPageSummary[]
-  currentSlug: string
+  currentSlug: string | null
   compareSlugs: string[]
   onCompareChange: (slugs: string[]) => void
   className?: string
@@ -118,7 +118,7 @@ export function CompareSelect({
       <SelectContent position="item-aligned">
         <StationSelectItems
           pages={pages}
-          excludeSlugs={[currentSlug, ...compareSlugs]}
+          excludeSlugs={currentSlug ? [currentSlug, ...compareSlugs] : compareSlugs}
           excludeArchived
         />
       </SelectContent>
@@ -302,7 +302,8 @@ export type EditViewProps = {
   onPeriodChange: (period: StationPeriod) => void
   unitSystem: UnitSystem
   onUnitChange: (system: UnitSystem) => void
-  currentSlug: string
+  /** The station page being viewed; null on a single station's detail page. */
+  currentSlug: string | null
   compareSlugs: string[]
   onCompareChange: (slugs: string[]) => void
   arrangement: ReturnType<typeof useChartArrangement>
