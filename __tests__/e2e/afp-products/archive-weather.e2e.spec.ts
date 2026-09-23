@@ -91,7 +91,7 @@ test.describe('Forecast archive mountain weather', () => {
   })
 
   test('a center without a NAC weather product has no tab and no page', async ({ page }) => {
-    // NWAC is seeded native for forecast and weather, but its `platforms.weather` is false.
+    // NWAC is seeded native for forecast, and its `platforms.weather` is false.
     await loadPage(page, `${tenant('nwac')}/forecasts/avalanche/archive`)
     const tabs = page.getByRole('navigation', { name: 'Archive views' })
     await expect(tabs.getByRole('link', { name: 'Danger Over Time' })).toBeVisible()

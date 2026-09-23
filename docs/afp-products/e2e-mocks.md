@@ -58,7 +58,7 @@ A gap we already know about is different: it goes in `scenarios.json` under `abs
 
 ## Rollout state lives in the seed
 
-`src/endpoints/seed/index.ts` fixes Control 1 per tenant: **snfac** and **nwac** render every native product (forecast, warning, danger map and weather), **dvac** and **sac** stay on the widget. Every spec reads that state and none writes it — a test that flipped a shared tenant's flag would race the other workers, and would not reach an already-prerendered page anyway. dvac and nwac are deliberately on opposite sides: they are the same center upstream, so the pair is what shows that Control 1 is per tenant rather than per center. One of the two has to stay on the widget for that to mean anything.
+`src/endpoints/seed/index.ts` fixes Control 1 per tenant: **snfac** renders every native product (forecast, warning, danger map and weather), **nwac** every one but weather, since NWAC authors its own Mountain Weather Forecast rather than the AFP weather product, and **dvac** and **sac** stay on the widget. Every spec reads that state and none writes it — a test that flipped a shared tenant's flag would race the other workers, and would not reach an already-prerendered page anyway. dvac and nwac are deliberately on opposite sides: they are the same center upstream, so the pair is what shows that Control 1 is per tenant rather than per center. One of the two has to stay on the widget for that to mean anything.
 
 ## Changing a native product page
 

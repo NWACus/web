@@ -353,7 +353,7 @@ sig = "8e82ca77f662f6b4"
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/mocks/scenarios.json"
-sig = "5e920208aa5139b6"
+sig = "fa0e230b0ccc1d52"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
@@ -968,7 +968,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "a5032d7dbbd8d10b"
+sig = "7aea814cb127c833"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"
