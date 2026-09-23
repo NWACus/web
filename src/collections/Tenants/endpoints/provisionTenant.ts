@@ -1,6 +1,11 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
 import type { BuiltInPage, Page, Tenant } from '@/payload-types'
+import {
+  ARCHIVE_DANGER_PATH,
+  ARCHIVE_PATH,
+  ARCHIVE_WEATHER_PATH,
+} from '@/services/nac/forecastArchive'
 // nac.ts imports @payload-config, which imports this collection — lazy-load
 // the value imports inside function bodies to break the circular dependency.
 // Type imports are erased at runtime and don't contribute to the cycle.
@@ -19,6 +24,16 @@ export const BUILT_IN_PAGES: ReadonlyArray<{ title: string; url: string }> = [
   { title: 'Submit Observations', url: '/observations/submit' },
   { title: 'Blog', url: '/blog' },
   { title: 'Events', url: '/events' },
+]
+
+/**
+ * Archive pages every tenant gets; each falls back to the widget when the
+ * center isn't native. Kept apart from the forecast pages, which drive the
+ * zone list in the forecasts nav.
+ */
+const ARCHIVE_PAGES: ReadonlyArray<{ title: string; url: string }> = [
+  { title: 'Forecast Archive', url: ARCHIVE_PATH },
+  { title: 'Danger Over Time', url: ARCHIVE_DANGER_PATH },
 ]
 
 /**
@@ -55,14 +70,15 @@ export const PAGES_TO_PROVISION: ReadonlyArray<{ slug: string; title: string }> 
 
 /**
  * Queries AFP for forecast zones and returns zone-aware forecast built-in
- * pages plus the static non-forecast list (with Mountain Weather conditionally
- * included based on NAC platforms).
+ * pages, the archive pages, and the static non-forecast list (with Mountain
+ * Weather and its archive tab conditionally included based on NAC platforms).
  */
 export async function resolveBuiltInPages(
   tenantSlug: string,
   log: Logger,
 ): Promise<{
   forecastPages: Array<{ title: string; url: string }>
+  archivePages: Array<{ title: string; url: string }>
   nonForecastPages: Array<{ title: string; url: string }>
 }> {
   // Lazy-loaded to break the circular import with @payload-config
@@ -105,19 +121,21 @@ export async function resolveBuiltInPages(
           })),
         ]
 
+  const archivePages: Array<{ title: string; url: string }> = [...ARCHIVE_PAGES]
   const nonForecastPages: Array<{ title: string; url: string }> = [...BUILT_IN_PAGES]
 
-  // Add Mountain Weather only if center has weather forecasts in NAC
+  // Add Mountain Weather and its archive tab only if center has weather forecasts in NAC
   try {
     const { weather } = await getAvalancheCenterPlatforms(tenantSlug)
     if (weather) {
       nonForecastPages.push({ title: 'Mountain Weather', url: '/weather/forecast' })
+      archivePages.push({ title: 'Mountain Weather Archive', url: ARCHIVE_WEATHER_PATH })
     }
   } catch {
     log.warn(`[${tenantSlug}] Failed to query NAC platforms. Excluding Mountain Weather.`)
   }
 
-  return { forecastPages, nonForecastPages }
+  return { forecastPages, archivePages, nonForecastPages }
 }
 
 /**
@@ -189,8 +207,8 @@ export const provisionTenant: PayloadHandler = async (req) => {
  * Provisions a tenant with all default data:
  * 1. Website Settings with placeholder brand assets (logo, icon, banner)
  * 2. Query AFP for forecast zones (single vs multi-zone detection)
- * 3. Built-in pages (zone-aware forecasts + static non-forecast list + optional
- *    Mountain Weather based on NAC platforms)
+ * 3. Built-in pages (zone-aware forecasts + archive pages + static non-forecast
+ *    list + optional Mountain Weather and its archive based on NAC platforms)
  * 4. Blank pages for every entry in PAGES_TO_PROVISION
  * 5. Home page with default content
  * 6. Navigation linked to the new pages and built-in pages (zone-aware forecasts)
@@ -299,8 +317,11 @@ export async function provision(payload: Payload, tenant: Tenant) {
   }
 
   // 2. Query AFP for forecast zones and resolve built-in pages
-  const { forecastPages, nonForecastPages } = await resolveBuiltInPages(tenant.slug, log)
-  const builtInPagesToCreate = [...forecastPages, ...nonForecastPages]
+  const { forecastPages, archivePages, nonForecastPages } = await resolveBuiltInPages(
+    tenant.slug,
+    log,
+  )
+  const builtInPagesToCreate = [...forecastPages, ...archivePages, ...nonForecastPages]
   log.info(`[${tenant.slug}] Creating ${builtInPagesToCreate.length} built-in pages...`)
   const existingBuiltInPages = await payload.find({
     collection: 'builtInPages',
@@ -520,6 +541,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
                   options: { displayMode: 'dropdown' },
                   items: filterNulls([
                     navBuiltInPageItem(forecastPages[0].url, forecastPages[0].title),
+                    navBuiltInPageItem(ARCHIVE_PATH),
                   ]),
                 }
               : {
@@ -534,6 +556,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
                           .map((p) => navBuiltInPageItem(p.url, p.title)),
                       ),
                     },
+                    ...filterNulls([navBuiltInPageItem(ARCHIVE_PATH)]),
                   ],
                 },
           observations: {
@@ -546,6 +569,10 @@ export async function provision(payload: Payload, tenant: Tenant) {
           weather: {
             options: { displayMode: 'dropdown' },
             items: filterNulls([
+              // Only centers with a NAC weather product were given this page
+              builtInPagesByUrl['/weather/forecast']
+                ? navBuiltInPageItem('/weather/forecast', 'Mountain Weather')
+                : null,
               navBuiltInPageItem('/weather/stations/map', 'Weather Stations'),
               navPageItem('weather-tools'),
             ]),
