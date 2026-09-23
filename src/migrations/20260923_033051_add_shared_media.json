@@ -24942,7 +24942,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'local'"
+          "default": "'local/shared'"
         },
         "updated_at": {
           "name": "updated_at",
