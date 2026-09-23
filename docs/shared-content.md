@@ -7,7 +7,7 @@ Shared Content is content no Tenant owns — managed once and usable by every av
 ## The checklist
 
 1. **No tenant field.** A Shared Content collection has no `tenantField()` and no `filterByTenant` base list filter. If a center needs to say something of its own about the document, that belongs in a document the center owns, which references the shared one — never in a per-center row inside the shared document.
-2. **`access: accessBySharedContent('<slug>')`.** Create, update and delete come from a Global Role rule; read is structural. Never `accessByTenantRole*` — a rule a center Admin can hand out must not control what renders on every other center's site.
+2. **`access: accessBySharedContent('<slug>')`.** Create, update and delete come from a Global Role rule; read is structural. Never `accessByTenantRole*` — a rule a center Admin can hand out must not control what renders on every other center's site. **An upload collection takes `accessBySharedContentWithPermissiveRead` instead**: the document's `url` is the Payload file route, so a public page's `<img>` fetches the bytes anonymously and structural read would 403 it on every center's site. Write is unchanged, and `admin.hidden` still uses the structural check, exactly as Media does.
 3. **`admin.group: SHARED_CONTENT_ADMIN_GROUP`** from `src/constants/sharedContent.ts`, so everything shared sits in one place in the sidebar.
 4. **`admin.hidden: ({ user }) => !canReadSharedContent({ collection: '<slug>', user })`.** The same check `access.read` uses, so the sidebar and the API agree.
 5. **A revalidation hook.** `afterChange` and `afterDelete` calling `revalidateDocumentReferences({ collection, id })`, honouring `context.disableRevalidate`. See [`docs/revalidation.md`](revalidation.md), which also records the one known gap in the reference walk.
@@ -27,7 +27,7 @@ Shared Content is content no Tenant owns — managed once and usable by every av
 | Shared Content Editor (a Global Role rule on the collection) | ✓ | ✓ |
 | Super Admin | ✓ | ✓ |
 
-Public pages read through the Local API with access overridden, so `access.read` governs the admin panel and REST, not what a center's site can render.
+Public pages read through the Local API with access overridden, so `access.read` governs the admin panel and REST, not what a center's site can render. The read column above is `accessBySharedContent`. With `accessBySharedContentWithPermissiveRead` every row reads ✓, including anonymous; the write column is the same either way, and `admin.hidden` follows the strict check regardless.
 
 `__tests__/server/bySharedContent.server.test.ts` holds this table as a test. A new shared collection needs no new rows in it — the helpers are generic over the slug.
 

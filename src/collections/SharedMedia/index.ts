@@ -1,6 +1,6 @@
 import { type CollectionConfig } from 'payload'
 
-import { accessBySharedContent } from '@/access/bySharedContent'
+import { accessBySharedContentWithPermissiveRead } from '@/access/bySharedContent'
 import { SHARED_CONTENT_ADMIN_GROUP } from '@/constants/sharedContent'
 import { contentHashField } from '@/fields/contentHashField'
 import { referenceCountField } from '@/fields/referenceCountField'
@@ -21,7 +21,7 @@ export const SharedMedia: CollectionConfig = {
     singular: 'Shared Media',
     plural: 'Shared Media',
   },
-  access: accessBySharedContent('sharedMedia'),
+  access: accessBySharedContentWithPermissiveRead('sharedMedia'),
   admin: {
     group: SHARED_CONTENT_ADMIN_GROUP,
     hidden: ({ user }) => !canReadSharedContent({ collection: 'sharedMedia', user }),
