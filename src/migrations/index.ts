@@ -59,7 +59,7 @@ import * as migration_20260921_124724_station_pages_backfill from './20260921_12
 import * as migration_20260922_180955_precip_table_block from './20260922_180955_precip_table_block'
 import * as migration_20260923_033051_add_shared_media from './20260923_033051_add_shared_media'
 import * as migration_20260925_202502_add_collections_to_mcp_api_keys from './20260925_202502_add_collections_to_mcp_api_keys'
-import * as migration_20260915_010640_native_products_flags from './20260915_010640_native_products_flags'
+import * as migration_20260923_020331_native_products_flags from './20260923_020331_native_products_flags'
 
 export const migrations = [
   {
@@ -368,8 +368,8 @@ export const migrations = [
     name: '20260925_202502_add_collections_to_mcp_api_keys',
   },
   {
-    up: migration_20260915_010640_native_products_flags.up,
-    down: migration_20260915_010640_native_products_flags.down,
-    name: '20260915_010640_native_products_flags',
+    up: migration_20260923_020331_native_products_flags.up,
+    down: migration_20260923_020331_native_products_flags.down,
+    name: '20260923_020331_native_products_flags',
   },
 ]
