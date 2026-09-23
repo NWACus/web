@@ -112,6 +112,75 @@ describe('findDocumentsWithReferences', () => {
     }
   })
 
+  it('drops the _status filter everywhere when includeDrafts is set', async () => {
+    await findDocumentsWithReferences({ collection: 'media', id: 42 }, { includeDrafts: true })
+
+    const referenceFilters = [
+      { 'documentReferences.collection': { equals: 'media' } },
+      { 'documentReferences.docId': { equals: 42 } },
+    ]
+
+    for (const call of mockFind.mock.calls) {
+      expect(call[0].where).toEqual({ and: referenceFilters })
+    }
+  })
+
+  it('selects title only where the collection has one, and _status only where drafts are on', async () => {
+    await findDocumentsWithReferences({ collection: 'media', id: 1 })
+
+    const selectByCollection: Record<string, Record<string, boolean>> = {}
+    for (const call of mockFind.mock.calls) {
+      selectByCollection[call[0].collection] = call[0].select
+    }
+
+    expect(selectByCollection['pages']).toEqual({
+      id: true,
+      slug: true,
+      tenant: true,
+      title: true,
+      _status: true,
+    })
+    // homePages has drafts but no title field
+    expect(selectByCollection['homePages']).toEqual({
+      id: true,
+      slug: true,
+      tenant: true,
+      _status: true,
+    })
+    // teams has neither a title field nor drafts
+    expect(selectByCollection['teams']).toEqual({
+      id: true,
+      slug: true,
+      tenant: true,
+    })
+    // events has a title and drafts
+    expect(selectByCollection['events']).toEqual({
+      id: true,
+      slug: true,
+      tenant: true,
+      title: true,
+      _status: true,
+    })
+  })
+
+  it('carries the title and status through so an editor can read the list', async () => {
+    mockFind.mockImplementation(({ collection }: { collection: string }) => {
+      if (collection === 'pages') {
+        return { docs: [{ id: 3, slug: 'about', tenant: 1, title: 'About Us', _status: 'draft' }] }
+      }
+      return { docs: [] }
+    })
+
+    const results = await findDocumentsWithReferences(
+      { collection: 'sharedMedia', id: 7 },
+      { includeDrafts: true },
+    )
+
+    expect(results).toEqual([
+      { collection: 'pages', id: 3, slug: 'about', tenant: 1, title: 'About Us', status: 'draft' },
+    ])
+  })
+
   it('returns single match in one collection', async () => {
     mockFind.mockImplementation(({ collection }: { collection: string }) => {
       if (collection === 'posts') {

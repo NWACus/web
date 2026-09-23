@@ -49,6 +49,8 @@ Orchestrates the full reference revalidation flow:
 ### `findDocumentsWithReferences.ts`
 Queries the `documentReferences` JSON field across all collections that have it:
 - Iterates over the `ROUTABLE_COLLECTIONS` array defined in `revalidateDocument.ts`
+- Returns published documents only. Pass `{ includeDrafts: true }` to see unpublished uses too — right for the "Used on" panel on a Shared Content document, where an editor is deciding whether a change is safe, and wrong for revalidation, which has no draft path to revalidate
+- Each result carries `title` and `status` where the collection has them, so a caller can list what it found without a second query per document
 
 ## Collection Patterns
 
