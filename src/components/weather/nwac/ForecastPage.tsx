@@ -1,4 +1,4 @@
-/** NWAC's native Mountain Weather page: today's issuances in the region-wide view. */
+/** NWAC's native Mountain Weather page: a date's issuances (today's by default), region-wide. */
 import { ForecastDisclaimer } from '@/components/forecast/ForecastDisclaimer'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -36,10 +36,10 @@ function todayInTimezone(timezone: string | null | undefined) {
   return format(timezone ? new TZDate(now.getTime(), timezone) : now, 'yyyy-MM-dd')
 }
 
-export async function ForecastPage({ centerSlug }: { centerSlug: string }) {
+export async function ForecastPage({ centerSlug, date }: { centerSlug: string; date?: string }) {
   const metadata = await getAvalancheCenterMetadata(centerSlug)
-  const today = todayInTimezone(metadata.timezone)
-  const wire = await fetchNwacWeatherForecasts({ date: today })
+  const shown = date ?? todayInTimezone(metadata.timezone)
+  const wire = await fetchNwacWeatherForecasts({ date: shown })
   const day = wire && mapV3NwacWeatherForecastDay(wire)
 
   if (!day) {
@@ -47,7 +47,7 @@ export async function ForecastPage({ centerSlug }: { centerSlug: string }) {
       <div className="container space-y-8 py-6">
         {HEADING}
         <p className="text-center text-muted-foreground">
-          No Mountain Weather forecast published for {fmtCalendarDate(today)}.
+          No Mountain Weather forecast published for {fmtCalendarDate(shown)}.
         </p>
         <ForecastDisclaimer centerType={metadata.type} centerName={metadata.name} />
       </div>
