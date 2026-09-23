@@ -23,7 +23,7 @@ import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
 import { seedCourses } from './courses'
 import { getEventsData } from './events'
-import { forecastZonesByTenant } from './forecast-zones'
+import { forecastZonesByTenant, weatherPlatformTenants } from './forecast-zones'
 import { getGalleriesData } from './galleries'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
@@ -1039,6 +1039,22 @@ export const seed = async ({
                 ]
           return [
             ...zonePages,
+            builtInPage(tenant, 'Forecast Archive', '/forecasts/avalanche/archive'),
+            builtInPage(
+              tenant,
+              'Danger Over Time',
+              '/forecasts/avalanche/archive/danger-over-time',
+            ),
+            ...(weatherPlatformTenants.has(tenant.slug)
+              ? [
+                  builtInPage(tenant, 'Mountain Weather', '/weather/forecast'),
+                  builtInPage(
+                    tenant,
+                    'Mountain Weather Archive',
+                    '/forecasts/avalanche/archive/mountain-weather',
+                  ),
+                ]
+              : []),
             builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
             builtInPage(tenant, 'Recent Observations', '/observations'),
             builtInPage(tenant, 'Submit Observations', '/observations/submit'),
