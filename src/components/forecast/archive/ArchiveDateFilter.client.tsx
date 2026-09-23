@@ -41,6 +41,8 @@ export interface ArchiveDateFilterProps {
   to: string
   /** The range the season falls back to when the URL carries none. */
   defaultRange: { from: string; to: string }
+  /** False when it is the stack's only filter, so no rule trails it. */
+  showBottomBorder?: boolean
 }
 
 const {
@@ -58,6 +60,7 @@ export function ArchiveDateFilter({
   from,
   to,
   defaultRange,
+  showBottomBorder,
 }: ArchiveDateFilterProps) {
   const [, setParams] = useQueryStates(
     { season: seasonParser, from: fromParser, to: toParser, page: pageParser },
@@ -74,7 +77,7 @@ export function ArchiveDateFilter({
   }
 
   return (
-    <FilterSection title="Date" defaultOpen>
+    <FilterSection title="Date" defaultOpen showBottomBorder={showBottomBorder}>
       <div className="flex flex-col gap-4 pb-4">
         <SeasonSelect
           id={`${idPrefix}season`}

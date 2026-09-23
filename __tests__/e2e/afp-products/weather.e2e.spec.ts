@@ -55,11 +55,8 @@ test.describe('Native mountain weather page', () => {
     expect(errors).toEqual([])
   })
 
-  test('a center without a NAC weather product has no page, whatever the flag says', async ({
-    page,
-  }) => {
-    // NWAC is seeded native for weather, but its `platforms.weather` is false upstream because it
-    // authors mountain weather in-house. The capability gate sits above the rollout flag.
+  test('a center without a NAC weather product has no page', async ({ page }) => {
+    // NWAC's `platforms.weather` is false upstream because it authors mountain weather in-house.
     const response = await page.goto(`${tenant('nwac')}${WEATHER_PATH}`)
 
     expect(response?.status()).toBe(404)
