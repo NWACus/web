@@ -60,6 +60,15 @@ describe('Overall', () => {
   })
 })
 
+describe('Overall extended section', () => {
+  it('shows the snow levels without an outlook when the forecaster wrote none', () => {
+    render(<Overall issuance={{ ...afternoon, extendedOutlook: null }} />)
+    expect(screen.getByRole('heading', { name: 'Extended' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Outlook' })).toBeNull()
+    expect(screen.getByRole('heading', { name: 'Snow Levels (ft)' })).toBeInTheDocument()
+  })
+})
+
 describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
     render(<OverallSectionTabs issuance={afternoon} />)
