@@ -67,9 +67,8 @@ function stubMap(fitZoom: number | undefined): { map: MapboxMap; moves: Moves } 
       moves.fitBounds.push({ bounds, options, eventData }),
     flyTo: (options: unknown, eventData: unknown) => moves.flyTo.push({ options, eventData }),
   }
-  // Only these three calls are made; the rest of a live map has nothing to do with the decision.
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  return { map: map as unknown as MapboxMap, moves }
+  // @ts-expect-error - partial mock; only these three calls are made, the rest of a live map is irrelevant
+  return { map, moves }
 }
 
 describe('goToOpeningView', () => {
