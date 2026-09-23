@@ -5,7 +5,7 @@
  */
 import { ArrowDown, Moon, Sun } from 'lucide-react'
 
-import type { NwacWeatherTempCell, NwacWeatherWindCell } from '@/services/nac/model/nwacWeather'
+import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import { DASH, fmtWind, windBearing } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
@@ -24,7 +24,7 @@ export function SnowValue({ text, some }: { text: string; some: boolean }) {
   )
 }
 
-export function TempValue({ cell }: { cell: NwacWeatherTempCell | undefined }) {
+export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
   if (cell?.high == null || cell?.low == null) {
     return <span className="text-muted-foreground">{DASH}</span>
   }
@@ -52,7 +52,7 @@ export function LevelValue({ level, tone }: { level: number | null; tone: number
   )
 }
 
-export function WindValue({ cell }: { cell: NwacWeatherWindCell | undefined }) {
+export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
   if (!cell?.speed) return <span className="text-muted-foreground">{fmtWind(cell)}</span>
   const bearing = windBearing(cell.dir)
   return (

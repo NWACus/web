@@ -14,7 +14,7 @@ import {
   issuanceLabel,
   issuanceShortLabel,
 } from '@/services/nac/nwacWeatherFormat'
-import { getNwacWeatherSource } from '@/services/nac/sources'
+import { getNWACWeatherSource } from '@/services/nac/sources'
 import { zoneSlugFromUrl } from '@/services/nac/zoneSlug'
 
 import { IssuanceSwitch } from './IssuanceSwitch.client'
@@ -38,7 +38,7 @@ export async function ForecastPage({ centerSlug }: { centerSlug: string }) {
   const metadata = await getAvalancheCenterMetadata(centerSlug)
   // Today's forecast, as the center reckons today; not the latest date that has one.
   const today = todayInTimezone(metadata.timezone)
-  const day = await getNwacWeatherSource().getForecastDay({ date: today })
+  const day = await getNWACWeatherSource().getForecastDay({ date: today })
 
   if (!day) {
     return (

@@ -8,7 +8,7 @@
  */
 import type { ForecastResult, WarningProduct, Weather } from '../model/forecast'
 import type { ZoneMapLayer } from '../model/mapLayer'
-import type { NwacWeatherForecastDay } from '../model/nwacWeather'
+import type { NWACWeatherForecastDay } from '../model/nwacWeather'
 
 export interface ForecastSource {
   /** The zone's current forecast/summary, or `null` when none is published. */
@@ -66,7 +66,7 @@ export interface WeatherSource {
   getWeatherForDate(centerId: string, zoneId: number, date: string): Promise<Weather | null>
 }
 
-export interface NwacWeatherQuery {
+export interface NWACWeatherQuery {
   /** `YYYY-MM-DD`; omit for the latest date with content. */
   date?: string
   /** A weather zone id, avalanche zone id, or zone name; omit for every zone. */
@@ -77,7 +77,7 @@ export interface NwacWeatherQuery {
  * NWAC's in-house Mountain Weather Forecast. Read from products-api only — the product never
  * had a v2 shape — so there is one implementation and no data-source control for it.
  */
-export interface NwacWeatherSource {
+export interface NWACWeatherSource {
   /** Every issuance published for a date (the latest date with content when omitted). */
-  getForecastDay(query?: NwacWeatherQuery): Promise<NwacWeatherForecastDay | null>
+  getForecastDay(query?: NWACWeatherQuery): Promise<NWACWeatherForecastDay | null>
 }

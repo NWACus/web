@@ -4,12 +4,12 @@
  * beneath. A table from `md` up and on paper; one card per period on a phone.
  */
 import type {
-  NwacWeatherBlock,
-  NwacWeatherExtendedBlock,
-  NwacWeatherIssuance,
-  NwacWeatherPeriod,
-  NwacWeatherWindCell,
-  NwacWeatherZone,
+  NWACWeatherBlock,
+  NWACWeatherExtendedBlock,
+  NWACWeatherIssuance,
+  NWACWeatherPeriod,
+  NWACWeatherWindCell,
+  NWACWeatherZone,
 } from '@/services/nac/model/nwacWeather'
 import {
   SENSIBLE_SLOTS,
@@ -32,20 +32,20 @@ const Unit = ({ children }: { children: string }) => (
 )
 
 interface PeriodView {
-  period: NwacWeatherPeriod
+  period: NWACWeatherPeriod
   label: string
   night: boolean
   blocks: BlockView[]
 }
 interface BlockView {
-  block: NwacWeatherBlock
+  block: NWACWeatherBlock
   level: number | null
   tone: number | null
-  wind: NwacWeatherWindCell | undefined
+  wind: NWACWeatherWindCell | undefined
 }
 
 /** Periods with their 6h blocks; a period the wire gives no blocks still takes one column. */
-function periodViews(issuance: NwacWeatherIssuance, zone: NwacWeatherZone): PeriodView[] {
+function periodViews(issuance: NWACWeatherIssuance, zone: NWACWeatherZone): PeriodView[] {
   const levels = issuance.blocks.map((b) => {
     const cell = issuance.snowLevel[zone.id]?.[b.key]
     return deriveSnowLevel(cell?.freezing, cell?.drop)
@@ -70,9 +70,9 @@ function ZoneSnow({
   zone,
   period,
 }: {
-  issuance: NwacWeatherIssuance
-  zone: NwacWeatherZone
-  period: NwacWeatherPeriod
+  issuance: NWACWeatherIssuance
+  zone: NWACWeatherZone
+  period: NWACWeatherPeriod
 }) {
   const snow = zoneSnow(issuance, zone.id, period.key)
   return <SnowValue text={rangeBucket(snow)} some={snow != null && snow > 0} />
@@ -83,8 +83,8 @@ function SensibleCards({
   issuance,
   zone,
 }: {
-  issuance: NwacWeatherIssuance
-  zone: NwacWeatherZone
+  issuance: NWACWeatherIssuance
+  zone: NWACWeatherZone
 }) {
   const sensible = issuance.sensible[zone.id] ?? {}
   const dates = periodDateGroups(issuance.periods)
@@ -213,8 +213,8 @@ function PeriodTable({
   zone,
   periods,
 }: {
-  issuance: NwacWeatherIssuance
-  zone: NwacWeatherZone
+  issuance: NWACWeatherIssuance
+  zone: NWACWeatherZone
   periods: PeriodView[]
 }) {
   const blocks = periods.flatMap((p) => p.blocks)
@@ -266,8 +266,8 @@ function PeriodCardHeader({
   zone,
   p,
 }: {
-  issuance: NwacWeatherIssuance
-  zone: NwacWeatherZone
+  issuance: NWACWeatherIssuance
+  zone: NWACWeatherZone
   p: PeriodView
 }) {
   return (
@@ -308,8 +308,8 @@ function PeriodCard({
   zone,
   p,
 }: {
-  issuance: NwacWeatherIssuance
-  zone: NwacWeatherZone
+  issuance: NWACWeatherIssuance
+  zone: NWACWeatherZone
   p: PeriodView
 }) {
   return (
@@ -329,8 +329,8 @@ function PeriodCards({
   zone,
   periods,
 }: {
-  issuance: NwacWeatherIssuance
-  zone: NwacWeatherZone
+  issuance: NWACWeatherIssuance
+  zone: NWACWeatherZone
   periods: PeriodView[]
 }) {
   return (
@@ -350,8 +350,8 @@ export function ZoneTable({
   zone,
   heading = true,
 }: {
-  issuance: NwacWeatherIssuance
-  zone: NwacWeatherZone
+  issuance: NWACWeatherIssuance
+  zone: NWACWeatherZone
   /** The zone's name as a heading; off when the page already names the zone. */
   heading?: boolean
 }) {
@@ -367,7 +367,7 @@ export function ZoneTable({
 }
 
 /** A date over its blocks' part-of-day labels, as in the main table's header. */
-function ExtendedHead({ blocks }: { blocks: NwacWeatherExtendedBlock[] }) {
+function ExtendedHead({ blocks }: { blocks: NWACWeatherExtendedBlock[] }) {
   const dates: { date: string; span: number }[] = []
   for (const b of blocks) {
     const last = dates[dates.length - 1]
@@ -411,8 +411,8 @@ export function ZoneExtended({
   issuance,
   zone,
 }: {
-  issuance: NwacWeatherIssuance
-  zone: NwacWeatherZone
+  issuance: NWACWeatherIssuance
+  zone: NWACWeatherZone
 }) {
   const levels = issuance.extendedSnowLevel[zone.id]
   const blocks = issuance.extendedBlocks

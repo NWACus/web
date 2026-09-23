@@ -5,18 +5,18 @@ import snfacForecast from './fixtures/snfac-forecast.json'
 const mockGetWeather = jest.fn()
 const mockGetWeatherForDate = jest.fn()
 const mockGetForecastDay = jest.fn()
-const mockIsNwacWeatherEnabled = jest.fn()
+const mockIsNWACWeatherEnabled = jest.fn()
 jest.mock('../../src/services/nac/sources', () => ({
   getWeatherSource: () => ({
     getWeather: (...a: unknown[]) => mockGetWeather(...a),
     getWeatherForDate: (...a: unknown[]) => mockGetWeatherForDate(...a),
   }),
-  getNwacWeatherSource: () => ({
+  getNWACWeatherSource: () => ({
     getForecastDay: (...a: unknown[]) => mockGetForecastDay(...a),
   }),
 }))
 jest.mock('../../src/services/nac/nac', () => ({
-  isNwacWeatherEnabled: (...a: unknown[]) => mockIsNwacWeatherEnabled(...a),
+  isNWACWeatherEnabled: (...a: unknown[]) => mockIsNWACWeatherEnabled(...a),
 }))
 
 // Import after the mock is registered (jest hoists the mock above imports).
@@ -38,7 +38,7 @@ beforeEach(() => {
   mockGetWeather.mockReset()
   mockGetWeatherForDate.mockReset()
   mockGetForecastDay.mockReset()
-  mockIsNwacWeatherEnabled.mockReset()
+  mockIsNWACWeatherEnabled.mockReset()
 })
 
 describe('pointerlessWeatherDate', () => {
@@ -109,11 +109,11 @@ describe('getWeatherSourcesForForecast', () => {
       weather: { id: 184526 },
       nwacWeather: null,
     })
-    expect(mockIsNwacWeatherEnabled).not.toHaveBeenCalled()
+    expect(mockIsNWACWeatherEnabled).not.toHaveBeenCalled()
   })
 
   it('falls back to NWAC weather for the viewed date, narrowed to the zone', async () => {
-    mockIsNwacWeatherEnabled.mockResolvedValue(true)
+    mockIsNWACWeatherEnabled.mockResolvedValue(true)
     const covered = { id: 1, zones: [{ id: 'olympics' }] }
     const uncovered = { id: 2, zones: [] }
     mockGetForecastDay.mockResolvedValue({
@@ -131,7 +131,7 @@ describe('getWeatherSourcesForForecast', () => {
   })
 
   it('treats a day with no issuance covering the zone as no NWAC weather', async () => {
-    mockIsNwacWeatherEnabled.mockResolvedValue(true)
+    mockIsNWACWeatherEnabled.mockResolvedValue(true)
     mockGetForecastDay.mockResolvedValue({
       serviceDate: '2026-01-10',
       issuances: [{ id: 2, zones: [] }],
@@ -144,7 +144,7 @@ describe('getWeatherSourcesForForecast', () => {
   })
 
   it('asks nothing more of a center without NWAC weather', async () => {
-    mockIsNwacWeatherEnabled.mockResolvedValue(false)
+    mockIsNWACWeatherEnabled.mockResolvedValue(false)
     const forecast = pointerless('2026-01-10T15:00:00+00:00')
     await expect(getWeatherSourcesForForecast('sac', 1, forecast, TZ)).resolves.toEqual({
       weather: null,

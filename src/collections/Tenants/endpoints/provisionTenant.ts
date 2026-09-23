@@ -82,7 +82,7 @@ export async function resolveBuiltInPages(
   nonForecastPages: Array<{ title: string; url: string }>
 }> {
   // Lazy-loaded to break the circular import with @payload-config
-  const { getActiveForecastZones, getAvalancheCenterPlatforms, isNwacWeatherEnabled } =
+  const { getActiveForecastZones, getAvalancheCenterPlatforms, isNWACWeatherEnabled } =
     await import('@/services/nac/nac')
 
   let forecastZones: ActiveForecastZoneWithSlug[] = []
@@ -130,7 +130,7 @@ export async function resolveBuiltInPages(
   // platform brings it.
   try {
     const { weather } = await getAvalancheCenterPlatforms(tenantSlug)
-    if (weather || (await isNwacWeatherEnabled(tenantSlug))) {
+    if (weather || (await isNWACWeatherEnabled(tenantSlug))) {
       nonForecastPages.push({ title: 'Mountain Weather', url: '/weather/forecast' })
     }
     if (weather) {

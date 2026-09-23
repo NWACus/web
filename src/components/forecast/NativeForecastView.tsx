@@ -16,7 +16,7 @@ import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 
 import { ZoneSummary } from '@/components/weather/nwac/ZoneSummary'
-import type { NwacWeatherForecastDay } from '@/services/nac/model/nwacWeather'
+import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 import { AvalancheProblemCard } from './AvalancheProblemCard'
 import { BottomLine } from './BottomLine'
 import { DangerRating } from './DangerRating'
@@ -57,7 +57,7 @@ interface NativeForecastViewProps {
   /** The separately-issued weather product, when one is available (live page only). */
   weather?: Weather | null
   /** NWAC's in-house Mountain Weather Forecast for the date, for centers with no AFP weather product. */
-  nwacWeather?: NwacWeatherForecastDay | null
+  nwacWeather?: NWACWeatherForecastDay | null
 }
 
 export function NativeForecastView({
@@ -353,7 +353,7 @@ function WeatherSupplement({
   timezone,
 }: {
   weather: Weather | null | undefined
-  nwacWeather: NwacWeatherForecastDay | null | undefined
+  nwacWeather: NWACWeatherForecastDay | null | undefined
   avalancheZoneId: number
   zoneName: string
   timezone: string | null | undefined
@@ -388,7 +388,7 @@ function ForecastSupplements({
 }: {
   forecastResult: ForecastResult
   weather: Weather | null | undefined
-  nwacWeather: NwacWeatherForecastDay | null | undefined
+  nwacWeather: NWACWeatherForecastDay | null | undefined
   avalancheZoneId: number
   zoneName: string
   timezone: string | null | undefined

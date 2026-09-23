@@ -45,7 +45,7 @@ export interface ForecastSource {
 
 `index.ts` resolves which implementation a center gets. Pages call `getForecastSource(centerSlug)` and never import an implementation directly.
 
-One product sits outside the v2/v3 seam. NWAC's in-house **Mountain Weather Forecast** never had a v2 shape — products-api is its only backend — so `NwacWeatherSource` (`v3/nwacWeatherSourceV3.ts`, reading `/v3/public/nwac-weather/forecasts`) has one implementation, `getNwacWeatherSource()` takes no center and consults no data-source control, and the model lives in `model/nwacWeather.ts`. Its mapper is still the tested seam: the wire's flat rows become zone- and point-keyed grids, and the extended outlook's levels are split off by block key.
+One product sits outside the v2/v3 seam. NWAC's in-house **Mountain Weather Forecast** never had a v2 shape — products-api is its only backend — so `NWACWeatherSource` (`v3/nwacWeatherSourceV3.ts`, reading `/v3/public/nwac-weather/forecasts`) has one implementation, `getNWACWeatherSource()` takes no center and consults no data-source control, and the model lives in `model/nwacWeather.ts`. Its mapper is still the tested seam: the wire's flat rows become zone- and point-keyed grids, and the extended outlook's levels are split off by block key.
 
 The v3 branches exist and currently throw:
 
@@ -91,7 +91,7 @@ The map layer is the product closest to being ready to flip — dashboard-v2 alr
 
 `platforms.*` is the AFP's per-center capability feed (`forecasts`, `warnings`, `stations`, `obs`, `weather`), read via `getAvalancheCenterPlatforms`. It gates **above** both of ours — `HomeWarnings` returns `null` on `!platforms.warnings` before any of our logic runs, and tenant provisioning consults it to decide whether a center gets a Mountain Weather page at all.
 
-The consequence that surprises people: **NWAC's `platforms.weather` is hard-coded `false`**, because NWAC forecasts weather in-house rather than through the AFP. So the weather gate is `platforms.weather || widget_config.mwf.enabled` — `centerHasWeather` in `centerRoutePage.ts`, with `isNwacWeatherEnabled` reading the dashboard's "Show on public weather tab" switch — for the route, for tenant provisioning's Mountain Weather nav page, and for the zone page's weather slot. `NWAC_WEATHER_FORCE_CENTERS` (comma-separated slugs) treats centers as switched on for local and preview builds; never set it in production.
+The consequence that surprises people: **NWAC's `platforms.weather` is hard-coded `false`**, because NWAC forecasts weather in-house rather than through the AFP. So the weather gate is `platforms.weather || widget_config.mwf.enabled` — `centerHasWeather` in `centerRoutePage.ts`, with `isNWACWeatherEnabled` reading the dashboard's "Show on public weather tab" switch — for the route, for tenant provisioning's Mountain Weather nav page, and for the zone page's weather slot. `NWAC_WEATHER_FORCE_CENTERS` (comma-separated slugs) treats centers as switched on for local and preview builds; never set it in production.
 
 ## Rendering and caching
 

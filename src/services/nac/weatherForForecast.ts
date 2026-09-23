@@ -9,8 +9,8 @@
  */
 import { publishedDateForProduct } from './archiveDates'
 import type { ForecastResult, Weather } from './model/forecast'
-import { isNwacWeatherEnabled } from './nac'
-import { getNwacWeatherSource, getWeatherSource } from './sources'
+import { isNWACWeatherEnabled } from './nac'
+import { getNWACWeatherSource, getWeatherSource } from './sources'
 
 /** The only center whose archive holds pointerless forecasts. */
 const POINTERLESS_WEATHER_CENTER = 'snfac'
@@ -75,9 +75,9 @@ export async function getWeatherSourcesForForecast(
   date?: string,
 ) {
   const weather = await getWeatherForForecast(centerSlug, zoneId, forecast, timezone)
-  if (weather || !(await isNwacWeatherEnabled(centerSlug))) return { weather, nwacWeather: null }
+  if (weather || !(await isNWACWeatherEnabled(centerSlug))) return { weather, nwacWeather: null }
 
-  const day = await getNwacWeatherSource().getForecastDay({ date, zone: zoneId })
+  const day = await getNWACWeatherSource().getForecastDay({ date, zone: zoneId })
   // An issuance that doesn't cover this zone has nothing to show here; with none left there is no
   // weather section (or print option) at all rather than an empty one.
   const issuances = day?.issuances.filter((i) => i.zones.length > 0) ?? []

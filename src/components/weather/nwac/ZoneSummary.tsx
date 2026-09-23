@@ -10,9 +10,9 @@ import Link from 'next/link'
 
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import type {
-  NwacWeatherForecastDay,
-  NwacWeatherIssuance,
-  NwacWeatherZone,
+  NWACWeatherForecastDay,
+  NWACWeatherIssuance,
+  NWACWeatherZone,
 } from '@/services/nac/model/nwacWeather'
 import { issuanceLabel, issuanceShortLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
 
@@ -22,14 +22,14 @@ import { RichText, textOrNull } from './RichText'
 import { ZoneExtended, ZoneTable } from './ZoneTable'
 
 interface ZoneSummaryProps {
-  day: NwacWeatherForecastDay
+  day: NWACWeatherForecastDay
   avalancheZoneId: number
   timezone: string | null | undefined
 }
 
 function hasOutlook(
-  issuance: NwacWeatherIssuance,
-  zones: NwacWeatherZone[],
+  issuance: NWACWeatherIssuance,
+  zones: NWACWeatherZone[],
   extended: string | null,
 ) {
   return !!extended || zones.some((z) => issuance.extendedSnowLevel[z.id])
@@ -40,8 +40,8 @@ function ExtendedOutlook({
   zones,
   extended,
 }: {
-  issuance: NwacWeatherIssuance
-  zones: NwacWeatherZone[]
+  issuance: NWACWeatherIssuance
+  zones: NWACWeatherZone[]
   extended: string | null
 }) {
   return (
@@ -60,8 +60,8 @@ function OverallSection({
   issuance,
   zones,
 }: {
-  issuance: NwacWeatherIssuance
-  zones: NwacWeatherZone[]
+  issuance: NWACWeatherIssuance
+  zones: NWACWeatherZone[]
 }) {
   const synopsis = textOrNull(issuance.synopsis)
   const extended = textOrNull(issuance.extendedOutlook)
@@ -88,7 +88,7 @@ function IssuancePanel({
   issuance,
   avalancheZoneId,
 }: {
-  issuance: NwacWeatherIssuance
+  issuance: NWACWeatherIssuance
   avalancheZoneId: number
 }) {
   const zones = zonesFor(issuance, avalancheZoneId)

@@ -160,7 +160,7 @@ export type AvalancheCenterStationsWidgetConfiguration = z.infer<
  * "Show on public weather tab"; the only signal that NWAC has a weather product, since its
  * `platforms.weather` capability is hard-coded false upstream.
  */
-export const avalancheCenterNwacWeatherWidgetConfigurationSchema = z.object({
+export const avalancheCenterNWACWeatherWidgetConfigurationSchema = z.object({
   enabled: z.boolean().optional(),
 })
 
@@ -169,7 +169,7 @@ export const avalancheCenterWidgetConfigurationSchema = z.object({
   danger_map: avalancheCenterDangerMapWidgetConfigurationSchema.optional(),
   observation_viewer: avalancheCenterObservationViewerWidgetConfigurationSchema.optional(),
   stations: avalancheCenterStationsWidgetConfigurationSchema.optional(),
-  mwf: avalancheCenterNwacWeatherWidgetConfigurationSchema.optional(),
+  mwf: avalancheCenterNWACWeatherWidgetConfigurationSchema.optional(),
 })
 
 export const elevationBandNamesSchema = z.object({

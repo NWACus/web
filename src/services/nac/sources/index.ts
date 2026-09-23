@@ -6,7 +6,7 @@ import { getProductDataSource } from './config'
 import type {
   ForecastSource,
   MapLayerSource,
-  NwacWeatherSource,
+  NWACWeatherSource,
   WarningSource,
   WeatherSource,
 } from './types'
@@ -20,7 +20,7 @@ export type {
   ForecastSource,
   MapLayerQuery,
   MapLayerSource,
-  NwacWeatherSource,
+  NWACWeatherSource,
   WarningSource,
   WeatherSource,
 } from './types'
@@ -72,8 +72,8 @@ export function getWeatherSource(centerSlug: string): WeatherSource {
 
 /**
  * The Mountain Weather Forecast source. products-api is the product's only backend, so this takes
- * no center and consults no data-source control; the center gate is `isNwacWeatherEnabled`.
+ * no center and consults no data-source control; the center gate is `isNWACWeatherEnabled`.
  */
-export function getNwacWeatherSource(): NwacWeatherSource {
+export function getNWACWeatherSource(): NWACWeatherSource {
   return nwacWeatherSourceV3
 }

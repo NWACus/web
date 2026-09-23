@@ -9,7 +9,7 @@
  * vocabulary.
  */
 import { ProductType, type ForecastResult, type Weather } from '@/services/nac/model/forecast'
-import type { NwacWeatherForecastDay } from '@/services/nac/model/nwacWeather'
+import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 
 export const PRINT_SECTIONS = ['bottomLine', 'problems', 'discussion', 'weather'] as const
 
@@ -42,7 +42,7 @@ export const DEFAULT_PRINT_SECTIONS: readonly PrintSection[] = ['bottomLine', 'p
 export function availablePrintSections(
   forecastResult: ForecastResult,
   weather: Weather | null | undefined,
-  nwacWeather?: NwacWeatherForecastDay | null,
+  nwacWeather?: NWACWeatherForecastDay | null,
 ): PrintSection[] {
   const isForecast = forecastResult.product_type === ProductType.Forecast
 

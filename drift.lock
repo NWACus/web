@@ -263,7 +263,7 @@ sig = "9f9aca44832d4ccb"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/forecastPrintSections.ts"
-sig = "02fa8ba99e3f2511"
+sig = "e7363b42f8e11ab6"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -313,7 +313,7 @@ sig = "d778a70dda5c7931"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/nwacWeatherFormat.ts"
-sig = "1e7a3349c26e4a8a"
+sig = "a3983fb162e5d6bd"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -323,12 +323,12 @@ sig = "04c5d068ca6aa844"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/index.ts"
-sig = "b84ce461d5ec36ad"
+sig = "5d04ec67ffe0487c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/types.ts"
-sig = "6bedf408070314d0"
+sig = "f0a45f2c35aefbef"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -338,7 +338,7 @@ sig = "e8f0c1d11a80720d"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/weatherForForecast.ts"
-sig = "03336afdaf03a4db"
+sig = "53efe101e7e725b9"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -598,7 +598,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "22a999afac602576"
+sig = "3b486c62ff1c39d2"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -678,7 +678,7 @@ sig = "a48496f62567028f"
 [[bindings]]
 doc = "docs/decisions/019-native-product-page-architecture.md"
 target = "src/services/nac/sources/index.ts"
-sig = "b84ce461d5ec36ad"
+sig = "5d04ec67ffe0487c"
 
 [[bindings]]
 doc = "docs/decisions/019-native-product-page-architecture.md"
@@ -953,7 +953,7 @@ sig = "c62d9aedb3a11293"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "22a999afac602576"
+sig = "3b486c62ff1c39d2"
 
 [[bindings]]
 doc = "docs/onboarding.md"

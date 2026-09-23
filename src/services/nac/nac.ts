@@ -5,7 +5,7 @@ import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
 import type { ArchiveProductSummary } from './archiveDates'
 import { afpApiHost, nacApiHost } from './hosts'
-import type { NwacWeatherQuery } from './sources/types'
+import type { NWACWeatherQuery } from './sources/types'
 import {
   forecastResultSchema,
   warningResultSchema,
@@ -16,7 +16,7 @@ import {
 } from './types/forecastSchemas'
 import {
   nwacWeatherForecastsResponseSchema,
-  type NwacWeatherForecastsWire,
+  type NWACWeatherForecastsWire,
 } from './types/nwacWeatherSchemas'
 import { productListSchema } from './types/productListSchemas'
 import {
@@ -726,7 +726,7 @@ export async function fetchWeatherProductForDate(
  * itself rather than through the AFP, so its `platforms.weather` is false upstream and the
  * dashboard's "Show on public weather tab" switch (`widget_config.mwf.enabled`) is the gate.
  */
-export async function isNwacWeatherEnabled(centerSlug: string): Promise<boolean> {
+export async function isNWACWeatherEnabled(centerSlug: string): Promise<boolean> {
   if (nwacWeatherForcedCenters.has(normalizeCenterSlug(centerSlug).toLowerCase())) return true
   try {
     const metadata = await getAvalancheCenterMetadata(centerSlug)
@@ -744,7 +744,7 @@ export async function isNwacWeatherEnabled(centerSlug: string): Promise<boolean>
 export async function centerHasWeather(centerSlug: string): Promise<boolean> {
   const [platforms, nwacWeather] = await Promise.all([
     getAvalancheCenterPlatforms(centerSlug),
-    isNwacWeatherEnabled(centerSlug),
+    isNWACWeatherEnabled(centerSlug),
   ])
   return platforms.weather || nwacWeather
 }
@@ -767,9 +767,9 @@ const nwacWeatherForcedCenters = new Set(
  * status, or on a response the schema rejects — the page degrades to "no forecast" rather than
  * failing.
  */
-export async function fetchNwacWeatherForecasts(
-  query: NwacWeatherQuery = {},
-): Promise<NwacWeatherForecastsWire | null> {
+export async function fetchNWACWeatherForecasts(
+  query: NWACWeatherQuery = {},
+): Promise<NWACWeatherForecastsWire | null> {
   const params = new URLSearchParams()
   if (query.date) params.set('date', query.date)
   if (query.zone !== undefined && query.zone !== null && query.zone !== '') {

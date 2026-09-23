@@ -1,13 +1,13 @@
 /** products-api NWAC weather wire → model. Pure; unit-tested. */
 import type {
-  NwacWeatherForecastDay,
-  NwacWeatherGrid,
-  NwacWeatherIssuance,
-  NwacWeatherLevelCell,
+  NWACWeatherForecastDay,
+  NWACWeatherGrid,
+  NWACWeatherIssuance,
+  NWACWeatherLevelCell,
 } from '../../model/nwacWeather'
 import type {
-  NwacWeatherForecastWire,
-  NwacWeatherForecastsWire,
+  NWACWeatherForecastWire,
+  NWACWeatherForecastsWire,
 } from '../../types/nwacWeatherSchemas'
 
 function grid<Row, Cell>(
@@ -15,8 +15,8 @@ function grid<Row, Cell>(
   outer: (row: Row) => string,
   inner: (row: Row) => string,
   cell: (row: Row) => Cell,
-): NwacWeatherGrid<Cell> {
-  const out: NwacWeatherGrid<Cell> = {}
+): NWACWeatherGrid<Cell> {
+  const out: NWACWeatherGrid<Cell> = {}
   for (const row of rows) {
     const o = outer(row)
     ;(out[o] ??= {})[inner(row)] = cell(row)
@@ -24,9 +24,9 @@ function grid<Row, Cell>(
   return out
 }
 
-export function mapV3NwacWeatherIssuance(wire: NwacWeatherForecastWire): NwacWeatherIssuance {
+export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWeatherIssuance {
   const extendedKeys = new Set(wire.extendedBlocks.map((b) => b.key))
-  const level = (row: NwacWeatherForecastWire['snowLevel'][number]): NwacWeatherLevelCell => ({
+  const level = (row: NWACWeatherForecastWire['snowLevel'][number]): NWACWeatherLevelCell => ({
     freezing: row.freezing ?? null,
     drop: row.drop ?? null,
     mode: row.mode ?? null,
@@ -113,12 +113,12 @@ export function mapV3NwacWeatherIssuance(wire: NwacWeatherForecastWire): NwacWea
   }
 }
 
-export function mapV3NwacWeatherForecastDay(
-  wire: NwacWeatherForecastsWire,
-): NwacWeatherForecastDay | null {
+export function mapV3NWACWeatherForecastDay(
+  wire: NWACWeatherForecastsWire,
+): NWACWeatherForecastDay | null {
   if (!wire.available || !wire.serviceDate || wire.forecasts.length === 0) return null
   return {
     serviceDate: wire.serviceDate,
-    issuances: wire.forecasts.map(mapV3NwacWeatherIssuance),
+    issuances: wire.forecasts.map(mapV3NWACWeatherIssuance),
   }
 }

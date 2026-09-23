@@ -5,7 +5,7 @@ import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { NativeWeatherPage } from '@/components/forecast/NativeWeatherPage'
 import { ForecastPage } from '@/components/weather/nwac/ForecastPage'
-import { isNwacWeatherEnabled } from '@/services/nac/nac'
+import { isNWACWeatherEnabled } from '@/services/nac/nac'
 import {
   assertCenterWeather,
   centerRouteMetadata,
@@ -28,7 +28,7 @@ export default async function Page({ params }: CenterRouteArgs) {
 
   const [useNative, nwacWeather] = await Promise.all([
     getNativeProductFlag(center, 'weather'),
-    isNwacWeatherEnabled(center),
+    isNWACWeatherEnabled(center),
   ])
 
   if (useNative && nwacWeather) {

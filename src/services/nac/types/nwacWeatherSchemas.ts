@@ -109,7 +109,7 @@ export const nwacWeatherForecastSchema = z.object({
   snowLevel: z.array(nwacWeatherLevelRowSchema),
   sensible: z.array(nwacWeatherSensibleRowSchema),
 })
-export type NwacWeatherForecastWire = z.infer<typeof nwacWeatherForecastSchema>
+export type NWACWeatherForecastWire = z.infer<typeof nwacWeatherForecastSchema>
 
 export const nwacWeatherUnavailableSchema = z.object({ available: z.literal(false) })
 
@@ -124,4 +124,4 @@ export const nwacWeatherForecastsResponseSchema = z.object({
   serviceDate: z.string().nullable(),
   forecasts: z.array(nwacWeatherForecastSchema),
 })
-export type NwacWeatherForecastsWire = z.infer<typeof nwacWeatherForecastsResponseSchema>
+export type NWACWeatherForecastsWire = z.infer<typeof nwacWeatherForecastsResponseSchema>
