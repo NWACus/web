@@ -44,6 +44,10 @@ Individual event page showing:
 - Rich text content
 - Redirects to `externalEventUrl` if set
 
+### Dates and Timezones
+
+Event times render in the event's own timezone (`startDate_tz`, defaulted to the center's) with the zone abbreviation, e.g. `Sep 28, 2026, 11:00 AM - 1:00 PM PDT`. They go through `ZonedDateTime` (`src/components/ZonedDateTime.tsx`), which underlines the time and offers the viewer's local equivalent in a popover when their browser is in a zone that disagrees. The hint is added after hydration, so server markup never depends on the viewer's timezone. It is switched off with `viewerTimeHint={false}` where the date sits inside a link, such as `EventPreviewSmallRow` and linked course rows.
+
 ## Blocks
 
 ### SingleEvent Block

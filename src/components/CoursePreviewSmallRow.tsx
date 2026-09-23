@@ -89,6 +89,7 @@ export const CoursePreviewSmallRow = (props: {
                 startDate={startDate}
                 startDate_tz={startDate_tz}
                 endDate={endDate}
+                viewerTimeHint={!hasExternalUrl}
               />
             </p>
           )}

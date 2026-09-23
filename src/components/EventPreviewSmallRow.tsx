@@ -80,6 +80,7 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
                   startDate={startDate}
                   startDate_tz={startDate_tz}
                   endDate={endDate}
+                  viewerTimeHint={false}
                 />
               </div>
             )}
