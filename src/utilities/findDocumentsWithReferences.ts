@@ -19,7 +19,8 @@ export interface FindDocumentsWithReferencesOptions {
   /**
    * The request to run inside. A hook counting references for the document it is currently saving
    * has to see that save, which has not been committed yet — without the request it queries outside
-   * the transaction and reads the state from before the hook ran.
+   * the transaction and reads the state from before the hook ran. With it, a failed query rejects
+   * instead of being logged and skipped.
    */
   req?: PayloadRequest
 }
@@ -147,6 +148,10 @@ export async function findDocumentsWithReferences(
   for (const [i, result] of settled.entries()) {
     if (result.status === 'fulfilled') {
       results.push(...result.value)
+    } else if (req) {
+      // A failed query has already rolled back the caller's transaction; carrying on would let
+      // their save look successful
+      throw result.reason
     } else {
       const message = result.reason instanceof Error ? result.reason.message : String(result.reason)
       payload.logger.warn(
