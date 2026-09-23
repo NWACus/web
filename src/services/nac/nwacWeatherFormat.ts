@@ -137,6 +137,16 @@ export function snowLevelBlocks(issuance: NwacWeatherIssuance): NwacWeatherBlock
   return blocksWithData(issuance, issuance.snowLevel, (c) => c.freezing != null)
 }
 
+/** The periods a 12h table shows: those with a value for any zone, else the whole window. */
+export function tempPeriods(issuance: NwacWeatherIssuance): NwacWeatherPeriod[] {
+  const used = new Set<string>()
+  for (const cells of Object.values(issuance.temp)) {
+    for (const [key, cell] of Object.entries(cells)) if (cell.high != null) used.add(key)
+  }
+  const shown = issuance.periods.filter((p) => used.has(p.key))
+  return shown.length ? shown : issuance.periods
+}
+
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -147,6 +157,11 @@ export function fmtCalendarDate(ymd: string): string {
   const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
   return `${DOW[d.getDay()]} ${MON[d.getMonth()]} ${d.getDate()}`
 }
+
+export const SENSIBLE_SLOTS = [
+  { key: 'morning', label: 'Today / Tonight' },
+  { key: 'afternoon', label: 'Tomorrow' },
+] as const
 
 /** Periods grouped by calendar date, for the By Zone header. */
 export function periodDateGroups(periods: NwacWeatherPeriod[]): { date: string; span: number }[] {
