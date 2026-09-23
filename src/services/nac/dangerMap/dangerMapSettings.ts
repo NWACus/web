@@ -7,6 +7,10 @@
  * `app/utils/dangerMapSettings.js` field for field — so a forecaster who set something there sees
  * it here, and a center that never opened the page gets the same defaults the dashboard shows.
  *
+ * **`height` is deliberately not resolved.** AvyWeb pins the home page's danger map to one height
+ * whichever map renders (`DANGER_MAP_HEIGHT` in `HomeDangerMap.tsx`), so flipping a center to the
+ * native map doesn't change the page layout.
+ *
  * **`saturation` is deliberately not resolved.** The dashboard offers a "Map color" control
  * (full / light / grayscale) and every center has picked grayscale, but *no* Mapbox consumer
  * applies it — not the afp danger-map widget, not dashboard-v2's own map preview. The only
@@ -24,8 +28,6 @@ export interface DangerMapViewport {
 }
 
 export interface DangerMapSettings {
-  /** Map height in px, clamped to the range the dashboard's input allows. */
-  height: number
   /** Show the location search box. */
   search: boolean
   /** Show the "find my location" control. */
@@ -41,23 +43,12 @@ export interface DangerMapSettings {
 
 /** Dashboard-v2's `DANGER_MAP_DEFAULTS`, for a center that never opened the settings page. */
 export const DANGER_MAP_DEFAULTS: DangerMapSettings = {
-  height: 500,
   search: false,
   geolocate: false,
   advice: false,
   allCenters: false,
   center: null,
   zoom: 8,
-}
-
-const MIN_HEIGHT = 300
-const MAX_HEIGHT = 1000
-
-/** Height comes back as a string from the API and a number from the dashboard; both are valid. */
-function clampHeight(value: string | number | undefined): number {
-  const height = Number(value)
-  if (!Number.isFinite(height)) return DANGER_MAP_DEFAULTS.height
-  return Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, Math.round(height)))
 }
 
 /**
@@ -94,7 +85,6 @@ export function resolveDangerMapSettings(
   if (!config) return DANGER_MAP_DEFAULTS
 
   return {
-    height: clampHeight(config.height),
     search: Boolean(config.search),
     geolocate: Boolean(config.geolocate),
     advice: Boolean(config.advice),
