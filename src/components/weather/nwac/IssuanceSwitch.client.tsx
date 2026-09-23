@@ -44,7 +44,8 @@ function Switch({
       aria-label="Issuance"
       className={cn('inline-flex rounded-md bg-muted p-1 print:hidden', className)}
     >
-      {panels.map((p, i) => (
+      {/* Panels come newest first; the buttons read in time order, Morning before Afternoon. */}
+      {[...panels].reverse().map((p) => (
         <ToggleGroupItem
           key={p.key}
           value={p.key}
@@ -60,7 +61,7 @@ function Switch({
               {p.time}
             </span>
           )}
-          {markLatest && i === 0 && (
+          {markLatest && p.key === panels[0].key && (
             <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-sky-900">
               Latest
             </span>
