@@ -3,16 +3,24 @@
  * Components/pages call these — they never touch a raw fetcher or a specific backend impl.
  */
 import { getProductDataSource } from './config'
-import type { ForecastSource, MapLayerSource, WarningSource, WeatherSource } from './types'
+import type {
+  ForecastSource,
+  MapLayerSource,
+  NwacWeatherSource,
+  WarningSource,
+  WeatherSource,
+} from './types'
 import { forecastSourceV2 } from './v2/forecastSourceV2'
 import { mapLayerSourceV2 } from './v2/mapLayerSourceV2'
 import { warningSourceV2 } from './v2/warningSourceV2'
 import { weatherSourceV2 } from './v2/weatherSourceV2'
+import { nwacWeatherSourceV3 } from './v3/nwacWeatherSourceV3'
 
 export type {
   ForecastSource,
   MapLayerQuery,
   MapLayerSource,
+  NwacWeatherSource,
   WarningSource,
   WeatherSource,
 } from './types'
@@ -60,4 +68,12 @@ export function getWeatherSource(centerSlug: string): WeatherSource {
     case 'v3':
       throw new Error('NAC v3 weather source is not implemented yet')
   }
+}
+
+/**
+ * The Mountain Weather Forecast source. products-api is the product's only backend, so this takes
+ * no center and consults no data-source control; the center gate is `isNwacWeatherEnabled`.
+ */
+export function getNwacWeatherSource(): NwacWeatherSource {
+  return nwacWeatherSourceV3
 }

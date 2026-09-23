@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
 import type { ArchiveProductSummary } from './archiveDates'
 import { afpApiHost, nacApiHost } from './hosts'
+import type { NwacWeatherQuery } from './sources/types'
 import {
   forecastResultSchema,
   warningResultSchema,
@@ -13,6 +14,10 @@ import {
   type WarningResult,
   type Weather,
 } from './types/forecastSchemas'
+import {
+  nwacWeatherForecastsResponseSchema,
+  type NwacWeatherForecastsWire,
+} from './types/nwacWeatherSchemas'
 import { productListSchema } from './types/productListSchemas'
 import {
   allAvalancheCenterCapabilitiesSchema,
@@ -346,6 +351,13 @@ export function weatherCacheTag(weatherProductId: number): string {
 export function currentWeatherCacheTag(centerId: string, zoneId: number): string {
   return `weather-current:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
 }
+
+/**
+ * The Next data-cache tag for NWAC's Mountain Weather Forecast reads. One tag for the product:
+ * an issuance is published at most twice a day and every read is a 300s ISR entry, so there is
+ * nothing finer worth addressing.
+ */
+export const nwacWeatherCacheTag = 'nwac-weather'
 
 /**
  * The Next data-cache tag for a zone's active warning/watch/special. The warning freshness handler
@@ -702,6 +714,43 @@ export async function fetchWeatherProductForDate(
     )
 
     return await parseWeatherResponse(data)
+  } catch {
+    return null
+  }
+}
+
+// ─── NWAC Mountain Weather Forecast (products-api) ───────────────────────────
+
+/**
+ * Every NWAC weather issuance published for a date, newest first. products-api serves this product for
+ * one center, so the path carries no center segment. Null when nothing is published, on a bad
+ * status, or on a response the schema rejects — the page degrades to "no forecast" rather than
+ * failing.
+ */
+export async function fetchNwacWeatherForecasts(
+  query: NwacWeatherQuery = {},
+): Promise<NwacWeatherForecastsWire | null> {
+  const params = new URLSearchParams()
+  if (query.date) params.set('date', query.date)
+  if (query.zone !== undefined && query.zone !== null && query.zone !== '') {
+    params.set('zone', String(query.zone))
+  }
+  const search = params.toString()
+  const path = `/v3/public/nwac-weather/forecasts${search ? `?${search}` : ''}`
+
+  try {
+    const data = await nacFetch(path, {
+      cachedTime: 300,
+      tags: [nwacWeatherCacheTag],
+    })
+
+    const parsed = nwacWeatherForecastsResponseSchema.safeParse(data)
+    if (!parsed.success) {
+      await logNacError(parsed.error, 'Failed to parse NWAC weather forecasts response')
+      return null
+    }
+
+    return parsed.data
   } catch {
     return null
   }

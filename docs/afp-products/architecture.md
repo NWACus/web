@@ -45,6 +45,8 @@ export interface ForecastSource {
 
 `index.ts` resolves which implementation a center gets. Pages call `getForecastSource(centerSlug)` and never import an implementation directly.
 
+One product sits outside the v2/v3 seam. NWAC's in-house **Mountain Weather Forecast** never had a v2 shape — products-api is its only backend — so `NwacWeatherSource` (`v3/nwacWeatherSourceV3.ts`, reading `/v3/public/nwac-weather/forecasts`) has one implementation, `getNwacWeatherSource()` takes no center and consults no data-source control, and the model lives in `model/nwacWeather.ts`. Its mapper is still the tested seam: the wire's flat rows become zone- and point-keyed grids, and the extended outlook's levels are split off by block key.
+
 The v3 branches exist and currently throw:
 
 ```ts
@@ -256,6 +258,8 @@ Known and deliberate, but easy to be caught by.
 | `src/services/nac/model/`                 | Normalized, API-agnostic product model          |
 | `src/services/nac/sources/`               | Per-product source interfaces, config, resolver |
 | `src/services/nac/sources/v2/`            | Legacy-API implementations and mappers          |
+| `src/services/nac/sources/v3/`            | The products-api Mountain Weather Forecast source and mapper |
+| `src/services/nac/nwacWeatherFormat.ts`           | How a Mountain Weather value reads on the page  |
 | `src/services/nac/types/`                 | v2 wire schemas (zod)                           |
 | `src/services/nac/forecastFingerprint.ts` | The address a page asks freshness about         |
 | `src/services/nac/weatherForForecast.ts`  | How a forecast's weather product is located     |

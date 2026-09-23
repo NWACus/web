@@ -155,11 +155,21 @@ export type AvalancheCenterStationsWidgetConfiguration = z.infer<
 >
 
 // the widget configurations are present if and when each forecast center opts into specific NAC functionality
+/**
+ * NWAC's in-house Mountain Weather Forecast. Set from the AFP dashboard when the center turns on
+ * "Show on public weather tab"; the only signal that NWAC has a weather product, since its
+ * `platforms.weather` capability is hard-coded false upstream.
+ */
+export const avalancheCenterNwacWeatherWidgetConfigurationSchema = z.object({
+  enabled: z.boolean().optional(),
+})
+
 export const avalancheCenterWidgetConfigurationSchema = z.object({
   forecast: avalancheCenterForecastWidgetConfigurationSchema.optional(),
   danger_map: avalancheCenterDangerMapWidgetConfigurationSchema.optional(),
   observation_viewer: avalancheCenterObservationViewerWidgetConfigurationSchema.optional(),
   stations: avalancheCenterStationsWidgetConfigurationSchema.optional(),
+  mwf: avalancheCenterNwacWeatherWidgetConfigurationSchema.optional(),
 })
 
 export const elevationBandNamesSchema = z.object({

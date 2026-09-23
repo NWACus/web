@@ -312,18 +312,23 @@ sig = "d778a70dda5c7931"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/nwacWeatherFormat.ts"
+sig = "4d4a273342d77fc5"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/config.ts"
 sig = "04c5d068ca6aa844"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/index.ts"
-sig = "b97eccce2fe2f8d5"
+sig = "b84ce461d5ec36ad"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/types.ts"
-sig = "1e24331fdb827036"
+sig = "6bedf408070314d0"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -673,7 +678,7 @@ sig = "a48496f62567028f"
 [[bindings]]
 doc = "docs/decisions/019-native-product-page-architecture.md"
 target = "src/services/nac/sources/index.ts"
-sig = "b97eccce2fe2f8d5"
+sig = "b84ce461d5ec36ad"
 
 [[bindings]]
 doc = "docs/decisions/019-native-product-page-architecture.md"
