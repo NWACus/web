@@ -100,10 +100,8 @@ export function stationPageLookup(pages: LinkableStationPage[]): StationPageLook
 }
 
 /**
- * Where a station's Table and Graphs buttons lead: the center's station page that shows it, which
- * carries the editor's columns and grouping, or else the station's own detail page. The map lists
- * what `station/data/current/` returns, which is the token's tracking list, so every station the
- * map shows has a detail page.
+ * The station page that shows a station, with the editor's columns, or else its own detail page.
+ * The map lists the token's tracked stations, so each has one once the hourly tracking cache has it.
  */
 export function stationHref(pages: StationPageLookup, station: StationRef): string {
   const slug = pages.get(stationKey(station))

@@ -5,17 +5,15 @@ import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import type { StationViewSubject } from '@/components/WeatherStations/stationTabViews'
 import { loadStationNotes, resolveTabView } from '@/components/WeatherStations/stationTabViews'
 import { TrackedStationDetails } from '@/components/WeatherStations/TrackedStationDetails'
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { stationDetailPath } from '@/services/snowobs/stationKey'
 import type { TrackedStation } from '@/services/snowobs/stationTracking'
-import { findTrackedStation } from '@/services/snowobs/trackedStations'
+import { findServedStation } from '@/services/snowobs/trackedStations'
 import { getStationPages, toPageSummaries } from '@/services/stations/getStationPages'
-import { centerTimezone, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
+import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
 
-// Any one station the center's SnowObs token tracks, shown with a station page's views: the
-// native stand-in for the legacy station widget's modal. There are thousands across centers, so
-// none is prerendered (no generateStaticParams) and the query string renders each per request.
+// The legacy station modal as a page, for any station the center tracks. Thousands across
+// centers, so none is prerendered; the query string renders each per request.
 
 type PathArgs = { center: string; source: string; stid: string }
 
@@ -24,12 +22,8 @@ type Args = {
   searchParams: Promise<{ range?: string; period?: string }>
 }
 
-// Only a tracked station has a page, so this route never proxies SnowObs for an arbitrary stid.
 async function loadTrackedStation({ center, source, stid }: PathArgs): Promise<TrackedStation> {
-  if (!isValidTenantSlug(center)) notFound()
-  const platforms = await getAvalancheCenterPlatforms(center)
-  if (!platforms.stations) notFound()
-  const station = await findTrackedStation(center, { source, stid })
+  const station = await findServedStation(center, { source, stid })
   if (!station) notFound()
   return station
 }
@@ -57,8 +51,7 @@ export default async function Page({ params, searchParams }: Args) {
 
   return (
     <>
-      {/* Crumbs from the map, which is where these pages are reached from; the URL's own
-          segments (`station`, the source) have no pages to link to. */}
+      {/* Trailed from the map: the URL's own `station` and source segments have no pages. */}
       <Breadcrumbs
         center={center}
         path={`/weather/stations/map/${encodeURIComponent(station.stid)}`}
@@ -87,13 +80,22 @@ export async function generateMetadata(
   props: Args,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
-  const station = await loadTrackedStation(await props.params)
-  const parentTitle = resolveParentTitle(await parent)
-  const title = `${displayName(station)} | ${parentTitle}`
+  const { center, ...ref } = await props.params
+  const station = await loadTrackedStation({ center, ...ref })
+  const parentMeta = await parent
+  const title = `${displayName(station)} | ${resolveParentTitle(parentMeta)}`
+  const canonical = stationDetailPath(station)
+  const routeTitle = encodeURIComponent(displayName(station))
 
   return {
     title,
-    alternates: { canonical: stationDetailPath(station) },
+    alternates: { canonical },
+    openGraph: {
+      ...parentMeta.openGraph,
+      title,
+      url: canonical,
+      images: [{ url: `/api/${center}/og?routeTitle=${routeTitle}`, width: 1200, height: 630 }],
+    },
     // Thousands of stations shouldn't compete with the center's own station pages in search.
     robots: { index: false, follow: true },
   }

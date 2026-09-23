@@ -3,7 +3,7 @@ import {
   STATION_GRAPH_PRESETS,
 } from '@/components/WeatherStations/stationGraphPresets'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
-import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
+import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKey } from '@/services/snowobs/stationKey'
 import { unknownStationKeys } from '@/services/snowobs/trackedStations'
@@ -11,7 +11,9 @@ import type { AssembledStationPage } from '@/services/stations/getStationPages'
 import { allStations, getStationPages } from '@/services/stations/getStationPages'
 import { unknownCenterResponse } from '@/utilities/apiResponses'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
+import config from '@payload-config'
 import { NextResponse } from 'next/server'
+import { getPayload } from 'payload'
 
 // Serves the station Graphs tab. Reads SnowObs server-side (token stays
 // hidden); windows longer than 30 days aggregate to daily min/mean/max.
@@ -101,9 +103,11 @@ async function unknownStations(
   return unknown.length > 0 ? badRequest(`unknown stations: ${unknown.join(',')}`) : null
 }
 
-function upstreamError(error: unknown): NextResponse {
-  const message = error instanceof SnowObsError ? error.message : 'failed to load station data'
-  return NextResponse.json({ error: message }, { status: 502 })
+// Generic, as precip-data's is: a missing token or a SnowObs fault is ours to read in the log.
+async function upstreamError(center: string, error: unknown): Promise<NextResponse> {
+  const payload = await getPayload({ config })
+  payload.logger.error({ err: error, center }, 'graph-data failed')
+  return NextResponse.json({ error: 'failed to load station data' }, { status: 502 })
 }
 
 // CRAP is inflated by the lack of unit coverage on this route handler.
@@ -136,6 +140,6 @@ export async function GET(
       },
     })
   } catch (error) {
-    return upstreamError(error)
+    return upstreamError(center, error)
   }
 }

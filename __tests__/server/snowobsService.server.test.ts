@@ -65,13 +65,16 @@ function captureTokenParam(): string[] {
   return seen
 }
 
+const warnMock = jest.fn()
+
 beforeEach(() => {
+  warnMock.mockClear()
   mockAfpToken('afp-token')
   // Error paths log via payload; return a stub logger so they don't hit the console fallback.
   jest
     .mocked(getPayload)
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    .mockResolvedValue({ logger: { error: jest.fn() } } as unknown as Payload)
+    .mockResolvedValue({ logger: { error: jest.fn(), warn: warnMock } } as unknown as Payload)
 })
 
 describe('fetchStationTimeseries', () => {
@@ -119,18 +122,23 @@ describe('fetchStationTimeseries', () => {
     const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
     expect(seenParams).toEqual(['true', null])
     expect(result.STATION[0].name).toBe('Test Station')
+    // Rounding the whole request is a silent loss of precision without this.
+    expect(warnMock).toHaveBeenCalledWith(
+      { err: null, stids: ['4'] },
+      expect.stringContaining('raw_data'),
+    )
   })
 
-  it('does not retry a 4xx, which rounding would not fix', async () => {
+  it.each([400, 503])('does not retry a %i, which rounding would not fix', async (status) => {
     let calls = 0
     server.use(
       http.get(TIMESERIES_URL, () => {
         calls += 1
-        return new HttpResponse(null, { status: 400 })
+        return new HttpResponse(null, { status })
       }),
     )
     await expect(fetchStationTimeseries('nwac', [ref('4')], { rawData: true })).rejects.toThrow(
-      /status 400/,
+      `status ${status}`,
     )
     expect(calls).toBe(1)
   })

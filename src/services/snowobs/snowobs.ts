@@ -67,10 +67,11 @@ async function logSnowObsError(
   operation: string,
   error: unknown,
   context: Record<string, unknown>,
+  level: 'error' | 'warn' = 'error',
 ): Promise<void> {
   try {
     const payload = await getPayload({ config })
-    payload.logger.error({ err: error, ...context }, `${operation} error`)
+    payload.logger[level]({ err: error, ...context }, `${operation} ${level}`)
   } catch {
     console.error(`${operation} error (payload logger unavailable)`, { ...context, error })
   }
@@ -104,9 +105,8 @@ function toSnowObsError(error: unknown, stids: string[]): SnowObsError {
     : new SnowObsError('Failed to fetch SnowObs station timeseries', error, { stids })
 }
 
-// SnowObs answers `raw_data` with a 500 for some Synoptic airport stations (NWAC's KSEA, KBLI and
-// nine more, checked 2026-09-23) yet serves them rounded, which is how the legacy widget reads
-// every station. Rounded readings beat an error page.
+// SnowObs 500s `raw_data` for some Synoptic airport stations (KSEA, KBLI…) but serves them
+// rounded, as the legacy widget reads every station. Logged, since it rounds the whole request.
 async function requestTimeseries(
   stations: StationRef[],
   options: FetchOptions,
@@ -114,7 +114,10 @@ async function requestTimeseries(
   revalidate: number,
 ): Promise<Response> {
   const res = await fetch(buildTimeseriesUrl(stations, options, token), { next: { revalidate } })
-  if (res.status < 500 || !options.rawData) return res
+  if (res.status !== 500 || !options.rawData) return res
+  await res.body?.cancel()
+  const stids = stations.map((s) => s.stid)
+  await logSnowObsError('fetchStationTimeseries raw_data', null, { stids }, 'warn')
   const rounded = { ...options, rawData: false }
   return fetch(buildTimeseriesUrl(stations, rounded, token), { next: { revalidate } })
 }

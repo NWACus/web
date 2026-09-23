@@ -1,12 +1,12 @@
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { resolveSnowObsAccess } from './access'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
 import type { TrackedStation } from './stationTracking'
 import { fetchTrackedStations } from './stationTracking'
 
-// The routes that serve any station the center tracks, rather than only those on
-// its station pages, check against this list so they don't proxy SnowObs for
-// any stid our token can read.
+// Routes serving any tracked station check this list, so they don't proxy SnowObs for any stid.
 
 /** Every station the center's SnowObs token tracks, cached an hour. */
 export async function fetchCenterTrackedStations(center: string): Promise<TrackedStation[]> {
@@ -21,6 +21,20 @@ export async function findTrackedStation(
   const key = stationKey(ref)
   const tracked = await fetchCenterTrackedStations(center)
   return tracked.find((station) => stationKey(station) === key) ?? null
+}
+
+/**
+ * The station behind a detail page or its CSV route, or null for a center without stations or a
+ * station it doesn't track. A SnowObs failure throws rather than reading as "not tracked".
+ */
+export async function findServedStation(
+  center: string,
+  ref: StationRef,
+): Promise<TrackedStation | null> {
+  if (!isValidTenantSlug(center)) return null
+  const platforms = await getAvalancheCenterPlatforms(center)
+  if (!platforms.stations) return null
+  return findTrackedStation(center, ref)
 }
 
 /**

@@ -35,7 +35,7 @@ test.describe('Single-station detail page', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Green Lake' })).toBeVisible()
     // The legacy modal's metadata line: network, elevation and partner.
     await expect(page.getByText('SNOTEL', { exact: true })).toBeVisible()
-    await expect(page.getByText("5,920'")).toBeVisible()
+    await expect(page.getByText("Elevation 5920'")).toBeVisible()
     await expect(page.getByText('NRCS')).toBeVisible()
 
     // 22:00Z is 15:00 Pacific daylight time, SAC's zone.
@@ -47,12 +47,27 @@ test.describe('Single-station detail page', () => {
     expect(errors).toEqual([])
   })
 
+  test("a mountain-time center's table reads in its own zone", async ({ page }) => {
+    // SAC shares NWAC's Pacific zone, so a hard-coded Pacific would pass the test above.
+    await loadPage(page, `${tenant('snfac')}${GREEN_LAKE}`)
+    const table = page.getByRole('table').first()
+    await expect(table).toContainText('09/10 16:00')
+    await expect(table).toContainText('MDT')
+  })
+
   test('its graphs and download read the one station', async ({ page }) => {
     const graphData = page.waitForResponse((response) =>
       response.url().includes('/weather/graph-data'),
     )
     const errors = await loadPage(page, `${tenant('sac')}${GREEN_LAKE}?range=graphs`)
-    expect((await graphData).status()).toBe(200)
+    const response = await graphData
+    expect(response.status()).toBe(200)
+    // A 200 alone would pass on an empty timeseries; the series must be this station's.
+    const body: { series: { source: string; stid: string; variable: string }[] } =
+      await response.json()
+    expect(body.series.length).toBeGreaterThan(0)
+    expect(body.series.every((s) => s.source === 'snotel' && s.stid === '502')).toBe(true)
+    await expect(page.locator('canvas').first()).toBeVisible()
     await expect(page.getByText(/Couldn't load station data/)).toHaveCount(0)
 
     await loadPage(page, `${tenant('sac')}${GREEN_LAKE}?range=csv`)

@@ -19,7 +19,7 @@ export function TrackedStationDetails({
         <span className="inline-flex items-center gap-1">
           <Mountain className="h-3.5 w-3.5" aria-hidden="true" />
           <span className="sr-only">Elevation </span>
-          {Math.round(station.elevation).toLocaleString('en-US')}&apos;
+          {Math.round(station.elevation)}&apos;
         </span>
       )}
       {station.partner && (
