@@ -95,6 +95,14 @@ describe('E2E golden corpus', () => {
   })
 })
 
+/** A product fixture's own `product_type`, or '' when it carries none. */
+function productTypeOf(value: unknown): string {
+  if (value && typeof value === 'object' && 'product_type' in value) {
+    return typeof value.product_type === 'string' ? value.product_type : ''
+  }
+  return ''
+}
+
 /** The schema the app parses a `type=…` product query's answer with. */
 function schemaForProductType(type: string) {
   if (type === 'warning') return warningResultSchema
@@ -130,9 +138,10 @@ describe('E2E fixtures against the wire schemas', () => {
         expect({ name, ok: parsed.success }).toEqual({ name, ok: true })
       }
     }
-    // The by-id route serves the same product envelope.
+    // The by-id route serves the same envelopes, told apart by their own product type.
     for (const name of Object.values(scenarios.productsById)) {
-      const parsed = forecastResultSchema.safeParse(readJson(fixturePath(name)))
+      const fixture = readJson(fixturePath(name))
+      const parsed = schemaForProductType(productTypeOf(fixture)).safeParse(fixture)
       expect({ name, ok: parsed.success }).toEqual({ name, ok: true })
     }
   })

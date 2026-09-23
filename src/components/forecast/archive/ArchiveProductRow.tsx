@@ -35,6 +35,10 @@ const LINE = 'flex items-center gap-x-4 gap-y-1 xl:contents'
 const FIRST_LINE = `${LINE} flex-wrap`
 const SECOND_LINE = `${LINE} flex-nowrap`
 
+/** The row's card and focus treatment, shared with the mountain-weather tab's rows. */
+export const ARCHIVE_ROW_LINK_CLASS =
+  'block rounded-lg border bg-card p-3 transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none'
+
 export function ArchiveProductRow({ row }: ArchiveProductRowProps) {
   const level = dangerLevelFromRating(row.dangerLevel)
 
@@ -43,7 +47,7 @@ export function ArchiveProductRow({ row }: ArchiveProductRowProps) {
       <Link
         href={archiveRowHref(row)}
         prefetch={false}
-        className="block rounded-lg border bg-card p-3 transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none"
+        className={ARCHIVE_ROW_LINK_CLASS}
         style={{ borderLeft: `4px solid ${dangerColor(level)}` }}
       >
         <RowLines row={row} level={level} />
@@ -91,7 +95,7 @@ function DangerCell({ level }: { level: DangerLevel }) {
   )
 }
 
-function ZoneCell({ name }: { name: string }) {
+export function ZoneCell({ name }: { name: string }) {
   return (
     <span className="flex items-center gap-1 whitespace-nowrap">
       <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -104,7 +108,7 @@ function ZoneCell({ name }: { name: string }) {
  * Truncated rather than wrapped when the line is short of room; the full name is in the `title`
  * for a hover, and the dated page it links to shows it in full. Absent on bulk-imported history.
  */
-function AuthorCell({ author }: { author: string | null }) {
+export function AuthorCell({ author }: { author: string | null }) {
   if (!author) return null
 
   return (
