@@ -3,6 +3,8 @@
  * numbers by period — snow and temps on the 12h periods, snow level and wind on the 6h blocks
  * beneath. A table from `md` up and on paper; one card per period on a phone.
  */
+import { Moon, Sun } from 'lucide-react'
+
 import type {
   NwacWeatherBlock,
   NwacWeatherIssuance,
@@ -62,7 +64,7 @@ function periodViews(issuance: NwacWeatherIssuance, zone: NwacWeatherZone): Peri
     return {
       period,
       night,
-      label: `${fmtCalendarDate(period.date)} · ${night ? 'Night' : 'Day'}`,
+      label: fmtCalendarDate(period.date),
       blocks: blocks.filter((b) => b.block.period === period.key).map((b) => ({ ...b, night })),
     }
   })
@@ -116,6 +118,18 @@ function SensibleCards({
 
 const periodSpan = (p: PeriodView) => Math.max(1, p.blocks.length)
 
+/** The period's date with a sun or moon for day or night. */
+function PeriodLabel({ p }: { p: PeriodView }) {
+  const Icon = p.night ? Moon : Sun
+  return (
+    <span className="inline-flex items-center justify-center gap-1.5">
+      {p.label}
+      <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+      <span className="sr-only">{p.night ? 'Night' : 'Day'}</span>
+    </span>
+  )
+}
+
 function PeriodHead({ periods }: { periods: PeriodView[] }) {
   return (
     <thead className="bg-muted/50">
@@ -128,7 +142,7 @@ function PeriodHead({ periods }: { periods: PeriodView[] }) {
             colSpan={periodSpan(p)}
             className={cn(HEAD, p.night && NIGHT)}
           >
-            {p.label}
+            <PeriodLabel p={p} />
           </th>
         ))}
       </tr>
@@ -244,18 +258,18 @@ function PeriodTable({
             periods={periods}
             cell={(p) => <ZoneSnow issuance={issuance} zone={zone} period={p.period} />}
           />
-          <PeriodRow
-            label="Temp"
-            unit="5000' °F"
-            periods={periods}
-            cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />}
-          />
           <BlockRow
             label="Snow level"
             unit="ft"
             blocks={blocks}
             cellClassName="border-t p-0.5"
             cell={(b) => <LevelValue level={b.level} tone={b.tone} />}
+          />
+          <PeriodRow
+            label="Temp"
+            unit="5000' °F"
+            periods={periods}
+            cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />}
           />
           <BlockRow
             label="Ridge wind"
@@ -286,7 +300,9 @@ function PeriodCardHeader({
         p.night ? NIGHT : 'bg-muted/50',
       )}
     >
-      <h4 className="font-semibold">{p.label}</h4>
+      <h4 className="font-semibold">
+        <PeriodLabel p={p} />
+      </h4>
       <div className="flex items-center gap-3 text-sm">
         <span>
           <span className="sr-only">Snow </span>
@@ -351,7 +367,7 @@ function PeriodCards({
         <PeriodCard key={p.period.key} issuance={issuance} zone={zone} p={p} />
       ))}
       <p className="text-xs text-muted-foreground">
-        Snow in inches · temps at 5000&apos; °F · snow level ft · ridgeline wind mph
+        Snow in inches · snow level ft · temps at 5000&apos; °F · ridgeline wind mph
       </p>
     </div>
   )

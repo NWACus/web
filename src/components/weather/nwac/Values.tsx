@@ -38,9 +38,9 @@ export function TempValue({ cell }: { cell: NwacWeatherTempCell | undefined }) {
   }
   return (
     <span className="whitespace-nowrap tabular-nums">
-      <span className="font-semibold text-red-700 dark:text-red-400">{cell.high}</span>
+      <span className="font-semibold">{cell.high}</span>
       <span className="text-muted-foreground"> / </span>
-      <span className="font-semibold text-blue-700 dark:text-blue-400">{cell.low}</span>
+      <span className="font-semibold">{cell.low}</span>
     </span>
   )
 }
