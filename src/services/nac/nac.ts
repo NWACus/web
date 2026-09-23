@@ -737,6 +737,19 @@ export async function isNwacWeatherEnabled(centerSlug: string): Promise<boolean>
 }
 
 /**
+ * Whether the center has a mountain weather product at all: the AFP weather platform, or NWAC's
+ * in-house forecast, whose `platforms.weather` is hard-coded false upstream. Gates the weather
+ * route, the provisioned nav page, and the zone page's weather slot.
+ */
+export async function centerHasWeather(centerSlug: string): Promise<boolean> {
+  const [platforms, nwacWeather] = await Promise.all([
+    getAvalancheCenterPlatforms(centerSlug),
+    isNwacWeatherEnabled(centerSlug),
+  ])
+  return platforms.weather || nwacWeather
+}
+
+/**
  * `NWAC_WEATHER_FORCE_CENTERS` — comma-separated center slugs treated as NWAC-weather-enabled regardless
  * of the upstream switch. For local and preview builds while the AFP side is still off; never
  * set in production, where the dashboard's switch is the only authority.

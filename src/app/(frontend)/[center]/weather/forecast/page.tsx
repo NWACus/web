@@ -4,17 +4,19 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { NativeWeatherPage } from '@/components/forecast/NativeWeatherPage'
+import { ForecastPage } from '@/components/weather/nwac/ForecastPage'
+import { isNwacWeatherEnabled } from '@/services/nac/nac'
 import {
-  assertCenterPlatform,
+  assertCenterWeather,
   centerRouteMetadata,
   centerStaticParams,
   type CenterRouteArgs,
 } from '@/utilities/centerRoutePage'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 
-// Short ISR backstop (5 min), matching the forecast routes: the native page renders the current
-// weather product, so it must not be frozen at build time. The revalidate-on-view path catches a
-// correction faster than this.
+// One route, two native sources: NWAC's in-house Mountain Weather Forecast and the AFP weather
+// product; the widget otherwise. Short ISR backstop (5 min), matching the forecast routes: the
+// page renders the current issuance, so it must not be frozen at build time.
 export const revalidate = 300
 
 export const generateStaticParams = centerStaticParams
@@ -22,11 +24,24 @@ export const generateStaticParams = centerStaticParams
 export default async function Page({ params }: CenterRouteArgs) {
   const { center } = await params
 
-  // The AFP's capability flag gates above our rollout flag: a center with no NAC weather product
-  // (NWAC authors its own) has no Mountain Weather page whatever Settings says.
-  await assertCenterPlatform(center, 'weather')
+  await assertCenterWeather(center)
 
-  const useNative = await getNativeProductFlag(center, 'weather')
+  const [useNative, nwacWeather] = await Promise.all([
+    getNativeProductFlag(center, 'weather'),
+    isNwacWeatherEnabled(center),
+  ])
+
+  if (useNative && nwacWeather) {
+    return (
+      <>
+        <Breadcrumbs center={center} path="/weather/forecast" />
+        <div className="container py-6">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Mountain Weather</h1>
+        </div>
+        <ForecastPage centerSlug={center} />
+      </>
+    )
+  }
 
   if (useNative) {
     return (

@@ -6,7 +6,7 @@
  * image, so keeping the shape here means a change to the title format or the OG wiring lands in
  * one place rather than six.
  */
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { centerHasWeather, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata, ResolvedMetadata } from 'next/types'
@@ -33,6 +33,11 @@ export async function assertCenterPlatform(center: string, platform: CenterPlatf
   if (!avalancheCenterPlatforms[platform]) {
     notFound()
   }
+}
+
+/** 404 unless the center has a mountain weather product from either source. */
+export async function assertCenterWeather(center: string) {
+  if (!(await centerHasWeather(center))) notFound()
 }
 
 /** Static params for every tenant, as `{ center: slug }`. */

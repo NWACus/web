@@ -55,7 +55,7 @@ What is intentionally **not** implemented (deferred to #1038):
 - AFP adds a zone → admin creates a `built_in_pages` row and adds it to the forecasts nav tab
 - AFP removes a zone → admin deletes the `built_in_pages` row and removes the nav reference
 - NAC platform booleans flip → admin creates or deletes the matching built-in pages:
-  - `platforms.weather` → Mountain Weather (`/weather/forecast`)
+  - `platforms.weather` → Mountain Weather (`/weather/forecast`); NWAC's in-house Mountain Weather Forecast (`widget_config.mwf.enabled`) also brings this page, but not the Mountain Weather Archive
   - `platforms.stations` → Weather Stations (`/weather/stations/map`)
   - `platforms.obs` → Recent Observations (`/observations`) and Submit Observations (`/observations/submit`)
 

@@ -82,7 +82,8 @@ export async function resolveBuiltInPages(
   nonForecastPages: Array<{ title: string; url: string }>
 }> {
   // Lazy-loaded to break the circular import with @payload-config
-  const { getActiveForecastZones, getAvalancheCenterPlatforms } = await import('@/services/nac/nac')
+  const { getActiveForecastZones, getAvalancheCenterPlatforms, isNwacWeatherEnabled } =
+    await import('@/services/nac/nac')
 
   let forecastZones: ActiveForecastZoneWithSlug[] = []
   try {
@@ -124,11 +125,15 @@ export async function resolveBuiltInPages(
   const archivePages: Array<{ title: string; url: string }> = [...ARCHIVE_PAGES]
   const nonForecastPages: Array<{ title: string; url: string }> = [...BUILT_IN_PAGES]
 
-  // Add Mountain Weather and its archive tab only if center has weather forecasts in NAC
+  // Mountain Weather needs a weather product: the AFP platform, or NWAC's in-house forecast, whose
+  // platform flag is false upstream. The archive's weather tab reads the AFP product, so only the
+  // platform brings it.
   try {
     const { weather } = await getAvalancheCenterPlatforms(tenantSlug)
-    if (weather) {
+    if (weather || (await isNwacWeatherEnabled(tenantSlug))) {
       nonForecastPages.push({ title: 'Mountain Weather', url: '/weather/forecast' })
+    }
+    if (weather) {
       archivePages.push({ title: 'Mountain Weather Archive', url: ARCHIVE_WEATHER_PATH })
     }
   } catch {
