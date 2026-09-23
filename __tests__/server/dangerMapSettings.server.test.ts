@@ -9,6 +9,11 @@ describe('resolveDangerMapSettings', () => {
     expect(resolveDangerMapSettings(undefined)).toEqual(DANGER_MAP_DEFAULTS)
   })
 
+  // Height is pinned in HomeDangerMap so the flag flip can't change the page layout.
+  it('ignores the configured height', () => {
+    expect(resolveDangerMapSettings({ height: '400' })).not.toHaveProperty('height')
+  })
+
   it('defaults each control to off when the config omits it', () => {
     const settings = resolveDangerMapSettings({ height: 500 })
 
@@ -16,31 +21,6 @@ describe('resolveDangerMapSettings', () => {
     expect(settings.geolocate).toBe(false)
     expect(settings.advice).toBe(false)
     expect(settings.allCenters).toBe(false)
-  })
-
-  describe('height', () => {
-    it('parses the string height the API returns', () => {
-      expect(resolveDangerMapSettings({ height: '650' }).height).toBe(650)
-    })
-
-    it('accepts a numeric height', () => {
-      expect(resolveDangerMapSettings({ height: 400 }).height).toBe(400)
-    })
-
-    it.each([
-      ['below the floor', 100, 300],
-      ['above the ceiling', 5000, 1000],
-    ])('clamps a height %s', (_case, given, expected) => {
-      expect(resolveDangerMapSettings({ height: given }).height).toBe(expected)
-    })
-
-    it('rounds a fractional height to whole pixels', () => {
-      expect(resolveDangerMapSettings({ height: 512.4 }).height).toBe(512)
-    })
-
-    it('falls back to the default when the height is unparseable', () => {
-      expect(resolveDangerMapSettings({ height: 'tall' }).height).toBe(DANGER_MAP_DEFAULTS.height)
-    })
   })
 
   describe('viewport', () => {
@@ -88,7 +68,6 @@ describe('resolveDangerMapSettings', () => {
           zoom: 7,
         }),
       ).toEqual({
-        height: 650,
         search: true,
         geolocate: true,
         advice: true,
@@ -113,7 +92,6 @@ describe('resolveDangerMapSettings', () => {
 
       expect(settings.search).toBe(false)
       expect(settings.allCenters).toBe(true)
-      expect(settings.height).toBe(450)
     })
   })
 })
