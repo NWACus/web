@@ -13,7 +13,7 @@ import { forecastFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource, getWarningSource } from '@/services/nac/sources'
-import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
+import { getWeatherSourcesForForecast } from '@/services/nac/weatherForForecast'
 
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
 
@@ -64,10 +64,10 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
   const currentDate = validDateForProduct(forecastResult.published_time, metadata.timezone)
   const window = initialArchiveWindow(currentDate)
 
-  // The mountain-weather product is issued separately; `getWeatherForForecast` owns how it is found.
-  const [archive, weather] = await Promise.all([
+  // The mountain-weather product is issued separately; `weatherForForecast` owns how it is found.
+  const [archive, { weather, nwacWeather }] = await Promise.all([
     fetchProductArchive(centerSlug, window),
-    getWeatherForForecast(centerSlug, zone.zone.id, forecastResult, metadata.timezone),
+    getWeatherSourcesForForecast(centerSlug, zone.zone.id, forecastResult, metadata.timezone),
   ])
   const initialDates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 
@@ -86,6 +86,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
         basePath={`/forecasts/avalanche/${zoneSlug}`}
         centerType={metadata.type}
         weather={weather}
+        nwacWeather={nwacWeather}
       />
       {/* Revalidate-on-view: catches a correction/retraction published after this (ISR) page was
           rendered and refreshes the viewer's page. Live route only — the dated archive is immutable. */}

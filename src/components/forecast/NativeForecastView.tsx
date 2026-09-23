@@ -15,6 +15,8 @@ import {
 import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 
+import { ZoneSummary } from '@/components/weather/nwac/ZoneSummary'
+import type { NwacWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 import { AvalancheProblemCard } from './AvalancheProblemCard'
 import { BottomLine } from './BottomLine'
 import { DangerRating } from './DangerRating'
@@ -27,6 +29,7 @@ import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
 import { ForecastPrint } from './ForecastPrint.client'
 import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
+
 import { WeatherSummary } from './WeatherSummary'
 import { availablePrintSections, forecastPrintFilename } from './forecastPrintSections'
 import { toLightboxMediaList } from './lightboxMedia'
@@ -53,6 +56,8 @@ interface NativeForecastViewProps {
   centerType: AvalancheCenterType
   /** The separately-issued weather product, when one is available (live page only). */
   weather?: Weather | null
+  /** NWAC's in-house Mountain Weather Forecast for the date, for centers with no AFP weather product. */
+  nwacWeather?: NwacWeatherForecastDay | null
 }
 
 export function NativeForecastView({
@@ -68,6 +73,7 @@ export function NativeForecastView({
   basePath,
   centerType,
   weather,
+  nwacWeather,
 }: NativeForecastViewProps) {
   return (
     // `print:py-0` / `print:space-y-4`: the @page margin already frames the sheet, and screen
@@ -79,6 +85,7 @@ export function NativeForecastView({
         zone={zone}
         forecastResult={forecastResult}
         weather={weather}
+        nwacWeather={nwacWeather}
         currentDate={currentDate}
         selectedDate={selectedDate}
       />
@@ -111,6 +118,8 @@ export function NativeForecastView({
       <ForecastSupplements
         forecastResult={forecastResult}
         weather={weather}
+        nwacWeather={nwacWeather}
+        avalancheZoneId={zone.zone.id}
         zoneName={zone.zone.name}
         timezone={timezone}
       />
@@ -138,11 +147,12 @@ function ForecastTitleRow({
   zone,
   forecastResult,
   weather,
+  nwacWeather,
   currentDate,
   selectedDate,
 }: Pick<
   NativeForecastViewProps,
-  'center' | 'zone' | 'forecastResult' | 'weather' | 'currentDate' | 'selectedDate'
+  'center' | 'zone' | 'forecastResult' | 'weather' | 'nwacWeather' | 'currentDate' | 'selectedDate'
 >) {
   const isForecast = forecastResult.product_type === ProductType.Forecast
 
@@ -159,7 +169,7 @@ function ForecastTitleRow({
 
       <ForecastErrorBoundary fallbackMessage="Unable to display the print control">
         <ForecastPrint
-          availableSections={availablePrintSections(forecastResult, weather)}
+          availableSections={availablePrintSections(forecastResult, weather, nwacWeather)}
           filename={forecastPrintFilename({
             centerSlug: center,
             zoneName: zone.zone.name,
@@ -319,35 +329,80 @@ function AvalancheProblems({ forecastResult }: { forecastResult: ForecastResult 
   )
 }
 
-/** The discussion, and the separately-issued weather product when one is available. */
+/** The forecast discussion, when the forecaster wrote one. */
+function DiscussionSupplement({ html }: { html: string | null | undefined }) {
+  if (!html) return null
+  return (
+    <div data-print-section="discussion">
+      <ForecastErrorBoundary fallbackMessage="Unable to display forecast discussion">
+        <ForecastDiscussion html={html} />
+      </ForecastErrorBoundary>
+    </div>
+  )
+}
+
+/**
+ * The weather section, from whichever source the center has: the AFP weather product the
+ * forecast points at wins; NWAC's in-house forecast fills the same slot when there is none.
+ */
+function WeatherSupplement({
+  weather,
+  nwacWeather,
+  avalancheZoneId,
+  zoneName,
+  timezone,
+}: {
+  weather: Weather | null | undefined
+  nwacWeather: NwacWeatherForecastDay | null | undefined
+  avalancheZoneId: number
+  zoneName: string
+  timezone: string | null | undefined
+}) {
+  if (weather) {
+    return (
+      <div data-print-section="weather">
+        <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
+          <WeatherSummary weather={weather} zoneName={zoneName} timezone={timezone} />
+        </ForecastErrorBoundary>
+      </div>
+    )
+  }
+  if (!nwacWeather) return null
+  return (
+    <div data-print-section="weather">
+      <ForecastErrorBoundary fallbackMessage="Unable to display the mountain weather forecast">
+        <ZoneSummary day={nwacWeather} avalancheZoneId={avalancheZoneId} timezone={timezone} />
+      </ForecastErrorBoundary>
+    </div>
+  )
+}
+
+/** The discussion, then the weather. Both print sections, both independently boundaried. */
 function ForecastSupplements({
   forecastResult,
   weather,
+  nwacWeather,
+  avalancheZoneId,
   zoneName,
   timezone,
 }: {
   forecastResult: ForecastResult
   weather: Weather | null | undefined
+  nwacWeather: NwacWeatherForecastDay | null | undefined
+  avalancheZoneId: number
   zoneName: string
   timezone: string | null | undefined
 }) {
   return (
     <>
-      {forecastResult.hazard_discussion && (
-        <div data-print-section="discussion">
-          <ForecastErrorBoundary fallbackMessage="Unable to display forecast discussion">
-            <ForecastDiscussion html={forecastResult.hazard_discussion} />
-          </ForecastErrorBoundary>
-        </div>
-      )}
-
-      {weather && (
-        <div data-print-section="weather">
-          <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
-            <WeatherSummary weather={weather} zoneName={zoneName} timezone={timezone} />
-          </ForecastErrorBoundary>
-        </div>
-      )}
+      <DiscussionSupplement html={forecastResult.hazard_discussion} />
+      <WeatherSupplement
+        weather={weather}
+        nwacWeather={nwacWeather}
+        avalancheZoneId={avalancheZoneId}
+        zoneName={zoneName}
+        timezone={timezone}
+      />
     </>
   )
 }

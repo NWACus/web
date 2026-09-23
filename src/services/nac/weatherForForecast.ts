@@ -9,7 +9,8 @@
  */
 import { publishedDateForProduct } from './archiveDates'
 import type { ForecastResult, Weather } from './model/forecast'
-import { getWeatherSource } from './sources'
+import { isNwacWeatherEnabled } from './nac'
+import { getNwacWeatherSource, getWeatherSource } from './sources'
 
 /** The only center whose archive holds pointerless forecasts. */
 const POINTERLESS_WEATHER_CENTER = 'snfac'
@@ -57,4 +58,24 @@ export async function getWeatherForForecast(
   if (date === null) return null
 
   return source.getWeatherForDate(centerSlug, zoneId, date)
+}
+
+/**
+ * The weather a forecast page shows, from whichever source the center has: the AFP product found
+ * above, else NWAC's in-house Mountain Weather Forecast, which no forecast points at. Its issuances
+ * are found by date (`date`, or the latest date with content when omitted), narrowed to the zone.
+ * Only a center with NWAC weather switched on makes that second call.
+ */
+export async function getWeatherSourcesForForecast(
+  centerSlug: string,
+  zoneId: number,
+  forecast: ForecastResult,
+  timezone: string | null | undefined,
+  date?: string,
+) {
+  const weather = await getWeatherForForecast(centerSlug, zoneId, forecast, timezone)
+  if (weather || !(await isNwacWeatherEnabled(centerSlug))) return { weather, nwacWeather: null }
+
+  const nwacWeather = await getNwacWeatherSource().getForecastDay({ date, zone: zoneId })
+  return { weather, nwacWeather }
 }

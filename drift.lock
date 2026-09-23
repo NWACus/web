@@ -228,7 +228,7 @@ sig = "52a857e9165267e8"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/NativeForecastPage.tsx"
-sig = "24d225b51d37cab7"
+sig = "4c5cd7f5e15bdf83"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -263,7 +263,7 @@ sig = "9f9aca44832d4ccb"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/forecastPrintSections.ts"
-sig = "82f2b9acb2d74be0"
+sig = "02fa8ba99e3f2511"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -313,7 +313,7 @@ sig = "d778a70dda5c7931"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/nwacWeatherFormat.ts"
-sig = "4d4a273342d77fc5"
+sig = "3e099dbe1e10519d"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -338,7 +338,7 @@ sig = "e8f0c1d11a80720d"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/weatherForForecast.ts"
-sig = "a350b01944d045e3"
+sig = "d74aed8fe43bda36"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

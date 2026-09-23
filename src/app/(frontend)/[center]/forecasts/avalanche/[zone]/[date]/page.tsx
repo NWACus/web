@@ -16,7 +16,7 @@ import {
 } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
-import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
+import { getWeatherSourcesForForecast } from '@/services/nac/weatherForForecast'
 import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
@@ -115,13 +115,14 @@ export default async function Page({ params }: Args) {
   }
 
   const currentDate = liveProductDate(currentProduct, metadata.timezone)
-  // The weather that was current when this forecast was issued — by the id it points at, or for
-  // the pointerless SNFAC archive, by its published day.
-  const weather = await getWeatherForForecast(
+  // The weather that was current when this forecast was issued — by the id it points at, for
+  // the pointerless SNFAC archive by its published day, and for NWAC weather by the viewed date.
+  const { weather, nwacWeather } = await getWeatherSourcesForForecast(
     center,
     resolvedZone.zone.id,
     forecastResult,
     metadata.timezone,
+    date,
   )
 
   return (
@@ -149,6 +150,7 @@ export default async function Page({ params }: Args) {
         basePath={`/forecasts/avalanche/${zone}`}
         centerType={metadata.type}
         weather={weather}
+        nwacWeather={nwacWeather}
       />
     </>
   )

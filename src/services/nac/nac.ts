@@ -722,6 +722,33 @@ export async function fetchWeatherProductForDate(
 // ─── NWAC Mountain Weather Forecast (products-api) ───────────────────────────
 
 /**
+ * Whether the center publishes the in-house Mountain Weather Forecast. NWAC forecasts weather
+ * itself rather than through the AFP, so its `platforms.weather` is false upstream and the
+ * dashboard's "Show on public weather tab" switch (`widget_config.mwf.enabled`) is the gate.
+ */
+export async function isNwacWeatherEnabled(centerSlug: string): Promise<boolean> {
+  if (nwacWeatherForcedCenters.has(normalizeCenterSlug(centerSlug).toLowerCase())) return true
+  try {
+    const metadata = await getAvalancheCenterMetadata(centerSlug)
+    return metadata.widget_config.mwf?.enabled === true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * `NWAC_WEATHER_FORCE_CENTERS` — comma-separated center slugs treated as NWAC-weather-enabled regardless
+ * of the upstream switch. For local and preview builds while the AFP side is still off; never
+ * set in production, where the dashboard's switch is the only authority.
+ */
+const nwacWeatherForcedCenters = new Set(
+  (process.env.NWAC_WEATHER_FORCE_CENTERS ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
+)
+
+/**
  * Every NWAC weather issuance published for a date, newest first. products-api serves this product for
  * one center, so the path carries no center segment. Null when nothing is published, on a bad
  * status, or on a response the schema rejects — the page degrades to "no forecast" rather than
