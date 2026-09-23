@@ -8,7 +8,7 @@
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import type {
   NwacWeatherForecastDay,
   NwacWeatherIssuance,
@@ -17,7 +17,7 @@ import type {
 import { issuanceLabel, issuanceShortLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
 
 import { IssuanceSwitch } from './IssuanceSwitch.client'
-import { IssuedLine, formatIssued } from './Issued'
+import { IssuedMeta, formatIssued } from './Issued'
 import { RichText, textOrNull } from './RichText'
 import { ZoneExtended, ZoneTable } from './ZoneTable'
 
@@ -87,16 +87,13 @@ function OverallSection({
 function IssuancePanel({
   issuance,
   avalancheZoneId,
-  timezone,
 }: {
   issuance: NwacWeatherIssuance
   avalancheZoneId: number
-  timezone: string | null | undefined
 }) {
   const zones = zonesFor(issuance, avalancheZoneId)
   return (
     <section aria-label={issuanceLabel(issuance.type)} className="space-y-6">
-      <IssuedLine issuance={issuance} timezone={timezone} />
       {zones.map((zone) => (
         <ZoneTable key={zone.id} issuance={issuance} zone={zone} heading={zones.length > 1} />
       ))}
@@ -111,22 +108,15 @@ export function ZoneSummary({ day, avalancheZoneId, timezone }: ZoneSummaryProps
 
   return (
     <Card id="mountain-weather" className="scroll-mt-24">
-      <CardHeader>
-        <CardTitle>Mountain Weather</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 pt-6">
         <IssuanceSwitch
+          heading={<CardTitle>Mountain Weather</CardTitle>}
           panels={issuances.map((issuance) => ({
             key: String(issuance.id),
             label: issuanceShortLabel(issuance.type),
             time: formatIssued(issuance.issuedAt, timezone, 'h:mm a'),
-            content: (
-              <IssuancePanel
-                issuance={issuance}
-                avalancheZoneId={avalancheZoneId}
-                timezone={timezone}
-              />
-            ),
+            meta: <IssuedMeta issuance={issuance} timezone={timezone} />,
+            content: <IssuancePanel issuance={issuance} avalancheZoneId={avalancheZoneId} />,
           }))}
         />
         <Link
