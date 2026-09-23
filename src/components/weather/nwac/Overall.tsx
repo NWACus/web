@@ -466,14 +466,11 @@ function ZoneLinks({
   })
   if (links.length === 0) return null
   return (
-    <aside
-      aria-label="Weather for one zone"
-      className="space-y-3 rounded-lg bg-muted p-4 print:hidden"
-    >
+    <aside aria-label="Weather by zone" className="space-y-3 rounded-lg bg-muted p-4 print:hidden">
       <div>
-        <h3 className="text-sm font-semibold">Weather for one zone</h3>
+        <h3 className="text-sm font-semibold">Weather by zone</h3>
         <p className="text-xs text-muted-foreground">
-          Opens the zone&apos;s avalanche forecast at its Mountain Weather.
+          Pick a zone to see its forecast with the avalanche forecast.
         </p>
       </div>
       <ul className="flex flex-wrap gap-2">
