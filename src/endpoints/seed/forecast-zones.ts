@@ -34,3 +34,7 @@ export const forecastZonesByTenant: Record<string, SeedForecastZone[]> = {
     { slug: 'banner-summit', name: 'Banner Summit', rank: 4 },
   ],
 }
+
+// Seeded centers whose NAC `platforms.weather` is on. nwac authors its own
+// mountain weather forecast, and dvac shares nwac's upstream.
+export const weatherPlatformTenants: ReadonlySet<string> = new Set(['sac', 'snfac'])

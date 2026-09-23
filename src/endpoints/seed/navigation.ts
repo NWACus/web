@@ -1,6 +1,6 @@
 import { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
-import { SeedForecastZone } from './forecast-zones'
+import { SeedForecastZone, weatherPlatformTenants } from './forecast-zones'
 
 // Pre-existing size; this change only adds a nav item.
 // fallow-ignore-next-line complexity
@@ -94,6 +94,7 @@ export const navigationSeed = (
                   label: 'Avalanche Forecast',
                 }),
               },
+              { link: builtInPageLink({ url: '/forecasts/avalanche/archive' }) },
             ],
           }
         : {
@@ -114,6 +115,7 @@ export const navigationSeed = (
                   }),
                 })),
               },
+              { link: builtInPageLink({ url: '/forecasts/avalanche/archive' }) },
             ],
           },
     observations: {
@@ -136,6 +138,9 @@ export const navigationSeed = (
     weather: {
       options: { displayMode: 'dropdown' },
       items: [
+        ...(weatherPlatformTenants.has(tenant.slug)
+          ? [{ link: builtInPageLink({ url: '/weather/forecast' }) }]
+          : []),
         {
           link: builtInPageLink({
             url: '/weather/stations/map',

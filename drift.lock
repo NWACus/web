@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "80e69afedc706be3"
+sig = "bd232ce3239caaeb"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -598,7 +598,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "22a227eec96485e6"
+sig = "dc13afee04d807db"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -958,7 +958,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "57c2d1ab8cf4662d"
+sig = "5f9237db0159e58b"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -988,7 +988,7 @@ sig = "c62d9aedb3a11293"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "22a227eec96485e6"
+sig = "dc13afee04d807db"
 
 [[bindings]]
 doc = "docs/onboarding.md"
@@ -1218,7 +1218,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "adafe798b760505c"
+sig = "a2274ee9f124317d"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"
