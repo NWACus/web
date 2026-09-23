@@ -7,7 +7,7 @@
  */
 import type { ZoneMapLayer } from '@/services/nac/model/mapLayer'
 import type { StationRef } from '@/services/snowobs/stationKey'
-import { stationKey } from '@/services/snowobs/stationKey'
+import { stationDetailPath, stationKey } from '@/services/snowobs/stationKey'
 import { pointInPolygon } from '@/utilities/geo/pointInPolygon'
 
 import type { SnowObsCurrentGeojson, SnowObsWebcamResponse } from '../types/schemas'
@@ -99,10 +99,15 @@ export function stationPageLookup(pages: LinkableStationPage[]): StationPageLook
   return lookup
 }
 
-/** The native station page for a SnowObs station, when this center has one that shows it. */
-export function stationHref(pages: StationPageLookup, station: StationRef): string | null {
+/**
+ * Where a station's Table and Graphs buttons lead: the center's station page that shows it, which
+ * carries the editor's columns and grouping, or else the station's own detail page. The map lists
+ * what `station/data/current/` returns, which is the token's tracking list, so every station the
+ * map shows has a detail page.
+ */
+export function stationHref(pages: StationPageLookup, station: StationRef): string {
   const slug = pages.get(stationKey(station))
-  return slug ? `/weather/stations/${slug}` : null
+  return slug ? `/weather/stations/${slug}` : stationDetailPath(station)
 }
 
 export interface MapStationsOptions {

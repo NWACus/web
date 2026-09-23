@@ -116,8 +116,9 @@ function ReadingRows({ station, context }: CardProps) {
 const COMPACT_BUTTON = 'h-7 px-2.5 text-xs'
 
 /**
- * The station's page, opened on its table or its graphs — the widget's "Area Tables" and "Area
- * Plots". In a new tab, so the map and its selection stay put.
+ * The station's page, opened on its table or its graphs — the widget's modal, or its "Area
+ * Tables" and "Area Plots" where a station page lists the station. In a new tab, so the map and
+ * its selection stay put.
  */
 function StationLinks({ href }: { href: string }) {
   const linkProps = { target: '_blank', rel: 'noopener noreferrer' }
@@ -149,7 +150,7 @@ export function StationCard({ station, context }: CardProps) {
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain py-1">
         <ReadingRows station={station} context={context} />
       </div>
-      {station.href && <StationLinks href={station.href} />}
+      <StationLinks href={station.href} />
     </article>
   )
 }

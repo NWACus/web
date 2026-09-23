@@ -149,9 +149,7 @@ export function pointCoordinates(point: MapPoint): [number, number] {
  * nothing but a link — that link, which the widget opens directly rather than in a card.
  */
 export function pointDestination(point: MapPoint): { href: string; external: boolean } | null {
-  if (point.kind === 'station') {
-    return point.station.href ? { href: point.station.href, external: false } : null
-  }
+  if (point.kind === 'station') return { href: point.station.href, external: false }
   const [only] = point.webcam.images
   const linkOnly = point.webcam.images.length === 1 && only.type === 'url'
   return linkOnly ? { href: only.source, external: true } : null

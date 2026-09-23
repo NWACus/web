@@ -68,9 +68,14 @@ describe('StationCard', () => {
     }
   })
 
-  it('is a plain card for a station with no native page', () => {
-    render(<StationCard station={{ ...station, href: null }} context={context} />)
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  it("links a station no page lists to its own detail page's table and graphs", () => {
+    const href = '/weather/stations/station/snotel/502'
+    render(<StationCard station={{ ...station, href }} context={context} />)
+    expect(screen.getByRole('link', { name: 'Table' })).toHaveAttribute('href', href)
+    expect(screen.getByRole('link', { name: 'Graphs' })).toHaveAttribute(
+      'href',
+      `${href}?range=graphs`,
+    )
   })
 
   it("flags a reading older than the center's threshold", () => {

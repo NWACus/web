@@ -47,10 +47,9 @@ interface PointInteractionsOptions {
 }
 
 /**
- * Open a point, as the widget's second click did: the station page, or a link-only webcam.
- * Returns whether there was anywhere to go. (The widget's second click on a station without a
- * native page, or on a webcam with images, opened a modal; the card already shows what that
- * modal showed, so here it is a no-op.)
+ * Open a point, as the widget's second click did: the station's page, or a link-only webcam.
+ * Returns whether there was anywhere to go. (The widget's second click on a webcam with images
+ * opened a modal; the card already shows what that modal showed, so here it is a no-op.)
  */
 function open(point: MapPoint, push: (href: string) => void): boolean {
   const destination = pointDestination(point)

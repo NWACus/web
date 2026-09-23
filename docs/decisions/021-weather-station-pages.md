@@ -47,7 +47,7 @@ A block rather than a per-center settings document ([ADR 016](016-per-tenant-glo
 
 ### A center has station pages when it has rows
 
-Every route calls `getStationPages(center)` and 404s when it returns nothing, so enabling a second center is content: an admin creates pages and picks from that center's tracking list. The assembled page (row plus ordered station refs) is built once per center in `unstable_cache` under one tag, `station-pages:<center>`, which the collection's `afterChange` / `afterDelete` hooks bust. The graph-data route's allowlist and caps derive from the same object, so moving a station between pages changes the table, the graphs, the CSV form and the allowlist together. The precipitation block holds its stations on its own page and revalidates with it.
+Every station page route calls `getStationPages(center)` and 404s when it returns nothing, so enabling a second center is content: an admin creates pages and picks from that center's tracking list. The assembled page (row plus ordered station refs) is built once per center in `unstable_cache` under one tag, `station-pages:<center>`, which the collection's `afterChange` / `afterDelete` hooks bust. The graph-data route's caps derive from the same object, and so does the allowlist a page's own stations pass without reading SnowObs, so moving a station between pages changes the table, the graphs, the CSV form and the allowlist together. The precipitation block holds its stations on its own page and revalidates with it.
 
 ### The index is a Payload page; the rest stays native
 
@@ -56,6 +56,10 @@ The native index and its "Weather Data" built-in row are deleted, along with the
 ### Seeding is the page list, nothing else
 
 `20260918_223529_station_pages` creates the tables. `20260921_124724_station_pages_backfill` holds the data: NWAC's 32 pages and their station references, every one on the `nwac` source, plus the collection appended to each tenant's `Admin` role rule, since tenant roles list collections explicitly. No station identity is snapshotted, so nothing goes stale. `seedStationPages()` never touches a page that exists, so re-running it cannot undo an admin's arrangement; it lives in `services/stations/` rather than the migration, which keeps the migration disposable when branch migrations are recreated on a merge. `pnpm seed` calls it with three pages, because locally the migrations run before any tenant exists.
+
+### Any tracked station has a detail page
+
+_Added 2026-09-23 ([#1341](https://github.com/NWACus/web/issues/1341))._ The native station map links a station no page lists to `/weather/stations/station/[source]/[stid]`, which shows the station page views for that one station, with columns derived and the name, elevation and partner from `station/tracking/`. It is the legacy map modal's replacement, not a page an editor manages, and it stores nothing. The route, its CSV route and graph-data accept any station on the center's tracking list (`src/services/snowobs/trackedStations.ts`) as well as those on its pages, so graph-data no longer 404s for a center without pages. A page's own stations still pass without the tracking read, and the caps are unchanged. Detail pages are rendered per request, never prerendered, and `noindex`.
 
 ## Consequences
 

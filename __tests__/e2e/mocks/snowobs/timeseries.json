@@ -1,0 +1,65 @@
+{
+  "UNITS": {
+    "air_temp": "fahrenheit",
+    "snow_depth": "inches",
+    "precip_accum": "inches",
+    "relative_humidity": "%",
+    "wind_speed": "mph"
+  },
+  "VARIABLES": [
+    { "variable": "air_temp", "long_name": "Air Temperature" },
+    { "variable": "snow_depth", "long_name": "Snow Depth" },
+    { "variable": "precip_accum", "long_name": "Precipitation Accumulation" },
+    { "variable": "relative_humidity", "long_name": "Relative Humidity" },
+    { "variable": "wind_speed", "long_name": "Wind Speed" }
+  ],
+  "STATION": [
+    {
+      "id": "17c4befc-be9c-43cf-be9a-139b87c7b409",
+      "stid": "502",
+      "source": "snotel",
+      "name": "Green Lake",
+      "latitude": 46.54741,
+      "longitude": -121.17093,
+      "elevation": 5920,
+      "observations": {
+        "date_time": ["2026-09-10T20:00:00Z", "2026-09-10T21:00:00Z", "2026-09-10T22:00:00Z"],
+        "air_temp": [55.4, 56.1, 57.2],
+        "snow_depth": [0, 0, 0],
+        "precip_accum": [40.8, 40.8, 40.8]
+      },
+      "station_note": []
+    },
+    {
+      "id": "49ee81f2-734e-475e-8f89-e9630a31d37a",
+      "stid": "57",
+      "source": "nwac",
+      "name": "White Chuck Mountain",
+      "latitude": 48.22067,
+      "longitude": -121.44057,
+      "elevation": 5030,
+      "observations": {
+        "date_time": ["2026-09-04T02:00:00Z", "2026-09-04T03:00:00Z", "2026-09-04T04:00:00Z"],
+        "air_temp": [41.2, 40.6, 40],
+        "relative_humidity": [94, 95, 96],
+        "wind_speed": [0, 0, 0]
+      },
+      "station_note": []
+    },
+    {
+      "id": "b66c17ee-766a-40d6-9f8e-5cca03352d55",
+      "stid": "C6318",
+      "source": "mesowest",
+      "name": "CW6318 Welches",
+      "latitude": 45.35583,
+      "longitude": -121.96767,
+      "elevation": 1290.68,
+      "observations": {
+        "date_time": ["2026-09-10T21:35:00Z", "2026-09-10T22:35:00Z"],
+        "air_temp": [74.8, 76],
+        "relative_humidity": [60, 58]
+      },
+      "station_note": []
+    }
+  ]
+}

@@ -348,7 +348,12 @@ sig = "13b3ac85ce9dabb5"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/snowobs/stationMap/mappers.ts"
-sig = "e2cd140fabff6915"
+sig = "3c6b98a01ba2d02b"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/snowobs/trackedStations.ts"
+sig = "737a6ba9ad3ab48a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -388,7 +393,7 @@ sig = "c413cbf41dde1052"
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/mocks/handlers.mjs"
-sig = "c17749e2d015fdd3"
+sig = "0571fb3d0067e3dc"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
@@ -708,7 +713,12 @@ sig = "f445ae3bb3f380ef"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/precip-data/route.ts"
-sig = "2501db20479bd53c"
+sig = "d9f5c27e6069371b"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/app/(frontend)/[center]/weather/stations/station/[source]/[stid]/page.tsx"
+sig = "a7313912efc19f2f"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -778,12 +788,17 @@ sig = "4670ead52bcea892"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/stationKey.ts"
-sig = "a3666673abcc6281"
+sig = "8217c264cfde378b"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/stationTracking.ts"
 sig = "89238abc0da25343"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/snowobs/trackedStations.ts"
+sig = "737a6ba9ad3ab48a"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

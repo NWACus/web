@@ -21,7 +21,7 @@ function station(overrides: Partial<StationMapStation>): StationMapStation {
     observedAt: '2026-09-10T22:00:00Z',
     data: { air_temp: 40 },
     zone: 'Olympics',
-    href: null,
+    href: '/weather/stations/station/nwac/1',
     ...overrides,
   }
 }

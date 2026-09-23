@@ -87,6 +87,12 @@ export function PeriodSelect({
   )
 }
 
+/** Whether any live station page besides the current one could join the graphs. */
+function hasComparablePages(pages: StationPageSummary[], currentSlug: string | null): boolean {
+  return pages.some((page) => page.slug !== currentSlug && !page.archived)
+}
+
+// Nothing to offer on a detail page for a center with no station pages.
 export function CompareSelect({
   pages,
   currentSlug,
@@ -101,6 +107,7 @@ export function CompareSelect({
   className?: string
 }) {
   const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
+  if (!hasComparablePages(pages, currentSlug)) return null
   return (
     <Select
       value=""
@@ -163,7 +170,12 @@ function MobileViewControls(props: EditViewProps) {
         <span className={sectionLabelClass}>Units</span>
         <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
       </div>
-      <div className="flex flex-col gap-2">
+      <div
+        className={cn(
+          'flex flex-col gap-2',
+          !hasComparablePages(props.pages, props.currentSlug) && 'hidden',
+        )}
+      >
         <span className={sectionLabelClass}>Compare stations</span>
         <CompareSelect
           pages={props.pages}

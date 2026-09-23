@@ -1,0 +1,35 @@
+[
+  {
+    "stid": "57",
+    "source": "nwac",
+    "name": "White Chuck Mountain",
+    "latitude": 48.22067,
+    "longitude": -121.44057,
+    "elevation": 5030,
+    "meta": { "weather_station_partner": null }
+  },
+  {
+    "stid": 502,
+    "source": "snotel",
+    "name": "Green Lake",
+    "latitude": 46.54741,
+    "longitude": -121.17093,
+    "elevation": 5920,
+    "meta": { "weather_station_partner": "NRCS" }
+  },
+  {
+    "stid": "C6318",
+    "source": "mesowest",
+    "name": "CW6318 Welches",
+    "latitude": 45.35583,
+    "longitude": -121.96767,
+    "elevation": 1290.68,
+    "meta": null
+  },
+  {
+    "stid": "999",
+    "source": "nwac",
+    "name": "No Coordinates",
+    "meta": null
+  }
+]

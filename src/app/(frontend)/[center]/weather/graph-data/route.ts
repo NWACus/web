@@ -6,8 +6,11 @@ import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKey } from '@/services/snowobs/stationKey'
+import { unknownStationKeys } from '@/services/snowobs/trackedStations'
 import type { AssembledStationPage } from '@/services/stations/getStationPages'
 import { allStations, getStationPages } from '@/services/stations/getStationPages'
+import { unknownCenterResponse } from '@/utilities/apiResponses'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextResponse } from 'next/server'
 
 // Serves the station Graphs tab. Reads SnowObs server-side (token stays
@@ -35,15 +38,11 @@ function listBounds(name: string, values: string[], max: number): string | null 
 }
 
 // Caps sized to the Graphs tab's single fetch: the page's stations plus every
-// comparison pick, and the union of all preset variables.
+// comparison pick, and the union of all preset variables. A detail page's one
+// station plus its picks fits the same cap, even for a center with no pages.
 function maxStations(pages: AssembledStationPage[]): number {
   const largestPage = Math.max(1, ...pages.map((page) => page.stations.length))
   return (1 + MAX_COMPARE_STATIONS) * largestPage
-}
-
-function unknownStations(keys: string[], known: Set<string>): string | null {
-  const unknown = keys.filter((key) => !known.has(key))
-  return unknown.length > 0 ? `unknown stations: ${unknown.join(',')}` : null
 }
 
 function malformedKeys(keys: string[]): string | null {
@@ -60,8 +59,7 @@ function validateLists(
   return (
     listBounds('stations', keys, maxStations(pages)) ??
     listBounds('vars', vars, MAX_VARIABLES) ??
-    malformedKeys(keys) ??
-    unknownStations(keys, new Set(allStations(pages).keys()))
+    malformedKeys(keys)
   )
 }
 
@@ -78,19 +76,34 @@ function dateParam(url: URL, name: string): Date {
   return new Date(url.searchParams.get(name) ?? '')
 }
 
-function parseQuery(
-  url: URL,
-  pages: AssembledStationPage[],
-): NextResponse | { stations: StationRef[]; vars: string[]; from: Date; to: Date } {
+type GraphQuery = { keys: string[]; stations: StationRef[]; vars: string[]; from: Date; to: Date }
+
+function parseQuery(url: URL, pages: AssembledStationPage[]): NextResponse | GraphQuery {
   const keys = csvParam(url.searchParams.get('stations'))
   const vars = csvParam(url.searchParams.get('vars'))
   const from = dateParam(url, 'from')
   const to = dateParam(url, 'to')
   const error = validateLists(keys, vars, pages) ?? validateWindow(from, to)
   if (error) return badRequest(error)
-  // Every key passed validation, so each resolves to a station on a page.
-  const known = allStations(pages)
-  return { stations: keys.flatMap((key) => known.get(key) ?? []), vars, from, to }
+  // Every key passed validation, so each parses.
+  return { keys, stations: keys.flatMap((key) => parseStationKey(key) ?? []), vars, from, to }
+}
+
+// A station page's own stations pass without a SnowObs read; anything else,
+// such as a single station's detail page, must be one the center tracks.
+async function unknownStations(
+  center: string,
+  keys: string[],
+  pages: AssembledStationPage[],
+): Promise<NextResponse | null> {
+  const onPages = new Set(allStations(pages).keys())
+  const unknown = await unknownStationKeys(center, keys, onPages)
+  return unknown.length > 0 ? badRequest(`unknown stations: ${unknown.join(',')}`) : null
+}
+
+function upstreamError(error: unknown): NextResponse {
+  const message = error instanceof SnowObsError ? error.message : 'failed to load station data'
+  return NextResponse.json({ error: message }, { status: 502 })
 }
 
 // CRAP is inflated by the lack of unit coverage on this route handler.
@@ -100,16 +113,16 @@ export async function GET(
   { params }: { params: Promise<Params> },
 ): Promise<NextResponse> {
   const { center } = await params
+  if (!isValidTenantSlug(center)) return unknownCenterResponse()
   const pages = await getStationPages(center)
-  if (pages.length === 0) {
-    return NextResponse.json({ error: 'not found' }, { status: 404 })
-  }
 
   const parsed = parseQuery(new URL(request.url), pages)
   if (parsed instanceof NextResponse) return parsed
-  const { stations, vars, from, to } = parsed
+  const { keys, stations, vars, from, to } = parsed
 
   try {
+    const rejected = await unknownStations(center, keys, pages)
+    if (rejected) return rejected
     const response = await fetchStationTimeseries(center, stations, {
       start: from,
       end: to,
@@ -123,7 +136,6 @@ export async function GET(
       },
     })
   } catch (error) {
-    const message = error instanceof SnowObsError ? error.message : 'failed to load station data'
-    return NextResponse.json({ error: message }, { status: 502 })
+    return upstreamError(error)
   }
 }

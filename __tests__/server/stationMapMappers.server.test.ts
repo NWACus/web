@@ -74,12 +74,20 @@ describe('mapStations', () => {
 
   it('links a station to the page that shows it, matched on source and stid', () => {
     expect(stations[0].href).toBe('/weather/stations/white-chuck')
-    expect(stations[1].href).toBeNull()
+    expect(stations[1].href).toBe('/weather/stations/station/snotel/502')
   })
 
-  it('links nothing for a center without native station pages', () => {
+  it("links a mesowest station's detail page on the raw source, not the display name", () => {
+    expect(stations[2].href).toBe('/weather/stations/station/mesowest/C6318')
+  })
+
+  it('links every station to its detail page for a center without native station pages', () => {
     const other = mapStations(current, { ...options, stationPages: new Map() })
-    expect(other.every((s) => s.href === null)).toBe(true)
+    expect(other.map((s) => s.href)).toEqual([
+      '/weather/stations/station/nwac/57',
+      '/weather/stations/station/snotel/502',
+      '/weather/stations/station/mesowest/C6318',
+    ])
   })
 })
 
@@ -104,8 +112,14 @@ describe('stationPageLookup', () => {
     expect(stationHref(pages, nwac('1'))).toBe('/weather/stations/old-site')
   })
 
-  it('is null for a station no page shows', () => {
-    expect(stationHref(stationPages, nwac('999'))).toBeNull()
+  it("falls back to the station's detail page when no page shows it", () => {
+    expect(stationHref(stationPages, nwac('999'))).toBe('/weather/stations/station/nwac/999')
+  })
+
+  it('escapes a stid that is not URL-safe', () => {
+    expect(stationHref(new Map(), { source: 'mesowest', stid: 'A B/1' })).toBe(
+      '/weather/stations/station/mesowest/A%20B%2F1',
+    )
   })
 })
 
