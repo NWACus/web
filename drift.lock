@@ -48,7 +48,7 @@ sig = "670dda646337e58d"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/decisions/README.md"
-sig = "b9f748a89983d3d2"
+sig = "a464de12bde38817"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -538,7 +538,7 @@ sig = "fd722c55fdb3239d"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "d9288e125c60a114"
+sig = "0108c3f6f50473e7"
 
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
@@ -658,7 +658,7 @@ sig = "cf2a77a3852fcde8"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "d9288e125c60a114"
+sig = "0108c3f6f50473e7"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
@@ -778,7 +778,7 @@ sig = "1109f2020067761a"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "next.config.js"
-sig = "56f57a66f0b3f375"
+sig = "4d750bcc62ef50a1"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -893,7 +893,7 @@ sig = "a4824faf89f4051e"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "next.config.js"
-sig = "56f57a66f0b3f375"
+sig = "4d750bcc62ef50a1"
 
 [[bindings]]
 doc = "docs/onboarding.md"
@@ -918,7 +918,7 @@ sig = "cf2a77a3852fcde8"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "d9288e125c60a114"
+sig = "0108c3f6f50473e7"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -1073,7 +1073,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "7aea814cb127c833"
+sig = "82d30b7f3a8edc0d"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"
