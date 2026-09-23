@@ -1,4 +1,7 @@
-import { accessBySharedContent } from '@/access/bySharedContent'
+import {
+  accessBySharedContent,
+  accessBySharedContentWithPermissiveRead,
+} from '@/access/bySharedContent'
 import {
   GlobalRole,
   GlobalRoleAssignment,
@@ -7,7 +10,7 @@ import {
   Tenant,
   User,
 } from '@/payload-types'
-import type { PayloadRequest } from 'payload'
+import type { CollectionConfig, PayloadRequest } from 'payload'
 import { Logger } from 'pino'
 
 // 'media' stands in for a shared collection: the helpers are generic over the slug and
@@ -85,10 +88,13 @@ const NOTHING: Outcome = { create: false, read: false, update: false, delete: fa
 const READ_ONLY: Outcome = { create: false, read: true, update: false, delete: false }
 const EVERYTHING: Outcome = { create: true, read: true, update: true, delete: true }
 
-async function outcomeFor(user: User | null): Promise<Outcome> {
+async function outcomeFor(
+  user: User | null,
+  collectionAccess: CollectionConfig['access'] = access,
+): Promise<Outcome> {
   const req = buildRequest(user)
   const check = async (method: keyof Outcome): Promise<boolean> => {
-    const fn = access?.[method]
+    const fn = collectionAccess?.[method]
     return fn ? (await fn({ req })) === true : false
   }
   return {
@@ -144,6 +150,26 @@ describe('accessBySharedContent', () => {
     await expect(outcomeFor(user)).resolves.toEqual(READ_ONLY)
   })
 
+  it('denies everything to a user whose only Role Assignment has no role', async () => {
+    const user = buildUser({ roleAssignments: [{ ...roleAssignment([]), role: null }] })
+    await expect(outcomeFor(user)).resolves.toEqual(NOTHING)
+  })
+
+  it('applies the same structural check to versions', async () => {
+    const readVersions = access?.readVersions
+    const canReadVersions = async (user: User | null) =>
+      readVersions ? (await readVersions({ req: buildRequest(user) })) === true : false
+
+    await expect(canReadVersions(buildUser({ providers: [7] }))).resolves.toBe(false)
+    await expect(
+      canReadVersions(
+        buildUser({
+          roleAssignments: [roleAssignment([{ collections: ['posts'], actions: ['read'] }])],
+        }),
+      ),
+    ).resolves.toBe(true)
+  })
+
   it('grants read only to a user who is both a Provider User and a Tenant Role User', async () => {
     const user = buildUser({
       providers: [7],
@@ -170,5 +196,33 @@ describe('accessBySharedContent', () => {
       ],
     })
     await expect(outcomeFor(user)).resolves.toEqual(EVERYTHING)
+  })
+})
+
+describe('accessBySharedContentWithPermissiveRead', () => {
+  const permissive = accessBySharedContentWithPermissiveRead(COLLECTION)
+
+  // An upload collection's `url` is the Payload file route, so a public page's <img> fetches the
+  // bytes anonymously. Structural read would 403 it.
+  it('lets an anonymous request read', async () => {
+    await expect(outcomeFor(null, permissive)).resolves.toEqual({ ...NOTHING, read: true })
+  })
+
+  it('still refuses write to a Tenant Role User holding a write rule on the collection', async () => {
+    const user = buildUser({
+      roleAssignments: [roleAssignment([{ collections: [COLLECTION], actions: ['*'] }])],
+    })
+    await expect(outcomeFor(user, permissive)).resolves.toEqual(READ_ONLY)
+  })
+
+  it('still grants write to a Shared Content Editor', async () => {
+    const user = buildUser({
+      globalRoleAssignments: [
+        globalRoleAssignment('Shared Content Editor', [
+          { collections: [COLLECTION], actions: ['*'] },
+        ]),
+      ],
+    })
+    await expect(outcomeFor(user, permissive)).resolves.toEqual(EVERYTHING)
   })
 })
