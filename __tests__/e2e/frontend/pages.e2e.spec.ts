@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test'
 import { type TenantSlug, tenantBaseUrl } from '../helpers/tenant-url'
 
 const TENANT_BASE_URL = tenantBaseUrl('nwac')
+// The seed renders nwac's AFP products natively; dvac is the tenant kept on the widgets
+const WIDGET_TENANT_BASE_URL = tenantBaseUrl('dvac')
 
 /**
  * Helper to set up error tracking for a page.
@@ -57,7 +59,7 @@ test.describe('Frontend pages load correctly', () => {
   })
 
   test('tenant homepage', async ({ page }) => {
-    const errors = await loadPage(page, `${TENANT_BASE_URL}/`)
+    const errors = await loadPage(page, `${WIDGET_TENANT_BASE_URL}/`)
 
     await expect(page.locator('header')).toBeVisible()
     await expect(page.locator('footer')).toBeVisible()
@@ -112,7 +114,7 @@ test.describe('Frontend pages load correctly', () => {
   })
 
   test('avalanche all forecast page', async ({ page }) => {
-    const errors = await loadPage(page, `${TENANT_BASE_URL}/forecasts/avalanche`)
+    const errors = await loadPage(page, `${WIDGET_TENANT_BASE_URL}/forecasts/avalanche`)
 
     await expect(page.locator('header')).toBeVisible()
     await expect(page.locator('footer')).toBeVisible()
@@ -122,7 +124,7 @@ test.describe('Frontend pages load correctly', () => {
   })
 
   test('weather stations map page', async ({ page }) => {
-    const errors = await loadPage(page, `${TENANT_BASE_URL}/weather/stations/map`)
+    const errors = await loadPage(page, `${WIDGET_TENANT_BASE_URL}/weather/stations/map`)
 
     await expect(page.locator('header')).toBeVisible()
     await expect(page.locator('footer')).toBeVisible()
