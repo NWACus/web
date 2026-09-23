@@ -3,10 +3,11 @@
  * reading's time (flagged when older than the center's threshold), and every current reading in
  * the widget's variable order.
  */
-import { Calendar, ExternalLink, Mountain, Tag, TriangleAlert } from 'lucide-react'
+import { Calendar, ChartLine, Mountain, Table2, Tag, TriangleAlert } from 'lucide-react'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
+import { ButtonGroup } from '@/components/ui/button-group'
 
 import {
   formatObservedAt,
@@ -111,16 +112,28 @@ function ReadingRows({ station, context }: CardProps) {
   )
 }
 
-/** The link to the station's own page, in a new tab so the map and its selection stay put. */
-function StationLink({ href }: { href: string }) {
+/**
+ * The station's page, opened on its table or its graphs — the widget's "Area Tables" and "Area
+ * Plots". In a new tab, so the map and its selection stay put.
+ */
+function StationLinks({ href }: { href: string }) {
+  const linkProps = { target: '_blank', rel: 'noopener noreferrer' }
   return (
     <footer className="flex shrink-0 justify-end border-t px-3 py-2">
-      <Button asChild size="sm" variant="outline">
-        <Link href={href} target="_blank" rel="noopener noreferrer">
-          View station
-          <ExternalLink className="ml-1 h-3 w-3" aria-hidden="true" />
-        </Link>
-      </Button>
+      <ButtonGroup aria-label="Open the station page">
+        <Button asChild size="sm" variant="outline">
+          <Link href={href} {...linkProps}>
+            <Table2 className="mr-1 h-3 w-3" aria-hidden="true" />
+            Table
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline">
+          <Link href={`${href}?range=graphs`} {...linkProps}>
+            <ChartLine className="mr-1 h-3 w-3" aria-hidden="true" />
+            Graphs
+          </Link>
+        </Button>
+      </ButtonGroup>
     </footer>
   )
 }
@@ -133,7 +146,7 @@ export function StationCard({ station, context }: CardProps) {
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain py-1">
         <ReadingRows station={station} context={context} />
       </div>
-      {station.href && <StationLink href={station.href} />}
+      {station.href && <StationLinks href={station.href} />}
     </article>
   )
 }

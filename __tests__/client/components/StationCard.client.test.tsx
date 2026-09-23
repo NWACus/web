@@ -56,18 +56,21 @@ describe('StationCard', () => {
     ])
   })
 
-  it('links to the native station page in a new tab', () => {
+  it("links to the station page's table and graphs in a new tab", () => {
     render(<StationCard station={station} context={context} />)
-    const link = screen.getByRole('link', { name: 'View station' })
-    expect(link).toHaveAttribute('href', '/weather/stations/white-chuck')
-    expect(link).toHaveAttribute('target', '_blank')
-    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    const table = screen.getByRole('link', { name: 'Table' })
+    const graphs = screen.getByRole('link', { name: 'Graphs' })
+    expect(table).toHaveAttribute('href', '/weather/stations/white-chuck')
+    expect(graphs).toHaveAttribute('href', '/weather/stations/white-chuck?range=graphs')
+    for (const link of [table, graphs]) {
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    }
   })
 
   it('is a plain card for a station with no native page', () => {
     render(<StationCard station={{ ...station, href: null }} context={context} />)
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
-    expect(screen.queryByText('View station')).not.toBeInTheDocument()
   })
 
   it("flags a reading older than the center's threshold", () => {
