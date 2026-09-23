@@ -1,5 +1,5 @@
 import configPromise from '@payload-config'
-import type { CollectionSlug, Field, SelectType, Where } from 'payload'
+import type { CollectionSlug, Field, Payload, SelectType, Where } from 'payload'
 import { getPayload } from 'payload'
 import { isTenantValue } from './isTenantValue'
 import { DocumentReference } from './revalidateDocument'
@@ -11,8 +11,9 @@ export interface ReferenceQuery {
 
 export interface FindDocumentsWithReferencesOptions {
   /**
-   * Include drafts. Revalidation wants published documents only; an editor deciding whether a
-   * change to a shared document is safe wants to see the unpublished uses too.
+   * Include drafts, including a newer draft of a published document. Revalidation wants published
+   * documents only; an editor deciding whether a change to a shared document is safe wants to see
+   * the unpublished uses too.
    */
   includeDrafts?: boolean
 }
@@ -20,7 +21,8 @@ export interface FindDocumentsWithReferencesOptions {
 interface ReferencingCollection {
   slug: string
   hasDrafts: boolean
-  hasTitle: boolean
+  /** The collection's `useAsTitle`, when it names a real field */
+  titleField?: string
 }
 
 function isCollectionSlug(slug: string, allSlugs: Set<string>): slug is CollectionSlug {
@@ -44,7 +46,7 @@ function buildWhere(
 
 function buildSelect(collection: ReferencingCollection): SelectType {
   const select: SelectType = { id: true, slug: true, tenant: true }
-  if (collection.hasTitle) select.title = true
+  if (collection.titleField) select[collection.titleField] = true
   if (collection.hasDrafts) select._status = true
   return select
 }
@@ -68,10 +70,42 @@ function toDocumentReference(
       id: doc.id,
       slug: optionalString(record['slug']) ?? '',
       tenant,
-      title: optionalString(record['title']),
+      title: collection.titleField ? optionalString(record[collection.titleField]) : undefined,
       status: optionalString(record['_status']),
     },
   ]
+}
+
+// A document whose published row and latest draft both match is listed once, as the published row
+function mergeById(published: DocumentReference[], drafts: DocumentReference[]) {
+  const publishedIds = new Set(published.map((ref) => ref.id))
+  return [...published, ...drafts.filter((ref) => !publishedIds.has(ref.id))]
+}
+
+async function queryCollection(
+  payload: Payload,
+  reference: ReferenceQuery,
+  collection: ReferencingCollection & { slug: CollectionSlug },
+  includeDrafts: boolean,
+): Promise<DocumentReference[]> {
+  const query = async (draft: boolean) => {
+    const res = await payload.find({
+      collection: collection.slug,
+      where: buildWhere(reference, collection, includeDrafts),
+      select: buildSelect(collection),
+      depth: 1,
+      limit: 0,
+      draft,
+    })
+    return res.docs.flatMap((doc) => toDocumentReference(doc, collection))
+  }
+
+  const main = await query(false)
+  if (!includeDrafts || !collection.hasDrafts) return main
+
+  // Saving a draft of a published document writes only to the versions table, so the main row
+  // misses whatever that draft just added
+  return mergeById(main, await query(true))
 }
 
 /** Find all documents whose `documentReferences` field contains a reference to the given document. */
@@ -90,22 +124,14 @@ export async function findDocumentsWithReferences(
     .map((c) => ({
       slug: c.slug,
       hasDrafts: Boolean(c.versions && c.versions.drafts),
-      hasTitle: hasField(c.fields, 'title'),
+      titleField: c.admin?.useAsTitle !== 'id' ? c.admin?.useAsTitle : undefined,
     }))
 
   const settled = await Promise.allSettled(
     collectionsWithReferences.map(async (collection) => {
-      if (!isCollectionSlug(collection.slug, allSlugs)) return []
-
-      const res = await payload.find({
-        collection: collection.slug,
-        where: buildWhere(reference, collection, includeDrafts),
-        select: buildSelect(collection),
-        depth: 1,
-        limit: 0,
-      })
-
-      return res.docs.flatMap((doc) => toDocumentReference(doc, collection))
+      const { slug } = collection
+      if (!isCollectionSlug(slug, allSlugs)) return []
+      return queryCollection(payload, reference, { ...collection, slug }, includeDrafts)
     }),
   )
 
