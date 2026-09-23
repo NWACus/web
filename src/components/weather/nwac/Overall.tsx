@@ -541,13 +541,12 @@ function ExtendedSection({
         Extended
       </h3>
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-        {extended ? (
+        {/* The outlook text is optional; without it the table takes the first column. */}
+        {extended && (
           <section className="space-y-2">
             <h4 className="text-base font-semibold">Outlook</h4>
             <RichText html={extended} />
           </section>
-        ) : (
-          <div />
         )}
         {showTable && <GridTable table={table} anchor={anchor} headingLevel="h4" />}
       </div>
