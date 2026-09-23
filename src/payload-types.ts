@@ -3138,6 +3138,10 @@ export interface Setting {
      * Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC — and, together with the forecast flag, the forecast archive’s Mountain Weather tab. Centers without one have neither the page nor the tab either way.
      */
     weather?: boolean | null;
+    /**
+     * Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.
+     */
+    stationMap?: boolean | null;
   };
   socialMedia?: {
     instagram?: string | null;
@@ -4977,6 +4981,7 @@ export interface SettingsSelect<T extends boolean = true> {
         warning?: T;
         dangerMap?: T;
         weather?: T;
+        stationMap?: T;
       };
   socialMedia?:
     | T
