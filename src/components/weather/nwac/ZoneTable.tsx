@@ -5,6 +5,7 @@
  */
 import type {
   NwacWeatherBlock,
+  NwacWeatherExtendedBlock,
   NwacWeatherIssuance,
   NwacWeatherPeriod,
   NwacWeatherWindCell,
@@ -114,7 +115,7 @@ const periodSpan = (p: PeriodView) => Math.max(1, p.blocks.length)
 
 function PeriodHead({ periods }: { periods: PeriodView[] }) {
   return (
-    <thead className="bg-muted/50">
+    <thead className="bg-muted">
       <tr>
         <td />
         {periods.map((p) => (
@@ -270,7 +271,7 @@ function PeriodCardHeader({
   p: PeriodView
 }) {
   return (
-    <div className="flex items-center justify-between gap-2 bg-muted/50 px-3 py-2">
+    <div className="flex items-center justify-between gap-2 bg-muted px-3 py-2">
       <h4 className="font-semibold">
         <DayNightDate date={p.label} night={p.night} />
       </h4>
@@ -365,6 +366,46 @@ export function ZoneTable({
   )
 }
 
+/** A date over its blocks' part-of-day labels, as in the main table's header. */
+function ExtendedHead({ blocks }: { blocks: NwacWeatherExtendedBlock[] }) {
+  const dates: { date: string; span: number }[] = []
+  for (const b of blocks) {
+    const last = dates[dates.length - 1]
+    if (last && last.date === b.date) last.span++
+    else dates.push({ date: b.date, span: 1 })
+  }
+  return (
+    <thead className="bg-muted">
+      <tr>
+        {dates.map((d, i) => (
+          <th
+            key={d.date}
+            scope="colgroup"
+            colSpan={d.span}
+            className={cn(HEAD, i === 0 && 'border-l-0')}
+          >
+            {fmtCalendarDate(d.date)}
+          </th>
+        ))}
+      </tr>
+      <tr>
+        {blocks.map((b, i) => (
+          <th
+            key={b.key}
+            scope="col"
+            className={cn(
+              'border-b px-1 py-1.5 text-center text-sm font-normal text-muted-foreground',
+              i > 0 && blocks[i - 1].date !== b.date && 'border-l',
+            )}
+          >
+            {b.part}
+          </th>
+        ))}
+      </tr>
+    </thead>
+  )
+}
+
 /** The zone's extended snow levels, where the issuance has them (afternoons). */
 export function ZoneExtended({
   issuance,
@@ -383,16 +424,7 @@ export function ZoneExtended({
       <h4 className="text-sm font-semibold">Extended Snow Level (ft)</h4>
       <div className="overflow-x-auto rounded-md border">
         <table className="w-full min-w-[480px] table-fixed border-collapse text-sm">
-          <thead className="bg-muted/50">
-            <tr>
-              {blocks.map((b) => (
-                <th key={b.key} scope="col" className="border-b p-2 text-center">
-                  <span className="font-semibold">{fmtCalendarDate(b.date)}</span>
-                  <span className="block text-sm font-normal text-muted-foreground">{b.part}</span>
-                </th>
-              ))}
-            </tr>
-          </thead>
+          <ExtendedHead blocks={blocks} />
           <tbody>
             <tr>
               {blocks.map((b, i) => (
