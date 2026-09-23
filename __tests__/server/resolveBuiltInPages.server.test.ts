@@ -182,6 +182,40 @@ describe('resolveBuiltInPages', () => {
     })
   })
 
+  describe('archive pages', () => {
+    it('gives every center the forecast archive and danger over time', async () => {
+      serveCenter([], { platforms: { weather: false } })
+
+      const { archivePages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(archivePages).toEqual([
+        { title: 'Forecast Archive', url: '/forecasts/avalanche/archive' },
+        { title: 'Danger Over Time', url: '/forecasts/avalanche/archive/danger-over-time' },
+      ])
+    })
+
+    it('adds the mountain weather archive when center has weather platform', async () => {
+      serveCenter([], { platforms: { weather: true } })
+
+      const { archivePages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(archivePages).toContainEqual({
+        title: 'Mountain Weather Archive',
+        url: '/forecasts/avalanche/archive/mountain-weather',
+      })
+    })
+
+    it('excludes the mountain weather archive when NAC platforms query fails', async () => {
+      serveCenter([], { capabilitiesFail: true })
+
+      const { archivePages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(archivePages.map((p) => p.url)).not.toContain(
+        '/forecasts/avalanche/archive/mountain-weather',
+      )
+    })
+  })
+
   describe('non-forecast pages', () => {
     it('excludes forecast pages from non-forecast list', async () => {
       serveCenter([], { platforms: { weather: false } })
