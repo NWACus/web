@@ -63,6 +63,7 @@ const collections: CollectionSlug[] = [
   'events',
   'eventGroups',
   'eventTags',
+  'sharedMedia',
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -187,6 +188,15 @@ export const seed = async ({
           rules: [
             {
               collections: ['providers'],
+              actions: ['*'],
+            },
+          ],
+        },
+        {
+          name: 'Shared Content Editor',
+          rules: [
+            {
+              collections: ['sharedMedia'],
               actions: ['*'],
             },
           ],
@@ -597,6 +607,11 @@ export const seed = async ({
         password: password,
       },
       {
+        name: 'Shared Content Editor',
+        email: 'shared-content@avy.com',
+        password: password,
+      },
+      {
         name: 'Sarah Johnson',
         email: 'sarah@alpineskills.com',
         password: password,
@@ -637,6 +652,17 @@ export const seed = async ({
       data: {
         user: users['Provider Manager'].id,
         globalRole: globalRoles['Provider Manager'].id,
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
+
+    await payload.create({
+      collection: 'globalRoleAssignments',
+      data: {
+        user: users['Shared Content Editor'].id,
+        globalRole: globalRoles['Shared Content Editor'].id,
       },
       context: {
         disableRevalidate: true,
@@ -709,14 +735,27 @@ export const seed = async ({
 
     payload.logger.info(`— Getting images...`)
 
-    const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer, imageAcmeBuffer] =
-      await Promise.all([
-        getSeedImageByFilename('image-post1.webp', payload.logger),
-        getSeedImageByFilename('image-post2.webp', payload.logger),
-        getSeedImageByFilename('image-post3.webp', payload.logger),
-        getSeedImageByFilename('image-mountain.webp', payload.logger),
-        getSeedImageByFilename('acme-corp.webp', payload.logger),
-      ])
+    const [
+      image1Buffer,
+      image2Buffer,
+      image3Buffer,
+      imageMountainBuffer,
+      imageAcmeBuffer,
+      shared1Buffer,
+      shared2Buffer,
+      shared3Buffer,
+      shared4Buffer,
+    ] = await Promise.all([
+      getSeedImageByFilename('image-post1.webp', payload.logger),
+      getSeedImageByFilename('image-post2.webp', payload.logger),
+      getSeedImageByFilename('image-post3.webp', payload.logger),
+      getSeedImageByFilename('image-mountain.webp', payload.logger),
+      getSeedImageByFilename('acme-corp.webp', payload.logger),
+      getSeedImageByFilename('library-placeholder-1.webp', payload.logger),
+      getSeedImageByFilename('library-placeholder-2.webp', payload.logger),
+      getSeedImageByFilename('library-placeholder-3.webp', payload.logger),
+      getSeedImageByFilename('library-placeholder-4.webp', payload.logger),
+    ])
 
     const images = await upsert(
       'media',
@@ -755,6 +794,53 @@ export const seed = async ({
           },
         ])
         .flat(),
+    )
+
+    payload.logger.info(`— Seeding the shared library...`)
+
+    // Shared Content has no owning tenant: one document is used by every center. These are
+    // obvious placeholders rather than the photos the tenant-scoped Media seed uses, so it is
+    // never ambiguous on a seeded page which library an image came from. Between them they cover
+    // every place a shared image can be used today, plus one that nothing references.
+    const sharedImages = await upsertGlobals(
+      'sharedMedia',
+      payload,
+      incremental,
+      (obj) => obj.alt,
+      [
+        {
+          data: {
+            alt: 'Shared library placeholder 1, used in a page layout',
+            credit: 'National Avalanche Center',
+            keywords: 'placeholder page layout',
+          },
+          file: shared1Buffer,
+        },
+        {
+          data: {
+            alt: 'Shared library placeholder 2, used inside a post',
+            credit: 'National Avalanche Center',
+            keywords: 'placeholder post rich text lexical',
+          },
+          file: shared2Buffer,
+        },
+        {
+          data: {
+            alt: 'Shared library placeholder 3, used on a home page',
+            credit: 'National Avalanche Center',
+            keywords: 'placeholder home page',
+          },
+          file: shared3Buffer,
+        },
+        {
+          data: {
+            alt: 'Shared library placeholder 4, not used anywhere',
+            credit: 'National Avalanche Center',
+            keywords: 'placeholder unused empty state',
+          },
+          file: shared4Buffer,
+        },
+      ],
     )
 
     // Tags
@@ -799,7 +885,13 @@ export const seed = async ({
               authors[0],
               authors[1],
             ]),
-            post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[2]),
+            post2(
+              tenant,
+              images[tenant.slug]['image2'],
+              images[tenant.slug]['image3'],
+              sharedImages['Shared library placeholder 2, used inside a post'],
+              authors[2],
+            ),
             post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[3]),
           ]
         })
@@ -972,7 +1064,11 @@ export const seed = async ({
       () => 'homepage',
       Object.values(tenants).map(
         (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
-          homePage(tenant, images[tenant.slug]['imageMountain']),
+          homePage(
+            tenant,
+            images[tenant.slug]['imageMountain'],
+            sharedImages['Shared library placeholder 3, used on a home page'],
+          ),
       ),
     )
 
@@ -1061,6 +1157,7 @@ export const seed = async ({
           allBlocksPage({
             tenant,
             image1: images[tenant.slug]['imageMountain'],
+            sharedImage: sharedImages['Shared library placeholder 1, used in a page layout'],
             posts: Object.values(posts[tenant.slug]),
             events: Object.values(events[tenant.slug]),
             contactForm: contactForms[tenant.name],

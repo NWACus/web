@@ -1,4 +1,4 @@
-import type { Event, Form, Media, Post, Sponsor, Team, Tenant } from '@/payload-types'
+import type { Event, Form, Media, Post, SharedMedia, Sponsor, Team, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 import { blogListBlock } from '../blocks/blog-list'
 import { contentColumns } from '../blocks/content-columns'
@@ -24,6 +24,7 @@ import { headingContent } from '../utilities'
 type AllBlocksPageArgs = {
   tenant: Tenant
   image1: Media
+  sharedImage: SharedMedia
   posts: Post[]
   events: Event[]
   contactForm: Form
@@ -42,6 +43,7 @@ const sectionLabel = (text: string): RequiredDataFromCollectionSlug<'pages'>['la
 export const allBlocksPage = ({
   tenant,
   image1,
+  sharedImage,
   posts,
   events,
   contactForm,
@@ -67,7 +69,7 @@ export const allBlocksPage = ({
       sectionLabel('Link Preview'),
       ...linkPreview(image1),
       sectionLabel('Media Block'),
-      ...mediaBlocks(image1),
+      ...mediaBlocks(image1, sharedImage),
       sectionLabel('Content with Callout'),
       ...contentWithCallout,
       sectionLabel('Generic Embed'),

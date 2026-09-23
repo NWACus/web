@@ -1,7 +1,10 @@
-import type { Media } from '@/payload-types'
+import type { Media, SharedMedia } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
-export const mediaBlocks = (image: Media): RequiredDataFromCollectionSlug<'pages'>['layout'] => [
+export const mediaBlocks = (
+  image: Media,
+  sharedImage: SharedMedia,
+): RequiredDataFromCollectionSlug<'pages'>['layout'] => [
   {
     media: image.id,
     caption: {
@@ -198,6 +201,45 @@ export const mediaBlocks = (image: Media): RequiredDataFromCollectionSlug<'pages
     backgroundColor: 'brand-200',
     alignContent: 'center',
     imageSize: 'original',
+    blockType: 'mediaBlock',
+  },
+  {
+    source: 'shared',
+    sharedMedia: sharedImage.id,
+    caption: {
+      root: {
+        children: [
+          {
+            children: [
+              {
+                detail: 0,
+                format: 0,
+                mode: 'normal',
+                style: '',
+                text: 'A media block drawing from the shared library',
+                type: 'text',
+                version: 1,
+              },
+            ],
+            direction: 'ltr',
+            format: 'start',
+            indent: 0,
+            type: 'paragraph',
+            version: 1,
+            textFormat: 0,
+            textStyle: '',
+          },
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        type: 'root',
+        version: 1,
+      },
+    },
+    backgroundColor: 'brand-200',
+    alignContent: 'center',
+    imageSize: 'medium',
     blockType: 'mediaBlock',
   },
 ]
