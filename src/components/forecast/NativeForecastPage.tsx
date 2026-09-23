@@ -65,9 +65,16 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
   const window = initialArchiveWindow(currentDate)
 
   // The mountain-weather product is issued separately; `weatherForForecast` owns how it is found.
+  // NWAC's weather is for the forecast's own date, so the two always describe the same day.
   const [archive, { weather, nwacWeather }] = await Promise.all([
     fetchProductArchive(centerSlug, window),
-    getWeatherSourcesForForecast(centerSlug, zone.zone.id, forecastResult, metadata.timezone),
+    getWeatherSourcesForForecast(
+      centerSlug,
+      zone.zone.id,
+      forecastResult,
+      metadata.timezone,
+      currentDate ?? undefined,
+    ),
   ])
   const initialDates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 

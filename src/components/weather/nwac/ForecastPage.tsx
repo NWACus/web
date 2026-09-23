@@ -1,13 +1,19 @@
 /**
- * The native Mountain Weather page for a center on NWAC's in-house weather: the latest forecast date's
- * issuances, one at a time (newest first, with a switch to the other), in the region-wide view.
+ * The native Mountain Weather page for a center on NWAC's in-house weather: today's issuances (as
+ * the center reckons today), one at a time (newest first, with a switch to the other), in the
+ * region-wide view.
  * A zone's own weather sits on its avalanche forecast page (see NativeForecastPage), and the
  * region-wide view links there.
  */
 import { ForecastDisclaimer } from '@/components/forecast/ForecastDisclaimer'
 import { Card, CardContent } from '@/components/ui/card'
+import { todayInTimezone } from '@/services/nac/forecastArchive'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
-import { issuanceLabel, issuanceShortLabel } from '@/services/nac/nwacWeatherFormat'
+import {
+  fmtCalendarDate,
+  issuanceLabel,
+  issuanceShortLabel,
+} from '@/services/nac/nwacWeatherFormat'
 import { getNwacWeatherSource } from '@/services/nac/sources'
 import { zoneSlugFromUrl } from '@/services/nac/zoneSlug'
 
@@ -29,16 +35,18 @@ function zonePathsOf(metadata: Awaited<ReturnType<typeof getAvalancheCenterMetad
 }
 
 export async function ForecastPage({ centerSlug }: { centerSlug: string }) {
-  const [day, metadata] = await Promise.all([
-    getNwacWeatherSource().getForecastDay(),
-    getAvalancheCenterMetadata(centerSlug),
-  ])
+  const metadata = await getAvalancheCenterMetadata(centerSlug)
+  // Today's forecast, as the center reckons today; not the latest date that has one.
+  const today = todayInTimezone(metadata.timezone)
+  const day = await getNwacWeatherSource().getForecastDay({ date: today })
 
   if (!day) {
     return (
       <div className="container space-y-8 py-6">
         {HEADING}
-        <p className="text-center text-muted-foreground">No published mountain weather forecast.</p>
+        <p className="text-center text-muted-foreground">
+          No Mountain Weather forecast published for {fmtCalendarDate(today)}.
+        </p>
         <ForecastDisclaimer centerType={metadata.type} centerName={metadata.name} />
       </div>
     )

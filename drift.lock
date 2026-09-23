@@ -228,7 +228,7 @@ sig = "52a857e9165267e8"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/NativeForecastPage.tsx"
-sig = "4c5cd7f5e15bdf83"
+sig = "142477df587e489a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
