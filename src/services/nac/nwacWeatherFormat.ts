@@ -163,6 +163,14 @@ export const SENSIBLE_SLOTS = [
   { key: 'afternoon', label: 'Tomorrow' },
 ] as const
 
+export function issuanceLabel(type: NwacWeatherIssuance['type']): string {
+  return type === 'morning' ? 'Morning Forecast' : 'Afternoon Forecast'
+}
+
+export function issuanceShortLabel(type: NwacWeatherIssuance['type']): string {
+  return type === 'morning' ? 'Morning' : 'Afternoon'
+}
+
 /** Periods grouped by calendar date, for the By Zone header. */
 export function periodDateGroups(periods: NwacWeatherPeriod[]): { date: string; span: number }[] {
   const out: { date: string; span: number }[] = []
