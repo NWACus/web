@@ -10,7 +10,20 @@ import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncRe
 
 const mockUpdate = jest.fn()
 
-const req = { payload: { update: mockUpdate } }
+// The stored counts the hook reads first. Anything not deleted starts at 99, so a recount always
+// differs unless a test says otherwise.
+let storedCounts: Record<number, number> = {}
+let deletedIds = new Set<number>()
+const mockStoredFind = jest.fn(async ({ where }: { where: { id: { in: number[] } } }) => ({
+  docs: where.id.in
+    .filter((id) => !deletedIds.has(id))
+    .map((id) => ({ id, referenceCount: storedCounts[id] ?? 99 })),
+}))
+
+const req = {
+  context: {},
+  payload: { find: mockStoredFind, db: { updateOne: mockUpdate } },
+}
 
 function reference(collection: string, docId: number) {
   return { collection, docId, instances: [] }
@@ -29,6 +42,9 @@ function runDelete(doc: unknown) {
 
 beforeEach(() => {
   jest.clearAllMocks()
+  storedCounts = {}
+  deletedIds = new Set()
+  req.context = {}
   mockFind.mockResolvedValue([])
 })
 
@@ -58,7 +74,7 @@ describe('syncReferenceCounts', () => {
       expect.objectContaining({
         collection: 'sharedMedia',
         id: 7,
-        data: { referenceCount: 3 },
+        data: { referenceCount: 3, updatedAt: null },
       }),
     )
   })
@@ -79,12 +95,45 @@ describe('syncReferenceCounts', () => {
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ req }))
   })
 
-  it('does not revalidate, because a count changes nothing anyone renders', async () => {
+  it("writes through the adapter, so no hooks run and the caller's context is untouched", async () => {
     await runChange(undefined, { documentReferences: [reference('sharedMedia', 7)] })
 
     expect(mockUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({ context: { disableRevalidate: true } }),
+      expect.not.objectContaining({ context: expect.anything() }),
     )
+    // A nested Local API call would have merged its context into this shared request
+    expect(req.context).toEqual({})
+  })
+
+  it('skips the write when the count has not changed', async () => {
+    storedCounts = { 7: 2 }
+    mockFind.mockResolvedValue([{ id: 1 }, { id: 2 }])
+
+    await runChange(undefined, { documentReferences: [reference('sharedMedia', 7)] })
+
+    expect(mockUpdate).not.toHaveBeenCalled()
+  })
+
+  it('skips a target that has been deleted, rather than failing the save', async () => {
+    deletedIds = new Set([7])
+
+    await runChange(
+      { documentReferences: [reference('sharedMedia', 7)] },
+      { documentReferences: [reference('sharedMedia', 7), reference('sharedMedia', 8)] },
+    )
+
+    expect(mockFind).toHaveBeenCalledTimes(1)
+    expect(mockUpdate).toHaveBeenCalledTimes(1)
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ id: 8 }))
+  })
+
+  it('lets a failed count reject, so the save fails instead of writing a short number', async () => {
+    mockFind.mockRejectedValue(new Error('query failed'))
+
+    await expect(
+      runChange(undefined, { documentReferences: [reference('sharedMedia', 7)] }),
+    ).rejects.toThrow('query failed')
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
   it('recounts the old target when a reference is swapped out', async () => {

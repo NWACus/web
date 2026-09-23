@@ -12,6 +12,12 @@ export const referenceCountField = (): Field => ({
   type: 'number',
   label: 'References',
   defaultValue: 0,
+  // `readOnly` only stops the admin UI, and the form still submits the value it loaded, so an
+  // editor's save would otherwise write back a stale count
+  access: {
+    create: () => false,
+    update: () => false,
+  },
   admin: {
     readOnly: true,
     position: 'sidebar',

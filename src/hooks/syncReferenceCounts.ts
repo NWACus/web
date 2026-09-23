@@ -31,26 +31,61 @@ function dedupe(references: CountedReference[]): CountedReference[] {
   return [...byKey.values()]
 }
 
+/** The stored counts of the documents that still exist; a deleted one simply has no entry. */
+async function storedCounts(
+  collection: ReferenceCountedCollection,
+  ids: number[],
+  req: PayloadRequest,
+): Promise<Map<number, number | null | undefined>> {
+  const { docs } = await req.payload.find({
+    collection,
+    where: { id: { in: ids } },
+    select: { referenceCount: true },
+    depth: 0,
+    limit: 0,
+    pagination: false,
+    req,
+  })
+  return new Map(docs.map((doc) => [doc.id, doc.referenceCount]))
+}
+
+async function recountOne(
+  reference: CountedReference,
+  storedCount: number | null | undefined,
+  req: PayloadRequest,
+): Promise<void> {
+  const uses = await findDocumentsWithReferences(reference, { includeDrafts: true, req })
+  if (uses.length === storedCount) return
+
+  await req.payload.db.updateOne({
+    collection: reference.collection,
+    id: reference.id,
+    // An explicit null tells the adapter to leave `updatedAt` alone rather than stamp it
+    data: { referenceCount: uses.length, updatedAt: null },
+    req,
+    returning: false,
+  })
+}
+
 /**
- * Recomputes rather than increments. A missed event leaves one stale number that the next save of
- * any document touching it corrects, where a drifting counter would stay wrong forever.
+ * Recomputes rather than increments, so a missed event leaves one stale number that the next save
+ * touching the document corrects. Writes straight through the adapter: a count is not an edit, so
+ * it runs no hooks, keeps `updatedAt` and edit locks as they are, and leaves `req.context` alone.
  */
 async function recount(references: CountedReference[], req: PayloadRequest): Promise<void> {
-  for (const reference of references) {
-    const referenceCount = (
-      await findDocumentsWithReferences(reference, { includeDrafts: true, req })
-    ).length
+  for (const collection of REFERENCE_COUNTED_COLLECTIONS) {
+    const inCollection = references.filter((ref) => ref.collection === collection)
+    if (inCollection.length === 0) continue
 
-    await req.payload.update({
-      collection: reference.collection,
-      id: reference.id,
-      data: { referenceCount },
+    const stored = await storedCounts(
+      collection,
+      inCollection.map((ref) => ref.id),
       req,
-      depth: 0,
-      // Bumping a count changes nothing anyone renders, and revalidating here would fan back out
-      // to every page that uses the document we are counting.
-      context: { disableRevalidate: true },
-    })
+    )
+    // A deleted document has no stored count, and a stale reference to it is not an error
+    for (const reference of inCollection.filter((ref) => stored.has(ref.id))) {
+      await recountOne(reference, stored.get(reference.id), req)
+    }
   }
 }
 

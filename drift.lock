@@ -78,12 +78,12 @@ sig = "80e69afedc706be3"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/revalidation.md"
-sig = "09dc5ab332f7bf29"
+sig = "f60abc23a97b2ece"
 
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/shared-content.md"
-sig = "0dc19489e1b5c79f"
+sig = "11f429ee21615e37"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -538,7 +538,7 @@ sig = "5056989806c9df98"
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
-sig = "ea90e25cc4e4ba06"
+sig = "3bc802c9f52b41f5"
 
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
@@ -778,7 +778,7 @@ sig = "4ac8868f8d8d2ba3"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
-sig = "ea90e25cc4e4ba06"
+sig = "3bc802c9f52b41f5"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -838,12 +838,12 @@ sig = "d2dc9a06235bd26e"
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/fields/referenceCountField.ts"
-sig = "a7f56b38f7f98bab"
+sig = "4c4db66c9594e0b7"
 
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/hooks/syncReferenceCounts.ts"
-sig = "104658faa085ad62"
+sig = "2bbfded1dc092008"
 
 [[bindings]]
 doc = "docs/shared-content.md"
