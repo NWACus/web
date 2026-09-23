@@ -158,7 +158,17 @@ sig = "2f6941731c97ccaa"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/danger-over-time/page.tsx"
-sig = "0f7fa42214bedf1a"
+sig = "61e457747c70fff3"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/mountain-weather/[id]/page.tsx"
+sig = "c1717439a7f9051a"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/mountain-weather/page.tsx"
+sig = "e7eda4c3acb85829"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -188,7 +198,7 @@ sig = "44ec8c45550354a8"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/collections/Settings/index.ts"
-sig = "6df09f866feb8b03"
+sig = "e722f0a6969624f7"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -233,7 +243,7 @@ sig = "e7ced064bdd93343"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/ValidityBanner.tsx"
-sig = "9db4a6c4303ac83c"
+sig = "5bf1ab33f8599e1f"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -244,6 +254,11 @@ sig = "0866471943652586"
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/archive/dangerOverTimeExport.ts"
 sig = "94663c549592f762"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/archive/weatherArchiveAccess.ts"
+sig = "9f9aca44832d4ccb"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -268,12 +283,12 @@ sig = "620e3b1733d93855"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/archiveDates.ts"
-sig = "14a5b8c8b1a0289a"
+sig = "a497d3c00a5fbc0a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/forecastArchive.ts"
-sig = "bc24ead36d26ff72"
+sig = "5710758f66d870f4"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -307,8 +322,13 @@ sig = "1e24331fdb827036"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/weatherArchive.ts"
+sig = "e8f0c1d11a80720d"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/weatherForForecast.ts"
-sig = "7f993cbd7d3763f3"
+sig = "a350b01944d045e3"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -338,7 +358,7 @@ sig = "8e82ca77f662f6b4"
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/mocks/scenarios.json"
-sig = "caf6981c361ac8fe"
+sig = "fa0e230b0ccc1d52"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
@@ -563,7 +583,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/Settings/index.ts"
-sig = "6df09f866feb8b03"
+sig = "e722f0a6969624f7"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -1158,7 +1178,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "a5032d7dbbd8d10b"
+sig = "7aea814cb127c833"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"

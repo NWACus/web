@@ -336,24 +336,22 @@ describe('danger-over-time export', () => {
 })
 
 describe('ArchiveTabs', () => {
-  it('links both tabs with the filters carried over and the page number dropped', () => {
-    render(
-      <ArchiveTabs
-        active="danger"
-        query={{
-          season: 2025,
-          from: null,
-          to: null,
-          zone: ['olympics'],
-          danger: [],
-          type: [],
-          page: 3,
-        }}
-      />,
-    )
+  const query = {
+    season: 2025,
+    from: null,
+    to: null,
+    zone: ['olympics'],
+    danger: [],
+    type: [],
+    page: 3,
+  }
+
+  it('links every tab with the filters carried over and the page number dropped', () => {
+    render(<ArchiveTabs active="danger" query={query} showWeather />)
 
     const forecasts = screen.getByRole('link', { name: 'Avalanche Forecasts' })
     const danger = screen.getByRole('link', { name: 'Danger Over Time' })
+    const weather = screen.getByRole('link', { name: 'Mountain Weather' })
 
     expect(forecasts).toHaveAttribute(
       'href',
@@ -363,7 +361,20 @@ describe('ArchiveTabs', () => {
       'href',
       '/forecasts/avalanche/archive/danger-over-time?season=2025&zone=olympics',
     )
+    // The weather tab ignores the zone, but carries it so switching back keeps the selection.
+    expect(weather).toHaveAttribute(
+      'href',
+      '/forecasts/avalanche/archive/mountain-weather?season=2025&zone=olympics',
+    )
     expect(danger).toHaveAttribute('aria-current', 'page')
     expect(forecasts).not.toHaveAttribute('aria-current')
+    expect(weather).not.toHaveAttribute('aria-current')
+  })
+
+  it('leaves out Mountain Weather for a center without a NAC weather product', () => {
+    render(<ArchiveTabs active="forecasts" query={query} showWeather={false} />)
+
+    expect(screen.getAllByRole('link')).toHaveLength(2)
+    expect(screen.queryByRole('link', { name: 'Mountain Weather' })).toBeNull()
   })
 })

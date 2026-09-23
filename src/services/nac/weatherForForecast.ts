@@ -7,9 +7,7 @@
  * pointer, so the legacy widget located their weather by center, zone and date instead. That is
  * reproduced here rather than in a page, and only the archive can reach those forecasts.
  */
-import { TZDate } from '@date-fns/tz'
-import { format } from 'date-fns/format'
-
+import { publishedDateForProduct } from './archiveDates'
 import type { ForecastResult, Weather } from './model/forecast'
 import { getWeatherSource } from './sources'
 
@@ -24,15 +22,6 @@ function weatherPointer(forecast: Pick<ForecastResult, 'weather_data'>): number 
   return forecast.weather_data?.weather_product_id ?? null
 }
 
-/** The calendar day a product was published on, in the center's timezone, as `yyyy-MM-dd`. */
-function publishedDateInTimezone(publishedTime: string, timezone: string | null | undefined) {
-  const instant = new Date(publishedTime)
-  if (Number.isNaN(instant.getTime())) return null
-
-  const local = timezone ? new TZDate(instant.getTime(), timezone) : instant
-  return format(local, 'yyyy-MM-dd')
-}
-
 /**
  * The published date to locate a pointerless forecast's weather by, or `null` when this forecast
  * is not one of those. Exported for its test; pages go through `getWeatherForForecast`.
@@ -45,7 +34,7 @@ export function pointerlessWeatherDate(
   if (weatherPointer(forecast) !== null) return null
   if (centerSlug.toLowerCase() !== POINTERLESS_WEATHER_CENTER) return null
 
-  const date = publishedDateInTimezone(forecast.published_time, timezone)
+  const date = publishedDateForProduct(forecast.published_time, timezone)
   return date !== null && date < POINTERLESS_WEATHER_CUTOFF ? date : null
 }
 

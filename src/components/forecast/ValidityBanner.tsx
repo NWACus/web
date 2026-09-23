@@ -11,12 +11,10 @@
  * alone, so it is delegated to `ProductExpiry`, which decides the server's answer and hands it to
  * `ExpiryNotice` to keep honest.
  */
-import { History } from 'lucide-react'
-import Link from 'next/link'
-
 import { ARCHIVE_PATH } from '@/services/nac/forecastArchive'
 import type { ForecastResult } from '@/services/nac/model/forecast'
 
+import { ArchivedProductNotice } from './ArchivedProductNotice'
 import { ProductExpiry } from './ProductExpiry'
 
 interface ValidityBannerProps {
@@ -31,26 +29,10 @@ export function ValidityBanner({ forecast, selectedDate, basePath }: ValidityBan
   // Archived: a dated/history view is, by definition, not the current product.
   if (selectedDate != null) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100">
-        <History className="h-5 w-5 shrink-0" aria-hidden="true" />
-        <span>
-          This is an archived product. View the{' '}
-          <Link
-            href={basePath}
-            className="font-medium underline underline-offset-2 hover:no-underline"
-          >
-            most recent forecast
-          </Link>{' '}
-          or{' '}
-          <Link
-            href={ARCHIVE_PATH}
-            className="font-medium underline underline-offset-2 hover:no-underline"
-          >
-            all archived forecasts
-          </Link>
-          .
-        </span>
-      </div>
+      <ArchivedProductNotice
+        current={{ href: basePath, label: 'most recent forecast' }}
+        archive={{ href: ARCHIVE_PATH, label: 'all archived forecasts' }}
+      />
     )
   }
 
