@@ -153,15 +153,16 @@ export const seed = async ({
         },
       })
 
-      payload.logger.info('- Deleting existing /public/media folder...')
+      for (const folder of ['public/media', 'public/shared-media']) {
+        payload.logger.info(`- Deleting existing /${folder} folder...`)
 
-      try {
-        const path = getPath('public/media')
-        fs.rmSync(path, { recursive: true, force: true })
-      } catch (err) {
-        payload.logger.error(
-          `Failed to delete /public/media folder: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        )
+        try {
+          fs.rmSync(getPath(folder), { recursive: true, force: true })
+        } catch (err) {
+          payload.logger.error(
+            `Failed to delete /${folder} folder: ${err instanceof Error ? err.message : 'Unknown error'}`,
+          )
+        }
       }
     } else {
       payload.logger.info(`— Skipping database cleanup for incremental seed...`)

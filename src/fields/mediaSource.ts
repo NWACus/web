@@ -1,5 +1,6 @@
 import { isRecord } from '@/utilities/isRecord'
-import type { Field, UploadFieldSingleValidation } from 'payload'
+import type { Field, FieldHook, UploadFieldSingleValidation } from 'payload'
+import { upload } from 'payload/shared'
 
 type MediaSourceOptions = {
   /** Name of the slot's existing upload field, which points at the center's own Media. */
@@ -18,11 +19,18 @@ const requireWhenSelected = (
   wantShared: boolean,
   message: string,
 ): UploadFieldSingleValidation => {
-  return (value, { siblingData }) => {
-    if (isShared(siblingData, sourceName) !== wantShared) return true
-    return value == null ? message : true
+  return (value, options) => {
+    if (isShared(options.siblingData, sourceName) !== wantShared) return true
+    return value == null ? message : upload(value, options)
   }
 }
+
+// A condition only hides a field, and its value is still saved. Left alone, the hidden half would
+// keep recording a use of a photo the slot no longer shows.
+const clearWhenHidden =
+  (sourceName: string, wantShared: boolean): FieldHook =>
+  ({ siblingData, value }) =>
+    isShared(siblingData, sourceName) === wantShared ? value : null
 
 /**
  * Turns one image slot into a choice between a center's own Media and the Shared Media library.
@@ -57,6 +65,7 @@ export function mediaSourceFields({
       // hidden never blocks a save.
       required: false,
       validate: requireWhenSelected(sourceName, false, 'Please choose an image from your library.'),
+      hooks: { beforeValidate: [clearWhenHidden(sourceName, false)] },
       admin: {
         condition: (_, siblingData) => !isShared(siblingData, sourceName),
       },
@@ -71,6 +80,7 @@ export function mediaSourceFields({
         true,
         'Please choose an image from the shared library.',
       ),
+      hooks: { beforeValidate: [clearWhenHidden(sourceName, true)] },
       admin: {
         condition: (_, siblingData) => isShared(siblingData, sourceName),
       },

@@ -83,7 +83,7 @@ sig = "fd7a4b5eb6e03396"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/shared-content.md"
-sig = "9e5cc0e9a77e7ae5"
+sig = "39eeecd0f510ee60"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -663,7 +663,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "a2e38f86f88ab570"
+sig = "c57017b324d5925e"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -798,12 +798,12 @@ sig = "4b37baed692be3f7"
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/access/bySharedContent.ts"
-sig = "245118ac891f9e42"
+sig = "ca5cf38382269b19"
 
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/collections/SharedMedia/index.ts"
-sig = "168f3150cee3691b"
+sig = "466d817c340bc9ae"
 
 [[bindings]]
 doc = "docs/shared-content.md"
@@ -813,7 +813,7 @@ sig = "39631668a8479d83"
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/fields/mediaSource.ts"
-sig = "b80cd2f7ce004620"
+sig = "d2dc9a06235bd26e"
 
 [[bindings]]
 doc = "docs/tenant-selector.md"

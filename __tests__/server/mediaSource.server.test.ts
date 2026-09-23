@@ -15,8 +15,21 @@ function uploadFieldNamed(name: string): UploadField {
 // more than these functions read.
 type SlotValidate = (
   value: number | null,
-  options: { siblingData: Record<string, unknown> },
+  options: ReturnType<typeof validateOptions>,
 ) => Promise<string | true> | string | true
+
+type SlotHook = (args: { siblingData: Record<string, unknown>; value: unknown }) => unknown
+
+// Enough of Payload's validate options for its default `upload` check to run on a numeric id.
+// 'onChange' stops it before the filterOptions lookup, which would need a database.
+function validateOptions(siblingData: Record<string, unknown>) {
+  return {
+    siblingData,
+    event: 'onChange',
+    relationTo: 'media',
+    req: { payload: { collections: {}, db: { defaultIDType: 'number' } }, t: String },
+  }
+}
 
 type SlotCondition = (
   data: Record<string, unknown>,
@@ -28,6 +41,13 @@ function validateFor(name: string): SlotValidate {
   if (!validate) throw new Error(`Upload field ${name} has no validate function`)
   // @ts-expect-error - Payload types validate for its own call sites, which pass far more than this
   return validate
+}
+
+function beforeValidateFor(name: string): SlotHook {
+  const hook = uploadFieldNamed(name).hooks?.beforeValidate?.[0]
+  if (!hook) throw new Error(`Upload field ${name} has no beforeValidate hook`)
+  // @ts-expect-error - Payload types field hooks for its own call sites, which pass far more than this
+  return hook
 }
 
 function conditionFor(name: string): SlotCondition {
@@ -56,23 +76,50 @@ describe('mediaSourceFields', () => {
   })
 
   describe('validation', () => {
-    it("requires the center's library when source is center or absent", () => {
+    it("requires the center's library when source is center or absent", async () => {
       const validate = validateFor('media')
-      expect(validate(null, { siblingData: { source: 'center' } })).toEqual(expect.any(String))
-      expect(validate(null, { siblingData: {} })).toEqual(expect.any(String))
-      expect(validate(5, { siblingData: { source: 'center' } })).toBe(true)
+      expect(validate(null, validateOptions({ source: 'center' }))).toEqual(expect.any(String))
+      expect(validate(null, validateOptions({}))).toEqual(expect.any(String))
+      await expect(validate(5, validateOptions({ source: 'center' }))).resolves.toBe(true)
     })
 
     it("leaves the center's library alone when source is shared", () => {
-      expect(validateFor('media')(null, { siblingData: { source: 'shared' } })).toBe(true)
+      expect(validateFor('media')(null, validateOptions({ source: 'shared' }))).toBe(true)
     })
 
-    it('requires the shared library only when source is shared', () => {
+    it('requires the shared library only when source is shared', async () => {
       const validate = validateFor('sharedMedia')
-      expect(validate(null, { siblingData: { source: 'shared' } })).toEqual(expect.any(String))
-      expect(validate(5, { siblingData: { source: 'shared' } })).toBe(true)
-      expect(validate(null, { siblingData: { source: 'center' } })).toBe(true)
-      expect(validate(null, { siblingData: {} })).toBe(true)
+      expect(validate(null, validateOptions({ source: 'shared' }))).toEqual(expect.any(String))
+      await expect(validate(5, validateOptions({ source: 'shared' }))).resolves.toBe(true)
+      expect(validate(null, validateOptions({ source: 'center' }))).toBe(true)
+      expect(validate(null, validateOptions({}))).toBe(true)
+    })
+
+    it("keeps Payload's own check on the selected id", async () => {
+      await expect(
+        validateFor('sharedMedia')(
+          // @ts-expect-error - a malformed id, the case Payload's default validator rejects
+          'not-an-id',
+          validateOptions({ source: 'shared' }),
+        ),
+      ).resolves.toEqual(expect.stringContaining('invalid'))
+    })
+  })
+
+  describe('the hidden half', () => {
+    it('is cleared on save, so a photo the slot no longer shows is not recorded as used', () => {
+      expect(
+        beforeValidateFor('sharedMedia')({ siblingData: { source: 'center' }, value: 9 }),
+      ).toBe(null)
+      expect(beforeValidateFor('sharedMedia')({ siblingData: {}, value: 9 })).toBe(null)
+      expect(beforeValidateFor('media')({ siblingData: { source: 'shared' }, value: 5 })).toBe(null)
+    })
+
+    it('keeps the selected half', () => {
+      expect(
+        beforeValidateFor('sharedMedia')({ siblingData: { source: 'shared' }, value: 9 }),
+      ).toBe(9)
+      expect(beforeValidateFor('media')({ siblingData: { source: 'center' }, value: 5 })).toBe(5)
     })
   })
 
