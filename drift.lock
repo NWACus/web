@@ -338,7 +338,7 @@ sig = "e8f0c1d11a80720d"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/weatherForForecast.ts"
-sig = "d74aed8fe43bda36"
+sig = "03336afdaf03a4db"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

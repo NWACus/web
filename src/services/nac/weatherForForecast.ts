@@ -63,7 +63,8 @@ export async function getWeatherForForecast(
 /**
  * The weather a forecast page shows, from whichever source the center has: the AFP product found
  * above, else NWAC's in-house Mountain Weather Forecast, which no forecast points at. Its issuances
- * are found by date (`date`, or the latest date with content when omitted), narrowed to the zone.
+ * are found by date (`date`, or the latest date with content when omitted), narrowed to the zone;
+ * a day none of whose issuances covers the zone counts as no NWAC weather.
  * Only a center with NWAC weather switched on makes that second call.
  */
 export async function getWeatherSourcesForForecast(
@@ -76,6 +77,9 @@ export async function getWeatherSourcesForForecast(
   const weather = await getWeatherForForecast(centerSlug, zoneId, forecast, timezone)
   if (weather || !(await isNwacWeatherEnabled(centerSlug))) return { weather, nwacWeather: null }
 
-  const nwacWeather = await getNwacWeatherSource().getForecastDay({ date, zone: zoneId })
-  return { weather, nwacWeather }
+  const day = await getNwacWeatherSource().getForecastDay({ date, zone: zoneId })
+  // An issuance that doesn't cover this zone has nothing to show here; with none left there is no
+  // weather section (or print option) at all rather than an empty one.
+  const issuances = day?.issuances.filter((i) => i.zones.length > 0) ?? []
+  return { weather, nwacWeather: day && issuances.length ? { ...day, issuances } : null }
 }

@@ -114,16 +114,33 @@ describe('getWeatherSourcesForForecast', () => {
 
   it('falls back to NWAC weather for the viewed date, narrowed to the zone', async () => {
     mockIsNwacWeatherEnabled.mockResolvedValue(true)
-    const day = { serviceDate: '2026-01-10', issuances: [{ id: 1, zones: [{ id: 'olympics' }] }] }
-    mockGetForecastDay.mockResolvedValue(day)
+    const covered = { id: 1, zones: [{ id: 'olympics' }] }
+    const uncovered = { id: 2, zones: [] }
+    mockGetForecastDay.mockResolvedValue({
+      serviceDate: '2026-01-10',
+      issuances: [covered, uncovered],
+    })
     const forecast = pointerless('2026-01-10T15:00:00+00:00')
     await expect(
       getWeatherSourcesForForecast('nwac', 1, forecast, TZ, '2026-01-10'),
     ).resolves.toEqual({
       weather: null,
-      nwacWeather: day,
+      nwacWeather: { serviceDate: '2026-01-10', issuances: [covered] },
     })
     expect(mockGetForecastDay).toHaveBeenCalledWith({ date: '2026-01-10', zone: 1 })
+  })
+
+  it('treats a day with no issuance covering the zone as no NWAC weather', async () => {
+    mockIsNwacWeatherEnabled.mockResolvedValue(true)
+    mockGetForecastDay.mockResolvedValue({
+      serviceDate: '2026-01-10',
+      issuances: [{ id: 2, zones: [] }],
+    })
+    const forecast = pointerless('2026-01-10T15:00:00+00:00')
+    await expect(getWeatherSourcesForForecast('nwac', 1, forecast, TZ)).resolves.toEqual({
+      weather: null,
+      nwacWeather: null,
+    })
   })
 
   it('asks nothing more of a center without NWAC weather', async () => {
