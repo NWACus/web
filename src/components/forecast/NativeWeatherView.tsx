@@ -3,13 +3,18 @@
  * of the legacy widget's Weather tab (`WeatherProduct.vue` + `WeatherContent.vue`): a title row,
  * the product's own issued time and author, its discussion, one table per zone in the center's
  * zone order, and the scope disclaimer. Pure presentation: it receives already-fetched data.
+ *
+ * The same view shows an archived product, opened from the forecast archive's Mountain Weather tab,
+ * with a notice that it is one — where the legacy widget offered an "Archive" back button.
  */
+import { ARCHIVE_WEATHER_PATH } from '@/services/nac/forecastArchive'
 import type { Weather } from '@/services/nac/model/forecast'
 import { orderWeatherTables, type WeatherTableZone } from '@/services/nac/orderWeatherTables'
 import type { AvalancheCenterType } from '@/services/nac/types/schemas'
 
 import { Card, CardContent } from '@/components/ui/card'
 
+import { ArchivedProductNotice } from './ArchivedProductNotice'
 import { DiscussionBody } from './DiscussionBody'
 import { ForecastDisclaimer } from './ForecastDisclaimer'
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
@@ -25,6 +30,8 @@ interface NativeWeatherViewProps {
   timezone: string | null | undefined
   /** Avalanche center type, for the scope disclaimer's provider wording (USFS vs center name). */
   centerType: AvalancheCenterType
+  /** An archived product rather than the current one, so it says so and links to both. */
+  archived?: boolean
 }
 
 export function NativeWeatherView({
@@ -32,10 +39,18 @@ export function NativeWeatherView({
   zones,
   timezone,
   centerType,
+  archived = false,
 }: NativeWeatherViewProps) {
   return (
     <div className="container space-y-6 py-6">
       <WeatherTitleRow />
+
+      {archived && (
+        <ArchivedProductNotice
+          current={{ href: '/weather/forecast', label: 'current Mountain Weather' }}
+          archive={{ href: ARCHIVE_WEATHER_PATH, label: 'all archived Mountain Weather' }}
+        />
+      )}
 
       <ForecastErrorBoundary fallbackMessage="Unable to display weather metadata">
         <ForecastHeader

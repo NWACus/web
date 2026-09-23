@@ -68,6 +68,22 @@ export function validDateForProduct(
 }
 
 /**
+ * The calendar day a product was published on, in the center's timezone, as `YYYY-MM-DD` — with no
+ * noon cutover, for products dated by the day they were issued rather than the day they apply to.
+ * Returns null for an unparseable timestamp.
+ */
+export function publishedDateForProduct(
+  publishedTime: string,
+  timezone: string | null | undefined,
+): string | null {
+  const instant = new Date(publishedTime)
+  if (Number.isNaN(instant.getTime())) return null
+
+  const local = timezone ? new TZDate(instant.getTime(), timezone) : instant
+  return format(local, 'yyyy-MM-dd')
+}
+
+/**
  * A product's valid date formatted as a day heading (e.g. "Tuesday, April 14, 2026"), in the
  * center's timezone with the noon-cutover rule, offset by `offsetDays` (1 = the next/outlook day).
  * Returns null for an unparseable timestamp. Parses the already-resolved `yyyy-MM-dd` valid date
