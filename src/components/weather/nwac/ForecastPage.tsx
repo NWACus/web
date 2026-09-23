@@ -2,6 +2,7 @@
 import { ForecastDisclaimer } from '@/components/forecast/ForecastDisclaimer'
 import { Card, CardContent } from '@/components/ui/card'
 import {
+  fetchNwacWeatherDates,
   fetchNwacWeatherForecasts,
   getActiveForecastZones,
   getAvalancheCenterMetadata,
@@ -15,6 +16,7 @@ import { mapV3NwacWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeath
 import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns/format'
 
+import { DatePicker } from './DatePicker.client'
 import { IssuanceSwitch } from './IssuanceSwitch.client'
 import { IssuedMeta, formatIssued } from './Issued'
 import { Overall, OverallSectionTabs, type ZonePaths } from './Overall'
@@ -38,13 +40,20 @@ function todayInTimezone(timezone: string | null | undefined) {
 
 export async function ForecastPage({ centerSlug, date }: { centerSlug: string; date?: string }) {
   const metadata = await getAvalancheCenterMetadata(centerSlug)
-  const shown = date ?? todayInTimezone(metadata.timezone)
-  const wire = await fetchNwacWeatherForecasts({ date: shown })
+  const today = todayInTimezone(metadata.timezone)
+  const shown = date ?? today
+  const yearAgo = `${Number(today.slice(0, 4)) - 1}${today.slice(4)}`
+  const [wire, dates] = await Promise.all([
+    fetchNwacWeatherForecasts({ date: shown }),
+    fetchNwacWeatherDates(yearAgo, today),
+  ])
   const day = wire && mapV3NwacWeatherForecastDay(wire)
+  const picker = <DatePicker date={shown} dates={dates} today={today} />
 
   if (!day) {
     return (
       <div className="container space-y-8 py-6">
+        {picker}
         {HEADING}
         <p className="text-center text-muted-foreground">
           No Mountain Weather forecast published for {fmtCalendarDate(shown)}.
@@ -56,7 +65,8 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
 
   const zonePaths = await zonePathsOf(centerSlug)
   return (
-    <div className="container py-6">
+    <div className="container space-y-6 py-6">
+      {picker}
       <IssuanceSwitch
         heading={HEADING}
         panels={day.issuances.map((issuance) => ({
