@@ -45,7 +45,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`source\` text DEFAULT 'center';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`shared_media_id\` integer REFERENCES shared_media(id);`,
+    sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`shared_media_id\` integer REFERENCES shared_media(id) ON DELETE set null;`,
   )
   await db.run(
     sql`CREATE INDEX \`home_pages_blocks_media_block_shared_media_idx\` ON \`home_pages_blocks_media_block\` (\`shared_media_id\`);`,
@@ -54,14 +54,14 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`source\` text DEFAULT 'center';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`shared_media_id\` integer REFERENCES shared_media(id);`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`shared_media_id\` integer REFERENCES shared_media(id) ON DELETE set null;`,
   )
   await db.run(
     sql`CREATE INDEX \`_home_pages_v_blocks_media_block_shared_media_idx\` ON \`_home_pages_v_blocks_media_block\` (\`shared_media_id\`);`,
   )
   await db.run(sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`source\` text DEFAULT 'center';`)
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`shared_media_id\` integer REFERENCES shared_media(id);`,
+    sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`shared_media_id\` integer REFERENCES shared_media(id) ON DELETE set null;`,
   )
   await db.run(
     sql`CREATE INDEX \`pages_blocks_media_block_shared_media_idx\` ON \`pages_blocks_media_block\` (\`shared_media_id\`);`,
@@ -70,13 +70,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`source\` text DEFAULT 'center';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`shared_media_id\` integer REFERENCES shared_media(id);`,
+    sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`shared_media_id\` integer REFERENCES shared_media(id) ON DELETE set null;`,
   )
   await db.run(
     sql`CREATE INDEX \`_pages_v_blocks_media_block_shared_media_idx\` ON \`_pages_v_blocks_media_block\` (\`shared_media_id\`);`,
   )
   await db.run(
-    sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`shared_media_id\` integer REFERENCES shared_media(id);`,
+    sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`shared_media_id\` integer REFERENCES shared_media(id) ON DELETE cascade;`,
   )
   await db.run(
     sql`CREATE INDEX \`payload_locked_documents_rels_shared_media_id_idx\` ON \`payload_locked_documents_rels\` (\`shared_media_id\`);`,
