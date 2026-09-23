@@ -14,3 +14,12 @@ export const isSharedContentCollection = (slug: string): boolean => sharedConten
 // files in that folder are kept apart only by the tenant slug on their filename.
 export const getSharedMediaBlobPrefix = (environmentPrefix: string): string =>
   `${environmentPrefix}/shared`
+
+// Spread into a Shared Content collection's `admin.components.edit.beforeDocumentControls`.
+// Registration by string path is what makes the component reachable from the import map.
+export const SHARED_CONTENT_EDIT_CONTROLS = [
+  '@/components/SharedContent/SuggestEditDrawer#SuggestEditDrawer',
+]
+
+/** Long enough for a paragraph of context, short enough that nobody pastes a document into it. */
+export const MAX_SUGGESTION_LENGTH = 2000

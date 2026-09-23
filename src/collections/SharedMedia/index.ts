@@ -1,7 +1,11 @@
 import { type CollectionConfig } from 'payload'
 
 import { accessBySharedContentWithPermissiveRead } from '@/access/bySharedContent'
-import { getSharedMediaBlobPrefix, SHARED_CONTENT_ADMIN_GROUP } from '@/constants/sharedContent'
+import {
+  getSharedMediaBlobPrefix,
+  SHARED_CONTENT_ADMIN_GROUP,
+  SHARED_CONTENT_EDIT_CONTROLS,
+} from '@/constants/sharedContent'
 import { contentHashField } from '@/fields/contentHashField'
 import { referenceCountField } from '@/fields/referenceCountField'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
@@ -23,6 +27,11 @@ export const SharedMedia: CollectionConfig = {
   access: accessBySharedContentWithPermissiveRead('sharedMedia'),
   admin: {
     group: SHARED_CONTENT_ADMIN_GROUP,
+    components: {
+      edit: {
+        beforeDocumentControls: SHARED_CONTENT_EDIT_CONTROLS,
+      },
+    },
     hidden: ({ user }) => !canReadSharedContent({ collection: 'sharedMedia', user }),
     defaultColumns: ['filename', 'alt', 'credit', 'referenceCount'],
     // A shared library grows past what a filename search can find
@@ -55,6 +64,18 @@ export const SharedMedia: CollectionConfig = {
       },
     },
     referenceCountField(),
+    {
+      name: 'whereThisIsUsed',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/SharedContent/WhereThisIsUsed#WhereThisIsUsed',
+        },
+        // There is no value on the row to render: the answer comes from querying every collection
+        // that tracks documentReferences, which is a per-document question, not a per-row one.
+        disableListColumn: true,
+      },
+    },
     contentHashField(),
     {
       name: 'blurDataUrl',
