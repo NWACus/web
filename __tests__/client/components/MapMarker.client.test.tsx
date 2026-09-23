@@ -31,9 +31,8 @@ import { MapMarker } from '@/components/stationMap/MapMarker'
 import '@testing-library/jest-dom'
 import { render, within } from '@testing-library/react'
 
-// Only the identity matters: the mocked Marker never touches it.
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-const map = {} as unknown as MapboxMap
+// @ts-expect-error - partial mock; only the identity matters, the mocked Marker never touches it
+const map: MapboxMap = {}
 
 describe('MapMarker', () => {
   beforeEach(() => {
