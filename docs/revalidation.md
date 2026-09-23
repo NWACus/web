@@ -26,7 +26,7 @@ Collections in this system fall into two main categories for revalidation purpos
 
 ### Reference Collections
 **Collections that are referenced by routable collections** but don't have their own frontend routes:
-- Examples: `media`, `teams`, `biographies`, `tags`, `forms`
+- Examples: `media`, `sharedMedia`, `teams`, `biographies`, `tags`, `forms`
 - Characteristics: Only need reference-based revalidation when changed
 - When modified, trigger revalidation of routable collections that reference them
 
@@ -79,6 +79,11 @@ Collections that are referenced by routable collections but don't have their own
 #### Media (`src/collections/Media/hooks/revalidateMedia.ts`)
 - Only calls `revalidateDocumentReferences()`
 - No direct path revalidation (reference collections don't generate routes)
+
+#### SharedMedia (`src/collections/SharedMedia/hooks/revalidateSharedMedia.ts`)
+- Same shape as Media: only calls `revalidateDocumentReferences()`, with no direct path revalidation
+- No tenant filter is needed or wanted. A shared document is referenced from every center, and `findDocumentsWithReferences` has no tenant filter, so one save revalidates every center's page that uses it
+- **Known gap**: `findDocumentsWithReferences` drops a referencing document that has no tenant, so a Shared Content document referencing another Shared Content document stops the recursive walk. Nothing hits this today — Pages, HomePages and Posts reference shared photos directly — so it is left until the first such chain exists. See `docs/decisions/022-shared-content.md`
 
 #### Teams, Biographies, Tags
 Similar pattern to Media - only reference-based revalidation since they're reference collections.

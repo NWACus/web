@@ -78,7 +78,12 @@ sig = "80e69afedc706be3"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/revalidation.md"
-sig = "8645dd7efc9225d1"
+sig = "fd7a4b5eb6e03396"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/shared-content.md"
+sig = "9e5cc0e9a77e7ae5"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -737,6 +742,11 @@ sig = "451f20e9ac806646"
 
 [[bindings]]
 doc = "docs/revalidation.md"
+target = "src/collections/SharedMedia/hooks/revalidateSharedMedia.ts"
+sig = "c820301d5f27af19"
+
+[[bindings]]
+doc = "docs/revalidation.md"
 target = "src/collections/Teams/hooks/revalidateTeam.ts"
 sig = "409cffc372032d25"
 
@@ -784,6 +794,26 @@ sig = "816b1013b6920bb7"
 doc = "docs/revalidation.md"
 target = "src/utilities/revalidateDocumentReferences.ts"
 sig = "4b37baed692be3f7"
+
+[[bindings]]
+doc = "docs/shared-content.md"
+target = "src/access/bySharedContent.ts"
+sig = "245118ac891f9e42"
+
+[[bindings]]
+doc = "docs/shared-content.md"
+target = "src/collections/SharedMedia/index.ts"
+sig = "168f3150cee3691b"
+
+[[bindings]]
+doc = "docs/shared-content.md"
+target = "src/constants/sharedContent.ts"
+sig = "39631668a8479d83"
+
+[[bindings]]
+doc = "docs/shared-content.md"
+target = "src/fields/mediaSource.ts"
+sig = "b80cd2f7ce004620"
 
 [[bindings]]
 doc = "docs/tenant-selector.md"
