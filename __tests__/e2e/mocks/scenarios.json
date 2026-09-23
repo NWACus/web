@@ -139,25 +139,29 @@
       "forecast": true,
       "warning": true,
       "dangerMap": true,
-      "weather": true
+      "weather": true,
+      "stationMap": true
     },
     "dvac": {
       "forecast": false,
       "warning": false,
       "dangerMap": false,
-      "weather": false
+      "weather": false,
+      "stationMap": false
     },
     "nwac": {
       "forecast": true,
       "warning": true,
       "dangerMap": true,
-      "weather": false
+      "weather": false,
+      "stationMap": true
     },
     "sac": {
       "forecast": false,
       "warning": false,
       "dangerMap": false,
-      "weather": false
+      "weather": false,
+      "stationMap": true
     }
   }
 }
