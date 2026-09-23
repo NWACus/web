@@ -112,6 +112,9 @@ function ReadingRows({ station, context }: CardProps) {
   )
 }
 
+// `sm` is the smallest Button size and still 36px tall; the card's footer wants less.
+const COMPACT_BUTTON = 'h-7 px-2.5 text-xs'
+
 /**
  * The station's page, opened on its table or its graphs — the widget's "Area Tables" and "Area
  * Plots". In a new tab, so the map and its selection stay put.
@@ -119,15 +122,15 @@ function ReadingRows({ station, context }: CardProps) {
 function StationLinks({ href }: { href: string }) {
   const linkProps = { target: '_blank', rel: 'noopener noreferrer' }
   return (
-    <footer className="flex shrink-0 justify-end border-t px-3 py-2">
+    <footer className="flex shrink-0 justify-end border-t px-3 py-1.5">
       <ButtonGroup aria-label="Open the station page">
-        <Button asChild size="sm" variant="outline">
+        <Button asChild size="sm" variant="outline" className={COMPACT_BUTTON}>
           <Link href={href} {...linkProps}>
             <Table2 className="mr-1 h-3 w-3" aria-hidden="true" />
             Table
           </Link>
         </Button>
-        <Button asChild size="sm" variant="outline">
+        <Button asChild size="sm" variant="outline" className={COMPACT_BUTTON}>
           <Link href={`${href}?range=graphs`} {...linkProps}>
             <ChartLine className="mr-1 h-3 w-3" aria-hidden="true" />
             Graphs
