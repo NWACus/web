@@ -18,7 +18,7 @@ describe('Overall', () => {
       'Snow (in)',
       "5000' Temperatures (°F)",
       'Snow Level (ft)',
-      'Extended Snow Level (ft)',
+      'Snow Levels (ft)',
       'Ridgeline Winds (mph)',
       'Sensible Weather',
     ]) {
@@ -56,7 +56,7 @@ describe('Overall', () => {
 
   it('has no extended table on a morning issuance', () => {
     render(<Overall issuance={morning} />)
-    expect(screen.queryByRole('heading', { name: 'Extended Snow Level (ft)' })).toBeNull()
+    expect(screen.queryByRole('heading', { name: 'Snow Levels (ft)' })).toBeNull()
   })
 })
 
