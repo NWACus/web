@@ -30,12 +30,16 @@ import { cn } from '@/utilities/ui'
 
 import { RichText, textOrNull } from './RichText'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
-import { LevelValue, SnowValue, TempValue, WindValue } from './Values'
+import { DayNightDate, LevelValue, SnowValue, TempValue, WindValue } from './Values'
 
 interface Column {
   key: string
   date: string | null
   sub: string | null
+  /** Columns sharing a group sit under one date header (a period's 6h blocks). */
+  group?: string
+  /** Day or night, shown as a sun or moon by the date; unset where the column has neither. */
+  night?: boolean
 }
 interface Row {
   key: string
@@ -71,12 +75,20 @@ const STICKY = 'sticky left-0 z-10'
 const periodColumn = (p: NwacWeatherPeriod): Column => ({
   key: p.key,
   date: fmtCalendarDate(p.date),
-  sub: p.kind === 'night' ? 'Night' : 'Day',
+  sub: null,
+  night: p.kind === 'night',
 })
 
 function blockColumn(issuance: NwacWeatherIssuance, b: NwacWeatherBlock): Column {
+  const period = issuance.periods.find((p) => p.key === b.period)
   const date = blockDate(issuance, b)
-  return { key: b.key, date: date ? fmtCalendarDate(date) : null, sub: b.part }
+  return {
+    key: b.key,
+    date: date ? fmtCalendarDate(date) : null,
+    sub: b.part,
+    group: b.period ?? undefined,
+    night: period ? period.kind === 'night' : undefined,
+  }
 }
 
 /** Shades every level in a zones × columns grid against the whole table, so zones compare. */
@@ -222,7 +234,12 @@ function extendedTable(issuance: NwacWeatherIssuance): Table {
     nav: 'Extended',
     title: 'Extended Snow Level (ft)',
     rowLabel: 'Zone',
-    columns: blocks.map((b) => ({ key: b.key, date: fmtCalendarDate(b.date), sub: b.part })),
+    columns: blocks.map((b) => ({
+      key: b.key,
+      date: fmtCalendarDate(b.date),
+      sub: b.part,
+      group: b.date,
+    })),
     groups: [
       {
         key: 'all',
@@ -236,31 +253,94 @@ function extendedTable(issuance: NwacWeatherIssuance): Table {
 
 const hasContent = (t: Table) => t.columns.length > 0 && t.groups.some((g) => g.rows.length > 0)
 
-function TableHead({ table: t }: { table: Table }) {
+/** Runs of columns sharing a group, each headed once. */
+function columnGroups(columns: Column[]) {
+  const out: { key: string; first: Column; span: number }[] = []
+  for (const c of columns) {
+    const last = out[out.length - 1]
+    if (last && c.group && last.first.group === c.group) last.span++
+    else out.push({ key: c.key, first: c, span: 1 })
+  }
+  return out
+}
+
+const HEAD_CELL = 'border-b p-2 align-bottom'
+const SUB = 'block whitespace-nowrap text-sm font-normal text-muted-foreground'
+
+function RowLabelHead({ table: t, rowSpan }: { table: Table; rowSpan: number }) {
   return (
-    <thead>
-      <tr className="bg-muted">
+    <th
+      scope="col"
+      rowSpan={rowSpan}
+      className={cn(STICKY, 'border-b bg-muted p-2 pl-3 text-left align-bottom font-semibold')}
+    >
+      {t.rowLabel}
+    </th>
+  )
+}
+
+/** One row: each column's date (with its sun or moon) over any sub-label. */
+function FlatHead({ table: t }: { table: Table }) {
+  return (
+    <tr className="bg-muted">
+      <RowLabelHead table={t} rowSpan={1} />
+      {t.columns.map((c) => (
         <th
+          key={c.key}
           scope="col"
-          className={cn(STICKY, 'border-b bg-muted p-2 pl-3 text-left align-bottom font-semibold')}
+          className={cn(HEAD_CELL, t.prose ? 'text-left' : 'text-center')}
         >
-          {t.rowLabel}
+          <span className="whitespace-nowrap font-semibold">
+            <DayNightDate date={c.date} night={c.night} />
+          </span>
+          {c.sub && <span className={SUB}>{c.sub}</span>}
         </th>
-        {t.columns.map((c) => (
+      ))}
+    </tr>
+  )
+}
+
+/** Two rows, as on the zone page: a date per group over its blocks' part-of-day labels. */
+function GroupedHead({ table: t }: { table: Table }) {
+  const groups = columnGroups(t.columns)
+  return (
+    <>
+      <tr className="bg-muted">
+        <RowLabelHead table={t} rowSpan={2} />
+        {groups.map((g) => (
           <th
-            key={c.key}
-            scope="col"
-            className={cn('border-b p-2 align-bottom', t.prose ? 'text-left' : 'text-center')}
+            key={g.key}
+            scope="colgroup"
+            colSpan={g.span}
+            className="border-b border-l p-2 text-center font-semibold whitespace-nowrap"
           >
-            <span className="whitespace-nowrap font-semibold">{c.date}</span>
-            {c.sub && (
-              <span className="block whitespace-nowrap text-sm font-normal text-muted-foreground">
-                {c.sub}
-              </span>
-            )}
+            <DayNightDate date={g.first.date} night={g.first.night} />
           </th>
         ))}
       </tr>
+      <tr className="bg-muted">
+        {groups.flatMap((g) =>
+          t.columns
+            .slice(t.columns.indexOf(g.first), t.columns.indexOf(g.first) + g.span)
+            .map((c, i) => (
+              <th
+                key={c.key}
+                scope="col"
+                className={cn('border-b px-2 py-1.5 text-center', i === 0 && 'border-l')}
+              >
+                <span className={SUB}>{c.sub}</span>
+              </th>
+            )),
+        )}
+      </tr>
+    </>
+  )
+}
+
+function TableHead({ table: t }: { table: Table }) {
+  return (
+    <thead>
+      {t.columns.some((c) => c.group) ? <GroupedHead table={t} /> : <FlatHead table={t} />}
     </thead>
   )
 }

@@ -3,7 +3,7 @@
  * snow as a chip that lights up when there is any, highs and lows in warm and cool colors, snow
  * levels shaded, and wind as an arrow plus speed.
  */
-import { ArrowDown } from 'lucide-react'
+import { ArrowDown, Moon, Sun } from 'lucide-react'
 
 import type { NwacWeatherTempCell, NwacWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import { DASH, fmtWind, windBearing } from '@/services/nac/nwacWeatherFormat'
@@ -71,6 +71,19 @@ export function WindValue({ cell }: { cell: NwacWeatherWindCell | undefined }) {
       >
         {cell.speed}
       </span>
+    </span>
+  )
+}
+
+/** A date with a sun or moon for day or night; plain when the column has no day or night. */
+export function DayNightDate({ date, night }: { date: string | null; night?: boolean }) {
+  if (night === undefined) return <>{date}</>
+  const Icon = night ? Moon : Sun
+  return (
+    <span className="inline-flex items-center justify-center gap-1.5">
+      {date}
+      <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+      <span className="sr-only">{night ? 'Night' : 'Day'}</span>
     </span>
   )
 }

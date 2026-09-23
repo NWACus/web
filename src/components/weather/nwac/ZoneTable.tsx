@@ -3,8 +3,6 @@
  * numbers by period — snow and temps on the 12h periods, snow level and wind on the 6h blocks
  * beneath. A table from `md` up and on paper; one card per period on a phone.
  */
-import { Moon, Sun } from 'lucide-react'
-
 import type {
   NwacWeatherBlock,
   NwacWeatherIssuance,
@@ -24,7 +22,7 @@ import {
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
-import { LevelValue, SnowValue, TempValue, WindValue } from './Values'
+import { DayNightDate, LevelValue, SnowValue, TempValue, WindValue } from './Values'
 
 const HEAD = 'border-b border-l p-2 text-center font-semibold'
 const ROW_LABEL = 'border-t p-2 pl-3 text-left align-middle font-semibold'
@@ -114,18 +112,6 @@ function SensibleCards({
 
 const periodSpan = (p: PeriodView) => Math.max(1, p.blocks.length)
 
-/** The period's date with a sun or moon for day or night. */
-function PeriodLabel({ p }: { p: PeriodView }) {
-  const Icon = p.night ? Moon : Sun
-  return (
-    <span className="inline-flex items-center justify-center gap-1.5">
-      {p.label}
-      <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-      <span className="sr-only">{p.night ? 'Night' : 'Day'}</span>
-    </span>
-  )
-}
-
 function PeriodHead({ periods }: { periods: PeriodView[] }) {
   return (
     <thead className="bg-muted/50">
@@ -133,7 +119,7 @@ function PeriodHead({ periods }: { periods: PeriodView[] }) {
         <td />
         {periods.map((p) => (
           <th key={p.period.key} scope="colgroup" colSpan={periodSpan(p)} className={HEAD}>
-            <PeriodLabel p={p} />
+            <DayNightDate date={p.label} night={p.night} />
           </th>
         ))}
       </tr>
@@ -286,7 +272,7 @@ function PeriodCardHeader({
   return (
     <div className="flex items-center justify-between gap-2 bg-muted/50 px-3 py-2">
       <h4 className="font-semibold">
-        <PeriodLabel p={p} />
+        <DayNightDate date={p.label} night={p.night} />
       </h4>
       <div className="flex items-center gap-3 text-sm">
         <span>
