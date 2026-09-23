@@ -27,8 +27,11 @@ export const ARCHIVE_CRUMB = 'Archive'
 /** The danger-over-time tab's tenant-relative path. */
 export const ARCHIVE_DANGER_PATH = `${ARCHIVE_PATH}/danger-over-time`
 
+/** The mountain-weather tab's tenant-relative path; an archived product is `…/<id>` under it. */
+export const ARCHIVE_WEATHER_PATH = `${ARCHIVE_PATH}/mountain-weather`
+
 /** The browser's tabs, each a route of its own sharing the same filter query. */
-export type ArchiveView = 'forecasts' | 'danger'
+export type ArchiveView = 'forecasts' | 'danger' | 'weather'
 
 /** Rows per page, matching the legacy browser. */
 export const ARCHIVE_PAGE_SIZE = 50
@@ -346,8 +349,8 @@ export function dangerCounts(rows: ArchiveRow[]): number[] {
   return counts
 }
 
-export interface ArchivePage {
-  rows: ArchiveRow[]
+export interface ArchivePage<Row> {
+  rows: Row[]
   /** The page actually shown — the requested one clamped into range. */
   page: number
   pageCount: number
@@ -355,11 +358,11 @@ export interface ArchivePage {
 }
 
 /** One page of rows. A page beyond the end shows the last page rather than an empty one. */
-export function paginateArchiveRows(
-  rows: ArchiveRow[],
+export function paginateArchiveRows<Row>(
+  rows: Row[],
   requestedPage: number,
   pageSize = ARCHIVE_PAGE_SIZE,
-): ArchivePage {
+): ArchivePage<Row> {
   const total = rows.length
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
   const page = Math.min(Math.max(1, requestedPage), pageCount)
