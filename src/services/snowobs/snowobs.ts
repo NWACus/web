@@ -104,6 +104,21 @@ function toSnowObsError(error: unknown, stids: string[]): SnowObsError {
     : new SnowObsError('Failed to fetch SnowObs station timeseries', error, { stids })
 }
 
+// SnowObs answers `raw_data` with a 500 for some Synoptic airport stations (NWAC's KSEA, KBLI and
+// nine more, checked 2026-09-23) yet serves them rounded, which is how the legacy widget reads
+// every station. Rounded readings beat an error page.
+async function requestTimeseries(
+  stations: StationRef[],
+  options: FetchOptions,
+  token: string,
+  revalidate: number,
+): Promise<Response> {
+  const res = await fetch(buildTimeseriesUrl(stations, options, token), { next: { revalidate } })
+  if (res.status < 500 || !options.rawData) return res
+  const rounded = { ...options, rawData: false }
+  return fetch(buildTimeseriesUrl(stations, rounded, token), { next: { revalidate } })
+}
+
 // Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
 export async function fetchStationTimeseries(
   centerSlug: string,
@@ -114,8 +129,8 @@ export async function fetchStationTimeseries(
   const stids = stations.map((s) => s.stid)
 
   try {
-    const url = buildTimeseriesUrl(stations, options, await resolveSnowObsToken(centerSlug))
-    const res = await fetch(url, { next: { revalidate } })
+    const token = await resolveSnowObsToken(centerSlug)
+    const res = await requestTimeseries(stations, options, token, revalidate)
     return await parseTimeseriesResponse(res, stids)
   } catch (error) {
     await logSnowObsError('fetchStationTimeseries', error, { stids })

@@ -107,6 +107,34 @@ describe('fetchStationTimeseries', () => {
     expect(seenParams).toEqual(['true', null])
   })
 
+  it('falls back to rounded values when SnowObs fails the unrounded request', async () => {
+    const seenParams: (string | null)[] = []
+    server.use(
+      http.get(TIMESERIES_URL, ({ request }) => {
+        const raw = new URL(request.url).searchParams.get('raw_data')
+        seenParams.push(raw)
+        return raw ? new HttpResponse(null, { status: 500 }) : HttpResponse.json(validResponse)
+      }),
+    )
+    const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
+    expect(seenParams).toEqual(['true', null])
+    expect(result.STATION[0].name).toBe('Test Station')
+  })
+
+  it('does not retry a 4xx, which rounding would not fix', async () => {
+    let calls = 0
+    server.use(
+      http.get(TIMESERIES_URL, () => {
+        calls += 1
+        return new HttpResponse(null, { status: 400 })
+      }),
+    )
+    await expect(fetchStationTimeseries('nwac', [ref('4')], { rawData: true })).rejects.toThrow(
+      /status 400/,
+    )
+    expect(calls).toBe(1)
+  })
+
   it('treats a 404 (no station left) as an empty timeseries', async () => {
     server.use(
       http.get(TIMESERIES_URL, () =>
