@@ -5,7 +5,7 @@ import * as qs from 'qs-esm'
 import {
   nwacWeatherArchiveSchema,
   nwacWeatherForecastsResponseSchema,
-  type NwacWeatherForecastsWire,
+  type NWACWeatherForecastsWire,
 } from './types/nwacWeatherSchemas'
 import {
   allAvalancheCenterCapabilitiesSchema,
@@ -272,7 +272,7 @@ export async function getActiveForecastZones(centerSlug: string) {
 
 // ─── NWAC Mountain Weather Forecast (products-api) ───────────────────────────
 
-export interface NwacWeatherQuery {
+export interface NWACWeatherQuery {
   /** `YYYY-MM-DD`; omit for the latest date with content. */
   date?: string
   /** A weather zone id, avalanche zone id, or zone name; omit for every zone. */
@@ -283,9 +283,9 @@ export interface NwacWeatherQuery {
 export const nwacWeatherCacheTag = 'nwac-weather'
 
 /** Every NWAC weather issuance published for a date, newest first; null on any failure. */
-export async function fetchNwacWeatherForecasts(
-  query: NwacWeatherQuery = {},
-): Promise<NwacWeatherForecastsWire | null> {
+export async function fetchNWACWeatherForecasts(
+  query: NWACWeatherQuery = {},
+): Promise<NWACWeatherForecastsWire | null> {
   const params = new URLSearchParams()
   if (query.date) params.set('date', query.date)
   if (query.zone !== undefined && query.zone !== null && query.zone !== '') {
@@ -309,7 +309,7 @@ export async function fetchNwacWeatherForecasts(
 }
 
 /** The dates between `from` and `to` with a published NWAC weather forecast, oldest first. */
-export async function fetchNwacWeatherDates(from: string, to: string): Promise<string[]> {
+export async function fetchNWACWeatherDates(from: string, to: string): Promise<string[]> {
   const params = new URLSearchParams({ from, to })
   try {
     const data = await nacFetch(`/v3/public/nwac-weather/forecast/archive?${params}`, {

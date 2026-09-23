@@ -6,9 +6,9 @@ import Link from 'next/link'
 import { Fragment, type ReactNode } from 'react'
 
 import type {
-  NwacWeatherBlock,
-  NwacWeatherIssuance,
-  NwacWeatherPeriod,
+  NWACWeatherBlock,
+  NWACWeatherIssuance,
+  NWACWeatherPeriod,
 } from '@/services/nac/model/nwacWeather'
 import {
   DASH,
@@ -71,14 +71,14 @@ export type ZonePaths = Record<number, string>
 
 const STICKY = 'sticky left-0 z-10'
 
-const periodColumn = (p: NwacWeatherPeriod): Column => ({
+const periodColumn = (p: NWACWeatherPeriod): Column => ({
   key: p.key,
   date: fmtCalendarDate(p.date),
   sub: null,
   night: p.kind === 'night',
 })
 
-function blockColumn(issuance: NwacWeatherIssuance, b: NwacWeatherBlock): Column {
+function blockColumn(issuance: NWACWeatherIssuance, b: NWACWeatherBlock): Column {
   const period = issuance.periods.find((p) => p.key === b.period)
   const date = blockDate(issuance, b)
   return {
@@ -99,7 +99,7 @@ function shadedLevels(levels: (number | null)[][]): ReactNode[][] {
   )
 }
 
-function zoneTables(issuance: NwacWeatherIssuance): Table[] {
+function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   const flat = (rows: Row[]): Group[] => [{ key: 'all', label: null, rows }]
   const zoneRows = (cells: (zoneId: string) => ReactNode[]): Row[] =>
     issuance.zones.map((z) => ({ key: z.id, label: z.name, cells: cells(z.id) }))
@@ -179,9 +179,9 @@ function zoneTables(issuance: NwacWeatherIssuance): Table[] {
 }
 
 /** New snow by station, the stations grouped under their zones in zone order. */
-function snowTable(issuance: NwacWeatherIssuance): Table {
+function snowTable(issuance: NWACWeatherIssuance): Table {
   const periods = precipPeriods(issuance)
-  const row = (p: NwacWeatherIssuance['points'][number]): Row => ({
+  const row = (p: NWACWeatherIssuance['points'][number]): Row => ({
     key: p.code,
     label: p.name,
     cells: periods.map((period) => {
@@ -217,7 +217,7 @@ function snowTable(issuance: NwacWeatherIssuance): Table {
   }
 }
 
-function extendedTable(issuance: NwacWeatherIssuance): Table {
+function extendedTable(issuance: NWACWeatherIssuance): Table {
   const zones = issuance.zones.filter((z) => issuance.extendedSnowLevel[z.id])
   const blocks = issuance.extendedBlocks
   const levels = shadedLevels(
@@ -459,7 +459,7 @@ function ZoneLinks({
   issuance,
   zonePaths,
 }: {
-  issuance: NwacWeatherIssuance
+  issuance: NWACWeatherIssuance
   zonePaths: ZonePaths
 }) {
   const links = issuance.zones.flatMap((z) => {
@@ -501,7 +501,7 @@ function SynopsisRow({
   synopsis,
   zonePaths,
 }: {
-  issuance: NwacWeatherIssuance
+  issuance: NWACWeatherIssuance
   synopsis: string | null
   zonePaths: ZonePaths
 }) {
@@ -555,7 +555,7 @@ function ExtendedSection({
   )
 }
 
-function sectionLinks(issuance: NwacWeatherIssuance): SectionLink[] {
+function sectionLinks(issuance: NWACWeatherIssuance): SectionLink[] {
   const [sensible, snowLevel, temps, wind] = zoneTables(issuance)
   const hasExtended = !!textOrNull(issuance.extendedOutlook) || hasContent(extendedTable(issuance))
   return [
@@ -568,7 +568,7 @@ function sectionLinks(issuance: NwacWeatherIssuance): SectionLink[] {
 }
 
 /** The issuance's section links, for the tabs across the top of its card. */
-export function OverallSectionTabs({ issuance }: { issuance: NwacWeatherIssuance }) {
+export function OverallSectionTabs({ issuance }: { issuance: NWACWeatherIssuance }) {
   return <SectionTabs links={sectionLinks(issuance)} />
 }
 
@@ -576,7 +576,7 @@ export function Overall({
   issuance,
   zonePaths = {},
 }: {
-  issuance: NwacWeatherIssuance
+  issuance: NWACWeatherIssuance
   zonePaths?: ZonePaths
 }) {
   const synopsis = textOrNull(issuance.synopsis)

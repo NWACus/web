@@ -2,8 +2,8 @@
 import { ForecastDisclaimer } from '@/components/forecast/ForecastDisclaimer'
 import { Card, CardContent } from '@/components/ui/card'
 import {
-  fetchNwacWeatherDates,
-  fetchNwacWeatherForecasts,
+  fetchNWACWeatherDates,
+  fetchNWACWeatherForecasts,
   getActiveForecastZones,
   getAvalancheCenterMetadata,
 } from '@/services/nac/nac'
@@ -12,7 +12,7 @@ import {
   issuanceLabel,
   issuanceShortLabel,
 } from '@/services/nac/nwacWeatherFormat'
-import { mapV3NwacWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
+import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns/format'
 
@@ -44,10 +44,10 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
   const shown = date ?? today
   const yearAgo = `${Number(today.slice(0, 4)) - 1}${today.slice(4)}`
   const [wire, dates] = await Promise.all([
-    fetchNwacWeatherForecasts({ date: shown }),
-    fetchNwacWeatherDates(yearAgo, today),
+    fetchNWACWeatherForecasts({ date: shown }),
+    fetchNWACWeatherDates(yearAgo, today),
   ])
-  const day = wire && mapV3NwacWeatherForecastDay(wire)
+  const day = wire && mapV3NWACWeatherForecastDay(wire)
   const picker = <DatePicker date={shown} dates={dates} today={today} />
 
   if (!day) {
