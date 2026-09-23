@@ -4,6 +4,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { documentReferencesField } from '@/fields/documentReferencesField'
 import { tenantField } from '@/fields/tenantField'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { Sponsor } from '@/payload-types'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import { CollectionConfig, DateField, DateFieldValidation, ValidateOptions } from 'payload'
@@ -78,7 +79,7 @@ export const Sponsors: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [populateDocumentReferences],
-    afterChange: [revalidateSponsors],
-    afterDelete: [revalidateSponsorsDelete],
+    afterChange: [revalidateSponsors, syncReferenceCounts],
+    afterDelete: [revalidateSponsorsDelete, syncReferenceCountsOnDelete],
   },
 }

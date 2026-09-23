@@ -21,6 +21,7 @@ import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import { titleField } from '@/fields/title'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { blocks } from 'payload/shared'
 import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
@@ -147,9 +148,9 @@ export const Pages: CollectionConfig<'pages'> = {
     },
   ],
   hooks: {
-    afterChange: [revalidatePage],
+    afterChange: [revalidatePage, syncReferenceCounts],
     beforeChange: [populatePublishedAt, populateDocumentReferences],
-    afterDelete: [revalidatePageDelete],
+    afterDelete: [revalidatePageDelete, syncReferenceCountsOnDelete],
   },
   versions: {
     drafts: true,

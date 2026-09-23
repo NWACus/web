@@ -24,3 +24,10 @@ export const SHARED_CONTENT_EDIT_CONTROLS = [
 
 /** Long enough for a paragraph of context, short enough that nobody pastes a document into it. */
 export const MAX_SUGGESTION_LENGTH = 2000
+
+// Shared collections carrying a `referenceCount` field. Add a slug here when its collection gains
+// `referenceCountField()`; `__tests__/server/referenceCountCoverage.server.test.ts` holds the two
+// in step.
+export const REFERENCE_COUNTED_COLLECTIONS = ['sharedMedia'] as const
+
+export type ReferenceCountedCollection = (typeof REFERENCE_COUNTED_COLLECTIONS)[number]

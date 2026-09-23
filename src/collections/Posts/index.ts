@@ -25,6 +25,7 @@ import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
@@ -210,9 +211,9 @@ export const Posts: CollectionConfig<'posts'> = {
   ],
   hooks: {
     beforeChange: [populatePublishedAt, populateDocumentReferences],
-    afterChange: [revalidatePost],
+    afterChange: [revalidatePost, syncReferenceCounts],
     afterRead: [populateAuthors],
-    afterDelete: [revalidatePostDelete],
+    afterDelete: [revalidatePostDelete, syncReferenceCountsOnDelete],
   },
   versions: {
     drafts: true,
