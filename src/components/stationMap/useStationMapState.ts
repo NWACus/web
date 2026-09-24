@@ -96,13 +96,17 @@ export function useStationMapFilters(centerSlug: string) {
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
+  // The latest filters, so a change is computed and written outside a state updater: React may run
+  // an updater mid-render, and Next's patched `replaceState` would then update its router in there.
+  const filtersRef = useRef(filters)
+  filtersRef.current = filters
+
   const changeFilters = useCallback(
     (patch: Partial<Filters>) => {
-      setFilters((current) => {
-        const next = { ...current, ...patch }
-        writeFilterParams(next)
-        return next
-      })
+      const next = { ...filtersRef.current, ...patch }
+      filtersRef.current = next
+      setFilters(next)
+      writeFilterParams(next)
       if (patch.units) writeUnitsPref(centerSlug, patch.units)
     },
     [centerSlug],
