@@ -70,7 +70,9 @@ export function Lightbox({
         }}
         // `focus:outline-none`: the dialog is only ever focused as a landing spot, never tabbed to,
         // so it shouldn't draw a ring around the whole screen. The controls keep their own.
-        className="h-[100dvh] w-screen max-w-none border-0 bg-transparent p-0 shadow-none focus:outline-none sm:rounded-none"
+        // `block`: as a grid, the column grows to the carousel's min-content width (every slide
+        // side by side), which on narrow screens pushes the slides off-center.
+        className="block h-[100dvh] w-screen max-w-none border-0 bg-transparent p-0 shadow-none focus:outline-none sm:rounded-none"
         overlayClassName="bg-black/95"
       >
         <DialogTitle className="sr-only">{title}</DialogTitle>
