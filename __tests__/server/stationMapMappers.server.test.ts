@@ -6,8 +6,6 @@ import {
   mapStations,
   mapWebcams,
   orderZoneNames,
-  stationHref,
-  stationPageLookup,
   zonesFromMapLayer,
 } from '@/services/snowobs/stationMap/mappers'
 import type { StationMapZone } from '@/services/snowobs/stationMap/model'
@@ -43,15 +41,8 @@ describe('the current-data schema', () => {
 
 const nwac = (stid: string) => ({ stid, source: 'nwac' })
 
-// nwac:502 is a different station from the fixture's snotel:502.
-const stationPages = stationPageLookup([
-  { slug: 'white-chuck', archived: false, stations: [nwac('57')] },
-  { slug: 'not-the-snotel-station', archived: false, stations: [nwac('502')] },
-])
-
 describe('mapStations', () => {
-  const options = { stationPages, zones: [northZone] }
-  const stations = mapStations(current, options)
+  const stations = mapStations(current, { zones: [northZone], stationPages: [] })
 
   it('drops a station with no coordinates', () => {
     expect(stations.map((s) => s.stid)).toEqual(['57', '502', 'C6318'])
@@ -72,40 +63,24 @@ describe('mapStations', () => {
     expect(stations[2].source).toBe('synoptic-data')
   })
 
-  it('links a station to the page that shows it, matched on source and stid', () => {
-    expect(stations[0].href).toBe('/weather/stations/white-chuck')
-    expect(stations[1].href).toBeNull()
+  it('links a station to the page that lists it as its area, matched on source and stid', () => {
+    // nwac:502 is a different station from the fixture's snotel:502.
+    const pages = [
+      { slug: 'white-chuck', displayName: 'White Chuck', archived: false, stations: [nwac('57')] },
+      { slug: 'not-snotel', displayName: 'Not SNOTEL', archived: false, stations: [nwac('502')] },
+    ]
+    const linked = mapStations(current, { zones: [northZone], stationPages: pages })
+    expect(linked.map((s) => s.areaHref)).toEqual(['/weather/stations/white-chuck', null, null])
+    expect(stations.every((s) => s.areaHref === null)).toBe(true)
   })
 
-  it('links nothing for a center without native station pages', () => {
-    const other = mapStations(current, { ...options, stationPages: new Map() })
-    expect(other.every((s) => s.href === null)).toBe(true)
-  })
-})
-
-describe('stationPageLookup', () => {
-  it('links every station of a multi-station page to that page', () => {
-    const pages = stationPageLookup([
-      { slug: 'alpental', archived: false, stations: [nwac('1'), nwac('2')] },
+  it('links every station to its own detail page, keyed on source and stid', () => {
+    expect(stations.map((s) => s.href)).toEqual([
+      '/weather/stations/station/nwac/57',
+      '/weather/stations/station/snotel/502',
+      // The raw source, not the display name the marker shows.
+      '/weather/stations/station/mesowest/C6318',
     ])
-    expect(stationHref(pages, nwac('2'))).toBe('/weather/stations/alpental')
-  })
-
-  it('prefers a live page over an archived one that lists the same station', () => {
-    const pages = stationPageLookup([
-      { slug: 'old-site', archived: true, stations: [nwac('1')] },
-      { slug: 'new-site', archived: false, stations: [nwac('1')] },
-    ])
-    expect(stationHref(pages, nwac('1'))).toBe('/weather/stations/new-site')
-  })
-
-  it('still links to an archived page when that is the only one', () => {
-    const pages = stationPageLookup([{ slug: 'old-site', archived: true, stations: [nwac('1')] }])
-    expect(stationHref(pages, nwac('1'))).toBe('/weather/stations/old-site')
-  })
-
-  it('is null for a station no page shows', () => {
-    expect(stationHref(stationPages, nwac('999'))).toBeNull()
   })
 })
 

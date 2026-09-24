@@ -54,7 +54,7 @@ export function StationList({ stations, variables, units, visible = false }: Sta
       <ul>
         {stations.map((station) => (
           <li key={station.stid}>
-            {station.href ? <a href={station.href}>{station.name}</a> : station.name}
+            <a href={station.href}>{station.name}</a>
             {` (${sourceLabel(station.source)}): `}
             {readingsSummary(station, names, units)}
           </li>

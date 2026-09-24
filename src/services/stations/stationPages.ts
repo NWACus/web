@@ -51,6 +51,23 @@ export function toPageSummaries(pages: AssembledStationPage[]): StationPageSumma
   }))
 }
 
+/**
+ * The station page a single station's detail page offers as its area (the widget modal's "Area
+ * Tables" and "Area Graphs"): a live page over an archived one, else the first that lists it.
+ */
+export function areaPageFor(
+  pages: StationPageSummary[],
+  station: StationRef,
+): StationPageSummary | null {
+  const key = stationKey(station)
+  const listing = pages.filter((page) => page.stations.some((s) => stationKey(s) === key))
+  return listing.find((page) => !page.archived) ?? listing[0] ?? null
+}
+
+export function stationPagePath(slug: string): string {
+  return `/weather/stations/${slug}`
+}
+
 // The graph-data route's allowlist, by `source:stid`.
 export function allStations(pages: AssembledStationPage[]): Map<string, StationRef> {
   const byKey = new Map<string, StationRef>()

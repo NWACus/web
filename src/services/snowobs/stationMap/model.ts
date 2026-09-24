@@ -25,8 +25,10 @@ export interface StationMapStation {
   data: Record<string, number | null>
   /** The forecast zone the station sits in, or `Other` when it is outside every zone. */
   zone: string
-  /** The native station page, when this center has one for the station. */
-  href: string | null
+  /** The station's own detail page. */
+  href: string
+  /** The station page that lists the station (the widget modal's "Area" links), or null. */
+  areaHref: string | null
 }
 
 export interface StationMapWebcamImage {

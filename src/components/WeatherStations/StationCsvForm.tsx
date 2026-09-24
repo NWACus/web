@@ -126,11 +126,15 @@ async function downloadCsv(url: string, filename: string): Promise<void> {
 }
 
 export function StationCsvForm({
-  slug,
+  action,
+  filePrefix,
   dataloggers,
   years,
 }: {
-  slug: string
+  /** The CSV route; it re-checks the datalogger and year. */
+  action: string
+  /** Leads the saved file's name, ahead of the stid and year. */
+  filePrefix: string
   dataloggers: Datalogger[]
   years: number[]
 }) {
@@ -139,7 +143,6 @@ export function StationCsvForm({
   const [downloading, setDownloading] = useState(false)
   const [failed, setFailed] = useState(false)
   const widgetIdRef = useRef<string | null>(null)
-  const action = `/weather/stations/${slug}/csv`
 
   // A Turnstile token is single-use, so every attempt costs the current solve.
   function rearmCaptcha() {
@@ -157,7 +160,7 @@ export function StationCsvForm({
     setFailed(false)
     try {
       const stid = parseStationKey(params.get('station') ?? '')?.stid ?? 'station'
-      const name = `${slug}-${stid}-${params.get('year')}.csv`
+      const name = `${filePrefix}-${stid}-${params.get('year')}.csv`
       await downloadCsv(`${action}?${params.toString()}`, name)
     } catch {
       setFailed(true)

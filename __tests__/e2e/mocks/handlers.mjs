@@ -182,7 +182,7 @@ export function buildHandlers() {
       return absent ? absentResponse(absent) : recordMissing(request)
     }),
 
-    // SnowObs, behind the station map. Not a golden corpus (there is no v2→v3 parity obligation
+    // SnowObs, behind the station map and its stations. Not a golden corpus (there is no v2→v3 parity obligation
     // there — see architecture.md, "Where test data comes from"): ordinary fixtures recorded next
     // to the spec that reads them. One response serves every center; the map's own classification
     // and links are what the spec is asserting on, not the center's actual stations.
@@ -191,6 +191,25 @@ export function buildHandlers() {
         headers: { 'content-type': 'application/vnd.geo+json' },
       }),
     ),
+    // The tracking list is what a single station's detail page, and the graph and CSV routes
+    // behind it, check a station against; timeseries answers only the stations asked for, as
+    // SnowObs does (a 404 when none of them exist), so an untracked stid cannot borrow data.
+    http.get(`${mockSnowObsHost}/wx/v1/station/tracking/`, () =>
+      HttpResponse.text(snowObsFixture('tracking.json'), {
+        headers: { 'content-type': 'application/json' },
+      }),
+    ),
+    http.get(`${mockSnowObsHost}/wx/v1/station/data/timeseries/`, ({ request }) => {
+      const params = new URL(request.url).searchParams
+      const sources = (params.get('source') ?? '').split(',')
+      const stids = (params.get('stid') ?? '').split(',')
+      const response = JSON.parse(snowObsFixture('timeseries.json'))
+      const STATION = response.STATION.filter(
+        (station) => sources.includes(station.source) && stids.includes(station.stid),
+      )
+      if (STATION.length === 0) return new HttpResponse(null, { status: 404 })
+      return HttpResponse.json({ ...response, STATION })
+    }),
     http.get(`${mockSnowObsHost}/v1/webcam`, () =>
       HttpResponse.text(snowObsFixture('webcams.json'), {
         headers: { 'content-type': 'application/json' },
