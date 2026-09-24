@@ -12,6 +12,7 @@ const TONES = [
   'bg-sky-700 text-white',
 ]
 
+/** Any snow in bold, so the few periods with some stand out from the muted zeros. */
 export function SnowValue({ text, some }: { text: string; some: boolean }) {
   return (
     <span className={cn('tabular-nums', some ? 'font-semibold' : 'text-muted-foreground')}>
@@ -71,15 +72,26 @@ export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
   )
 }
 
-/** A date with a sun or moon for day or night; plain when the column has no day or night. */
-export function DayNightDate({ date, night }: { date: string | null; night?: boolean }) {
+/**
+ * A date (or a Day / Night label) with a sun or moon; plain when the column has no day or night.
+ * `label` adds "Day" / "Night" for screen readers; off when the text already says it.
+ */
+export function DayNightDate({
+  date,
+  night,
+  label = true,
+}: {
+  date: string | null
+  night?: boolean
+  label?: boolean
+}) {
   if (night === undefined) return <>{date}</>
   const Icon = night ? Moon : Sun
   return (
     <span className="inline-flex items-center justify-center gap-1.5">
       {date}
       <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-      <span className="sr-only">{night ? 'Night' : 'Day'}</span>
+      {label && <span className="sr-only">{night ? 'Night' : 'Day'}</span>}
     </span>
   )
 }
