@@ -47,7 +47,7 @@ export function ForecastHeader({ forecast, timezone }: ForecastHeaderProps) {
       {items.map(({ label, value }) => (
         <div key={label} className="border-l-[1.5px] py-2 pl-8 md:flex-1 printWide:flex-1">
           <dt className="mb-1 text-sm font-medium text-foreground">{label}</dt>
-          <dd className="text-sm text-muted-foreground">{value}</dd>
+          <dd className="text-muted-foreground">{value}</dd>
         </div>
       ))}
     </dl>

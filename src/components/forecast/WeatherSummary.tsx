@@ -48,7 +48,7 @@ export function WeatherSummary({ weather, zoneName, timezone }: WeatherSummaryPr
       />
       {discussion && (
         <div
-          className="prose prose-sm max-w-none dark:prose-invert"
+          className="prose max-w-none dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(discussion) }}
         />
       )}
