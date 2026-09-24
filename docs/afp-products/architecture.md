@@ -32,7 +32,7 @@ The wire schema is strict about a product's shape but lenient at its leaves, bec
 
 `src/services/nac/sources/` holds one interface per product and one implementation per backend.
 
-`types.ts` defines `ForecastSource`, `WarningSource`, `MapLayerSource` and `WeatherSource`. Each has a normal read plus, for the safety-critical products, a `…Fresh` read used by the freshness path:
+`types.ts` defines `ForecastSource`, `WarningSource`, `MapLayerSource` and `WeatherSource` (and `ObservationSource`, which reads a different API — see [the observation viewer](#the-observation-viewer-is-its-own-api)). Each forecast-family source has a normal read plus, for the safety-critical products, a `…Fresh` read used by the freshness path:
 
 ```ts
 export interface ForecastSource {
@@ -121,6 +121,8 @@ Some `widget_config` flags switch a feature on a page rather than the page itsel
 | `/[center]/forecasts/avalanche/archive/mountain-weather/[id]` | Per request     | —                          | An archived weather product by id, `robots: noindex`                                                                                                                    |
 | `/[center]/weather/forecast`                                  | SSG + ISR       | 300s native; static widget | Standalone Mountain Weather; asks one center-scoped freshness address                                                                                                   |
 | `/[center]/weather/forecast/[date]`                           | On-demand + ISR | 30 days                    | NWAC only: its Mountain Weather Forecast for one date; no freshness check. Its picker loads months from `/api/nwac/nwac-weather-dates` the way the forecast picker does |
+| `/[center]/observations`, `/[center]/observations/avalanches` | Static shell | — | The observation viewer's two tabs; list, tiles and records are fetched by the browser through `/api/[center]/observations/…` |
+| `/[center]/observations/[id]`, `/[center]/observations/avalanches/[id]` | Per request | — | A record's own page; a failure must not be cached as the page |
 
 The current forecast is pre-rendered for every zone, so a request is normally served from a page that already exists — this is where the project's speed benefit comes from. See [ADR 011](../decisions/011-incremental-static-regeneration.md) for the platform's ISR conventions.
 
@@ -186,6 +188,16 @@ Paper also gets what a screen keeps behind a click: the danger scale's definitio
 What none of this buys is a guarantee about _which_ sheet a given block lands on. Where the page breaks falls out of how long the forecaster wrote, so a long bottom line or a third avalanche problem still reflows everything after it. The rules above make the common case pack well and make every failure mode a whole card in the wrong place rather than half a card in the right one.
 
 The one rule to keep: **print layout must never depend on the reader's screen width.** Browsers disagree about whether `min-width` queries re-evaluate against the paper box when printing (Chrome, Edge and desktop Safari do; iOS Safari effectively prints the on-screen layout). So any breakpoint that drives layout gets a matching `printWide:` utility — a Tailwind plugin variant for `print and (min-width: 700px)` scoped under `:root`, so its extra specificity beats `md:`/`lg:` even though plugin variants sort before the screens. It is deliberately not a `raw` screen: any object-valued screen makes Tailwind silently stop generating every `max-*`/`min-*` variant site-wide. Plain `print:` stays for hiding screen-only affordances. The check that this holds: a 390px viewport and a 1440px one must produce byte-identical PDFs.
+
+### The observation viewer is its own API
+
+`/[center]/observations` and `/[center]/observations/avalanches` (inventory rows O1, O2, O4, O6, O11, O12; #1337) read the public observation API (`/obs/v1/public`, observation-api), not the products API — a separate service with its own host override (`OBS_HOST`) and no v2→v3 rewrite behind it, so `getObservationSource()` has no Control 2 switch. It shares Control 1 (`nativeProducts.observations`) and Control 3 (`platforms.obs`, which gates the pages for widget and native alike). The flag covers the two tabs and the two record routes; `/observations/submit` stays on the widget until the submission issue lands.
+
+The page is a static shell: the center's viewer settings (`observations/viewerSettings.ts`, after the widget's `center` store) and its zones, then a client-only viewer. The list shows what is inside the map (O11), so it can't be fetched until the map knows its viewport — the map reports its bounds on `idle`, debounced 400ms and ignoring moves under 0.0001°, and filter changes wait 150ms, both as the widget does. Everything the browser needs comes through `/api/[center]/observations/…` (list, vector tiles, a prepared record) rather than from the obs API directly: its `Origin` allowlist accepts `*.avy-fx.org` but not a Vercel preview hostname, and proxying also keeps the filter encoding, the zod validation and the HTML sanitizing on the server and the e2e seam in Node. Server-side fetches send the tenant's avy-fx.org hostname as `Origin` (`obsApi.ts`). List and tile answers are edge-cached for a minute.
+
+**One filter model, two encodings (O10).** `observations/filters.ts` is the only filter state. `listParams.ts` encodes it as obs-API query params for the list (and the stats endpoint the charts will use); `tileFilter.ts` encodes it as a Mapbox GL expression, because the API's vector tiles filter on dates alone and everything else has to be applied on the map. `__tests__/server/observationFilterEncodings.server.test.ts` holds the two to selecting the same records, with the API's own list semantics (modelled from `pagination.py`) as the reference and Mapbox's style-spec evaluator running the GL side, over real decoded tile features and generated edge cases. The widget's own two encodings disagreed (its map hid avalanches with no D-size at the default range and ignored an elevation of 0), so "match the widget" was not the test. The URL uses the widget's query keys and JSON encoding, so a legacy `#/view/…?…` link's filters carry over verbatim; a client-side shim (`LegacyHashRedirect`) lands those hash links, which never reach the server.
+
+**Tabs and records without leaving the viewer.** Switching tabs and opening a record change the address with a native `history.pushState`; Next's app router adopts it (copying its tree into the entry and updating `usePathname`), so the map, list and filters stay mounted while back and forward behave. A record opens as a modal over the list at its own address, so a copied link — or a reload — gets the server-rendered page, drawn by the same components from the same prepared detail (`detail/prepareDetail.ts`, server-only because it sanitizes).
 
 ## Freshness
 
@@ -308,6 +320,8 @@ Known and deliberate, but easy to be caught by.
 - **SNFAC forecasts before 2020-05-01 carry no weather pointer.** They predate `weather_data.weather_product_id`, so weather has to be located by center + zone + date instead — v2's `published_time` query, which answers with the latest weather product published on or before that day. That is `getWeatherForForecast` in `src/services/nac/weatherForForecast.ts`, the one place that decides how a forecast's weather is found, so neither forecast route carries the branch. Only reachable through the archive; ~488 forecasts across a single season.
 - **The station map has two zone sets, and `alternate_zones` swaps one of them.** SAC, SNFAC and BTAC point `widget_config.stations.alternate_zones` at a KML of forecaster-drawn station groupings. The widget _replaces_ the forecast zones with those polygons for the zone filter (placemark names plus `Other`), station classification, panel order and framing, but keeps drawing the forecast zones as outlines. The model carries both (`zones` to group by, `outlines` to draw); the route fetches and parses the KML server-side (`stationMap/kml.ts`, no XML dependency) and falls back to the forecast zones, with a logged warning, if the file is missing or empty. A `?zone=` link therefore means a KML zone on those centers.
 - **The two info-exchange centers have no `config` object at all.** `EWYAIX` and `SOAIX` return center metadata without one, so any code reading `widget_config.*` for map settings must tolerate its absence rather than assuming defaults exist.
+- **The obs API answers 204, not 404, for a missing record** — and the same for a draft or private one, which is why the pages say "doesn't exist or is private". A malformed id, or a list page past the end, is a 500 instead, so ids are checked before the request and a stale `?page=` falls back to page 1. Always send the trailing slash on `/list/`, or `list` is read as an id; always send both tile dates, whose upstream defaults are computed once at import and go stale.
+- **Tile properties are the list's columns, flattened.** `instability`'s keys arrive as top-level `cracking`/`collapsing`/`avalanches_observed`; booleans and counts are typed, `d_size` is text (sometimes `D`-prefixed), and a null property is simply absent from the feature — which is why every `tileFilter` clause guards its own types. Nested avalanches in a record's detail come back with no zone.
 
 ## Where things live
 
@@ -329,3 +343,8 @@ Known and deliberate, but easy to be caught by.
 | `src/components/forecast/`                | Presentation, model-consuming only                            |
 | `src/components/forecast/zoneObservations/` | The zone tabs: tab bar, pane and the widget's cards         |
 | `src/app/(frontend)/print.css`            | Print stylesheet for native product pages                     |
+| `src/services/nac/model/observation.ts`   | Observation and avalanche model                  |
+| `src/services/nac/observations/`          | The viewer's filter model, both encodings, options, addresses |
+| `src/services/nac/obsApi.ts`              | Obs-API fetches: `Origin`, and 204 as "nothing here" |
+| `src/app/api/[center]/observations/`      | The viewer's list, tile and record endpoints    |
+| `src/components/observations/`            | The observation viewer and record pages         |

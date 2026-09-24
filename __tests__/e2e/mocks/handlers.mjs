@@ -37,6 +37,7 @@ const scenarios = JSON.parse(readFileSync(join(mocksDir, 'scenarios.json'), 'utf
 // process where interception failed cannot reach the real API.
 export const mockNacHost = process.env.NAC_HOST || 'https://api.avalanche.org'
 export const mockAfpHost = process.env.AFP_HOST || 'https://forecasts.avalanche.org'
+export const mockObsHost = process.env.OBS_HOST || 'https://api.avalanche.org'
 
 /** SnowObs has one production host and the app does not read it from the environment. */
 export const mockSnowObsHost = 'https://api.snowobs.com'
@@ -63,8 +64,76 @@ function nwacWeatherDay() {
   return fixtureCache.get(key)
 }
 
+const obsPath = `${mockObsHost}/obs/v1/public`
+
+function obsFixture(name) {
+  const key = `obs/${name}`
+  if (!fixtureCache.has(key)) {
+    fixtureCache.set(key, readFileSync(join(mocksDir, 'obs', name), 'utf8'))
+  }
+  return fixtureCache.get(key)
+}
+
 /** v3's answer for a date with nothing published, as api.avalanche.org gave it on 2026-10-01. */
 const NWAC_WEATHER_NOTHING_PUBLISHED = { available: false, serviceDate: null, forecasts: [] }
+
+function obsJson(name) {
+  return HttpResponse.text(obsFixture(name), { headers: { 'content-type': 'application/json' } })
+}
+
+/**
+ * The public observation API, behind the native observation viewer. Ordinary fixtures recorded
+ * from the live API with observer names scrubbed, not a golden corpus (see architecture.md,
+ * "Where test data comes from"). One page serves every list request whatever its filters, since
+ * the filter encoding has its own property test; the specs assert what the viewer renders.
+ *
+ * The API refuses a request without an allowlisted `Origin` with a bare 401, and so does this
+ * mock, so a server-side fetch that forgot the header fails here as it would in production.
+ */
+function hasOrigin(request) {
+  return /^https:\/\/[a-z]+\.avy-fx\.org$/.test(request.headers.get('origin') ?? '')
+}
+
+function obsHandlers() {
+  const guard =
+    (respond) =>
+    ({ request, params }) =>
+      hasOrigin(request)
+        ? respond({ request, params })
+        : new HttpResponse('unauthorized', { status: 401 })
+  const detail = (fixture) =>
+    guard(({ params }) =>
+      scenarios.observations.ids[params.id] === fixture
+        ? obsJson(fixture)
+        : new HttpResponse(null, { status: 204 }),
+    )
+  return [
+    http.get(
+      `${obsPath}/observation/list/`,
+      guard(() => obsJson(scenarios.observations.list)),
+    ),
+    http.get(
+      `${obsPath}/avalanche_observation/list/`,
+      guard(() => obsJson(scenarios.observations.avalancheList)),
+    ),
+    http.get(`${obsPath}/observation/:id`, detail(scenarios.observations.observation)),
+    http.get(`${obsPath}/avalanche_observation/:id`, detail(scenarios.observations.avalanche)),
+    http.get(
+      `${obsPath}/obs_zone/combined_zones/`,
+      guard(({ request }) => {
+        const center = new URL(request.url).searchParams.get('center_id')
+        const fixture = scenarios.observations.zones[center]
+        return fixture ? obsJson(fixture) : new HttpResponse(null, { status: 204 })
+      }),
+    ),
+    // Empty tiles: the specs stub Mapbox's style, so nothing would be drawn from real ones.
+    http.get(
+      `${obsPath}/:kind/tiles/:z/:x/:y`,
+      guard(() => new HttpResponse(null, { status: 204 })),
+    ),
+    http.all(`${mockObsHost}/*`, ({ request }) => recordMissing(request)),
+  ]
+}
 
 /** Answered only by this mock; the preload requests it at boot to prove interception is live. */
 export const PROBE_PATH = '/__e2e-mock-probe'
@@ -177,6 +246,12 @@ export function buildHandlers() {
       const center = scenarios.centers[params.centerId]
       if (center?.mapLayer) return fixtureResponse(center.mapLayer)
 
+      const absent = findAbsent(request)
+      return absent ? absentResponse(absent) : recordMissing(request)
+    }),
+
+    // Every center's map layer at once (no center segment).
+    http.get(`${mockNacHost}/v2/public/products/map-layer`, ({ request }) => {
       const absent = findAbsent(request)
       return absent ? absentResponse(absent) : recordMissing(request)
     }),
@@ -298,7 +373,10 @@ export function buildHandlers() {
       ),
     ),
 
-    // Registered last: anything else on these two origins is an unmapped upstream call.
+    // Before the NAC catch-all: in production the obs API shares the NAC API's host.
+    ...obsHandlers(),
+
+    // Registered last: anything else on these origins is an unmapped upstream call.
     http.all(`${mockNacHost}/*`, ({ request }) => recordMissing(request)),
     http.all(`${mockAfpHost}/*`, ({ request }) => recordMissing(request)),
   ]
@@ -313,7 +391,8 @@ export function buildHandlers() {
  * to load forecast data", which a careless assertion could still pass.
  */
 export function onUnhandledRequest(request, print) {
-  if (request.url.startsWith(mockNacHost) || request.url.startsWith(mockAfpHost)) {
+  const upstream = [mockNacHost, mockAfpHost, mockObsHost]
+  if (upstream.some((host) => request.url.startsWith(host))) {
     recordMissing(request)
     print.error()
   }

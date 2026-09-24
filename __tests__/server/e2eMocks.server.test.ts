@@ -1,4 +1,4 @@
-import { afpApiHost, nacApiHost } from '@/services/nac/hosts'
+import { afpApiHost, nacApiHost, obsApiHost } from '@/services/nac/hosts'
 import {
   forecastResultSchema,
   nullForecastSchema,
@@ -63,6 +63,7 @@ function assertScenarios(value: unknown): asserts value is {
       dangerMap: boolean
       weather: boolean
       stationMap: boolean
+      observations: boolean
     }
   >
 } {
@@ -170,26 +171,23 @@ describe('E2E fixtures against the wire schemas', () => {
 
 describe('E2E mock wiring', () => {
   it('resolves the same upstream hosts the app does', async () => {
-    const handlers: { mockNacHost: string; mockAfpHost: string } = await import(
-      '../e2e/mocks/handlers.mjs'
-    )
+    const handlers: { mockNacHost: string; mockAfpHost: string; mockObsHost: string } =
+      await import('../e2e/mocks/handlers.mjs')
     expect(handlers.mockNacHost).toBe(nacApiHost)
     expect(handlers.mockAfpHost).toBe(afpApiHost)
+    expect(handlers.mockObsHost).toBe(obsApiHost)
   })
 
   it('declares the same rollout flags the seed writes', async () => {
     // Both halves must agree or a spec asserts the native page against a widget-mode tenant.
+    // Whitespace and a trailing comma are Prettier's to decide — a long entry wraps one flag per
+    // line — so both are normalized away before comparing.
     const seed = readFileSync(resolve(__dirname, '../../src/endpoints/seed/index.ts'), 'utf8')
+      .replace(/\s+/g, ' ')
+      .replace(/, }/g, ' }')
     for (const [slug, flags] of Object.entries(scenarios.tenants)) {
-      if (
-        !flags.forecast &&
-        !flags.warning &&
-        !flags.dangerMap &&
-        !flags.weather &&
-        !flags.stationMap
-      )
-        continue
-      const declared = `${slug}: { forecast: ${flags.forecast}, warning: ${flags.warning}, dangerMap: ${flags.dangerMap}, weather: ${flags.weather}, stationMap: ${flags.stationMap} }`
+      if (Object.values(flags).every((on) => !on)) continue
+      const declared = `${slug}: { forecast: ${flags.forecast}, warning: ${flags.warning}, dangerMap: ${flags.dangerMap}, weather: ${flags.weather}, stationMap: ${flags.stationMap}, observations: ${flags.observations} }`
       expect({ slug, inSeed: seed.includes(declared) }).toEqual({ slug, inSeed: true })
     }
   })
