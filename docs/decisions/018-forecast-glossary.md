@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 
-Status: accepted
+Status: accepted (amended 2026-09-24 — per-center gate reinstated; Shared Content access; widget's scan scope)
 
 ## Context
 
@@ -17,15 +17,15 @@ We wanted the terms to be editable by NAC staff (not a code deploy), and we did 
 
 ## Decision
 
-- **Carrier: a national, shared `GlossaryTerms` Payload collection** (outside per-Tenant isolation, like the Avalanche Education cluster). Fields: `term` (canonical, required), `aliases[]` (plurals/tenses/synonyms), `definition` (required), `link` (optional avalanche.org URL). Public read; super-admin (global role) write. Chosen over a code constant because the terms are a managed editorial surface, and over a per-tenant collection because the vocabulary is universal — per-center copies would only duplicate.
+- **Carrier: a national, shared `GlossaryTerms` Payload collection** (outside per-Tenant isolation, like the Avalanche Education cluster). Fields: `term` (canonical, required), `aliases[]` (plurals/tenses/synonyms), `definition` (required), `link` (optional avalanche.org URL). Public read; super-admin (global role) write. _Amended 2026-09-24:_ it is Shared Content ([ADR 022](022-shared-content.md)), so write comes from a Global Role rule and admin/REST read is structural; the public never reads the collection, only the glossary's own endpoint. Chosen over a code constant because the terms are a managed editorial surface, and over a per-tenant collection because the vocabulary is universal — per-center copies would only duplicate.
 
-- **No per-center gate.** Glossary tooltips render on every native forecast whenever the national set is non-empty. (The widget had a per-center `widget_config.forecast.glossary` flag; we drop it — the vocabulary is universal and a center gains nothing by hiding it.)
+- **Per-center gate: honor the AFP's `widget_config.forecast.glossary` flag.** Glossary tooltips render on a native forecast only when the center's flag is on and the national set is non-empty; the client island does not mount, and does not fetch the term list, when it is off. _Amended 2026-09-24._ The original decision dropped the flag because the vocabulary is universal. Reversed: every other native product honors the center's AFP settings (`platforms.*`, the danger map and station map `widget_config` blocks), and SNFAC has the flag off today, so dropping it would switch on a feature a center turned off. The flag stays upstream and read-only for us, like the other capability flags.
 
 - **Marking is client-side, fed by a dedicated endpoint with its own cache tag.** The forecast page is server-rendered _without_ glossary markup. A client island fetches the term list from `GET /api/glossary` (cached server-side, tagged `glossary`) and marks the already-rendered prose in the browser. Editing a Glossary Term fires `revalidateTag('glossary')`, which purges **only** that endpoint's response — **no forecast page is ever revalidated for a glossary change.**
 
   - The term list must be fetched by the client island from its own endpoint, **not** passed as a prop from the forecast server component — a prop would be serialized into the cached RSC payload and silently re-couple glossary edits to the page cache.
 
-- **Scan / match semantics.** Scan the bottom line, forecast discussion, and each problem discussion; descend into `p`, `li`, and `figcaption` only; never mark inside existing links, headings, tables (they carry their own field-info tooltips), figures, or images. Matching is case-insensitive, whole-word, longest-match-first (so "Avalanche Path" wins over "Avalanche"), and marks every occurrence (widget parity).
+- **Scan / match semantics.** Scan the bottom line, forecast discussion, each problem discussion, and the Mountain Weather discussion wherever it renders (inline on the forecast, the standalone weather page, the weather archive), as the widget did. Mark only text inside a `p` or `li`, never inside links, buttons, headings, tables (they carry their own field-info tooltips), figures, figcaptions, or images, and never inside a `div` or `i` below the `p`/`li`. Matching is case-insensitive, whole-word, longest-match-first (so "Avalanche Path" wins over "Avalanche"), and marks every occurrence, within a single text node (so `<strong>wind</strong> slab` is not "wind slab"). _Amended 2026-09-24:_ the original text descended into `figcaption`; the widget never marked captions, and a caption sits inside a figure that opens the lightbox, so we match the widget. Two deliberate differences from the widget's mark.js pass remain: it matched a term only between whitespace, so "slab." or "slabs," went unmarked, where we match whole words; and it tried terms in list order, so "Avalanche" claimed the start of "Avalanche Path", where we take the longest.
 
 - **Interaction.** A marked term is a focusable control that opens a popover containing the definition and a "Learn more on avalanche.org →" link. Hover/focus on desktop, tap on mobile — tapping shows the definition and never navigates away; leaving the forecast is an explicit second action. The mark pass is layout-neutral (decoration/color only, no reflow) and the affordance fades in, so the page paints identically with or without the glossary.
 

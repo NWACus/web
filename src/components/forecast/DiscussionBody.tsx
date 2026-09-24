@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
+import { useGlossaryMarks } from '@/components/glossary/Glossary.client'
+
 import { AuthoredHtml } from './AuthoredHtml'
 import { MediaLightbox } from './MediaLightbox'
 import { MediaOverlay } from './MediaOverlay'
@@ -30,6 +32,8 @@ export function DiscussionBody({ html }: DiscussionBodyProps) {
   const [media, setMedia] = useState<EmbeddedMedia[]>([])
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+
+  useGlossaryMarks(rootRef, html)
 
   useEffect(() => {
     const root = rootRef.current
