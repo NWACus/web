@@ -85,7 +85,10 @@ export function readViewParam(search: string): MapView | null {
 
 export interface DisplayRequest {
   display: StationMapDisplay
-  /** A station to pick out in the table, from a legacy `#/station-table/:stid` link. */
+  /**
+   * A station to pick out in the table, from a legacy `#/station-table/:stid` link. One that is
+   * filtered out or unknown picks out nothing; the widget sent the reader back to the map.
+   */
   highlight: string | null
   /** The request came from the widget's hash route, which the URL should now drop. */
   legacy: boolean

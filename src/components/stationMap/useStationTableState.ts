@@ -64,7 +64,10 @@ export function useStationTableState(centerSlug: string, initialHighlight: strin
     changeColorRules(true)
   }, [saveSort, changeColorRules])
 
-  /** Whether Reset has anything of the table's to undo, so it is offered without a filter set. */
+  /**
+   * Whether Reset has anything of the table's to undo, so it is offered without a filter set —
+   * the widget offered it only with one, which left a sort with no Reset.
+   */
   const changed = !isDefaultSort(sort) || highlighted !== null
 
   return {

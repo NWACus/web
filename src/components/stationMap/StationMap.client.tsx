@@ -353,7 +353,6 @@ function SelectedPanel({ surface }: { surface: Surface }) {
         variables: view.variables,
         units: view.units,
         timezone: view.timezone,
-        displayUnits: surface.filters.units,
         staleAfterMinutes: surface.settings.within,
       }}
       ages={surface.ages}

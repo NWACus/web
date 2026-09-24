@@ -2,7 +2,6 @@ import type { StationMapStation } from '@/services/snowobs/stationMap/model'
 import {
   DEFAULT_TABLE_SORT,
   columnLabel,
-  elevationUnit,
   groupStations,
   hasThresholdColumns,
   nextSort,
@@ -179,12 +178,5 @@ describe('threshold colors', () => {
     // SnowObs lists units for variables the center doesn't report.
     expect(hasThresholdColumns(['relative_humidity'], units)).toBe(false)
     expect(hasThresholdColumns(['air_temp'], { air_temp: 'celsius' })).toBe(false)
-  })
-})
-
-describe('the elevation unit', () => {
-  it('follows the units the response is in, not the reader choice', () => {
-    expect(elevationUnit({ air_temp: 'fahrenheit', snow_depth: 'inches' })).toBe('ft')
-    expect(elevationUnit({ air_temp: 'celsius', snow_depth: 'millimeters' })).toBe('m')
   })
 })

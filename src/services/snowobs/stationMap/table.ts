@@ -61,18 +61,6 @@ export function columnLabel(column: string): string {
   return COLUMN_LABELS[column] ?? fallbackSensorLabel(column)
 }
 
-/** Units only a metric response carries — how the elevation column knows which unit it is in. */
-const METRIC_UNITS = new Set(['celsius', 'millimeters', 'meters', 'm/s', 'kph', 'km/h'])
-
-/**
- * The elevation column's unit. SnowObs reports elevation in the system it was asked for, and the
- * response's own units say which that was — the reader's choice alone doesn't, since `default`
- * is whatever the center configured, and the old response stays up while a new one loads.
- */
-export function elevationUnit(units: Record<string, string>): 'ft' | 'm' {
-  return Object.values(units).some((unit) => METRIC_UNITS.has(unit)) ? 'm' : 'ft'
-}
-
 /**
  * The time column's unit: the center's zone abbreviation, e.g. `PDT`. Falls back to UTC for a zone
  * Intl rejects, as `formatObservedAt` does.

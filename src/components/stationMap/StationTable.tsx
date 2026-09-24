@@ -21,7 +21,6 @@ import {
   STATION_COLUMN,
   TIME_COLUMN,
   columnLabel,
-  elevationUnit,
   groupStations,
   readingColumns,
   tableColumns,
@@ -80,8 +79,8 @@ interface ColumnHeading {
 function metadataHeading(column: string, context: StationTableContext): ColumnHeading {
   if (column === STATION_COLUMN) return { column, label: 'Station', unit: '', title: 'Station' }
   if (column === ELEVATION_COLUMN) {
-    const unit = elevationUnit(context.units)
-    return { column, label: columnLabel(column), unit, title: `Elevation (${unit})` }
+    // SnowObs reports elevation in feet whatever units it was asked for; the widget said "ft" too.
+    return { column, label: columnLabel(column), unit: 'ft', title: 'Elevation (ft)' }
   }
   const unit = timeZoneLabel(context.timezone, new Date())
   return { column, label: columnLabel(column), unit, title: `Date Time (${unit})` }
