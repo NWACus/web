@@ -1,9 +1,8 @@
 /**
- * Forecast discussion: sanitized HTML rendering.
+ * Forecast discussion: sanitized HTML rendering, as one section of the forecast panel.
  */
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
 import { DiscussionBody } from './DiscussionBody'
+import { sectionHeading } from './forecastHeadings'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface ForecastDiscussionProps {
@@ -12,14 +11,10 @@ interface ForecastDiscussionProps {
 
 export function ForecastDiscussion({ html }: ForecastDiscussionProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Forecast Discussion</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Sanitizing stays on the server; the body only renders it and wires up embedded media. */}
-        <DiscussionBody html={sanitizeHtml(html)} />
-      </CardContent>
-    </Card>
+    <section className="space-y-4">
+      <h2 className={sectionHeading}>Forecast Discussion</h2>
+      {/* Sanitizing stays on the server; the body only renders it and wires up embedded media. */}
+      <DiscussionBody html={sanitizeHtml(html)} />
+    </section>
   )
 }
