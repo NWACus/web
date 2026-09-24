@@ -127,6 +127,8 @@ export type AvalancheCenterDangerMapWidgetConfiguration = z.infer<
   typeof avalancheCenterDangerMapWidgetConfigurationSchema
 >
 
+// Written by dashboard-v2's observation-viewer settings. Everything the native viewer reads is
+// optional: a center whose forecasters never saved that page has only the older keys.
 export const avalancheCenterObservationViewerWidgetConfigurationSchema = z.object({
   alternate_zones: z.string().nullish(),
   color: z.string(),
@@ -135,8 +137,19 @@ export const avalancheCenterObservationViewerWidgetConfigurationSchema = z.objec
   obs_view_url: z.string().nullable().optional(),
   saturation: z.number().optional(),
   require_approval: z.boolean().optional(),
+  // Opening camera; the widget falls back to the danger map's (one zoom level out) without them.
+  map_center: latLngSchema.optional(),
   map_zoom: z.number().optional().catch(undefined),
+  // `false` hides the zone filter.
+  show_zone_filter: z.boolean().optional(),
+  // Outline every NAC center's zones on the map, not just this center's; the widget's default.
+  show_all_zones: z.boolean().optional(),
+  // The first season the season select offers.
   obs_start_year: z.number().optional().catch(undefined),
+  // The charts view's aspect-and-elevation rose bands (#1338 — Native observation charts view).
+  obs_rose_upper_el: z.number().optional(),
+  obs_rose_lower_el: z.number().optional(),
+  obs_rose_interval: z.number().optional(),
 })
 
 export enum Units {

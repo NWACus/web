@@ -7,11 +7,13 @@ import type {
   ForecastSource,
   MapLayerSource,
   NWACWeatherSource,
+  ObservationSource,
   WarningSource,
   WeatherSource,
 } from './types'
 import { forecastSourceV2 } from './v2/forecastSourceV2'
 import { mapLayerSourceV2 } from './v2/mapLayerSourceV2'
+import { observationSourceV2 } from './v2/observationSourceV2'
 import { warningSourceV2 } from './v2/warningSourceV2'
 import { weatherSourceV2 } from './v2/weatherSourceV2'
 import { nwacWeatherSourceV3 } from './v3/nwacWeatherSourceV3'
@@ -21,6 +23,7 @@ export type {
   MapLayerQuery,
   MapLayerSource,
   NWACWeatherSource,
+  ObservationSource,
   WarningSource,
   WeatherSource,
 } from './types'
@@ -76,4 +79,13 @@ export function getWeatherSource(centerSlug: string): WeatherSource {
  */
 export function getNWACWeatherSource(): NWACWeatherSource {
   return nwacWeatherSourceV3
+}
+
+/**
+ * The observation source. There is no data-source switch (Control 2) for observations: the obs
+ * API is its own service with no v3 rewrite behind it, so there is nothing to choose between. The
+ * seam is still here so pages never import an implementation.
+ */
+export function getObservationSource(): ObservationSource {
+  return observationSourceV2
 }

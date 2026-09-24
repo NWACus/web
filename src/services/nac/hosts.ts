@@ -1,7 +1,7 @@
 /**
- * Upstream API hosts for the NAC and AFP (WordPress) APIs.
+ * Upstream API hosts for the NAC, AFP (WordPress) and observation APIs.
  *
- * Both default to production and are overridable per deployment — set `NAC_HOST` to
+ * All three default to production and are overridable per deployment — set `NAC_HOST` to
  * `https://staging-api.avalanche.org` and every native product surface follows, because all
  * native data goes through `nacFetch`/`afpFetch`. This is the native equivalent of the
  * `nacWidgetsConfig.devMode` toggle, which only redirects the embedded widget scripts.
@@ -23,3 +23,10 @@ export const v3ApiHost = process.env.NAC_V3_HOST || nacApiHost
  * API (401 without one) and SnowObs (which caches Origin-less responses without CORS headers).
  */
 export const ALLOWLISTED_ORIGIN = 'https://avy-fx.org'
+
+/**
+ * The public observation API (`/obs/v1/public`). In production it shares `api.avalanche.org` with
+ * the NAC API, but it is a separate service with its own staging deploy and its own `Origin`
+ * allowlist, so it gets its own override rather than following `NAC_HOST`.
+ */
+export const obsApiHost = process.env.OBS_HOST || 'https://api.avalanche.org'
