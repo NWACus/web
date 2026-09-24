@@ -218,7 +218,7 @@ sig = "cba8777313e93140"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/AllZonesForecast.tsx"
-sig = "3901fda9b0ddf4b1"
+sig = "784f8d9e918d3b13"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -253,7 +253,7 @@ sig = "5bf1ab33f8599e1f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/ZoneForecastCard.tsx"
-sig = "0866471943652586"
+sig = "47a54e39edcb33ff"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
