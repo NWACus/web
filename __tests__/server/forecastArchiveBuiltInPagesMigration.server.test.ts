@@ -1,4 +1,4 @@
-import { up } from '../../src/migrations/20260923_153949_forecast_archive_built_in_pages'
+import { up } from '../../src/migrations/20260924_221440_forecast_archive_built_in_pages'
 
 type Tenant = { id: number; slug: string }
 type Doc = { url: string; tenant: number | { id: number } }

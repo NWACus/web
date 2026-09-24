@@ -32,7 +32,7 @@ Each record loosely follows the [ADR format](https://adr.github.io/) (Context, D
 | [021](021-weather-station-pages.md) | Weather Station pages | 2026-09-18 | proposed                          |
 | [022](022-shared-content.md)                   | Shared Content: no owning Tenant, written by Global Role, readable by every center | 2026-09-21 | accepted           |
 
-> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. `018` and `019` are reserved by the `native-product-pages` branch; new ADRs should continue from `023`.
+> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `023`.
 
 ## Related reading
 
