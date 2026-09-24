@@ -17,7 +17,7 @@ export interface StationMapStation {
   source: string
   /** `[lng, lat]`. */
   coordinates: [number, number]
-  /** Feet in english units, meters in metric — whatever SnowObs was asked for. */
+  /** Feet, whatever units SnowObs was asked for — it doesn't convert elevation. */
   elevation: number | null
   /** ISO-UTC time of the latest reading, or null when the station has never reported. */
   observedAt: string | null

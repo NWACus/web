@@ -17,18 +17,13 @@ import {
   sourceLabel,
   windDirectionLabel,
 } from '@/services/snowobs/stationMap/format'
-import type {
-  StationMapStation,
-  StationMapUnits,
-  StationMapVariable,
-} from '@/services/snowobs/stationMap/model'
+import type { StationMapStation, StationMapVariable } from '@/services/snowobs/stationMap/model'
 import { cn } from '@/utilities/ui'
 
 export interface StationCardContext {
   variables: StationMapVariable[]
   units: Record<string, string>
   timezone: string
-  displayUnits: StationMapUnits
   /** Minutes since the reading — `Infinity` when there is none. */
   ageMinutes: number
   /** The center's staleness threshold, in minutes. */
@@ -40,14 +35,15 @@ interface CardProps {
   context: StationCardContext
 }
 
-function Elevation({ station, context }: CardProps) {
+function Elevation({ station }: Pick<CardProps, 'station'>) {
   if (station.elevation === null) return null
   return (
     <span className="inline-flex items-center gap-1">
       <Mountain className="h-3 w-3" aria-hidden="true" />
       <span className="sr-only">Elevation </span>
       {station.elevation}
-      {context.displayUnits === 'metric' ? ' m' : "'"}
+      {/* Feet whatever units were asked for: SnowObs doesn't convert elevation. */}
+      &apos;
     </span>
   )
 }
@@ -78,7 +74,7 @@ function CardHeader({ station, context }: CardProps) {
           <Tag className="h-3 w-3" aria-hidden="true" />
           {sourceLabel(station.source)}
         </span>
-        <Elevation station={station} context={context} />
+        <Elevation station={station} />
         <ObservedAt station={station} context={context} />
       </div>
       {station.areaHref && <StationAreaLinks href={station.areaHref} compact className="mt-2" />}

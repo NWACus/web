@@ -145,7 +145,6 @@ export async function fetchStationTimeseries(
 /** The units SnowObs reports in; `default` is whatever the center configured. */
 export type SnowObsUnits = 'default' | 'english' | 'metric'
 
-const CURRENT_DATA_REVALIDATE = 300
 const WEBCAMS_REVALIDATE = 3600
 
 // Shared by the current-data and webcam fetches: a non-2xx is a SnowObsError with the status.
@@ -166,6 +165,9 @@ async function checkedJson(res: Response, context: Record<string, unknown>): Pro
  * This is the legacy station map's data call. Unlike the timeseries fetch above it is keyed on
  * the center: any center with `platforms.stations` has a token in its own AFP config, so the map
  * needs no per-center code. `calc_diff` asks for the 24-hour change columns the widget shows.
+ *
+ * Not cached here: SnowObs holds each response for 60s and the route's CDN for 60s more. A data
+ * cache stacked on those served the first reader after a quiet spell whatever the last visit saw.
  */
 export async function fetchCurrentStationData(
   centerSlug: string,
@@ -177,9 +179,10 @@ export async function fetchCurrentStationData(
       calc_diff: 'true',
       units,
     })
-    const res = await fetch(`${SNOWOBS_API}/station/data/current/?${params.toString()}`, {
+    // The widget's exact URL, so the Origin header matters here most.
+    const res = await snowObsFetch(`${SNOWOBS_API}/station/data/current/?${params.toString()}`, {
       headers: { accept: 'application/vnd.geo+json' },
-      next: { revalidate: CURRENT_DATA_REVALIDATE },
+      cache: 'no-store',
     })
     return snowObsCurrentGeojsonSchema.parse(await checkedJson(res, { centerSlug, units }))
   } catch (error) {
@@ -195,7 +198,7 @@ export async function fetchWebcams(centerSlug: string): Promise<SnowObsWebcamRes
   try {
     const params = new URLSearchParams({ token: await resolveSnowObsToken(centerSlug) })
     // A different API family from the weather endpoints — no `/wx` prefix.
-    const res = await fetch(`https://api.snowobs.com/v1/webcam?${params.toString()}`, {
+    const res = await snowObsFetch(`https://api.snowobs.com/v1/webcam?${params.toString()}`, {
       next: { revalidate: WEBCAMS_REVALIDATE },
     })
     return snowObsWebcamResponseSchema.parse(await checkedJson(res, { centerSlug }))
