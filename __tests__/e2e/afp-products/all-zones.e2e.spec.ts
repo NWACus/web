@@ -52,10 +52,31 @@ test.describe('All-zones grid', () => {
   test('a zone card links to its zone page', async ({ page }) => {
     await loadPage(page, GRID_URL)
 
-    await page.getByRole('link', { name: 'Banner Summit' }).click()
+    await page.getByRole('link', { name: 'Banner Summit', exact: true }).click()
 
     await expect(page).toHaveURL(/\/forecasts\/avalanche\/banner-summit$/)
     await expect(page.getByRole('heading', { level: 1, name: 'Banner Summit' })).toBeVisible()
+  })
+
+  test('only the zone name and the button link to the zone page', async ({ page }) => {
+    await loadPage(page, GRID_URL)
+
+    const card = page.getByTestId(`zone-card-${zoneSlug(ZONE.forecast)}`)
+    await expect(card.locator('a[href^="/forecasts/avalanche/"]')).toHaveCount(2)
+
+    // The bottom line is read in place, so a link inside it can be followed on its own.
+    const bottomLine = card.getByRole('heading', { name: 'The Bottom Line' })
+    const box = await bottomLine.boundingBox()
+    if (!box) throw new Error('bottom line has no box')
+    const linkOnTop = await page.evaluate(
+      ([x, y]) => document.elementFromPoint(x, y)?.closest('a') != null,
+      [box.x + box.width / 2, box.y + box.height / 2],
+    )
+    expect(linkOnTop).toBe(false)
+
+    await card.getByRole('link', { name: /^(Full Forecast|More Information): / }).click()
+    await expect(page.locator('[data-testid^="zone-card-"]')).toHaveCount(0)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   })
 
   /**
@@ -67,7 +88,7 @@ test.describe('All-zones grid', () => {
   }) => {
     await loadPage(page, GRID_URL)
 
-    await page.getByRole('link', { name: 'Soldier & Wood River Valley Mtns' }).click()
+    await page.getByRole('link', { name: 'Soldier & Wood River Valley Mtns', exact: true }).click()
 
     await expect(
       page.getByRole('heading', { level: 1, name: 'Soldier & Wood River Valley Mtns' }),
