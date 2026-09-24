@@ -35,7 +35,7 @@ export function BottomLine({ html, dangerLevel }: BottomLineProps) {
         <CardContent className="p-6 sm:p-8">
           <h2 className={sectionHeading}>The Bottom Line</h2>
           <div
-            className="prose prose-sm mt-4 max-w-none dark:prose-invert"
+            className="prose mt-4 max-w-none dark:prose-invert"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
           />
         </CardContent>

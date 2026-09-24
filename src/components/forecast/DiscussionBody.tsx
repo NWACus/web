@@ -118,7 +118,7 @@ const AuthoredHtml = memo(function AuthoredHtml({
   return (
     <div
       ref={containerRef}
-      className="prose prose-sm max-w-none dark:prose-invert"
+      className="prose max-w-none dark:prose-invert"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   )
