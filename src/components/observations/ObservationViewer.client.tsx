@@ -39,6 +39,7 @@ import { useMarkerInteractions } from './map/useMarkerInteractions'
 import { useMarkerLayers } from './map/useMarkerLayers'
 import { useObservationMap, useResetView } from './map/useObservationMap'
 import { useZoneOutlines } from './map/useZoneOutlines'
+import { ZoneHoverCard } from './map/ZoneHoverCard'
 import { useObservationList, type ListStatus } from './useObservationList'
 import { useScrolledPast } from './useScrolledPast'
 import { useStickyHeaderHeight } from './useStickyHeaderHeight'
@@ -73,7 +74,7 @@ function useViewerMap(centerSlug: string, state: ViewerState, token: string | nu
   })
   useServedPage(status, state.setList)
 
-  useZoneOutlines(view.map, view.styleReady, centerSlug, settings.allZones)
+  const hoveredZone = useZoneOutlines(view.map, view.styleReady, centerSlug, settings.allZones)
   const { tilesFailed } = useMarkerLayers({
     map: view.map,
     styleReady: view.styleReady,
@@ -95,7 +96,17 @@ function useViewerMap(centerSlug: string, state: ViewerState, token: string | nu
     onOpen: open,
     onHighlight: state.setHighlightedId,
   })
-  return { containerRef, controlsRef, ...view, status, tilesFailed, resetView, open, interactions }
+  return {
+    containerRef,
+    controlsRef,
+    ...view,
+    status,
+    tilesFailed,
+    hoveredZone,
+    resetView,
+    open,
+    interactions,
+  }
 }
 
 type ViewerMap = ReturnType<typeof useViewerMap>
@@ -208,9 +219,11 @@ function MapPane({
           onToggleExpanded={onToggleExpanded}
         />
         <MapLegend kind={state.tab} />
+        <ZoneHoverCard zone={view.hoveredZone} />
         <MapNotices
           unsupported={view.unsupported}
           unconfigured={token === null}
+          styleFailed={view.styleFailed}
           tilesFailed={view.tilesFailed}
         />
         <MarkerList

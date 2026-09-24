@@ -100,6 +100,37 @@ test.describe('Native vs widget observations', () => {
     await expect(page.getByTestId('observation-card').first()).toBeVisible()
   })
 
+  test('closing after back from a nested record returns to the list, not off the viewer', async ({
+    page,
+  }) => {
+    await stubMap(page)
+    await loadPage(page, `${tenant('nwac')}/observations`)
+    const card = page.getByTestId('observation-card').filter({ hasText: 'Lanham Lake' })
+    await clickUntil(card, page.getByRole('dialog'))
+
+    // One of its avalanches, opened over it; back returns to the observation, still in the modal.
+    await page.getByRole('dialog').getByTestId('avalanche-card').first().click()
+    await expect(page).toHaveURL(/\/observations\/avalanches\/[0-9a-f-]{36}$/)
+    await page.goBack()
+    await expect(page).toHaveURL(new RegExp(`/observations/${OBSERVATION}$`))
+
+    await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page).toHaveURL(/\/observations$/)
+    await expect(page.getByTestId('observation-card').first()).toBeVisible()
+  })
+
+  test('a basemap that fails to load still lists, and says so', async ({ page }) => {
+    await page.route('**/api.mapbox.com/**', (route) => route.fulfill({ status: 503, body: '' }))
+    await page.route('**/events.mapbox.com/**', (route) => route.fulfill({ status: 204, body: '' }))
+    await page.goto(`${tenant('nwac')}/observations`)
+
+    await expect(page.getByTestId('observation-map').getByRole('alert')).toContainText(
+      "The map couldn't load",
+    )
+    await expect(page.getByText('143 observations within map area')).toBeVisible()
+  })
+
   test('a record the API has no public copy of says so in the modal', async ({ page }) => {
     await stubMap(page)
     await loadPage(page, `${tenant('nwac')}/observations`)

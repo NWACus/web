@@ -12,11 +12,12 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { todayInTimezone } from '@/services/nac/forecastArchive'
-import type { ObservationKind } from '@/services/nac/model/observation'
+import type { ObservationKind, ObservationZoneOption } from '@/services/nac/model/observation'
 import {
   readFilters,
   readListState,
   writeFilters,
+  zoneIdsForNames,
   type ListState,
   type ObservationFilters,
 } from '@/services/nac/observations/filters'
@@ -39,6 +40,7 @@ interface ViewerFiltersOptions {
   prefix: string
   tab: ObservationKind
   recordOpen: boolean
+  zones: ObservationZoneOption[]
 }
 
 export function useViewerFilters({
@@ -47,11 +49,13 @@ export function useViewerFilters({
   prefix,
   tab,
   recordOpen,
+  zones,
 }: ViewerFiltersOptions) {
   const today = useToday(timezone)
-  const [filters, setFiltersState] = useState<ObservationFilters>(() =>
-    readFilters(window.location.search, todayInTimezone(timezone)),
-  )
+  const [filters, setFiltersState] = useState<ObservationFilters>(() => {
+    const read = readFilters(window.location.search, todayInTimezone(timezone))
+    return { ...read, zones: zoneIdsForNames(read.zones, zones) }
+  })
   const [list, setListState] = useState<ListState>(() => readListState(window.location.search))
 
   /** New filters start the list over from its first page, as the widget's do. */

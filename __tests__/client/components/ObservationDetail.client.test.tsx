@@ -140,6 +140,17 @@ describe('submitterHtml', () => {
     expect(submitterHtml('<p>kept</p><script>alert(1)</script>')).toBe('<p>kept</p>')
     expect(submitterHtml('   ')).toBeNull()
   })
+
+  it('keeps a submission from styling itself over the page', () => {
+    const overlay =
+      '<div class="fixed inset-0" style="position:fixed"><a href="https://example.com/login">Log in</a></div>'
+    expect(submitterHtml(overlay)).toBe(
+      '<div><a href="https://example.com/login" target="_blank" rel="noopener noreferrer nofollow ugc">Log in</a></div>',
+    )
+    expect(
+      submitterHtml('<iframe src="https://www.youtube.com/embed/abcdefghijk"></iframe>x'),
+    ).toBe('x')
+  })
 })
 
 describe('AvalancheDetail', () => {

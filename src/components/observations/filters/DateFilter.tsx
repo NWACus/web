@@ -72,11 +72,16 @@ function DaySlider({ filters, today, onChange }: Omit<DateFilterProps, 'startSea
   const season = seasonOf(filters.to)
   const first = seasonStart(season)
   const last = season === seasonOf(today) ? today : seasonEnd(season)
-  // Keyed on the range by its parent, so a range set elsewhere starts it afresh.
-  const [days, setDays] = useState<[number, number]>(() => [
-    daysBetween(first, filters.from),
-    daysBetween(first, filters.to),
-  ])
+  const range: [number, number] = [daysBetween(first, filters.from), daysBetween(first, filters.to)]
+  const [days, setDays] = useState(range)
+  // A range set elsewhere moves the thumbs. Adjusted in render rather than by remounting, which
+  // would drop keyboard focus: Radix commits on every arrow-key step.
+  const rangeKey = `${filters.from}|${filters.to}`
+  const [shownKey, setShownKey] = useState(rangeKey)
+  if (shownKey !== rangeKey) {
+    setShownKey(rangeKey)
+    setDays(range)
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -122,12 +127,7 @@ export function DateFilterOptions(props: DateFilterProps) {
           </SelectContent>
         </Select>
       </div>
-      <DaySlider
-        key={`${filters.from}|${filters.to}`}
-        filters={filters}
-        today={today}
-        onChange={onChange}
-      />
+      <DaySlider filters={filters} today={today} onChange={onChange} />
     </div>
   )
 }
