@@ -8,7 +8,7 @@
  *
  * Three things here make an unmocked run impossible rather than merely detectable:
  *
- * - `NAC_HOST`/`AFP_HOST` are pointed at the reserved `.invalid` TLD (RFC 2606), which can never
+ * - `NAC_HOST`/`AFP_HOST`/`OBS_HOST` are pointed at the reserved `.invalid` TLD (RFC 2606), which can never
  *   resolve. `src/services/nac/hosts.ts` and the mock handlers both read these, so they still agree
  *   — but a process where interception failed gets a DNS failure instead of real forecast data.
  * - The build lands in its own `distDir`, so an ordinary `pnpm build` can never be mistaken for a
@@ -59,6 +59,7 @@ function run(command, extraNodeOptions = []) {
       // Pinned to the mocked NAC host, so a developer's own `NAC_V3_HOST` cannot route past it.
       NAC_V3_HOST: 'http://nac.e2e-mock.invalid',
       AFP_HOST: 'http://afp.e2e-mock.invalid',
+      OBS_HOST: 'http://obs.e2e-mock.invalid',
       PORT: port,
       NEXT_PUBLIC_ROOT_DOMAIN: `localhost:${port}`,
       // The native maps refuse to mount without a token. Any `pk.` value gets them as far as

@@ -157,6 +157,11 @@ sig = "c2d746542027696d"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "__tests__/server/observationFilterEncodings.server.test.ts"
+sig = "4e6eb490e8bf459b"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "__tests__/server/sanitizeHtmlIsServerOnly.server.test.ts"
 sig = "2f6941731c97ccaa"
 
@@ -254,6 +259,11 @@ sig = "f5086b7d2cf12057"
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/nwac-weather-freshness/[fingerprint]/route.ts"
 sig = "5f719b0911da651d"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/app/api/[center]/observations/observationRoutes.ts"
+sig = "3a553933db88747a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -432,6 +442,26 @@ sig = "8bbb9716a0bcfcf3"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/LegacyHashRedirect.client.tsx"
+sig = "2d0a0b5bbcea86b1"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/ObservationViewer.client.tsx"
+sig = "1c42b6e2fb4ca825"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/detail/prepareDetail.ts"
+sig = "3d866b61d0a40cd2"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/useViewerLocation.ts"
+sig = "729a8c1583bea86b"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/warnings/CenterWarnings.tsx"
 sig = "620e3b1733d93855"
 
@@ -487,6 +517,11 @@ sig = "d778a70dda5c7931"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/model/observation.ts"
+sig = "f7ff295874d69410"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/nwacWeatherCurrent.ts"
 sig = "f7426538fbbeab4b"
 
@@ -494,6 +529,26 @@ sig = "f7426538fbbeab4b"
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/nwacWeatherForForecast.ts"
 sig = "6a4f1aafed33c4ac"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/obsApi.ts"
+sig = "690f760ccb145136"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/observations/filters.ts"
+sig = "2ba9234d990c30b5"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/observations/listParams.ts"
+sig = "3e4a586eddb643d4"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/observations/tileFilter.ts"
+sig = "d3aa88bd0f460d6a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -519,6 +574,11 @@ sig = "d4f3f6e587e8d46f"
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/v2/forecastSourceV2.ts"
 sig = "611c88f53c665efc"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/sources/v2/observationSourceV2.ts"
+sig = "5f93f934f4be020d"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
