@@ -78,12 +78,12 @@ sig = "80e69afedc706be3"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/revalidation.md"
-sig = "fd7a4b5eb6e03396"
+sig = "aca5b18cafdb9692"
 
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/shared-content.md"
-sig = "7f38dd58bd2aab62"
+sig = "fd538a6e53cfba0e"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -273,7 +273,7 @@ sig = "4ac8868f8d8d2ba3"
 [[bindings]]
 doc = "docs/decisions/011-incremental-static-regeneration.md"
 target = "src/utilities/revalidateDocument.ts"
-sig = "816b1013b6920bb7"
+sig = "6f8054bf1acd2807"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
@@ -538,7 +538,7 @@ sig = "5056989806c9df98"
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
-sig = "8d4561becad4d144"
+sig = "af3bff3bf57d6a91"
 
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
@@ -778,7 +778,7 @@ sig = "4ac8868f8d8d2ba3"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
-sig = "8d4561becad4d144"
+sig = "af3bff3bf57d6a91"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -788,7 +788,7 @@ sig = "3b9b1daf53f8e500"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/utilities/revalidateDocument.ts"
-sig = "816b1013b6920bb7"
+sig = "6f8054bf1acd2807"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -803,12 +803,32 @@ sig = "ca5cf38382269b19"
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/collections/SharedMedia/index.ts"
-sig = "bbe7ccad8fc54cec"
+sig = "c397b67616302838"
+
+[[bindings]]
+doc = "docs/shared-content.md"
+target = "src/components/SharedContent/SuggestEditDrawer.tsx"
+sig = "69d984bfd2b0c34e"
+
+[[bindings]]
+doc = "docs/shared-content.md"
+target = "src/components/SharedContent/WhereThisIsUsed.tsx"
+sig = "024d0f24cf137ad4"
+
+[[bindings]]
+doc = "docs/shared-content.md"
+target = "src/components/SharedContent/WhereThisIsUsedTable.tsx"
+sig = "b48da8c3e946906d"
+
+[[bindings]]
+doc = "docs/shared-content.md"
+target = "src/components/SharedContent/suggestEditAction.ts"
+sig = "e56a3e7384398db8"
 
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/constants/sharedContent.ts"
-sig = "6b85f90db9e5fb0e"
+sig = "7fff2bb5274f7875"
 
 [[bindings]]
 doc = "docs/shared-content.md"
@@ -853,7 +873,7 @@ sig = "4fc2ad0bd4509765"
 [[bindings]]
 doc = "docs/testing.md"
 target = ".env.example"
-sig = "f8cc090130b360fc"
+sig = "af81271d23408c9e"
 
 [[bindings]]
 doc = "docs/testing.md"

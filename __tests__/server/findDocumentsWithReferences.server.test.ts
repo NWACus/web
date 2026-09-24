@@ -112,6 +112,117 @@ describe('findDocumentsWithReferences', () => {
     }
   })
 
+  it('drops the _status filter everywhere when includeDrafts is set', async () => {
+    await findDocumentsWithReferences({ collection: 'media', id: 42 }, { includeDrafts: true })
+
+    const referenceFilters = [
+      { 'documentReferences.collection': { equals: 'media' } },
+      { 'documentReferences.docId': { equals: 42 } },
+    ]
+
+    for (const call of mockFind.mock.calls) {
+      expect(call[0].where).toEqual({ and: referenceFilters })
+    }
+  })
+
+  it('never reads drafts for revalidation', async () => {
+    await findDocumentsWithReferences({ collection: 'media', id: 42 })
+
+    for (const call of mockFind.mock.calls) {
+      expect(call[0].draft).toBe(false)
+    }
+  })
+
+  it('also reads the latest draft of each draft-enabled collection when includeDrafts is set', async () => {
+    await findDocumentsWithReferences({ collection: 'media', id: 42 }, { includeDrafts: true })
+
+    const draftQueries = mockFind.mock.calls
+      .filter((call: [{ draft: boolean }]) => call[0].draft)
+      .map((call: [{ collection: string }]) => call[0].collection)
+    expect(draftQueries.sort()).toEqual(['events', 'homePages', 'pages', 'posts'])
+  })
+
+  it('lists a use that only a newer draft holds, once, and prefers the published row', async () => {
+    mockFind.mockImplementation(({ collection, draft }: { collection: string; draft: boolean }) => {
+      if (collection !== 'pages') return { docs: [] }
+      return draft
+        ? {
+            docs: [
+              { id: 1, slug: 'about', tenant: 1, title: 'About', _status: 'draft' },
+              { id: 2, slug: 'new', tenant: 1, title: 'New', _status: 'draft' },
+            ],
+          }
+        : { docs: [{ id: 1, slug: 'about', tenant: 1, title: 'About', _status: 'published' }] }
+    })
+
+    const results = await findDocumentsWithReferences(
+      { collection: 'sharedMedia', id: 7 },
+      { includeDrafts: true },
+    )
+
+    expect(results).toEqual([
+      { collection: 'pages', id: 1, slug: 'about', tenant: 1, title: 'About', status: 'published' },
+      { collection: 'pages', id: 2, slug: 'new', tenant: 1, title: 'New', status: 'draft' },
+    ])
+  })
+
+  it("selects the collection's useAsTitle field, and _status only where drafts are on", async () => {
+    await findDocumentsWithReferences({ collection: 'media', id: 1 })
+
+    const selectByCollection: Record<string, Record<string, boolean>> = {}
+    for (const call of mockFind.mock.calls) {
+      selectByCollection[call[0].collection] = call[0].select
+    }
+
+    expect(selectByCollection['pages']).toEqual({
+      id: true,
+      slug: true,
+      tenant: true,
+      title: true,
+      _status: true,
+    })
+    // homePages has drafts but no useAsTitle
+    expect(selectByCollection['homePages']).toEqual({
+      id: true,
+      slug: true,
+      tenant: true,
+      _status: true,
+    })
+    // teams uses `name` as its title and has no drafts
+    expect(selectByCollection['teams']).toEqual({
+      id: true,
+      slug: true,
+      tenant: true,
+      name: true,
+    })
+    // events has a title and drafts
+    expect(selectByCollection['events']).toEqual({
+      id: true,
+      slug: true,
+      tenant: true,
+      title: true,
+      _status: true,
+    })
+  })
+
+  it('carries the title and status through so an editor can read the list', async () => {
+    mockFind.mockImplementation(({ collection }: { collection: string }) => {
+      if (collection === 'pages') {
+        return { docs: [{ id: 3, slug: 'about', tenant: 1, title: 'About Us', _status: 'draft' }] }
+      }
+      return { docs: [] }
+    })
+
+    const results = await findDocumentsWithReferences(
+      { collection: 'sharedMedia', id: 7 },
+      { includeDrafts: true },
+    )
+
+    expect(results).toEqual([
+      { collection: 'pages', id: 3, slug: 'about', tenant: 1, title: 'About Us', status: 'draft' },
+    ])
+  })
+
   it('returns single match in one collection', async () => {
     mockFind.mockImplementation(({ collection }: { collection: string }) => {
       if (collection === 'posts') {
