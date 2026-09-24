@@ -43,10 +43,10 @@ describe('NativeWeatherView', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Mountain Weather' })).toBeInTheDocument()
     expect(screen.getByText('All Zones')).toBeInTheDocument()
-    expect(screen.getByText(/Issued:/)).toBeInTheDocument()
+    expect(screen.getByText('Issued')).toBeInTheDocument()
     expect(screen.getByText(sac.author ?? '')).toBeInTheDocument()
     // The weather product carries no expiry, and must not show one.
-    expect(screen.queryByText(/Expires:/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Expires')).not.toBeInTheDocument()
     expect(screen.getByText(/U\.S\.D\.A\. Forest Service/)).toBeInTheDocument()
   })
 

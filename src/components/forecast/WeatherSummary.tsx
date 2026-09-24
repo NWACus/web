@@ -1,10 +1,9 @@
 /**
- * Inline "Weather Summary" section for the forecast view. The mountain-weather product is issued
+ * Inline "Mountain Weather" section of the forecast panel. The mountain-weather product is issued
  * separately from the forecast, so it carries its own author/issued time and discussion. Selects
  * the table for the viewed zone (by name, falling back to the first), then shape-detects the two
  * table formats via a `periods` key. Renders nothing when there is neither a table nor discussion.
  */
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type {
   InlineWeatherData,
   RowColumnWeatherData,
@@ -12,6 +11,7 @@ import type {
 } from '@/services/nac/model/forecast'
 
 import { ForecastHeader } from './ForecastHeader'
+import { sectionHeading } from './forecastHeadings'
 import { sanitizeHtml } from './sanitizeHtml'
 import { WeatherTable } from './WeatherTable'
 import { WeatherTableV1 } from './WeatherTableV1'
@@ -36,28 +36,24 @@ export function WeatherSummary({ weather, zoneName, timezone }: WeatherSummaryPr
   if (!table && !discussion) return null
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Mountain Weather</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <ForecastHeader
-          forecast={{
-            published_time: weather.published_time,
-            expires_time: null,
-            author: weather.author,
-          }}
-          timezone={timezone}
+    <section className="space-y-4">
+      <h2 className={sectionHeading}>Mountain Weather</h2>
+      <ForecastHeader
+        forecast={{
+          published_time: weather.published_time,
+          expires_time: null,
+          author: weather.author,
+        }}
+        timezone={timezone}
+      />
+      {discussion && (
+        <div
+          className="prose prose-sm max-w-none dark:prose-invert"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(discussion) }}
         />
-        {discussion && (
-          <div
-            className="prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(discussion) }}
-          />
-        )}
-        {table &&
-          ('periods' in table ? <WeatherTableV1 table={table} /> : <WeatherTable table={table} />)}
-      </CardContent>
-    </Card>
+      )}
+      {table &&
+        ('periods' in table ? <WeatherTableV1 table={table} /> : <WeatherTable table={table} />)}
+    </section>
   )
 }

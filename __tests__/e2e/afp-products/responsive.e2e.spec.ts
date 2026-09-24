@@ -26,19 +26,19 @@ test.describe('Phone width', () => {
     await expect(page.getByText('Cons', { exact: true })).toBeHidden()
   })
 
-  test('media thumbnails reflow from five columns to three', async ({ page }) => {
+  test('media thumbnails reflow from four columns to two', async ({ page }) => {
     await page.setViewportSize(DESKTOP)
     await loadPage(page, FORECAST_URL)
 
     const first = page.getByRole('button', { name: 'Open media 1 of 4' })
     const fourth = page.getByRole('button', { name: 'Open media 4 of 4' })
 
-    // Five columns: all four thumbnails share a row.
+    // Four columns, as in the widget's gallery: all four thumbnails share a row.
     expect((await first.boundingBox())?.y).toBe((await fourth.boundingBox())?.y)
 
     await page.setViewportSize(PHONE)
 
-    // Three columns: the fourth wraps.
+    // Two columns: the fourth wraps.
     expect((await first.boundingBox())?.y).not.toBe((await fourth.boundingBox())?.y)
   })
 })

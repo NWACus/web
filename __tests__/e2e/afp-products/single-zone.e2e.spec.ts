@@ -11,13 +11,9 @@ test.describe('Native single-zone forecast', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Soldier & Wood River Valley Mtns' }),
     ).toBeVisible()
-    // The subtitle string also occurs inside the forecaster's discussion prose, so it has to be
-    // read off the header rather than matched anywhere on the page.
-    await expect(page.locator('h1 + p')).toHaveText('Backcountry Avalanche Forecast')
-
-    await expect(page.getByText('Author: Test Forecaster A')).toBeVisible()
-    await expect(page.getByText(/Issued:\s*Sunday, April 5, 2026 at 6:19 AM\s+MDT/)).toBeVisible()
-    await expect(page.getByText(/Expires:\s*Monday, April 6, 2026 at 4:00 AM\s+MDT/)).toBeVisible()
+    await expect(page.getByText('Test Forecaster A', { exact: true })).toBeVisible()
+    await expect(page.getByText('Sunday, April 5, 2026 - 6:19AM', { exact: true })).toBeVisible()
+    await expect(page.getByText('Monday, April 6, 2026 - 4:00AM', { exact: true })).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'The Bottom Line' })).toBeVisible()
     await expect(page.getByText(/Refer to the Galena Summit & Eastern Mtns forecast/)).toBeVisible()

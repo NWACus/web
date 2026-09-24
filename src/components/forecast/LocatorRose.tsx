@@ -1,16 +1,20 @@
 /**
- * Locator rose SVG — 24-sector rose (8 aspects × 3 elevations) showing which
- * aspects and elevations an avalanche problem affects.
- * Pixel-perfect port from avy/components/DangerRose.tsx.
- * SVG path data copied verbatim from the AvyApp source.
+ * Locator rose — 24-sector rose (8 aspects × 3 elevations) showing which aspects and elevations an
+ * avalanche problem affects. A port of the legacy afp widget's LocatorRose.vue at its sizes: a
+ * 150px rose (120px on phones) with HTML aspect labels around it and, given the zone's elevation
+ * band names, leader lines from the upper/middle/lower rings down to those names.
+ * SVG path data copied verbatim from the widget (identical to avy/components/DangerRose.tsx).
  */
-'use client'
-
 import { AvalancheProblemLocation } from '@/services/nac/model/forecast'
+import type { ElevationBandNames } from '@/services/nac/types/schemas'
+import { cn } from '@/utilities/ui'
+
+import { sanitizeHtml } from './sanitizeHtml'
 
 interface LocatorRoseProps {
   locations: AvalancheProblemLocation[]
-  className?: string
+  /** The zone's band names, for the leader-line labels. Omitted, the rose draws without them. */
+  elevationBandNames?: ElevationBandNames
 }
 
 /**
@@ -64,56 +68,95 @@ const sectorPaths: Record<AvalancheProblemLocation, string> = {
     'M318.884,27l-292.884,292.884l167.311,68.396l195.066,-195.066l-69.493,-166.214Z',
 }
 
-const ACTIVE_FILL = 'rgb(200, 202, 206)'
-const INACTIVE_FILL = 'transparent'
-const STROKE_COLOR = 'rgb(81, 85, 88)'
+const ACTIVE_FILL = '#c8cace'
+const STROKE_COLOR = '#515558'
 
-/** Cardinal/intercardinal labels positioned around the rose */
-const directionLabels = [
-  { label: 'N', x: 528, y: -30 },
-  { label: 'NE', x: 1070, y: 280 },
-  { label: 'E', x: 1070, y: 540 },
-  { label: 'SE', x: 1070, y: 800 },
-  { label: 'S', x: 528, y: 1090 },
-  { label: 'SW', x: -20, y: 800 },
-  { label: 'W', x: -20, y: 540 },
-  { label: 'NW', x: -20, y: 280 },
+/** Aspect labels, centered on these points of the 150px rose (120px on phones). */
+const aspectLabels = [
+  { label: 'N', className: 'left-1/2 -top-2 sm:-top-2.5' },
+  { label: 'E', className: 'top-1/2 left-[128px] sm:left-[160px]' },
+  { label: 'S', className: 'left-1/2 top-[128px] sm:top-[160px]' },
+  { label: 'W', className: 'top-1/2 -left-2 sm:-left-2.5' },
+  { label: 'NW', className: 'left-2.5 top-2.5 sm:left-[13px] sm:top-[13px]' },
+  { label: 'NE', className: 'left-[110px] top-2.5 sm:left-[137px] sm:top-[13px]' },
+  { label: 'SE', className: 'left-[110px] top-[110px] sm:left-[137px] sm:top-[137px]' },
+  { label: 'SW', className: 'left-2.5 top-[110px] sm:left-[13px] sm:top-[137px]' },
 ] as const
 
-export function LocatorRose({ locations, className }: LocatorRoseProps) {
+/**
+ * Where each band's leader line drops from (its ring, on the south-west side) and where its name
+ * sits, at the widget's fractions of the 150px rose. Hidden on phones, as in the widget.
+ */
+const elevationLeaders = [
+  { band: 'upper', line: 'left-[63px] top-[87px]', label: 'left-[63px] top-[177px]' },
+  { band: 'middle', line: 'left-[49.5px] top-[100.5px]', label: 'left-[49.5px] top-[191px]' },
+  { band: 'lower', line: 'left-[34.5px] top-[115.5px]', label: 'left-[34.5px] top-[205.5px]' },
+] as const
+
+export function LocatorRose({ locations, elevationBandNames }: LocatorRoseProps) {
   const locationSet = new Set<AvalancheProblemLocation>(locations)
 
   return (
-    <svg
-      className={className}
-      viewBox="-80 -80 1210 1210"
-      fillRule="evenodd"
-      clipRule="evenodd"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeMiterlimit={1.5}
-    >
-      {Object.values(AvalancheProblemLocation).map((location) => (
-        <path
-          key={location}
-          d={sectorPaths[location]}
-          stroke={STROKE_COLOR}
-          strokeWidth={10}
-          fill={locationSet.has(location) ? ACTIVE_FILL : INACTIVE_FILL}
-        />
-      ))}
-      {directionLabels.map(({ label, x, y }) => (
-        <text
-          key={label}
-          x={x}
-          y={y}
-          textAnchor="middle"
-          dominantBaseline="central"
-          className="fill-foreground text-[64px] font-semibold"
+    <div className="mx-auto w-[160px] sm:w-[190px]">
+      <div
+        className={cn(
+          'relative m-5 h-[120px] w-[120px] sm:h-[150px] sm:w-[150px]',
+          elevationBandNames ? 'mb-[55px] sm:mb-20' : 'mb-[55px] sm:mb-10',
+        )}
+      >
+        {aspectLabels.map(({ label, className }) => (
+          <span
+            key={label}
+            className={cn(
+              'absolute -translate-x-1/2 -translate-y-1/2 text-[0.7rem] font-semibold',
+              className,
+            )}
+          >
+            {label}
+          </span>
+        ))}
+        {elevationBandNames &&
+          elevationLeaders.map(({ band, line, label }) => (
+            <div key={band} className="hidden sm:block">
+              {/* The line with a dot where it leaves the ring. */}
+              <div
+                className={cn(
+                  'absolute h-[90px] w-px bg-[#515558] before:absolute before:-left-1 before:h-[9px] before:w-[9px] before:rounded-full before:bg-[#515558]',
+                  line,
+                )}
+              />
+              {/* Band names may carry a <br>; on one line here, so it becomes a space. */}
+              <div
+                className={cn(
+                  'absolute w-[180px] -translate-y-[30%] overflow-hidden whitespace-nowrap pl-[0.3rem] text-left text-[0.7rem]',
+                  label,
+                )}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(elevationBandNames[band].replace(/<br\s*\/?>/gi, ' ')),
+                }}
+              />
+            </div>
+          ))}
+        <svg
+          className="h-[120px] w-[120px] sm:h-[150px] sm:w-[150px]"
+          viewBox="0 0 1050 1050"
+          fillRule="evenodd"
+          clipRule="evenodd"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={1.5}
         >
-          {label}
-        </text>
-      ))}
-    </svg>
+          {Object.values(AvalancheProblemLocation).map((location) => (
+            <path
+              key={location}
+              d={sectorPaths[location]}
+              stroke={STROKE_COLOR}
+              strokeWidth={10}
+              fill={locationSet.has(location) ? ACTIVE_FILL : 'transparent'}
+            />
+          ))}
+        </svg>
+      </div>
+    </div>
   )
 }

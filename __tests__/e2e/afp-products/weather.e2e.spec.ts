@@ -17,9 +17,9 @@ test.describe('Native mountain weather page', () => {
     await expect(page.locator('h1 + p')).toHaveText('All Zones')
 
     // The product's own metadata, not a forecast's: issued and author, and no expiry.
-    await expect(page.getByText('Author: Test Forecaster A')).toBeVisible()
-    await expect(page.getByText(/Issued:\s*Monday, April 6, 2026 at 5:06 AM\s+MDT/)).toBeVisible()
-    await expect(page.getByText(/Expires:/)).toHaveCount(0)
+    await expect(page.getByText('Test Forecaster A', { exact: true })).toBeVisible()
+    await expect(page.getByText('Monday, April 6, 2026 - 5:06AM', { exact: true })).toBeVisible()
+    await expect(page.getByText('Expires', { exact: true })).toHaveCount(0)
 
     await expect(page.getByText(/Models do not predict any snowfall/)).toBeVisible()
     await expect(page.getByText(/provided by the U\.S\.D\.A\. Forest Service/)).toBeVisible()

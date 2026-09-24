@@ -216,7 +216,7 @@ test.describe('Printing a forecast', () => {
     await printWith(page)
     await page.emulateMedia({ media: 'print' })
 
-    await expect(page.getByText(/Expires:\s*Monday, April 6, 2026/)).toBeVisible()
+    await expect(page.getByText('Monday, April 6, 2026 - 4:00AM', { exact: true })).toBeVisible()
     await expect(
       page.getByText(/does not apply to ski areas and highways where avalanche mitigation/),
     ).toBeVisible()
@@ -293,7 +293,7 @@ test.describe('Printing a forecast', () => {
     // a page-eighth per card, which is what keeps the danger card inside the first sheet — so a
     // rename of those hooks has to fail here rather than quietly cost a sheet of paper.
     const cardContent = page.locator('[data-print-section="bottomLine"] [data-slot="card-content"]')
-    await expect(cardContent.first()).toHaveCSS('padding-bottom', '24px')
+    await expect(cardContent.first()).toHaveCSS('padding-bottom', '32px')
 
     await printWith(page)
     await page.emulateMedia({ media: 'print' })
