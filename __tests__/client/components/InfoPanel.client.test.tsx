@@ -30,7 +30,6 @@ const context: Omit<StationCardContext, 'ageMinutes'> = {
   variables: [{ variable: 'air_temp', longName: 'Air Temperature' }],
   units: { air_temp: 'fahrenheit' },
   timezone: 'America/Los_Angeles',
-  displayUnits: 'default',
   staleAfterMinutes: 180,
 }
 

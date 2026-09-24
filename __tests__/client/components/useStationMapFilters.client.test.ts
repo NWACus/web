@@ -2,6 +2,7 @@ import { readUnitsPref, writeUnitsPref } from '@/components/stationMap/stationMa
 import { useStationMapFilters } from '@/components/stationMap/useStationMapState'
 import { DEFAULT_FILTERS } from '@/services/snowobs/stationMap/filters'
 import { act, renderHook } from '@testing-library/react'
+import { useLayoutEffect } from 'react'
 
 /** jsdom starts every test at the same URL; the map only ever uses `replaceState`. */
 function atUrl(search: string) {
@@ -68,5 +69,41 @@ describe('useStationMapFilters', () => {
     act(() => result.current.resetFilters())
 
     expect(window.location.search).toBe('?at=47.0000%2C-121.0000%2C8.00')
+  })
+
+  /**
+   * Next patches `history.replaceState` to update its router, so writing the URL while React is
+   * rendering updates one component during another's render ("Cannot update a component
+   * (`Router`)…"). A second change in one batch is what makes React run the update in render.
+   */
+  it('never writes the link while React is rendering', () => {
+    let rendering = false
+    const original = window.history.replaceState.bind(window.history)
+    const writesDuringRender: string[] = []
+    const spy = jest
+      .spyOn(window.history, 'replaceState')
+      .mockImplementation((data, unused, url) => {
+        if (rendering) writesDuringRender.push(String(url))
+        original(data, unused, url)
+      })
+
+    // Flagged from the start of the render that reads the state to its commit.
+    const { result } = renderHook(() => {
+      rendering = true
+      const state = useStationMapFilters('nwac')
+      useLayoutEffect(() => {
+        rendering = false
+      })
+      return state
+    })
+    act(() => {
+      result.current.changeFilters({ units: 'metric' })
+      result.current.changeFilters({ variable: 'air_temp' })
+    })
+    spy.mockRestore()
+
+    expect(writesDuringRender).toEqual([])
+    expect(result.current.filters).toMatchObject({ units: 'metric', variable: 'air_temp' })
+    expect(window.location.search).toBe('?variable=air_temp')
   })
 })

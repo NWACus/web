@@ -37,28 +37,17 @@ type PathArgs = {
 }
 
 /**
- * The native map's server half: the center's station-map settings from the NAC dashboard, and
- * whether this center has native station pages for the toolbar to link to.
+ * The native map's server half: the center's station-map settings from the NAC dashboard.
  * The stations themselves are fetched by the map on mount, so the readings are current rather
  * than as old as the static page.
  */
-async function NativeStationMap({
-  center,
-  hasStationsIndex,
-}: {
-  center: string
-  hasStationsIndex: boolean
-}) {
+async function NativeStationMap({ center }: { center: string }) {
   const metadata = await getAvalancheCenterMetadata(center)
   const settings = resolveStationMapSettings(metadata.widget_config.stations)
 
   return (
     <div className="container">
-      <StationMapLoader
-        centerSlug={center}
-        settings={settings}
-        tableHref={hasStationsIndex ? '/weather/stations' : null}
-      />
+      <StationMapLoader centerSlug={center} settings={settings} />
     </div>
   )
 }
@@ -93,7 +82,7 @@ export default async function Page({ params }: Args) {
           </div>
         </div>
         {useNative ? (
-          <NativeStationMap center={center} hasStationsIndex={hasStationsIndex} />
+          <NativeStationMap center={center} />
         ) : (
           <NACWidget center={center} widget={'stations'} />
         )}

@@ -112,12 +112,25 @@ export function minutesSince(observedAt: string | null, now: number): number {
  * than the browser's (inventory row X2).
  */
 export function formatObservedAt(observedAt: string | null, timeZone: string): string {
-  if (!observedAt) return '—'
+  const get = observedAtParts(observedAt, timeZone)
+  return get ? `${get('month')} ${get('day')} ${get('hour')}:${get('minute')}` : '—'
+}
+
+/** Just the clock time (`HH:mm`), as the widget's table shows it — also in the center's zone. */
+export function formatObservedTime(observedAt: string | null, timeZone: string): string {
+  const get = observedAtParts(observedAt, timeZone)
+  return get ? `${get('hour')}:${get('minute')}` : '—'
+}
+
+function observedAtParts(
+  observedAt: string | null,
+  timeZone: string,
+): ((type: string) => string) | null {
+  if (!observedAt) return null
   const at = new Date(observedAt)
-  if (!Number.isFinite(at.getTime())) return '—'
+  if (!Number.isFinite(at.getTime())) return null
   const parts = observedAtFormatter(timeZone).formatToParts(at)
-  const get = (type: string) => parts.find((part) => part.type === type)?.value ?? ''
-  return `${get('month')} ${get('day')} ${get('hour')}:${get('minute')}`
+  return (type) => parts.find((part) => part.type === type)?.value ?? ''
 }
 
 /** A formatter for the center's zone, or UTC if the center's metadata carries a zone Intl rejects. */

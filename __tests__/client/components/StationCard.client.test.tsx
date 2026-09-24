@@ -29,7 +29,6 @@ const context: StationCardContext = {
     battery_voltage: 'volt',
   },
   timezone: 'America/Los_Angeles',
-  displayUnits: 'default',
   ageMinutes: 30,
   staleAfterMinutes: 180,
 }
@@ -89,8 +88,9 @@ describe('StationCard', () => {
     expect(screen.getByText('(data may be stale)')).toBeInTheDocument()
   })
 
-  it('shows metric elevation in meters', () => {
-    render(<StationCard station={station} context={{ ...context, displayUnits: 'metric' }} />)
-    expect(screen.getByText(/5030 m/)).toBeInTheDocument()
+  // SnowObs reports elevation in feet even when asked for metric, as the widget's card assumed.
+  it('shows elevation in feet', () => {
+    render(<StationCard station={station} context={context} />)
+    expect(screen.getByText(/5030'/)).toBeInTheDocument()
   })
 })

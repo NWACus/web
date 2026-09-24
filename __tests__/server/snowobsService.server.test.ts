@@ -184,6 +184,36 @@ describe('fetchStationTimeseries', () => {
  * The station map's two reads fail independently of the station pages' timeseries read, so the
  * one logger they share has to name the call site it was reached from.
  */
+describe('the station map fetches', () => {
+  // SnowObs caches by URL alone and only adds CORS headers for a request with an Origin; an
+  // Origin-less fetch of the widget's URL would break the widget in browsers for a minute.
+  it("send an Origin, so they never refill SnowObs's cache without CORS headers", async () => {
+    const origins: (string | null)[] = []
+    const record = ({ request }: { request: Request }) => {
+      origins.push(request.headers.get('origin'))
+    }
+    server.use(
+      http.get(CURRENT_URL, (info) => {
+        record(info)
+        return HttpResponse.json({
+          type: 'FeatureCollection',
+          features: [],
+          properties: { variables: [], units: {} },
+        })
+      }),
+      http.get(WEBCAM_URL, (info) => {
+        record(info)
+        return HttpResponse.json({ webcam: [] })
+      }),
+    )
+
+    await fetchCurrentStationData('sac')
+    await fetchWebcams('sac')
+
+    expect(origins).toEqual(['https://avy-fx.org', 'https://avy-fx.org'])
+  })
+})
+
 describe('failure logging', () => {
   function captureLoggedErrors(): jest.Mock {
     const error = jest.fn()

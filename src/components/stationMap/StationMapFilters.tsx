@@ -3,15 +3,14 @@
 /**
  * The filter bar above the map: the widget's toolbar, filter tags and mobile filter sheet.
  *
- * Desktop shows one dropdown per filter in the widget's order — settings (units), marker label,
- * recency, zone, type — then the station search, then the link to the table view. Below `lg` the
- * same groups stack inside the bottom drawer the events, blog and courses pages use. Active
- * filters show as removable chips under the bar with a reset.
+ * Desktop shows one dropdown per filter in the widget's order — settings (color rules, units),
+ * marker label, recency, zone, type — then the station search, then the button that swaps the map
+ * for the table and back. Below `lg` the same groups stack inside the bottom drawer the events,
+ * blog and courses pages use. Active filters show as removable chips under the bar with a reset.
  */
-import { ChevronDown, RefreshCw, Settings, Table2, X } from 'lucide-react'
-import Link from 'next/link'
+import { ChevronDown, Map as MapIcon, RefreshCw, Settings, Table2, X } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { MobileFiltersDrawer } from '@/components/filters/MobileFiltersDrawer'
 import { Button } from '@/components/ui/button'
@@ -28,14 +27,17 @@ import { sourceLabel } from '@/services/snowobs/stationMap/format'
 import type { StationMapVariable } from '@/services/snowobs/stationMap/model'
 
 import {
+  ColorRuleOptions,
   RecencyOptions,
   TypeOptions,
   UnitOptions,
   VariableOptions,
   ZoneOptions,
+  type ColorRulesToggle,
   type OptionGroupProps,
 } from './FilterOptions'
 import { StationSearch } from './StationSearch'
+import type { StationMapDisplay } from './stationMapUrl'
 
 /** What the map will show once the drawer closes. */
 export interface VisibleCounts {
@@ -62,8 +64,15 @@ export interface StationMapFiltersProps {
   visibleCounts: VisibleCounts
   searchPoints: MapPoint[]
   onSearchSelect: (point: MapPoint) => void
-  /** The table view to link to, when this center has one. */
-  tableHref: string | null
+  onSearchClear?: () => void
+  /** The table has a sort or a picked-out row to undo, so Reset is offered without a filter set. */
+  tableChanged?: boolean
+  display: StationMapDisplay
+  onDisplayChange: (display: StationMapDisplay) => void
+  /** The reader just switched views: the switch they pressed was replaced, so focus its successor. */
+  focusDisplayToggle?: boolean
+  /** Offered only where the center has color rules and the readings are in their units. */
+  colorRules: ColorRulesToggle | null
 }
 
 interface FilterGroup {
@@ -73,18 +82,35 @@ interface FilterGroup {
   node: ReactNode
 }
 
+function SettingsOptions({
+  groupProps,
+  colorRules,
+}: {
+  groupProps: OptionGroupProps
+  colorRules: ColorRulesToggle | null
+}) {
+  if (!colorRules) return <UnitOptions {...groupProps} />
+  return (
+    <div className="flex flex-col gap-3">
+      <ColorRuleOptions {...colorRules} />
+      <UnitOptions {...groupProps} />
+    </div>
+  )
+}
+
 /** The option groups in the widget's order. The zone group only appears when there's a real choice. */
 function filterGroups(
   groupProps: OptionGroupProps,
   variables: StationMapVariable[],
   zoneNames: string[],
+  colorRules: ColorRulesToggle | null,
 ): FilterGroup[] {
   const groups: FilterGroup[] = [
     {
       key: 'units',
       label: '',
       icon: <Settings className="h-4 w-4" aria-label="Settings" />,
-      node: <UnitOptions {...groupProps} />,
+      node: <SettingsOptions groupProps={groupProps} colorRules={colorRules} />,
     },
     {
       key: 'variable',
@@ -193,8 +219,13 @@ function FilterChips({
   onChange,
   onReset,
   variables,
-}: OptionGroupProps & { onReset: () => void; variables: StationMapVariable[] }) {
-  if (!isFilterActive(filters)) return null
+  tableChanged,
+}: OptionGroupProps & {
+  onReset: () => void
+  variables: StationMapVariable[]
+  tableChanged: boolean
+}) {
+  if (!isFilterActive(filters) && !tableChanged) return null
 
   return (
     <div className="flex flex-wrap items-center gap-1.5 border-b pb-2">
@@ -255,33 +286,47 @@ function MobileFilterSheet({
   )
 }
 
-function DesktopFilterBar({
-  groups,
-  searchPoints,
-  onSearchSelect,
-}: {
-  groups: FilterGroup[]
-  searchPoints: MapPoint[]
-  onSearchSelect: (point: MapPoint) => void
-}) {
+function DesktopFilterBar({ groups, search }: { groups: FilterGroup[]; search: ReactNode }) {
   return (
     <div className="hidden flex-wrap items-center gap-2 lg:flex">
       {groups.map((group) => (
         <FilterMenu key={group.key} group={group} />
       ))}
-      <StationSearch points={searchPoints} onSelect={onSearchSelect} className="w-64" />
+      {search}
     </div>
   )
 }
 
-function TableLink({ href }: { href: string }) {
+/** The widget's one button that swaps the map for the table, and the table back for the map. */
+function DisplayToggle({
+  display,
+  onChange,
+  focusOnMount,
+}: {
+  display: StationMapDisplay
+  onChange: (display: StationMapDisplay) => void
+  focusOnMount: boolean
+}) {
+  const ref = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (focusOnMount) ref.current?.focus()
+    // On mount only: the toolbar is remounted with each view.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const toTable = display === 'map'
+  const Icon = toTable ? Table2 : MapIcon
   return (
     // Level with the drawer's trigger below `lg` and with the dropdowns above it.
-    <Button asChild variant="outline" size="sm" className="h-10 gap-1 lg:h-9">
-      <Link href={href}>
-        <Table2 className="h-4 w-4" aria-hidden="true" />
-        Table
-      </Link>
+    <Button
+      ref={ref}
+      type="button"
+      variant="outline"
+      size="sm"
+      className="h-10 gap-1 lg:h-9"
+      onClick={() => onChange(toTable ? 'table' : 'map')}
+    >
+      <Icon className="h-4 w-4" aria-hidden="true" />
+      {toTable ? 'Table' : 'Map'}
     </Button>
   )
 }
@@ -295,11 +340,22 @@ export function StationMapFilters({
   visibleCounts,
   searchPoints,
   onSearchSelect,
-  tableHref,
+  onSearchClear,
+  tableChanged = false,
+  display,
+  onDisplayChange,
+  focusDisplayToggle = false,
+  colorRules,
 }: StationMapFiltersProps) {
-  const groups = filterGroups({ filters, onChange }, variables, zoneNames)
+  const groups = filterGroups({ filters, onChange }, variables, zoneNames, colorRules)
   const chips = (
-    <FilterChips filters={filters} onChange={onChange} onReset={onReset} variables={variables} />
+    <FilterChips
+      filters={filters}
+      onChange={onChange}
+      onReset={onReset}
+      variables={variables}
+      tableChanged={tableChanged}
+    />
   )
   const sheetSearch = (onPicked: () => void) => (
     <StationSearch
@@ -308,6 +364,7 @@ export function StationMapFilters({
         onSearchSelect(point)
         onPicked()
       }}
+      onClear={onSearchClear}
     />
   )
 
@@ -316,8 +373,14 @@ export function StationMapFilters({
       <div className="flex items-center justify-between gap-2 border-b border-t py-2">
         <DesktopFilterBar
           groups={groups}
-          searchPoints={searchPoints}
-          onSearchSelect={onSearchSelect}
+          search={
+            <StationSearch
+              points={searchPoints}
+              onSelect={onSearchSelect}
+              onClear={onSearchClear}
+              className="w-64"
+            />
+          }
         />
         <MobileFilterSheet
           groups={groups}
@@ -326,7 +389,11 @@ export function StationMapFilters({
           hasActiveFilters={isFilterActive(filters)}
           search={sheetSearch}
         />
-        {tableHref && <TableLink href={tableHref} />}
+        <DisplayToggle
+          display={display}
+          onChange={onDisplayChange}
+          focusOnMount={focusDisplayToggle}
+        />
       </div>
       {chips}
     </div>
