@@ -66,7 +66,7 @@ function AlertBar({
 function AlertDetail({ warning, color }: { warning: WarningProduct; color: string }) {
   return (
     <div
-      className="space-y-2 rounded-b-lg border-2 border-t-0 bg-background px-4 pb-4 pt-3 text-sm"
+      className="space-y-2 rounded-b-lg border-2 border-t-0 bg-background px-4 pb-4 pt-3"
       style={{ borderColor: color }}
     >
       {warning.affected_area && (
@@ -81,7 +81,7 @@ function AlertDetail({ warning, color }: { warning: WarningProduct; color: strin
       )}
       {warning.hazard_discussion && (
         <div
-          className="prose prose-sm max-w-none dark:prose-invert"
+          className="prose max-w-none dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(warning.hazard_discussion) }}
         />
       )}
