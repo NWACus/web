@@ -21,9 +21,13 @@ export async function Announcements({ center, children }: AnnouncementsProps) {
 
           It is also where `data-print-hide` goes, rather than on the banners: the print stylesheet
           takes the site's `<header>` chrome out, and the banners are its sibling here, not its
-          child. Marking the strip that holds both is what keeps them from separating. */}
+          child. Marking the strip that holds both is what keeps them from separating.
+
+          `data-sticky-header` is how a page with its own sticky content (the observation map)
+          finds the strip's height, which the banners change as they open and collapse. */}
       <div
         data-print-hide
+        data-sticky-header
         className="sticky top-[var(--admin-bar-height,0px)] z-50 lg:static lg:z-auto"
       >
         {banners.length > 0 && <AnnouncementBanners />}

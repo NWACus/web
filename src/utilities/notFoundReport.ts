@@ -61,6 +61,7 @@ export const ROUTES_WITHOUT_REDIRECTS = [
   '/forecasts/avalanche/archive/mountain-weather/:id',
   '/observations',
   '/observations/:id',
+  '/observations/avalanches',
   '/observations/avalanches/:id',
   '/observations/submit',
   '/theme-preview',
