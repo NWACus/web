@@ -26,6 +26,7 @@ const points: MapPoint[] = [
       data: {},
       zone: 'Other',
       href: '/weather/stations/station/nwac/57',
+      areaHref: null,
     },
   },
   {

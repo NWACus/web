@@ -8,6 +8,7 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
+import { StationAreaLinks } from '@/components/WeatherStations/StationAreaLinks'
 
 import {
   formatObservedAt,
@@ -80,6 +81,7 @@ function CardHeader({ station, context }: CardProps) {
         <Elevation station={station} context={context} />
         <ObservedAt station={station} context={context} />
       </div>
+      {station.areaHref && <StationAreaLinks href={station.areaHref} compact className="mt-2" />}
     </header>
   )
 }

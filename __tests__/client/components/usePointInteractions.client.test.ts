@@ -24,6 +24,7 @@ const STATION: MapPoint = {
     data: {},
     zone: 'Other',
     href: '/weather/stations/station/snotel/502',
+    areaHref: null,
   },
 }
 

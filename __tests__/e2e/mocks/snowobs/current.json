@@ -97,6 +97,28 @@
         }
       },
       "geometry": null
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hurricane-ridge-4",
+        "stid": "4",
+        "name": "Hurricane Ridge",
+        "latitude": 47.9696,
+        "longitude": -123.4983,
+        "elevation": 5250,
+        "timezone": "America/Los_Angeles",
+        "source": "nwac",
+        "data": {
+          "air_temp": 53,
+          "date_time": "2026-09-10T22:00:00Z",
+          "relative_humidity": 68
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-123.4983, 47.9696]
+      }
     }
   ],
   "properties": {

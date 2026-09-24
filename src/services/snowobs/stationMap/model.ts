@@ -27,6 +27,8 @@ export interface StationMapStation {
   zone: string
   /** The station's own detail page. */
   href: string
+  /** The station page that lists the station (the widget modal's "Area" links), or null. */
+  areaHref: string | null
 }
 
 export interface StationMapWebcamImage {

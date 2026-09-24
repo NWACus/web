@@ -134,4 +134,29 @@ test.describe('Single-station detail page', () => {
       '/weather/stations/station/mesowest/C6318',
     )
   })
+
+  test("a station page's station gets Area buttons on its map card", async ({ page }) => {
+    await stubMapbox(page)
+    await loadPage(page, `${tenant('nwac')}/weather/stations/map`)
+
+    // The search opens the card without a canvas click; nwac:4 is on the seeded Hurricane Ridge page.
+    await page.getByRole('searchbox', { name: 'Search for station' }).fill('Hurricane')
+    await page
+      .getByRole('button', { name: /Hurricane Ridge/ })
+      .first()
+      .click()
+    const card = page.getByTestId('station-card')
+    await expect(card.getByRole('link', { name: 'Table', exact: true })).toHaveAttribute(
+      'href',
+      '/weather/stations/station/nwac/4',
+    )
+    await expect(card.getByRole('link', { name: 'Area Tables' })).toHaveAttribute(
+      'href',
+      '/weather/stations/hurricane-ridge',
+    )
+    await expect(card.getByRole('link', { name: 'Area Graphs' })).toHaveAttribute(
+      'href',
+      '/weather/stations/hurricane-ridge?range=graphs',
+    )
+  })
 })

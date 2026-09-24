@@ -39,8 +39,10 @@ describe('the current-data schema', () => {
   })
 })
 
+const nwac = (stid: string) => ({ stid, source: 'nwac' })
+
 describe('mapStations', () => {
-  const stations = mapStations(current, { zones: [northZone] })
+  const stations = mapStations(current, { zones: [northZone], stationPages: [] })
 
   it('drops a station with no coordinates', () => {
     expect(stations.map((s) => s.stid)).toEqual(['57', '502', 'C6318'])
@@ -59,6 +61,17 @@ describe('mapStations', () => {
 
   it('renames mesowest to synoptic-data', () => {
     expect(stations[2].source).toBe('synoptic-data')
+  })
+
+  it('links a station to the page that lists it as its area, matched on source and stid', () => {
+    // nwac:502 is a different station from the fixture's snotel:502.
+    const pages = [
+      { slug: 'white-chuck', displayName: 'White Chuck', archived: false, stations: [nwac('57')] },
+      { slug: 'not-snotel', displayName: 'Not SNOTEL', archived: false, stations: [nwac('502')] },
+    ]
+    const linked = mapStations(current, { zones: [northZone], stationPages: pages })
+    expect(linked.map((s) => s.areaHref)).toEqual(['/weather/stations/white-chuck', null, null])
+    expect(stations.every((s) => s.areaHref === null)).toBe(true)
   })
 
   it('links every station to its own detail page, keyed on source and stid', () => {

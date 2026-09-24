@@ -18,6 +18,8 @@ import {
 } from '@/services/snowobs/stationMap/mappers'
 import type { StationMapData, StationMapZone } from '@/services/snowobs/stationMap/model'
 import { resolveStationMapSettings } from '@/services/snowobs/stationMap/settings'
+import type { StationPageSummary } from '@/services/stations/getStationPages'
+import { getStationPages, toPageSummaries } from '@/services/stations/getStationPages'
 import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextRequest, NextResponse } from 'next/server'
@@ -42,6 +44,15 @@ function requestedUnits(request: NextRequest): SnowObsUnits {
 async function loadOutlines(center: string): Promise<StationMapZone[]> {
   try {
     return zonesFromMapLayer(await getZoneMapLayer(center))
+  } catch {
+    return []
+  }
+}
+
+/** The pages the cards' Area links point to. The links are decoration, so a failed read costs them. */
+async function loadStationPages(center: string): Promise<StationPageSummary[]> {
+  try {
+    return toPageSummaries(await getStationPages(center))
   } catch {
     return []
   }
@@ -88,10 +99,11 @@ export async function GET(
   const units = requestedUnits(request)
 
   try {
-    const [metadata, current, outlines, webcamResult] = await Promise.all([
+    const [metadata, current, outlines, stationPages, webcamResult] = await Promise.all([
       getAvalancheCenterMetadata(center),
       fetchCurrentStationData(center, units),
       loadOutlines(center),
+      loadStationPages(center),
       fetchWebcams(center).then(
         (response) => ({ response, failed: false }),
         () => ({ response: { webcam: [] }, failed: true }),
@@ -109,7 +121,7 @@ export async function GET(
     )
 
     const body: StationMapData = {
-      stations: mapStations(current, { zones }),
+      stations: mapStations(current, { zones, stationPages }),
       webcams: mapWebcams(webcamResult.response, zones),
       zones,
       zoneNames,

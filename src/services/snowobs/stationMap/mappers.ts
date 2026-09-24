@@ -3,10 +3,12 @@
  *
  * Pure functions, so the seam is unit tested: a station with no coordinates is dropped (it cannot
  * be placed), every station is classified into the forecast zone it sits in, and each links to
- * its own detail page, the widget modal's stand-in.
+ * its own detail page (the widget modal's stand-in) and to the station page that lists it.
  */
 import type { ZoneMapLayer } from '@/services/nac/model/mapLayer'
 import { stationDetailPath } from '@/services/snowobs/stationKey'
+import type { StationPageSummary } from '@/services/stations/stationPages'
+import { areaPageFor, stationPagePath } from '@/services/stations/stationPages'
 import { pointInPolygon } from '@/utilities/geo/pointInPolygon'
 
 import type { SnowObsCurrentGeojson, SnowObsWebcamResponse } from '../types/schemas'
@@ -75,11 +77,17 @@ function numericReadings(data: Record<string, number | string | null>): {
 
 export interface MapStationsOptions {
   zones: StationMapZone[]
+  stationPages: StationPageSummary[]
+}
+
+function areaHref(pages: StationPageSummary[], station: { source: string; stid: string }) {
+  const area = areaPageFor(pages, station)
+  return area ? stationPagePath(area.slug) : null
 }
 
 export function mapStations(
   geojson: SnowObsCurrentGeojson,
-  { zones }: MapStationsOptions,
+  { zones, stationPages }: MapStationsOptions,
 ): StationMapStation[] {
   return geojson.features.flatMap((feature) => {
     const { properties } = feature
@@ -100,6 +108,7 @@ export function mapStations(
         data: readings,
         zone: classifyZone(coordinates, zones),
         href: stationDetailPath(properties),
+        areaHref: areaHref(stationPages, properties),
       },
     ]
   })

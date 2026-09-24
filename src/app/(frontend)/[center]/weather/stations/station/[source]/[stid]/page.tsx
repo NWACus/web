@@ -9,7 +9,12 @@ import { TrackedStationDetails } from '@/components/WeatherStations/TrackedStati
 import { stationDetailPath } from '@/services/snowobs/stationKey'
 import type { TrackedStation } from '@/services/snowobs/stationTracking'
 import { findServedStation } from '@/services/snowobs/trackedStations'
-import { areaPageFor, getStationPages, toPageSummaries } from '@/services/stations/getStationPages'
+import {
+  areaPageFor,
+  getStationPages,
+  stationPagePath,
+  toPageSummaries,
+} from '@/services/stations/getStationPages'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
 
@@ -69,7 +74,7 @@ export default async function Page({ params, searchParams }: Args) {
         details={
           <>
             <TrackedStationDetails station={station} />
-            {area && <StationAreaLinks slug={area.slug} />}
+            {area && <StationAreaLinks href={stationPagePath(area.slug)} className="mt-3" />}
           </>
         }
         tabContent={view.tabContent}

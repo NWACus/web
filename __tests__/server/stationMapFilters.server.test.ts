@@ -22,6 +22,7 @@ function station(overrides: Partial<StationMapStation>): StationMapStation {
     data: { air_temp: 40 },
     zone: 'Olympics',
     href: '/weather/stations/station/nwac/1',
+    areaHref: null,
     ...overrides,
   }
 }

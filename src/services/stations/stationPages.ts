@@ -64,6 +64,10 @@ export function areaPageFor(
   return listing.find((page) => !page.archived) ?? listing[0] ?? null
 }
 
+export function stationPagePath(slug: string): string {
+  return `/weather/stations/${slug}`
+}
+
 // The graph-data route's allowlist, by `source:stid`.
 export function allStations(pages: AssembledStationPage[]): Map<string, StationRef> {
   const byKey = new Map<string, StationRef>()
