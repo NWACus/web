@@ -148,13 +148,11 @@ export function pointCoordinates(point: MapPoint): [number, number] {
  * Where a point goes when it is opened: a station's native page, or — for a webcam that is
  * nothing but a link — that link, which the widget opens directly rather than in a card.
  */
-export function pointDestination(point: MapPoint): { href: string; external: boolean } | null {
-  if (point.kind === 'station') {
-    return point.station.href ? { href: point.station.href, external: false } : null
-  }
+export function pointDestination(point: MapPoint): string | null {
+  if (point.kind === 'station') return point.station.href
   const [only] = point.webcam.images
   const linkOnly = point.webcam.images.length === 1 && only.type === 'url'
-  return linkOnly ? { href: only.source, external: true } : null
+  return linkOnly ? only.source : null
 }
 
 function zoneOf(point: MapPoint): string {

@@ -1,63 +1,20 @@
-import { buildStationCsv } from '@/services/snowobs/csv'
-import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
-import { parseStationKey, stationKey } from '@/services/snowobs/stationKey'
+import { stationCsvDownload } from '@/services/snowobs/csvDownload'
 import { getStationPage } from '@/services/stations/getStationPages'
-import { passesCaptcha } from '@/services/turnstile'
-import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
-import { TZDate } from '@date-fns/tz'
-
-const MIN_YEAR = 2016
 
 type Args = {
   params: Promise<{ center: string; station: string }>
 }
 
-// Validates station and year against the page so this isn't an open SnowObs proxy.
-// CRAP is inflated by the lack of unit coverage on this route handler.
-// fallow-ignore-next-line complexity
+// A page's CSV serves only the loggers that page lists.
 export async function GET(request: Request, { params }: Args) {
   const { center, station } = await params
-  const url = new URL(request.url)
-  const requested = parseStationKey(url.searchParams.get('station') ?? '')
-  const year = Number(url.searchParams.get('year'))
-
   const page = await getStationPage(center, station)
   if (!page) {
     return new Response('Unknown station', { status: 404 })
   }
-  const datalogger = requested && page.stations.find((s) => stationKey(s) === stationKey(requested))
-  if (!datalogger) {
-    return new Response('Unknown or invalid datalogger', { status: 400 })
-  }
-  const currentYear = new Date().getUTCFullYear()
-  if (!Number.isInteger(year) || year < MIN_YEAR || year > currentYear) {
-    return new Response('Invalid year', { status: 400 })
-  }
-  const units = url.searchParams.get('units') ?? 'imperial'
-  if (units !== 'imperial' && units !== 'metric') {
-    return new Response('Invalid units', { status: 400 })
-  }
-  if (!(await passesCaptcha(url.searchParams.get('cf-turnstile-response')))) {
-    return new Response('Captcha verification failed', { status: 403 })
-  }
-
-  // Calendar year in the center's timezone, as UTC instants for the SnowObs request.
-  const timeZone = centerTimezone(center)
-  const start = new Date(new TZDate(year, 0, 1, 0, 0, 0, 0, timeZone).getTime())
-  const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, timeZone).getTime())
-
-  const response = await fetchStationTimeseries(center, [datalogger], {
-    start,
-    end,
-    revalidate: 3600,
-    rawData: true,
-  })
-  const csv = buildStationCsv(center, response, datalogger, units)
-
-  return new Response(csv, {
-    headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${page.slug}-${datalogger.stid}-${year}.csv"`,
-    },
+  return stationCsvDownload(request, {
+    center,
+    dataloggers: page.stations,
+    filePrefix: page.slug,
   })
 }

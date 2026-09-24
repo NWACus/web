@@ -47,7 +47,7 @@ A block rather than a per-center settings document ([ADR 016](016-per-tenant-glo
 
 ### A center has station pages when it has rows
 
-Every route calls `getStationPages(center)` and 404s when it returns nothing, so enabling a second center is content: an admin creates pages and picks from that center's tracking list. The assembled page (row plus ordered station refs) is built once per center in `unstable_cache` under one tag, `station-pages:<center>`, which the collection's `afterChange` / `afterDelete` hooks bust. The graph-data route's allowlist and caps derive from the same object, so moving a station between pages changes the table, the graphs, the CSV form and the allowlist together. The precipitation block holds its stations on its own page and revalidates with it.
+Every station page route calls `getStationPages(center)` and 404s when it returns nothing, so enabling a second center is content: an admin creates pages and picks from that center's tracking list. The assembled page (row plus ordered station refs) is built once per center in `unstable_cache` under one tag, `station-pages:<center>`, which the collection's `afterChange` / `afterDelete` hooks bust. The graph-data route's caps derive from the same object, and so does the allowlist a page's own stations pass without reading SnowObs, so moving a station between pages changes the table, the graphs, the CSV form and the allowlist together. The precipitation block holds its stations on its own page and revalidates with it.
 
 ### The index is a Payload page; the rest stays native
 
@@ -56,6 +56,12 @@ The native index and its "Weather Data" built-in row are deleted, along with the
 ### Seeding is the page list, nothing else
 
 `20260918_223529_station_pages` creates the tables. `20260921_124724_station_pages_backfill` holds the data: NWAC's 32 pages and their station references, every one on the `nwac` source, plus the collection appended to each tenant's `Admin` role rule, since tenant roles list collections explicitly. No station identity is snapshotted, so nothing goes stale. `seedStationPages()` never touches a page that exists, so re-running it cannot undo an admin's arrangement; it lives in `services/stations/` rather than the migration, which keeps the migration disposable when branch migrations are recreated on a merge. `pnpm seed` calls it with three pages, because locally the migrations run before any tenant exists.
+
+### Any tracked station has a detail page
+
+_Added 2026-09-23 ([#1341](https://github.com/NWACus/web/issues/1341))._ The native station map links every station to `/weather/stations/station/[source]/[stid]`, which shows the station page views for that one station, with columns derived and the name, elevation and partner from `station/tracking/`. It is the legacy map modal's replacement, not a page an editor manages, and it stores nothing. Where a station page lists the station, the map card and the detail page link to it as "Area Tables" and "Area Graphs", replacing the widget's hand-kept `external_modal_links` (which pointed at these same pages) with the `stationPages` collection. The route and its CSV route serve only a station on the center's tracking list (`src/services/snowobs/trackedStations.ts`), for a center with `platforms.stations`. graph-data accepts those as well as the stations on the center's pages, which pass without the tracking read, so it no longer 404s for a center without pages; the caps are unchanged. Detail pages are rendered per request, never prerendered, and `noindex`. A station SnowObs has just started tracking can 404 for up to an hour, the tracking read's cache, while the map (cached five minutes) already links it.
+
+Where the page differs from the widget's modal: it reuses the station page views, so it has their table (no Min/Max/Avg rows), their preset ranges (no custom date picker) and their 7-day default graph window. The modal's table also showed SnowObs's `calc_diff` 24-hour change columns and read in the map's chosen units; the page does neither.
 
 ## Consequences
 
@@ -68,6 +74,7 @@ The native index and its "Weather Data" built-in row are deleted, along with the
 - **The static build enumerates every page across every tenant.** `allStationPageParams()` is a full scan at build time. Fine at 32 pages; revisit if a center lands hundreds.
 - **Center-wide station settings that are not content** (default graph order, axis limits) belong in a unique-tenant collection per ADR 016, not a block.
 - **The public token's read surface is not guaranteed.** `station/metadata/client/` is already OAuth-only and `station/tracking/` could follow. The spec also declares the public token accepted on the tracking write endpoints, which was not probed. Both are questions for Snowbound.
+- **Some stations cannot be read unrounded.** SnowObs answers `raw_data=true` with a 500 for eleven of NWAC's Synoptic airport stations (KSEA, KBLI and others, checked 2026-09-23) and serves them fine without it. `fetchStationTimeseries` retries a 500 once without `raw_data`, and logs a warning, so those stations show SnowObs's rounded readings, as the legacy widget did for every station, rather than an error. The retry rounds the whole request: a page or comparison that includes one of these stations rounds every station in it, and so does a CSV download of one.
 - **Per-center variable config is a follow-up.** `variable/tracking/` would replace `SENSOR_LABELS`, `UNIT_LABELS` and `metricUnits.ts`; SnowObs declares wind's metric unit as m/s where we hardcode km/h.
 
 - **Times display in the center's own timezone.** `centerTimezone(center)` reads it from `AVALANCHE_CENTERS` per [ADR 020](020-center-timezone-is-a-hardcoded-fact.md), and the table, CSV, graph and season-anchor helpers take the center the way the SnowObs service does. NWAC is unchanged, since Pacific is its zone either way.

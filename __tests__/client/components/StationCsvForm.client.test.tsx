@@ -7,7 +7,8 @@ const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 function renderForm() {
   render(
     <StationCsvForm
-      slug="alpental"
+      action="/weather/stations/alpental/csv"
+      filePrefix="alpental"
       dataloggers={[{ station: { stid: '4', source: 'nwac' }, label: 'Alpental Base' }]}
       years={[2026]}
     />,

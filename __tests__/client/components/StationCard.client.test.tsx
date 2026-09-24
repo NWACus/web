@@ -12,7 +12,8 @@ const station: StationMapStation = {
   observedAt: '2026-09-10T22:00:00Z',
   data: { snow_depth: 1, air_temp: 40, wind_direction: 119, battery_voltage: null },
   zone: 'West Slopes North',
-  href: '/weather/stations/white-chuck',
+  href: '/weather/stations/station/nwac/57',
+  areaHref: null,
 }
 
 const context: StationCardContext = {
@@ -56,21 +57,31 @@ describe('StationCard', () => {
     ])
   })
 
-  it("links to the station page's table and graphs in a new tab", () => {
+  it("links to the station's detail page's table and graphs in a new tab", () => {
     render(<StationCard station={station} context={context} />)
     const table = screen.getByRole('link', { name: 'Table' })
     const graphs = screen.getByRole('link', { name: 'Graphs' })
-    expect(table).toHaveAttribute('href', '/weather/stations/white-chuck')
-    expect(graphs).toHaveAttribute('href', '/weather/stations/white-chuck?range=graphs')
+    expect(table).toHaveAttribute('href', '/weather/stations/station/nwac/57')
+    expect(graphs).toHaveAttribute('href', '/weather/stations/station/nwac/57?range=graphs')
     for (const link of [table, graphs]) {
       expect(link).toHaveAttribute('target', '_blank')
       expect(link).toHaveAttribute('rel', 'noopener noreferrer')
     }
   })
 
-  it('is a plain card for a station with no native page', () => {
-    render(<StationCard station={{ ...station, href: null }} context={context} />)
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  it('links a station on a station page to that page as its area, in a new tab', () => {
+    const areaHref = '/weather/stations/white-chuck'
+    render(<StationCard station={{ ...station, areaHref }} context={context} />)
+    const tables = screen.getByRole('link', { name: 'Area Tables' })
+    const graphs = screen.getByRole('link', { name: 'Area Graphs' })
+    expect(tables).toHaveAttribute('href', areaHref)
+    expect(graphs).toHaveAttribute('href', `${areaHref}?range=graphs`)
+    for (const link of [tables, graphs]) expect(link).toHaveAttribute('target', '_blank')
+  })
+
+  it('offers no area for a station no page lists', () => {
+    render(<StationCard station={station} context={context} />)
+    expect(screen.queryByRole('link', { name: 'Area Tables' })).not.toBeInTheDocument()
   })
 
   it("flags a reading older than the center's threshold", () => {

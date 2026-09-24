@@ -9,8 +9,8 @@
  * `saturation`, `color_rules`, `timezone` and `external_modal_links` are deliberately not
  * resolved. Saturation only ever styled the Google base map this replaces; color rules highlight
  * table values (the table is the native station pages' job); the timezone toggle is unused by the
- * legacy map, which formats in browser time; and the modal links pointed at the legacy nwac.us
- * pages the native station pages have superseded.
+ * legacy map, which formats in browser time; and the modal links' "Area" buttons now come from the
+ * `stationPages` collection, on each station's detail page.
  */
 import { mapboxZoomFor } from '@/services/nac/dangerMap/dangerMapSettings'
 import type { AvalancheCenterStationsWidgetConfiguration } from '@/services/nac/types/schemas'

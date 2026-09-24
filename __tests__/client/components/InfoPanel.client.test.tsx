@@ -15,7 +15,8 @@ function station(stid: string, name: string): StationMapStation {
     observedAt: '2026-09-10T22:00:00Z',
     data: { air_temp: 40 },
     zone: 'West Slopes North',
-    href: `/weather/stations/${stid}`,
+    href: `/weather/stations/station/nwac/${stid}`,
+    areaHref: null,
   }
 }
 
