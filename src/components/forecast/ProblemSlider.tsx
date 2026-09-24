@@ -6,7 +6,7 @@
  * Steps are indexed from the bottom, as in the widget. Size runs in half steps (a "D1.5" range
  * ends between two ticks), so its scale has seven steps with only the whole sizes labeled.
  */
-import { AvalancheProblemLikelihood } from '@/services/nac/model/forecast'
+import { AvalancheProblemLikelihood, AvalancheProblemSize } from '@/services/nac/model/forecast'
 import { cn } from '@/utilities/ui'
 
 interface ProblemSliderCoreProps {
@@ -87,19 +87,27 @@ export function LikelihoodSlider({ likelihood }: { likelihood: AvalancheProblemL
 
 // ─── Size ──────────────────────────────────────────────────────────────────
 
-const SIZE_LABELS = [
-  'Small (D1)',
-  null,
-  'Large (D2)',
-  null,
-  'Very Large (D3)',
-  null,
-  'Historic (D4-5)',
+const SIZE_NAMES: [AvalancheProblemSize, string][] = [
+  [AvalancheProblemSize.Small, 'Small (D1)'],
+  [AvalancheProblemSize.Large, 'Large (D2)'],
+  [AvalancheProblemSize.VeryLarge, 'Very Large (D3)'],
+  [AvalancheProblemSize.Historic, 'Historic (D4-5)'],
 ]
+
+/** A size's step on the half-step scale, where Small is step 0. */
+function stepOf(size: number): number {
+  return (size - AvalancheProblemSize.Small) * 2
+}
+
+/** Seven steps from Small to Historic; the half steps between the named sizes go unlabeled. */
+const SIZE_LABELS = Array.from(
+  { length: stepOf(AvalancheProblemSize.Historic) + 1 },
+  (_, step) => SIZE_NAMES.find(([size]) => stepOf(size) === step)?.[1] ?? null,
+)
 
 /** Size 1–4 in half steps onto the seven-step scale, clamped to its ends. */
 function sizeStep(size: number): number {
-  return Math.min(SIZE_LABELS.length - 1, Math.max(0, Math.round((size - 1) * 2)))
+  return Math.min(SIZE_LABELS.length - 1, Math.max(0, Math.round(stepOf(size))))
 }
 
 export function SizeSlider({ size }: { size: number[] }) {
