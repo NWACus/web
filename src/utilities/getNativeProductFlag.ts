@@ -3,7 +3,13 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 /** Products with a per-tenant native-vs-widget rollout flag (Control 1). */
-export type NativeProduct = 'forecast' | 'warning' | 'dangerMap' | 'weather' | 'stationMap'
+export type NativeProduct =
+  | 'forecast'
+  | 'warning'
+  | 'dangerMap'
+  | 'weather'
+  | 'stationMap'
+  | 'observations'
 
 /** One Settings read per center per render, however many products and components ask. */
 const getNativeProducts = cache(async (centerSlug: string) => {

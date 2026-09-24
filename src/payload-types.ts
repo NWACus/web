@@ -3360,6 +3360,10 @@ export interface Setting {
      * Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.
      */
     stationMap?: boolean | null;
+    /**
+     * Render the public observation viewer natively: the observations and avalanches lists, their map and filters, and the observation and avalanche detail pages. Map framing and the zone filter follow the observation-viewer settings your forecasters configure in the NAC dashboard. Submitting an observation stays on the widget for now.
+     */
+    observations?: boolean | null;
   };
   socialMedia?: {
     instagram?: string | null;
@@ -5320,6 +5324,7 @@ export interface SettingsSelect<T extends boolean = true> {
         dangerMap?: T;
         weather?: T;
         stationMap?: T;
+        observations?: T;
       };
   socialMedia?:
     | T

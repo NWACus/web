@@ -97,7 +97,8 @@ const defaultNacWidgetsConfig = {
  * not per center. nwac holds the native side and dvac the widget side, which also puts the widget's
  * own dvac→nwac fallback under test. sac is the second widget tenant, on its own upstream center.
  * The station map is the exception: every tenant but dvac renders it natively, sac included, so the
- * one center whose alternate-zones KML the e2e mocks serve is on the native side.
+ * one center whose alternate-zones KML the e2e mocks serve is on the native side. Observations
+ * follow the rule: native on snfac and nwac, the widget on dvac and sac.
  * Kept in step with `__tests__/e2e/mocks/scenarios.json` by __tests__/server/e2eMocks.server.test.ts.
  */
 const nativeProductsByTenant: Record<
@@ -108,11 +109,33 @@ const nativeProductsByTenant: Record<
     dangerMap: boolean
     weather: boolean
     stationMap: boolean
+    observations: boolean
   }
 > = {
-  snfac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
-  nwac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
-  sac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: true },
+  snfac: {
+    forecast: true,
+    warning: true,
+    dangerMap: true,
+    weather: true,
+    stationMap: true,
+    observations: true,
+  },
+  nwac: {
+    forecast: true,
+    warning: true,
+    dangerMap: true,
+    weather: true,
+    stationMap: true,
+    observations: true,
+  },
+  sac: {
+    forecast: false,
+    warning: false,
+    dangerMap: false,
+    weather: false,
+    stationMap: true,
+    observations: false,
+  },
 }
 
 // Next.js revalidation errors are normal when seeding the database without a server running
@@ -593,6 +616,7 @@ export const seed = async ({
             dangerMap: false,
             weather: false,
             stationMap: false,
+            observations: false,
           },
           footerForm: {
             type: 'none',
