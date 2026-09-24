@@ -73,6 +73,34 @@ export function UnitOptions({ filters, onChange }: OptionGroupProps) {
   )
 }
 
+export interface ColorRulesToggle {
+  on: boolean
+  onChange: (on: boolean) => void
+}
+
+const COLOR_RULE_OPTIONS = [
+  { value: 'on', label: 'On' },
+  { value: 'off', label: 'Off' },
+]
+
+/** The widget's color-rules switch, worded as its Settings menu words it. */
+export function ColorRuleOptions({ on, onChange }: ColorRulesToggle) {
+  return (
+    <fieldset>
+      <legend className="mb-1 text-sm font-semibold">Color Rules</legend>
+      <p className="mb-1 text-xs text-muted-foreground">
+        Highlight table values that exceed thresholds
+      </p>
+      <RadioOptions
+        name="colorRules"
+        options={COLOR_RULE_OPTIONS}
+        value={on ? 'on' : 'off'}
+        onSelect={(value) => onChange(value === 'on')}
+      />
+    </fieldset>
+  )
+}
+
 export function VariableOptions({
   filters,
   onChange,

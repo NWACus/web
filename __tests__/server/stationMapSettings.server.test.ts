@@ -37,6 +37,11 @@ describe('resolveStationMapSettings', () => {
     expect(resolveStationMapSettings({ source_legend: true }).sourceLegend).toBe(true)
   })
 
+  it('turns color rules on only when the center asked for them, as the dashboard does', () => {
+    expect(resolveStationMapSettings({}).colorRules).toBe(false)
+    expect(resolveStationMapSettings({ color_rules: true }).colorRules).toBe(true)
+  })
+
   it('surfaces alternate zones without honoring them', () => {
     expect(
       resolveStationMapSettings({ alternate_zones: 'https://x/zones.kml' }).alternateZones,

@@ -63,10 +63,13 @@ function ResultList({
 export function StationSearch({
   points,
   onSelect,
+  onClear,
   className,
 }: {
   points: MapPoint[]
   onSelect: (point: MapPoint) => void
+  /** The clear button, as the widget's: it also lets go of what the last pick picked out. */
+  onClear?: () => void
   className?: string
 }) {
   const [query, setQuery] = useState('')
@@ -105,7 +108,10 @@ export function StationSearch({
           <button
             type="button"
             className="px-2 text-muted-foreground"
-            onClick={() => setQuery('')}
+            onClick={() => {
+              setQuery('')
+              onClear?.()
+            }}
             title="Clear search"
           >
             <X className="h-4 w-4" aria-hidden="true" />

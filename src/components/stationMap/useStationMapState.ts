@@ -5,8 +5,9 @@
  * point, and the viewport reactions. Kept apart from the Mapbox plumbing in `./useStationMap` and
  * the layout in `StationMap.client.tsx`.
  *
- * The filters and the viewport live in the URL (`./stationMapUrl`) so a reader can bookmark or
- * share what they are looking at; only units is a saved preference (`./stationMapPrefs`).
+ * The filters, the viewport and the map/table choice live in the URL (`./stationMapUrl`) so a
+ * reader can bookmark or share what they are looking at; units is a saved preference
+ * (`./stationMapPrefs`).
  */
 import type { Map as MapboxMap } from 'mapbox-gl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -30,10 +31,15 @@ import { boundsOfGeometries, type Bounds } from '@/utilities/geo/bounds'
 import { readUnitsPref, writeUnitsPref } from './stationMapPrefs'
 import {
   dropViewParam,
+  pushDisplayParam,
+  readDisplayRequest,
   readFilterParams,
+  readLegacyHashZones,
   readViewParam,
+  writeDisplayParam,
   writeFilterParams,
   writeViewParam,
+  type StationMapDisplay,
 } from './stationMapUrl'
 import {
   AUTOMATED_MOVE,
@@ -64,19 +70,43 @@ export const EMPTY_STATION_MAP_DATA: StationMapData = {
 /** What the link asks for, over the defaults, with the reader's own units. */
 function initialFilters(centerSlug: string): Filters {
   const units = readUnitsPref(centerSlug) ?? DEFAULT_FILTERS.units
-  return readFilterParams(window.location.search, units)
+  const filters = readFilterParams(window.location.search, units)
+  const legacyZones = readLegacyHashZones(window.location.hash)
+  return filters.zones.length === 0 && legacyZones.length > 0
+    ? { ...filters, zones: legacyZones }
+    : filters
 }
 
 export function useStationMapFilters(centerSlug: string) {
   const [filters, setFilters] = useState<Filters>(() => initialFilters(centerSlug))
 
+  // A widget link's zones move from its hash into the params, so the link the reader goes on to
+  // share is the current form.
+  useEffect(() => {
+    if (readLegacyHashZones(window.location.hash).length > 0) writeFilterParams(filters)
+    // Once, for the link the page opened on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Back and Forward (between the map and the table) land on an entry whose filters may differ.
+  useEffect(() => {
+    const onPopState = () =>
+      setFilters((current) => readFilterParams(window.location.search, current.units))
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  // The latest filters, so a change is computed and written outside a state updater: React may run
+  // an updater mid-render, and Next's patched `replaceState` would then update its router in there.
+  const filtersRef = useRef(filters)
+  filtersRef.current = filters
+
   const changeFilters = useCallback(
     (patch: Partial<Filters>) => {
-      setFilters((current) => {
-        const next = { ...current, ...patch }
-        writeFilterParams(next)
-        return next
-      })
+      const next = { ...filtersRef.current, ...patch }
+      filtersRef.current = next
+      setFilters(next)
+      writeFilterParams(next)
       if (patch.units) writeUnitsPref(centerSlug, patch.units)
     },
     [centerSlug],
@@ -91,6 +121,36 @@ export function useStationMapFilters(centerSlug: string) {
   }, [changeFilters])
 
   return { filters, changeFilters, resetFilters }
+}
+
+// --- Map or table --------------------------------------------------------------------------------
+
+/**
+ * Whether the map or the table is showing, and the station a legacy `#/station-table/:stid` link
+ * asked the table to pick out. A legacy link is rewritten to `?view=table` straight away, so what
+ * the reader goes on to share is the current form.
+ */
+export function useStationMapDisplay() {
+  const [request] = useState(() => readDisplayRequest(window.location.search, window.location.hash))
+  const [display, setDisplay] = useState<StationMapDisplay>(request.display)
+
+  useEffect(() => {
+    if (request.legacy) writeDisplayParam(request.display)
+  }, [request])
+
+  useEffect(() => {
+    const onPopState = () =>
+      setDisplay(readDisplayRequest(window.location.search, window.location.hash).display)
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  const changeDisplay = useCallback((next: StationMapDisplay) => {
+    setDisplay(next)
+    pushDisplayParam(next)
+  }, [])
+
+  return { display, changeDisplay, legacyHighlight: request.highlight }
 }
 
 // --- What's visible --------------------------------------------------------------------------------
