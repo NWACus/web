@@ -24,7 +24,7 @@ export function ForecastMediaThumbnails({ media }: ForecastMediaThumbnailsProps)
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {media.map(({ item }, idx) => {
           const thumbUrl = getThumbnailUrl(item)
           return (
@@ -38,7 +38,7 @@ export function ForecastMediaThumbnails({ media }: ForecastMediaThumbnailsProps)
                 setLightboxIndex(idx)
                 setLightboxOpen(true)
               }}
-              className="group relative aspect-square overflow-hidden rounded-md bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group relative aspect-[4/3] overflow-hidden rounded-md bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {thumbUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element

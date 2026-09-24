@@ -16,7 +16,7 @@ test.describe('Native vs widget rollout flag', () => {
       `${tenant('snfac')}/forecasts/avalanche/${zoneSlug(ZONE.forecast)}`,
     )
 
-    await expect(page.locator('h1 + p')).toHaveText('Backcountry Avalanche Forecast')
+    await expect(page.getByRole('heading', { name: 'The Bottom Line' })).toBeVisible()
     await expect(page.locator('#widget-container')).toHaveCount(0)
     expect(errors).toEqual([])
   })
