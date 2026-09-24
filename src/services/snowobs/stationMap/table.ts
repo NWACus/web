@@ -5,7 +5,7 @@
  * how rows group under zones and sort within them, and which readings are colored for crossing a
  * threshold. Kept free of React so the rules are unit tested and the component only renders them.
  */
-import { fallbackSensorLabel, timezoneAbbreviation } from '@/services/snowobs/constants'
+import { timezoneAbbreviation } from '@/services/snowobs/constants'
 
 import { orderVariables } from './format'
 import { OTHER_ZONE } from './mappers'
@@ -52,13 +52,20 @@ export function tableColumns(variables: StationMapVariable[]): string[] {
   return [STATION_COLUMN, ELEVATION_COLUMN, TIME_COLUMN, ...readingColumns(variables)]
 }
 
-/**
- * A column's short header. A variable the widget has no name for gets its initials — spelled out
- * for every word, as the native station pages do, where the widget stopped at the first underscore
- * and so labelled `soil_temperature_a`, `_b` and `_c` all "ST".
- */
+/** A column's short header: the widget's name for it, else the widget's initials. */
 export function columnLabel(column: string): string {
-  return COLUMN_LABELS[column] ?? fallbackSensorLabel(column)
+  return COLUMN_LABELS[column] ?? widgetInitials(column)
+}
+
+/**
+ * The widget's initials for a variable it has no name for. It spaced out only the first
+ * underscore, so `soil_temperature_b` is "ST" and `precip_accum_three_hour` is "PA" — kept, since
+ * those are the headers forecasters know; the long name is in the tooltip.
+ */
+function widgetInitials(variable: string): string {
+  // A string pattern replaces only the first `_`; `\b(\w)` then takes each word's first letter.
+  const initials = variable.replace('_', ' ').match(/\b(\w)/g)
+  return initials ? initials.join('').toUpperCase() : variable
 }
 
 /**

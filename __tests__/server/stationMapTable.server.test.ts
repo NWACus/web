@@ -46,11 +46,15 @@ describe('the table columns', () => {
     ])
   })
 
-  it('are headed with the widget short names, and initials for a variable it has none for', () => {
+  it('are headed with the widget short names, and its initials for a variable it has none for', () => {
     expect(columnLabel('elevation')).toBe('Elev')
     expect(columnLabel('date_time')).toBe('Time')
     expect(columnLabel('snow_water_equiv_24hr')).toBe('∆SWE')
-    expect(columnLabel('soil_temperature_b')).toBe('STB')
+    // The widget spaced out only the first underscore — these are its headers on production.
+    expect(columnLabel('soil_temperature_b')).toBe('ST')
+    expect(columnLabel('precip_accum_three_hour')).toBe('PA')
+    expect(columnLabel('weather_prod_cond_code')).toBe('WP')
+    expect(columnLabel('battery_voltage')).toBe('BV')
   })
 
   it("label the time column with the center's zone, whatever zone the browser is in", () => {
