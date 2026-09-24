@@ -1,14 +1,16 @@
 /**
- * Avalanche danger section, matching the legacy afp widget. Today gets the detailed treatment —
- * gray rows with white elevation-name pills over a color-coded triangle, the "{level} - {Name}"
- * rating, and the danger diamond icon; tomorrow is a compact outlook (gray rows, rating + icon),
- * so the current day reads as the more important one. Below sit the Elevation Band Descriptions
- * disclosure and the danger-scale legend. The compact all-zones card passes no dates and renders
- * both days compactly without the legend.
+ * Avalanche danger section, matching the legacy afp widget's sizes and placement. Today gets the
+ * detailed treatment — gray rows with white elevation-name pills over a color-coded triangle, the
+ * "{level} - {Name}" rating, and the danger diamond icon; tomorrow is the outlook (gray rows,
+ * rating + icon), so the current day reads as the more important one. Below sit the Elevation Band
+ * Descriptions link and the danger-scale legend. The compact all-zones card passes no dates and
+ * renders both days compactly without the legend.
+ *
+ * A section, not a card: the zone page sets it inside the one forecast panel, as the widget did,
+ * and the all-zones card wraps it in its own.
  */
 import Image from 'next/image'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   ELEVATION_BANDS_URL,
   NO_RATING_ADVICE,
@@ -29,6 +31,7 @@ import { DangerScale } from './DangerScale'
 import { DangerTriangle } from './DangerTriangle'
 import { ExternalLink } from './ExternalLink'
 import { dangerHeadings, isNoRatingDay, type DangerHeadings } from './dangerRatingLayout'
+import { sectionHeading } from './forecastHeadings'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface DangerRatingProps {
@@ -51,67 +54,75 @@ export function DangerRating({
   const headings = dangerHeadings(publishedTime, timezone)
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Avalanche Danger</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6 print:space-y-4">
-        <DangerDayColumns
-          today={today}
-          tomorrow={tomorrow}
-          headings={headings}
-          elevationBandNames={elevationBandNames}
-          // Today is wider/detailed on the dated view; the compact card renders both days compactly.
-          className={cn(
-            'flex flex-col gap-6',
-            headings.dated && 'lg:flex-row lg:gap-8 printWide:flex-row printWide:gap-8',
-          )}
-          todayVariant={headings.dated ? 'detailed' : 'compact'}
-        />
-        {headings.dated && <DatedDangerExtras noRatingToday={isNoRatingDay(today)} />}
-      </CardContent>
-    </Card>
+    <section className="space-y-4">
+      <h2 className={sectionHeading}>Avalanche Danger</h2>
+      <DangerDayColumns
+        today={today}
+        tomorrow={tomorrow}
+        headings={headings}
+        elevationBandNames={elevationBandNames}
+      />
+      {headings.dated && <DatedDangerExtras noRatingToday={isNoRatingDay(today)} />}
+    </section>
   )
 }
 
-/** Today is wider/detailed; tomorrow is a compact outlook. Side by side from lg. */
+/**
+ * On the dated view today takes the widget's 8 of 12 columns with the triangle, and tomorrow's
+ * outlook the remaining 4, side by side from lg. The compact card stacks both days without the
+ * triangle.
+ */
 function DangerDayColumns({
   today,
   tomorrow,
   headings,
   elevationBandNames,
-  className,
-  todayVariant,
 }: {
   today: AvalancheDangerForecast | undefined
   tomorrow: AvalancheDangerForecast | undefined
   headings: DangerHeadings
   elevationBandNames: ElevationBandNames
-  className: string
-  todayVariant: 'detailed' | 'compact'
 }) {
+  const { dated } = headings
+
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-6',
+        dated && 'lg:flex-row lg:gap-[30px] printWide:flex-row printWide:gap-[30px]',
+      )}
+    >
+      <DayColumn
+        className="lg:flex-[2] printWide:flex-[2]"
+        heading={headings.today}
+        forecast={today}
+        elevationBandNames={elevationBandNames}
+        variant={dated ? 'today' : 'compact'}
+      />
+      <DayColumn
+        className="lg:flex-1 printWide:flex-1"
+        heading={headings.tomorrow}
+        forecast={tomorrow}
+        elevationBandNames={elevationBandNames}
+        variant={dated ? 'outlook' : 'compact'}
+      />
+    </div>
+  )
+}
+
+function DayColumn({
+  className,
+  forecast,
+  ...day
+}: Omit<DangerDayProps, 'forecast'> & {
+  className: string
+  forecast: AvalancheDangerForecast | undefined
+}) {
+  if (!forecast) return null
+
   return (
     <div className={className}>
-      {today && (
-        <div className="lg:flex-[3] printWide:flex-[3]">
-          <DangerDay
-            heading={headings.today}
-            forecast={today}
-            elevationBandNames={elevationBandNames}
-            variant={todayVariant}
-          />
-        </div>
-      )}
-      {tomorrow && (
-        <div className="lg:flex-[2] printWide:flex-[2]">
-          <DangerDay
-            heading={headings.tomorrow}
-            forecast={tomorrow}
-            elevationBandNames={elevationBandNames}
-            variant="compact"
-          />
-        </div>
-      )}
+      <DangerDay forecast={forecast} {...day} />
     </div>
   )
 }
@@ -130,11 +141,18 @@ function DatedDangerExtras({ noRatingToday }: { noRatingToday: boolean }) {
   )
 }
 
+/**
+ * `today` draws the triangle behind the rows; `outlook` drops the elevation labels beside today
+ * (its rows line up with today's), keeping them once the columns stack; `compact` is the
+ * all-zones card, labels always and no triangle.
+ */
+type DangerDayVariant = 'today' | 'outlook' | 'compact'
+
 interface DangerDayProps {
   heading: string
   forecast: AvalancheDangerForecast
   elevationBandNames: ElevationBandNames
-  variant: 'detailed' | 'compact'
+  variant: DangerDayVariant
 }
 
 function DangerDay({ heading, forecast, elevationBandNames, variant }: DangerDayProps) {
@@ -144,78 +162,70 @@ function DangerDay({ heading, forecast, elevationBandNames, variant }: DangerDay
     { label: elevationBandNames.lower, level: forecast.lower },
   ]
 
-  if (variant === 'compact') {
-    return (
-      <div className="space-y-3">
-        <h4 className="text-sm font-semibold">{heading}</h4>
-        <div className="flex flex-col gap-1">
-          {bands.map((band, i) => {
-            const size = dangerIconSize(band.level)
-            return (
-              <div key={i} className="flex min-h-[64px] items-center gap-3 rounded bg-muted px-3">
-                {/* Muted single-line band label (br collapsed) keeps the outlook compact. */}
-                <span
-                  className="min-w-0 flex-1 truncate text-xs text-muted-foreground [&_br]:hidden"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(band.label) }}
-                />
-                <span className="font-semibold">{dangerLevelLabel(band.level)}</span>
-                <Image
-                  src={dangerIconUrl(band.level)}
-                  alt={dangerName(band.level)}
-                  width={size.width}
-                  height={size.height}
-                  className="h-9 w-auto shrink-0"
-                />
-              </div>
-            )
-          })}
-        </div>
+  return (
+    <div>
+      <h4 className="mb-3 text-sm font-semibold">{heading}</h4>
+      {/* Rows, then the triangle over their backgrounds, then the row content over the triangle
+          (it is raised with z-[1]) — the widget's stacking. */}
+      <div className="relative">
+        {bands.map((band, i) => (
+          <DangerRow key={i} label={band.label} level={band.level} variant={variant} />
+        ))}
+        {variant === 'today' && (
+          <DangerTriangle
+            upper={forecast.upper}
+            middle={forecast.middle}
+            lower={forecast.lower}
+            className="pointer-events-none absolute bottom-0 right-1/2 top-0 h-full w-auto sm:left-[70px] sm:right-auto md:left-[20%]"
+          />
+        )}
       </div>
-    )
-  }
+    </div>
+  )
+}
+
+/**
+ * One elevation band at the widget's dimensions: a 90px gray row (60px on phones), the rating from
+ * 70% across, and a 50px icon centered on the row's right edge, hanging into the row's right margin.
+ */
+function DangerRow({
+  label,
+  level,
+  variant,
+}: {
+  label: string
+  level: DangerLevel
+  variant: DangerDayVariant
+}) {
+  const size = dangerIconSize(level)
+  const outlook = variant === 'outlook'
 
   return (
-    <div className="space-y-3">
-      <h4 className="text-sm font-semibold">{heading}</h4>
-      {/* Three stacked layers: gray row backgrounds, the color-coded triangle, then the content
-          (white elevation pills over the triangle + rating + diamond icon). */}
-      <div className="relative">
-        <div className="absolute inset-0 flex flex-col gap-1">
-          {bands.map((_, i) => (
-            <div key={i} className="flex-1 rounded bg-muted" />
-          ))}
-        </div>
-        <DangerTriangle
-          upper={forecast.upper}
-          middle={forecast.middle}
-          lower={forecast.lower}
-          className="pointer-events-none absolute left-2 top-0 h-full w-auto"
-        />
-        <div className="relative flex flex-col gap-1">
-          {bands.map((band, i) => {
-            const size = dangerIconSize(band.level)
-            return (
-              <div key={i} className="flex min-h-[64px] items-center gap-2 px-2">
-                {/* Elevation labels may contain HTML (e.g. "Upper Elevations <br> 7500-5500ft") */}
-                <span
-                  className="max-w-[45%] rounded border bg-background px-2 py-1 text-xs font-semibold leading-tight text-muted-foreground shadow-sm"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(band.label) }}
-                />
-                <span className="ml-auto text-base font-bold sm:text-lg printWide:text-lg">
-                  {dangerLevelLabel(band.level)}
-                </span>
-                <Image
-                  src={dangerIconUrl(band.level)}
-                  alt={dangerName(band.level)}
-                  width={size.width}
-                  height={size.height}
-                  className="h-11 w-auto shrink-0"
-                />
-              </div>
-            )
-          })}
-        </div>
-      </div>
+    <div className="relative mb-[3px] mr-[35px] h-[60px] bg-muted sm:mb-[5px] sm:mr-[45px] sm:h-[90px]">
+      {/* Elevation labels may contain HTML (e.g. "Upper Elevations <br> 7500-5500ft") */}
+      <span
+        className={cn(
+          'absolute left-0 top-1/2 z-[1] max-w-[45%] -translate-y-1/2 rounded border bg-background px-2 py-1 text-xs font-semibold leading-tight text-muted-foreground shadow-sm sm:left-[15px]',
+          outlook && 'lg:hidden printWide:hidden',
+        )}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(label) }}
+      />
+      <span
+        className={cn(
+          'absolute right-0 top-1/2 z-[1] w-[150px] -translate-y-1/2 text-base font-bold md:w-[30%] sm:text-lg printWide:text-lg',
+          outlook &&
+            'lg:left-[30px] lg:right-auto lg:w-auto printWide:left-[30px] printWide:right-auto printWide:w-auto',
+        )}
+      >
+        {dangerLevelLabel(level)}
+      </span>
+      <Image
+        src={dangerIconUrl(level)}
+        alt={dangerName(level)}
+        width={size.width}
+        height={size.height}
+        className="absolute left-full top-1/2 z-[1] -ml-5 h-10 w-auto max-w-none -translate-y-1/2 sm:-ml-[25px] sm:h-[50px]"
+      />
     </div>
   )
 }

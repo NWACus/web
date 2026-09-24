@@ -70,7 +70,7 @@ test.describe('Forecast archive mountain weather', () => {
       'href',
       '/weather/forecast',
     )
-    await expect(page.getByText(/Issued:\s*Monday, April 6, 2026 at 5:06 AM\s+MDT/)).toBeVisible()
+    await expect(page.getByText('Monday, April 6, 2026 - 5:06AM', { exact: true })).toBeVisible()
     await expect(page.getByText(/Models do not predict any snowfall/)).toBeVisible()
     // The breadcrumb names the product by the day it was issued, not by its id.
     await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toContainText(

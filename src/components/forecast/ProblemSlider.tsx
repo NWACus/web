@@ -1,90 +1,59 @@
 /**
- * ProblemSlider — vertical severity number line with highlighted range.
- * Pixel-perfect port from avy/components/SeverityNumberLine.tsx.
+ * Likelihood and size scales for an avalanche problem — a port of the legacy afp widget's
+ * ProblemSlider.vue at its dimensions: a 200px vertical rail (175px on phones) with a tick at each
+ * labeled step, the forecast value or range boxed, and its labels bolded.
  *
- * Two variants:
- * - Likelihood: 5 labels, single value highlighted (from === to)
- * - Size: 4 labels, min/max range highlighted
+ * Steps are indexed from the bottom, as in the widget. Size runs in half steps (a "D1.5" range
+ * ends between two ticks), so its scale has seven steps with only the whole sizes labeled.
  */
-import { AvalancheProblemLikelihood, AvalancheProblemSize } from '@/services/nac/model/forecast'
-
-// ─── Shared slider core ────────────────────────────────────────────────────
+import { AvalancheProblemLikelihood } from '@/services/nac/model/forecast'
+import { cn } from '@/utilities/ui'
 
 interface ProblemSliderCoreProps {
-  labels: string[]
-  /** [from, to] indices into the labels array, 0 = topmost label */
-  range: [number, number]
-  className?: string
+  /** Bottom to top; a null step has no tick or label. */
+  labels: (string | null)[]
+  /** [from, to] step indices of the forecast value, or null when there is none to mark. */
+  range: [number, number] | null
 }
 
-const PADDING = 5
-const STROKE_WIDTH = 2
-const AXIS_HEIGHT = 200
-const RANGE_PADDING = 4
-const LINE_COLOR = 'rgb(81,85,88)'
-const RANGE_FILL = 'rgb(200,202,206)'
-const ACTIVE_COLOR = 'rgb(30,35,38)'
-const INACTIVE_COLOR = 'rgb(168,170,172)'
-
-function yPos(index: number, labelCount: number): number {
-  return PADDING + STROKE_WIDTH / 2 + AXIS_HEIGHT * (index / (labelCount - 1))
-}
-
-function ProblemSliderCore({ labels, range, className }: ProblemSliderCoreProps) {
-  const [from, to] = range
-  const svgHeight = 2 * PADDING + STROKE_WIDTH + AXIS_HEIGHT
-  const rangeTop = yPos(from, labels.length) + RANGE_PADDING
-  const rangeHeight = yPos(to, labels.length) - yPos(from, labels.length) - RANGE_PADDING * 2
+function ProblemSliderCore({ labels, range }: ProblemSliderCoreProps) {
+  const percent = (index: number) => (index / (labels.length - 1)) * 100
 
   return (
-    <div
-      className={className}
-      style={{ display: 'flex', flexDirection: 'row', aspectRatio: '4/5' }}
-    >
-      <div style={{ height: '80%', display: 'flex', alignItems: 'center' }}>
-        <svg
-          viewBox={`0 0 25 ${svgHeight}`}
-          fillRule="evenodd"
-          clipRule="evenodd"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeMiterlimit={1.5}
-          style={{ height: '100%', aspectRatio: `${25}/${AXIS_HEIGHT}`, marginRight: 4 }}
-        >
-          {/* Axis line */}
-          <path stroke={LINE_COLOR} strokeWidth={STROKE_WIDTH} d="M12.5,6l0,200Z" />
-          {/* Highlighted range rectangle */}
-          <path
-            stroke={LINE_COLOR}
-            strokeWidth={STROKE_WIDTH}
-            fill={RANGE_FILL}
-            d={`M0,${rangeTop}l25,0l0,${rangeHeight}l-25,0l0,${-rangeHeight}Z`}
+    <div className="relative mx-auto mb-10 h-[175px] w-32 p-2 sm:h-[200px]">
+      <div className="relative left-[15px] top-0 h-full w-[3px] bg-[#515558]">
+        {labels.map((label, index) =>
+          label ? (
+            <div
+              key={`step-${index}`}
+              className="absolute -left-[11px] h-1 w-6 bg-[#515558]"
+              style={{ bottom: `${percent(index)}%` }}
+            />
+          ) : null,
+        )}
+        {range && (
+          <div
+            className="absolute -left-[11px] w-6 -translate-y-px border-2 border-[#515558] bg-[#c8cace]"
+            style={{
+              bottom: `calc(${percent(range[0])}% - 4px)`,
+              top: `calc(${100 - percent(range[1])}% - 4px)`,
+            }}
           />
-        </svg>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          height: '83%',
-        }}
-      >
+        )}
         {labels.map((label, index) => {
-          const isActive = from <= index && index <= to
+          if (!label) return null
+          const active = range != null && index >= range[0] && index <= range[1]
           return (
-            <span
-              key={label}
-              style={{
-                fontWeight: isActive ? 'bold' : 'normal',
-                color: isActive ? ACTIVE_COLOR : INACTIVE_COLOR,
-                fontSize: '0.75rem',
-                lineHeight: 1,
-                whiteSpace: 'nowrap',
-              }}
+            <div
+              key={`label-${index}`}
+              className={cn(
+                'absolute left-5 w-32 translate-y-1.5 text-left text-sm leading-none',
+                active ? 'font-bold text-foreground' : 'text-[#a8aaac]',
+              )}
+              style={{ bottom: `${percent(index)}%` }}
             >
               {label}
-            </span>
+            </div>
           )
         })}
       </div>
@@ -92,77 +61,51 @@ function ProblemSliderCore({ labels, range, className }: ProblemSliderCoreProps)
   )
 }
 
-// ─── Likelihood variant ────────────────────────────────────────────────────
+// ─── Likelihood ────────────────────────────────────────────────────────────
 
-interface LikelihoodSliderProps {
-  likelihood: AvalancheProblemLikelihood
-  className?: string
-}
+const LIKELIHOOD_LABELS = ['Unlikely', 'Possible', 'Likely', 'Very Likely', 'Certain']
 
-function likelihoodText(input: string): string {
-  return input
-    .toLowerCase()
-    .split(' ')
-    .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-    .join(' ')
-}
-
-// Maps likelihood enum → label index (0 = topmost = most severe)
-// "Certain" and "Almost Certain" both map to index 0 (top label is "Certain")
-const likelihoodIndex: Record<AvalancheProblemLikelihood, number> = {
-  [AvalancheProblemLikelihood.Certain]: 0,
-  [AvalancheProblemLikelihood.AlmostCertain]: 0,
-  [AvalancheProblemLikelihood.VeryLikely]: 1,
+/** "Almost certain" is an older spelling of the top step; the widget's lookup missed it entirely. */
+const likelihoodStep: Record<AvalancheProblemLikelihood, number> = {
+  [AvalancheProblemLikelihood.Unlikely]: 0,
+  [AvalancheProblemLikelihood.Possible]: 1,
   [AvalancheProblemLikelihood.Likely]: 2,
-  [AvalancheProblemLikelihood.Possible]: 3,
-  [AvalancheProblemLikelihood.Unlikely]: 4,
+  [AvalancheProblemLikelihood.VeryLikely]: 3,
+  [AvalancheProblemLikelihood.AlmostCertain]: 4,
+  [AvalancheProblemLikelihood.Certain]: 4,
 }
 
-const LIKELIHOOD_LABELS = [
-  likelihoodText(AvalancheProblemLikelihood.Certain),
-  likelihoodText(AvalancheProblemLikelihood.VeryLikely),
-  likelihoodText(AvalancheProblemLikelihood.Likely),
-  likelihoodText(AvalancheProblemLikelihood.Possible),
-  likelihoodText(AvalancheProblemLikelihood.Unlikely),
-]
-
-export function LikelihoodSlider({ likelihood, className }: LikelihoodSliderProps) {
-  const idx = likelihoodIndex[likelihood] ?? 4
-  return <ProblemSliderCore labels={LIKELIHOOD_LABELS} range={[idx, idx]} className={className} />
+export function LikelihoodSlider({ likelihood }: { likelihood: AvalancheProblemLikelihood }) {
+  const step = likelihoodStep[likelihood]
+  return (
+    <ProblemSliderCore
+      labels={LIKELIHOOD_LABELS}
+      range={step === undefined ? null : [step, step]}
+    />
+  )
 }
 
-// ─── Size variant ──────────────────────────────────────────────────────────
-
-interface SizeSliderProps {
-  size: number[]
-  className?: string
-}
-
-function sizeText(input: AvalancheProblemSize): string {
-  switch (input) {
-    case AvalancheProblemSize.Historic:
-      return 'Historic (D4-5)'
-    case AvalancheProblemSize.VeryLarge:
-      return 'Very Large (D3)'
-    case AvalancheProblemSize.Large:
-      return 'Large (D2)'
-    case AvalancheProblemSize.Small:
-      return 'Small (D1)'
-  }
-}
+// ─── Size ──────────────────────────────────────────────────────────────────
 
 const SIZE_LABELS = [
-  sizeText(AvalancheProblemSize.Historic),
-  sizeText(AvalancheProblemSize.VeryLarge),
-  sizeText(AvalancheProblemSize.Large),
-  sizeText(AvalancheProblemSize.Small),
+  'Small (D1)',
+  null,
+  'Large (D2)',
+  null,
+  'Very Large (D3)',
+  null,
+  'Historic (D4-5)',
 ]
 
-export function SizeSlider({ size, className }: SizeSliderProps) {
-  // SeverityNumberLine assumes 0 = topmost label (Historic).
-  // size[] values use AvalancheProblemSize enum (1=Small .. 4=Historic).
-  // Map: index = Historic(4) - sizeValue. Clamp to valid range [0, 3].
-  const from = Math.min(AvalancheProblemSize.Historic - 1, AvalancheProblemSize.Historic - size[0])
-  const to = Math.max(0, AvalancheProblemSize.Historic - size[1])
-  return <ProblemSliderCore labels={SIZE_LABELS} range={[from, to]} className={className} />
+/** Size 1–4 in half steps onto the seven-step scale, clamped to its ends. */
+function sizeStep(size: number): number {
+  return Math.min(SIZE_LABELS.length - 1, Math.max(0, Math.round((size - 1) * 2)))
+}
+
+export function SizeSlider({ size }: { size: number[] }) {
+  if (size.length === 0) return <ProblemSliderCore labels={SIZE_LABELS} range={null} />
+
+  const from = sizeStep(Math.min(...size))
+  const to = sizeStep(Math.max(...size))
+  return <ProblemSliderCore labels={SIZE_LABELS} range={[from, to]} />
 }

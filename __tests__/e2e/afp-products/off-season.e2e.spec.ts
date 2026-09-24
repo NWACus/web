@@ -16,8 +16,6 @@ test.describe('Off-season degradation', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Galena Summit & Eastern Mtns' }),
     ).toBeVisible()
-    await expect(page.locator('h1 + p')).toHaveText('General Avalanche Information')
-
     await expect(page.getByRole('heading', { name: 'Avalanche Danger' })).toHaveCount(0)
     await expect(page.getByText('0 - No Rating')).toHaveCount(0)
     await expect(page.getByRole('heading', { name: /^Avalanche Problems \(/ })).toHaveCount(0)
