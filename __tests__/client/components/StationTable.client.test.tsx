@@ -15,7 +15,8 @@ function station(overrides: Partial<StationMapStation>): StationMapStation {
     observedAt: '2026-09-10T22:00:00Z',
     data: {},
     zone: 'Olympics',
-    href: null,
+    href: '/weather/stations/station/nwac/1',
+    areaHref: null,
     ...overrides,
   }
 }
@@ -26,7 +27,7 @@ const stations = [
     name: 'Hurricane Ridge',
     elevation: 5250,
     data: { air_temp: 34, wind_speed: 25 },
-    href: '/weather/stations/hurricane-ridge',
+    href: '/weather/stations/station/nwac/hurricane',
   }),
   station({ stid: 'old', name: 'Old Station', elevation: 1200, data: { air_temp: 20 } }),
   station({ stid: 'hood', name: 'Timberline', zone: 'Mt Hood', data: { wind_speed: 5 } }),
@@ -116,11 +117,11 @@ describe('StationTable', () => {
     expect(olympics).toEqual(['Old Station', 'Hurricane Ridge'])
   })
 
-  it('links a station to its page when it has one, and names it plainly when it does not', () => {
+  it('links every station to its detail page, as the widget opened its station modal', () => {
     const { onOpenStation } = renderTable()
     const link = screen.getByRole('link', { name: 'Hurricane Ridge' })
-    expect(link).toHaveAttribute('href', '/weather/stations/hurricane-ridge')
-    expect(screen.queryByRole('link', { name: 'Old Station' })).not.toBeInTheDocument()
+    expect(link).toHaveAttribute('href', '/weather/stations/station/nwac/hurricane')
+    expect(screen.getAllByRole('link')).toHaveLength(stations.length)
 
     fireEvent.click(link)
     expect(onOpenStation).toHaveBeenCalled()

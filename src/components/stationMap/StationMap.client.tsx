@@ -398,7 +398,7 @@ function MapSurface({ surface }: { surface: Surface }) {
 
 /**
  * The table's search, as the widget's: picking a station picks out its row, picking the same
- * station again opens it, and clearing the search lets the row go. Webcams have no row, so the
+ * station again opens its detail page, and clearing the search lets the row go. Webcams have no row, so the
  * search offers only stations here.
  */
 function useTableSearch(shared: SharedView, table: StationTableState) {
@@ -416,10 +416,10 @@ function useTableSearch(shared: SharedView, table: StationTableState) {
       track('Filters » Station Search Click')
       if (station.stid !== highlighted) {
         setHighlighted(station.stid)
-      } else if (station.href) {
-        track('Table » Open Station')
-        router.push(station.href)
+        return
       }
+      track('Table » Open Station')
+      router.push(station.href)
     },
     [highlighted, setHighlighted, track, router],
   )

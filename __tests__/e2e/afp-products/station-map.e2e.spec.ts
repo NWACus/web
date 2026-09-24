@@ -104,6 +104,7 @@ test.describe('Station map table view', () => {
     await expect(stationNames(page)).toHaveText([
       'CW6318 Welches',
       'White Chuck Mountain',
+      'Hurricane Ridge',
       'Green Lake',
     ])
     await expect(table.getByRole('columnheader', { name: /Elev/ })).toHaveAttribute(
@@ -126,6 +127,7 @@ test.describe('Station map table view', () => {
     await expect(elevation).toHaveAttribute('aria-sort', 'descending')
     await expect(stationNames(page)).toHaveText([
       'Green Lake',
+      'Hurricane Ridge',
       'White Chuck Mountain',
       'CW6318 Welches',
     ])
@@ -145,6 +147,7 @@ test.describe('Station map table view', () => {
     await expect(stationNames(page)).toHaveText([
       'CW6318 Welches',
       'White Chuck Mountain',
+      'Hurricane Ridge',
       'Green Lake',
     ])
   })
@@ -190,6 +193,7 @@ test.describe('Station map table view', () => {
     await expect(stationNames(page)).toHaveText([
       'CW6318 Welches',
       'White Chuck Mountain',
+      'Hurricane Ridge',
       'Green Lake',
     ])
     await expect(page).toHaveURL(/[?&]zone=Other/)

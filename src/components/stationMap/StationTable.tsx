@@ -153,8 +153,8 @@ function HeaderCell({
 
 // --- Body ----------------------------------------------------------------------------------------
 
+/** The station's detail page — the native stand-in for the widget table's 24h station modal. */
 function StationName({ station, onOpen }: { station: StationMapStation; onOpen: () => void }) {
-  if (!station.href) return <>{station.name}</>
   return (
     <Link
       href={station.href}
