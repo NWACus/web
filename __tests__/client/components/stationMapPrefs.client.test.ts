@@ -1,4 +1,11 @@
-import { readUnitsPref, writeUnitsPref } from '@/components/stationMap/stationMapPrefs'
+import {
+  readColorRulesPref,
+  readSortPref,
+  readUnitsPref,
+  writeColorRulesPref,
+  writeSortPref,
+  writeUnitsPref,
+} from '@/components/stationMap/stationMapPrefs'
 
 describe('the units preference', () => {
   beforeEach(() => window.localStorage.clear())
@@ -38,5 +45,30 @@ describe('the units preference', () => {
     expect(JSON.parse(window.localStorage.getItem('avyweb-station-map-nwac') ?? 'null')).toEqual({
       units: 'english',
     })
+  })
+})
+
+describe("the table's saved sort and color toggle", () => {
+  beforeEach(() => window.localStorage.clear())
+
+  it('round-trip per center, beside units', () => {
+    writeUnitsPref('sac', 'metric')
+    writeSortPref('sac', { column: 'air_temp', direction: 'desc' })
+    writeColorRulesPref('sac', false)
+
+    expect(readUnitsPref('sac')).toBe('metric')
+    expect(readSortPref('sac')).toEqual({ column: 'air_temp', direction: 'desc' })
+    expect(readColorRulesPref('sac')).toBe(false)
+    expect(readSortPref('nwac')).toBeUndefined()
+    expect(readColorRulesPref('nwac')).toBeUndefined()
+  })
+
+  it('ignores a malformed sort', () => {
+    window.localStorage.setItem(
+      'avyweb-station-map-sac',
+      '{"sort":{"column":"air_temp","direction":"sideways"},"colorRules":"yes"}',
+    )
+    expect(readSortPref('sac')).toBeUndefined()
+    expect(readColorRulesPref('sac')).toBeUndefined()
   })
 })

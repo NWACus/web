@@ -357,6 +357,11 @@ sig = "f010ada87a757f62"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/services/snowobs/stationMap/table.ts"
+sig = "e655008b61c3ecaf"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/services/stations/getStationPages.ts"
 sig = "c19b9d838501d204"
 

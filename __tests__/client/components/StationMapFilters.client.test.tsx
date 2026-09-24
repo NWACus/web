@@ -1,11 +1,14 @@
-import { StationMapFilters } from '@/components/stationMap/StationMapFilters'
+import {
+  StationMapFilters,
+  type StationMapFiltersProps,
+} from '@/components/stationMap/StationMapFilters'
 import {
   DEFAULT_FILTERS,
   type StationMapFilters as Filters,
   type MapPoint,
 } from '@/services/snowobs/stationMap/filters'
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 
 const variables = [
   { variable: 'snow_depth', longName: 'Snow Depth' },
@@ -40,10 +43,16 @@ function renderFilters(
   filters: Filters = DEFAULT_FILTERS,
   zoneNames = ['Olympics', 'Mt Hood', 'Stevens Pass'],
   visibleCounts = { stations: 12, webcams: 0 },
+  {
+    display = 'map',
+    colorRules = null,
+    tableChanged = false,
+  }: Partial<Pick<StationMapFiltersProps, 'display' | 'colorRules' | 'tableChanged'>> = {},
 ) {
   const onChange = jest.fn()
   const onReset = jest.fn()
   const onSearchSelect = jest.fn()
+  const onDisplayChange = jest.fn()
   render(
     <StationMapFilters
       filters={filters}
@@ -54,10 +63,13 @@ function renderFilters(
       visibleCounts={visibleCounts}
       searchPoints={points}
       onSearchSelect={onSearchSelect}
-      tableHref="/weather/stations"
+      display={display}
+      onDisplayChange={onDisplayChange}
+      colorRules={colorRules}
+      tableChanged={tableChanged}
     />,
   )
-  return { onChange, onReset, onSearchSelect }
+  return { onChange, onReset, onSearchSelect, onDisplayChange }
 }
 
 describe('StationMapFilters', () => {
@@ -141,9 +153,41 @@ describe('StationMapFilters', () => {
     expect(screen.getByText('No results')).toBeInTheDocument()
   })
 
-  it('links to the table view', () => {
+  it('swaps the map for the table, and the table back for the map, as the widget did', () => {
+    const { onDisplayChange } = renderFilters()
+    fireEvent.click(screen.getByRole('button', { name: 'Table' }))
+    expect(onDisplayChange).toHaveBeenCalledWith('table')
+    cleanup()
+
+    const table = renderFilters(DEFAULT_FILTERS, undefined, undefined, { display: 'table' })
+    fireEvent.click(screen.getByRole('button', { name: 'Map' }))
+    expect(table.onDisplayChange).toHaveBeenCalledWith('map')
+  })
+
+  it('offers Reset for a table sort or pick even with no filter set', () => {
     renderFilters()
-    expect(screen.getByRole('link', { name: /Table/ })).toHaveAttribute('href', '/weather/stations')
+    expect(screen.queryByRole('button', { name: 'Reset' })).not.toBeInTheDocument()
+    cleanup()
+
+    const { onReset } = renderFilters(DEFAULT_FILTERS, undefined, undefined, { tableChanged: true })
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
+    expect(onReset).toHaveBeenCalled()
+  })
+
+  it('offers the color-rules switch in Settings only when the center has color rules', () => {
+    renderFilters()
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }))
+    expect(screen.queryByRole('radio', { name: 'On' })).not.toBeInTheDocument()
+    cleanup()
+
+    const onColorRules = jest.fn()
+    renderFilters(DEFAULT_FILTERS, undefined, undefined, {
+      colorRules: { on: true, onChange: onColorRules },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }))
+    expect(screen.getByRole('radio', { name: 'On' })).toBeChecked()
+    fireEvent.click(screen.getByRole('radio', { name: 'Off' }))
+    expect(onColorRules).toHaveBeenCalledWith(false)
   })
 })
 

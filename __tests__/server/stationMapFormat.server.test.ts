@@ -1,5 +1,6 @@
 import {
   formatObservedAt,
+  formatObservedTime,
   minutesSince,
   normalizeSource,
   orderVariables,
@@ -112,5 +113,17 @@ describe('reading times', () => {
 
   it('falls back to UTC rather than throwing on a timezone Intl rejects', () => {
     expect(formatObservedAt('2026-09-10T22:00:00Z', 'Not/AZone')).toBe('Sep 10 22:00')
+  })
+})
+
+describe('formatObservedTime', () => {
+  it("shows just the clock time in the center's zone, as the widget's table does", () => {
+    expect(formatObservedTime('2026-09-10T22:00:00Z', 'America/Los_Angeles')).toBe('15:00')
+    expect(formatObservedTime('2026-01-05T03:05:00Z', 'America/Denver')).toBe('20:05')
+  })
+
+  it('shows a dash with no reading, and UTC for a zone Intl rejects', () => {
+    expect(formatObservedTime(null, 'America/Los_Angeles')).toBe('—')
+    expect(formatObservedTime('2026-09-10T22:00:00Z', 'Not/AZone')).toBe('22:00')
   })
 })

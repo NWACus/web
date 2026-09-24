@@ -24,6 +24,7 @@ const SETTINGS: StationMapSettings = {
   sourceLegend: false,
   sourceMarkerColor: true,
   alternateZones: null,
+  colorRules: false,
 }
 
 /** Roughly SAC's single forecast zone, and the box around it. */
