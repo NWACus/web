@@ -12,12 +12,13 @@
 import { loadDetail } from '@/components/observations/detail/loadDetail'
 import { todayInTimezone } from '@/services/nac/forecastArchive'
 import type { ObservationKind } from '@/services/nac/model/observation'
+import { isObsStatus } from '@/services/nac/obsApi'
 import {
   avalancheCard,
   observationCard,
   type ObservationListResponse,
 } from '@/services/nac/observations/cards'
-import { readFilters, readListState } from '@/services/nac/observations/filters'
+import { readFilters, readListState, seasonOf } from '@/services/nac/observations/filters'
 import type { BBox, ListRequest } from '@/services/nac/observations/listParams'
 import { isObservationId } from '@/services/nac/observations/routes'
 import { getObservationSource } from '@/services/nac/sources'
@@ -94,7 +95,7 @@ async function cardsOrFirstPage(center: string, request: ListRequest) {
   try {
     return await fetchCards(center, request)
   } catch (error) {
-    if (request.list.page === 1) throw error
+    if (request.list.page === 1 || !isObsStatus(error, 500)) throw error
     return fetchCards(center, { ...request, list: { ...request.list, page: 1 } })
   }
 }
@@ -129,17 +130,25 @@ function tileCoordinate(raw: string, max = Infinity): number | null {
 /** The tile's coordinates (Mapbox asks for `{y}` bare; an `.mvt` suffix is tolerated). */
 function readTile(raw: { z: string; x: string; y: string }) {
   const z = tileCoordinate(raw.z, MAX_TILE_ZOOM)
-  const x = tileCoordinate(raw.x)
+  if (z === null) return null
+  const max = 2 ** z - 1
+  const x = tileCoordinate(raw.x, max)
   // Drops a trailing `.mvt` from the y segment.
-  const y = tileCoordinate(raw.y.replace(/\.mvt$/, ''))
-  return z === null || x === null || y === null ? null : { z, x, y }
+  const y = tileCoordinate(raw.y.replace(/\.mvt$/, ''), max)
+  return x === null || y === null ? null : { z, x, y }
+}
+
+/** Within one season, as the viewer only ever asks, so a tile can't query all of history. */
+function isSeasonRange(from: string, to: string): boolean {
+  return from <= to && seasonOf(from) === seasonOf(to)
 }
 
 function readDates(request: NextRequest) {
   const param = (key: string) => request.nextUrl.searchParams.get(key) ?? ''
   const from = param('startDate')
   const to = param('endDate')
-  return ISO_DAY.test(from) && ISO_DAY.test(to) ? { from, to } : null
+  const valid = [from, to].every((day) => ISO_DAY.test(day)) && isSeasonRange(from, to)
+  return valid ? { from, to } : null
 }
 
 function tileResponse(tile: ArrayBuffer | null): NextResponse {

@@ -7,17 +7,19 @@
  *
  * Orientation, not data: if the layer fails to load the map simply has no outlines.
  */
-import type { Map as MapboxMap } from 'mapbox-gl'
+import type { MapMouseEvent, Map as MapboxMap } from 'mapbox-gl'
 import { useEffect, useState } from 'react'
 
 import { hasSource } from '@/components/map/mapbox'
 import { isRecord } from '@/utilities/isRecord'
 
 import { MARKER_LAYER_ID } from './useMarkerLayers'
+import { PHONE_WIDTH } from './useObservationMap'
 
 const SOURCE_ID = 'observation-zones'
 const FILL_ID = 'observation-zones-fill'
 const LINE_ID = 'observation-zones-line'
+const HOVER_CLEAR_MS = 2000
 
 type FeatureCollection = GeoJSON.FeatureCollection
 
@@ -71,17 +73,65 @@ function removeZoneLayers(map: MapboxMap) {
   map.removeSource(SOURCE_ID)
 }
 
+export interface HoveredZone {
+  name: string
+  center: string
+}
+
+function zoneFromProperties({ name, center }: Record<string, unknown>): HoveredZone | null {
+  if (typeof name !== 'string') return null
+  return { name, center: typeof center === 'string' ? center : '' }
+}
+
+function zoneOf(feature: GeoJSON.Feature | undefined): HoveredZone | null {
+  return zoneFromProperties(feature?.properties ?? {})
+}
+
+function zoneKey(zone: HoveredZone | null): string {
+  return zone === null ? '' : `${zone.center}|${zone.name}`
+}
+
+/**
+ * The widget's zone card, on desktop only: the zone under the pointer, cleared 2s after the
+ * pointer last moved over it.
+ */
+function useZoneHover(map: MapboxMap | null, active: boolean): HoveredZone | null {
+  const [zone, setZone] = useState<HoveredZone | null>(null)
+  useEffect(() => {
+    if (!map || !active || window.innerWidth < PHONE_WIDTH) return
+    let timer: number | undefined
+    const onMove = (event: MapMouseEvent) => {
+      window.clearTimeout(timer)
+      if (!map.getLayer(FILL_ID)) return
+      const hovered = zoneOf(map.queryRenderedFeatures(event.point, { layers: [FILL_ID] })[0])
+      setZone((current) => (zoneKey(current) === zoneKey(hovered) ? current : hovered))
+      if (hovered) timer = window.setTimeout(() => setZone(null), HOVER_CLEAR_MS)
+    }
+    map.on('mousemove', onMove)
+    return () => {
+      window.clearTimeout(timer)
+      map.off('mousemove', onMove)
+      setZone(null)
+    }
+  }, [map, active])
+  return zone
+}
+
+/** Draws the outlines, and reports the zone hovered over. */
 export function useZoneOutlines(
   map: MapboxMap | null,
   styleReady: boolean,
   centerSlug: string,
   allZones: boolean,
-) {
+): HoveredZone | null {
   const layer = useZoneLayer(centerSlug, allZones)
+  const drawn = Boolean(map && styleReady && layer)
 
   useEffect(() => {
     if (!map || !styleReady || !layer) return
     addZoneLayers(map, layer)
     return () => removeZoneLayers(map)
   }, [map, styleReady, layer])
+
+  return useZoneHover(map, drawn)
 }

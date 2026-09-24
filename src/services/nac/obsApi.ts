@@ -69,6 +69,11 @@ async function obsFetch(
   return res
 }
 
+/** Whether a failed request was the observation API answering with this status. */
+export function isObsStatus(error: unknown, status: number): boolean {
+  return error instanceof NACError && error.context?.status === status
+}
+
 /** Parsed JSON, or `null` for a 204. Throws `NACError` on any failure. */
 export async function obsFetchJson(
   centerSlug: string,

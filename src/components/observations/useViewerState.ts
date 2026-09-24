@@ -38,6 +38,7 @@ export function useViewerState(settings: ObservationViewerSettings, initialTab: 
     prefix: location.prefix,
     tab: location.tab,
     recordOpen: location.detail !== null,
+    zones: settings.zones,
   })
   const [place, setPlace] = useState<ChosenPlace | null>(null)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)

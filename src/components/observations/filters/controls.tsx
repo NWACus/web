@@ -58,17 +58,24 @@ export function CheckOption({
   )
 }
 
-/** A fieldset of checkboxes over a list filter, with the widget's "All …" option first. */
+/**
+ * A fieldset of checkboxes over a list filter, with the widget's "All …" option first. "All" can
+ * span more than this list, as "All Triggers" also clears the secondary causes.
+ */
 export function CheckList<T extends string>({
   legend,
   allLabel,
   options,
   selected,
   onChange,
+  allChecked = selected.length === 0,
+  onAll = () => onChange([]),
   columns = 1,
 }: {
   legend: string
   allLabel?: string
+  allChecked?: boolean
+  onAll?: () => void
   options: readonly { value: T; label: string }[]
   selected: readonly T[]
   onChange: (next: T[]) => void
@@ -79,13 +86,7 @@ export function CheckList<T extends string>({
   return (
     <fieldset>
       <legend className="mb-1 text-sm font-semibold">{legend}</legend>
-      {allLabel && (
-        <CheckOption
-          label={allLabel}
-          checked={selected.length === 0}
-          onChange={() => onChange([])}
-        />
-      )}
+      {allLabel && <CheckOption label={allLabel} checked={allChecked} onChange={onAll} />}
       <div className={columns === 2 ? 'grid grid-cols-2 gap-x-3' : ''}>
         {options.map((option) => (
           <CheckOption

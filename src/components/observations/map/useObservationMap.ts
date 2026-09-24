@@ -4,9 +4,9 @@
  * The observation map's instance, camera and viewport.
  *
  * The viewport is half of the list's query (inventory row O11): the list shows what is inside the
- * map. So the map reports its bounds on `idle`, 400ms after the last one as the widget debounces
- * them, and a move under 0.0001° is not a move — `idle` also fires after a modal opens or the map
- * resizes, and neither should refetch the list.
+ * map. So the map reports its bounds once built and after every move or resize, 400ms after the
+ * last as the widget debounces them, and a move under 0.0001° is not a move. It doesn't wait for
+ * `idle`, which never comes if the basemap style fails to load — the list must still list.
  */
 import type { Map as MapboxMap } from 'mapbox-gl'
 import mapboxgl from 'mapbox-gl'
@@ -92,6 +92,8 @@ function buildMap(container: HTMLDivElement, token: string, camera: Camera): Map
     zoom: camera.zoom,
     // Scroll-zoom only with a modifier, so the map never hijacks a page scroll.
     cooperativeGestures: true,
+    // One world, so the viewport the list is asked for is always the one the markers are drawn in.
+    renderWorldCopies: false,
   })
   disableRotation(map)
   return map
@@ -156,33 +158,47 @@ export function useObservationMap(
     // Built once; the camera is only where it opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
-  const styleReady = useStyleReady(map)
+  const styleStatus = useStyleStatus(map)
 
   useViewport(map, setBBox)
 
   // Without a map there is no viewport; the center's zones stand in for it, so the list still lists.
   const fallbackBBox = unsupported ? fallbackViewport(settings) : null
-  return { map, styleReady, unsupported, bbox: fallbackBBox ?? bbox }
+  return {
+    map,
+    styleReady: styleStatus === 'ready',
+    styleFailed: styleStatus === 'failed',
+    unsupported,
+    bbox: fallbackBBox ?? bbox,
+  }
 }
 
+type StyleStatus = 'loading' | 'ready' | 'failed'
+
 /**
- * Whether the style has loaded, so layers can be added. Tracked from `style.load` rather than
- * asked of `isStyleLoaded()`, which also reports false while tiles are merely in flight. The map
- * is built in the same commit this subscribes in, and its style arrives over the network, so the
- * event cannot have fired yet.
+ * Whether the style has loaded, so layers can be added, or failed to (a blocked or rate-limited
+ * Mapbox). Tracked from `style.load` rather than asked of `isStyleLoaded()`, which also reports
+ * false while tiles are merely in flight. The map is built in the same commit this subscribes in,
+ * and its style arrives over the network, so the event cannot have fired yet.
  */
-function useStyleReady(map: MapboxMap | null): boolean {
-  const [ready, setReady] = useState(false)
+function useStyleStatus(map: MapboxMap | null): StyleStatus {
+  const [status, setStatus] = useState<StyleStatus>('loading')
   useEffect(() => {
     if (!map) return
-    const onLoad = () => setReady(true)
+    const onLoad = () => {
+      map.off('error', onError)
+      setStatus('ready')
+    }
+    const onError = () => setStatus('failed')
     map.once('style.load', onLoad)
+    map.on('error', onError)
     return () => {
       map.off('style.load', onLoad)
-      setReady(false)
+      map.off('error', onError)
+      setStatus('loading')
     }
   }, [map])
-  return ready
+  return status
 }
 
 function fallbackViewport(settings: ObservationViewerSettings): BBox | null {
@@ -203,10 +219,13 @@ function useViewport(map: MapboxMap | null, setBBox: (update: (b: BBox | null) =
         setBBox((current) => (sameBBox(current, next) ? (current ?? next) : next))
       }, BOUNDS_DEBOUNCE_MS)
     }
-    map.on('idle', report)
+    report()
+    map.on('moveend', report)
+    map.on('resize', report)
     return () => {
       window.clearTimeout(timer)
-      map.off('idle', report)
+      map.off('moveend', report)
+      map.off('resize', report)
     }
   }, [map, setBBox])
 }

@@ -11,6 +11,8 @@ import {
 import { ObservationsTabRoute } from './ObservationsTabRoute'
 
 export const dynamic = 'force-static'
+// The native viewer bakes in the obs zones; rebuilt hourly to pick up changes or a failed fetch.
+export const revalidate = 3600 // Next.js requires a static literal here
 
 export const generateStaticParams = centerStaticParams
 

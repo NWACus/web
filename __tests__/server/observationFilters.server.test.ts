@@ -11,6 +11,7 @@ import {
   seasonRange,
   selectedPreset,
   writeFilters,
+  zoneIdsForNames,
   type ListState,
   type ObservationFilters,
 } from '@/services/nac/observations/filters'
@@ -83,6 +84,21 @@ describe('the URL', () => {
       zones: ['3028'],
       aspects: ['N'],
     })
+  })
+
+  it('keeps the default span before an end date given alone', () => {
+    expect(readFilters('?endDate=2026-01-20', TODAY)).toMatchObject({
+      from: '2026-01-06',
+      to: '2026-01-20',
+    })
+  })
+
+  it('swaps the zone names older links carry for zone ids', () => {
+    const zones = [
+      { id: '3028', name: 'Olympics' },
+      { id: '3029', name: 'Mt Hood' },
+    ]
+    expect(zoneIdsForNames(['Olympics', '3029', 'Gone'], zones)).toEqual(['3028', '3029', 'Gone'])
   })
 
   it('drops values no filter offers', () => {

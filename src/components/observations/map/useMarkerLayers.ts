@@ -86,10 +86,16 @@ function addLayers(
       filter: ['all', filter, ['>', ['to-number', ['get', 'number'], 1], 1]],
       layout: {
         'text-field': ['to-string', ['get', 'number']],
+        'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
         'text-size': ['interpolate', ['linear'], ['zoom'], 6, 0, 8, 10],
         'text-allow-overlap': true,
+        'text-ignore-placement': true,
       },
-      paint: { 'text-color': '#ffffff' },
+      paint: {
+        'text-color': '#ffffff',
+        'text-halo-color': 'rgba(0, 0, 0, 0.5)',
+        'text-halo-width': 1,
+      },
     })
   }
 }

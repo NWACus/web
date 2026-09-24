@@ -366,7 +366,7 @@ function readRange(params: URLSearchParams, today: string): { from: string; to: 
   const fallback = defaultRange(today)
   const to = readDate(params, 'endDate') ?? fallback.to
   const cappedTo = to > today ? today : to
-  const from = readDate(params, 'startDate') ?? fallback.from
+  const from = readDate(params, 'startDate') ?? defaultRange(cappedTo).from
   const floor = seasonStart(seasonOf(cappedTo))
   const clampedFrom = from < floor ? floor : from
   return clampedFrom <= cappedTo ? { from: clampedFrom, to: cappedTo } : fallback
@@ -376,6 +376,17 @@ const TRIGGER_LABELS = TRIGGER_GROUPS.map((group) => group.label)
 const CAUSE_VALUES = CAUSES.map((cause) => cause.label)
 const IMPACT_VALUES = IMPACTS.map((impact) => impact.value)
 const OBSERVER_VALUES = OBSERVER_TYPES.map((observer) => observer.value)
+
+/**
+ * Zone ids for a zone filter from an older link, which named its zones (`zone=["Olympics"]`) where
+ * links now carry ids; the widget swaps them once zones load. Ids and unknown values pass through.
+ */
+export function zoneIdsForNames(values: string[], zones: { id: string; name: string }[]): string[] {
+  return values.map((value) => {
+    if (zones.some((zone) => zone.id === value)) return value
+    return zones.find((zone) => zone.name === value)?.id ?? value
+  })
+}
 
 /** The filters a query string asks for, over the defaults; anything unrecognized is dropped. */
 export function readFilters(search: string, today: string): ObservationFilters {

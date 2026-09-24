@@ -20,7 +20,7 @@ import {
 import { detailPath } from '@/services/nac/observations/routes'
 
 import { formatDay, formatSubmitted, formatTimeOfDay } from '../format'
-import { avalancheColor } from '../map/markerStyle'
+import { MARKER_COLORS, avalancheColor } from '../map/markerStyle'
 import {
   HeaderField,
   LocationMap,
@@ -260,8 +260,10 @@ function Header({
       </div>
       <LocationMap
         location={avalanche.location}
-        color={avalancheColor(avalanche.dSize)}
+        // The widget keeps an unsized avalanche's pin blue rather than calling it a D1.
+        color={avalanche.dSize ? avalancheColor(avalanche.dSize) : MARKER_COLORS.observation}
         label={avalanche.locationName ?? 'the avalanche'}
+        count={avalanche.number}
       />
     </header>
   )

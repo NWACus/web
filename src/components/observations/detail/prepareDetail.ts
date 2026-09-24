@@ -3,7 +3,7 @@
  * render — HTML sanitized, galleries and the lightbox sequence arranged. See `./detailTypes`.
  */
 import { toLightboxMedia, type LightboxMedia } from '@/components/forecast/lightboxMedia'
-import { sanitizeHtml } from '@/components/forecast/sanitizeHtml'
+import { sanitizeSubmittedHtml } from '@/components/forecast/sanitizeHtml'
 import { MediaType } from '@/services/nac/model/forecast'
 import type { Avalanche, MediaItem, Observation } from '@/services/nac/model/observation'
 import { avalancheCard } from '@/services/nac/observations/cards'
@@ -43,7 +43,7 @@ export function submitterHtml(text: string | null): string | null {
   if (!text) return null
   // Newlines to <br>, only for text with no paragraph markup.
   const withBreaks = text.includes('<p') ? text : text.replace(/\r?\n/g, '<br>')
-  const html = sanitizeHtml(withBreaks).trim()
+  const html = sanitizeSubmittedHtml(withBreaks).trim()
   return html ? html : null
 }
 

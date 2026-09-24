@@ -11,7 +11,7 @@
  * like any other: back from an open record closes it, back from a tab switch switches back.
  */
 import { usePathname } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import type { ObservationKind } from '@/services/nac/model/observation'
 import {
@@ -39,34 +39,42 @@ function useListTab(location: ViewerLocation) {
   return tab
 }
 
+const DEPTH_KEY = 'observationViewerDepth'
+
+/**
+ * How many records this history entry is stacked over the list it was opened from, kept in the
+ * entry's own state so back and forward carry it; 0 for an entry the viewer didn't push.
+ */
+function depthOf(state: unknown): number {
+  if (typeof state !== 'object' || state === null || !(DEPTH_KEY in state)) return 0
+  const depth = state[DEPTH_KEY]
+  return typeof depth === 'number' ? depth : 0
+}
+
 /**
  * Opening and closing records. Stepping to the previous or next record replaces the entry, so
  * back still closes the modal rather than walking through every record seen; opening an
  * avalanche from its observation pushes one, so back returns to the observation. Closing goes
- * back past every entry this viewer pushed, to the list as it was.
+ * back past every record entry stacked on the list, to the list as it was.
  */
-function useRecordHistory(prefix: string, tab: ObservationKind, recordOpen: boolean) {
-  const openedRef = useRef(0)
-  useEffect(() => {
-    if (!recordOpen) openedRef.current = 0
-  }, [recordOpen])
-
+function useRecordHistory(prefix: string, tab: ObservationKind) {
   const openRecord = useCallback(
     (record: OpenRecord, options: { replace?: boolean } = {}) => {
       const url = `${prefix}${detailPath(record.kind, record.id)}`
-      if (options.replace && openedRef.current > 0) {
-        window.history.replaceState(null, '', url)
+      const depth = depthOf(window.history.state)
+      if (options.replace && depth > 0) {
+        window.history.replaceState({ [DEPTH_KEY]: depth }, '', url)
         return
       }
-      openedRef.current += 1
-      window.history.pushState(null, '', url)
+      window.history.pushState({ [DEPTH_KEY]: depth + 1 }, '', url)
     },
     [prefix],
   )
 
   const closeRecord = useCallback(
     (listSearch: string) => {
-      if (openedRef.current > 0) window.history.go(-openedRef.current)
+      const depth = depthOf(window.history.state)
+      if (depth > 0) window.history.go(-depth)
       else window.history.pushState(null, '', `${prefix}${tabPath(tab)}${listSearch}`)
     },
     [prefix, tab],
@@ -80,7 +88,7 @@ export function useViewerLocation(initialTab: ObservationKind) {
   const location = readViewerPath(usePathname()) ?? { prefix: '', tab: initialTab, detail: null }
   const { prefix, detail } = location
   const tab = useListTab(location)
-  const { openRecord, closeRecord } = useRecordHistory(prefix, tab, detail !== null)
+  const { openRecord, closeRecord } = useRecordHistory(prefix, tab)
 
   const openTab = useCallback(
     (kind: ObservationKind) => {

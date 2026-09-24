@@ -66,6 +66,8 @@ function TriggerGroup({ filters, onChange }: GroupProps) {
       <CheckList
         legend="Trigger"
         allLabel="All Triggers"
+        allChecked={filters.triggers.length === 0 && filters.causes.length === 0}
+        onAll={() => onChange({ triggers: [], causes: [] })}
         options={toOptions(TRIGGER_GROUPS.map((group) => group.label))}
         selected={filters.triggers}
         onChange={(triggers) => onChange({ triggers })}

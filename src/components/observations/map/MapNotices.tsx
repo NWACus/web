@@ -1,6 +1,7 @@
 /**
  * What the map says about itself when it can't do its job: no WebGL (the list still lists the
- * center's zones), no Mapbox token, or markers that failed to load — never a silent blank.
+ * center's zones), no Mapbox token, a basemap that failed to load, or markers that failed to load
+ * — never a silent blank.
  */
 import type { ReactNode } from 'react'
 
@@ -15,14 +16,25 @@ function Cover({ children }: { children: ReactNode }) {
 interface MapNoticesProps {
   unsupported: boolean
   unconfigured: boolean
+  styleFailed: boolean
   tilesFailed: boolean
 }
 
-export function MapNotices({ unsupported, unconfigured, tilesFailed }: MapNoticesProps) {
-  if (unconfigured) return <Cover>The observation map is not configured for this site.</Cover>
-  if (unsupported) {
-    return <Cover>This browser can&apos;t display the map. Observations are listed with it.</Cover>
-  }
+/** A notice that covers the map, for a map that can't show at all. */
+function coverMessage({
+  unsupported,
+  unconfigured,
+  styleFailed,
+}: Omit<MapNoticesProps, 'tilesFailed'>): string | null {
+  if (unconfigured) return 'The observation map is not configured for this site.'
+  if (unsupported) return "This browser can't display the map. Observations are listed with it."
+  if (styleFailed) return "The map couldn't load. Observations are listed with it."
+  return null
+}
+
+export function MapNotices({ tilesFailed, ...props }: MapNoticesProps) {
+  const message = coverMessage(props)
+  if (message) return <Cover>{message}</Cover>
   if (!tilesFailed) return null
   return (
     <div

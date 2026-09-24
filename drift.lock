@@ -263,7 +263,7 @@ sig = "5f719b0911da651d"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/observations/observationRoutes.ts"
-sig = "3a553933db88747a"
+sig = "b5bdf984e5eb77c0"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -448,17 +448,22 @@ sig = "2d0a0b5bbcea86b1"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/ObservationViewer.client.tsx"
-sig = "1c42b6e2fb4ca825"
+sig = "bfd6ec0ec354b75e"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/detail/prepareDetail.ts"
-sig = "3d866b61d0a40cd2"
+sig = "38a9caa4030a064a"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/map/useObservationMap.ts"
+sig = "dff05420217e8818"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/useViewerLocation.ts"
-sig = "729a8c1583bea86b"
+sig = "ccdea677a9f75c8d"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -533,12 +538,12 @@ sig = "6a4f1aafed33c4ac"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/obsApi.ts"
-sig = "690f760ccb145136"
+sig = "da87bfaf2f535c0e"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/observations/filters.ts"
-sig = "2ba9234d990c30b5"
+sig = "2b5fbbb42fe0e771"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
