@@ -6,10 +6,9 @@
  * dashboard-v2's `buildStationsInitialState` does, so a center sees the same map here as in its
  * legacy embed, and one that never opened the page gets the dashboard's defaults.
  *
- * `saturation`, `color_rules`, `timezone` and `external_modal_links` are deliberately not
- * resolved. Saturation only ever styled the Google base map this replaces; color rules highlight
- * table values (the table is the native station pages' job); the timezone toggle is unused by the
- * legacy map, which formats in browser time; and the modal links' "Area" buttons now come from the
+ * `saturation`, `timezone` and `external_modal_links` are deliberately not resolved. Saturation
+ * only ever styled the Google base map this replaces; the timezone toggle is unused by the legacy
+ * map, which formats in browser time; and the modal links' "Area" buttons now come from the
  * `stationPages` collection, on each station's detail page.
  */
 import { mapboxZoomFor } from '@/services/nac/dangerMap/dangerMapSettings'
@@ -36,6 +35,8 @@ export interface StationMapSettings {
    * stations are grouped, filtered and framed by those polygons instead of the forecast zones.
    */
   alternateZones: string | null
+  /** Color table readings that cross the widget's thresholds (a reader can still turn it off). */
+  colorRules: boolean
 }
 
 /** Dashboard-v2's `STATIONS_DEFAULTS`, for a center that never opened the settings page. */
@@ -46,6 +47,7 @@ export const STATION_MAP_DEFAULTS: StationMapSettings = {
   sourceLegend: false,
   sourceMarkerColor: true,
   alternateZones: null,
+  colorRules: false,
 }
 
 /** The recency choices the dashboard offers, in minutes. */
@@ -84,5 +86,6 @@ export function resolveStationMapSettings(
       typeof config.alternate_zones === 'string' && config.alternate_zones.length > 0
         ? config.alternate_zones
         : null,
+    colorRules: Boolean(config.color_rules),
   }
 }

@@ -4,8 +4,12 @@
  */
 import {
   dropViewParam,
+  pushDisplayParam,
+  readDisplayRequest,
   readFilterParams,
+  readLegacyHashZones,
   readViewParam,
+  writeDisplayParam,
   writeFilterParams,
   writeViewParam,
 } from '@/components/stationMap/stationMapUrl'
@@ -120,5 +124,80 @@ describe('the viewport in the link', () => {
 
     expect(readViewParam(window.location.search)).toBeNull()
     expect(window.location.search).toContain('zone=Olympics')
+  })
+})
+
+describe('map or table in the link', () => {
+  it('shows the map unless the link asks for the table', () => {
+    expect(readDisplayRequest('', '')).toEqual({ display: 'map', highlight: null, legacy: false })
+    expect(readDisplayRequest('?view=table&zone=Olympics', '')).toEqual({
+      display: 'table',
+      highlight: null,
+      legacy: false,
+    })
+    expect(readDisplayRequest('?view=chart', '').display).toBe('map')
+  })
+
+  it("opens the table for the widget's own table links, picking out the station one names", () => {
+    expect(readDisplayRequest('', '#/station-table')).toEqual({
+      display: 'table',
+      highlight: null,
+      legacy: true,
+    })
+    expect(readDisplayRequest('', '#/station-table/C6318')).toEqual({
+      display: 'table',
+      highlight: 'C6318',
+      legacy: true,
+    })
+    expect(readDisplayRequest('', '#/station-table/57?units=metric').highlight).toBe('57')
+    expect(readDisplayRequest('', '#/station-table/%E0%A4%A').highlight).toBe('%E0%A4%A')
+  })
+
+  it("leaves the widget's map links, and any other hash, to the map", () => {
+    expect(readDisplayRequest('', '#/57').display).toBe('map')
+    expect(readDisplayRequest('', '#main-content').display).toBe('map')
+  })
+
+  it('writes the table and drops it again for the map, keeping the other params', () => {
+    atUrl('?zone=Olympics')
+    writeDisplayParam('table')
+    expect(window.location.search).toBe('?zone=Olympics&view=table')
+
+    writeDisplayParam('map')
+    expect(window.location.search).toBe('?zone=Olympics')
+  })
+
+  it('replaces a legacy hash with the param', () => {
+    window.history.replaceState(null, '', '/weather/stations/map#/station-table/57')
+    writeDisplayParam('table')
+    expect(window.location.hash).toBe('')
+    expect(window.location.search).toBe('?view=table')
+  })
+})
+
+describe("the widget's links", () => {
+  it('carry their zone filter inside the hash, as JSON', () => {
+    expect(
+      readLegacyHashZones('#/station-table?zone=%5B%22Olympics%22%2C%22Mt%20Hood%22%5D'),
+    ).toEqual(['Olympics', 'Mt Hood'])
+    expect(readLegacyHashZones('#/?zone=["Carson Range"]')).toEqual(['Carson Range'])
+  })
+
+  it('yield no zones for a missing, malformed or non-list query', () => {
+    expect(readLegacyHashZones('#/station-table')).toEqual([])
+    expect(readLegacyHashZones('#/station-table?zone=Olympics')).toEqual([])
+    expect(readLegacyHashZones('#/station-table?zone={"a":1}')).toEqual([])
+    expect(readLegacyHashZones('#main-content')).toEqual([])
+  })
+})
+
+describe('switching between the map and the table', () => {
+  it('is a history entry of its own, so Back returns to the map', () => {
+    atUrl('?zone=Olympics')
+    const before = window.history.length
+    pushDisplayParam('table')
+
+    expect(window.history.length).toBe(before + 1)
+    expect(window.location.search).toBe('?zone=Olympics&view=table')
   })
 })
