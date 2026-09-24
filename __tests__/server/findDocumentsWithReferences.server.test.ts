@@ -223,6 +223,36 @@ describe('findDocumentsWithReferences', () => {
     ])
   })
 
+  it("runs inside a caller's transaction when given a request", async () => {
+    const req = {
+      payload: { find: mockFind, logger: mockLogger, config: { collections: collectionsToTest } },
+    }
+
+    const reference = { collection: 'sharedMedia', id: 1 }
+    // @ts-expect-error - partial PayloadRequest; the finder reads only payload off it
+    await findDocumentsWithReferences(reference, { req })
+
+    expect(mockFind).toHaveBeenCalled()
+    for (const call of mockFind.mock.calls) {
+      expect(call[0].req).toBe(req)
+    }
+  })
+
+  it("rejects on a failed query when given a request, since the caller's transaction is gone", async () => {
+    mockFind.mockImplementation(({ collection }: { collection: string }) => {
+      if (collection === 'pages') throw new Error('DB connection failed')
+      return { docs: [] }
+    })
+    const req = {
+      payload: { find: mockFind, logger: mockLogger, config: { collections: collectionsToTest } },
+    }
+
+    await expect(
+      // @ts-expect-error - partial PayloadRequest; the finder reads only payload off it
+      findDocumentsWithReferences({ collection: 'sharedMedia', id: 1 }, { req }),
+    ).rejects.toThrow('DB connection failed')
+  })
+
   it('returns single match in one collection', async () => {
     mockFind.mockImplementation(({ collection }: { collection: string }) => {
       if (collection === 'posts') {

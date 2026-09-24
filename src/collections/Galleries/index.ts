@@ -5,6 +5,7 @@ import { documentReferencesField } from '@/fields/documentReferencesField'
 import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { parseVideoUrl } from '@/utilities/videoEmbed'
 import { CollectionConfig } from 'payload'
 import { revalidateGallery, revalidateGalleryDelete } from './hooks/revalidateGallery'
@@ -114,7 +115,7 @@ export const Galleries: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [populateDocumentReferences],
-    afterChange: [revalidateGallery],
-    afterDelete: [revalidateGalleryDelete],
+    afterChange: [revalidateGallery, syncReferenceCounts],
+    afterDelete: [revalidateGalleryDelete, syncReferenceCountsOnDelete],
   },
 }

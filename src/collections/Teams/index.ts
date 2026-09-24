@@ -4,6 +4,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { documentReferencesField } from '@/fields/documentReferencesField'
 import { tenantField } from '@/fields/tenantField'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig } from 'payload'
 import { revalidateTeam, revalidateTeamDelete } from './hooks/revalidateTeam'
@@ -45,7 +46,7 @@ export const Teams: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [populateDocumentReferences],
-    afterChange: [revalidateTeam],
-    afterDelete: [revalidateTeamDelete],
+    afterChange: [revalidateTeam, syncReferenceCounts],
+    afterDelete: [revalidateTeamDelete, syncReferenceCountsOnDelete],
   },
 }

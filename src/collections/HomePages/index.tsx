@@ -22,6 +22,7 @@ import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import {
   BlocksFeature,
@@ -168,9 +169,9 @@ export const HomePages: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterChange: [revalidateHomePage],
+    afterChange: [revalidateHomePage, syncReferenceCounts],
     beforeChange: [populatePublishedAt, populateDocumentReferences],
-    afterDelete: [revalidateHomePageDelete],
+    afterDelete: [revalidateHomePageDelete, syncReferenceCountsOnDelete],
   },
   versions: {
     drafts: true,
