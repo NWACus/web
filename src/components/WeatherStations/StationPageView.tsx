@@ -2,16 +2,23 @@ import { StationLatestObservation } from '@/components/WeatherStations/StationLa
 import { StationNotes } from '@/components/WeatherStations/StationNotes'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import type { StationNote, StationTable } from '@/services/snowobs/tableHelpers'
-import type { AssembledStationPage, StationPageSummary } from '@/services/stations/getStationPages'
+import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 
+/** A station page, or a single tracked station shown on its own (`slug: null`). */
+type StationPageHeading = Pick<StationPageSummary, 'displayName' | 'archived'> & {
+  slug: string | null
+}
+
 type StationPageViewProps = {
-  page: AssembledStationPage
+  page: StationPageHeading
   pages: StationPageSummary[]
   table: StationTable | null
   notes: StationNote[]
   timeZone: string
+  /** A line under the title, such as a single station's source and elevation. */
+  details?: ReactNode
   tabContent?: ReactNode
 }
 
@@ -19,10 +26,12 @@ function StationHeader({
   page,
   pages,
   table,
+  details,
 }: {
-  page: AssembledStationPage
+  page: StationPageHeading
   pages: StationPageSummary[]
   table: StationTable | null
+  details?: ReactNode
 }) {
   return (
     <div className="container flex flex-wrap items-end justify-between gap-3">
@@ -32,10 +41,11 @@ function StationHeader({
               WSDOT Schmidt Haus" takes three lines at full size on a phone, before any reading. */}
           <h1 className="text-3xl font-bold sm:text-4xl">{page.displayName}</h1>
         </div>
+        {details}
       </div>
       <div className="flex flex-col items-end gap-1">
         {table && <StationLatestObservation table={table} />}
-        <StationPicker pages={pages} current={page.slug} />
+        {pages.length > 0 && <StationPicker pages={pages} current={page.slug ?? undefined} />}
       </div>
     </div>
   )
@@ -65,11 +75,12 @@ export function StationPageView({
   table,
   notes,
   timeZone,
+  details,
   tabContent,
 }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
-      <StationHeader page={page} pages={pages} table={table} />
+      <StationHeader page={page} pages={pages} table={table} details={details} />
       {page.archived && <ArchivedNotice />}
       {notes.length > 0 && (
         <div className="container">

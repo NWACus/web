@@ -1,5 +1,5 @@
 import { expect, test } from './fixture'
-import { loadPage, tenant } from './helpers'
+import { loadPage, stubMapbox, tenant } from './helpers'
 
 /**
  * Inventory row S1 — the native weather station map, and its rollout flag.
@@ -12,25 +12,6 @@ import { loadPage, tenant } from './helpers'
  */
 
 const PHONE = { width: 375, height: 812 }
-
-/** The smallest style Mapbox GL accepts: it draws nothing, and asks for no tiles. */
-const EMPTY_STYLE = JSON.stringify({ version: 8, sources: {}, layers: [] })
-
-/**
- * Mapbox's style, tiles and telemetry are the browser's own requests; keep them off the network.
- * The style has to be a real (empty) style — Mapbox throws on a malformed one, and that would
- * surface as a page error unrelated to what the spec is checking.
- */
-async function stubMapbox(page: Parameters<typeof loadPage>[0]) {
-  await page.route('**/api.mapbox.com/**', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: route.request().url().includes('/styles/v1/') ? EMPTY_STYLE : '{}',
-    }),
-  )
-  await page.route('**/events.mapbox.com/**', (route) => route.fulfill({ status: 204, body: '' }))
-}
 
 test.describe('Native vs widget station map', () => {
   test('a widget tenant renders the embedded stations widget', async ({ page }) => {

@@ -67,10 +67,11 @@ async function logSnowObsError(
   operation: string,
   error: unknown,
   context: Record<string, unknown>,
+  level: 'error' | 'warn' = 'error',
 ): Promise<void> {
   try {
     const payload = await getPayload({ config })
-    payload.logger.error({ err: error, ...context }, `${operation} error`)
+    payload.logger[level]({ err: error, ...context }, `${operation} ${level}`)
   } catch {
     console.error(`${operation} error (payload logger unavailable)`, { ...context, error })
   }
@@ -104,6 +105,23 @@ function toSnowObsError(error: unknown, stids: string[]): SnowObsError {
     : new SnowObsError('Failed to fetch SnowObs station timeseries', error, { stids })
 }
 
+// SnowObs 500s `raw_data` for some Synoptic airport stations (KSEA, KBLI…) but serves them
+// rounded, as the legacy widget reads every station. Logged, since it rounds the whole request.
+async function requestTimeseries(
+  stations: StationRef[],
+  options: FetchOptions,
+  token: string,
+  revalidate: number,
+): Promise<Response> {
+  const res = await fetch(buildTimeseriesUrl(stations, options, token), { next: { revalidate } })
+  if (res.status !== 500 || !options.rawData) return res
+  await res.body?.cancel()
+  const stids = stations.map((s) => s.stid)
+  await logSnowObsError('fetchStationTimeseries raw_data', null, { stids }, 'warn')
+  const rounded = { ...options, rawData: false }
+  return fetch(buildTimeseriesUrl(stations, rounded, token), { next: { revalidate } })
+}
+
 // Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
 export async function fetchStationTimeseries(
   centerSlug: string,
@@ -114,8 +132,8 @@ export async function fetchStationTimeseries(
   const stids = stations.map((s) => s.stid)
 
   try {
-    const url = buildTimeseriesUrl(stations, options, await resolveSnowObsToken(centerSlug))
-    const res = await fetch(url, { next: { revalidate } })
+    const token = await resolveSnowObsToken(centerSlug)
+    const res = await requestTimeseries(stations, options, token, revalidate)
     return await parseTimeseriesResponse(res, stids)
   } catch (error) {
     await logSnowObsError('fetchStationTimeseries', error, { stids })

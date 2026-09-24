@@ -1,4 +1,8 @@
-import { allStations, assembleStationPages } from '../../src/services/stations/stationPages'
+import {
+  allStations,
+  areaPageFor,
+  assembleStationPages,
+} from '../../src/services/stations/stationPages'
 
 type PageDoc = Parameters<typeof assembleStationPages>[0][number]
 
@@ -50,5 +54,31 @@ describe('allStations', () => {
     expect(allStations(pages).get('snotel:1011')).toEqual({ stid: '1011', source: 'snotel' })
     expect(allStations(pages).has('nwac:1011')).toBe(false)
     expect(allStations(pages).has('nwac:245')).toBe(false)
+  })
+})
+
+describe('areaPageFor', () => {
+  const page = (slug: string, archived: boolean, stids: string[]) => ({
+    slug,
+    displayName: slug,
+    archived,
+    stations: stids.map((stid) => ref(stid)),
+  })
+
+  it('finds the page that lists a station among others', () => {
+    expect(areaPageFor([page('alpental', false, ['1', '2', '3'])], ref('2'))?.slug).toBe('alpental')
+  })
+
+  it('prefers a live page over an archived one that lists the same station', () => {
+    const pages = [page('old-site', true, ['1']), page('new-site', false, ['1'])]
+    expect(areaPageFor(pages, ref('1'))?.slug).toBe('new-site')
+  })
+
+  it('still offers an archived page when that is the only one', () => {
+    expect(areaPageFor([page('old-site', true, ['1'])], ref('1'))?.slug).toBe('old-site')
+  })
+
+  it('matches on source and stid, since a stid is unique only within a source', () => {
+    expect(areaPageFor([page('alpental', false, ['502'])], ref('502', 'snotel'))).toBeNull()
   })
 })
