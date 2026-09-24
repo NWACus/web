@@ -124,6 +124,25 @@ export async function loadPage(page: Page, url: string): Promise<string[]> {
   return errors
 }
 
+/** The smallest style Mapbox GL accepts: it draws nothing, and asks for no tiles. */
+const EMPTY_MAPBOX_STYLE = JSON.stringify({ version: 8, sources: {}, layers: [] })
+
+/**
+ * Mapbox's style, tiles and telemetry are the browser's own requests; keep them off the network.
+ * The style has to be a real (empty) style — Mapbox throws on a malformed one, and that would
+ * surface as a page error unrelated to what the spec is checking.
+ */
+export async function stubMapbox(page: Page): Promise<void> {
+  await page.route('**/api.mapbox.com/**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: route.request().url().includes('/styles/v1/') ? EMPTY_MAPBOX_STYLE : '{}',
+    }),
+  )
+  await page.route('**/events.mapbox.com/**', (route) => route.fulfill({ status: 204, body: '' }))
+}
+
 /**
  * Click, and keep clicking until the interaction takes effect.
  *

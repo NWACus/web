@@ -65,13 +65,16 @@ function captureTokenParam(): string[] {
   return seen
 }
 
+const warnMock = jest.fn()
+
 beforeEach(() => {
+  warnMock.mockClear()
   mockAfpToken('afp-token')
   // Error paths log via payload; return a stub logger so they don't hit the console fallback.
   jest
     .mocked(getPayload)
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    .mockResolvedValue({ logger: { error: jest.fn() } } as unknown as Payload)
+    .mockResolvedValue({ logger: { error: jest.fn(), warn: warnMock } } as unknown as Payload)
 })
 
 describe('fetchStationTimeseries', () => {
@@ -105,6 +108,39 @@ describe('fetchStationTimeseries', () => {
     await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
     await fetchStationTimeseries('nwac', [ref('4')])
     expect(seenParams).toEqual(['true', null])
+  })
+
+  it('falls back to rounded values when SnowObs fails the unrounded request', async () => {
+    const seenParams: (string | null)[] = []
+    server.use(
+      http.get(TIMESERIES_URL, ({ request }) => {
+        const raw = new URL(request.url).searchParams.get('raw_data')
+        seenParams.push(raw)
+        return raw ? new HttpResponse(null, { status: 500 }) : HttpResponse.json(validResponse)
+      }),
+    )
+    const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
+    expect(seenParams).toEqual(['true', null])
+    expect(result.STATION[0].name).toBe('Test Station')
+    // Rounding the whole request is a silent loss of precision without this.
+    expect(warnMock).toHaveBeenCalledWith(
+      { err: null, stids: ['4'] },
+      expect.stringContaining('raw_data'),
+    )
+  })
+
+  it.each([400, 503])('does not retry a %i, which rounding would not fix', async (status) => {
+    let calls = 0
+    server.use(
+      http.get(TIMESERIES_URL, () => {
+        calls += 1
+        return new HttpResponse(null, { status })
+      }),
+    )
+    await expect(fetchStationTimeseries('nwac', [ref('4')], { rawData: true })).rejects.toThrow(
+      `status ${status}`,
+    )
+    expect(calls).toBe(1)
   })
 
   it('treats a 404 (no station left) as an empty timeseries', async () => {
