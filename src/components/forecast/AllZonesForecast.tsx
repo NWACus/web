@@ -54,7 +54,7 @@ export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
   )
 
   return (
-    <div className="container space-y-6 py-6">
+    <div className="container space-y-16 py-6">
       {results.map(({ slug, zone, forecast, warning }) => (
         <ForecastErrorBoundary
           key={zone.id}
