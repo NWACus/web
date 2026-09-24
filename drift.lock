@@ -718,7 +718,7 @@ sig = "d9f5c27e6069371b"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/stations/station/[source]/[stid]/page.tsx"
-sig = "c05a281ad24effd0"
+sig = "00690f6f23cc7025"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

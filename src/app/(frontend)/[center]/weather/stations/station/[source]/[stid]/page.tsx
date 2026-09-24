@@ -15,6 +15,7 @@ import {
   stationPagePath,
   toPageSummaries,
 } from '@/services/stations/getStationPages'
+import { centerRouteMetadata } from '@/utilities/centerRoutePage'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
 
@@ -83,31 +84,20 @@ export default async function Page({ params, searchParams }: Args) {
   )
 }
 
-function resolveParentTitle(parent: ResolvedMetadata): Metadata['title'] {
-  const { title } = parent
-  return title && typeof title !== 'string' && 'absolute' in title ? title.absolute : title
-}
-
 export async function generateMetadata(
   props: Args,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const { center, ...ref } = await props.params
   const station = await loadTrackedStation({ center, ...ref })
-  const parentMeta = await parent
-  const title = `${displayName(station)} | ${resolveParentTitle(parentMeta)}`
-  const canonical = stationDetailPath(station)
-  const routeTitle = encodeURIComponent(displayName(station))
 
   return {
-    title,
-    alternates: { canonical },
-    openGraph: {
-      ...parentMeta.openGraph,
-      title,
-      url: canonical,
-      images: [{ url: `/api/${center}/og?routeTitle=${routeTitle}`, width: 1200, height: 630 }],
-    },
+    ...(await centerRouteMetadata({
+      parent,
+      label: displayName(station),
+      path: stationDetailPath(station),
+      center,
+    })),
     // Thousands of stations shouldn't compete with the center's own station pages in search.
     robots: { index: false, follow: true },
   }
