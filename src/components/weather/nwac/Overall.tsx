@@ -39,6 +39,8 @@ interface Column {
   group?: string
   /** Sun or moon by the date; unset where the column has neither. */
   night?: boolean
+  /** Its sun or moon goes by the sub-label (a date's Day / Night), not the date. */
+  dayNightOnSub?: boolean
 }
 interface Row {
   key: string
@@ -47,7 +49,7 @@ interface Row {
 }
 interface Group {
   key: string
-  /** A zone heading over its stations; null for a flat table. */
+  /** A zone over its stations, shown in the table's group column; null for a flat table. */
   label: string | null
   rows: Row[]
 }
@@ -64,6 +66,8 @@ interface Table {
   prose?: boolean
   /** Cells whose content fills them (shaded snow levels) take less padding. */
   filled?: boolean
+  /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
+  groupColumn?: string
 }
 
 /** Avalanche zone id → the path of that zone's forecast page. */
@@ -71,11 +75,15 @@ export type ZonePaths = Record<number, string>
 
 const STICKY = 'sticky left-0 z-10'
 
+// Grouped like the block tables: one date over its periods, Day or Night (with its sun or moon)
+// in the sub row.
 const periodColumn = (p: NWACWeatherPeriod): Column => ({
   key: p.key,
   date: fmtCalendarDate(p.date),
-  sub: null,
+  sub: p.kind === 'night' ? 'Night' : 'Day',
+  group: p.date,
   night: p.kind === 'night',
+  dayNightOnSub: true,
 })
 
 function blockColumn(issuance: NWACWeatherIssuance, b: NWACWeatherBlock): Column {
@@ -107,8 +115,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   const dates = periodDateGroups(issuance.periods)
   const sensibleColumns = SENSIBLE_SLOTS.map((s, i) => ({
     key: s.key,
-    date: s.label,
-    sub: dates[i] ? fmtCalendarDate(dates[i].date) : null,
+    date: dates[i] ? fmtCalendarDate(dates[i].date) : null,
+    sub: null,
   }))
 
   const levelBlocks = snowLevelBlocks(issuance)
@@ -212,6 +220,7 @@ function snowTable(issuance: NWACWeatherIssuance): Table {
     title: 'Snow (in)',
     note: 'New snow by station.',
     rowLabel: 'Station',
+    groupColumn: 'Zone',
     columns: periods.map(periodColumn),
     groups: groups.filter((g) => g.rows.length > 0),
   }
@@ -267,14 +276,18 @@ const HEAD_CELL = 'border-b p-2 align-bottom'
 const SUB = 'block whitespace-nowrap text-sm font-normal text-muted-foreground'
 
 function RowLabelHead({ table: t, rowSpan }: { table: Table; rowSpan: number }) {
+  const label = 'border-b bg-muted p-2 text-left align-bottom font-semibold'
   return (
-    <th
-      scope="col"
-      rowSpan={rowSpan}
-      className={cn(STICKY, 'border-b bg-muted p-2 pl-3 text-left align-bottom font-semibold')}
-    >
-      {t.rowLabel}
-    </th>
+    <>
+      {t.groupColumn && (
+        <th scope="col" rowSpan={rowSpan} className={cn(label, 'pl-3')}>
+          {t.groupColumn}
+        </th>
+      )}
+      <th scope="col" rowSpan={rowSpan} className={cn(STICKY, label, !t.groupColumn && 'pl-3')}>
+        {t.rowLabel}
+      </th>
+    </>
   )
 }
 
@@ -299,9 +312,24 @@ function FlatHead({ table: t }: { table: Table }) {
   )
 }
 
-/** Two rows, as on the zone page: a date per group over its blocks' part-of-day labels. */
+/** A group's day or night for its date: a period's blocks share one; a date's periods don't. */
+function groupNight(columns: Column[]) {
+  const first = columns[0]
+  if (!first || first.dayNightOnSub) return undefined
+  return columns.every((c) => c.night === first.night) ? first.night : undefined
+}
+
+/**
+ * Two rows, as on the zone page: a date per group over its columns' sub-labels, with no rule
+ * between them. The sun or moon sits on the date for a period's blocks, and on each sub-label for
+ * a date's Day and Night.
+ */
 function GroupedHead({ table: t }: { table: Table }) {
-  const groups = columnGroups(t.columns)
+  const groups = columnGroups(t.columns).map((g) => {
+    const start = t.columns.indexOf(g.first)
+    const columns = t.columns.slice(start, start + g.span)
+    return { ...g, columns, night: groupNight(columns) }
+  })
   return (
     <>
       <tr className="bg-muted">
@@ -311,25 +339,33 @@ function GroupedHead({ table: t }: { table: Table }) {
             key={g.key}
             scope="colgroup"
             colSpan={g.span}
-            className="border-b border-l p-2 text-center font-semibold whitespace-nowrap"
+            className="border-l px-2 pb-0.5 pt-2 text-center font-semibold whitespace-nowrap"
           >
-            <DayNightDate date={g.first.date} night={g.first.night} />
+            <DayNightDate date={g.first.date} night={g.night} />
           </th>
         ))}
       </tr>
       <tr className="bg-muted">
         {groups.flatMap((g) =>
-          t.columns
-            .slice(t.columns.indexOf(g.first), t.columns.indexOf(g.first) + g.span)
-            .map((c, i) => (
-              <th
-                key={c.key}
-                scope="col"
-                className={cn('border-b px-2 py-1.5 text-center', i === 0 && 'border-l')}
-              >
-                <span className={SUB}>{c.sub}</span>
-              </th>
-            )),
+          g.columns.map((c, i) => (
+            <th
+              key={c.key}
+              scope="col"
+              className={cn(
+                'border-b px-2 pb-2 pt-0.5 text-center',
+                i === 0 && 'border-l',
+                t.groupColumn && 'min-w-24 px-4',
+              )}
+            >
+              <span className={SUB}>
+                {c.dayNightOnSub ? (
+                  <DayNightDate date={c.sub} night={c.night} label={false} />
+                ) : (
+                  c.sub
+                )}
+              </span>
+            </th>
+          )),
         )}
       </tr>
     </>
@@ -344,42 +380,69 @@ function TableHead({ table: t }: { table: Table }) {
   )
 }
 
+function cellClassOf(t: Table) {
+  if (t.prose) return 'whitespace-pre-line p-2 text-left align-top'
+  return t.filled ? 'p-0.5 align-middle' : 'p-2 text-center align-middle'
+}
+
+/** Each group's label in a first column spanning its rows; lighter rules inside a group. */
+function GroupColumnBody({ table: t }: { table: Table }) {
+  const cellClass = cellClassOf(t)
+  return (
+    <tbody>
+      {t.groups.map((g) =>
+        g.rows.map((r, i) => {
+          const rule = i === 0 ? 'border-t' : 'border-t border-t-muted'
+          return (
+            <tr key={r.key}>
+              {i === 0 && (
+                <th
+                  scope="rowgroup"
+                  rowSpan={g.rows.length}
+                  className="whitespace-nowrap border-t p-2 pl-3 text-left align-top font-semibold"
+                >
+                  {g.label ?? DASH}
+                </th>
+              )}
+              <th
+                scope="row"
+                className={cn(STICKY, rule, 'whitespace-nowrap bg-card p-2 text-left font-normal')}
+              >
+                {r.label}
+              </th>
+              {r.cells.map((cell, c) => (
+                <td key={t.columns[c]?.key ?? c} className={cn(rule, cellClass)}>
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          )
+        }),
+      )}
+    </tbody>
+  )
+}
+
 function TableBody({ table: t }: { table: Table }) {
-  const cellClass = t.prose
-    ? 'whitespace-pre-line p-2 text-left align-top'
-    : t.filled
-      ? 'p-0.5 align-middle'
-      : 'p-2 text-center align-middle'
+  if (t.groupColumn) return <GroupColumnBody table={t} />
+  const cellClass = cellClassOf(t)
   return (
     <tbody>
       {t.groups.map((g) => (
         <Fragment key={g.key}>
-          {g.label && (
-            <tr>
-              <th
-                scope="colgroup"
-                colSpan={t.columns.length + 1}
-                className="border-t px-3 pb-0.5 pt-3 text-left text-xs font-bold uppercase tracking-wide text-muted-foreground"
-              >
-                {/* Stays in view while a wide table scrolls sideways. */}
-                <span className="sticky left-3">{g.label}</span>
-              </th>
-            </tr>
-          )}
           {g.rows.map((r) => (
             <tr key={r.key}>
               <th
                 scope="row"
                 className={cn(
                   STICKY,
-                  'bg-card p-2 pl-3 text-left align-middle',
-                  g.label ? 'font-normal' : 'border-t font-semibold',
+                  'border-t bg-card p-2 pl-3 text-left align-middle font-semibold',
                 )}
               >
                 {r.label}
               </th>
               {r.cells.map((cell, i) => (
-                <td key={t.columns[i]?.key ?? i} className={cn(!g.label && 'border-t', cellClass)}>
+                <td key={t.columns[i]?.key ?? i} className={cn('border-t', cellClass)}>
                   {cell}
                 </td>
               ))}
@@ -439,10 +502,12 @@ function GridTable({
   return (
     <section aria-labelledby={headingId} className="min-w-0 space-y-2">
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
-      <div className="overflow-x-auto rounded-md border">
+      {/* A grouped table is only as wide as its columns; stretched, its few periods sprawl. */}
+      <div className={cn('overflow-x-auto rounded-md border', t.groupColumn && 'w-fit max-w-full')}>
         <table
           className={cn(
-            'w-full border-collapse text-sm',
+            'border-collapse text-sm',
+            !t.groupColumn && 'w-full',
             t.prose ? 'min-w-[640px] table-fixed' : 'min-w-max',
           )}
         >

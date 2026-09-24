@@ -50,7 +50,7 @@ describe('Overall', () => {
   it('groups snow stations under their zones', () => {
     render(<Overall issuance={afternoon} />)
     const snow = screen.getByRole('region', { name: 'Snow (in)' })
-    expect(within(snow).getByRole('columnheader', { name: 'Olympics' })).toBeInTheDocument()
+    expect(within(snow).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
     expect(within(snow).getByRole('rowheader', { name: 'Hurricane Ridge' })).toBeInTheDocument()
   })
 

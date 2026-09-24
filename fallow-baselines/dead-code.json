@@ -64,7 +64,12 @@
   ],
   "re_export_cycles": [],
   "unused_optional_dependencies": [],
-  "unused_enum_members": [],
+  "unused_enum_members": [
+    "src/services/nac/types/schemas.ts:AvalancheCenterType.Nonprofit",
+    "src/services/nac/types/schemas.ts:AvalancheCenterType.Other",
+    "src/services/nac/types/schemas.ts:AvalancheCenterType.State",
+    "src/services/nac/types/schemas.ts:AvalancheCenterType.Volunteer"
+  ],
   "unused_class_members": [],
   "unused_store_members": [],
   "unprovided_injects": [],
