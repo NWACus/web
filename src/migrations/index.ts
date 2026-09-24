@@ -59,9 +59,8 @@ import * as migration_20260921_124724_station_pages_backfill from './20260921_12
 import * as migration_20260922_180955_precip_table_block from './20260922_180955_precip_table_block'
 import * as migration_20260923_033051_add_shared_media from './20260923_033051_add_shared_media'
 import * as migration_20260925_202502_add_collections_to_mcp_api_keys from './20260925_202502_add_collections_to_mcp_api_keys'
-import * as migration_20260923_020331_native_products_flags from './20260923_020331_native_products_flags'
-import * as migration_20260923_031115_native_station_map_flag from './20260923_031115_native_station_map_flag'
-import * as migration_20260923_153949_forecast_archive_built_in_pages from './20260923_153949_forecast_archive_built_in_pages'
+import * as migration_20260924_221427_native_products_flags from './20260924_221427_native_products_flags'
+import * as migration_20260924_221440_forecast_archive_built_in_pages from './20260924_221440_forecast_archive_built_in_pages'
 
 export const migrations = [
   {
@@ -370,18 +369,13 @@ export const migrations = [
     name: '20260925_202502_add_collections_to_mcp_api_keys',
   },
   {
-    up: migration_20260923_020331_native_products_flags.up,
-    down: migration_20260923_020331_native_products_flags.down,
-    name: '20260923_020331_native_products_flags',
+    up: migration_20260924_221427_native_products_flags.up,
+    down: migration_20260924_221427_native_products_flags.down,
+    name: '20260924_221427_native_products_flags',
   },
   {
-    up: migration_20260923_031115_native_station_map_flag.up,
-    down: migration_20260923_031115_native_station_map_flag.down,
-    name: '20260923_031115_native_station_map_flag',
-  },
-  {
-    up: migration_20260923_153949_forecast_archive_built_in_pages.up,
-    down: migration_20260923_153949_forecast_archive_built_in_pages.down,
-    name: '20260923_153949_forecast_archive_built_in_pages',
+    up: migration_20260924_221440_forecast_archive_built_in_pages.up,
+    down: migration_20260924_221440_forecast_archive_built_in_pages.down,
+    name: '20260924_221440_forecast_archive_built_in_pages',
   },
 ]
