@@ -5,7 +5,6 @@
  * the search — the widget's `stationClickHandler`, `openModal` and `stationSearchClick`.
  */
 import type { Map as MapboxMap } from 'mapbox-gl'
-import { useRouter } from 'next/navigation'
 import type { RefObject } from 'react'
 import { useCallback } from 'react'
 
@@ -48,14 +47,13 @@ interface PointInteractionsOptions {
 
 /**
  * Open a point, as the widget's second click did: the station's page, or a link-only webcam.
- * Returns whether there was anywhere to go. (The widget's second click on a webcam with images
- * opened a modal; the card already shows what that modal showed, so here it is a no-op.)
+ * In a new tab, like the card's buttons, so the map and its selection stay put. Returns whether
+ * there was anywhere to go; a webcam with images has its card already.
  */
-function open(point: MapPoint, push: (href: string) => void): boolean {
+function open(point: MapPoint): boolean {
   const destination = pointDestination(point)
   if (!destination) return false
-  if (destination.external) window.open(destination.href, '_blank', 'noopener')
-  else push(destination.href)
+  window.open(destination, '_blank', 'noopener')
   return true
 }
 
@@ -65,7 +63,6 @@ export function usePointInteractions({
   selection: { selectedId, setSelectedId, clear },
   track,
 }: PointInteractionsOptions) {
-  const router = useRouter()
   useMapBackgroundClick(map, clear)
 
   const selectPoint = useCallback(
@@ -86,9 +83,9 @@ export function usePointInteractions({
         selectPoint(point)
         return
       }
-      if (open(point, router.push)) track('Map » Open Station')
+      if (open(point)) track('Map » Open Station')
     },
-    [selectedId, selectPoint, router, track],
+    [selectedId, selectPoint, track],
   )
 
   const searchSelect = useCallback(
