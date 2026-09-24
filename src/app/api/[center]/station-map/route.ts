@@ -136,8 +136,9 @@ export async function GET(
     }
 
     return NextResponse.json(body, {
-      // Matches the upstream cache window so a burst of viewers shares one SnowObs request.
-      headers: { 'Cache-Control': 'public, max-age=0, s-maxage=300' },
+      // SnowObs's own 60s window, then at most a minute stale. Without an explicit bound Vercel
+      // hands the first reader after a quiet spell the last copy, however old.
+      headers: { 'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=60' },
     })
   } catch {
     // The map renders its own error state; there is nothing useful to say beyond "not available".
