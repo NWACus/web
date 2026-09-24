@@ -1,5 +1,6 @@
 import { accessByTenantRole, byTenantRole } from '@/access/byTenantRole'
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
+import { getSharedMediaBlobPrefix } from '@/constants/sharedContent'
 import { revalidateForm, revalidateFormDelete } from '@/hooks/revalidateForm'
 import { Page, Post } from '@/payload-types'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
@@ -76,6 +77,9 @@ export const plugins: Plugin[] = [
       },
       media: {
         prefix: getEnvironmentFriendlyName(),
+      },
+      sharedMedia: {
+        prefix: getSharedMediaBlobPrefix(getEnvironmentFriendlyName()),
       },
     },
     // Re-uploads to an existing blob key always overwrite (upstream behaviour since 3.87.0)

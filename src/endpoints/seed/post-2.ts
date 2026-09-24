@@ -1,15 +1,17 @@
-import type { Biography, Media, Tenant } from '@/payload-types'
+import type { Biography, Media, SharedMedia, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export const post2: (
   tenant: Tenant,
   image1: Media,
   image2: Media,
+  sharedImage: SharedMedia,
   author: Biography,
 ) => RequiredDataFromCollectionSlug<'posts'> = (
   tenant: Tenant,
   image1: Media,
   image2: Media,
+  sharedImage: SharedMedia,
   author: Biography,
 ): RequiredDataFromCollectionSlug<'posts'> => {
   return {
@@ -85,6 +87,18 @@ export const post2: (
               blockName: '',
               blockType: 'mediaBlock',
               media: image2.id,
+            },
+            format: '',
+            version: 2,
+          },
+          {
+            // A shared image inside Lexical JSON — the case ADR 022 says needs no backfill
+            type: 'block',
+            fields: {
+              blockName: '',
+              blockType: 'mediaBlock',
+              source: 'shared',
+              sharedMedia: sharedImage.id,
             },
             format: '',
             version: 2,

@@ -95,6 +95,7 @@ export interface Config {
     navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
+    sharedMedia: SharedMedia;
     forms: Form;
     'form-submissions': FormSubmission;
     'payload-mcp-api-keys': PayloadMcpApiKey;
@@ -149,6 +150,7 @@ export interface Config {
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
+    sharedMedia: SharedMediaSelect<false> | SharedMediaSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
@@ -1539,7 +1541,12 @@ export interface LinkPreviewBlock {
  * via the `definition` "MediaBlock".
  */
 export interface MediaBlock {
-  media: number | Media;
+  /**
+   * The shared library holds photos and videos that every avalanche center can use.
+   */
+  source?: ('center' | 'shared') | null;
+  media?: (number | null) | Media;
+  sharedMedia?: (number | null) | SharedMedia;
   /**
    * Optional text that appears below the image to provide additional context or information about the image content.
    */
@@ -1567,6 +1574,53 @@ export interface MediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sharedMedia".
+ */
+export interface SharedMedia {
+  id: number;
+  /**
+   * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
+   */
+  alt: string;
+  /**
+   * Who took the photo or video. Shown wherever a center chooses to display a credit.
+   */
+  credit?: string | null;
+  /**
+   * Words an editor at any center might search for when looking for this photo, e.g. "cornice wind slab cascades".
+   */
+  keywords?: string | null;
+  /**
+   * How many documents use this, across every avalanche center. Drafts included.
+   */
+  referenceCount?: number | null;
+  contentHash?: string | null;
+  blurDataUrl?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3448,6 +3502,10 @@ export interface PayloadLockedDocument {
         value: number | Redirect;
       } | null)
     | ({
+        relationTo: 'sharedMedia';
+        value: number | SharedMedia;
+      } | null)
+    | ({
         relationTo: 'forms';
         value: number | Form;
       } | null)
@@ -3803,7 +3861,9 @@ export interface LinkPreviewBlockSelect<T extends boolean = true> {
  * via the `definition` "MediaBlock_select".
  */
 export interface MediaBlockSelect<T extends boolean = true> {
+  source?: T;
   media?: T;
+  sharedMedia?: T;
   caption?: T;
   backgroundColor?: T;
   alignContent?: T;
@@ -4983,6 +5043,44 @@ export interface RedirectsSelect<T extends boolean = true> {
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sharedMedia_select".
+ */
+export interface SharedMediaSelect<T extends boolean = true> {
+  alt?: T;
+  credit?: T;
+  keywords?: T;
+  referenceCount?: T;
+  contentHash?: T;
+  blurDataUrl?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

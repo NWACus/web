@@ -42,6 +42,21 @@ describe('clearLayoutRelationships', () => {
     expect(result[0]).not.toHaveProperty('media')
   })
 
+  it('keeps upload fields that point at Shared Content', () => {
+    const result = clearLayoutRelationships([
+      {
+        blockType: 'mediaBlock',
+        source: 'shared',
+        media: 456,
+        sharedMedia: 789,
+        backgroundColor: 'transparent',
+      },
+    ])
+    expect(result[0]).not.toHaveProperty('media')
+    expect(result[0]).toHaveProperty('sharedMedia', 789)
+    expect(result[0]).toHaveProperty('source', 'shared')
+  })
+
   it('clears hasMany relationship fields', () => {
     const result = clearLayoutRelationships([
       {

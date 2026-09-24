@@ -200,6 +200,7 @@ Read these docs for detailed guidance on specific topics:
 
 - **`/docs/coding-guide.md`** - Coding patterns and conventions (TypeScript, relationships, error handling, blocks)
 - **`/docs/revalidation.md`** - ISR and cache invalidation strategy
+- **`/docs/shared-content.md`** - Checklist for adding a Shared Content collection (no owning tenant, global-role write)
 - **`/docs/migration-safety.md`** - Automated checks for destructive migrations
 - **`/docs/onboarding.md`** - Checklist for new tenant setup
 - **`/docs/troubleshooting.md`** - Common local-dev failures and fixes

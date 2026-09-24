@@ -26,6 +26,7 @@ import { Redirects } from '@/collections/Redirects'
 import { RoleAssignments } from '@/collections/RoleAssignments'
 import { Roles } from '@/collections/Roles'
 import { Settings } from '@/collections/Settings'
+import { SharedMedia } from '@/collections/SharedMedia'
 import { Sponsors } from '@/collections/Sponsors'
 import { StationPages } from '@/collections/StationPages'
 import { Tags } from '@/collections/Tags'
@@ -193,6 +194,8 @@ export default buildConfig({
     Navigations,
     Settings,
     Redirects,
+    // Shared Content
+    SharedMedia,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getURL(), ...getProductionTenantUrls()].filter(
     Boolean,
