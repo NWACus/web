@@ -9,6 +9,14 @@
 import type { ForecastResult, ProductLookup, WarningProduct, Weather } from '../model/forecast'
 import type { ZoneMapLayer } from '../model/mapLayer'
 import type { NWACWeatherForecastDay } from '../model/nwacWeather'
+import type {
+  Avalanche,
+  Observation,
+  ObservationKind,
+  ObservationPage,
+  ObservationZoneOption,
+} from '../model/observation'
+import type { ListRequest } from '../observations/listParams'
 
 export interface ForecastSource {
   /**
@@ -92,4 +100,36 @@ export interface NWACWeatherSource {
    * window that ends before today, which no longer changes and is cached long.
    */
   getDates(from: string, to: string, options?: { historical?: boolean }): Promise<string[]>
+}
+
+export interface ObservationSource {
+  /** One page of observations in the map's viewport, filtered. Throws on any upstream failure. */
+  listObservations(
+    centerSlug: string,
+    request: ListRequest & { kind: 'observation' },
+  ): Promise<ObservationPage<Observation>>
+  /** One page of avalanche occurrences, likewise. */
+  listAvalanches(
+    centerSlug: string,
+    request: ListRequest & { kind: 'avalanche' },
+  ): Promise<ObservationPage<Avalanche>>
+  /**
+   * One observation, or `null` when there is no such public record — missing, draft and private
+   * all look the same from outside. Throws on a failure, so "not found" and "couldn't load" stay
+   * distinct.
+   */
+  getObservation(centerSlug: string, id: string): Promise<Observation | null>
+  getAvalanche(centerSlug: string, id: string): Promise<Avalanche | null>
+  /** The center's forecast and observation zones, for the zone filter and framing. */
+  getZones(centerSlug: string): Promise<ObservationZoneOption[]>
+  /**
+   * A vector tile of one kind's markers over a date range, or `null` for an empty tile. Every
+   * other filter is applied on the map, which is why only the dates are asked for here.
+   */
+  getTile(
+    centerSlug: string,
+    kind: ObservationKind,
+    tile: { z: number; x: number; y: number },
+    dates: { from: string; to: string },
+  ): Promise<ArrayBuffer | null>
 }

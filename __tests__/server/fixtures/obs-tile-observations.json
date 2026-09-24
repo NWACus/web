@@ -1,0 +1,2906 @@
+{
+  "captured": "2026-09-24",
+  "source": "GET /obs/v1/public/observation/tiles/3/1/2.mvt?start_date=2026-01-01&end_date=2026-02-28, decoded; filter-relevant properties only",
+  "features": [
+    {
+      "id": "bb889fbd-6a1c-48f6-8b4d-03863b99c6d4",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-01-30",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c636d1ef-59d4-4c78-9bd1-c8e8813c0e79",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1735",
+      "start_date": "2026-01-07",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "8decbc76-74cb-4d78-9ad2-af272fa68e2a",
+      "center_id": "gnfac",
+      "observer_type": "forecaster",
+      "zone_id": "2827",
+      "start_date": "2026-02-12",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "71a982d7-89ed-4d2e-878a-c92aaae13b7d",
+      "center_id": "ewyaix",
+      "observer_type": "public",
+      "zone_id": "2843",
+      "start_date": "2026-01-26",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "e1c40ce3-d70b-4c41-8612-77596d2ed95a",
+      "center_id": "btac",
+      "observer_type": "forecaster",
+      "zone_id": "2855",
+      "start_date": "2026-01-08",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "14787ebe-81be-42c1-9461-a9b2c6bba4cc",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2906",
+      "start_date": "2026-01-26",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8cb13680-f2c7-44b4-93be-ea316ef8c6d9",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-01-09",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "c27c270f-8ca2-4543-b0e7-b630e27d23bc",
+      "center_id": "fac",
+      "observer_type": "forecaster",
+      "zone_id": "1734",
+      "start_date": "2026-01-13",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "61264572-70f0-429d-a34a-0cc490efa826",
+      "center_id": "gnfac",
+      "observer_type": "professional",
+      "zone_id": "2827",
+      "start_date": "2026-02-10",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "9ee0c04e-0c88-4a9b-b73a-99606d27fb75",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2822",
+      "start_date": "2026-02-07",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "bb820782-7a9e-489c-97ec-602e0a7e938c",
+      "center_id": "fac",
+      "observer_type": "professional",
+      "zone_id": "1733",
+      "start_date": "2026-02-22",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "f392c49a-e76b-42b2-b430-7257d1f3cda3",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2826",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "0064d35c-471e-4a89-9c5c-5bb744721e00",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "5c37ae00-b206-42a8-972c-4d135f704e51",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-01-09",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "dd500c95-b179-45a1-a75a-ec8cc5025e34",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2822",
+      "start_date": "2026-01-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "abbdd065-288e-450e-a3d7-be2a887071bf",
+      "center_id": "coaa",
+      "observer_type": "public",
+      "zone_id": "2470",
+      "start_date": "2026-01-09",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "97b33c91-b11f-49c1-b9ce-894ab8adf459",
+      "center_id": "fac",
+      "observer_type": "forecaster",
+      "zone_id": "1735",
+      "start_date": "2026-01-15",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "154653d0-9525-4e78-81aa-3a7f1f917103",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2904",
+      "start_date": "2026-01-09",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "a2721831-a3aa-4f79-8207-8de10c2170c2",
+      "center_id": "ipac",
+      "observer_type": "forecaster",
+      "zone_id": "1902",
+      "start_date": "2026-01-06",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "7a149f2f-4af5-4c06-9c9e-45d143591620",
+      "center_id": "wac",
+      "observer_type": "professional",
+      "zone_id": "2983",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "55289684-f4a5-4401-84f1-29f174b3a032",
+      "center_id": "btac",
+      "observer_type": "professional",
+      "zone_id": "2855",
+      "start_date": "2026-01-09",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "827532bb-1c40-4ddb-ae8a-ccdc61587e44",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1723",
+      "start_date": "2026-02-26",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "63d46450-d4f1-4ca4-ab35-23d0ef6cabb0",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-14",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "4ef48349-ddb4-4d65-9ae6-42ebe4a7b65a",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-01",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "9b4bd1c3-d4a5-4636-9ec0-049bff80e765",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-02-01",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "ce71f3f3-152b-4bfe-8a48-3e4c8bb3ffd8",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-01-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "362fb5dd-1b00-49d2-9fab-89d3569f6862",
+      "center_id": "ipac",
+      "observer_type": "public",
+      "zone_id": "1902",
+      "start_date": "2026-01-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "cad49ef2-4ea4-4db6-b0aa-d3d338c11cd7",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1735",
+      "start_date": "2026-01-09",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "e40aa5ed-9a74-4553-afc5-eb4864bfdcb6",
+      "center_id": "pac",
+      "observer_type": "professional",
+      "start_date": "2026-01-20",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "b095b1ca-aa4b-4af9-a614-4cdf0fe5e216",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2825",
+      "start_date": "2026-01-20",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "350da1f2-db09-4bab-a270-96b331c51efb",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2827",
+      "start_date": "2026-01-30",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "caeea6fa-5165-44b2-859a-671618a04856",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-01-15",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c9b5fa24-5d4d-4c1f-a856-6b9c1c9ae2d2",
+      "center_id": "wcmac",
+      "observer_type": "professional",
+      "zone_id": "1723",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8159441e-4da2-439b-a5b2-ca39f946567b",
+      "center_id": "btac",
+      "observer_type": "forecaster",
+      "zone_id": "2841",
+      "start_date": "2026-01-30",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "604d0fbf-959c-4d75-b032-ab7dc66a9c1e",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1735",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "d1cbca7f-2b18-40d5-95bd-f0a3e8b72449",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-01-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "46bc585a-0c00-48ee-b8e7-f6347892003d",
+      "center_id": "wcmac",
+      "observer_type": "forecaster",
+      "zone_id": "1723",
+      "start_date": "2026-01-07",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "f028b5d7-fe71-4b28-8cb2-1e6763ae715d",
+      "center_id": "ipac",
+      "observer_type": "public",
+      "zone_id": "3018",
+      "start_date": "2026-01-05",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "1ba803f2-a1bb-4d90-8ae1-3be6de8f1ef6",
+      "center_id": "gnfac",
+      "observer_type": "intern",
+      "zone_id": "2827",
+      "start_date": "2026-01-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "2354aaa0-6608-44ee-8dda-6571b636612d",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "55601798-47ef-4ff5-945d-52a06fb2268f",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1734",
+      "start_date": "2026-01-10",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "b9c645fe-e21f-4f8b-aa1a-a802743eeafd",
+      "center_id": "snfac",
+      "observer_type": "forecaster",
+      "zone_id": "2904",
+      "start_date": "2026-01-05",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "4d6ee11e-0e1d-4e16-b33d-036db3601e9f",
+      "center_id": "caac",
+      "observer_type": "public",
+      "zone_id": "2165",
+      "start_date": "2026-01-01",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "53fc0e81-6f2a-47b3-82c4-4ad92a374edf",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-01",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "0c1f5643-3f33-4bb1-a88e-070657843e19",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1723",
+      "start_date": "2026-01-05",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "c77b82bb-d88f-48bf-b2e8-9db68e0f5b87",
+      "center_id": "msac",
+      "observer_type": "forecaster",
+      "zone_id": "1833",
+      "start_date": "2026-01-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "17e6b32d-048e-45a5-a135-c8c22e7e8b19",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2906",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "446814c2-24c3-47df-964f-cbcc89887567",
+      "center_id": "wac",
+      "observer_type": "public",
+      "zone_id": "2983",
+      "start_date": "2026-02-09",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "da2a870b-b97a-467c-90c3-399ca7d740af",
+      "center_id": "wac",
+      "observer_type": "forecaster",
+      "zone_id": "2982",
+      "start_date": "2026-01-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "2459dc55-0429-4a34-82ef-415469f15726",
+      "center_id": "wcmac",
+      "observer_type": "forecaster",
+      "start_date": "2026-01-08",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "37a99417-c7bd-4048-8153-59fd8c9425fd",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "a204436b-4c7c-4c1b-8671-55cf2d5c5519",
+      "center_id": "ewyaix",
+      "observer_type": "professional",
+      "zone_id": "2842",
+      "start_date": "2026-01-01",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "1987a354-5fff-449b-b278-0766c7e82107",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1724",
+      "start_date": "2026-02-08",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "63e09e4f-2bba-4c54-84d5-9a3db27e1728",
+      "center_id": "wac",
+      "observer_type": "public",
+      "zone_id": "2982",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "24edb754-1213-4b2c-ab27-5baf6af5974b",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2821",
+      "start_date": "2026-01-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "0895a894-d515-463d-84ed-ab1aca763372",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1724",
+      "start_date": "2026-01-14",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "3a98fb01-f185-4fc5-b78d-6572d80b6e22",
+      "center_id": "snfac",
+      "observer_type": "forecaster",
+      "zone_id": "2905",
+      "start_date": "2026-01-22",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "6dd48bb6-3bc5-4d72-bf57-a2a3b1d99f72",
+      "center_id": "snfac",
+      "observer_type": "forecaster",
+      "zone_id": "2907",
+      "start_date": "2026-02-28",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "146b34b2-536b-422f-a9d6-6baf5a3ec2ee",
+      "center_id": "coaa",
+      "observer_type": "observer",
+      "zone_id": "2471",
+      "start_date": "2026-01-22",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "23a777ae-82ef-42c4-94d1-49b50e06aec0",
+      "center_id": "wcmac",
+      "observer_type": "forecaster",
+      "start_date": "2026-01-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "aadc4db2-5f53-4263-9fac-ee89bb345a33",
+      "center_id": "btac",
+      "observer_type": "professional",
+      "zone_id": "2855",
+      "start_date": "2026-02-14",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "0d230501-708f-427b-9747-577d5b0b7778",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2905",
+      "start_date": "2026-01-13",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "80ea9341-7771-4af0-9c9b-2e8cca8f02ac",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "13a1e4ed-9596-408f-93c5-29512546f39f",
+      "start_date": "2026-01-23",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "88e2eb0c-1a58-4309-8572-f1c5208c3c7f",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1724",
+      "start_date": "2026-01-10",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "23890d4c-bec3-433f-a10a-60616758a7d8",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2904",
+      "start_date": "2026-01-15",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "f463ac7e-c850-4d86-8e63-c2e7231e1b8a",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2821",
+      "start_date": "2026-01-02",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "1eb8ed36-5b07-4718-89a1-dcc359b0122d",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-01-02",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "592e479f-8502-48af-94c2-65e01423e20f",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1735",
+      "start_date": "2026-02-05",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "aa0d2158-32c9-46ff-bf93-f58bd5aba7e5",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2904",
+      "start_date": "2026-01-05",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "39d425f1-2ec1-4ae4-aaf1-678d353a16d2",
+      "center_id": "ipac",
+      "observer_type": "professional",
+      "zone_id": "1900",
+      "start_date": "2026-01-05",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "9523ea27-861a-403f-b2ee-32a3e932b569",
+      "center_id": "btac",
+      "observer_type": "forecaster",
+      "zone_id": "2855",
+      "start_date": "2026-01-31",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "712d1852-c8a0-4116-81c2-0b1cb94b068b",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2827",
+      "start_date": "2026-01-24",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "ff1ca8aa-be19-45ff-998b-79f49fdfcef4",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1735",
+      "start_date": "2026-01-25",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "298c0763-520b-4480-93f4-18b6804720f8",
+      "center_id": "wcmac",
+      "observer_type": "professional",
+      "zone_id": "1723",
+      "start_date": "2026-01-25",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "2b4ab965-9c95-47e6-a931-ea7ee1c025e4",
+      "center_id": "wac",
+      "observer_type": "forecaster",
+      "zone_id": "2982",
+      "start_date": "2026-01-11",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "cc75a960-1959-4331-b96d-c454f74013bc",
+      "center_id": "snfac",
+      "observer_type": "forecaster",
+      "zone_id": "2904",
+      "start_date": "2026-02-12",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "171f83b4-b715-4548-b946-06d2c0f28e6c",
+      "center_id": "btac",
+      "observer_type": "forecaster",
+      "zone_id": "2855",
+      "start_date": "2026-01-06",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "edd7c16b-0e83-4b3c-b615-f0a12994d271",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-01-03",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "e041d930-7d8f-4839-96e1-76dc95f92cc9",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1724",
+      "start_date": "2026-01-03",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "3aec819d-542f-4223-b658-565157de1dc2",
+      "center_id": "fac",
+      "observer_type": "forecaster",
+      "zone_id": "1735",
+      "start_date": "2026-02-12",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "7c989f05-2276-43b4-a169-3f7ff2600984",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2852",
+      "start_date": "2026-01-03",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "a3cd54a7-8148-4b71-b5ea-4156a7306e9b",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2819",
+      "start_date": "2026-01-03",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "8ceab4ae-12d4-437d-b444-c234cb752eba",
+      "center_id": "coaa",
+      "observer_type": "public",
+      "start_date": "2026-01-25",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c4cb787f-acb7-4af6-a72f-bb69bec5bf2c",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2821",
+      "start_date": "2026-01-25",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "2ff92c6c-5e05-496d-84fb-a2688e834717",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3023",
+      "start_date": "2026-01-04",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "1397a5bc-b832-4392-b227-b789215fa630",
+      "center_id": "msac",
+      "observer_type": "forecaster",
+      "zone_id": "1833",
+      "start_date": "2026-01-31",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "5afab027-619b-411d-bd2f-bc306c3b5553",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "start_date": "2026-01-25",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "52d80845-5f05-45b0-b7b6-f3dca4bb8ba3",
+      "center_id": "caac",
+      "observer_type": "public",
+      "zone_id": "2165",
+      "start_date": "2026-01-26",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "383eeda7-1d6f-4e62-8793-533cee6e92d9",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2827",
+      "start_date": "2026-02-12",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "266bd11b-8723-4e3a-b122-921a405d35f2",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-20",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "30e2011c-7dbb-40e8-bace-b9e2eab7d65c",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1724",
+      "start_date": "2026-01-24",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "f9c0dd13-17b6-4233-a2e8-7d4c3096e213",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1735",
+      "start_date": "2026-01-03",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "b6ecfae3-9954-4eeb-86b3-4ba184840a87",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-02-20",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "889c6803-b79d-4c9b-b3f9-5f513b7acf51",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "8c8a0d64-bee2-459f-9e50-24d2b408a810",
+      "start_date": "2026-02-20",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8fec89f5-55bc-4a32-93d3-9a93427e59ea",
+      "center_id": "gnfac",
+      "observer_type": "professional",
+      "zone_id": "2827",
+      "start_date": "2026-01-11",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "20387205-b308-4281-9b47-a1b88c96a754",
+      "center_id": "btac",
+      "observer_type": "professional",
+      "zone_id": "2855",
+      "start_date": "2026-01-06",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "081c88e5-533e-4aa7-9b5d-d12d369eca9a",
+      "center_id": "wac",
+      "observer_type": "forecaster",
+      "zone_id": "2982",
+      "start_date": "2026-02-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "532a2a1d-5ca1-4d04-af06-c243c5b5e5e0",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3024",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "9e91ab1e-5c3e-4291-940a-378f65493ae4",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1724",
+      "start_date": "2026-01-11",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "b28db423-ca3e-4cdb-b9fe-e4b770c8b729",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2822",
+      "start_date": "2026-01-25",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "ff40f5bb-a6f1-4900-aa9d-75b6993872bb",
+      "center_id": "gnfac",
+      "observer_type": "professional",
+      "zone_id": "2821",
+      "start_date": "2026-02-14",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "7edabb58-f441-42be-8581-a4016edd97ba",
+      "center_id": "coaa",
+      "observer_type": "public",
+      "zone_id": "2470",
+      "start_date": "2026-01-12",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "55d81be1-f0e5-49f5-9bf9-ca296c4229b5",
+      "center_id": "btac",
+      "observer_type": "forecaster",
+      "zone_id": "2852",
+      "start_date": "2026-02-02",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "4abe35a8-b0be-47a7-988e-0d341945f236",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2827",
+      "start_date": "2026-01-11",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "d3acc17c-86da-4202-b1f0-44f43ad8bfed",
+      "center_id": "wac",
+      "observer_type": "public",
+      "zone_id": "2984",
+      "start_date": "2026-02-11",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "246cfcb5-9448-4906-af56-2494a7206cc3",
+      "center_id": "snfac",
+      "observer_type": "forecaster",
+      "zone_id": "2906",
+      "start_date": "2026-02-02",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "627ce18b-047e-4c8d-95bc-673fefd7d4dd",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-14",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "48f0692c-5e67-4523-a0e8-3d51adddb9e4",
+      "center_id": "btac",
+      "observer_type": "forecaster",
+      "zone_id": "2852",
+      "start_date": "2026-02-10",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "591e1534-4d53-4322-97d2-ebe71743d551",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-01-14",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "15be87a0-cae3-4763-8ca1-dde1690e7b8a",
+      "center_id": "snfac",
+      "observer_type": "forecaster",
+      "zone_id": "2906",
+      "start_date": "2026-01-15",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "88c7d19b-cbf5-47a2-b26d-14ef97e1999d",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2852",
+      "start_date": "2026-02-14",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "4c5236a8-c689-43bb-8244-90fdba9f0de5",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-01-16",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "a16886bb-ca2d-406f-aec4-d4b92ab4bd9b",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2821",
+      "start_date": "2026-01-15",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c2ba4eae-b28a-4ffe-83e1-052c370db83b",
+      "center_id": "wcmac",
+      "observer_type": "forecaster",
+      "zone_id": "1722",
+      "start_date": "2026-02-04",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "caf4b156-c9cf-48f4-bb01-e9187c17a8ea",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2819",
+      "start_date": "2026-01-05",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "71e27ac1-830c-4089-9e43-1c129a0e97a2",
+      "center_id": "ipac",
+      "observer_type": "public",
+      "zone_id": "1902",
+      "start_date": "2026-01-17",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "17c45e9b-ce25-4e34-9c7d-86ff2e4a222e",
+      "center_id": "coaa",
+      "observer_type": "public",
+      "zone_id": "2470",
+      "start_date": "2026-02-20",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "31789b5f-e192-4929-b807-b4d405e9ce88",
+      "center_id": "wac",
+      "observer_type": "public",
+      "zone_id": "2984",
+      "start_date": "2026-01-18",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "153fa5be-274d-4a82-9209-e44208386a38",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "8c8a0d64-bee2-459f-9e50-24d2b408a810",
+      "start_date": "2026-02-14",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "55440504-4af8-44ea-a1f1-982f897ffe16",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1735",
+      "start_date": "2026-01-18",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c462e48c-7636-4f09-ab18-87bf70b92c7f",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-01-18",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "4c30dcef-7c60-4b24-901c-f4061f682e7d",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2821",
+      "start_date": "2026-02-15",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "1fc95a89-66e9-43c9-8666-b9b8a8656a1f",
+      "center_id": "ewyaix",
+      "observer_type": "professional",
+      "zone_id": "2842",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "ee08ba51-1fd4-4b2a-8794-2ff815bcf900",
+      "center_id": "wac",
+      "observer_type": "public",
+      "zone_id": "2984",
+      "start_date": "2026-02-16",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "f465c921-6ffb-4a85-af07-34ff4f91e555",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "start_date": "2026-02-16",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "f7737eb0-474d-4169-85b9-e7227ab3392f",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-15",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8901abad-8c41-4331-8634-2eeb8844cca6",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-02-12",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "b9a4ebc6-476b-493f-b08f-15905ada5255",
+      "center_id": "wcmac",
+      "observer_type": "forecaster",
+      "zone_id": "1724",
+      "start_date": "2026-02-06",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "e751e092-f32c-461a-ae34-30f734426a7f",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1724",
+      "start_date": "2026-02-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "0d753024-9f2d-487b-bf94-a7d0e25c8452",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-02-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "d777c141-4c7a-49a6-a080-2c2225a4ca72",
+      "center_id": "msac",
+      "observer_type": "forecaster",
+      "zone_id": "1833",
+      "start_date": "2026-02-15",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "90730047-60df-4781-a3c4-fd764ab0b434",
+      "center_id": "ewyaix",
+      "observer_type": "public",
+      "zone_id": "2843",
+      "start_date": "2026-02-08",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "6e916c88-c8f9-4852-a1bd-6dc592d80295",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-15",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "4da030ec-447a-460a-81ff-7ab412320938",
+      "center_id": "fac",
+      "observer_type": "forecaster",
+      "zone_id": "1733",
+      "start_date": "2026-02-15",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "630946b8-90e0-441d-aeef-83ae8b25cfc3",
+      "center_id": "gnfac",
+      "observer_type": "professional",
+      "zone_id": "2827",
+      "start_date": "2026-02-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "b6775ea3-ea4d-4314-88e5-c1d267abfd8f",
+      "center_id": "btac",
+      "observer_type": "forecaster",
+      "zone_id": "2855",
+      "start_date": "2026-02-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "a2cfb5c5-672d-44c3-a83f-f38a34d0f896",
+      "center_id": "wcmac",
+      "observer_type": "forecaster",
+      "zone_id": "1722",
+      "start_date": "2026-02-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "d04d672e-61fc-4e19-a9e2-742ae71b6e71",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2904",
+      "start_date": "2026-02-11",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "0e63b9e4-f042-4d8b-b4e7-74bd3a8ab34b",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2904",
+      "start_date": "2026-02-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "43f6583e-3c96-41c4-a87d-a66023433df0",
+      "center_id": "fac",
+      "observer_type": "forecaster",
+      "zone_id": "1733",
+      "start_date": "2026-02-20",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "ceef518c-be04-47f6-9eec-3c42c191a418",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1734",
+      "start_date": "2026-02-11",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "e780c4c5-7dfd-464e-95a9-521cd92ad02e",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1723",
+      "start_date": "2026-02-17",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "3c84e39a-565f-4a54-937e-9c21a7bdf716",
+      "center_id": "ipac",
+      "observer_type": "forecaster",
+      "zone_id": "1902",
+      "start_date": "2026-02-15",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "d6e48032-0c29-4fe9-86f2-bd7512ad28f2",
+      "center_id": "btac",
+      "observer_type": "forecaster",
+      "zone_id": "2852",
+      "start_date": "2026-02-19",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "097229fa-d384-4fc5-9a80-cbf5307f5406",
+      "center_id": "btac",
+      "observer_type": "professional",
+      "zone_id": "2855",
+      "start_date": "2026-02-18",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "6837936e-00b3-4702-98ef-402c7478170c",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-02-15",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "1d7147c9-16c1-4797-890f-d445adf22645",
+      "center_id": "btac",
+      "observer_type": "professional",
+      "zone_id": "2855",
+      "start_date": "2026-02-14",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "3a9517ed-abe7-491d-b8c1-9099918b43eb",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-13",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "85d36447-5cfd-4a6e-b980-9d9b9143262d",
+      "center_id": "wac",
+      "observer_type": "forecaster",
+      "zone_id": "2983",
+      "start_date": "2026-02-13",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "1d274af3-d20c-48c9-9971-a3fd8c8dffe8",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1735",
+      "start_date": "2026-02-16",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "be2e225a-2030-4d24-804b-8274ce47087d",
+      "center_id": "fac",
+      "observer_type": "professional",
+      "zone_id": "1733",
+      "start_date": "2026-02-20",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "71f906a8-9a9e-4e29-8c1e-7cd1b4992b37",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-20",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "750d2d0e-f132-436f-86f8-1131843b9437",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2826",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "d5e1347d-97c2-4dfe-8164-15ea5b9533b8",
+      "center_id": "caac",
+      "observer_type": "public",
+      "zone_id": "2165",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c633fb37-415d-44f5-9657-722bfcdec3e4",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "bf5dcec0-c3c3-4960-bf97-bc4b09f142ba",
+      "center_id": "coaa",
+      "observer_type": "public",
+      "zone_id": "2470",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "c08b4031-09a8-4b16-9b02-5c9b09c6b374",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2825",
+      "start_date": "2026-02-21",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "55034219-3422-4bb8-98b3-27b578004da5",
+      "center_id": "coaa",
+      "observer_type": "public",
+      "zone_id": "2470",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "5d912175-1dfd-44a4-83a7-d57a7e6030dc",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2906",
+      "start_date": "2026-02-22",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "81e70705-5062-4b9d-ad64-2ae7e0f44322",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2904",
+      "start_date": "2026-02-22",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "0f27af66-ebb5-4bd2-8d18-df1be596b022",
+      "center_id": "wcmac",
+      "observer_type": "professional",
+      "zone_id": "1723",
+      "start_date": "2026-02-22",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "3d5f960b-c3c4-4531-9c87-b2ac66c9e594",
+      "center_id": "gnfac",
+      "observer_type": "forecaster",
+      "zone_id": "2827",
+      "start_date": "2026-02-20",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "d1300202-ad5f-4547-8544-5eb01efbbc5c",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2904",
+      "start_date": "2026-02-25",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "ac1973cb-39b8-4b57-9923-265f0df2c56a",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-02-24",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "fa5c0366-7599-423f-9c7a-0c93bb3eb4c6",
+      "center_id": "btac",
+      "observer_type": "professional",
+      "zone_id": "2855",
+      "start_date": "2026-02-24",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "f3bb277d-f509-4147-bfc8-835692e69eae",
+      "center_id": "ipac",
+      "observer_type": "forecaster",
+      "zone_id": "1900",
+      "start_date": "2026-02-22",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8d37fbec-1889-4ba1-a4d7-bb81c5c8337e",
+      "center_id": "coaa",
+      "observer_type": "professional",
+      "zone_id": "2471",
+      "start_date": "2026-02-25",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "d892f3e3-a5b1-43eb-8c37-3765245450b0",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1724",
+      "start_date": "2026-02-13",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "20c4db86-2664-4096-8b5c-39352cc43362",
+      "center_id": "caac",
+      "observer_type": "public",
+      "zone_id": "2165",
+      "start_date": "2026-02-16",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "0a8de5a5-b2b9-4f3d-b13e-0c4354a52fef",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2827",
+      "start_date": "2026-02-26",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "def66681-b9c0-475a-b40a-b34d66d9c45d",
+      "center_id": "coaa",
+      "observer_type": "public",
+      "zone_id": "2470",
+      "start_date": "2026-02-26",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "2816b2cb-53a5-4c81-ae13-c347d9cd552a",
+      "center_id": "msac",
+      "observer_type": "public",
+      "zone_id": "1833",
+      "start_date": "2026-02-27",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "3390234a-a29c-4e58-9839-e57e826624f8",
+      "center_id": "gnfac",
+      "observer_type": "professional",
+      "zone_id": "2827",
+      "start_date": "2026-02-27",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "700d40ba-7c77-47b7-99aa-057d78229364",
+      "center_id": "msac",
+      "observer_type": "forecaster",
+      "zone_id": "1833",
+      "start_date": "2026-02-28",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "8daf10fb-b35b-4571-8db3-67809978ab8f",
+      "center_id": "caac",
+      "observer_type": "public",
+      "zone_id": "2165",
+      "start_date": "2026-02-28",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "19ce3015-b461-44b8-8af9-9921af24b809",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2907",
+      "start_date": "2026-02-28",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "d4a2946b-7095-4f42-b5f9-c90c544fb4b7",
+      "center_id": "pac",
+      "observer_type": "public",
+      "zone_id": "8c8a0d64-bee2-459f-9e50-24d2b408a810",
+      "start_date": "2026-02-28",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "bae0f525-fbe0-4662-a48a-e2e268675622",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-02-26",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "14e76c1c-8894-4059-b7c2-6807f4b0fea7",
+      "center_id": "wcmac",
+      "observer_type": "forecaster",
+      "zone_id": "1722",
+      "start_date": "2026-02-28",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "5b53b606-c2c0-4e06-ac41-9c7b2f611045",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3028",
+      "start_date": "2026-01-06",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "b834bc91-fd58-4f5d-81f2-e2a614d080c4",
+      "center_id": "pac",
+      "observer_type": "forecaster",
+      "zone_id": "3014",
+      "start_date": "2026-02-25",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "01375a34-3e2d-4030-addd-a446fd9d6ba7",
+      "center_id": "pac",
+      "observer_type": "public",
+      "zone_id": "3014",
+      "start_date": "2026-01-14",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "6ff940c5-34f4-4c09-9d44-c2b0500b051a",
+      "center_id": "pac",
+      "observer_type": "public",
+      "zone_id": "3014",
+      "start_date": "2026-01-08",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "89c446f0-5e08-4c08-84b4-e9846662c074",
+      "center_id": "pac",
+      "observer_type": "public",
+      "zone_id": "3014",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8a047392-8b10-45f5-8333-c0c8224bfec6",
+      "center_id": "pac",
+      "observer_type": "forecaster",
+      "zone_id": "3015",
+      "start_date": "2026-01-23",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8bd7894f-dcb1-4852-93ef-d1e41b6fdd33",
+      "center_id": "pac",
+      "observer_type": "public",
+      "zone_id": "3014",
+      "start_date": "2026-02-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "a0f54ae9-24a9-4e99-8f2c-7401ce59055b",
+      "center_id": "pac",
+      "observer_type": "forecaster",
+      "zone_id": "3014",
+      "start_date": "2026-02-24",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "0a6a3ca3-68f4-4853-930b-9053b825456c",
+      "center_id": "pac",
+      "observer_type": "public",
+      "zone_id": "3015",
+      "start_date": "2026-01-22",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "466b229f-4879-424e-a5ee-426b5123ee6d",
+      "center_id": "pac",
+      "observer_type": "forecaster",
+      "zone_id": "3015",
+      "start_date": "2026-01-29",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "ed966f47-3b7d-4e10-a4b9-3d86887f1421",
+      "center_id": "ipac",
+      "observer_type": "forecaster",
+      "zone_id": "3018",
+      "start_date": "2026-02-06",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "4331c7fc-cacf-47fd-b1cb-d69050dc428b",
+      "center_id": "ipac",
+      "observer_type": "forecaster",
+      "zone_id": "3019",
+      "start_date": "2026-01-16",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "b99a1bfa-cd27-48e7-85e5-f2d100f086e3",
+      "center_id": "ipac",
+      "observer_type": "public",
+      "zone_id": "3018",
+      "start_date": "2026-01-24",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "1251b1b9-ce66-436b-a8d7-42560a196e0a",
+      "center_id": "ipac",
+      "observer_type": "forecaster",
+      "zone_id": "3018",
+      "start_date": "2026-01-13",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "83e65e7a-3e9c-473d-867d-868226b34733",
+      "center_id": "ipac",
+      "observer_type": "public",
+      "zone_id": "3018",
+      "start_date": "2026-01-31",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "5be8fb60-569d-4408-80a2-bcc2410b7a30",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3024",
+      "start_date": "2026-01-12",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "7d22c8b2-210d-418d-99ea-0b4b5911449d",
+      "center_id": "nwac",
+      "observer_type": "professional",
+      "zone_id": "3032",
+      "start_date": "2026-02-18",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "969f1089-010d-4583-8679-2c8edf03d716",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3021",
+      "start_date": "2026-02-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "abeb9426-5b4b-4f53-968d-4ecf8d4db36d",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3023",
+      "start_date": "2026-01-18",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c495acee-2b93-4eb3-90d4-d079389d98fb",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3028",
+      "start_date": "2026-01-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "dc715690-0112-4c5d-942e-cb501dc1145b",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3028",
+      "start_date": "2026-02-17",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "9d9585ec-bc40-46ee-aec8-1b355826bf7e",
+      "center_id": "nwac",
+      "observer_type": "observer",
+      "zone_id": "3029",
+      "start_date": "2026-01-05",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8b5f46cb-e9bc-4edf-86ed-a4c677e1e861",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3024",
+      "start_date": "2026-02-08",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "73977bbc-3f8d-4b41-8fee-ab633d80463a",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3021",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "528f27fc-65d0-445b-9a87-a7528e83732f",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3028",
+      "start_date": "2026-01-02",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "3273c0d6-f8a0-4355-9674-d80ab0305d32",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3028",
+      "start_date": "2026-01-24",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "276ab343-ce63-4ad4-ae98-07a7a58984e6",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3030",
+      "start_date": "2026-01-04",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "04971444-2515-40c9-8acd-d11b9439d013",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3020",
+      "start_date": "2026-01-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "1f0bc1c8-1933-4d3a-9e7e-f9ee89a0bbe9",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3032",
+      "start_date": "2026-01-17",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "557dd133-e42f-42fc-9d16-054b77446e45",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3021",
+      "start_date": "2026-02-14",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "66ae6848-2cf6-467e-a672-354695a5d450",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3024",
+      "start_date": "2026-02-01",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "94cd4ff9-556b-4cf2-b9fd-f70415c4d0a2",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3032",
+      "start_date": "2026-02-06",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "abf328ae-e14f-45bb-95da-8ea8c6ba3ca3",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3029",
+      "start_date": "2026-01-06",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c9fb0b08-ffcb-4207-8092-620542edb2aa",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3021",
+      "start_date": "2026-01-17",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "1131cabd-2a0b-458e-a387-f9a309ae8cb9",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3020",
+      "start_date": "2026-01-09",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "ffe38744-a55c-4ecd-b937-d703fc199931",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3032",
+      "start_date": "2026-02-16",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "ee85cc56-6e20-4242-86d6-b2afb8221312",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3023",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "d428f318-ae9a-4c6c-b98b-a52f907859d5",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3028",
+      "start_date": "2026-01-28",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "b085aac9-85ec-421e-b014-2a6fe660f30b",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3030",
+      "start_date": "2026-02-12",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "177be884-5b29-4f06-af90-1d0690a2e04b",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3023",
+      "start_date": "2026-01-25",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "2b1a947d-ba0f-4086-a376-42b630b1a7ba",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3023",
+      "start_date": "2026-02-24",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "4c5fd845-fb27-44d0-ab61-4d1cbad970a2",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3024",
+      "start_date": "2026-02-21",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "1f2132c4-8a90-43c6-9d6f-67bc0ac1113b",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3028",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "6846fbe6-4833-4f28-a1e2-af70be3a6113",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3030",
+      "start_date": "2026-02-27",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "b2d61636-c529-4c1e-9430-3f1221540193",
+      "center_id": "nwac",
+      "observer_type": "professional",
+      "zone_id": "3024",
+      "start_date": "2026-02-28",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "e3e1e7dc-88ff-4028-8e27-3609b72ce968",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3024",
+      "start_date": "2026-01-09",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "dcfc2360-231d-47b3-a5bf-141cfd3897c7",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3032",
+      "start_date": "2026-02-11",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c59bf3da-126c-4729-867e-f7be00e0b7d2",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3029",
+      "start_date": "2026-01-07",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "9742d54e-2f29-4de6-8f16-f2a39baadce9",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3023",
+      "start_date": "2026-01-10",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "6d83b5ee-635c-46ee-88d7-6c88157862be",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3023",
+      "start_date": "2026-02-22",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "4661ea5e-91cf-4913-9639-9a901ec2d765",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3021",
+      "start_date": "2026-02-22",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "41bf7b38-e2c0-4d1e-8f87-2656e7d92b92",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3021",
+      "start_date": "2026-01-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "b7e54923-e1bf-42eb-993e-58a6cfa983d3",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3023",
+      "start_date": "2026-01-07",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "e20c251f-e651-440b-a05b-1227f88de033",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3030",
+      "start_date": "2026-01-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "5cd0fece-5c39-42e1-aaeb-5754b6c3e2a4",
+      "center_id": "nwac",
+      "observer_type": "professional",
+      "zone_id": "3032",
+      "start_date": "2026-01-04",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "40a3f6f4-bb4f-49de-93a5-23e86c495b51",
+      "center_id": "nwac",
+      "observer_type": "observer",
+      "zone_id": "3029",
+      "start_date": "2026-02-15",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "26d00f65-6b74-409a-bd7f-6ba6445ba059",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3028",
+      "start_date": "2026-01-08",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "06061271-e661-412e-be28-71cfb127c42f",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3024",
+      "start_date": "2026-01-04",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c0df8a3a-5dd3-49a4-b7dd-aafa185efd9e",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3028",
+      "start_date": "2026-02-04",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "d2c17dbd-6c8a-46a8-ae7b-3e8c861a4024",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3032",
+      "start_date": "2026-01-20",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "e160aa33-b0a2-4d73-90f7-77dc2808fd25",
+      "center_id": "nwac",
+      "observer_type": "forecaster",
+      "zone_id": "3030",
+      "start_date": "2026-02-19",
+      "cracking": false,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "64a11ba3-2627-4042-b745-9622c131357c",
+      "center_id": "btac",
+      "observer_type": "professional",
+      "zone_id": "2855",
+      "start_date": "2026-02-14",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "1ae3161e-3da2-4916-a977-615fe8910a8a",
+      "center_id": "btac",
+      "observer_type": "forecaster",
+      "zone_id": "2855",
+      "start_date": "2026-01-05",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "1048f36d-ccf4-4161-95cd-25c806ab6918",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2906",
+      "start_date": "2026-01-06",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "d559f172-34ac-43d5-95fa-6935ee6a8fe1",
+      "center_id": "wcmac",
+      "observer_type": "forecaster",
+      "start_date": "2026-02-25",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "d9669133-ced3-42b2-9af3-c846e0396d9c",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2824",
+      "start_date": "2026-02-22",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "7f72e607-ee5a-45c8-ac4e-400c770250e3",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-01-08",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "2071512d-069a-4bc3-ae62-b4536a77dfb7",
+      "center_id": "fac",
+      "observer_type": "professional",
+      "zone_id": "1735",
+      "start_date": "2026-01-08",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "0c2be6fa-fcc7-4c92-b810-10e9cb313f47",
+      "center_id": "gnfac",
+      "observer_type": "professional",
+      "zone_id": "2827",
+      "start_date": "2026-01-26",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "a4a035be-fc11-4639-9aaf-9f6850ed5f18",
+      "center_id": "gnfac",
+      "observer_type": "professional",
+      "zone_id": "2823",
+      "start_date": "2026-01-26",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "1dcda7d8-91ef-45ee-b64e-c66e1eeeb3f4",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2906",
+      "start_date": "2026-01-06",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "915db97b-0925-4b03-8705-d52f40135169",
+      "center_id": "wcmac",
+      "observer_type": "forecaster",
+      "zone_id": "1722",
+      "start_date": "2026-02-22",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "75d17113-1b78-46ea-879a-2104455ccb58",
+      "center_id": "fac",
+      "observer_type": "public",
+      "start_date": "2026-01-08",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "a8c02990-d0f6-47a8-ad47-37defcc4555a",
+      "center_id": "ipac",
+      "observer_type": "public",
+      "start_date": "2026-01-04",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "c1222be5-35c4-47af-b29f-4665a59dcde2",
+      "center_id": "gnfac",
+      "observer_type": "forecaster",
+      "zone_id": "2819",
+      "start_date": "2026-01-25",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "6332296f-95e6-42f0-96e4-71d1646eaa1d",
+      "center_id": "pac",
+      "observer_type": "professional",
+      "start_date": "2026-01-06",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "5bec7ba6-ea53-46ed-8a37-aed11c1b7af5",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2826",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "2b66ae16-0d33-4caf-80ff-aa6675ebe5f2",
+      "center_id": "nwac",
+      "observer_type": "public",
+      "zone_id": "3029",
+      "start_date": "2026-01-04",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "c03ac23e-57da-43d5-8a32-6a474b0dea70",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-01-09",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "02b31653-c400-48e2-a57a-28471a888019",
+      "center_id": "ipac",
+      "observer_type": "forecaster",
+      "zone_id": "1900",
+      "start_date": "2026-01-06",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "f164cfdc-7a76-4b0e-a1ab-a264baa65b6f",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-02-26",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "5f0a9c20-2ec7-4c16-bf9f-e87b87e49b55",
+      "center_id": "fac",
+      "observer_type": "professional",
+      "zone_id": "1733",
+      "start_date": "2026-02-22",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "2ad82771-bff0-4031-819b-7f716fedc598",
+      "center_id": "gnfac",
+      "observer_type": "professional",
+      "zone_id": "2827",
+      "start_date": "2026-01-06",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "09101a5a-88c4-4510-b047-07aee64a7e91",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2819",
+      "start_date": "2026-01-06",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "7434b2a7-03ac-4de4-bf24-038c01947dff",
+      "center_id": "msac",
+      "observer_type": "forecaster",
+      "zone_id": "1833",
+      "start_date": "2026-01-09",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "e62758de-266d-4300-9db7-7c1658b7fa8d",
+      "center_id": "snfac",
+      "observer_type": "forecaster",
+      "zone_id": "2906",
+      "start_date": "2026-01-14",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "118989ba-a108-46a6-9ef8-9774beab096b",
+      "center_id": "ewyaix",
+      "observer_type": "professional",
+      "zone_id": "2843",
+      "start_date": "2026-01-09",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "a021a7f3-a919-4e0a-90dc-2ca5f636580e",
+      "center_id": "coaa",
+      "observer_type": "public",
+      "zone_id": "2470",
+      "start_date": "2026-02-21",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8b6a56ba-5454-4804-b8a5-14178cb38c9b",
+      "center_id": "wac",
+      "observer_type": "public",
+      "zone_id": "2982",
+      "start_date": "2026-02-21",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "fbe050af-d627-4fdf-97c0-7069622139a6",
+      "center_id": "wac",
+      "observer_type": "public",
+      "zone_id": "2983",
+      "start_date": "2026-02-18",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "c6164506-6e33-423f-a95c-95ca5fb20b2d",
+      "center_id": "fac",
+      "observer_type": "forecaster",
+      "zone_id": "1733",
+      "start_date": "2026-01-09",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "a7f1d1ca-3774-4752-9349-8b2b411149fb",
+      "center_id": "wac",
+      "observer_type": "public",
+      "zone_id": "2984",
+      "start_date": "2026-02-21",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "4f48b682-5961-405c-8776-10966aa01dd2",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "40f80362-4dfd-4019-85b4-8077f18d8fdb",
+      "start_date": "2026-02-21",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "9a54dc79-79ee-4656-b458-ec89ffd74549",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-02-01",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "9c590d2c-fdf1-4060-90a0-23c4de79266d",
+      "center_id": "fac",
+      "observer_type": "observer",
+      "zone_id": "1735",
+      "start_date": "2026-02-01",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "698d6ca4-d7c1-4e41-a232-5353f37135d3",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2906",
+      "start_date": "2026-01-09",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "ae838723-c396-44a8-853a-04168ff0a23b",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2904",
+      "start_date": "2026-02-26",
+      "cracking": false,
+      "collapsing": true,
+      "avalanches_observed": false
+    },
+    {
+      "id": "7fbe166d-1a63-4028-9fa4-3c7963cdf2ee",
+      "center_id": "gnfac",
+      "observer_type": "intern",
+      "zone_id": "2822",
+      "start_date": "2026-01-27",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "64529532-f1d1-4148-bcc6-cafff4506891",
+      "center_id": "ipac",
+      "observer_type": "public",
+      "zone_id": "1900",
+      "start_date": "2026-01-24",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "8af430b9-844e-4b5d-9aab-3ef7bde8449c",
+      "center_id": "gnfac",
+      "observer_type": "public",
+      "zone_id": "2819",
+      "start_date": "2026-02-01",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "f37545fb-f05a-464f-96b1-b1817f2a4a9b",
+      "center_id": "snfac",
+      "observer_type": "forecaster",
+      "zone_id": "2905",
+      "start_date": "2026-01-09",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "3669303d-957a-452d-a5e4-1ddfc9adf4e0",
+      "center_id": "gnfac",
+      "observer_type": "professional",
+      "zone_id": "2827",
+      "start_date": "2026-01-27",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "e2fe7c57-7ffb-4e28-b417-ff7074b039ff",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1735",
+      "start_date": "2026-01-18",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "29cb411d-89ed-426d-afdd-e49ab447fbe3",
+      "center_id": "snfac",
+      "observer_type": "professional",
+      "zone_id": "2906",
+      "start_date": "2026-02-09",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "447d6ba6-d8de-4b5c-b7f1-11db0abb76bb",
+      "center_id": "snfac",
+      "observer_type": "public",
+      "zone_id": "2904",
+      "start_date": "2026-01-10",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "6be6db47-821c-4db8-a695-bb3b38338283",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2852",
+      "start_date": "2026-02-12",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "7acc9330-fb47-418e-876e-fe04ef76536f",
+      "center_id": "fac",
+      "observer_type": "forecaster",
+      "zone_id": "1733",
+      "start_date": "2026-01-27",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "c537c1f6-b10d-4029-be7a-c7016548ba75",
+      "center_id": "btac",
+      "observer_type": "public",
+      "zone_id": "2855",
+      "start_date": "2026-01-26",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "aa74d5c7-7376-42a1-86d9-df72abf97453",
+      "center_id": "ipac",
+      "observer_type": "forecaster",
+      "zone_id": "1902",
+      "start_date": "2026-02-19",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    },
+    {
+      "id": "507d70a9-955f-4b78-b31a-22dd9aecc8c2",
+      "center_id": "wcmac",
+      "observer_type": "public",
+      "zone_id": "1723",
+      "start_date": "2026-01-10",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": true
+    },
+    {
+      "id": "5fe38556-f29b-4107-a63e-4dabf21afaaa",
+      "center_id": "ipac",
+      "observer_type": "forecaster",
+      "zone_id": "1900",
+      "start_date": "2026-01-09",
+      "cracking": true,
+      "collapsing": false,
+      "avalanches_observed": false
+    },
+    {
+      "id": "d607f355-0527-4faf-954e-0d185c00f0d3",
+      "center_id": "fac",
+      "observer_type": "public",
+      "zone_id": "1733",
+      "start_date": "2026-02-28",
+      "cracking": true,
+      "collapsing": true,
+      "avalanches_observed": true
+    }
+  ]
+}
