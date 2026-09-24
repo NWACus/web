@@ -1,18 +1,23 @@
 /**
- * Avalanche problem card, matching the legacy afp widget: titled "Problem #{rank}: {name}",
- * with four labeled columns (Problem Type icon + name, Aspect/Elevation rose, Likelihood,
- * Size), then the discussion with the example photo floated inline to its right.
+ * One avalanche problem, matching the legacy afp widget: headed "Problem #{rank}: {name}", with
+ * four labeled columns (Problem Type icon + name, Aspect/Elevation rose, Likelihood, Size) at the
+ * widget's sizes, then the discussion with the example photo floated inline to its right.
+ *
+ * Not a card of its own: the problems sit in the forecast's one panel under a shared heading, as
+ * in the widget.
  */
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   AvalancheProblemName,
   MediaType,
   type AvalancheProblem,
 } from '@/services/nac/model/forecast'
+import type { ElevationBandNames } from '@/services/nac/types/schemas'
+import { cn } from '@/utilities/ui'
 
 import { LocatorRose } from './LocatorRose'
 import { ProblemMediaFigure } from './ProblemMediaFigure'
 import { LikelihoodSlider, SizeSlider } from './ProblemSlider'
+import { labelHeading, subsectionHeading } from './forecastHeadings'
 import { toLightboxMedia, type LightboxMedia } from './lightboxMedia'
 import { getPosterUrl } from './mediaItem'
 import { sanitizeHtml } from './sanitizeHtml'
@@ -62,26 +67,24 @@ function problemMedia(
 
 interface AvalancheProblemCardProps {
   problem: AvalancheProblem
+  /** The zone's band names, for the rose's leader-line labels. */
+  elevationBandNames?: ElevationBandNames
 }
 
-export function AvalancheProblemCard({ problem }: AvalancheProblemCardProps) {
+export function AvalancheProblemCard({ problem, elevationBandNames }: AvalancheProblemCardProps) {
   const media = problemMedia(problem.media)
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          Problem #{problem.rank}: {problem.name}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <ProblemAttributes problem={problem} />
+    <div className="mb-12 last:mb-0">
+      <h3 className={cn(subsectionHeading, 'mb-6')}>
+        Problem #{problem.rank}: {problem.name}
+      </h3>
+      <ProblemAttributes problem={problem} elevationBandNames={elevationBandNames} />
 
-        {(media || problem.discussion) && (
-          <ProblemDiscussion media={media} discussion={problem.discussion} />
-        )}
-      </CardContent>
-    </Card>
+      {(media || problem.discussion) && (
+        <ProblemDiscussion media={media} discussion={problem.discussion} />
+      )}
+    </div>
   )
 }
 
@@ -89,26 +92,37 @@ export function AvalancheProblemCard({ problem }: AvalancheProblemCardProps) {
  * Four labeled columns, matching the widget: Problem Type, Aspect/Elevation, Likelihood, Size.
  * Two-up at small widths, four-up from lg.
  */
-function ProblemAttributes({ problem }: { problem: AvalancheProblem }) {
+function ProblemAttributes({
+  problem,
+  elevationBandNames,
+}: {
+  problem: AvalancheProblem
+  elevationBandNames: ElevationBandNames | undefined
+}) {
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 printWide:grid-cols-4">
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h5 className="text-sm font-semibold">Problem Type</h5>
+    <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4 printWide:grid-cols-4">
+      <div className="mb-8 text-center">
+        <h5 className={cn(labelHeading, 'mb-2')}>Problem Type</h5>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={problemIconUrl(problem.name)} alt="" className="h-20 w-20" aria-hidden="true" />
-        <span className="text-sm font-medium">{problem.name}</span>
+        <img
+          src={problemIconUrl(problem.name)}
+          alt=""
+          className="mx-auto mb-2.5 mt-6 h-[130px] w-[130px] sm:mt-5 sm:h-[170px] sm:w-[170px]"
+          aria-hidden="true"
+        />
+        <div className="text-sm font-medium">{problem.name}</div>
       </div>
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h5 className="text-sm font-semibold">Aspect/Elevation</h5>
-        <LocatorRose locations={problem.location} className="w-28" />
+      <div className="mb-8 text-center">
+        <h5 className={cn(labelHeading, 'mb-4')}>Aspect/Elevation</h5>
+        <LocatorRose locations={problem.location} elevationBandNames={elevationBandNames} />
       </div>
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h5 className="text-sm font-semibold">Likelihood</h5>
-        <LikelihoodSlider likelihood={problem.likelihood} className="h-32" />
+      <div className="mb-8 text-center">
+        <h5 className={cn(labelHeading, 'mb-8')}>Likelihood</h5>
+        <LikelihoodSlider likelihood={problem.likelihood} />
       </div>
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h5 className="text-sm font-semibold">Size</h5>
-        <SizeSlider size={problem.size} className="h-32" />
+      <div className="mb-8 text-center">
+        <h5 className={cn(labelHeading, 'mb-8')}>Size</h5>
+        <SizeSlider size={problem.size} />
       </div>
     </div>
   )
@@ -116,7 +130,7 @@ function ProblemAttributes({ problem }: { problem: AvalancheProblem }) {
 
 /**
  * The discussion with the example media floated inline to its right (wraps on md+);
- * overflow-hidden contains the float within the card. Sanitizing stays here on the server.
+ * overflow-hidden contains the float within the problem. Sanitizing stays here on the server.
  */
 function ProblemDiscussion({
   media,
