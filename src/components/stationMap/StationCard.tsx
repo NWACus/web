@@ -116,9 +116,8 @@ function ReadingRows({ station, context }: CardProps) {
 const COMPACT_BUTTON = 'h-7 px-2.5 text-xs'
 
 /**
- * The station's page, opened on its table or its graphs — the widget's modal, or its "Area
- * Tables" and "Area Plots" where a station page lists the station. In a new tab, so the map and
- * its selection stay put.
+ * The station's detail page, opened on its table or its graphs — the widget's modal. In a new tab,
+ * so the map and its selection stay put.
  */
 function StationLinks({ href }: { href: string }) {
   const linkProps = { target: '_blank', rel: 'noopener noreferrer' }

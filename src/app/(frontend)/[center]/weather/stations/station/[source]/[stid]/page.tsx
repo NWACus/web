@@ -1,6 +1,7 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
+import { StationAreaLinks } from '@/components/WeatherStations/StationAreaLinks'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import type { StationViewSubject } from '@/components/WeatherStations/stationTabViews'
 import { loadStationNotes, resolveTabView } from '@/components/WeatherStations/stationTabViews'
@@ -8,7 +9,7 @@ import { TrackedStationDetails } from '@/components/WeatherStations/TrackedStati
 import { stationDetailPath } from '@/services/snowobs/stationKey'
 import type { TrackedStation } from '@/services/snowobs/stationTracking'
 import { findServedStation } from '@/services/snowobs/trackedStations'
-import { getStationPages, toPageSummaries } from '@/services/stations/getStationPages'
+import { areaPageFor, getStationPages, toPageSummaries } from '@/services/stations/getStationPages'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
 
@@ -41,6 +42,7 @@ export default async function Page({ params, searchParams }: Args) {
   const path = stationDetailPath(ref)
 
   const pages = toPageSummaries(await getStationPages(center))
+  const area = areaPageFor(pages, ref)
   const subject: StationViewSubject = { slug: null, archived: false, stations: [ref], columns: [] }
   const timeZone = centerTimezone(center)
   const csv = { action: `${path}/csv`, filePrefix: station.source }
@@ -64,7 +66,12 @@ export default async function Page({ params, searchParams }: Args) {
         table={view.table}
         notes={notes}
         timeZone={timeZone}
-        details={<TrackedStationDetails station={station} />}
+        details={
+          <>
+            <TrackedStationDetails station={station} />
+            {area && <StationAreaLinks slug={area.slug} />}
+          </>
+        }
         tabContent={view.tabContent}
       />
     </>

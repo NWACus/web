@@ -4,9 +4,9 @@ import { loadPage, stubMapbox, tenant } from './helpers'
 
 /**
  * A native detail page for any station the center's SnowObs token tracks (#1341): the legacy
- * station widget's modal, as a page the map card links to when no station page lists the station.
+ * station widget's modal, as a page the map card links every station to.
  *
- * SAC has no station pages, so every station the mocks track is one of these. The tracking list
+ * SAC has no station pages; NWAC's seeded Hurricane Ridge page lists nwac:4. The tracking list
  * and timeseries come from `mocks/snowobs/`; the timeseries mock answers only the stations a
  * request names, so a page cannot render a station its route should have refused.
  */
@@ -76,6 +76,26 @@ test.describe('Single-station detail page', () => {
     expect(errors).toEqual([])
   })
 
+  test('a station on a station page offers that page as its area', async ({ page }) => {
+    // NWAC's seeded Hurricane Ridge page lists nwac:4; the widget modal's Area buttons.
+    const errors = await loadPage(page, `${tenant('nwac')}/weather/stations/station/nwac/4`)
+    await expect(page.getByRole('heading', { level: 1, name: 'Hurricane Ridge' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Area Tables' })).toHaveAttribute(
+      'href',
+      '/weather/stations/hurricane-ridge',
+    )
+    await expect(page.getByRole('link', { name: 'Area Graphs' })).toHaveAttribute(
+      'href',
+      '/weather/stations/hurricane-ridge?range=graphs',
+    )
+    expect(errors).toEqual([])
+
+    // A station no page lists has no area to offer.
+    await loadPage(page, `${tenant('sac')}${GREEN_LAKE}`)
+    await expect(page.getByRole('heading', { level: 1, name: 'Green Lake' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Area Tables' })).toHaveCount(0)
+  })
+
   test('an untracked or mismatched station is a 404', async ({ page }) => {
     // A stid our token could read, but that SAC does not track.
     const untracked = await page.goto(`${tenant('sac')}/weather/stations/station/mesowest/KSEA`)
@@ -103,7 +123,7 @@ test.describe('Single-station detail page', () => {
     expect(await statusOf(page, csv(GREEN_LAKE, 'snotel:502', 2015))).toBe(400)
   })
 
-  test('the station map links a station no page lists to its detail page', async ({ page }) => {
+  test('the station map links every station to its detail page', async ({ page }) => {
     await stubMapbox(page)
     await loadPage(page, `${tenant('sac')}/weather/stations/map`)
 

@@ -7,11 +7,26 @@
     "wind_speed": "mph"
   },
   "VARIABLES": [
-    { "variable": "air_temp", "long_name": "Air Temperature" },
-    { "variable": "snow_depth", "long_name": "Snow Depth" },
-    { "variable": "precip_accum", "long_name": "Precipitation Accumulation" },
-    { "variable": "relative_humidity", "long_name": "Relative Humidity" },
-    { "variable": "wind_speed", "long_name": "Wind Speed" }
+    {
+      "variable": "air_temp",
+      "long_name": "Air Temperature"
+    },
+    {
+      "variable": "snow_depth",
+      "long_name": "Snow Depth"
+    },
+    {
+      "variable": "precip_accum",
+      "long_name": "Precipitation Accumulation"
+    },
+    {
+      "variable": "relative_humidity",
+      "long_name": "Relative Humidity"
+    },
+    {
+      "variable": "wind_speed",
+      "long_name": "Wind Speed"
+    }
   ],
   "STATION": [
     {
@@ -58,6 +73,21 @@
         "date_time": ["2026-09-10T21:35:00Z", "2026-09-10T22:35:00Z"],
         "air_temp": [74.8, 76],
         "relative_humidity": [60, 58]
+      },
+      "station_note": []
+    },
+    {
+      "id": "hurricane-ridge-4",
+      "stid": "4",
+      "source": "nwac",
+      "name": "Hurricane Ridge",
+      "latitude": 47.9696,
+      "longitude": -123.4983,
+      "elevation": 5250,
+      "observations": {
+        "date_time": ["2026-09-10T21:00:00Z", "2026-09-10T22:00:00Z"],
+        "air_temp": [52.1, 53.4],
+        "relative_humidity": [70, 68]
       },
       "station_note": []
     }

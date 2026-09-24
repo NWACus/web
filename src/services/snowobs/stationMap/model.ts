@@ -25,7 +25,7 @@ export interface StationMapStation {
   data: Record<string, number | null>
   /** The forecast zone the station sits in, or `Other` when it is outside every zone. */
   zone: string
-  /** The center's station page that shows the station, or else the station's own detail page. */
+  /** The station's own detail page. */
   href: string
 }
 
