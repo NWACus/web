@@ -6,7 +6,7 @@ Status: accepted
 
 ## Context
 
-Nearly every content collection in AvyWeb is tenant-scoped. [#564 — Shared Content (Pages, Media, etc.)](https://github.com/NWACus/web/issues/564) asks for the opposite: content managed once and usable by every Avalanche Center. The first collection is a shared library of photos and videos. The forecast glossary (ADR 018, on the `native-product-pages` branch) and reusable content will follow.
+Nearly every content collection in AvyWeb is tenant-scoped. [#564 — Shared Content (Pages, Media, etc.)](https://github.com/NWACus/web/issues/564) asks for the opposite: content managed once and usable by every Avalanche Center. The first collection is a shared library of photos and videos. The forecast glossary (ADR 018) and reusable content will follow.
 
 Four facts shaped the permission model:
 
@@ -42,4 +42,4 @@ A proof of concept on the `global-pages` branch took a different route: a `Globa
 - "Duplicate Page For…" clears every upload and relationship field in the copied layout. It must keep references that point at Shared Content, which are valid in any center.
 - Adoption is opt-in and heavier than the POC. A shared page does not appear on a center's site until that center builds a Page and embeds it.
 - Shared photos work only in image slots that have adopted the source choice. Coverage grows slot by slot.
-- ADR 018 says "Public read; super-admin write" for Glossary Terms. It should be updated to this model when the glossary is built: read is structural, and the public receives terms through the glossary's own endpoint.
+- Glossary Terms (ADR 018) follow this model: read is structural, and the public receives terms through the glossary's own endpoint, `GET /api/glossary`. Nothing references a term, so it has no reference count, "Where this is used" panel or block.
