@@ -2,7 +2,7 @@
 
 Shared Content is content no Tenant owns — managed once and usable by every avalanche center. The decisions and the reasons behind them are in [`docs/decisions/022-shared-content.md`](decisions/022-shared-content.md); the domain terms are in [`DOMAIN_CONTEXT.md`](../DOMAIN_CONTEXT.md). This file is the checklist for building one.
 
-`SharedMedia` (`src/collections/SharedMedia/`) is the worked example. Read it alongside this list. `GlossaryTerms` (`src/collections/GlossaryTerms/`) is a smaller one: nothing references a term, so items 5, 8, 11 and 12 don't apply to it, and its revalidation hook purges the glossary endpoint's cache tag instead.
+`SharedMedia` (`src/collections/SharedMedia/`) is the worked example. Read it alongside this list. `GlossaryTerms` (`src/collections/GlossaryTerms/`) is a smaller one: it is not an upload and nothing references a term, so items 5, 7, 8, 11 and 12 don't apply to it. Its revalidation hook purges the glossary endpoint's cache tag instead, and it seeds through its own idempotent seeder (shared with a data migration) rather than `upsertGlobals`.
 
 ## The checklist
 

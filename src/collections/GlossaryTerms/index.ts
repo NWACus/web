@@ -4,6 +4,7 @@ import { accessBySharedContent } from '@/access/bySharedContent'
 import { SHARED_CONTENT_ADMIN_GROUP, SHARED_CONTENT_EDIT_CONTROLS } from '@/constants/sharedContent'
 import { canReadSharedContent } from '@/utilities/rbac/canReadSharedContent'
 import { validateExternalUrl } from '@/utilities/validateUrl'
+import { rejectClaimedMatches } from './hooks/rejectClaimedMatches'
 import { revalidateGlossary, revalidateGlossaryDelete } from './hooks/revalidateGlossary'
 
 // Standard avalanche terms marked in native forecast prose. Shared Content (ADR 022); how the
@@ -46,7 +47,7 @@ export const GlossaryTerms: CollectionConfig = {
       hasMany: true,
       admin: {
         description:
-          'Other forms that should show the same definition: plurals, tenses, synonyms (e.g. "beacon" for "transceiver").',
+          'Other forms that should show the same definition: plurals, tenses, synonyms (e.g. "beacon" for "transceiver"). A term or alias can belong to only one Glossary Term.',
       },
     },
     {
@@ -65,6 +66,7 @@ export const GlossaryTerms: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeValidate: [rejectClaimedMatches],
     afterChange: [revalidateGlossary],
     afterDelete: [revalidateGlossaryDelete],
   },

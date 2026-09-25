@@ -3262,7 +3262,7 @@ export interface GlossaryTerm {
    */
   term: string;
   /**
-   * Other forms that should show the same definition: plurals, tenses, synonyms (e.g. "beacon" for "transceiver").
+   * Other forms that should show the same definition: plurals, tenses, synonyms (e.g. "beacon" for "transceiver"). A term or alias can belong to only one Glossary Term.
    */
   aliases?: string[] | null;
   definition: string;

@@ -14,6 +14,9 @@ async function readGlossaryTerms(): Promise<GlossaryEntry[]> {
     sort: 'term',
     select: { term: true, aliases: true, definition: true, link: true },
   })
+  // An empty read is far likelier a database mid-restore than an editor deleting every term, and
+  // a cached miss would hold until the next term edit. See docs/revalidation.md.
+  if (docs.length === 0) throw new Error('No glossary terms found. Refusing to cache the miss.')
 
   return docs.map((doc) => ({
     term: doc.term,

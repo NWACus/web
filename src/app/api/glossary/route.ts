@@ -1,3 +1,6 @@
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
+
 import { getCachedGlossaryTerms } from '@/services/glossary/glossaryCache'
 import { NO_STORE } from '@/utilities/apiResponses'
 import { NextResponse } from 'next/server'
@@ -15,12 +18,22 @@ export async function GET() {
   try {
     const terms = await getCachedGlossaryTerms()
     return NextResponse.json(terms, {
-      // Short at the edge: the tag purge clears the data cache, and this bounds how long a CDN copy
-      // can lag behind an edit.
-      headers: { 'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=300' },
+      // The tag purge clears the data cache but not a CDN copy, so this bounds how long an edit
+      // can take to reach readers: about two minutes.
+      headers: { 'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=60' },
     })
-  } catch {
+  } catch (err) {
     // The glossary is an enhancement; the page renders plain prose without it.
+    await logGlossaryFailure(err)
     return NextResponse.json({ error: 'Glossary unavailable' }, { status: 503, headers: NO_STORE })
+  }
+}
+
+async function logGlossaryFailure(err: unknown) {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    payload.logger.error({ err }, 'Glossary terms could not be read')
+  } catch {
+    // Payload itself failed to start; the 503 is all there is to say.
   }
 }

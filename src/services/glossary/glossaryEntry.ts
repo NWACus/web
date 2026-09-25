@@ -6,6 +6,10 @@ export type GlossaryEntry = {
   link: string | null
 }
 
+/** The form matching compares: case and runs of whitespace don't distinguish two terms. */
+export const normalizeGlossaryText = (text: string): string =>
+  text.toLowerCase().replace(/\s+/g, ' ').trim()
+
 /** Tags the endpoint's cached read. A glossary edit purges this and nothing else (ADR 018). */
 export const GLOSSARY_CACHE_TAG = 'glossary'
 
