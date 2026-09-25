@@ -6,10 +6,13 @@ import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
+import { ForecastPage } from '@/components/weather/nwac/ForecastPage'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
+// NWAC's page shows today's forecast, so it can't stay frozen at build time.
+export const revalidate = 300
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -34,6 +37,16 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center } = await params
+
+  // NWAC's weather comes from products-api, not the widget, and its `platforms.weather` is false.
+  if (center === 'nwac') {
+    return (
+      <>
+        <Breadcrumbs center={center} path="/weather/forecast" />
+        <ForecastPage centerSlug={center} />
+      </>
+    )
+  }
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
