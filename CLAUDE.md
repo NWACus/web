@@ -88,6 +88,7 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 
 - All content is multi-tenant. Always filter by tenant: `{"tenant": {"equals": <tenantId>}}`
 - Exception: `courses` and `providers` have no tenant. Filter courses by provider (`{"provider": {"equals": <providerId>}}`); providers are global and their slugs are globally unique
+- `sharedMedia` also has no tenant: it is Shared Content usable by every center
 - Use `findTenants` first to discover tenant IDs and slugs (nwac, dvac, sac, snfac)
 - Use `depth: 0` for IDs only, `depth: 1+` for resolved relationships
 - Use `select` to return only needed fields: `{"title": true, "slug": true}`
@@ -431,10 +432,11 @@ Never cast relationship fields - they can be resolved objects, unresolved IDs, o
 ### When Adding New Collections/Globals
 
 1. **Consider revalidation** - Reference `/docs/revalidation.md` to determine if revalidation hooks are needed
-2. **Add seed data** - Add seed data to the seed script when the schema is finished
-3. **Run the seed script** - Verify `pnpm seed:standalone` completes without errors
-4. **Generate a migration** - Run `pnpm payload migrate:create <descriptive_name>` (always provide a descriptive name)
-5. **Update type generation** - Run `pnpm generate:types` after schema changes
+2. **Expose it to the MCP server** - Add it find-only to `mcpPlugin` in `src/plugins/index.ts` unless it holds sensitive data (users, permissions, form submissions). Do this before generating the migration, and add an instructions line if it has no `tenant` field. See `/docs/mcp-server.md#adding-a-collection-to-mcp`
+3. **Add seed data** - Add seed data to the seed script when the schema is finished
+4. **Run the seed script** - Verify `pnpm seed:standalone` completes without errors
+5. **Generate a migration** - Run `pnpm payload migrate:create <descriptive_name>` (always provide a descriptive name)
+6. **Update type generation** - Run `pnpm generate:types` after schema changes
 
 ### When Adding New Blocks
 
