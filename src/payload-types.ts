@@ -3368,6 +3368,42 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
+  builtInPages?: {
+    /**
+     * Allow clients to find builtInPages.
+     */
+    find?: boolean | null;
+  };
+  galleries?: {
+    /**
+     * Allow clients to find galleries.
+     */
+    find?: boolean | null;
+  };
+  announcements?: {
+    /**
+     * Allow clients to find announcements.
+     */
+    find?: boolean | null;
+  };
+  stationPages?: {
+    /**
+     * Allow clients to find stationPages.
+     */
+    find?: boolean | null;
+  };
+  redirects?: {
+    /**
+     * Allow clients to find redirects.
+     */
+    find?: boolean | null;
+  };
+  sharedMedia?: {
+    /**
+     * Allow clients to find sharedMedia.
+     */
+    find?: boolean | null;
+  };
   nacWidgetsConfig?: {
     /**
      * Allow clients to find nacWidgetsConfig global.
@@ -5339,6 +5375,36 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
         find?: T;
       };
   providers?:
+    | T
+    | {
+        find?: T;
+      };
+  builtInPages?:
+    | T
+    | {
+        find?: T;
+      };
+  galleries?:
+    | T
+    | {
+        find?: T;
+      };
+  announcements?:
+    | T
+    | {
+        find?: T;
+      };
+  stationPages?:
+    | T
+    | {
+        find?: T;
+      };
+  redirects?:
+    | T
+    | {
+        find?: T;
+      };
+  sharedMedia?:
     | T
     | {
         find?: T;
