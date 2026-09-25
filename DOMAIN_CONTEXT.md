@@ -8,6 +8,10 @@ The multi-tenant web platform that serves public websites and content management
 A real-world organization (e.g. NWAC, SAC, DVAC, SNFAC) that publishes avalanche forecasts and content and gets its own website. The canonical domain term; "Center" is an acceptable short form. Use it in anything user-facing.
 _Also called_: Center, AC (short forms)
 
+**Info Exchange**:
+An Avalanche Center that publishes observations (and often hosts weather stations) but doesn't issue avalanche forecasts (e.g. the Eastern Idaho Info Exchange). There is no field for it: a center is an info exchange when its NAC platforms report `obs` but not `forecasts`. It gets an observations-focused home page and a smaller set of provisioned pages.
+_Avoid_: Treating it as a separate entity or tenant kind
+
 **Tenant**:
 The same entity as an Avalanche Center, named for its multi-tenancy/RBAC role — the isolation boundary that scopes content, roles, subdomains, and URL paths. Use it when talking about data scoping, access control, or request routing, not in user-facing copy.
 

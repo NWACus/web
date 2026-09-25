@@ -17,6 +17,10 @@ export const avalancheCenterModulesSchema = z.object({
 })
 export type AvalancheCenterPlatforms = z.infer<typeof avalancheCenterPlatformsSchema>
 
+/** An info exchange publishes observations but doesn't issue avalanche forecasts. */
+export const isInfoExchange = (platforms: AvalancheCenterPlatforms): boolean =>
+  !platforms.forecasts && platforms.obs
+
 export const avalancheCenterCapabilitiesSchema = z.object({
   id: z.string(),
   display_id: z.string(),

@@ -21,12 +21,18 @@ The outcome of each provisioning run is stored on the tenant's `provisioning` gr
 | Step | Details |
 |------|---------|
 | Website Settings | Created with placeholder brand assets (logo, icon, banner). Replace with real assets via the checklist link. |
-| Forecast pages | Queries AFP via `getActiveForecastZones()` to auto-detect single vs multi-zone. Creates zone-specific built-in pages (see table below). Falls back to a default "All Forecasts" page if AFP is unavailable. Every center also gets the archive pages in `ARCHIVE_PAGES` (Forecast Archive, Danger Over Time). |
-| Default built-in pages | Creates non-forecast built-in pages from the static `BUILT_IN_PAGES` list in `provisionTenant.ts` (see table below). Mountain Weather and the Mountain Weather Archive are only included if the center runs a weather product in NAC: the AFP one every other center uses (`platforms.weather`) or NWAC's own (`platforms.nwac_weather`, read from the center's `config.modules.platforms` in NAC). |
-| Blank pages | Creates empty pages for every slug in the static `PAGES_TO_PROVISION` list in `provisionTenant.ts`. Admins are expected to fill in the content after provisioning. |
-| Home page | Creates a home page with welcome content and quick links to About Us and Donate. |
+| Forecast pages | Queries AFP via `getActiveForecastZones()` to auto-detect single vs multi-zone. Creates zone-specific built-in pages (see table below). Falls back to a default "All Forecasts" page if AFP is unavailable. Every forecast center also gets the archive pages in `ARCHIVE_PAGES` (Forecast Archive, Danger Over Time). Skipped for info exchanges. |
+| Default built-in pages | Creates non-forecast built-in pages from the static `BUILT_IN_PAGES` list in `provisionTenant.ts` (see table below). Mountain Weather and the Mountain Weather Archive are only included if the center runs a weather product in NAC: the AFP one every other center uses (`platforms.weather`) or NWAC's own (`platforms.nwac_weather`, read from the center's `config.modules.platforms` in NAC). Info exchanges only get Weather Stations if NAC reports `platforms.stations`. |
+| Blank pages | Creates empty pages for every slug in the static `PAGES_TO_PROVISION` list in `provisionTenant.ts`. Info exchanges only get About Us, Donate / Membership, and Volunteer (`INFO_EXCHANGE_PAGES_TO_PROVISION`). Admins are expected to fill in the content after provisioning. |
+| Home page | Creates a home page with welcome content and quick links to About Us and Donate. Forecast centers get an upcoming events list; info exchanges get observations-focused copy and an Observations Widget block. |
 | Navigation | Creates navigation menus linked to all provisioned pages and built-in pages. Forecasts tab is zone-aware (single zone: the zone's forecast then Forecast Archive; multi-zone: "All Forecasts" + a "Zones" accordion with per-zone items + Forecast Archive). The weather tab leads with Mountain Weather when the center has it. Danger Over Time and the Mountain Weather Archive are left out of the nav; they are tabs inside the archive. |
 | Edge Config | The `updateEdgeConfigAfterChange` hook automatically adds the tenant to Vercel Edge Config. |
+
+#### Info exchanges
+
+A center is provisioned as an info exchange when NAC reports `platforms.obs` but not `platforms.forecasts` (`isInfoExchange` in `src/services/nac/types/schemas.ts`). There is no tenant field for this; confirm the center's platforms with `pnpm check:centers` before creating the tenant. If the NAC platforms query fails, the center is provisioned as a forecast center.
+
+On the frontend, the Forecasts nav tab and forecast/weather routes are already hidden by the same platform flags, and the home page only shows the warnings banner when NAC reports `platforms.warnings`.
 
 #### Built-In Pages
 
