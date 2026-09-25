@@ -4,19 +4,17 @@ The Payload MCP plugin exposes a [Model Context Protocol](https://modelcontextpr
 
 ## What it provides
 
-- Config-based access to collections and globals. We have configured **Read-only access** to 24 collections (pages, builtInPages, stationPages, posts, homePages, events, media, galleries, announcements, teams, biographies, sponsors, tags, documents, forms, navigations, settings, redirects, tenants, eventGroups, eventTags, courses, providers, sharedMedia) and the `nacWidgetsConfig` global. See [Adding a collection to MCP](#adding-a-collection-to-mcp) for what is deliberately left out.
+- Config-based access to collections and globals. **Read-only access** to the content collections and the `nacWidgetsConfig` global. `MCP_COLLECTIONS` and `MCP_GLOBALS` in `src/constants/mcp.ts` list what is exposed, and give the reason for everything that is not.
 - Authentication via API key (Bearer token)
 - Access control enforced through Payload's standard RBAC system (the API key's associated user determines what content is accessible in addition to the plugin config limitations)
 - **Server instructions** that describe the multi-tenant data model and common query patterns to MCP clients
 
 ### Read-only by configuration
 
-The plugin supports `find`, `create`, `update`, and `delete` operations per collection, but we've intentionally restricted all collections to `find` only:
+The plugin supports `find`, `create`, `update`, and `delete` operations per collection, but we've intentionally restricted all collections to `find` only. `mcpFindOnly` in `src/constants/mcp.ts` builds the plugin's `collections` and `globals` options, and it only ever enables `find`:
 
 ```typescript
-pages: { enabled: { find: true } },
-posts: { enabled: { find: true } },
-// ... same for all collections
+collections: mcpFindOnly(MCP_COLLECTIONS), // → { pages: { enabled: { find: true } }, ... }
 ```
 
 This is a deliberate security decision — even if an API key is compromised, no data can be modified. In the future, we could selectively enable write operations for specific collections (e.g., `create` on `media` for AI-assisted content workflows) or for specific MCP clients.
@@ -27,39 +25,29 @@ The plugin also supports [custom MCP tools](https://github.com/payloadcms/payloa
 
 ## Adding a collection to MCP
 
-**Every new collection or global needs an MCP decision.** Agents can only answer questions about data the server exposes, and a collection that is left off by accident is invisible to them. The default is to expose it.
+**Every new collection or global needs an MCP decision, and `pnpm tsc` enforces it.** `MCP_COLLECTIONS` and `MCP_GLOBALS` in `src/constants/mcp.ts` are keyed by every generated slug. So once `pnpm generate:types` picks up a new collection, including one a plugin adds, TypeScript reports it missing until it is marked `'find'` or `{ excluded: '<reason>' }`. Agents can only answer questions about data the server exposes, and the default is to expose it.
 
 ### Expose it (the default)
 
-Content that editors create and the public site renders — pages, posts, media, events, announcements, redirects, and the like — should be exposed, find-only. Add it to the `collections` object (or `globals`) in the MCP plugin config at `src/plugins/index.ts`:
+Content that editors create and the public site renders — pages, posts, media, events, announcements, redirects, and the like — should be exposed, find-only:
 
 ```typescript
-collections: {
+// src/constants/mcp.ts
+export const MCP_COLLECTIONS: Record<CollectionSlug, McpExposure> = {
   // ... existing collections
-  yourCollection: { enabled: { find: true } },
+  yourCollection: 'find',
 }
 ```
 
-Keep it read-only (`find: true` only). Then:
+Then:
 
 1. **Do it before generating your migration.** The plugin stores a `<slug>_find` permission checkbox for every exposed collection on each MCP API key, so exposing a collection adds a column to `payload_mcp_api_keys`. Adding it in the same PR as the collection means one migration instead of two.
 2. **Update the server instructions if the collection is not tenant-scoped.** The instructions tell clients to filter everything by `tenant`. A collection without a `tenant` field (like `courses`, `providers` or `sharedMedia`) needs an exception line saying what to filter by instead.
-3. **Update the collection list at the top of this doc.**
-4. **Tell key holders.** Existing keys have the new checkbox off, so each key's owner must edit the key under **Admin > MCP API Keys** before the new `find<Collection>` tool returns data. Mention this in the PR description.
+3. **Tell key holders.** Existing keys have the new checkbox off, so each key's owner must edit the key under **Admin > MCP API Keys** before the new `find<Collection>` tool returns data. Mention this in the PR description.
 
 ### Leave it out
 
-Leave a collection out when a leaked key would expose something sensitive and agents have little need for it:
-
-| Not exposed | Why |
-| --- | --- |
-| `users` | Emails and account data |
-| `roleAssignments`, `globalRoleAssignments` | The map of who can do what |
-| `form-submissions` | Whatever the public typed into forms (names, emails, messages) |
-| `roles`, `globalRoles` | Low risk, but only useful for debugging RBAC; add them if that becomes a need |
-| `a3Management`, `diagnostics` (globals) | Internal settings with little to query |
-
-If a new collection belongs in this table, add it here with the reason so the next person does not have to re-decide.
+Leave a collection out when a leaked key would expose something sensitive and agents have little need for it — users, role assignments, form submissions — or when it is Payload-internal. Mark it `{ excluded: '<reason>' }` in `src/constants/mcp.ts`; the reason is the record, so the next person does not have to re-decide.
 
 ## Setup
 

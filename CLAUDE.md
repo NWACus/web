@@ -432,7 +432,7 @@ Never cast relationship fields - they can be resolved objects, unresolved IDs, o
 ### When Adding New Collections/Globals
 
 1. **Consider revalidation** - Reference `/docs/revalidation.md` to determine if revalidation hooks are needed
-2. **Expose it to the MCP server** - Add it find-only to `mcpPlugin` in `src/plugins/index.ts` unless it holds sensitive data (users, permissions, form submissions). Do this before generating the migration, and add an instructions line if it has no `tenant` field. See `/docs/mcp-server.md#adding-a-collection-to-mcp`
+2. **Decide MCP exposure** - `pnpm tsc` fails until the slug has an entry in `MCP_COLLECTIONS` / `MCP_GLOBALS` in `src/constants/mcp.ts`: `'find'` by default, `{ excluded: '<reason>' }` only for sensitive data (users, permissions, form submissions). Do this before generating the migration, and add an instructions line if it has no `tenant` field. See `/docs/mcp-server.md#adding-a-collection-to-mcp`
 3. **Add seed data** - Add seed data to the seed script when the schema is finished
 4. **Run the seed script** - Verify `pnpm seed:standalone` completes without errors
 5. **Generate a migration** - Run `pnpm payload migrate:create <descriptive_name>` (always provide a descriptive name)

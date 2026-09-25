@@ -8,7 +8,7 @@ sig = "6e9c5357969669d3"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "555027bfd5368700"
+sig = "befd232286043c26"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -63,7 +63,7 @@ sig = "81f5116bf33918a4"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/mcp-server.md"
-sig = "08597bcd08178b48"
+sig = "8532fb5203f0be97"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -83,7 +83,7 @@ sig = "f60abc23a97b2ece"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/shared-content.md"
-sig = "d45bef1c599f50a8"
+sig = "356e929a0de9c71e"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -603,7 +603,7 @@ sig = "60bbd2c2347a4abd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/plugins/index.ts"
-sig = "e988c959f9f657a9"
+sig = "3fcdb4c7f87bc03e"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -687,8 +687,13 @@ sig = "cdbcb90cb1c106cf"
 
 [[bindings]]
 doc = "docs/mcp-server.md"
+target = "src/constants/mcp.ts"
+sig = "d9b16af263c5e262"
+
+[[bindings]]
+doc = "docs/mcp-server.md"
 target = "src/plugins/index.ts"
-sig = "e988c959f9f657a9"
+sig = "3fcdb4c7f87bc03e"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -883,7 +888,7 @@ sig = "2bbfded1dc092008"
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/plugins/index.ts"
-sig = "e988c959f9f657a9"
+sig = "3fcdb4c7f87bc03e"
 
 [[bindings]]
 doc = "docs/shared-content.md"
