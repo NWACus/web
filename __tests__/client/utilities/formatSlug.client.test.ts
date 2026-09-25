@@ -1,4 +1,10 @@
-import { formatDateForSlug, formatSlug } from '@/fields/slug/formatSlug'
+import {
+  composeSlug,
+  formatDateForSlug,
+  formatSlug,
+  relationshipID,
+  slugOf,
+} from '@/fields/slug/formatSlug'
 
 describe('formatSlug', () => {
   it('kebab-cases a multi-word string', () => {
@@ -55,5 +61,47 @@ describe('formatDateForSlug', () => {
     expect(formatDateForSlug(undefined)).toBe('')
     expect(formatDateForSlug(null)).toBe('')
     expect(formatDateForSlug(1731513600000)).toBe('')
+  })
+})
+
+describe('composeSlug', () => {
+  it('joins prefix, base and date, skipping empty parts', () => {
+    expect(composeSlug({ prefix: 'asi', base: 'rec-1', date: '2026-01-10' })).toBe(
+      'asi-rec-1-2026-01-10',
+    )
+    expect(composeSlug({ prefix: '', base: 'rec-1', date: '2026-01-10' })).toBe('rec-1-2026-01-10')
+  })
+
+  it('generates nothing without a base', () => {
+    expect(composeSlug({ prefix: 'asi', base: '', date: '2026-01-10' })).toBe('')
+  })
+})
+
+describe('slugOf', () => {
+  it('reads a string slug off a document', () => {
+    expect(slugOf({ id: 1, slug: 'asi' })).toBe('asi')
+  })
+
+  it('returns an empty string when there is no string slug', () => {
+    expect(slugOf(null)).toBe('')
+    expect(slugOf({ id: 1 })).toBe('')
+    expect(slugOf({ slug: 7 })).toBe('')
+  })
+})
+
+describe('relationshipID', () => {
+  it('passes a bare ID through', () => {
+    expect(relationshipID(7)).toBe(7)
+    expect(relationshipID('abc')).toBe('abc')
+  })
+
+  it('reads the ID off a populated document', () => {
+    expect(relationshipID({ id: 7, name: 'Alpine Skills International' })).toBe(7)
+  })
+
+  it('returns undefined for empty or malformed values', () => {
+    expect(relationshipID(null)).toBeUndefined()
+    expect(relationshipID(undefined)).toBeUndefined()
+    expect(relationshipID({ name: 'no id' })).toBeUndefined()
   })
 })

@@ -58,7 +58,7 @@ sig = "6fbe219d4009e348"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "808ab876088e8462"
+sig = "7a0c14b906deb859"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -283,7 +283,7 @@ sig = "c995ef0ec2eae6b4"
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/collections/Courses/index.ts"
-sig = "8f627ebd719644dc"
+sig = "bb8e3d97f774bec9"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
@@ -328,7 +328,7 @@ sig = "22a227eec96485e6"
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
 target = "src/collections/Courses/index.ts"
-sig = "8f627ebd719644dc"
+sig = "bb8e3d97f774bec9"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -618,7 +618,7 @@ sig = "9fea7eae9c72b62e"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Courses/index.ts"
-sig = "8f627ebd719644dc"
+sig = "bb8e3d97f774bec9"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -639,6 +639,11 @@ sig = "f8b42ae102ff2db7"
 doc = "docs/events-and-courses.md"
 target = "src/collections/Providers/index.ts"
 sig = "ef162015be100d91"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/fields/slug/ensureUniqueSlug.ts"
+sig = "e28687532f066a7a"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

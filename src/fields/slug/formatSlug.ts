@@ -1,3 +1,4 @@
+import { isRecord } from '@/utilities/isRecord'
 import type { FieldHook } from 'payload'
 
 export const formatSlug = (val: string | null): string => {
@@ -13,6 +14,25 @@ export const formatSlug = (val: string | null): string => {
       .replace(/^-|-$/g, '')
       .toLowerCase()
   )
+}
+
+// Joins the parts of an auto-generated slug. Shared by the server hook and the regenerate button so
+// they agree; without the source-field part there is nothing to generate.
+export const composeSlug = (parts: { prefix?: string; base: string; date?: string }): string =>
+  parts.base ? [parts.prefix, parts.base, parts.date].filter(Boolean).join('-') : ''
+
+// Reads the slug off a fetched document (REST response or Local API result); '' when absent.
+export const slugOf = (doc: unknown): string =>
+  isRecord(doc) && typeof doc.slug === 'string' ? doc.slug : ''
+
+const isID = (value: unknown): value is number | string =>
+  typeof value === 'number' || typeof value === 'string'
+
+// A relationship value arrives as a bare ID or, when populated, as the related document.
+export const relationshipID = (relationship: unknown): number | string | undefined => {
+  if (isID(relationship)) return relationship
+  const id = isRecord(relationship) ? relationship.id : undefined
+  return isID(id) ? id : undefined
 }
 
 // Formats a date value as `YYYY-MM-DD` (UTC) for use in a slug; returns '' if not a valid date.

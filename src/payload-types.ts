@@ -2151,9 +2151,9 @@ export interface Course {
     | 'America/Anchorage'
     | 'Pacific/Honolulu';
   /**
-   * Auto-generated from title. Must be unique; lowercase letters, numbers, and hyphens only.
+   * Leave blank to auto-generate from provider + title + start date. Duplicates get a numbered suffix.
    */
-  slug: string;
+  slug?: string | null;
   courseType:
     | 'rec-1'
     | 'rec-2'
@@ -2168,7 +2168,7 @@ export interface Course {
     | 'pro-avsar';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
   affinityGroups?: ('lgbtq' | 'women' | 'youth')[] | null;
-  provider?: (number | null) | Provider;
+  provider: number | Provider;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
