@@ -3,6 +3,7 @@
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 
+import { ExternalLink } from '@/components/forecast/ExternalLink'
 import type { GlossaryEntry } from '@/services/glossary/glossaryEntry'
 
 import { POPOVER_ATTR, TERM_ATTR } from './markGlossaryTerms'
@@ -169,23 +170,31 @@ function GlossaryDefinition({
           // The content sits inside the authored paragraph, so reset what it could inherit.
           className="not-prose z-50 block w-72 text-left font-sans normal-case not-italic leading-normal tracking-normal max-w-[calc(100vw-1rem)] rounded-md border bg-popover p-3 text-sm font-normal text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 print:hidden"
         >
-          <span className="block">{entry.definition}</span>
-          {entry.link && (
-            <a
-              href={entry.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              // Tabbable only once pinned: every previewed term would otherwise add a second tab
-              // stop, doubling the walk through a long discussion.
-              tabIndex={active.via === 'pinned' ? undefined : -1}
-              className="mt-2 block font-medium text-primary underline underline-offset-4"
-            >
-              Learn more on avalanche.org →
-            </a>
-          )}
+          <Definition entry={entry} linkTabbable={active.via === 'pinned'} />
           <PopoverPrimitive.Arrow className="fill-popover" />
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>
     </PopoverPrimitive.Root>
+  )
+}
+
+function Definition({ entry, linkTabbable }: { entry: GlossaryEntry; linkTabbable: boolean }) {
+  return (
+    <span className="block">
+      {entry.definition}
+      {entry.link && ' '}
+      {entry.link && (
+        <ExternalLink
+          href={entry.link}
+          // Tabbable only once pinned: every previewed term would otherwise add a second tab stop,
+          // doubling the walk through a long discussion.
+          tabIndex={linkTabbable ? undefined : -1}
+          className="font-medium text-primary underline hover:underline"
+        >
+          Learn more
+          <span className="sr-only"> about {entry.term} (opens in a new tab)</span>
+        </ExternalLink>
+      )}
+    </span>
   )
 }

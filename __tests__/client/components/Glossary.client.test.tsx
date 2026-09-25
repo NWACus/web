@@ -104,7 +104,9 @@ describe('forecast glossary', () => {
 
     const dialog = await screen.findByRole('dialog', { name: 'Wind Slab' })
     expect(dialog).toHaveTextContent('A cohesive layer of snow formed when wind deposits snow.')
-    const link = screen.getByRole('link', { name: 'Learn more on avalanche.org →' })
+    const link = screen.getByRole('link', {
+      name: 'Learn more about Wind Slab (opens in a new tab)',
+    })
     expect(link).toHaveAttribute('href', TERMS[0].link)
     expect(link).toHaveAttribute('target', '_blank')
     expect(term).toHaveAttribute('aria-expanded', 'true')
@@ -136,7 +138,9 @@ describe('forecast glossary', () => {
     act(() => term.focus())
     fireEvent.keyDown(term, { key: 'Enter' })
 
-    const link = await screen.findByRole('link', { name: 'Learn more on avalanche.org →' })
+    const link = await screen.findByRole('link', {
+      name: 'Learn more about Wind Slab (opens in a new tab)',
+    })
     await waitFor(() => expect(link).toHaveFocus())
 
     fireEvent.keyDown(link, { key: 'Escape' })
