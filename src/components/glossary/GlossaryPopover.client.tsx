@@ -10,13 +10,19 @@ import { POPOVER_ATTR, TERM_ATTR } from './markGlossaryTerms'
 import { listenForTermEvents, termFrom, type ActiveTerm, type TermControls } from './termEvents'
 
 /** Grace period for the pointer to travel from a term into its popover before it closes. */
-const HOVER_CLOSE_DELAY_MS = 150
+const HOVER_CLOSE_DELAY_MS = 300
+/**
+ * How long the pointer must rest on another term before a hover preview switches to it. The popover
+ * covers the lines below its term, so the way into it often crosses other terms.
+ */
+const HOVER_SWITCH_DELAY_MS = 250
 
 /** Which term, if any, has its definition open, driven by events delegated from the document. */
 function useActiveTerm(entries: GlossaryEntry[], contentRef: RefObject<HTMLElement | null>) {
   const [active, setActive] = useState<ActiveTerm | null>(null)
   const activeRef = useRef<ActiveTerm | null>(null)
   const closeTimer = useRef<number | undefined>(undefined)
+  const switchTimer = useRef<number | undefined>(undefined)
 
   // The listeners are registered once and read the current term through this.
   useLayoutEffect(() => {
@@ -24,24 +30,33 @@ function useActiveTerm(entries: GlossaryEntry[], contentRef: RefObject<HTMLEleme
   }, [active])
 
   const controls = useMemo<TermControls>(() => {
-    const cancelClose = () => window.clearTimeout(closeTimer.current)
+    const hold = () => {
+      window.clearTimeout(closeTimer.current)
+      window.clearTimeout(switchTimer.current)
+    }
+    const open: TermControls['open'] = (element, via, focusContent = false) => {
+      hold()
+      const index = Number(element.getAttribute(TERM_ATTR))
+      if (entries[index]) setActive({ element, index, via, focusContent })
+    }
     return {
       // A corrected forecast rewrites the prose, taking the open term with it; that term is over.
       active: () => (activeRef.current?.element.isConnected ? activeRef.current : null),
-      open: (element, via, focusContent = false) => {
-        cancelClose()
-        const index = Number(element.getAttribute(TERM_ATTR))
-        if (entries[index]) setActive({ element, index, via, focusContent })
-      },
+      open,
       close: () => {
-        cancelClose()
+        hold()
         setActive(null)
       },
       scheduleClose: () => {
-        cancelClose()
+        window.clearTimeout(closeTimer.current)
         closeTimer.current = window.setTimeout(() => setActive(null), HOVER_CLOSE_DELAY_MS)
       },
-      cancelClose,
+      scheduleSwitch: (element) => {
+        window.clearTimeout(switchTimer.current)
+        switchTimer.current = window.setTimeout(() => open(element, 'hover'), HOVER_SWITCH_DELAY_MS)
+      },
+      cancelSwitch: () => window.clearTimeout(switchTimer.current),
+      hold,
       contentContains: (node) => contentRef.current?.contains(node) ?? false,
     }
   }, [entries, contentRef])
@@ -50,7 +65,7 @@ function useActiveTerm(entries: GlossaryEntry[], contentRef: RefObject<HTMLEleme
     const stopListening = listenForTermEvents(document, controls)
     return () => {
       stopListening()
-      controls.cancelClose()
+      controls.hold()
     }
   }, [controls])
 
@@ -163,12 +178,14 @@ function GlossaryDefinition({
           onInteractOutside={(event) => {
             if (termFrom(event.target)) event.preventDefault()
           }}
-          onPointerEnter={controls.cancelClose}
+          onPointerEnter={controls.hold}
           onPointerLeave={(event) => {
             if (event.pointerType === 'mouse' && active.via === 'hover') controls.scheduleClose()
           }}
-          // The content sits inside the authored paragraph, so reset what it could inherit.
-          className="not-prose z-50 block w-72 text-left font-sans normal-case not-italic leading-normal tracking-normal max-w-[calc(100vw-1rem)] rounded-md border bg-popover p-3 text-sm font-normal text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 print:hidden"
+          // The content sits inside the authored paragraph, so reset what it could inherit. The
+          // `before:` strip bridges the gap to the term (sideOffset plus the 5px arrow), so the
+          // pointer never leaves both the term and the popover on its way across.
+          className="not-prose relative z-50 block w-72 before:absolute before:inset-x-0 before:h-3 before:content-[''] data-[side=bottom]:before:bottom-full data-[side=top]:before:top-full text-left font-sans normal-case not-italic leading-normal tracking-normal max-w-[calc(100vw-1rem)] rounded-md border bg-popover p-3 text-sm font-normal text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 print:hidden"
         >
           <Definition entry={entry} linkTabbable={active.via === 'pinned'} />
           <PopoverPrimitive.Arrow className="fill-popover" />

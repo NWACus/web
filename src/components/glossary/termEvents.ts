@@ -15,8 +15,17 @@ export type TermControls = {
   open(element: HTMLElement, via: ActiveTerm['via'], focusContent?: boolean): void
   close(): void
   scheduleClose(): void
-  cancelClose(): void
-  contentContains(node: Node): boolean
+  /** Open a hover preview on another term, once the pointer has rested on it. */
+  scheduleSwitch(element: HTMLElement): void
+  cancelSwitch(): void
+  /** Keep the current popover open: cancel any pending close or switch. */
+  hold(): void
+  contentContains(node: Node | null): boolean
+}
+
+/** Where the pointer or focus went; `Node.contains(null)` is false, so callers need no guard. */
+function destination(event: PointerEvent | FocusEvent): Node | null {
+  return event.relatedTarget instanceof Node ? event.relatedTarget : null
 }
 
 export function termFrom(target: EventTarget | null): HTMLElement | null {
@@ -33,18 +42,25 @@ function isActive(controls: TermControls, term: HTMLElement, via?: ActiveTerm['v
 function onPointerOver(event: PointerEvent, controls: TermControls) {
   const term = termFrom(event.target)
   if (!term) return
-  if (isActive(controls, term)) return controls.cancelClose()
-  // A hover only replaces another hover: it must not take a pinned popover, or a keyboard user's
-  // focus preview, out from under them.
+  if (isActive(controls, term)) return controls.hold()
+  // A hover only replaces another hover, and only after a pause: it must not take a pinned popover,
+  // or a keyboard user's focus preview, out from under them, nor switch on a term the pointer is
+  // merely crossing on its way into the open popover.
   const current = controls.active()
-  if (!current || current.via === 'hover') controls.open(term, 'hover')
+  if (!current) controls.open(term, 'hover')
+  else if (current.via === 'hover') controls.scheduleSwitch(term)
 }
 
 function onPointerOut(event: PointerEvent, controls: TermControls) {
   const term = termFrom(event.target)
-  if (!term || !isActive(controls, term, 'hover')) return
-  if (event.relatedTarget instanceof Node && term.contains(event.relatedTarget)) return
-  controls.scheduleClose()
+  if (!term) return
+  const next = destination(event)
+  if (term.contains(next)) return
+  controls.cancelSwitch()
+  // Into the popover: its pointerenter holds it open. React's own document listener runs before
+  // this one, so scheduling a close here would undo that hold.
+  if (controls.contentContains(next)) return
+  if (isActive(controls, term, 'hover')) controls.scheduleClose()
 }
 
 function onFocusIn(event: FocusEvent, controls: TermControls) {
@@ -55,8 +71,7 @@ function onFocusIn(event: FocusEvent, controls: TermControls) {
 function onFocusOut(event: FocusEvent, controls: TermControls) {
   const term = termFrom(event.target)
   if (!term || !isActive(controls, term, 'focus')) return
-  const next = event.relatedTarget
-  if (next instanceof Node && controls.contentContains(next)) return
+  if (controls.contentContains(destination(event))) return
   controls.close()
 }
 

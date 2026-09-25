@@ -40,13 +40,17 @@ function renderProse(enabled = true, html = PROSE) {
 }
 
 /** jsdom's pointer events carry no pointerType, and hover is mouse-only. */
-function mouseOver(element: HTMLElement) {
-  const event = new MouseEvent('pointerover', { bubbles: true })
+function mouse(type: 'pointerover' | 'pointerout', element: Element, relatedTarget?: Element) {
+  const event = new MouseEvent(type, { bubbles: true, relatedTarget })
   Object.defineProperty(event, 'pointerType', { value: 'mouse' })
   act(() => {
     element.dispatchEvent(event)
   })
 }
+
+const mouseOver = (element: Element) => mouse('pointerover', element)
+
+const pause = (ms: number) => act(() => new Promise((resolve) => setTimeout(resolve, ms)))
 
 async function findTerm(name: string): Promise<HTMLElement> {
   return screen.findByRole('button', { name })
@@ -215,5 +219,42 @@ describe('forecast glossary', () => {
     )
     fireEvent.click(await findTerm('wind slabs'))
     expect(await screen.findByRole('dialog', { name: 'Wind Slab' })).toBeInTheDocument()
+  })
+
+  it('keeps a hover preview open while the pointer crosses another term on its way in', async () => {
+    renderProse()
+    const slabs = await findTerm('wind slabs')
+    const cornice = await findTerm('cornice')
+    mouseOver(slabs)
+    const dialog = await screen.findByRole('dialog', { name: 'Wind Slab' })
+
+    mouse('pointerout', slabs, cornice)
+    mouse('pointerover', cornice, slabs)
+    mouse('pointerout', cornice, dialog)
+    mouse('pointerover', dialog, cornice)
+    await pause(400)
+    expect(screen.getByRole('dialog', { name: 'Wind Slab' })).toBeInTheDocument()
+  })
+
+  it('switches to another term once the pointer rests on it', async () => {
+    renderProse()
+    const slabs = await findTerm('wind slabs')
+    const cornice = await findTerm('cornice')
+    mouseOver(slabs)
+    await screen.findByRole('dialog', { name: 'Wind Slab' })
+
+    mouse('pointerout', slabs, cornice)
+    mouse('pointerover', cornice, slabs)
+    expect(await screen.findByRole('dialog', { name: 'Cornice' })).toBeInTheDocument()
+  })
+
+  it('closes a hover preview once the pointer has left both the term and the popover', async () => {
+    renderProse()
+    const slabs = await findTerm('wind slabs')
+    mouseOver(slabs)
+    await screen.findByRole('dialog')
+
+    mouse('pointerout', slabs, document.body)
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 })
