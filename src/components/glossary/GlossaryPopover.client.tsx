@@ -4,7 +4,6 @@ import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 
 import type { GlossaryEntry } from '@/services/glossary/glossaryEntry'
-import { useAnalytics } from '@/utilities/useAnalytics'
 
 import { POPOVER_ATTR, TERM_ATTR } from './markGlossaryTerms'
 import { listenForTermEvents, termFrom, type ActiveTerm, type TermControls } from './termEvents'
@@ -100,24 +99,6 @@ function useFocusOnKeyboardOpen(
   }, [active, holder, contentRef])
 }
 
-/** Widget parity: the legacy widget reported every glossary hover and click. */
-function useTrackOpenedTerm(active: ActiveTerm | null, entries: GlossaryEntry[]) {
-  const { captureWithTenant } = useAnalytics()
-  // useAnalytics hands back a new function every render; the event fires per opening, not render.
-  const capture = useRef(captureWithTenant)
-  useLayoutEffect(() => {
-    capture.current = captureWithTenant
-  })
-
-  useEffect(() => {
-    if (!active) return
-    capture.current('forecast_glossary_term_opened', {
-      term: entries[active.index].term,
-      via: active.via,
-    })
-  }, [active, entries])
-}
-
 /** One popover for every marked term, anchored to whichever is active. */
 export function GlossaryPopover({ entries }: { entries: GlossaryEntry[] }) {
   const contentRef = useRef<HTMLDivElement>(null)
@@ -125,7 +106,6 @@ export function GlossaryPopover({ entries }: { entries: GlossaryEntry[] }) {
   const { active, controls } = useActiveTerm(entries, contentRef)
   const holder = usePopoverHolder(active?.element ?? null, contentId)
   useFocusOnKeyboardOpen(active, holder, contentRef)
-  useTrackOpenedTerm(active, entries)
 
   if (!active || !holder) return null
   return (

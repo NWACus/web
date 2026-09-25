@@ -17,13 +17,8 @@ const TERMS: GlossaryEntry[] = [
 ]
 
 const mockFetch = jest.fn()
-const mockCapture = jest.fn()
-jest.mock('../../../src/utilities/useAnalytics', () => ({
-  useAnalytics: () => ({ captureWithTenant: mockCapture }),
-}))
 
 beforeEach(() => {
-  mockCapture.mockReset()
   mockFetch.mockReset()
   mockFetch.mockResolvedValue({ ok: true, json: async () => TERMS })
   global.fetch = mockFetch
@@ -206,18 +201,6 @@ describe('forecast glossary', () => {
     const cornice = await findTerm('cornice')
     mouseOver(cornice)
     expect(await screen.findByRole('dialog', { name: 'Cornice' })).toBeInTheDocument()
-  })
-
-  it('reports each opening, as the widget reported hovers and clicks', async () => {
-    renderProse()
-    const term = await findTerm('cornice')
-    mouseOver(term)
-    fireEvent.click(term)
-    await waitFor(() => expect(mockCapture).toHaveBeenCalledTimes(2))
-    expect(mockCapture.mock.calls).toEqual([
-      ['forecast_glossary_term_opened', { term: 'Cornice', via: 'hover' }],
-      ['forecast_glossary_term_opened', { term: 'Cornice', via: 'pinned' }],
-    ])
   })
 
   it('marks the forecast discussion without a term click opening the media lightbox', async () => {

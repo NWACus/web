@@ -36,7 +36,7 @@ We wanted the terms to be editable by NAC staff (not a code deploy), and we did 
   - **No diacritic folding.** mark.js let "e" match "é"; the terms are English and the forecasts are too.
   - **Half sizes are not whole sizes.** "D1.5" is left alone rather than read as "D1".
 
-- **Interaction.** A marked term is a focusable control that opens a popover containing the definition and a "Learn more on avalanche.org →" link. Hover/focus on desktop, tap on mobile — tapping shows the definition and never navigates away; leaving the forecast is an explicit second action. Each opening is reported to PostHog (`forecast_glossary_term_opened`), where the widget reported hovers and clicks to Google Analytics. The mark pass is layout-neutral (decoration/color only, no reflow) and the affordance fades in, so the page paints identically with or without the glossary.
+- **Interaction.** A marked term is a focusable control that opens a popover containing the definition and a "Learn more on avalanche.org →" link. Hover/focus on desktop, tap on mobile — tapping shows the definition and never navigates away; leaving the forecast is an explicit second action. The widget reported hovers and clicks to Google Analytics; native glossary analytics are deferred to the AvyWeb-wide PostHog rework rather than added piecemeal here. The mark pass is layout-neutral (decoration/color only, no reflow) and the affordance fades in, so the page paints identically with or without the glossary.
 
 ## Consequences
 
