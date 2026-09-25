@@ -26603,6 +26603,54 @@
           "autoincrement": false,
           "default": false
         },
+        "built_in_pages_find": {
+          "name": "built_in_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "galleries_find": {
+          "name": "galleries_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "announcements_find": {
+          "name": "announcements_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "station_pages_find": {
+          "name": "station_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "redirects_find": {
+          "name": "redirects_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "shared_media_find": {
+          "name": "shared_media_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "nac_widgets_config_find": {
           "name": "nac_widgets_config_find",
           "type": "integer",
@@ -27865,6 +27913,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "aa4fd657-7c92-40e0-9210-7ea4ae6bca24",
+  "id": "89ca8f1d-8203-4813-a4a4-62b7a79b2abd",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
