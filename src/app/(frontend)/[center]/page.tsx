@@ -5,6 +5,7 @@ import { RenderBlocks } from '@/blocks/RenderBlocks'
 import HighlightedContent from '@/collections/HomePages/components/HighlightedContent'
 import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { draftMode } from 'next/headers'
@@ -60,9 +61,18 @@ export default async function Page({ params }: Args) {
 
   const { quickLinks, highlightedContent, layout } = homePage ?? {}
 
+  // Fail open: hiding a live avalanche warning is worse than an empty widget.
+  const showWarnings = await getAvalancheCenterPlatforms(center).then(
+    ({ warnings }) => warnings,
+    (err) => {
+      payload.logger.error({ err }, `Failed to load NAC platforms for ${center} home page`)
+      return true
+    },
+  )
+
   return (
     <>
-      <NACWidget center={center} widget="warnings" />
+      {showWarnings && <NACWidget center={center} widget="warnings" />}
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
           <div

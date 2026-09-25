@@ -21,12 +21,18 @@ The outcome of each provisioning run is stored on the tenant's `provisioning` gr
 | Step | Details |
 |------|---------|
 | Website Settings | Created with placeholder brand assets (logo, icon, banner). Replace with real assets via the checklist link. |
-| Forecast pages | Queries AFP via `getActiveForecastZones()` to auto-detect single vs multi-zone. Creates zone-specific built-in pages (see table below). Falls back to a default "All Forecasts" page if AFP is unavailable. |
-| Default built-in pages | Creates non-forecast built-in pages from the static `BUILT_IN_PAGES` list in `provisionTenant.ts` (see table below). Mountain Weather is only included if the center has a weather forecast configured in NAC (`platforms.weather`). |
-| Blank pages | Creates empty pages for every slug in the static `PAGES_TO_PROVISION` list in `provisionTenant.ts`. Admins are expected to fill in the content after provisioning. |
-| Home page | Creates a home page with welcome content and quick links to About Us and Donate. |
+| Forecast pages | Queries AFP via `getActiveForecastZones()` to auto-detect single vs multi-zone. Creates zone-specific built-in pages (see table below). Falls back to a default "All Forecasts" page if AFP is unavailable. Skipped for info exchanges. |
+| Default built-in pages | Creates non-forecast built-in pages from the static `BUILT_IN_PAGES` list in `provisionTenant.ts` (see table below). Mountain Weather is only included if the center has a weather forecast configured in NAC (`platforms.weather`). Info exchanges only get Weather Stations if NAC reports `platforms.stations`. |
+| Blank pages | Creates empty pages for every slug in the static `PAGES_TO_PROVISION` list in `provisionTenant.ts`. Info exchanges only get About Us, Donate / Membership, and Volunteer (`INFO_EXCHANGE_PAGES_TO_PROVISION`). Admins are expected to fill in the content after provisioning. |
+| Home page | Creates a home page with welcome content and quick links to About Us and Donate. Forecast centers get an upcoming events list; info exchanges get observations-focused copy and an Observations Widget block. |
 | Navigation | Creates navigation menus linked to all provisioned pages and built-in pages. Forecasts tab is zone-aware (single zone: single-item dropdown; multi-zone: "All Forecasts" + a "Zones" accordion with per-zone items). |
 | Edge Config | The `updateEdgeConfigAfterChange` hook automatically adds the tenant to Vercel Edge Config. |
+
+#### Info exchanges
+
+A center is provisioned as an info exchange when NAC reports `platforms.obs` but not `platforms.forecasts` (`isInfoExchange` in `src/services/nac/types/schemas.ts`). There is no tenant field for this; confirm the center's platforms with `pnpm check:centers` before creating the tenant. If the NAC platforms query fails, the center is provisioned as a forecast center.
+
+On the frontend, the Forecasts nav tab and forecast/weather routes are already hidden by the same platform flags, and the home page only shows the warnings banner when NAC reports `platforms.warnings`.
 
 #### Built-In Pages
 

@@ -71,7 +71,8 @@ export function ObservationLinkHijacker() {
         }
       })
 
-      const container = document.querySelector('#widget-container')
+      // Other NAC widgets (e.g. the homepage danger map) also render a #widget-container
+      const container = document.querySelector('#widget-container[data-widget="observations"]')
       if (container) {
         observer.observe(container, {
           childList: true,

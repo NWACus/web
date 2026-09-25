@@ -1,17 +1,19 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
-import type { BuiltInPage, Page, Tenant } from '@/payload-types'
+import type { BuiltInPage, HomePage, Page, Tenant } from '@/payload-types'
 // nac.ts imports @payload-config, which imports this collection — lazy-load
 // the value imports inside function bodies to break the circular dependency.
 // Type imports are erased at runtime and don't contribute to the cycle.
 import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
+import { isInfoExchange, type AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import type { Payload, PayloadHandler } from 'payload'
 import type { Logger } from 'pino'
 
 /**
  * Non-forecast built-in pages every tenant gets. Mountain Weather is not
  * listed here — it's conditionally added based on whether NAC reports the
- * center has a weather platform.
+ * center has a weather platform. Info exchanges only get Weather Stations if
+ * NAC reports a stations platform.
  */
 export const BUILT_IN_PAGES: ReadonlyArray<{ title: string; url: string }> = [
   { title: 'Weather Stations', url: '/weather/stations/map' },
@@ -22,8 +24,9 @@ export const BUILT_IN_PAGES: ReadonlyArray<{ title: string; url: string }> = [
 ]
 
 /**
- * Blank pages every tenant gets. Titles are placeholders that the tenant
- * admin is expected to edit; slugs are referenced by the default navigation.
+ * Blank pages every forecast center gets. Titles are placeholders that the
+ * tenant admin is expected to edit; slugs are referenced by the default
+ * navigation.
  */
 export const PAGES_TO_PROVISION: ReadonlyArray<{ slug: string; title: string }> = [
   { slug: 'weather-tools', title: 'Weather Tools' },
@@ -53,10 +56,16 @@ export const PAGES_TO_PROVISION: ReadonlyArray<{ slug: string; title: string }> 
   { slug: 'avalanche-accident-map', title: 'Avalanche Accident Map' },
 ]
 
+/** The PAGES_TO_PROVISION subset for info exchanges, which have no forecasts or classes. */
+export const INFO_EXCHANGE_PAGES_TO_PROVISION = PAGES_TO_PROVISION.filter(({ slug }) =>
+  ['about-us', 'donate-membership', 'volunteer'].includes(slug),
+)
+
 /**
- * Queries AFP for forecast zones and returns zone-aware forecast built-in
- * pages plus the static non-forecast list (with Mountain Weather conditionally
- * included based on NAC platforms).
+ * Queries NAC platforms and AFP forecast zones and returns zone-aware forecast
+ * built-in pages plus the static non-forecast list (with Mountain Weather
+ * conditionally included based on NAC platforms). Info exchanges get no
+ * forecast pages, and Weather Stations only if they have a stations platform.
  */
 export async function resolveBuiltInPages(
   tenantSlug: string,
@@ -64,9 +73,31 @@ export async function resolveBuiltInPages(
 ): Promise<{
   forecastPages: Array<{ title: string; url: string }>
   nonForecastPages: Array<{ title: string; url: string }>
+  infoExchange: boolean
 }> {
   // Lazy-loaded to break the circular import with @payload-config
   const { getActiveForecastZones, getAvalancheCenterPlatforms } = await import('@/services/nac/nac')
+
+  let platforms: AvalancheCenterPlatforms | undefined
+  try {
+    platforms = await getAvalancheCenterPlatforms(tenantSlug)
+  } catch {
+    log.warn(
+      `[${tenantSlug}] Failed to query NAC platforms. Provisioning as a forecast center without Mountain Weather.`,
+    )
+  }
+
+  if (platforms && isInfoExchange(platforms)) {
+    log.info(`[${tenantSlug}] NAC reports no forecasts platform. Provisioning as an info exchange.`)
+    const stations = platforms.stations
+    return {
+      forecastPages: [],
+      nonForecastPages: BUILT_IN_PAGES.filter(
+        ({ url }) => stations || url !== '/weather/stations/map',
+      ),
+      infoExchange: true,
+    }
+  }
 
   let forecastZones: ActiveForecastZoneWithSlug[] = []
   try {
@@ -108,16 +139,46 @@ export async function resolveBuiltInPages(
   const nonForecastPages: Array<{ title: string; url: string }> = [...BUILT_IN_PAGES]
 
   // Add Mountain Weather only if center has weather forecasts in NAC
-  try {
-    const { weather } = await getAvalancheCenterPlatforms(tenantSlug)
-    if (weather) {
-      nonForecastPages.push({ title: 'Mountain Weather', url: '/weather/forecast' })
-    }
-  } catch {
-    log.warn(`[${tenantSlug}] Failed to query NAC platforms. Excluding Mountain Weather.`)
+  if (platforms?.weather) {
+    nonForecastPages.push({ title: 'Mountain Weather', url: '/weather/forecast' })
   }
 
-  return { forecastPages, nonForecastPages }
+  return { forecastPages, nonForecastPages, infoExchange: false }
+}
+
+/** Highlighted content and body blocks for a newly provisioned home page. */
+export function defaultHomePageContent(
+  tenantName: string,
+  infoExchange: boolean,
+): Pick<HomePage, 'highlightedContent' | 'layout'> {
+  const intro = infoExchange
+    ? 'Share and find recent avalanche, snowpack, and weather observations from the backcountry in our region.'
+    : 'Stay informed with the latest avalanche forecasts, mountain weather conditions, and safety information for our region.'
+  const mission = infoExchange
+    ? 'We are a community-driven avalanche information exchange. We do not issue avalanche forecasts, so use observations alongside your own assessment of conditions.'
+    : 'Our mission is to increase avalanche awareness, reduce avalanche impacts, and equip the community with essential safety education and data.'
+
+  return {
+    highlightedContent: {
+      enabled: true,
+      heading: 'Welcome to ' + tenantName,
+      backgroundColor: 'brand-700',
+      columns: [{ richText: simpleContent(intro) }, { richText: simpleContent(mission) }],
+    },
+    layout: infoExchange
+      ? [{ blockType: 'observationsWidget' }]
+      : [
+          {
+            blockType: 'eventList',
+            heading: 'Upcoming Events',
+            backgroundColor: 'transparent',
+            eventOptions: 'dynamic',
+            dynamicOpts: {
+              maxEvents: 4,
+            },
+          },
+        ],
+  }
 }
 
 /**
@@ -191,8 +252,9 @@ export const provisionTenant: PayloadHandler = async (req) => {
  * 2. Query AFP for forecast zones (single vs multi-zone detection)
  * 3. Built-in pages (zone-aware forecasts + static non-forecast list + optional
  *    Mountain Weather based on NAC platforms)
- * 4. Blank pages for every entry in PAGES_TO_PROVISION
- * 5. Home page with default content
+ * 4. Blank pages for every entry in PAGES_TO_PROVISION (a reduced set for
+ *    info exchanges)
+ * 5. Home page with default content (observations-focused for info exchanges)
  * 6. Navigation linked to the new pages and built-in pages (zone-aware forecasts)
  *
  * Idempotent - checks for existing data before creating.
@@ -299,7 +361,10 @@ export async function provision(payload: Payload, tenant: Tenant) {
   }
 
   // 2. Query AFP for forecast zones and resolve built-in pages
-  const { forecastPages, nonForecastPages } = await resolveBuiltInPages(tenant.slug, log)
+  const { forecastPages, nonForecastPages, infoExchange } = await resolveBuiltInPages(
+    tenant.slug,
+    log,
+  )
   const builtInPagesToCreate = [...forecastPages, ...nonForecastPages]
   log.info(`[${tenant.slug}] Creating ${builtInPagesToCreate.length} built-in pages...`)
   const existingBuiltInPages = await payload.find({
@@ -333,6 +398,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
   }
 
   // 3. Create blank pages for every entry in PAGES_TO_PROVISION
+  const pagesToProvision = infoExchange ? INFO_EXCHANGE_PAGES_TO_PROVISION : PAGES_TO_PROVISION
   const createdPages: Page[] = []
   const pagesBySlug: Record<string, Page> = {}
 
@@ -344,7 +410,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
   })
   const existingPagesBySlug = new Map(existingPages.docs.map((p) => [p.slug, p]))
 
-  for (const { slug, title } of PAGES_TO_PROVISION) {
+  for (const { slug, title } of pagesToProvision) {
     const existing = existingPagesBySlug.get(slug)
     if (existing) {
       log.info(`[${tenant.slug}] Page "${title}" already exists, skipping`)
@@ -423,34 +489,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
         data: {
           tenant: tenant.id,
           quickLinks,
-          highlightedContent: {
-            enabled: true,
-            heading: 'Welcome to ' + tenant.name,
-            backgroundColor: 'brand-700',
-            columns: [
-              {
-                richText: simpleContent(
-                  'Stay informed with the latest avalanche forecasts, mountain weather conditions, and safety information for our region.',
-                ),
-              },
-              {
-                richText: simpleContent(
-                  'Our mission is to increase avalanche awareness, reduce avalanche impacts, and equip the community with essential safety education and data.',
-                ),
-              },
-            ],
-          },
-          layout: [
-            {
-              blockType: 'eventList',
-              heading: 'Upcoming Events',
-              backgroundColor: 'transparent',
-              eventOptions: 'dynamic',
-              dynamicOpts: {
-                maxEvents: 4,
-              },
-            },
-          ],
+          ...defaultHomePageContent(tenant.name, infoExchange),
           _status: 'published',
           publishedAt: new Date().toISOString(),
         },
@@ -478,7 +517,9 @@ export async function provision(payload: Payload, tenant: Tenant) {
     const navPageItem = (slug: string, label?: string) => {
       const page = pagesBySlug[slug]
       if (!page) {
-        log.warn(`[${tenant.slug}] Page "${slug}" not found for navigation link, skipping`)
+        if (pagesToProvision.some((p) => p.slug === slug)) {
+          log.warn(`[${tenant.slug}] Page "${slug}" not found for navigation link, skipping`)
+        }
         return null
       }
       return {
@@ -493,7 +534,11 @@ export async function provision(payload: Payload, tenant: Tenant) {
     const navBuiltInPageItem = (url: string, label?: string) => {
       const bip = builtInPagesByUrl[url]
       if (!bip) {
-        log.warn(`[${tenant.slug}] Built-in page "${url}" not found for navigation link, skipping`)
+        if (builtInPagesToCreate.some((p) => p.url === url)) {
+          log.warn(
+            `[${tenant.slug}] Built-in page "${url}" not found for navigation link, skipping`,
+          )
+        }
         return null
       }
       return {
@@ -515,27 +560,29 @@ export async function provision(payload: Payload, tenant: Tenant) {
         data: {
           tenant: tenant.id,
           forecasts:
-            forecastPages.length === 1
-              ? {
-                  options: { displayMode: 'dropdown' },
-                  items: filterNulls([
-                    navBuiltInPageItem(forecastPages[0].url, forecastPages[0].title),
-                  ]),
-                }
-              : {
-                  options: { displayMode: 'dropdown' },
-                  items: [
-                    ...filterNulls([navBuiltInPageItem('/forecasts/avalanche', 'All Forecasts')]),
-                    {
-                      label: 'Zones',
-                      items: filterNulls(
-                        forecastPages
-                          .filter((p) => p.url !== '/forecasts/avalanche')
-                          .map((p) => navBuiltInPageItem(p.url, p.title)),
-                      ),
-                    },
-                  ],
-                },
+            forecastPages.length === 0
+              ? { options: { displayMode: 'dropdown' }, items: [] }
+              : forecastPages.length === 1
+                ? {
+                    options: { displayMode: 'dropdown' },
+                    items: filterNulls([
+                      navBuiltInPageItem(forecastPages[0].url, forecastPages[0].title),
+                    ]),
+                  }
+                : {
+                    options: { displayMode: 'dropdown' },
+                    items: [
+                      ...filterNulls([navBuiltInPageItem('/forecasts/avalanche', 'All Forecasts')]),
+                      {
+                        label: 'Zones',
+                        items: filterNulls(
+                          forecastPages
+                            .filter((p) => p.url !== '/forecasts/avalanche')
+                            .map((p) => navBuiltInPageItem(p.url, p.title)),
+                        ),
+                      },
+                    ],
+                  },
           observations: {
             options: { displayMode: 'dropdown' },
             items: filterNulls([

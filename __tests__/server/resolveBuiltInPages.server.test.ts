@@ -65,7 +65,7 @@ function makeCenterResponse(slug: string, zones: ZoneInput[]) {
 // /v1/public/avalanche-centers response used by getAvalancheCenterPlatforms.
 function makeCapabilities(
   slug: string,
-  overrides: { forecasts?: boolean; weather?: boolean } = {},
+  overrides: { forecasts?: boolean; weather?: boolean; stations?: boolean; obs?: boolean } = {},
 ) {
   return {
     centers: [
@@ -75,8 +75,8 @@ function makeCapabilities(
         platforms: {
           warnings: false,
           forecasts: overrides.forecasts ?? true,
-          stations: false,
-          obs: false,
+          stations: overrides.stations ?? false,
+          obs: overrides.obs ?? false,
           weather: overrides.weather ?? false,
         },
       },
@@ -268,6 +268,79 @@ describe('resolveBuiltInPages', () => {
       })
       expect(nonForecastPages).toContainEqual({ title: 'Blog', url: '/blog' })
       expect(nonForecastPages).toContainEqual({ title: 'Events', url: '/events' })
+    })
+  })
+
+  describe('info exchanges', () => {
+    const mockPlatforms = (overrides: Parameters<typeof makeCapabilities>[1]) =>
+      server.use(
+        http.get('https://forecasts.avalanche.org/', () =>
+          HttpResponse.json(makeCapabilities(SLUG, overrides)),
+        ),
+      )
+
+    const mockZonelessCenter = () =>
+      server.use(
+        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
+          HttpResponse.json(makeCenterResponse(SLUG, [])),
+        ),
+      )
+
+    // No avalanche-center handler: info exchanges must not query AFP forecast zones,
+    // and msw fails the test on any unhandled request.
+    it('returns no forecast pages and flags the center as an info exchange', async () => {
+      mockPlatforms({ forecasts: false, obs: true, stations: true })
+
+      const { forecastPages, infoExchange } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(forecastPages).toEqual([])
+      expect(infoExchange).toBe(true)
+    })
+
+    it('includes Weather Stations when the center has a stations platform', async () => {
+      mockPlatforms({ forecasts: false, obs: true, stations: true })
+
+      const { nonForecastPages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(nonForecastPages.map((p) => p.url)).toEqual([
+        '/weather/stations/map',
+        '/observations',
+        '/observations/submit',
+        '/blog',
+        '/events',
+      ])
+    })
+
+    it('excludes Weather Stations when the center has no stations platform', async () => {
+      mockPlatforms({ forecasts: false, obs: true, stations: false })
+
+      const { nonForecastPages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(nonForecastPages.map((p) => p.url)).toEqual([
+        '/observations',
+        '/observations/submit',
+        '/blog',
+        '/events',
+      ])
+    })
+
+    it('treats a center with neither forecasts nor obs as a forecast center', async () => {
+      mockPlatforms({ forecasts: false, obs: false })
+      mockZonelessCenter()
+
+      const { forecastPages, infoExchange } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(infoExchange).toBe(false)
+      expect(forecastPages).toEqual([{ title: 'All Forecasts', url: '/forecasts/avalanche' }])
+    })
+
+    it('reports a forecast center as not an info exchange', async () => {
+      mockPlatforms({ obs: true })
+      mockZonelessCenter()
+
+      const { infoExchange } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(infoExchange).toBe(false)
     })
   })
 })
