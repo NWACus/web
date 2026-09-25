@@ -75,9 +75,10 @@ export function buildGlossaryMatcher(entries: GlossaryEntry[]): GlossaryMatcher 
     .join('|')
   // Group 1 is the character before the term (a lookbehind would break Safari before 16.4); group 2
   // is the term. The lookahead keeps the term from ending mid-word, or mid-number: "D1" is not the
-  // start of the half size "D1.5".
+  // start of the half size "D1.5". A hyphen joins words, so "human-triggered" is one word and only
+  // a term spelled with the hyphen matches it.
   const pattern = new RegExp(
-    `(^|[^\\p{L}\\p{N}_])(${alternatives})(?![\\p{L}\\p{N}_]|\\.\\d)`,
+    `(^|[^\\p{L}\\p{N}_\\-])(${alternatives})(?![\\p{L}\\p{N}_\\-]|\\.\\d)`,
     'giu',
   )
   return { pattern, entryIndex }

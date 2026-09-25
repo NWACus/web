@@ -29,14 +29,14 @@ We wanted the terms to be editable by NAC staff (not a code deploy), and we did 
 
   Deliberate differences from the widget's mark.js pass, all found while matching it:
 
-  - **The forecast discussion is marked.** The widget meant to mark it, but wrote the discussion into the page after its mark pass had run, so in practice it never was. Marking it is what this ADR and the spec always intended.
-  - **Whole words.** mark.js matched a term only between whitespace, so "slab." or "slabs," went unmarked.
+  - **The forecast discussion is marked.** The widget marked it until February 2025, when `afp-public-widgets` commit `60220f46` ("include forecast product discussion in lightbox media") switched the discussion from `v-html` to being written in by hand for the lightbox. That write lands after the mark pass, so the glossary dropped out of the discussion as a side effect, not a decision. Marking it restores the widget's intended behavior.
+  - **Whole words.** mark.js matched a term only between whitespace, so "slab." or "slabs," went unmarked. We match up to punctuation, but, like the widget, treat a hyphenated word as one word: "human-triggered" does not match "triggered". A hyphenated form is a term or alias of its own, spelled with the hyphen (the legacy list has "cross-loaded" and "melt-freeze").
   - **Longest match first.** mark.js tried terms in list order, so "Avalanche" claimed the start of "Avalanche Path" and "Slab" the end of "wind slab".
   - **Exclusions hold at any depth.** mark.js checked only a text node's immediate parent, so it marked `<a><strong>avalanche</strong></a>` (a link inside a link) and a paragraph inside a table cell. We check every ancestor.
   - **No diacritic folding.** mark.js let "e" match "é"; the terms are English and the forecasts are too.
   - **Half sizes are not whole sizes.** "D1.5" is left alone rather than read as "D1".
 
-- **Interaction.** A marked term is a focusable control that opens a popover containing the definition and a "Learn more on avalanche.org →" link. Hover/focus on desktop, tap on mobile — tapping shows the definition and never navigates away; leaving the forecast is an explicit second action. The widget reported hovers and clicks to Google Analytics; native glossary analytics are deferred to the AvyWeb-wide PostHog rework rather than added piecemeal here. The mark pass is layout-neutral (decoration/color only, no reflow) and the affordance fades in, so the page paints identically with or without the glossary.
+- **Interaction.** A marked term is a focusable control that opens a popover containing the definition followed by a "Learn more" link with the external-link icon, opening the avalanche.org page in a new tab. Hover/focus on desktop, tap on mobile — tapping shows the definition and never navigates away; leaving the forecast is an explicit second action. This departs from the widget, where clicking a term opened avalanche.org: a phone has no hover, so there a tap was the only way to reach the definition, and it took the reader off the forecast instead. The widget reported hovers and clicks to Google Analytics; native glossary analytics are deferred to the AvyWeb-wide PostHog rework rather than added piecemeal here. The mark pass is layout-neutral (decoration/color only, no reflow) and the affordance fades in, so the page paints identically with or without the glossary.
 
 ## Consequences
 

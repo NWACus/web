@@ -77,6 +77,21 @@ describe('markGlossaryTerms', () => {
     expect(marks(root)).toEqual(['% snow→4'])
   })
 
+  it('treats a hyphenated word as one word, matched only by a term spelled with the hyphen', () => {
+    const root = render(
+      '<p>Human-triggered slides, slab-like snow, cross-loaded and cross loaded.</p>',
+    )
+    markGlossaryTerms(
+      root,
+      matcher([
+        entry('Trigger', ['triggered']),
+        entry('Slab'),
+        entry('Cross Loading', ['cross loaded', 'cross-loaded']),
+      ]),
+    )
+    expect(marks(root)).toEqual(['cross-loaded→2', 'cross loaded→2'])
+  })
+
   it('does not read a half size as the whole size before it', () => {
     const root = render('<p>A D1.5 slide, then a D2. Then D2.</p>')
     markGlossaryTerms(root, matcher([entry('D1'), entry('D2')]))

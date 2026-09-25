@@ -713,7 +713,7 @@ sig = "919bfbf0dfccce06"
 [[bindings]]
 doc = "docs/decisions/018-forecast-glossary.md"
 target = "src/components/glossary/markGlossaryTerms.ts"
-sig = "fd5eafcc42350e8c"
+sig = "fc923dfc0531b141"
 
 [[bindings]]
 doc = "docs/decisions/018-forecast-glossary.md"
