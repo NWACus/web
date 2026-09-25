@@ -3,11 +3,16 @@ import type { FieldHook } from 'payload'
 export const formatSlug = (val: string | null): string => {
   if (!val) return ''
 
-  return val
-    .trim()
-    .replace(/ /g, '-')
-    .replace(/[^\w-]+/g, '')
-    .toLowerCase()
+  return (
+    val
+      .trim()
+      .replace(/ /g, '-')
+      .replace(/[^\w-]+/g, '')
+      // Stripped punctuation between spaces leaves hyphen runs ("1 + Rescue" → "1--rescue"); collapse them, then trim the ends
+      .replace(/-{2,}/g, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase()
+  )
 }
 
 // Formats a date value as `YYYY-MM-DD` (UTC) for use in a slug; returns '' if not a valid date.

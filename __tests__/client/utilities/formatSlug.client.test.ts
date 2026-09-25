@@ -17,6 +17,17 @@ describe('formatSlug', () => {
     expect(formatSlug('already-kebab-123')).toBe('already-kebab-123')
   })
 
+  it('collapses the hyphen runs left behind by stripped punctuation', () => {
+    expect(formatSlug('Level 1 + Rescue Combined')).toBe('level-1-rescue-combined')
+    expect(formatSlug('Recreational Level 1 – Ski & Splitboard')).toBe(
+      'recreational-level-1-ski-splitboard',
+    )
+  })
+
+  it('trims hyphens left at either end', () => {
+    expect(formatSlug('& Friends +')).toBe('friends')
+  })
+
   it('returns an empty string for null or empty input', () => {
     expect(formatSlug(null)).toBe('')
     expect(formatSlug('')).toBe('')
