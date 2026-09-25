@@ -1,4 +1,4 @@
-import { formatDateForSlug, formatSlug } from '@/fields/slug/formatSlug'
+import { composeSlug, formatDateForSlug, formatSlug, slugOf } from '@/fields/slug/formatSlug'
 
 describe('formatSlug', () => {
   it('kebab-cases a multi-word string', () => {
@@ -15,6 +15,21 @@ describe('formatSlug', () => {
 
   it('leaves an already-kebab slug intact', () => {
     expect(formatSlug('already-kebab-123')).toBe('already-kebab-123')
+  })
+
+  it('collapses the hyphen runs left behind by stripped punctuation', () => {
+    expect(formatSlug('Level 1 + Rescue Combined')).toBe('level-1-rescue-combined')
+    expect(formatSlug('Recreational Level 1 – Ski & Splitboard')).toBe(
+      'recreational-level-1-ski-splitboard',
+    )
+  })
+
+  it('turns underscores into hyphens so the slug passes validation', () => {
+    expect(formatSlug('Rec_1 Splitboard')).toBe('rec-1-splitboard')
+  })
+
+  it('trims hyphens left at either end', () => {
+    expect(formatSlug('& Friends +')).toBe('friends')
   })
 
   it('returns an empty string for null or empty input', () => {
@@ -44,5 +59,30 @@ describe('formatDateForSlug', () => {
     expect(formatDateForSlug(undefined)).toBe('')
     expect(formatDateForSlug(null)).toBe('')
     expect(formatDateForSlug(1731513600000)).toBe('')
+  })
+})
+
+describe('composeSlug', () => {
+  it('joins prefix, base and date, skipping empty parts', () => {
+    expect(composeSlug({ prefix: 'asi', base: 'rec-1', date: '2026-01-10' })).toBe(
+      'asi-rec-1-2026-01-10',
+    )
+    expect(composeSlug({ prefix: '', base: 'rec-1', date: '2026-01-10' })).toBe('rec-1-2026-01-10')
+  })
+
+  it('generates nothing without a base', () => {
+    expect(composeSlug({ prefix: 'asi', base: '', date: '2026-01-10' })).toBe('')
+  })
+})
+
+describe('slugOf', () => {
+  it('reads a string slug off a document', () => {
+    expect(slugOf({ id: 1, slug: 'asi' })).toBe('asi')
+  })
+
+  it('returns an empty string when there is no string slug', () => {
+    expect(slugOf(null)).toBe('')
+    expect(slugOf({ id: 1 })).toBe('')
+    expect(slugOf({ slug: 7 })).toBe('')
   })
 })

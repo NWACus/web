@@ -127,7 +127,9 @@ Key fields:
 - Registration deadline
 - Course type (see below)
 - Mode of travel, affinity groups
-- Provider relationship
+- Provider relationship (required to publish)
+
+Course slugs must be unique across every provider, since courses have no tenant. Left blank, the slug auto-generates as `{provider-slug}-{title}-{YYYY-MM-DD}`, and a collision (generated or typed) gets a `-2`, `-3`, … suffix instead of an error. Nothing public reads the slug today; courses link out to `courseUrl`.
 
 #### Providers
 **Slug:** `providers`

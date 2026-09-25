@@ -3,14 +3,17 @@ import { US_TIMEZONES } from '@/utilities/timezones'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
 import { futureDate } from './utilities'
 
+export type SeedProviders = Record<
+  | 'Alpine Skills International'
+  | 'Mountain Education Center'
+  | 'Backcountry Alliance'
+  | 'Pro Avalanche Training',
+  Provider
+>
+
 export const getCoursesData = (
-  featuredImage?: Media,
-  providers?: {
-    'Alpine Skills International'?: Provider
-    'Mountain Education Center'?: Provider
-    'Backcountry Alliance'?: Provider
-    'Pro Avalanche Training'?: Provider
-  },
+  featuredImage: Media | undefined,
+  providers: SeedProviders,
 ): RequiredDataFromCollectionSlug<'courses'>[] => {
   return [
     // AIARE Rec 1 - Mountain Education Center
@@ -35,8 +38,7 @@ export const getCoursesData = (
       registrationDeadline_tz: US_TIMEZONES.PACIFIC,
       courseType: 'rec-1',
       modeOfTravel: ['ski'],
-      provider: providers?.['Mountain Education Center']?.id,
-      slug: 'aiare-recreational-level-1-february',
+      provider: providers['Mountain Education Center'].id,
       _status: 'published',
     },
 
@@ -62,8 +64,7 @@ export const getCoursesData = (
       registrationDeadline_tz: US_TIMEZONES.PACIFIC,
       courseType: 'rec-2',
       modeOfTravel: ['ski'],
-      provider: providers?.['Alpine Skills International']?.id,
-      slug: 'aiare-recreational-level-2-march',
+      provider: providers['Alpine Skills International'].id,
       _status: 'published',
     },
 
@@ -89,8 +90,7 @@ export const getCoursesData = (
       registrationDeadline_tz: US_TIMEZONES.PACIFIC,
       courseType: 'rescue',
       modeOfTravel: ['ski', 'splitboard', 'snowshoe'],
-      provider: providers?.['Backcountry Alliance']?.id,
-      slug: 'avalanche-rescue-course-january',
+      provider: providers['Backcountry Alliance'].id,
       _status: 'published',
     },
 
@@ -116,8 +116,7 @@ export const getCoursesData = (
       registrationDeadline_tz: US_TIMEZONES.PACIFIC,
       courseType: 'pro-1',
       modeOfTravel: ['ski'],
-      provider: providers?.['Pro Avalanche Training']?.id,
-      slug: 'aiare-pro-1-march',
+      provider: providers['Pro Avalanche Training'].id,
       _status: 'published',
     },
 
@@ -143,8 +142,7 @@ export const getCoursesData = (
       registrationDeadline_tz: US_TIMEZONES.PACIFIC,
       courseType: 'awareness-external',
       modeOfTravel: ['ski', 'splitboard', 'motorized', 'snowshoe'],
-      provider: providers?.['Backcountry Alliance']?.id,
-      slug: 'know-before-you-go-january',
+      provider: providers['Backcountry Alliance'].id,
       _status: 'published',
     },
 
@@ -170,8 +168,7 @@ export const getCoursesData = (
       registrationDeadline_tz: US_TIMEZONES.PACIFIC,
       courseType: 'rec-1',
       modeOfTravel: ['splitboard'],
-      provider: providers?.['Alpine Skills International']?.id,
-      slug: 'aiare-rec1-splitboarders',
+      provider: providers['Alpine Skills International'].id,
       _status: 'published',
     },
 
@@ -197,8 +194,7 @@ export const getCoursesData = (
       registrationDeadline_tz: US_TIMEZONES.MOUNTAIN,
       courseType: 'pro-2',
       modeOfTravel: ['ski'],
-      provider: providers?.['Pro Avalanche Training']?.id,
-      slug: 'aiare-pro-2-april',
+      provider: providers['Pro Avalanche Training'].id,
       _status: 'published',
     },
 
@@ -224,8 +220,7 @@ export const getCoursesData = (
       registrationDeadline_tz: US_TIMEZONES.PACIFIC,
       courseType: 'rec-1',
       modeOfTravel: ['ski', 'splitboard', 'snowshoe'],
-      provider: providers?.['Mountain Education Center']?.id,
-      slug: 'womens-aiare-rec1',
+      provider: providers['Mountain Education Center'].id,
       _status: 'published',
     },
 
@@ -251,8 +246,7 @@ export const getCoursesData = (
       registrationDeadline_tz: US_TIMEZONES.MOUNTAIN,
       courseType: 'rescue',
       modeOfTravel: ['ski', 'splitboard', 'snowshoe'],
-      provider: providers?.['Backcountry Alliance']?.id,
-      slug: 'rescue-refresher-jan',
+      provider: providers['Backcountry Alliance'].id,
       _status: 'published',
     },
   ]
@@ -261,12 +255,7 @@ export const getCoursesData = (
 export const seedCourses = async (
   payload: Payload,
   incremental: boolean,
-  providers?: {
-    'Alpine Skills International'?: Provider
-    'Mountain Education Center'?: Provider
-    'Backcountry Alliance'?: Provider
-    'Pro Avalanche Training'?: Provider
-  },
+  providers: SeedProviders,
 ): Promise<void> => {
   const coursesData = getCoursesData(undefined, providers)
 

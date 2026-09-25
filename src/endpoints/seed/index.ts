@@ -13,6 +13,7 @@ import type {
   PayloadRequest,
   RequiredDataFromCollectionSlug,
 } from 'payload'
+import invariant from 'tiny-invariant'
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
@@ -21,7 +22,7 @@ import { getAnnouncementsData } from './announcements'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
-import { seedCourses } from './courses'
+import { SeedProviders, seedCourses } from './courses'
 import { getEventsData } from './events'
 import { forecastZonesByTenant } from './forecast-zones'
 import { getGalleriesData } from './galleries'
@@ -934,15 +935,16 @@ export const seed = async ({
       collection: 'providers',
       limit: 100,
     })
-    const providers = {
-      'Alpine Skills International': allProviders.docs.find(
-        (p) => p.name === 'Alpine Skills International',
-      ),
-      'Mountain Education Center': allProviders.docs.find(
-        (p) => p.name === 'Mountain Education Center',
-      ),
-      'Backcountry Alliance': allProviders.docs.find((p) => p.name === 'Backcountry Alliance'),
-      'Pro Avalanche Training': allProviders.docs.find((p) => p.name === 'Pro Avalanche Training'),
+    const findSeededProvider = (name: keyof SeedProviders) => {
+      const provider = allProviders.docs.find((p) => p.name === name)
+      invariant(provider, `Seeded provider "${name}" not found`)
+      return provider
+    }
+    const providers: SeedProviders = {
+      'Alpine Skills International': findSeededProvider('Alpine Skills International'),
+      'Mountain Education Center': findSeededProvider('Mountain Education Center'),
+      'Backcountry Alliance': findSeededProvider('Backcountry Alliance'),
+      'Pro Avalanche Training': findSeededProvider('Pro Avalanche Training'),
     }
 
     // Courses

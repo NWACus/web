@@ -1,4 +1,4 @@
-import { ensureUniqueSlug } from '@/fields/slug/ensureUniqueSlug'
+import { ensureUniqueSlug, type SlugPrefixFrom } from '@/fields/slug/ensureUniqueSlug'
 import { validateSlug } from '@/utilities/validateSlug'
 import { FieldHook, TextField } from 'payload'
 
@@ -15,6 +15,9 @@ type SlugFieldOptions = {
   // whenever it's left blank, and duplicates are resolved by appending `-2`, `-3`, ... instead of
   // erroring. Used for collections like events where many documents share the same title.
   autoGenerateFromDateField?: string
+  // Prefixes the auto-generated slug with a related document's slug. For collections without a
+  // tenant (e.g. courses), where same-titled documents from different owners would otherwise collide.
+  prefixFromRelationship?: SlugPrefixFrom
 }
 
 export const slugField = (
@@ -22,6 +25,7 @@ export const slugField = (
   options: SlugFieldOptions = {},
 ): TextField => {
   const autoGenerate = !!options.autoGenerateFromDateField
+  const prefixFrom = options.prefixFromRelationship
 
   return {
     name: 'slug',
@@ -38,6 +42,7 @@ export const slugField = (
         ensureUniqueSlug({
           generateFromField: autoGenerate ? fieldToUse : undefined,
           dateField: options.autoGenerateFromDateField,
+          prefixFrom,
           autoSuffixOnDuplicate: autoGenerate,
         }),
       ],
@@ -46,7 +51,7 @@ export const slugField = (
     admin: {
       position: 'sidebar',
       description: autoGenerate
-        ? `Leave blank to auto-generate from ${fieldToUse} + start date. Duplicates get a numbered suffix.`
+        ? `Leave blank to auto-generate from ${prefixFrom ? `${prefixFrom.field} + ` : ''}${fieldToUse} + start date. Duplicates get a numbered suffix.`
         : `Auto-generated from ${fieldToUse}. Must be unique; lowercase letters, numbers, and hyphens only.`,
       components: {
         Field: {
@@ -54,6 +59,7 @@ export const slugField = (
           clientProps: {
             fieldToUse,
             dateField: options.autoGenerateFromDateField,
+            prefixFrom,
           },
         },
       },

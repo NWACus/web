@@ -130,7 +130,10 @@ export const Courses: CollectionConfig = {
       },
     },
     // Sidebar
-    slugField(),
+    slugField('title', {
+      autoGenerateFromDateField: 'startDate',
+      prefixFromRelationship: { field: 'provider', collection: 'providers' },
+    }),
     {
       name: 'courseType',
       type: 'select',
@@ -167,6 +170,7 @@ export const Courses: CollectionConfig = {
       },
       hasMany: false,
       index: true,
+      required: true,
       relationTo: 'providers',
       filterOptions: ({ user }) => {
         // If user has provider relationships, only show those providers

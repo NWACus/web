@@ -10,6 +10,16 @@ describe('slugField descriptions', () => {
     expect(field.required).toBe(false)
   })
 
+  it('names the relationship prefix in the description when one is configured', () => {
+    const field = slugField('title', {
+      autoGenerateFromDateField: 'startDate',
+      prefixFromRelationship: { field: 'provider', collection: 'providers' },
+    })
+    expect(field.admin?.description).toBe(
+      'Leave blank to auto-generate from provider + title + start date. Duplicates get a numbered suffix.',
+    )
+  })
+
   it('explains the manual-entry rules when auto-generation is off, using the source field name', () => {
     const field = slugField('name')
     expect(field.admin?.description).toBe(
