@@ -1,4 +1,4 @@
-import type { GlossaryEntry } from '@/services/glossary/glossaryEntry'
+import { normalizeGlossaryText, type GlossaryEntry } from '@/services/glossary/glossaryEntry'
 
 /** Marks a wrapped term; its value is the entry's index in the term list. */
 export const TERM_ATTR = 'data-glossary-term'
@@ -8,7 +8,7 @@ export const POPOVER_ATTR = 'data-glossary-popover'
 export const READY_ATTR = 'data-glossary-ready'
 
 // The legacy widget's scan (afp-public-widgets ForecastView.vue, mark.js): only text inside a `p`
-// or `li`, and never inside these.
+// or `li`, and never inside these — at any depth, where mark.js checked only the parent (ADR 018).
 const CONTEXTS = 'p, li'
 const NEVER_MARKED = [
   'a',
@@ -46,8 +46,6 @@ export type GlossaryMatcher = {
   entryIndex: Map<string, number>
 }
 
-const normalize = (text: string) => text.toLowerCase().replace(/\s+/g, ' ').trim()
-
 // Escapes regex metacharacters, then lets any run of whitespace stand for a space (as mark.js did),
 // so a term broken across a line or an &nbsp; still matches.
 const toPatternSource = (candidate: string) =>
@@ -65,7 +63,7 @@ export function buildGlossaryMatcher(entries: GlossaryEntry[]): GlossaryMatcher 
   const entryIndex = new Map<string, number>()
   entries.forEach((entry, index) => {
     for (const candidate of [entry.term, ...entry.aliases]) {
-      const key = normalize(candidate)
+      const key = normalizeGlossaryText(candidate)
       if (key && !entryIndex.has(key)) entryIndex.set(key, index)
     }
   })
@@ -76,8 +74,12 @@ export function buildGlossaryMatcher(entries: GlossaryEntry[]): GlossaryMatcher 
     .map(toPatternSource)
     .join('|')
   // Group 1 is the character before the term (a lookbehind would break Safari before 16.4); group 2
-  // is the term. The lookahead keeps the term from ending mid-word.
-  const pattern = new RegExp(`(^|[^\\p{L}\\p{N}_])(${alternatives})(?![\\p{L}\\p{N}_])`, 'giu')
+  // is the term. The lookahead keeps the term from ending mid-word, or mid-number: "D1" is not the
+  // start of the half size "D1.5".
+  const pattern = new RegExp(
+    `(^|[^\\p{L}\\p{N}_])(${alternatives})(?![\\p{L}\\p{N}_]|\\.\\d)`,
+    'giu',
+  )
   return { pattern, entryIndex }
 }
 
@@ -103,6 +105,9 @@ function createTerm(text: string, index: number): HTMLSpanElement {
   span.setAttribute('tabindex', '0')
   span.setAttribute('aria-haspopup', 'dialog')
   span.setAttribute('aria-expanded', 'false')
+  // iOS Safari delivers a tap's click to a document listener only when the tapped element is
+  // clickable itself; the listener lives in termEvents.ts.
+  span.onclick = () => {}
   return span
 }
 
@@ -114,7 +119,7 @@ function markTextNode(node: Text, matcher: GlossaryMatcher): HTMLSpanElement[] {
 
   for (const match of source.matchAll(matcher.pattern)) {
     const [, before, term] = match
-    const index = matcher.entryIndex.get(normalize(term))
+    const index = matcher.entryIndex.get(normalizeGlossaryText(term))
     if (index === undefined || match.index === undefined) continue
     const start = match.index + before.length
     fragment.append(source.slice(cursor, start))

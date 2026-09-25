@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Component,
   createContext,
   useContext,
   useEffect,
@@ -53,7 +54,11 @@ export function GlossaryProvider({ children }: { children: ReactNode }) {
   return (
     <GlossaryContext.Provider value={glossary}>
       {children}
-      {glossary && <GlossaryPopover entries={glossary.entries} />}
+      {glossary && (
+        <GlossaryErrorBoundary>
+          <GlossaryPopover entries={glossary.entries} />
+        </GlossaryErrorBoundary>
+      )}
     </GlossaryContext.Provider>
   )
 }
@@ -87,4 +92,24 @@ export function useGlossaryMarks(rootRef: RefObject<HTMLElement | null>, html: s
     })
     return () => cancelAnimationFrame(frame)
   }, [glossary, html, rootRef])
+}
+
+/**
+ * Sits above every forecast section, so a failure in the popover must not reach the page's error
+ * page. The prose is untouched by the popover; losing it costs only the definitions.
+ */
+class GlossaryErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('[GlossaryErrorBoundary] Glossary definitions unavailable:', error)
+  }
+
+  render() {
+    return this.state.failed ? null : this.props.children
+  }
 }

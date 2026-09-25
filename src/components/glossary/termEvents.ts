@@ -33,8 +33,11 @@ function isActive(controls: TermControls, term: HTMLElement, via?: ActiveTerm['v
 function onPointerOver(event: PointerEvent, controls: TermControls) {
   const term = termFrom(event.target)
   if (!term) return
-  if (isActive(controls, term)) controls.cancelClose()
-  else if (controls.active()?.via !== 'pinned') controls.open(term, 'hover')
+  if (isActive(controls, term)) return controls.cancelClose()
+  // A hover only replaces another hover: it must not take a pinned popover, or a keyboard user's
+  // focus preview, out from under them.
+  const current = controls.active()
+  if (!current || current.via === 'hover') controls.open(term, 'hover')
 }
 
 function onPointerOut(event: PointerEvent, controls: TermControls) {
@@ -73,7 +76,7 @@ function onClick(event: MouseEvent, controls: TermControls) {
 
 function onKeyDown(event: KeyboardEvent, controls: TermControls) {
   const term = termFrom(event.target)
-  if (!term) return
+  if (!term || event.repeat) return
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
     toggle(controls, term, true)

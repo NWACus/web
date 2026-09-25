@@ -4,6 +4,7 @@ import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 
 import type { GlossaryEntry } from '@/services/glossary/glossaryEntry'
+import { useAnalytics } from '@/utilities/useAnalytics'
 
 import { POPOVER_ATTR, TERM_ATTR } from './markGlossaryTerms'
 import { listenForTermEvents, termFrom, type ActiveTerm, type TermControls } from './termEvents'
@@ -25,7 +26,8 @@ function useActiveTerm(entries: GlossaryEntry[], contentRef: RefObject<HTMLEleme
   const controls = useMemo<TermControls>(() => {
     const cancelClose = () => window.clearTimeout(closeTimer.current)
     return {
-      active: () => activeRef.current,
+      // A corrected forecast rewrites the prose, taking the open term with it; that term is over.
+      active: () => (activeRef.current?.element.isConnected ? activeRef.current : null),
       open: (element, via, focusContent = false) => {
         cancelClose()
         const index = Number(element.getAttribute(TERM_ATTR))
@@ -98,6 +100,24 @@ function useFocusOnKeyboardOpen(
   }, [active, holder, contentRef])
 }
 
+/** Widget parity: the legacy widget reported every glossary hover and click. */
+function useTrackOpenedTerm(active: ActiveTerm | null, entries: GlossaryEntry[]) {
+  const { captureWithTenant } = useAnalytics()
+  // useAnalytics hands back a new function every render; the event fires per opening, not render.
+  const capture = useRef(captureWithTenant)
+  useLayoutEffect(() => {
+    capture.current = captureWithTenant
+  })
+
+  useEffect(() => {
+    if (!active) return
+    capture.current('forecast_glossary_term_opened', {
+      term: entries[active.index].term,
+      via: active.via,
+    })
+  }, [active, entries])
+}
+
 /** One popover for every marked term, anchored to whichever is active. */
 export function GlossaryPopover({ entries }: { entries: GlossaryEntry[] }) {
   const contentRef = useRef<HTMLDivElement>(null)
@@ -105,6 +125,7 @@ export function GlossaryPopover({ entries }: { entries: GlossaryEntry[] }) {
   const { active, controls } = useActiveTerm(entries, contentRef)
   const holder = usePopoverHolder(active?.element ?? null, contentId)
   useFocusOnKeyboardOpen(active, holder, contentRef)
+  useTrackOpenedTerm(active, entries)
 
   if (!active || !holder) return null
   return (
@@ -165,7 +186,8 @@ function GlossaryDefinition({
           onPointerLeave={(event) => {
             if (event.pointerType === 'mouse' && active.via === 'hover') controls.scheduleClose()
           }}
-          className="not-prose z-50 block w-72 max-w-[calc(100vw-1rem)] rounded-md border bg-popover p-3 text-sm font-normal text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 print:hidden"
+          // The content sits inside the authored paragraph, so reset what it could inherit.
+          className="not-prose z-50 block w-72 text-left font-sans normal-case not-italic leading-normal tracking-normal max-w-[calc(100vw-1rem)] rounded-md border bg-popover p-3 text-sm font-normal text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 print:hidden"
         >
           <span className="block">{entry.definition}</span>
           {entry.link && (
@@ -173,6 +195,9 @@ function GlossaryDefinition({
               href={entry.link}
               target="_blank"
               rel="noopener noreferrer"
+              // Tabbable only once pinned: every previewed term would otherwise add a second tab
+              // stop, doubling the walk through a long discussion.
+              tabIndex={active.via === 'pinned' ? undefined : -1}
               className="mt-2 block font-medium text-primary underline underline-offset-4"
             >
               Learn more on avalanche.org →

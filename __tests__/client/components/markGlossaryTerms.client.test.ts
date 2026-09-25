@@ -77,6 +77,12 @@ describe('markGlossaryTerms', () => {
     expect(marks(root)).toEqual(['% snow→4'])
   })
 
+  it('does not read a half size as the whole size before it', () => {
+    const root = render('<p>A D1.5 slide, then a D2. Then D2.</p>')
+    markGlossaryTerms(root, matcher([entry('D1'), entry('D2')]))
+    expect(marks(root)).toEqual(['D2→1', 'D2→1'])
+  })
+
   it('leaves the surrounding text intact', () => {
     const root = render('<p>Watch for a <strong>slab</strong> on the avalanche path today.</p>')
     const before = root.textContent

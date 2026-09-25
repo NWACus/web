@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
+import { DiscussionBody } from '@/components/forecast/DiscussionBody'
 import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 import { GlossaryProse } from '@/components/glossary/GlossaryProse.client'
 import type { GlossaryEntry } from '@/services/glossary/glossaryEntry'
@@ -16,8 +17,13 @@ const TERMS: GlossaryEntry[] = [
 ]
 
 const mockFetch = jest.fn()
+const mockCapture = jest.fn()
+jest.mock('../../../src/utilities/useAnalytics', () => ({
+  useAnalytics: () => ({ captureWithTenant: mockCapture }),
+}))
 
 beforeEach(() => {
+  mockCapture.mockReset()
   mockFetch.mockReset()
   mockFetch.mockResolvedValue({ ok: true, json: async () => TERMS })
   global.fetch = mockFetch
@@ -36,6 +42,15 @@ function renderProse(enabled = true, html = PROSE) {
       <GlossaryProse html={html} className="prose" />
     </ForecastGlossary>,
   )
+}
+
+/** jsdom's pointer events carry no pointerType, and hover is mouse-only. */
+function mouseOver(element: HTMLElement) {
+  const event = new MouseEvent('pointerover', { bubbles: true })
+  Object.defineProperty(event, 'pointerType', { value: 'mouse' })
+  act(() => {
+    element.dispatchEvent(event)
+  })
 }
 
 async function findTerm(name: string): Promise<HTMLElement> {
@@ -154,5 +169,64 @@ describe('forecast glossary', () => {
     )
     expect(await findTerm('cornice')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'wind slabs' })).not.toBeInTheDocument()
+  })
+
+  it('keeps the learn-more link out of the tab order until the popover is pinned', async () => {
+    renderProse()
+    const term = await findTerm('wind slabs')
+    act(() => term.focus())
+    await screen.findByRole('dialog')
+    expect(screen.getByRole('link', { hidden: true })).toHaveAttribute('tabindex', '-1')
+
+    fireEvent.click(term)
+    await waitFor(() => expect(screen.getByRole('link')).not.toHaveAttribute('tabindex'))
+  })
+
+  it('does not let a hover take over a keyboard preview', async () => {
+    renderProse()
+    const slabs = await findTerm('wind slabs')
+    const cornice = await findTerm('cornice')
+    act(() => slabs.focus())
+    await screen.findByRole('dialog', { name: 'Wind Slab' })
+
+    mouseOver(cornice)
+    expect(screen.getByRole('dialog', { name: 'Wind Slab' })).toBeInTheDocument()
+  })
+
+  it('lets go of a pinned term once a corrected forecast replaces the prose', async () => {
+    const { rerender } = renderProse()
+    fireEvent.click(await findTerm('wind slabs'))
+    await screen.findByRole('dialog')
+
+    rerender(
+      <ForecastGlossary center={center(true)}>
+        <GlossaryProse html="<p>A cornice and wind slabs.</p>" className="prose" />
+      </ForecastGlossary>,
+    )
+    const cornice = await findTerm('cornice')
+    mouseOver(cornice)
+    expect(await screen.findByRole('dialog', { name: 'Cornice' })).toBeInTheDocument()
+  })
+
+  it('reports each opening, as the widget reported hovers and clicks', async () => {
+    renderProse()
+    const term = await findTerm('cornice')
+    mouseOver(term)
+    fireEvent.click(term)
+    await waitFor(() => expect(mockCapture).toHaveBeenCalledTimes(2))
+    expect(mockCapture.mock.calls).toEqual([
+      ['forecast_glossary_term_opened', { term: 'Cornice', via: 'hover' }],
+      ['forecast_glossary_term_opened', { term: 'Cornice', via: 'pinned' }],
+    ])
+  })
+
+  it('marks the forecast discussion without a term click opening the media lightbox', async () => {
+    render(
+      <ForecastGlossary center={center(true)}>
+        <DiscussionBody html="<p>Watch for wind slabs.</p>" />
+      </ForecastGlossary>,
+    )
+    fireEvent.click(await findTerm('wind slabs'))
+    expect(await screen.findByRole('dialog', { name: 'Wind Slab' })).toBeInTheDocument()
   })
 })
