@@ -1,10 +1,4 @@
-import {
-  composeSlug,
-  formatDateForSlug,
-  formatSlug,
-  relationshipID,
-  slugOf,
-} from '@/fields/slug/formatSlug'
+import { composeSlug, formatDateForSlug, formatSlug, slugOf } from '@/fields/slug/formatSlug'
 
 describe('formatSlug', () => {
   it('kebab-cases a multi-word string', () => {
@@ -28,6 +22,10 @@ describe('formatSlug', () => {
     expect(formatSlug('Recreational Level 1 – Ski & Splitboard')).toBe(
       'recreational-level-1-ski-splitboard',
     )
+  })
+
+  it('turns underscores into hyphens so the slug passes validation', () => {
+    expect(formatSlug('Rec_1 Splitboard')).toBe('rec-1-splitboard')
   })
 
   it('trims hyphens left at either end', () => {
@@ -86,22 +84,5 @@ describe('slugOf', () => {
     expect(slugOf(null)).toBe('')
     expect(slugOf({ id: 1 })).toBe('')
     expect(slugOf({ slug: 7 })).toBe('')
-  })
-})
-
-describe('relationshipID', () => {
-  it('passes a bare ID through', () => {
-    expect(relationshipID(7)).toBe(7)
-    expect(relationshipID('abc')).toBe('abc')
-  })
-
-  it('reads the ID off a populated document', () => {
-    expect(relationshipID({ id: 7, name: 'Alpine Skills International' })).toBe(7)
-  })
-
-  it('returns undefined for empty or malformed values', () => {
-    expect(relationshipID(null)).toBeUndefined()
-    expect(relationshipID(undefined)).toBeUndefined()
-    expect(relationshipID({ name: 'no id' })).toBeUndefined()
   })
 })

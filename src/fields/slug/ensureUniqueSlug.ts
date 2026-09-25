@@ -1,8 +1,9 @@
 import type { CollectionSlug, FieldHook, Where } from 'payload'
 
+import { relationshipID } from '@/utilities/relationships'
 import { APIError } from 'payload'
 import invariant from 'tiny-invariant'
-import { composeSlug, formatDateForSlug, formatSlug, relationshipID, slugOf } from './formatSlug'
+import { composeSlug, formatDateForSlug, formatSlug, slugOf } from './formatSlug'
 
 export type SlugPrefixFrom = {
   // Relationship field on this collection (e.g. 'provider').
@@ -29,7 +30,9 @@ const resolvePrefixSlug = async (
   prefixFrom: SlugPrefixFrom,
   { data, originalDoc, req }: SlugHookArgs,
 ): Promise<string> => {
-  const id = relationshipID(data?.[prefixFrom.field] ?? originalDoc?.[prefixFrom.field])
+  // Fall back to the saved relationship only when the update omits it; an explicit null means it was removed
+  const incoming = data?.[prefixFrom.field]
+  const id = relationshipID(incoming === undefined ? originalDoc?.[prefixFrom.field] : incoming)
   if (id === undefined) {
     return ''
   }
@@ -39,6 +42,7 @@ const resolvePrefixSlug = async (
     collection: prefixFrom.collection,
     id,
     depth: 0,
+    select: { slug: true },
     disableErrors: true,
     req,
   })
@@ -46,25 +50,44 @@ const resolvePrefixSlug = async (
   return slugOf(related)
 }
 
-// Builds a slug for a blank field from the source field (+ prefix, + date).
-const generateSlug = async (
+type SlugParts = { prefix: string; base: string; date: string }
+
+const resolveSlugParts = async (
   { generateFromField, prefixFrom, dateField }: EnsureUniqueSlugOptions,
   args: SlugHookArgs,
-): Promise<string> => {
+): Promise<SlugParts> => {
   const source = generateFromField ? args.data?.[generateFromField] : undefined
   const base = typeof source === 'string' ? formatSlug(source) : ''
   if (!base) {
-    return ''
+    return { prefix: '', base, date: '' }
   }
 
   const prefix = prefixFrom ? await resolvePrefixSlug(prefixFrom, args) : ''
   const date = dateField ? formatDateForSlug(args.data?.[dateField]) : ''
-  return composeSlug({ prefix, base, date })
+  return { prefix, base, date }
+}
+
+const isMissingConfiguredPart = (
+  { prefixFrom, dateField }: EnsureUniqueSlugOptions,
+  { prefix, date }: SlugParts,
+): boolean => (!!prefixFrom && !prefix) || (!!dateField && !date)
+
+// Builds a slug for a blank field from the source field (+ prefix, + date).
+const generateSlug = async (
+  options: EnsureUniqueSlugOptions,
+  args: SlugHookArgs,
+): Promise<string> => {
+  const parts = await resolveSlugParts(options, args)
+  // Generating from an incomplete draft would freeze a slug without its provider/date; wait for a later save
+  if (args.data?._status === 'draft' && isMissingConfiguredPart(options, parts)) {
+    return ''
+  }
+  return composeSlug(parts)
 }
 
 export const ensureUniqueSlug =
   (options: EnsureUniqueSlugOptions = {}): FieldHook =>
-  // Pre-existing complexity (tenant scoping + collision handling); lower than on main after generateSlug was extracted
+  // Tenant scoping and collision handling live here; splitting them out is a separate refactor
   // fallow-ignore-next-line complexity
   async (props) => {
     const { data, originalDoc, req, value, collection } = props

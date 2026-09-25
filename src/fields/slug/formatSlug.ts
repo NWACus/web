@@ -7,8 +7,9 @@ export const formatSlug = (val: string | null): string => {
   return (
     val
       .trim()
-      .replace(/ /g, '-')
-      .replace(/[^\w-]+/g, '')
+      // validateSlug allows only letters, numbers and hyphens, so underscores separate words like spaces
+      .replace(/[ _]/g, '-')
+      .replace(/[^a-zA-Z0-9-]+/g, '')
       // Stripped punctuation between spaces leaves hyphen runs ("1 + Rescue" → "1--rescue"); collapse them, then trim the ends
       .replace(/-{2,}/g, '-')
       .replace(/^-|-$/g, '')
@@ -24,16 +25,6 @@ export const composeSlug = (parts: { prefix?: string; base: string; date?: strin
 // Reads the slug off a fetched document (REST response or Local API result); '' when absent.
 export const slugOf = (doc: unknown): string =>
   isRecord(doc) && typeof doc.slug === 'string' ? doc.slug : ''
-
-const isID = (value: unknown): value is number | string =>
-  typeof value === 'number' || typeof value === 'string'
-
-// A relationship value arrives as a bare ID or, when populated, as the related document.
-export const relationshipID = (relationship: unknown): number | string | undefined => {
-  if (isID(relationship)) return relationship
-  const id = isRecord(relationship) ? relationship.id : undefined
-  return isID(id) ? id : undefined
-}
 
 // Formats a date value as `YYYY-MM-DD` (UTC) for use in a slug; returns '' if not a valid date.
 export const formatDateForSlug = (value: unknown): string => {

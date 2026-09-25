@@ -198,10 +198,47 @@ describe('ensureUniqueSlug', () => {
       expect(result).toBe('alpine-skills-international-recreational-level-1-2026-01-10')
     })
 
-    it('leaves the prefix off when there is no relationship (e.g. a draft)', async () => {
+    it('leaves the prefix off on a published save with no relationship', async () => {
       const { result, findByID } = await run(courseOptions, { data: rec1 })
       expect(result).toBe('recreational-level-1-2026-01-10')
       expect(findByID).not.toHaveBeenCalled()
+    })
+
+    it('does not fall back to the saved relationship when the update removes it', async () => {
+      const { result, findByID } = await run(courseOptions, {
+        data: { ...rec1, provider: null },
+        originalDoc: { id: 'course-1', provider: 7 },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(result).toBe('recreational-level-1-2026-01-10')
+      expect(findByID).not.toHaveBeenCalled()
+    })
+
+    it('only selects the slug of the related document', async () => {
+      const { findByID } = await run(courseOptions, {
+        data: { ...rec1, provider: 7 },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ select: { slug: true } }))
+    })
+
+    it('leaves a draft slug blank until its prefix and date are set', async () => {
+      const noProvider = await run(courseOptions, { data: { ...rec1, _status: 'draft' } })
+      expect(noProvider.result).toBe('')
+
+      const noDate = await run(courseOptions, {
+        data: { title: rec1.title, provider: 7, _status: 'draft' },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(noDate.result).toBe('')
+    })
+
+    it('generates a draft slug once every part is present', async () => {
+      const { result } = await run(courseOptions, {
+        data: { ...rec1, provider: 7, _status: 'draft' },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(result).toBe('alpine-skills-international-recreational-level-1-2026-01-10')
     })
 
     it('leaves the prefix off when the related document is gone', async () => {

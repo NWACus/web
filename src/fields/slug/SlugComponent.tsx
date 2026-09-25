@@ -15,8 +15,9 @@ import {
   useFormFields,
 } from '@payloadcms/ui'
 
+import { relationshipID } from '@/utilities/relationships'
 import { RefreshCw } from 'lucide-react'
-import { composeSlug, formatDateForSlug, formatSlug, relationshipID, slugOf } from './formatSlug'
+import { composeSlug, formatDateForSlug, formatSlug, slugOf } from './formatSlug'
 
 type SlugComponentProps = {
   fieldToUse: string
@@ -34,8 +35,9 @@ const usePrefixSlug = (prefixFrom: SlugPrefixFrom | undefined): string => {
   const [prefixSlug, setPrefixSlug] = useState('')
 
   useEffect(() => {
+    // Clear the previous document's slug so ↻ can't use it while the new one loads (or if it fails)
+    setPrefixSlug('')
     if (!relatedCollection || relatedID === undefined) {
-      setPrefixSlug('')
       return
     }
 

@@ -3,6 +3,7 @@ import {
   filterValidRelationships,
   isValidPublishedRelationship,
   isValidRelationship,
+  relationshipID,
 } from '@/utilities/relationships'
 
 describe('isValidRelationship', () => {
@@ -127,5 +128,22 @@ describe('filterValidPublishedRelationships', () => {
 
   it('returns empty array for undefined input', () => {
     expect(filterValidPublishedRelationships(undefined)).toEqual([])
+  })
+})
+
+describe('relationshipID', () => {
+  it('passes a bare ID through', () => {
+    expect(relationshipID(7)).toBe(7)
+    expect(relationshipID('abc')).toBe('abc')
+  })
+
+  it('reads the ID off a populated document', () => {
+    expect(relationshipID({ id: 7, name: 'Alpine Skills International' })).toBe(7)
+  })
+
+  it('returns undefined for empty or malformed values', () => {
+    expect(relationshipID(null)).toBeUndefined()
+    expect(relationshipID(undefined)).toBeUndefined()
+    expect(relationshipID({ name: 'no id' })).toBeUndefined()
   })
 })

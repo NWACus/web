@@ -9,6 +9,21 @@
  * These utilities provide type-safe ways to check and filter relationships.
  */
 
+import { isRecord } from '@/utilities/isRecord'
+
+const isRelationshipID = (value: unknown): value is number | string =>
+  typeof value === 'number' || typeof value === 'string'
+
+/**
+ * Reads the ID from a relationship value of unknown shape (e.g. hook data): a bare ID, or the
+ * related document when populated. Returns undefined for null/undefined or malformed values.
+ */
+export function relationshipID(relationship: unknown): number | string | undefined {
+  if (isRelationshipID(relationship)) return relationship
+  const id = isRecord(relationship) ? relationship.id : undefined
+  return isRelationshipID(id) ? id : undefined
+}
+
 /**
  * Type guard to check if a relationship field is resolved to an object
  * (not an unresolved ID number or null/undefined)
