@@ -1,5 +1,6 @@
 import { accessByTenantRole, byTenantRole } from '@/access/byTenantRole'
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
+import { MCP_COLLECTIONS, MCP_GLOBALS, mcpFindOnly } from '@/constants/mcp'
 import { getSharedMediaBlobPrefix } from '@/constants/sharedContent'
 import { revalidateForm, revalidateFormDelete } from '@/hooks/revalidateForm'
 import { Page, Post } from '@/payload-types'
@@ -95,36 +96,9 @@ export const plugins: Plugin[] = [
     },
   }),
   mcpPlugin({
-    // No create/update/delete operations are exposed on any collection/global.
-    collections: {
-      pages: { enabled: { find: true } },
-      posts: { enabled: { find: true } },
-      homePages: { enabled: { find: true } },
-      events: { enabled: { find: true } },
-      media: { enabled: { find: true } },
-      teams: { enabled: { find: true } },
-      biographies: { enabled: { find: true } },
-      sponsors: { enabled: { find: true } },
-      tags: { enabled: { find: true } },
-      documents: { enabled: { find: true } },
-      forms: { enabled: { find: true } },
-      navigations: { enabled: { find: true } },
-      settings: { enabled: { find: true } },
-      tenants: { enabled: { find: true } },
-      eventGroups: { enabled: { find: true } },
-      eventTags: { enabled: { find: true } },
-      courses: { enabled: { find: true } },
-      providers: { enabled: { find: true } },
-      builtInPages: { enabled: { find: true } },
-      galleries: { enabled: { find: true } },
-      announcements: { enabled: { find: true } },
-      stationPages: { enabled: { find: true } },
-      redirects: { enabled: { find: true } },
-      sharedMedia: { enabled: { find: true } },
-    },
-    globals: {
-      nacWidgetsConfig: { enabled: { find: true } },
-    },
+    // Which collections and globals are exposed, and why the rest are not, lives in @/constants/mcp
+    collections: mcpFindOnly(MCP_COLLECTIONS),
+    globals: mcpFindOnly(MCP_GLOBALS),
     mcp: {
       serverOptions: {
         serverInfo: {
