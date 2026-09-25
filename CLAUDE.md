@@ -87,6 +87,7 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 ### Querying Tips
 
 - All content is multi-tenant. Always filter by tenant: `{"tenant": {"equals": <tenantId>}}`
+- Exception: `courses` and `providers` have no tenant. Filter courses by provider (`{"provider": {"equals": <providerId>}}`); providers are global and their slugs are globally unique
 - Use `findTenants` first to discover tenant IDs and slugs (nwac, dvac, sac, snfac)
 - Use `depth: 0` for IDs only, `depth: 1+` for resolved relationships
 - Use `select` to return only needed fields: `{"title": true, "slug": true}`

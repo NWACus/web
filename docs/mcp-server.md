@@ -4,7 +4,7 @@ The Payload MCP plugin exposes a [Model Context Protocol](https://modelcontextpr
 
 ## What it provides
 
-- Config-based access to collections and globals. We have configured **Read-only access** to 16 collections (pages, posts, events, media, teams, biographies, sponsors, tags, documents, forms, navigations, settings, tenants, eventGroups, eventTags) and the `nacWidgetsConfig` global.
+- Config-based access to collections and globals. We have configured **Read-only access** to 18 collections (pages, posts, homePages, events, media, teams, biographies, sponsors, tags, documents, forms, navigations, settings, tenants, eventGroups, eventTags, courses, providers) and the `nacWidgetsConfig` global.
 - Authentication via API key (Bearer token)
 - Access control enforced through Payload's standard RBAC system (the API key's associated user determines what content is accessible in addition to the plugin config limitations)
 - **Server instructions** that describe the multi-tenant data model and common query patterns to MCP clients
@@ -88,7 +88,7 @@ The MCP plugin is configured in every environment so you can create MCP server c
 
 The MCP server returns instructions to clients during initialization that describe:
 
-- The multi-tenant data model (all content belongs to a tenant)
+- The multi-tenant data model (tenant-scoped content belongs to a tenant; courses and providers are the exception — courses belong to a provider, and providers are global with globally unique slugs)
 - How to discover tenants via `findTenants`
 - Common query patterns (filtering by tenant, sorting, selecting fields)
 - Available where clause operators
@@ -115,4 +115,4 @@ We use the plugin's `overrideAuth` option in `src/plugins/index.ts` to fix this 
 
 **403 on all requests**: The API key may be invalid, expired, or the associated user may lack permissions. Verify the key in the admin panel and check that the user has appropriate role assignments.
 
-**Empty results**: The API key's permissions are per-collection. Check that the relevant collection checkboxes are enabled on the API key in the admin panel.
+**Empty results**: The API key's permissions are per-collection. Check that the relevant collection checkboxes are enabled on the API key in the admin panel. Keys created before a collection was added to the allowlist (e.g. courses and providers) have that checkbox off until you edit the key.

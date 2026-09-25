@@ -3356,6 +3356,18 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
+  courses?: {
+    /**
+     * Allow clients to find courses.
+     */
+    find?: boolean | null;
+  };
+  providers?: {
+    /**
+     * Allow clients to find providers.
+     */
+    find?: boolean | null;
+  };
   nacWidgetsConfig?: {
     /**
      * Allow clients to find nacWidgetsConfig global.
@@ -5317,6 +5329,16 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
         find?: T;
       };
   eventTags?:
+    | T
+    | {
+        find?: T;
+      };
+  courses?:
+    | T
+    | {
+        find?: T;
+      };
+  providers?:
     | T
     | {
         find?: T;
