@@ -3260,9 +3260,27 @@ export interface PayloadMcpApiKey {
    * The purpose of the API key.
    */
   description?: string | null;
+  homePages?: {
+    /**
+     * Allow clients to find homePages.
+     */
+    find?: boolean | null;
+  };
+  builtInPages?: {
+    /**
+     * Allow clients to find builtInPages.
+     */
+    find?: boolean | null;
+  };
   pages?: {
     /**
      * Allow clients to find pages.
+     */
+    find?: boolean | null;
+  };
+  stationPages?: {
+    /**
+     * Allow clients to find stationPages.
      */
     find?: boolean | null;
   };
@@ -3272,33 +3290,27 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
-  homePages?: {
-    /**
-     * Allow clients to find homePages.
-     */
-    find?: boolean | null;
-  };
-  events?: {
-    /**
-     * Allow clients to find events.
-     */
-    find?: boolean | null;
-  };
   media?: {
     /**
      * Allow clients to find media.
      */
     find?: boolean | null;
   };
-  teams?: {
+  galleries?: {
     /**
-     * Allow clients to find teams.
+     * Allow clients to find galleries.
      */
     find?: boolean | null;
   };
-  biographies?: {
+  documents?: {
     /**
-     * Allow clients to find biographies.
+     * Allow clients to find documents.
+     */
+    find?: boolean | null;
+  };
+  announcements?: {
+    /**
+     * Allow clients to find announcements.
      */
     find?: boolean | null;
   };
@@ -3314,15 +3326,51 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
-  documents?: {
+  events?: {
     /**
-     * Allow clients to find documents.
+     * Allow clients to find events.
      */
     find?: boolean | null;
   };
-  forms?: {
+  eventGroups?: {
     /**
-     * Allow clients to find forms.
+     * Allow clients to find eventGroups.
+     */
+    find?: boolean | null;
+  };
+  eventTags?: {
+    /**
+     * Allow clients to find eventTags.
+     */
+    find?: boolean | null;
+  };
+  providers?: {
+    /**
+     * Allow clients to find providers.
+     */
+    find?: boolean | null;
+  };
+  courses?: {
+    /**
+     * Allow clients to find courses.
+     */
+    find?: boolean | null;
+  };
+  biographies?: {
+    /**
+     * Allow clients to find biographies.
+     */
+    find?: boolean | null;
+  };
+  teams?: {
+    /**
+     * Allow clients to find teams.
+     */
+    find?: boolean | null;
+  };
+  tenants?: {
+    /**
+     * Allow clients to find tenants.
      */
     find?: boolean | null;
   };
@@ -3338,21 +3386,21 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
-  tenants?: {
+  redirects?: {
     /**
-     * Allow clients to find tenants.
+     * Allow clients to find redirects.
      */
     find?: boolean | null;
   };
-  eventGroups?: {
+  sharedMedia?: {
     /**
-     * Allow clients to find eventGroups.
+     * Allow clients to find sharedMedia.
      */
     find?: boolean | null;
   };
-  eventTags?: {
+  forms?: {
     /**
-     * Allow clients to find eventTags.
+     * Allow clients to find forms.
      */
     find?: boolean | null;
   };
@@ -5241,7 +5289,22 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
   user?: T;
   label?: T;
   description?: T;
+  homePages?:
+    | T
+    | {
+        find?: T;
+      };
+  builtInPages?:
+    | T
+    | {
+        find?: T;
+      };
   pages?:
+    | T
+    | {
+        find?: T;
+      };
+  stationPages?:
     | T
     | {
         find?: T;
@@ -5251,27 +5314,22 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
     | {
         find?: T;
       };
-  homePages?:
-    | T
-    | {
-        find?: T;
-      };
-  events?:
-    | T
-    | {
-        find?: T;
-      };
   media?:
     | T
     | {
         find?: T;
       };
-  teams?:
+  galleries?:
     | T
     | {
         find?: T;
       };
-  biographies?:
+  documents?:
+    | T
+    | {
+        find?: T;
+      };
+  announcements?:
     | T
     | {
         find?: T;
@@ -5286,12 +5344,42 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
     | {
         find?: T;
       };
-  documents?:
+  events?:
     | T
     | {
         find?: T;
       };
-  forms?:
+  eventGroups?:
+    | T
+    | {
+        find?: T;
+      };
+  eventTags?:
+    | T
+    | {
+        find?: T;
+      };
+  providers?:
+    | T
+    | {
+        find?: T;
+      };
+  courses?:
+    | T
+    | {
+        find?: T;
+      };
+  biographies?:
+    | T
+    | {
+        find?: T;
+      };
+  teams?:
+    | T
+    | {
+        find?: T;
+      };
+  tenants?:
     | T
     | {
         find?: T;
@@ -5306,17 +5394,17 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
     | {
         find?: T;
       };
-  tenants?:
+  redirects?:
     | T
     | {
         find?: T;
       };
-  eventGroups?:
+  sharedMedia?:
     | T
     | {
         find?: T;
       };
-  eventTags?:
+  forms?:
     | T
     | {
         find?: T;
