@@ -109,7 +109,8 @@ import {
   isValidRelationship,
   filterValidRelationships,
   isValidPublishedRelationship,
-  filterValidPublishedRelationships
+  filterValidPublishedRelationships,
+  relationshipID
 } from '@/utilities/relationships'
 ```
 
@@ -134,6 +135,11 @@ export const SponsorsBlock = ({ sponsors }: Props) => {
 Draft-enabled collections:
 ```typescript
 const publishedPosts = filterValidPublishedRelationships(relatedPosts)
+```
+
+Relationship values of unknown shape (e.g. hook `data`), where you only need the ID:
+```typescript
+const providerId = relationshipID(data?.provider) // bare ID or populated doc → ID; otherwise undefined
 ```
 
 Combine with additional filters:
