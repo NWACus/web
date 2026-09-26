@@ -96,6 +96,7 @@ export interface Config {
     settings: Setting;
     redirects: Redirect;
     sharedMedia: SharedMedia;
+    glossaryTerms: GlossaryTerm;
     forms: Form;
     'form-submissions': FormSubmission;
     'payload-mcp-api-keys': PayloadMcpApiKey;
@@ -151,6 +152,7 @@ export interface Config {
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     sharedMedia: SharedMediaSelect<false> | SharedMediaSelect<true>;
+    glossaryTerms: GlossaryTermsSelect<false> | GlossaryTermsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
@@ -3248,6 +3250,30 @@ export interface Redirect {
   createdAt: string;
 }
 /**
+ * Terms underlined in forecast text on every center whose forecast has the glossary turned on. Hovering or tapping one shows its definition.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "glossaryTerms".
+ */
+export interface GlossaryTerm {
+  id: number;
+  /**
+   * The term as it should be matched in forecast text. Matching ignores case.
+   */
+  term: string;
+  /**
+   * Other forms that should show the same definition: plurals, tenses, synonyms (e.g. "beacon" for "transceiver"). A term or alias can belong to only one Glossary Term.
+   */
+  aliases?: string[] | null;
+  definition: string;
+  /**
+   * Optional page on avalanche.org to learn more. Shown as a "Learn more" link under the definition.
+   */
+  link?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
@@ -3529,6 +3555,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'sharedMedia';
         value: number | SharedMedia;
+      } | null)
+    | ({
+        relationTo: 'glossaryTerms';
+        value: number | GlossaryTerm;
       } | null)
     | ({
         relationTo: 'forms';
@@ -5115,6 +5145,18 @@ export interface SharedMediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "glossaryTerms_select".
+ */
+export interface GlossaryTermsSelect<T extends boolean = true> {
+  term?: T;
+  aliases?: T;
+  definition?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

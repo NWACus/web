@@ -17,6 +17,7 @@ import invariant from 'tiny-invariant'
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
+import { seedGlossaryTerms } from '@/services/glossary/seedGlossaryTerms'
 import { NWAC_STATION_PAGES, seedStationPages } from '@/services/stations/seedStationPages'
 import { getAnnouncementsData } from './announcements'
 import { seedStaff } from './biographies'
@@ -65,6 +66,7 @@ const collections: CollectionSlug[] = [
   'eventGroups',
   'eventTags',
   'sharedMedia',
+  'glossaryTerms',
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -232,7 +234,7 @@ export const seed = async ({
           name: 'Shared Content Editor',
           rules: [
             {
-              collections: ['sharedMedia'],
+              collections: ['sharedMedia', 'glossaryTerms'],
               actions: ['*'],
             },
           ],
@@ -838,6 +840,11 @@ export const seed = async ({
         ])
         .flat(),
     )
+
+    // The migration seeds all 82 on a deployed environment; push mode never runs it locally.
+    payload.logger.info(`— Seeding glossary terms...`)
+    const glossary = await seedGlossaryTerms(payload)
+    payload.logger.info(glossary, 'glossary terms seeded')
 
     payload.logger.info(`— Seeding the shared library...`)
 

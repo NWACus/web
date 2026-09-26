@@ -10,6 +10,8 @@ import type {
   Weather,
 } from '@/services/nac/model/forecast'
 
+import { GlossaryProse } from '@/components/glossary/GlossaryProse.client'
+
 import { ForecastHeader } from './ForecastHeader'
 import { sectionHeading } from './forecastHeadings'
 import { sanitizeHtml } from './sanitizeHtml'
@@ -47,9 +49,9 @@ export function WeatherSummary({ weather, zoneName, timezone }: WeatherSummaryPr
         timezone={timezone}
       />
       {discussion && (
-        <div
+        <GlossaryProse
+          html={sanitizeHtml(discussion)}
           className="prose max-w-none dark:prose-invert"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(discussion) }}
         />
       )}
       {table &&

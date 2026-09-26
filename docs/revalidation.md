@@ -91,6 +91,10 @@ Collections that are referenced by routable collections but don't have their own
 #### Teams, Biographies, Tags
 Similar pattern to Media - only reference-based revalidation since they're reference collections.
 
+#### GlossaryTerms (`src/collections/GlossaryTerms/hooks/revalidateGlossary.ts`)
+- **Tag revalidation only**: `glossary`, which purges the cached read behind `GET /api/glossary` and nothing else
+- Nothing references a term and no page carries the term list: native forecast pages fetch it from the endpoint in the browser, so a glossary edit never revalidates a forecast page. See `docs/decisions/018-forecast-glossary.md`
+
 ### Globals
 #### NACWidgetsConfig (`src/globals/NACWidgetsConfig/hooks/revalidateWidgetPages.ts`)
 - **Path revalidation**: Specific widget-using pages with Next.js page-level revalidation
@@ -138,6 +142,7 @@ One exception: a cached function nested inside another cached function should le
 - **Global data**: `global_{globalSlug}`
 - **Routable collection data**: `{collection}_{slug}` (again, not used at the moment)
 - **Sitemap data**: `{collection}-sitemap-{center}` (for routable collections)
+- **Forecast glossary**: `glossary`
 - **Navigation data**: `navigation-{center}`
 
 ## Context Controls

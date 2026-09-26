@@ -89,6 +89,8 @@ The map layer is the product closest to being ready to flip — dashboard-v2 alr
 
 The consequence that surprises people: **NWAC's `platforms.weather` is hard-coded `false`**, because NWAC forecasts weather in-house rather than through the AFP. Any native mountain-weather work has to account for that gate before it accounts for ours.
 
+Some `widget_config` flags switch a feature on a page rather than the page itself, and the native pages honor them the same way. `widget_config.forecast.glossary` decides whether a center's forecast and weather prose gets glossary tooltips ([ADR 018](../decisions/018-forecast-glossary.md)); NWAC and SAC have it on, SNFAC off, and DVAC follows NWAC's data. Off, the glossary's client island never mounts.
+
 ## Rendering and caching
 
 | Route                                         | Strategy        | Revalidate | Notes                                                                           |
@@ -114,7 +116,7 @@ The third tab, Mountain Weather, is `/archive/mountain-weather`, a list of the s
 
 The browser reads that list through `fetchProductArchiveOrThrow` rather than `fetchProductArchive`. The two differ only in what a failure becomes, and the browser needs every upstream failure — a bad status, unreadable JSON, or a response the schema rejects — to arrive as a thrown error, because an empty list is an answer ("no products match") and a broken archive is not. Everywhere the archive is a secondary feature, `fetchProductArchive` turns the same failures back into `[]` so the page degrades rather than crashing.
 
-Server rendering is the default and the client bundle is deliberately small. The exceptions are genuinely interactive: the two Mapbox maps (danger and weather stations), and the archive calendar, which lazily fetches per-month danger colors from a route handler rather than shipping the full product archive.
+Server rendering is the default and the client bundle is deliberately small. The exceptions are genuinely interactive: the two Mapbox maps (danger and weather stations); the archive calendar, which lazily fetches per-month danger colors from a route handler rather than shipping the full product archive; and the forecast glossary, which marks terms in the already-rendered prose from a term list it fetches from `GET /api/glossary`, so a term edit never touches a forecast page's cache (ADR 018).
 
 **One map library.** Both native maps build on the same Mapbox setup — `src/components/map/mapbox.ts` holds the base style, the control adapter and the gesture lockdown, and `NEXT_PUBLIC_MAPBOX_TOKEN` is the one token. The station map (inventory row S1) is the surface that retired Google Maps: the legacy stations widget was the last consumer of it, and the repo now carries exactly one map stack.
 
