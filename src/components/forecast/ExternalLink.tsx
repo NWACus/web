@@ -11,14 +11,16 @@ interface ExternalLinkProps {
   href: string
   children: ReactNode
   className?: string
+  tabIndex?: number
 }
 
-export function ExternalLink({ href, children, className }: ExternalLinkProps) {
+export function ExternalLink({ href, children, className, tabIndex }: ExternalLinkProps) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      tabIndex={tabIndex}
       className={cn(
         'inline-flex items-center gap-1 no-underline underline-offset-2 hover:underline',
         className,

@@ -6,6 +6,7 @@
  * Not a card of its own: the problems sit in the forecast's one panel under a shared heading, as
  * in the widget.
  */
+import { GlossaryProse } from '@/components/glossary/GlossaryProse.client'
 import {
   AvalancheProblemName,
   MediaType,
@@ -149,9 +150,9 @@ function ProblemDiscussion({
         />
       )}
       {discussion && (
-        <div
+        <GlossaryProse
+          html={sanitizeHtml(discussion)}
           className="prose max-w-none dark:prose-invert"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(discussion) }}
         />
       )}
     </div>

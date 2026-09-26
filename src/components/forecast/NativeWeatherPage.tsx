@@ -10,6 +10,7 @@ import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/n
 import { getWeatherSource } from '@/services/nac/sources'
 
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
+import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 
 import { NativeWeatherView } from './NativeWeatherView'
 
@@ -58,12 +59,14 @@ export async function NativeWeatherPage({ centerSlug }: NativeWeatherPageProps) 
 
   return (
     <>
-      <NativeWeatherView
-        weather={weather}
-        zones={metadata.zones}
-        timezone={metadata.timezone}
-        centerType={metadata.type}
-      />
+      <ForecastGlossary center={metadata}>
+        <NativeWeatherView
+          weather={weather}
+          zones={metadata.zones}
+          timezone={metadata.timezone}
+          centerType={metadata.type}
+        />
+      </ForecastGlossary>
       {/* Revalidate-on-view: catches a product corrected or re-issued after this (ISR) page was
           rendered and refreshes the viewer's page. */}
       <RevalidateOnView endpoints={[freshnessEndpoint]} />

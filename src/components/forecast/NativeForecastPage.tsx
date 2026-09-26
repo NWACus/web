@@ -16,6 +16,7 @@ import { getForecastSource, getWarningSource } from '@/services/nac/sources'
 import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
 
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
+import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 
 import { NativeForecastView } from './NativeForecastView'
 
@@ -73,20 +74,22 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
 
   return (
     <>
-      <NativeForecastView
-        center={centerSlug}
-        zone={zone}
-        timezone={metadata.timezone}
-        forecastResult={forecastResult}
-        warning={warning}
-        initialDates={initialDates}
-        initialRange={window}
-        currentDate={currentDate}
-        selectedDate={null}
-        basePath={`/forecasts/avalanche/${zoneSlug}`}
-        centerType={metadata.type}
-        weather={weather}
-      />
+      <ForecastGlossary center={metadata}>
+        <NativeForecastView
+          center={centerSlug}
+          zone={zone}
+          timezone={metadata.timezone}
+          forecastResult={forecastResult}
+          warning={warning}
+          initialDates={initialDates}
+          initialRange={window}
+          currentDate={currentDate}
+          selectedDate={null}
+          basePath={`/forecasts/avalanche/${zoneSlug}`}
+          centerType={metadata.type}
+          weather={weather}
+        />
+      </ForecastGlossary>
       {/* Revalidate-on-view: catches a correction/retraction published after this (ISR) page was
           rendered and refreshes the viewer's page. Live route only — the dated archive is immutable. */}
       <RevalidateOnView endpoints={[freshnessEndpoint]} />

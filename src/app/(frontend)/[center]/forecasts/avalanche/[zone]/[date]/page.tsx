@@ -2,6 +2,7 @@ import type { Metadata } from 'next/types'
 
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { NativeForecastView } from '@/components/forecast/NativeForecastView'
+import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 import {
   buildZoneArchiveDates,
   findProductIdForDate,
@@ -135,21 +136,23 @@ export default async function Page({ params }: Args) {
         // looks capitalized through CSS, so assistive tech reads it as the reader never sees it.
         labels={{ [`/forecasts/avalanche/${zone}`]: resolvedZone.zone.name }}
       />
-      <NativeForecastView
-        center={center}
-        zone={resolvedZone}
-        timezone={metadata.timezone}
-        forecastResult={forecastResult}
-        // Historical view: the warning banner reflects current alerts, not point-in-time ones.
-        warning={null}
-        initialDates={initialDates}
-        initialRange={window}
-        currentDate={currentDate}
-        selectedDate={date}
-        basePath={`/forecasts/avalanche/${zone}`}
-        centerType={metadata.type}
-        weather={weather}
-      />
+      <ForecastGlossary center={metadata}>
+        <NativeForecastView
+          center={center}
+          zone={resolvedZone}
+          timezone={metadata.timezone}
+          forecastResult={forecastResult}
+          // Historical view: the warning banner reflects current alerts, not point-in-time ones.
+          warning={null}
+          initialDates={initialDates}
+          initialRange={window}
+          currentDate={currentDate}
+          selectedDate={date}
+          basePath={`/forecasts/avalanche/${zone}`}
+          centerType={metadata.type}
+          weather={weather}
+        />
+      </ForecastGlossary>
     </>
   )
 }
