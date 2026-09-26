@@ -7,6 +7,7 @@ import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/n
 import { getForecastSource, getWarningSource } from '@/services/nac/sources'
 
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
+import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ZoneForecastCard } from './ZoneForecastCard'
@@ -53,24 +54,27 @@ export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
     forecastFreshnessEndpoint(centerSlug, slug, forecast, warning),
   )
 
+  // Each card's bottom line is marked, as the widget's all-zones view did.
   return (
-    <div className="container space-y-16 py-6">
-      {results.map(({ slug, zone, forecast, warning }) => (
-        <ForecastErrorBoundary
-          key={zone.id}
-          fallbackMessage={`Unable to display forecast for ${zone.name}`}
-        >
-          <ZoneForecastCard
-            zoneName={zone.name}
-            zoneSlug={slug}
-            forecast={forecast}
-            warning={warning}
-            elevationBandNames={zone.config.elevation_band_names}
-            timezone={metadata.timezone}
-          />
-        </ForecastErrorBoundary>
-      ))}
-      <RevalidateOnView endpoints={freshnessEndpoints} />
-    </div>
+    <ForecastGlossary center={metadata}>
+      <div className="container space-y-16 py-6">
+        {results.map(({ slug, zone, forecast, warning }) => (
+          <ForecastErrorBoundary
+            key={zone.id}
+            fallbackMessage={`Unable to display forecast for ${zone.name}`}
+          >
+            <ZoneForecastCard
+              zoneName={zone.name}
+              zoneSlug={slug}
+              forecast={forecast}
+              warning={warning}
+              elevationBandNames={zone.config.elevation_band_names}
+              timezone={metadata.timezone}
+            />
+          </ForecastErrorBoundary>
+        ))}
+        <RevalidateOnView endpoints={freshnessEndpoints} />
+      </div>
+    </ForecastGlossary>
   )
 }

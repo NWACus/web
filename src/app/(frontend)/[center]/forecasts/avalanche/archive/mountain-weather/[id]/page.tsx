@@ -7,6 +7,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
 import { NativeWeatherView } from '@/components/forecast/NativeWeatherView'
 import { getWeatherArchiveAccess } from '@/components/forecast/archive/weatherArchiveAccess'
+import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 import { publishedDateForProduct } from '@/services/nac/archiveDates'
 import { ARCHIVE_CRUMB, ARCHIVE_PATH, ARCHIVE_WEATHER_PATH } from '@/services/nac/forecastArchive'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
@@ -91,13 +92,15 @@ async function ArchivedWeather({ center, id, path }: { center: string; id: numbe
         // The raw id would be meaningless as the leaf; the day it was issued is what a reader knows.
         title={issued ? format(parseISO(issued), 'MMMM d, yyyy') : TITLE}
       />
-      <NativeWeatherView
-        weather={weather}
-        zones={metadata.zones}
-        timezone={metadata.timezone}
-        centerType={metadata.type}
-        archived
-      />
+      <ForecastGlossary center={metadata}>
+        <NativeWeatherView
+          weather={weather}
+          zones={metadata.zones}
+          timezone={metadata.timezone}
+          centerType={metadata.type}
+          archived
+        />
+      </ForecastGlossary>
     </>
   )
 }

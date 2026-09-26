@@ -1,8 +1,11 @@
 'use client'
 
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
+import { useGlossaryMarks } from '@/components/glossary/Glossary.client'
+
+import { AuthoredHtml } from './AuthoredHtml'
 import { MediaLightbox } from './MediaLightbox'
 import { MediaOverlay } from './MediaOverlay'
 import { collectEmbeddedMedia, type EmbeddedMedia } from './embeddedMedia'
@@ -29,6 +32,8 @@ export function DiscussionBody({ html }: DiscussionBodyProps) {
   const [media, setMedia] = useState<EmbeddedMedia[]>([])
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+
+  useGlossaryMarks(rootRef, html)
 
   useEffect(() => {
     const root = rootRef.current
@@ -79,7 +84,11 @@ export function DiscussionBody({ html }: DiscussionBodyProps) {
           hang a handler, and keeping the handler off AuthoredHtml keeps that subtree from
           re-rendering. */}
       <div onClick={handleClick}>
-        <AuthoredHtml html={html} containerRef={rootRef} />
+        <AuthoredHtml
+          html={html}
+          className="prose max-w-none dark:prose-invert"
+          containerRef={rootRef}
+        />
       </div>
 
       {media.map((item, index) =>
@@ -99,27 +108,3 @@ export function DiscussionBody({ html }: DiscussionBodyProps) {
     </>
   )
 }
-
-/**
- * The authored HTML, isolated behind `memo` so it is written to the DOM once per distinct string.
- *
- * React compares the `dangerouslySetInnerHTML` wrapper by identity, so re-rendering this element
- * for any reason — opening the lightbox, say — replaces the whole subtree, detaching the figures
- * that were collected from it and stranding their overlays in orphaned nodes. Keeping it out of the
- * parent's update path is what makes those DOM references safe to hold.
- */
-const AuthoredHtml = memo(function AuthoredHtml({
-  html,
-  containerRef,
-}: {
-  html: string
-  containerRef: React.RefObject<HTMLDivElement | null>
-}) {
-  return (
-    <div
-      ref={containerRef}
-      className="prose max-w-none dark:prose-invert"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  )
-})
