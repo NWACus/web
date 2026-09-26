@@ -60,6 +60,8 @@ import * as migration_20260922_180955_precip_table_block from './20260922_180955
 import * as migration_20260923_033051_add_shared_media from './20260923_033051_add_shared_media'
 import * as migration_20260924_221427_native_products_flags from './20260924_221427_native_products_flags'
 import * as migration_20260924_221440_forecast_archive_built_in_pages from './20260924_221440_forecast_archive_built_in_pages'
+import * as migration_20260924_234012_add_glossary_terms from './20260924_234012_add_glossary_terms'
+import * as migration_20260924_234036_seed_glossary_terms from './20260924_234036_seed_glossary_terms'
 
 export const migrations = [
   {
@@ -371,5 +373,15 @@ export const migrations = [
     up: migration_20260924_221440_forecast_archive_built_in_pages.up,
     down: migration_20260924_221440_forecast_archive_built_in_pages.down,
     name: '20260924_221440_forecast_archive_built_in_pages',
+  },
+  {
+    up: migration_20260924_234012_add_glossary_terms.up,
+    down: migration_20260924_234012_add_glossary_terms.down,
+    name: '20260924_234012_add_glossary_terms',
+  },
+  {
+    up: migration_20260924_234036_seed_glossary_terms.up,
+    down: migration_20260924_234036_seed_glossary_terms.down,
+    name: '20260924_234036_seed_glossary_terms',
   },
 ]
