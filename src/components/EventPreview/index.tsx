@@ -45,7 +45,6 @@ export const EventPreview = (props: {
     startDate,
     startDate_tz,
     endDate,
-    endDate_tz,
     skillLevel,
     registrationDeadline,
     registrationUrl,
@@ -115,7 +114,6 @@ export const EventPreview = (props: {
               startDate={startDate}
               startDate_tz={startDate_tz}
               endDate={endDate}
-              endDate_tz={endDate_tz}
               skillLevel={skillLevel}
               className="flex flex-col gap-1"
             />
