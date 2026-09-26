@@ -1,9 +1,7 @@
-import { resolveSnowObsAccess } from '@/services/snowobs/access'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
-import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKeys, stationKey } from '@/services/snowobs/stationKey'
-import { fetchTrackedStations } from '@/services/snowobs/stationTracking'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
+import { unknownStationKeys } from '@/services/snowobs/trackedStations'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import config from '@payload-config'
 import { NextResponse } from 'next/server'
@@ -23,13 +21,6 @@ function badRequest(message: string): NextResponse {
   return NextResponse.json({ error: message }, { status: 400 })
 }
 
-// This serves a center's own gauges, not whatever SnowObs will answer for.
-async function untracked(center: string, requested: StationRef[]): Promise<string[]> {
-  const { token } = await resolveSnowObsAccess(center)
-  const tracked = new Set((await fetchTrackedStations(token)).map(stationKey))
-  return requested.map(stationKey).filter((key) => !tracked.has(key))
-}
-
 // CRAP is inflated by the lack of unit coverage on this route handler; its
 // parsing is tested through parseStationKeys.
 // fallow-ignore-next-line complexity
@@ -46,7 +37,8 @@ export async function GET(
   if (typeof requested === 'string') return badRequest(requested)
 
   try {
-    const strangers = await untracked(center, requested)
+    // This serves a center's own gauges, not whatever SnowObs will answer for.
+    const strangers = await unknownStationKeys(center, requested.map(stationKey))
     if (strangers.length > 0) {
       return badRequest(`stations this center does not track: ${strangers.join(',')}`)
     }

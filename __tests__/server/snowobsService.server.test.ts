@@ -1,6 +1,8 @@
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
+import { setupMswLifecycle } from '../helpers/mswLifecycle'
+
 jest.mock('../../src/payload.config', () => ({}))
 
 jest.mock('payload', () => ({
@@ -12,12 +14,19 @@ jest.mock('../../src/services/nac/nac', () => ({
   getAvalancheCenterMetadata: () => getMetadataMock(),
 }))
 
-import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
+import {
+  fetchCurrentStationData,
+  fetchStationTimeseries,
+  fetchWebcams,
+  SnowObsError,
+} from '@/services/snowobs/snowobs'
 import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas'
 import type { Payload } from 'payload'
 import { getPayload } from 'payload'
 
 const TIMESERIES_URL = 'https://api.snowobs.com/wx/v1/station/data/timeseries/'
+const CURRENT_URL = 'https://api.snowobs.com/wx/v1/station/data/current/'
+const WEBCAM_URL = 'https://api.snowobs.com/v1/webcam'
 
 const ref = (stid: string, source = 'nwac') => ({ stid, source })
 
@@ -38,9 +47,7 @@ const validResponse: SnowObsTimeseriesResponse = {
 
 const server = setupServer(http.get(TIMESERIES_URL, () => HttpResponse.json(validResponse)))
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
+setupMswLifecycle(server)
 
 // Only `widget_config.stations.token` is read; the rest of the center metadata is irrelevant here.
 function mockAfpToken(token: string | undefined): void {
@@ -58,13 +65,16 @@ function captureTokenParam(): string[] {
   return seen
 }
 
+const warnMock = jest.fn()
+
 beforeEach(() => {
+  warnMock.mockClear()
   mockAfpToken('afp-token')
   // Error paths log via payload; return a stub logger so they don't hit the console fallback.
   jest
     .mocked(getPayload)
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    .mockResolvedValue({ logger: { error: jest.fn() } } as unknown as Payload)
+    .mockResolvedValue({ logger: { error: jest.fn(), warn: warnMock } } as unknown as Payload)
 })
 
 describe('fetchStationTimeseries', () => {
@@ -100,6 +110,39 @@ describe('fetchStationTimeseries', () => {
     expect(seenParams).toEqual(['true', null])
   })
 
+  it('falls back to rounded values when SnowObs fails the unrounded request', async () => {
+    const seenParams: (string | null)[] = []
+    server.use(
+      http.get(TIMESERIES_URL, ({ request }) => {
+        const raw = new URL(request.url).searchParams.get('raw_data')
+        seenParams.push(raw)
+        return raw ? new HttpResponse(null, { status: 500 }) : HttpResponse.json(validResponse)
+      }),
+    )
+    const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
+    expect(seenParams).toEqual(['true', null])
+    expect(result.STATION[0].name).toBe('Test Station')
+    // Rounding the whole request is a silent loss of precision without this.
+    expect(warnMock).toHaveBeenCalledWith(
+      { err: null, stids: ['4'] },
+      expect.stringContaining('raw_data'),
+    )
+  })
+
+  it.each([400, 503])('does not retry a %i, which rounding would not fix', async (status) => {
+    let calls = 0
+    server.use(
+      http.get(TIMESERIES_URL, () => {
+        calls += 1
+        return new HttpResponse(null, { status })
+      }),
+    )
+    await expect(fetchStationTimeseries('nwac', [ref('4')], { rawData: true })).rejects.toThrow(
+      `status ${status}`,
+    )
+    expect(calls).toBe(1)
+  })
+
   it('treats a 404 (no station left) as an empty timeseries', async () => {
     server.use(
       http.get(TIMESERIES_URL, () =>
@@ -133,6 +176,84 @@ describe('fetchStationTimeseries', () => {
     mockAfpToken(undefined)
     await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(
       /No SnowObs token in the AFP config/,
+    )
+  })
+})
+
+/**
+ * The station map's two reads fail independently of the station pages' timeseries read, so the
+ * one logger they share has to name the call site it was reached from.
+ */
+describe('the station map fetches', () => {
+  // SnowObs caches by URL alone and only adds CORS headers for a request with an Origin; an
+  // Origin-less fetch of the widget's URL would break the widget in browsers for a minute.
+  it("send an Origin, so they never refill SnowObs's cache without CORS headers", async () => {
+    const origins: (string | null)[] = []
+    const record = ({ request }: { request: Request }) => {
+      origins.push(request.headers.get('origin'))
+    }
+    server.use(
+      http.get(CURRENT_URL, (info) => {
+        record(info)
+        return HttpResponse.json({
+          type: 'FeatureCollection',
+          features: [],
+          properties: { variables: [], units: {} },
+        })
+      }),
+      http.get(WEBCAM_URL, (info) => {
+        record(info)
+        return HttpResponse.json({ webcam: [] })
+      }),
+    )
+
+    await fetchCurrentStationData('sac')
+    await fetchWebcams('sac')
+
+    expect(origins).toEqual(['https://avy-fx.org', 'https://avy-fx.org'])
+  })
+})
+
+describe('failure logging', () => {
+  function captureLoggedErrors(): jest.Mock {
+    const error = jest.fn()
+    jest
+      .mocked(getPayload)
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      .mockResolvedValue({ logger: { error } } as unknown as Payload)
+    return error
+  }
+
+  it('names a current-data failure after that fetch', async () => {
+    const logged = captureLoggedErrors()
+    server.use(http.get(CURRENT_URL, () => new HttpResponse(null, { status: 500 })))
+
+    await expect(fetchCurrentStationData('sac')).rejects.toThrow(SnowObsError)
+    expect(logged).toHaveBeenCalledWith(
+      expect.objectContaining({ centerSlug: 'sac', units: 'default' }),
+      'fetchCurrentStationData error',
+    )
+  })
+
+  it('names a webcam failure after that fetch', async () => {
+    const logged = captureLoggedErrors()
+    server.use(http.get(WEBCAM_URL, () => new HttpResponse(null, { status: 500 })))
+
+    await expect(fetchWebcams('sac')).rejects.toThrow(SnowObsError)
+    expect(logged).toHaveBeenCalledWith(
+      expect.objectContaining({ centerSlug: 'sac' }),
+      'fetchWebcams error',
+    )
+  })
+
+  it('still names a timeseries failure after the timeseries fetch', async () => {
+    const logged = captureLoggedErrors()
+    server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
+
+    await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(SnowObsError)
+    expect(logged).toHaveBeenCalledWith(
+      expect.objectContaining({ stids: ['4'] }),
+      'fetchStationTimeseries error',
     )
   })
 })

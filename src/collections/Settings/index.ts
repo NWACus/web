@@ -215,6 +215,64 @@ const brandAssetsFields: Field[] = [
   },
 ]
 
+const featuresFields: Field[] = [
+  {
+    name: 'nativeProducts',
+    type: 'group',
+    label: 'Native product pages',
+    admin: {
+      description:
+        'When enabled, these products render natively as Next.js pages on this site’s design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback.',
+    },
+    fields: [
+      {
+        name: 'forecast',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description: 'Render the avalanche forecast page natively.',
+        },
+      },
+      {
+        name: 'warning',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'Render warning/watch/special bulletins natively: the center-wide alert banner on the home page, and the per-zone banner on the native forecast page.',
+        },
+      },
+      {
+        name: 'dangerMap',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.',
+        },
+      },
+      {
+        name: 'weather',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC — and, together with the forecast flag, the forecast archive’s Mountain Weather tab. Centers without one have neither the page nor the tab either way.',
+        },
+      },
+      {
+        name: 'stationMap',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.',
+        },
+      },
+    ],
+  },
+]
+
 const socialMediaFields: Field[] = [
   {
     name: 'socialMedia',
@@ -324,6 +382,11 @@ export const Settings: CollectionConfig = {
           description:
             'Images used throughout the website including in the header, footer, browser tabs, and link previews.',
           fields: brandAssetsFields,
+        },
+        {
+          label: 'Features',
+          description: 'Feature flags to control which features are enabled for this center.',
+          fields: featuresFields,
         },
         {
           label: 'Social Media',
