@@ -31,7 +31,7 @@ This is the reverse of [ADR 020](020-center-timezone-is-a-hardcoded-fact.md)'s "
 
 ### A station is `(source, stid)`
 
-A stid is unique only within a source, and SnowObs tags each station in a response with its source, so the pair is the identity everywhere: stored references, response lookups, table column and graph series keys, and the graph-data and CSV query strings (`stationKey`, `nwac:1`). `fetchStationTimeseries(center, StationRef[])` sends `source` as the distinct sources joined and `stid` as the ids joined, so a page's fetch is one request whatever mix it shows, and reads the center's token from its AFP config (`widget_config.stations.token`, the public token the legacy widgets use). Every server-side SnowObs request sends an `Origin` header (`SNOWOBS_ORIGIN_HEADER`): SnowObs's nginx caches by URL alone and adds the CORS header only for requests with an Origin, so an Origin-less fetch of a URL the legacy widget also uses would break that widget for up to a minute ([#1349](https://github.com/NWACus/web/issues/1349)). The center's slug is never assumed to be a source; for SAC and SNFAC it isn't one.
+A stid is unique only within a source, and SnowObs tags each station in a response with its source, so the pair is the identity everywhere: stored references, response lookups, table column and graph series keys, and the graph-data and CSV query strings (`stationKey`, `nwac:1`). `fetchStationTimeseries(center, StationRef[])` sends `source` as the distinct sources joined and `stid` as the ids joined, so a page's fetch is one request whatever mix it shows, and reads the center's token from its AFP config (`widget_config.stations.token`, the public token the legacy widgets use). Every request sends an `Origin` header, because SnowObs caches a response without CORS headers when a request has none, which breaks the legacy widget ([#1349](https://github.com/NWACus/web/issues/1349)). The center's slug is never assumed to be a source; for SAC and SNFAC it isn't one.
 
 ### Columns are derived unless a page narrows them
 
@@ -47,11 +47,11 @@ A block rather than a per-center settings document ([ADR 016](016-per-tenant-glo
 
 ### Station data stays within a minute or two of SnowObs
 
-The legacy widgets fetched SnowObs in the reader's browser on every open, so they were never more than SnowObs's own 60-second nginx cache behind. The native pages first stacked a data-cache window (10 minutes on the table), stale-while-revalidate that hands the first reader after a quiet spell the old copy, and an `end_date` floored to that window, so a page could run 20–40 minutes behind without looking stale ([#1351](https://github.com/NWACus/web/issues/1351)).
+Like the legacy widgets, readings are at most about a minute behind SnowObs's own 60-second cache ([#1351](https://github.com/NWACus/web/issues/1351)).
 
-- `fetchStationTimeseries` is uncached (`no-store`) and ends the window now unless the caller asks for a `revalidate`. Only station metadata (notes, CSV datalogger names) and the CSV export still ask; a cached call floors `end_date` to its window to keep its URL stable.
-- The detail page already renders per request, because it reads `searchParams`, so the table and latest reading need no route of their own. Their SnowObs URL changes once a minute, so repeat views inside that minute hit SnowObs's cache, not its backend.
-- `weather/graph-data` and `weather/precip-data` send `public, s-maxage=60, stale-while-revalidate=60` (`STATION_DATA_CACHE_CONTROL`), and the Graphs tab rounds "now" to the minute so its URLs share that cache. SnowObs sees at most about one request a minute per URL per region while a page has readers, and none when it has none.
+- `fetchStationTimeseries` is uncached and ends now unless the caller passes `revalidate`, which only station metadata and the CSV export do.
+- The detail page renders per request (it reads `searchParams`), so its table needs no route of its own.
+- `weather/graph-data` and `weather/precip-data` cache 60 seconds at the CDN (`STATION_DATA_CACHE_CONTROL`).
 
 ### A center has station pages when it has rows
 
@@ -73,7 +73,7 @@ The native index and its "Weather Data" built-in row are deleted, along with the
 - **The admin depends on SnowObs at edit time.** The public site already depends on it at render, so this is no new dependency, but an outage leaves the picker showing ids. The hour-long cache covers short blips.
 - **The cutover is content, done by hand.** No migration creates the `stations` page or the precipitation page, repoints the nav or deletes the built-in row. NWAC's were built in the production admin ahead of the deploy, and a center enabling pages later does the same. The precipitation page's URL follows its place in the navigation, so `/weather/stations/accumulated-precipitation` needs a redirect if the old address matters.
 - **Any station edit busts the whole center.** One tag covers every station page, the CSV route and the graph-data allowlist. That is cheap because they re-read on the next request only, and it leaves no per-page revalidation to reason about. Lengthening ISR windows ([#1281](https://github.com/NWACus/web/issues/1281)) does not change it.
-- **Station data is not Payload content, so reference-tracked revalidation cannot keep it fresh.** Its short windows are deliberate; lengthening ISR ([#1281](https://github.com/NWACus/web/issues/1281)) should leave the station routes out.
+- **Station data's short cache windows are deliberate.** Lengthening ISR ([#1281](https://github.com/NWACus/web/issues/1281)) should leave the station routes out.
 - **The static build enumerates every page across every tenant.** `allStationPageParams()` is a full scan at build time. Fine at 32 pages; revisit if a center lands hundreds.
 - **Center-wide station settings that are not content** (default graph order, axis limits) belong in a unique-tenant collection per ADR 016, not a block.
 - **The public token's read surface is not guaranteed.** `station/metadata/client/` is already OAuth-only and `station/tracking/` could follow. The spec also declares the public token accepted on the tracking write endpoints, which was not probed. Both are questions for Snowbound.

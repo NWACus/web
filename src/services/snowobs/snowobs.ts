@@ -23,16 +23,13 @@ type FetchOptions = {
   // Explicit window — overrides windowHours when provided.
   start?: Date
   end?: Date
-  // Keep the response in Next's data cache this long. Omitted means uncached:
-  // readings must not lag SnowObs, whose own cache already absorbs repeats.
+  // Data-cache lifetime; omitted means uncached so readings never lag SnowObs.
   revalidate?: number
   // Skip SnowObs' default integer rounding (graphs want full precision).
   rawData?: boolean
 }
 
-// A cached trailing window floors `end` to the revalidate bucket so its URL
-// stays stable; an uncached one ends now. An explicit start/end (CSV export)
-// is used untouched.
+// A cached window floors `end` to its bucket so the URL stays stable.
 // CRAP is inflated by the lack of unit coverage on this URL builder.
 // fallow-ignore-next-line complexity
 function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token: string): string {

@@ -25,8 +25,7 @@ import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
-// Reading `searchParams` renders this page per request. Station metadata (names,
-// notes) is cached; the table is fetched uncached so it never lags SnowObs.
+// The page renders per request (it reads searchParams); only metadata is cached.
 const METADATA_REVALIDATE = 600
 
 type Args = {

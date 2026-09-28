@@ -155,8 +155,7 @@ function toMetaColumn(column: PrecipColumn): MetaColumn | undefined {
   return META_COLUMNS.find((c) => c === column)
 }
 
-// The chosen columns in their saved order. Adjacent windows form one run so a
-// station without data can collapse each run to a single "missing" cell.
+// Adjacent windows form one run, which collapses to "missing" for a station without data.
 type ColumnGroup = { kind: 'windows'; windows: Window[] } | { kind: 'meta'; column: MetaColumn }
 
 function toWindow(column: PrecipColumn): Window | undefined {
@@ -237,9 +236,7 @@ function StationRow({
   )
 }
 
-// One run of 1H..72H sum cells for one station; a station with no observations
-// in the widest window collapses the run to a single "missing" cell, like the
-// legacy page.
+// A station with no observations shows "missing" across the run, like the legacy page.
 function AccumulationCells({
   row,
   unit,
