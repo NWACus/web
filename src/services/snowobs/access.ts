@@ -3,6 +3,11 @@ import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 // Free of the Payload config so collection code can import it without a cycle.
 export const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
 
+// SnowObs's nginx caches by URL alone but adds the CORS header only when the
+// request has an Origin, so an Origin-less fetch breaks the legacy widget for
+// up to a minute. Send one on every request (#1349).
+export const SNOWOBS_ORIGIN_HEADER = { origin: 'https://avy-fx.org' }
+
 export class SnowObsError extends Error {
   constructor(
     message: string,

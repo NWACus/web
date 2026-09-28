@@ -123,6 +123,18 @@ describe('fetchStationTimeseries', () => {
     )
   })
 
+  it('sends an Origin, so it never caches a CORS-less response for the widget', async () => {
+    const origins: (string | null)[] = []
+    server.use(
+      http.get(TIMESERIES_URL, ({ request }) => {
+        origins.push(request.headers.get('origin'))
+        return HttpResponse.json(validResponse)
+      }),
+    )
+    await fetchStationTimeseries('nwac', [ref('4')])
+    expect(origins).toEqual(['https://avy-fx.org'])
+  })
+
   it("takes the token from the center's AFP config", async () => {
     const seen = captureTokenParam()
     await fetchStationTimeseries('nwac', [ref('4')])

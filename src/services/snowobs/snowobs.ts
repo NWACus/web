@@ -2,7 +2,7 @@ import { tz } from '@date-fns/tz'
 import config from '@payload-config'
 import { format, subHours } from 'date-fns'
 import { getPayload } from 'payload'
-import { resolveSnowObsToken, SNOWOBS_API, SnowObsError } from './access'
+import { resolveSnowObsToken, SNOWOBS_API, SNOWOBS_ORIGIN_HEADER, SnowObsError } from './access'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 import { snowObsTimeseriesResponseSchema } from './types/schemas'
 
@@ -101,7 +101,7 @@ export async function fetchStationTimeseries(
 
   try {
     const url = buildTimeseriesUrl(stations, options, await resolveSnowObsToken(centerSlug))
-    const res = await fetch(url, { next: { revalidate } })
+    const res = await fetch(url, { headers: SNOWOBS_ORIGIN_HEADER, next: { revalidate } })
     return await parseTimeseriesResponse(res, stids)
   } catch (error) {
     await logSnowObsError(error, stids)

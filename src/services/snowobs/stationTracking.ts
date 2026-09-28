@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SNOWOBS_API, SnowObsError } from './access'
+import { SNOWOBS_API, SNOWOBS_ORIGIN_HEADER, SnowObsError } from './access'
 
 // The stations a center's forecasters have curated in SnowObs, across every
 // source the center uses (NWAC: its own loggers plus SNOTEL and Mesowest).
@@ -49,7 +49,10 @@ async function readClientFeed<S extends z.ZodTypeAny>(
 
   let res: Response
   try {
-    res = await fetch(url, { next: { revalidate: TRACKING_REVALIDATE_SECONDS } })
+    res = await fetch(url, {
+      headers: SNOWOBS_ORIGIN_HEADER,
+      next: { revalidate: TRACKING_REVALIDATE_SECONDS },
+    })
   } catch (error) {
     throw new SnowObsError(`Failed to reach SnowObs ${what}`, error)
   }
