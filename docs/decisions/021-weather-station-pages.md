@@ -37,7 +37,7 @@ A stid is unique only within a source, and SnowObs tags each station in a respon
 
 `deriveColumns()` builds a page's table from the variables its loggers actually report: every reported variable in a fixed variable-major order (`TABLE_VARIABLE_ORDER`), loggers in page order within each, `battery_voltage` and the timestamp series excluded. An unknown variable lands after the known ones, alphabetically. This reproduces the legacy layout for 30 of the 32 pages; the two that hand-interleaved a pair of snow readings now read variable-major like the rest.
 
-Derivation is the default because a new sensor appearing on its own is what forecasters want, and a stored list is the one thing on a page an admin must maintain by hand. `columns` narrows it: a multi-select of readings (`STATION_COLUMNS`), empty meaning all of them.
+Derivation is the default because a new sensor appearing on its own is what forecasters want, and a stored list is the one thing on a page an admin must maintain by hand. `columns` narrows and orders it: a multi-select of readings (`STATION_COLUMNS`) shown in the order chosen, empty meaning all of them in the fixed order.
 
 ### The precipitation table is a block, not a side effect
 

@@ -58,6 +58,8 @@ export function resolveColumns(
 ): StationColumnConfig[] {
   const derived = deriveColumns(response, page.stations)
   if (page.columns.length === 0) return derived
-  const chosen = new Set<string>(page.columns)
-  return derived.filter(({ variable }) => chosen.has(variable))
+  const position = new Map(page.columns.map((variable, i) => [variable, i]))
+  return derived
+    .filter(({ variable }) => position.has(variable))
+    .sort((a, b) => (position.get(a.variable) ?? 0) - (position.get(b.variable) ?? 0))
 }
