@@ -1,4 +1,5 @@
 import { resolveSnowObsAccess } from '@/services/snowobs/access'
+import { STATION_DATA_CACHE_CONTROL } from '@/services/snowobs/cacheControl'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKeys, stationKey } from '@/services/snowobs/stationKey'
@@ -13,7 +14,6 @@ import { getPayload } from 'payload'
 // tab: the token stays server-side and the table keeps its own cadence.
 
 const WINDOW_HOURS = 72
-const REVALIDATE_SECONDS = 900
 // A block's list is a handful of gauges; the cap only stops an open proxy.
 const MAX_STATIONS = 60
 
@@ -52,13 +52,10 @@ export async function GET(
     }
     // One 72h fetch covers every trailing window (1H..72H are sums over it).
     const response = await fetchStationTimeseries(center, requested, {
-      revalidate: REVALIDATE_SECONDS,
       windowHours: WINDOW_HOURS,
     })
     return NextResponse.json(buildPrecipAccumulationTable(center, response, requested), {
-      headers: {
-        'Cache-Control': `public, s-maxage=${REVALIDATE_SECONDS}, stale-while-revalidate=60`,
-      },
+      headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
     })
   } catch (error) {
     // The message stays generic: a missing token or a SnowObs fault is ours to

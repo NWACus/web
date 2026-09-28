@@ -23,21 +23,21 @@ type FetchOptions = {
   // Explicit window — overrides windowHours when provided.
   start?: Date
   end?: Date
+  // Keep the response in Next's data cache this long. Omitted means uncached:
+  // readings must not lag SnowObs, whose own cache already absorbs repeats.
   revalidate?: number
   // Skip SnowObs' default integer rounding (graphs want full precision).
   rawData?: boolean
 }
 
-// Build the timeseries request URL. Defaults to a trailing window (last 24h)
-// with `end` floored to the revalidate bucket so the URL stays stable within a
-// window (an un-bucketed `new Date()` defeats Next's fetch cache); an explicit
-// start/end (CSV export) overrides the trailing window untouched.
+// A cached trailing window floors `end` to the revalidate bucket so its URL
+// stays stable; an uncached one ends now. An explicit start/end (CSV export)
+// is used untouched.
 // CRAP is inflated by the lack of unit coverage on this URL builder.
 // fallow-ignore-next-line complexity
 function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token: string): string {
-  const bucketMs = Math.max(options.revalidate ?? 600, 1) * 1000
-  const endMs = Math.floor(Date.now() / bucketMs) * bucketMs
-  const end = options.end ?? new Date(endMs)
+  const bucketMs = options.revalidate ? options.revalidate * 1000 : 1
+  const end = options.end ?? new Date(Math.floor(Date.now() / bucketMs) * bucketMs)
   const start = options.start ?? subHours(end, options.windowHours ?? 24)
 
   // Both take comma lists; SnowObs returns each station tagged with its source.
@@ -96,12 +96,16 @@ export async function fetchStationTimeseries(
   stations: StationRef[],
   options: FetchOptions = {},
 ): Promise<SnowObsTimeseriesResponse> {
-  const revalidate = options.revalidate ?? 600
   const stids = stations.map((s) => s.stid)
 
   try {
     const url = buildTimeseriesUrl(stations, options, await resolveSnowObsToken(centerSlug))
-    const res = await fetch(url, { headers: SNOWOBS_ORIGIN_HEADER, next: { revalidate } })
+    const res = await fetch(url, {
+      headers: SNOWOBS_ORIGIN_HEADER,
+      ...(options.revalidate
+        ? { next: { revalidate: options.revalidate } }
+        : { cache: 'no-store' }),
+    })
     return await parseTimeseriesResponse(res, stids)
   } catch (error) {
     await logSnowObsError(error, stids)

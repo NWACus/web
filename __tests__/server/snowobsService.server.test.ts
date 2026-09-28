@@ -135,6 +135,43 @@ describe('fetchStationTimeseries', () => {
     expect(origins).toEqual(['https://avy-fx.org'])
   })
 
+  describe('caching', () => {
+    // 10:09:30 UTC; SnowObs dates are minute-granular.
+    const now = Date.UTC(2026, 8, 28, 10, 9, 30)
+    let fetchSpy: jest.SpyInstance
+
+    beforeEach(() => {
+      jest.spyOn(Date, 'now').mockReturnValue(now)
+      fetchSpy = jest.spyOn(global, 'fetch')
+    })
+    afterEach(() => jest.restoreAllMocks())
+
+    function captureEndDates(): (string | null)[] {
+      const seen: (string | null)[] = []
+      server.use(
+        http.get(TIMESERIES_URL, ({ request }) => {
+          seen.push(new URL(request.url).searchParams.get('end_date'))
+          return HttpResponse.json(validResponse)
+        }),
+      )
+      return seen
+    }
+
+    it('is uncached by default and ends the window now', async () => {
+      const ends = captureEndDates()
+      await fetchStationTimeseries('nwac', [ref('4')])
+      expect(ends).toEqual(['202609281009'])
+      expect(fetchSpy.mock.calls[0][1]).toMatchObject({ cache: 'no-store' })
+    })
+
+    it('floors the end to the bucket only when a revalidate is asked for', async () => {
+      const ends = captureEndDates()
+      await fetchStationTimeseries('nwac', [ref('4')], { revalidate: 600 })
+      expect(ends).toEqual(['202609281000'])
+      expect(fetchSpy.mock.calls[0][1]).toMatchObject({ next: { revalidate: 600 } })
+    })
+  })
+
   it("takes the token from the center's AFP config", async () => {
     const seen = captureTokenParam()
     await fetchStationTimeseries('nwac', [ref('4')])

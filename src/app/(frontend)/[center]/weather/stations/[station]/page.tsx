@@ -25,8 +25,9 @@ import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
-// ISR: regenerate at most every 10 minutes; SnowObs stations report ~hourly.
-export const revalidate = 600
+// Reading `searchParams` renders this page per request. Station metadata (names,
+// notes) is cached; the table is fetched uncached so it never lags SnowObs.
+const METADATA_REVALIDATE = 600
 
 type Args = {
   params: Promise<{ center: string; station: string }>
@@ -39,13 +40,19 @@ export async function generateStaticParams() {
 
 // Notes ride with the station metadata, so a 1-hour window is enough.
 async function loadStationNotes(center: string, page: AssembledStationPage) {
-  const meta = await fetchStationTimeseries(center, page.stations, { revalidate, windowHours: 1 })
+  const meta = await fetchStationTimeseries(center, page.stations, {
+    revalidate: METADATA_REVALIDATE,
+    windowHours: 1,
+  })
   return stationNotes(meta.STATION)
 }
 
 // A 1-hour window: only the station metadata is needed.
 async function loadDataloggers(center: string, page: AssembledStationPage): Promise<Datalogger[]> {
-  const meta = await fetchStationTimeseries(center, page.stations, { windowHours: 1 })
+  const meta = await fetchStationTimeseries(center, page.stations, {
+    revalidate: METADATA_REVALIDATE,
+    windowHours: 1,
+  })
   const byKey = new Map(meta.STATION.map((s) => [stationKey(s), s]))
   return page.stations.map((station) => {
     const found = byKey.get(stationKey(station))
@@ -114,7 +121,6 @@ function graphsTabView({ page, pages, timeZone }: TabContext): TabView {
 async function tableTabView({ center, page, timeZone, periodParam }: TabContext): Promise<TabView> {
   const period = resolveTablePeriod(periodParam)
   const response = await fetchStationTimeseries(center, page.stations, {
-    revalidate,
     windowHours: period.hoursBack(new Date(), timeZone),
     rawData: true,
   })

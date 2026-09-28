@@ -31,9 +31,9 @@ const EChart = dynamic(() => import('./EChart').then((m) => m.EChart), {
   loading: () => <ChartSkeleton />,
 })
 
-// "Now" is bucketed so request URLs stay stable across charts and users —
-// a fresh Date per request would defeat the route's CDN caching.
-const CACHE_BUCKET_MS = 5 * 60 * 1000
+// "Now" is bucketed to the route's one-minute CDN window so request URLs stay
+// stable across charts and users; a fresh Date per request would never hit it.
+const CACHE_BUCKET_MS = 60 * 1000
 
 function periodRange(period: StationPeriod, timeZone: string): { from: Date; to: Date } {
   const to = new Date(Math.floor(Date.now() / CACHE_BUCKET_MS) * CACHE_BUCKET_MS)
