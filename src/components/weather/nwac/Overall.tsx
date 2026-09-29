@@ -2,6 +2,8 @@
  * The region-wide view: synopsis and zone links, one table per variable (zones or stations down,
  * periods or blocks across), then the extended outlook.
  */
+import { DiscussionBody } from '@/components/forecast/DiscussionBody'
+import { sanitizeHtml } from '@/components/forecast/sanitizeHtml'
 import Link from 'next/link'
 import { Fragment, type ReactNode } from 'react'
 
@@ -27,7 +29,6 @@ import {
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
-import { RichText, textOrNull } from './RichText'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import { DayNightDate, LevelValue, SnowValue, TempValue, WindValue } from './Values'
 
@@ -85,6 +86,11 @@ const periodColumn = (p: NWACWeatherPeriod): Column => ({
   night: p.kind === 'night',
   dayNightOnSub: true,
 })
+
+/** Forecaster-authored HTML, or null when blank. */
+function authoredOrNull(html: string | null | undefined): string | null {
+  return html?.trim() ? html : null
+}
 
 function blockColumn(issuance: NWACWeatherIssuance, b: NWACWeatherBlock): Column {
   const period = issuance.periods.find((p) => p.key === b.period)
@@ -578,7 +584,7 @@ function SynopsisRow({
           <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
             Weather Synopsis
           </h3>
-          <RichText html={synopsis} />
+          <DiscussionBody html={sanitizeHtml(synopsis)} />
         </section>
       ) : (
         <div />
@@ -610,7 +616,7 @@ function ExtendedSection({
         {extended && (
           <section className="space-y-2">
             <h4 className="text-base font-semibold">Outlook</h4>
-            <RichText html={extended} />
+            <DiscussionBody html={sanitizeHtml(extended)} />
           </section>
         )}
         {showTable && <GridTable table={table} anchor={anchor} headingLevel="h4" />}
@@ -621,9 +627,10 @@ function ExtendedSection({
 
 function sectionLinks(issuance: NWACWeatherIssuance): SectionLink[] {
   const [sensible, snowLevel, temps, wind] = zoneTables(issuance)
-  const hasExtended = !!textOrNull(issuance.extendedOutlook) || hasContent(extendedTable(issuance))
+  const hasExtended =
+    !!authoredOrNull(issuance.extendedOutlook) || hasContent(extendedTable(issuance))
   return [
-    ...(textOrNull(issuance.synopsis) ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
+    ...(authoredOrNull(issuance.synopsis) ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
     ...[sensible, snowLevel, temps, wind, snowTable(issuance)]
       .filter(hasContent)
       .map((t) => ({ id: t.id, label: t.nav })),
@@ -643,8 +650,8 @@ export function Overall({
   issuance: NWACWeatherIssuance
   zonePaths?: ZonePaths
 }) {
-  const synopsis = textOrNull(issuance.synopsis)
-  const extended = textOrNull(issuance.extendedOutlook)
+  const synopsis = authoredOrNull(issuance.synopsis)
+  const extended = authoredOrNull(issuance.extendedOutlook)
   const [sensible, snowLevel, temps, wind] = zoneTables(issuance)
   const snow = snowTable(issuance)
   const ext = extendedTable(issuance)

@@ -1,5 +1,6 @@
 /** NWAC's native Mountain Weather page: a date's issuances (today's by default), region-wide. */
 import { ForecastDisclaimer } from '@/components/forecast/ForecastDisclaimer'
+import { ForecastHeader } from '@/components/forecast/ForecastHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   fetchNWACWeatherDates,
@@ -13,12 +14,12 @@ import {
   issuanceShortLabel,
 } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
+import { formatDateTime } from '@/utilities/formatDateTime'
 import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns/format'
 
 import { DatePicker } from './DatePicker.client'
 import { IssuanceSwitch } from './IssuanceSwitch.client'
-import { IssuedMeta, formatIssued } from './Issued'
 import { Overall, OverallSectionTabs, type ZonePaths } from './Overall'
 
 const HEADING = <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Mountain Weather</h1>
@@ -36,6 +37,10 @@ async function zonePathsOf(centerSlug: string) {
 function todayInTimezone(timezone: string | null | undefined) {
   const now = new Date()
   return format(timezone ? new TZDate(now.getTime(), timezone) : now, 'yyyy-MM-dd')
+}
+
+function issueTime(iso: string, timezone: string | null | undefined): string | null {
+  return isNaN(new Date(iso).getTime()) ? null : formatDateTime(iso, timezone, 'h:mm a')
 }
 
 export async function ForecastPage({ centerSlug, date }: { centerSlug: string; date?: string }) {
@@ -72,9 +77,18 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
         panels={day.issuances.map((issuance) => ({
           key: String(issuance.id),
           label: issuanceShortLabel(issuance.type),
-          time: formatIssued(issuance.issuedAt, metadata.timezone, 'h:mm a'),
+          time: issueTime(issuance.issuedAt, metadata.timezone),
           anchor: issuance.type,
-          meta: <IssuedMeta issuance={issuance} timezone={metadata.timezone} />,
+          meta: (
+            <ForecastHeader
+              forecast={{
+                published_time: issuance.issuedAt,
+                expires_time: null,
+                author: issuance.author,
+              }}
+              timezone={metadata.timezone}
+            />
+          ),
           content: (
             <Card>
               <section aria-label={issuanceLabel(issuance.type)}>
