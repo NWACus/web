@@ -22,17 +22,18 @@ pnpm report:404s nwac --out nwac-404s.json
 | --------- | ------- | ------------------------------------------------------------ |
 | `<tenant>` | —      | Tenant slug; the hostname comes from `AVALANCHE_CENTERS`     |
 | `--days`  | `30`    | How many whole UTC days to look back (30 is the retention cap) |
-| `--limit` | `200`   | How many of the top non-bot 404 paths to fetch               |
+| `--limit` | `200`   | How many of the top non-bot 404 paths to fetch per week      |
 | `--out`   | —       | Write the JSON report to this file                           |
 
-The script:
+A 30-day run takes about two minutes. The script:
 
 1. Counts 404s on both the apex and `www.` hostnames of the center's `customDomain`, in total and excluding bots (requests with a `botName` or `botCategory`).
-2. Fetches the top non-bot 404 paths.
+2. Fetches the top non-bot 404 paths one week at a time, because grouping by path over longer windows fails with `query_failed`. The weekly counts are then summed, so a path that misses the top `--limit` in some weeks is undercounted.
 3. Reads the center's live URLs from its public `sitemap.xml`.
 4. Merges paths that differ only by a trailing slash or query string, then sets aside:
    - `dead-legacy-path`: known-dead WordPress-era paths (`isDeadLegacyPath`, shared with #1280 — Short-circuit dead legacy URLs (old WordPress paths, RSS feeds, icons) before they reach the page pipeline).
-   - `not-redirectable`: root-level file-like paths such as `/favicon.ico`. The middleware matcher skips these, so a Redirects row can never catch them.
+   - `not-redirectable`: paths the middleware matcher skips, such as `/api/...` and root-level files like `/favicon.ico`. A Redirects row can never catch these.
+   - `probe`: dotfile paths such as `/.well-known/...` and `/.env`, which come from browsers and scanners, not people.
    - `live-path`: paths that exist now; the 404 was temporary.
 5. Suggests a destination for each remaining path when exactly one live URL has the same last path segment (`/2024/01/meet-liz/` → `/blog/meet-liz`). Otherwise `to` is `null`.
 
@@ -74,5 +75,7 @@ The event is sent from the browser on purpose. The not-found render is ISR-cache
 ## Gotchas
 
 - The script calls the same Observability API that `vercel metrics` uses. For ad-hoc queries, use `npx -y vercel@latest metrics vercel.request.count …` because older installed CLIs don't have `metrics`. Filters are KQL (`httpStatus:"404" AND requestHostname:"nwac.us"`); dimension names are camelCase.
-- Grouping by `requestPath` fails on cardinality unless a narrowing filter such as the 404 status is also applied.
+- `vercel.request.count` only accepts the `count` aggregation, not `sum`.
+- Grouping by `requestPath` fails with `query_failed` unless the query is narrowed: filter to 404s and keep the window to about a week. The API also fails intermittently when several queries run at once, so the script runs its queries one at a time and retries 5xx responses.
+- Most 404 traffic is bots, and most of that is `botCategory: unknown`, meaning automated clients Vercel can't identify. On NWAC in September 2026 that was 2.06M of 2.17M 404s. Most were machine clients of the old site's data portal and API (`/data-portal/csv/q`, `/api/v3/...`), not people following links. Group by `requestPath` with `botCategory:"unknown"` to see them.
 - The same data can answer other launch-week questions: 5xx by `route`, `cacheResult`/`cacheReason` by `route`, and p75 duration by `route`.
