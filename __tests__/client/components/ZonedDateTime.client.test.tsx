@@ -1,6 +1,6 @@
 import { ZonedDateTime } from '@/components/ZonedDateTime'
 import '@testing-library/jest-dom'
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { hydrateRoot } from 'react-dom/client'
 import { renderToString } from 'react-dom/server'
 
@@ -15,6 +15,24 @@ const PACIFIC = 'America/Los_Angeles'
 const JAN_15_3PM_PACIFIC = '2026-01-15T23:00:00Z'
 
 const viewerIn = (timeZone: string) => getBrowserTimezone.mockReturnValue(timeZone)
+
+// jsdom has no PointerEvent, so fireEvent drops `pointerType`; set it on the event itself.
+const pointer = (
+  element: Element,
+  type: 'pointerover' | 'pointerout',
+  pointerType: 'mouse' | 'touch' = 'mouse',
+) => {
+  const event = new Event(type, { bubbles: true, cancelable: true })
+  Object.defineProperty(event, 'pointerType', { value: pointerType })
+  fireEvent(element, event)
+}
+
+/** Renders an out-of-zone time and returns its hint trigger. */
+const renderHintForDenverViewer = () => {
+  viewerIn('America/Denver')
+  render(<ZonedDateTime dateTime={JAN_15_3PM_PACIFIC} timeZone={PACIFIC} />)
+  return screen.getByRole('button')
+}
 
 describe('ZonedDateTime', () => {
   it('shows the time in the given zone with its abbreviation and no hint when the viewer shares it', () => {
@@ -113,6 +131,48 @@ describe('ZonedDateTime', () => {
     fireEvent.click(screen.getByRole('dialog'))
 
     expect(onRowClick).not.toHaveBeenCalled()
+  })
+
+  it('opens on mouse hover without stealing focus, and closes when the pointer leaves', async () => {
+    const trigger = renderHintForDenverViewer()
+    pointer(trigger, 'pointerover')
+
+    expect(screen.getByRole('dialog')).toHaveTextContent('Thu, Jan 15, 4:00 PM MST')
+    // Hovering must not pull focus away from wherever the viewer was.
+    expect(screen.getByRole('dialog')).not.toHaveFocus()
+
+    pointer(trigger, 'pointerout')
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  })
+
+  it('stays open while the pointer moves from the trigger onto the popover', async () => {
+    const trigger = renderHintForDenverViewer()
+    pointer(trigger, 'pointerover')
+    pointer(trigger, 'pointerout')
+    pointer(screen.getByRole('dialog'), 'pointerover')
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300))
+    })
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('does not toggle shut when a hovered trigger is also clicked', () => {
+    const trigger = renderHintForDenverViewer()
+    pointer(trigger, 'pointerover')
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+    fireEvent.click(trigger)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('ignores a touch pointer, so a tap opens it through the usual click', () => {
+    const trigger = renderHintForDenverViewer()
+    pointer(trigger, 'pointerover', 'touch')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    fireEvent.click(trigger)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
   it('hydrates server markup without a mismatch, then adds the hint', async () => {

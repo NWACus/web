@@ -5,9 +5,13 @@ import { formatDateTime, formatDateTimeRange } from '@/utilities/formatDateTime'
 import { timezonesAgreeAt } from '@/utilities/timezones'
 import { cn } from '@/utilities/ui'
 import { useViewerTimezone } from '@/utilities/useViewerTimezone'
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
 
 // A bare calendar date like 2026-01-15, with no time of day.
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
+
+// Long enough for the pointer to cross the gap to the popover without it flickering shut.
+const HOVER_CLOSE_DELAY_MS = 150
 
 const DEFAULT_DATE_TIME_FORMAT = 'MMM d, yyyy, p'
 const DEFAULT_DATE_FORMAT = 'MMM d, yyyy'
@@ -62,6 +66,85 @@ function formatForViewer(
 }
 
 /**
+ * The time, underlined, with the viewer's local equivalent in a popover. A mouse opens it on
+ * hover, since that is the cheaper gesture on a desktop; touch and keyboard open it on tap or
+ * Enter, because neither can hover. Branching on `pointerType` rather than a breakpoint keeps
+ * both gestures working on a touchscreen laptop.
+ */
+function ViewerTimeHint({
+  dateTime,
+  text,
+  viewerText,
+  className,
+}: {
+  dateTime: string
+  text: string
+  viewerText: string
+  className?: string
+}) {
+  const [open, setOpen] = useState(false)
+  const openedByHover = useRef(false)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  const cancelScheduledClose = useCallback(() => clearTimeout(closeTimer.current), [])
+  useEffect(() => cancelScheduledClose, [cancelScheduledClose])
+
+  const setOpenState = (next: boolean) => {
+    if (!next) openedByHover.current = false
+    setOpen(next)
+  }
+
+  const openOnHover = (event: PointerEvent) => {
+    if (event.pointerType !== 'mouse') return
+    cancelScheduledClose()
+    openedByHover.current = true
+    setOpen(true)
+  }
+
+  const closeAfterHover = (event: PointerEvent) => {
+    if (event.pointerType !== 'mouse') return
+    cancelScheduledClose()
+    closeTimer.current = setTimeout(() => setOpenState(false), HOVER_CLOSE_DELAY_MS)
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpenState}>
+      {/* Stop clicks reaching clickable ancestors, like an expandable table row. */}
+      <PopoverTrigger
+        className={cn(
+          'inline rounded-sm text-left underline decoration-dotted underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          className,
+        )}
+        onPointerEnter={openOnHover}
+        onPointerLeave={closeAfterHover}
+        onClick={(event) => {
+          event.stopPropagation()
+          // Hover already opened it, so a click should leave it alone rather than toggle it shut.
+          if (openedByHover.current) event.preventDefault()
+        }}
+      >
+        <time dateTime={dateTime}>{text}</time>
+        <span className="sr-only"> ({viewerText} your time)</span>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="w-auto p-2 text-sm"
+        // Hovering must not pull focus out of the page; tap and keyboard still focus it as usual.
+        onOpenAutoFocus={(event) => {
+          if (openedByHover.current) event.preventDefault()
+        }}
+        onPointerEnter={cancelScheduledClose}
+        onPointerLeave={closeAfterHover}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <p>{viewerText}</p>
+        <p className="text-xs text-muted-foreground">Your local time</p>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+/**
  * A date or time shown in a fixed timezone, with the zone named. When the viewer's own timezone
  * disagrees, the text becomes a popover trigger revealing the viewer's local equivalent. That
  * hint only appears after hydration, so server and client markup always match.
@@ -80,26 +163,11 @@ export function ZonedDateTime({ viewerTimeHint = true, className, ...value }: Zo
   }
 
   return (
-    <Popover>
-      {/* Stop clicks reaching clickable ancestors, like an expandable table row. */}
-      <PopoverTrigger
-        className={cn(
-          'inline rounded-sm text-left underline decoration-dotted underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          className,
-        )}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <time dateTime={value.dateTime}>{text}</time>
-        <span className="sr-only"> ({viewerText} your time)</span>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-auto p-2 text-sm"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <p>{viewerText}</p>
-        <p className="text-xs text-muted-foreground">Your local time</p>
-      </PopoverContent>
-    </Popover>
+    <ViewerTimeHint
+      dateTime={value.dateTime}
+      text={text}
+      viewerText={viewerText}
+      className={className}
+    />
   )
 }
