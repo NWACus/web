@@ -31,6 +31,7 @@ PostHog runs as a **same-origin reverse proxy** so analytics aren't ad-blocked: 
 - **Browser:** [`PostHogProvider.tsx`](../src/providers/PostHogProvider.tsx) calls `posthog.init()` only when `NEXT_PUBLIC_POSTHOG_KEY` is set, pointing `api_host` at `/ingest`. It wraps both `src/app/(frontend)/layout.tsx` and `src/app/(embeds)/layout.tsx`; feature flags and surveys are disabled.
 - **Server:** [`src/posthog.ts`](../src/posthog.ts) exposes `PostHogClient()` (`posthog-node`), returning `null` when no key is set.
 - **Identity:** users are identified after login via `src/collections/Users/hooks/posthogIdentifyAfterLogin.ts`.
+- **404s:** center not-found pages send a `page_not_found` event from the browser via [`TrackPageNotFound`](../src/components/TrackPageNotFound.client.tsx); see [not-found-report.md](not-found-report.md).
 
 ### Environment variables
 
