@@ -58,7 +58,7 @@ export const PAGES_TO_PROVISION: ReadonlyArray<{ slug: string; title: string }> 
 
 /** The PAGES_TO_PROVISION subset for info exchanges, which have no forecasts or classes. */
 export const INFO_EXCHANGE_PAGES_TO_PROVISION = PAGES_TO_PROVISION.filter(({ slug }) =>
-  ['about-us', 'donate-membership', 'volunteer'].includes(slug),
+  ['weather-tools', 'about-us', 'donate-membership', 'volunteer'].includes(slug),
 )
 
 /**
@@ -155,7 +155,7 @@ export function defaultHomePageContent(
     ? 'Share and find recent avalanche, snowpack, and weather observations from the backcountry in our region.'
     : 'Stay informed with the latest avalanche forecasts, mountain weather conditions, and safety information for our region.'
   const mission = infoExchange
-    ? 'We are a community-driven avalanche information exchange. We do not issue avalanche forecasts, so use observations alongside your own assessment of conditions.'
+    ? "We promote avalanche safety by sharing snow and avalanche observations from the backcountry. We don't issue avalanche forecasts, so use observations alongside your own assessment of conditions."
     : 'Our mission is to increase avalanche awareness, reduce avalanche impacts, and equip the community with essential safety education and data.'
 
   return {
@@ -554,6 +554,9 @@ export async function provision(payload: Payload, tenant: Tenant) {
     const filterNulls = <T>(items: (T | null)[]): T[] =>
       items.filter((item): item is T => item !== null)
 
+    // An empty group saves as a link item with no link, which fails validation
+    const navGroup = <T>(label: string, items: T[]) => (items.length > 0 ? { label, items } : null)
+
     try {
       await payload.create({
         collection: 'navigations',
@@ -573,14 +576,16 @@ export async function provision(payload: Payload, tenant: Tenant) {
                     options: { displayMode: 'dropdown' },
                     items: [
                       ...filterNulls([navBuiltInPageItem('/forecasts/avalanche', 'All Forecasts')]),
-                      {
-                        label: 'Zones',
-                        items: filterNulls(
-                          forecastPages
-                            .filter((p) => p.url !== '/forecasts/avalanche')
-                            .map((p) => navBuiltInPageItem(p.url, p.title)),
+                      ...filterNulls([
+                        navGroup(
+                          'Zones',
+                          filterNulls(
+                            forecastPages
+                              .filter((p) => p.url !== '/forecasts/avalanche')
+                              .map((p) => navBuiltInPageItem(p.url, p.title)),
+                          ),
                         ),
-                      },
+                      ]),
                     ],
                   },
           observations: {
@@ -601,16 +606,18 @@ export async function provision(payload: Payload, tenant: Tenant) {
             options: { displayMode: 'dropdown' },
             items: [
               ...filterNulls([navPageItem('learn')]),
-              {
-                label: 'Classes',
-                items: filterNulls([
-                  navPageItem('field-classes'),
-                  navPageItem('avalanche-awareness-classes'),
-                  navPageItem('courses-by-external-providers'),
-                  navPageItem('workshops'),
-                  navPageItem('request-a-class'),
-                ]),
-              },
+              ...filterNulls([
+                navGroup(
+                  'Classes',
+                  filterNulls([
+                    navPageItem('field-classes'),
+                    navPageItem('avalanche-awareness-classes'),
+                    navPageItem('courses-by-external-providers'),
+                    navPageItem('workshops'),
+                    navPageItem('request-a-class'),
+                  ]),
+                ),
+              ]),
               ...filterNulls([
                 navPageItem('scholarships'),
                 navPageItem('mentorship'),

@@ -6,6 +6,7 @@ import HighlightedContent from '@/collections/HomePages/components/HighlightedCo
 import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { isInfoExchange } from '@/services/nac/types/schemas'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { draftMode } from 'next/headers'
@@ -61,24 +62,22 @@ export default async function Page({ params }: Args) {
 
   const { quickLinks, highlightedContent, layout } = homePage ?? {}
 
+  const platforms = await getAvalancheCenterPlatforms(center).catch((err) => {
+    payload.logger.error({ err }, `Failed to load NAC platforms for ${center} home page`)
+    return null
+  })
   // Fail open: hiding a live avalanche warning is worse than an empty widget.
-  const showWarnings = await getAvalancheCenterPlatforms(center).then(
-    ({ warnings }) => warnings,
-    (err) => {
-      payload.logger.error({ err }, `Failed to load NAC platforms for ${center} home page`)
-      return true
-    },
-  )
+  const showWarnings = platforms?.warnings ?? true
+  // The danger map draws no danger scale for an info exchange
+  const dangerScaleHeight =
+    platforms && isInfoExchange(platforms) ? 0 : HEIGHT_OF_DANGER_SCALE_GRAPHIC
 
   return (
     <>
       {showWarnings && <NACWidget center={center} widget="warnings" />}
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
-          <div
-            className="w-full"
-            style={{ minHeight: DANGER_MAP_HEIGHT + HEIGHT_OF_DANGER_SCALE_GRAPHIC }}
-          >
+          <div className="w-full" style={{ minHeight: DANGER_MAP_HEIGHT + dangerScaleHeight }}>
             <NACWidget center={center} widget="map" mapHeight={DANGER_MAP_HEIGHT} />
           </div>
           {quickLinks && quickLinks.length > 0 && (
