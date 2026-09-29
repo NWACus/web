@@ -418,12 +418,12 @@ sig = "f445ae3bb3f380ef"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/graph-data/route.ts"
-sig = "879fe5152cb8fa5c"
+sig = "e392952f2e62ffe9"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/precip-data/route.ts"
-sig = "5ed895841876314e"
+sig = "a15a45fd726ff30a"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -493,12 +493,7 @@ sig = "448f0ac347be3739"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/access.ts"
-sig = "3b8181b6f9d77758"
-
-[[bindings]]
-doc = "docs/decisions/021-weather-station-pages.md"
-target = "src/services/snowobs/cacheControl.ts"
-sig = "1edcd20e6b2c6645"
+sig = "58c7da3fe5f8cfbc"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -508,7 +503,7 @@ sig = "69442f95203a6a3c"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/snowobs.ts"
-sig = "3d2e89a708879b8b"
+sig = "761e76eba3d5254e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
