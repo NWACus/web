@@ -1,4 +1,8 @@
-import { buildNotFoundReport, extractSitemapLocs } from '@/utilities/notFoundReport'
+import {
+  buildNotFoundReport,
+  extractSitemapLocs,
+  forecastZonePaths,
+} from '@/utilities/notFoundReport'
 
 const livePaths = [
   '/',
@@ -96,5 +100,33 @@ describe('extractSitemapLocs', () => {
       'https://nwac.us/posts-sitemap.xml',
     ])
     expect(extractSitemapLocs(urlset)).toEqual(['https://nwac.us/about/about-us'])
+  })
+})
+
+describe('forecastZonePaths', () => {
+  it('builds routes for active zones only, so old zone URLs can be matched to them', () => {
+    const zonePaths = forecastZonePaths({
+      zones: [
+        { status: 'active', url: 'https://nwac.us/forecasts/avalanche/mt-hood' },
+        { status: 'disabled', url: 'http://www.nwac.us/avalanche-forecast/current/mt-hood' },
+        { status: 'active', url: 'https://nwac.us/forecasts/avalanche/olympics/' },
+      ],
+    })
+
+    expect(zonePaths).toEqual([
+      '/forecasts/avalanche',
+      '/forecasts/avalanche/mt-hood',
+      '/forecasts/avalanche/olympics',
+    ])
+    expect(
+      buildNotFoundReport([{ path: '/avalanche-forecast/current/mt-hood', hits: 20 }], zonePaths)
+        .redirects,
+    ).toEqual([
+      {
+        from: '/avalanche-forecast/current/mt-hood',
+        to: '/forecasts/avalanche/mt-hood',
+        hits: 20,
+      },
+    ])
   })
 })

@@ -103,6 +103,21 @@ export function extractSitemapLocs(xml: string): string[] {
   return [...xml.matchAll(SITEMAP_LOC)].map((match) => match[1])
 }
 
+// Only the NAC center metadata fields the zone routes need, so unrelated schema drift can't fail
+// the report
+export const nacCenterZonesSchema = z.object({
+  zones: z.array(z.object({ status: z.string(), url: z.string().optional() })),
+})
+
+/** The forecast routes for a center's active zones, slugged like getActiveForecastZones. */
+export function forecastZonePaths({ zones }: z.infer<typeof nacCenterZonesSchema>): string[] {
+  const zonePaths = zones.flatMap(({ status, url }) => {
+    const slug = status === 'active' ? url?.split('/').filter(Boolean).pop() : undefined
+    return slug ? [`/forecasts/avalanche/${slug}`] : []
+  })
+  return ['/forecasts/avalanche', ...zonePaths]
+}
+
 const WAYBACK_LOOKBACK_MS = 30 * 24 * 60 * 60 * 1000
 
 /**
