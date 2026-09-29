@@ -9,7 +9,9 @@
 import {
   buildNotFoundReport,
   extractSitemapLocs,
+  forecastZonePaths,
   mergePathHits,
+  nacCenterZonesSchema,
   notFoundReportSchema,
   type NotFoundReport,
   type PathHits,
@@ -64,14 +66,22 @@ function parseSource(tenant: string | undefined, from: string | undefined): Sour
 // Observability Plus keeps 30 days of request data
 const RETENTION_DAYS = 30
 
-function parseDays(value: string): number {
-  const days = Number(value)
-  if (days > RETENTION_DAYS) {
-    console.warn(
-      `Warning: Vercel keeps ${RETENTION_DAYS} days of data, so --days ${days} reports on at most the last ${RETENTION_DAYS}.`,
-    )
+function parseCount(option: string, value: string): number {
+  const count = Number(value)
+  if (!Number.isInteger(count) || count < 1) {
+    throw new Error(`--${option} must be a positive whole number, got "${value}"`)
   }
-  return days
+  return count
+}
+
+// Capped so the report's date range doesn't claim days Vercel no longer has
+function parseDays(value: string): number {
+  const days = parseCount('days', value)
+  if (days <= RETENTION_DAYS) return days
+  console.warn(
+    `Warning: Vercel keeps ${RETENTION_DAYS} days of data, so the report covers the last ${RETENTION_DAYS} days, not ${days}.`,
+  )
+  return RETENTION_DAYS
 }
 
 function parseCliArgs() {
@@ -87,7 +97,7 @@ function parseCliArgs() {
   return {
     source: parseSource(positionals[0], values.from),
     days: parseDays(values.days),
-    limit: Number(values.limit),
+    limit: parseCount('limit', values.limit),
     out: values.out,
   }
 }
@@ -247,11 +257,30 @@ async function fetchText(url: string): Promise<string> {
   return res.text()
 }
 
-/** The center's live URL paths, read from its public sitemap index. */
-async function fetchLivePaths(domain: string): Promise<string[]> {
+/** The paths in the center's public sitemap index: the home page, Pages and Posts. */
+async function fetchSitemapPaths(domain: string): Promise<string[]> {
   const sitemapUrls = extractSitemapLocs(await fetchText(`https://${domain}/sitemap.xml`))
   const sitemaps = await Promise.all(sitemapUrls.map(fetchText))
   return sitemaps.flatMap(extractSitemapLocs).map((loc) => new URL(loc).pathname)
+}
+
+const NAC_API = process.env.NAC_HOST || 'https://api.avalanche.org'
+
+// DVAC is the template tenant and shares NWAC's upstream data
+const nacCenterId = (tenant: ValidTenantSlug) => (tenant === 'dvac' ? 'NWAC' : tenant.toUpperCase())
+
+async function fetchForecastZonePaths(tenant: ValidTenantSlug): Promise<string[]> {
+  const url = `${NAC_API}/v2/public/avalanche-center/${nacCenterId(tenant)}`
+  return forecastZonePaths(nacCenterZonesSchema.parse(JSON.parse(await fetchText(url))))
+}
+
+/** The center's live URL paths: its sitemap, plus the forecast zone routes the sitemap omits. */
+async function fetchLivePaths(tenant: ValidTenantSlug, domain: string): Promise<string[]> {
+  const [sitemapPaths, zonePaths] = await Promise.all([
+    fetchSitemapPaths(domain),
+    fetchForecastZonePaths(tenant),
+  ])
+  return [...sitemapPaths, ...zonePaths]
 }
 
 // Both the apex and www hostnames, since a center's domain can serve either
@@ -320,8 +349,8 @@ async function collectReport(
     spinner.update(`Fetching the paths people request most, week ${week} of ${weeks}`),
   )
   const bots = await queryBotTraffic(scope, range, notFound, spinner)
-  spinner.update(`Reading ${domain}/sitemap.xml`)
-  const livePaths = await fetchLivePaths(domain)
+  spinner.update(`Reading ${domain}/sitemap.xml and the center's forecast zones`)
+  const livePaths = await fetchLivePaths(tenant, domain)
 
   return {
     tenant,
