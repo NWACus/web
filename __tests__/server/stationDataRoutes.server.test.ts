@@ -26,7 +26,7 @@ import { GET as getPrecipData } from '@/app/(frontend)/[center]/weather/precip-d
 
 const params = Promise.resolve({ center: 'nwac' })
 
-// Readers must stay within about two minutes of SnowObs (#1351).
+// Readers must stay within about two minutes of SnowObs.
 describe('station data routes', () => {
   it('graph-data caches a minute at the CDN', async () => {
     const query = new URLSearchParams({
