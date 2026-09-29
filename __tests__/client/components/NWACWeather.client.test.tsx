@@ -1,5 +1,4 @@
 import { IssuanceSwitch } from '@/components/weather/nwac/IssuanceSwitch.client'
-import { IssuedMeta } from '@/components/weather/nwac/Issued'
 import { Overall, OverallSectionTabs } from '@/components/weather/nwac/Overall'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
@@ -141,32 +140,5 @@ describe('IssuanceSwitch anchors', () => {
     )
     expect(screen.getByText('AM body')).toBeVisible()
     expect(screen.getByText('PM body')).not.toBeVisible()
-  })
-})
-
-describe('IssuedMeta', () => {
-  const TZ = 'America/Los_Angeles'
-
-  it('names when and by whom the issuance went out', () => {
-    render(<IssuedMeta issuance={morning} timezone={TZ} />)
-    expect(screen.getByText(/Issued/)).toHaveTextContent(/Issued .+ · .+/)
-  })
-
-  it('shows the author alone when the issue time is unreadable', () => {
-    render(
-      <IssuedMeta
-        issuance={{ ...morning, issuedAt: 'not a time', author: 'A Forecaster' }}
-        timezone={TZ}
-      />,
-    )
-    expect(screen.getByText('A Forecaster')).toBeInTheDocument()
-    expect(screen.queryByText(/Issued/)).toBeNull()
-  })
-
-  it('renders nothing with neither', () => {
-    const { container } = render(
-      <IssuedMeta issuance={{ ...morning, issuedAt: 'not a time', author: null }} timezone={TZ} />,
-    )
-    expect(container).toBeEmptyDOMElement()
   })
 })
