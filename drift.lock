@@ -698,7 +698,7 @@ sig = "ff301eba57dc04e2"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/scripts/report-404s.ts"
-sig = "b1dff9498b157d27"
+sig = "5906a4274060bdcf"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -708,7 +708,7 @@ sig = "d3cd76897aad26d4"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/notFoundReport.ts"
-sig = "fd59cc094f29a601"
+sig = "2461799d8f2d6536"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
