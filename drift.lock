@@ -698,7 +698,7 @@ sig = "ff301eba57dc04e2"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/scripts/report-404s.ts"
-sig = "5c99e4e3cec72d4d"
+sig = "b1dff9498b157d27"
 
 [[bindings]]
 doc = "docs/not-found-report.md"

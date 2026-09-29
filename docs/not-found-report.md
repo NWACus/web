@@ -21,7 +21,7 @@ pnpm report:404s nwac
 | Option     | Default                        | Meaning                                                           |
 | ---------- | ------------------------------ | ----------------------------------------------------------------- |
 | `<tenant>` | —                              | Tenant slug; the hostname comes from `AVALANCHE_CENTERS`          |
-| `--days`   | `30`                           | How many whole UTC days to look back (30 is the retention cap)    |
+| `--days`   | `30`                           | How many whole UTC days to look back; warns above 30, the retention cap    |
 | `--limit`  | `200`                          | How many of the top non-bot 404 paths to fetch per week           |
 | `--out`    | `404-reports/<tenant>-<date>/` | Directory to write the output files to (gitignored by default)    |
 | `--from`   | —                              | Re-render the CSV and HTML from an existing `report.json` instead of querying; writes next to it unless `--out` is set |
