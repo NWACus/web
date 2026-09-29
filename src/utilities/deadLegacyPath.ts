@@ -1,6 +1,6 @@
 // WordPress-era paths from centers' previous sites that have no AvyWeb destination (see #1280).
 const DEAD_LEGACY_PATH_PATTERNS: RegExp[] = [
-  /^\/feeds\/?$/, // /feeds
+  /^\/feeds?\/?$/, // /feed, /feeds
   /^\/[\w-]+-rss\.xml$/, // /news-rss.xml, /advisory-rss.xml
   /^\/email-subscriptions\/?$/, // /email-subscriptions
   /^\/weather-station-map\/?$/, // /weather-station-map

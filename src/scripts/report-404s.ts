@@ -4,7 +4,7 @@
  * Usage: pnpm report:404s <tenant> [--days 30] [--limit 200] [--out <file.json>]
  * Needs VERCEL_TOKEN. See docs/not-found-report.md for the runbook and the output format.
  */
-import { buildNotFoundReport, extractSitemapLocs } from '@/utilities/notFoundReport'
+import { buildNotFoundReport, extractSitemapLocs, type PathHits } from '@/utilities/notFoundReport'
 import {
   AVALANCHE_CENTERS,
   isValidTenantSlug,
@@ -53,10 +53,21 @@ function parseCliArgs() {
   return { tenant, days: Number(values.days), limit: Number(values.limit), out: values.out }
 }
 
+const MAX_ATTEMPTS = 4
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+// The metrics API intermittently answers 502 query_failed, most often under concurrent queries
+async function fetchWithRetry(url: string, init: RequestInit, attempt = 1): Promise<Response> {
+  const res = await fetch(url, init)
+  if (res.status < 500 || attempt >= MAX_ATTEMPTS) return res
+  await sleep(2000 * attempt)
+  return fetchWithRetry(url, init, attempt + 1)
+}
+
 async function vercelFetch(path: string, init: RequestInit = {}): Promise<unknown> {
   const token = process.env.VERCEL_TOKEN
   if (!token) throw new Error('VERCEL_TOKEN is not set')
-  const res = await fetch(`${VERCEL_API}${path}`, {
+  const res = await fetchWithRetry(`${VERCEL_API}${path}`, {
     ...init,
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
   })
@@ -92,7 +103,7 @@ async function queryRequestCount(
     timeRange: range,
     bucketSeconds: 86400,
     filter,
-    metrics: { value: { metric: 'vercel.request.count', aggregation: 'sum' } },
+    metrics: { value: { metric: 'vercel.request.count', aggregation: 'count' } },
     outputs: ['value'],
     ...(byPath && {
       groupBy: ['requestPath'],
@@ -111,6 +122,31 @@ async function queryRequestCount(
     path: row.dimensions?.requestPath ?? '',
     hits: row.values.value ?? 0,
   }))
+}
+
+// Grouping by requestPath fails with query_failed on windows much longer than a week
+const MAX_PATH_WINDOW_DAYS = 7
+
+function splitIntoWindows(range: TimeRange, days: number): TimeRange[] {
+  const windows: TimeRange[] = []
+  const end = Date.parse(range.end)
+  for (let start = Date.parse(range.start); start < end; start += days * DAY_MS) {
+    const windowEnd = Math.min(start + days * DAY_MS, end)
+    windows.push({ start: new Date(start).toISOString(), end: new Date(windowEnd).toISOString() })
+  }
+  return windows
+}
+
+/**
+ * The top `limit` paths in each week of the range. A path that misses the top `limit` in some
+ * weeks is undercounted once the weeks are summed.
+ */
+async function queryTopPaths(scope: QueryScope, range: TimeRange, filter: string, limit: number) {
+  const rows: PathHits[] = []
+  for (const window of splitIntoWindows(range, MAX_PATH_WINDOW_DAYS)) {
+    rows.push(...(await queryRequestCount(scope, window, filter, { limit })))
+  }
+  return rows
 }
 
 async function fetchText(url: string): Promise<string> {
@@ -167,12 +203,11 @@ async function main() {
 
   const scope = await resolveScope()
   const range = dayAlignedRange(days)
-  const [allTotal, nonBotTotal, rows, livePaths] = await Promise.all([
-    queryTotal(scope, range, notFound),
-    queryTotal(scope, range, notFoundNonBot),
-    queryRequestCount(scope, range, notFoundNonBot, { limit }),
-    fetchLivePaths(AVALANCHE_CENTERS[tenant].customDomain),
-  ])
+  // Queries run one at a time; see vercelFetch
+  const allTotal = await queryTotal(scope, range, notFound)
+  const nonBotTotal = await queryTotal(scope, range, notFoundNonBot)
+  const rows = await queryTopPaths(scope, range, notFoundNonBot, limit)
+  const livePaths = await fetchLivePaths(AVALANCHE_CENTERS[tenant].customDomain)
   const report: Report = {
     tenant,
     hostnames,

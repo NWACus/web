@@ -57,11 +57,13 @@ describe('buildNotFoundReport', () => {
     ])
   })
 
-  it('sets aside dead legacy paths, root-level files, and paths that are live now', () => {
+  it('sets aside dead legacy paths, paths middleware skips, probes, and paths that are live now', () => {
     const { redirects, excluded } = buildNotFoundReport(
       [
         { path: '/classes-events/list/', hits: 30 },
         { path: '/favicon.ico', hits: 20 },
+        { path: '/api/oembed/1.0/embed', hits: 10 },
+        { path: '/.well-known/security.txt', hits: 5 },
         { path: '/about/about-us', hits: 1 },
       ],
       livePaths,
@@ -71,6 +73,8 @@ describe('buildNotFoundReport', () => {
     expect(excluded).toEqual([
       { path: '/classes-events/list', hits: 30, reason: 'dead-legacy-path' },
       { path: '/favicon.ico', hits: 20, reason: 'not-redirectable' },
+      { path: '/api/oembed/1.0/embed', hits: 10, reason: 'not-redirectable' },
+      { path: '/.well-known/security.txt', hits: 5, reason: 'probe' },
       { path: '/about/about-us', hits: 1, reason: 'live-path' },
     ])
   })
