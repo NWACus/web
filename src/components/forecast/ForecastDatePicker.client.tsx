@@ -272,7 +272,7 @@ function PopoverFooter({
   showBackToCurrent: boolean
 }) {
   return (
-    <div className="border-t p-1">
+    <div className="flex flex-col border-t p-1">
       {showBackToCurrent && (
         <Button asChild variant="ghost" className="w-full justify-center">
           <Link href={basePath}>Current forecast</Link>
