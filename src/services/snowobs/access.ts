@@ -7,6 +7,9 @@ export const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
 // legacy widget (#1349).
 export const SNOWOBS_ORIGIN_HEADER = { origin: 'https://avy-fx.org' }
 
+// Matches SnowObs's own one-minute cache (#1351).
+export const STATION_DATA_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=60'
+
 export class SnowObsError extends Error {
   constructor(
     message: string,

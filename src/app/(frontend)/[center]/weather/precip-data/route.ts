@@ -1,5 +1,4 @@
-import { resolveSnowObsAccess } from '@/services/snowobs/access'
-import { STATION_DATA_CACHE_CONTROL } from '@/services/snowobs/cacheControl'
+import { resolveSnowObsAccess, STATION_DATA_CACHE_CONTROL } from '@/services/snowobs/access'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKeys, stationKey } from '@/services/snowobs/stationKey'
