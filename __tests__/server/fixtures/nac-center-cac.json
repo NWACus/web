@@ -1,0 +1,64 @@
+{
+  "id": "CAC",
+  "name": "Cordova Avalanche Center",
+  "url": "https://alaskasnow.org/cordova/",
+  "center_point": null,
+  "off_season": false,
+  "state": "AK",
+  "wkb_geometry": null,
+  "timezone": "America/Anchorage",
+  "city": "Cordova",
+  "email": "info@alaskasnow.org",
+  "phone": null,
+  "config": {
+    "blog_title": "Conditions Blog"
+  },
+  "type": "nonprofit",
+  "widget_config": {
+    "observation_viewer": {
+      "saturation": -100,
+      "alternate_zones": null,
+      "require_approval": false,
+      "color": "17a2b8",
+      "obs_tab": false,
+      "obs_view_url": null,
+      "obs_form_url": null,
+      "obs_rose_upper_el": 7000,
+      "obs_rose_lower_el": 0,
+      "obs_rose_interval": 1000,
+      "obs_start_year": 2023
+    },
+    "danger_map": {
+      "height": 500,
+      "saturation": -100,
+      "search": true,
+      "geolocate": true,
+      "advice": true,
+      "center": {
+        "lat": 60.60305202212376,
+        "lng": -145.4077942423016
+      },
+      "zoom": 9
+    }
+  },
+  "created_at": "2025-12-01 14:55:31.26614",
+  "zones": [
+    {
+      "id": 1421,
+      "name": "Cordova",
+      "url": "https://alaskasnow.org/cordova/",
+      "zone_id": "cac-cordova",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 2,000ft",
+          "middle": "1,000 to 2,000ft",
+          "lower": "Below 1,000ft"
+        }
+      },
+      "status": "active",
+      "rank": 11
+    }
+  ],
+  "nws_zones": [],
+  "nws_offices": []
+}

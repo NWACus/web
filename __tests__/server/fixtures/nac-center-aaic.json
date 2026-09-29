@@ -1,0 +1,241 @@
+{
+  "id": "AAIC",
+  "name": "Alaska Avalanche Information Center",
+  "url": "https://alaskasnow.org/",
+  "center_point": null,
+  "off_season": false,
+  "state": "AK",
+  "wkb_geometry": null,
+  "timezone": "America/Anchorage",
+  "city": null,
+  "email": null,
+  "phone": null,
+  "config": {
+    "disable_national_map": true
+  },
+  "type": null,
+  "widget_config": {
+    "danger_map": {
+      "height": "600",
+      "saturation": "-100",
+      "search": false,
+      "geolocate": true,
+      "advice": false,
+      "center": {
+        "lat": 61.30022879590764,
+        "lng": -141.98801768668838
+      },
+      "zoom": 6,
+      "allCenters": true
+    },
+    "observation_viewer": {
+      "saturation": 0,
+      "alternate_zones": null,
+      "color": "045a8d"
+    },
+    "stations": {
+      "center": {
+        "lat": 61.16,
+        "lng": -139.53
+      },
+      "zoom": 6,
+      "saturation": 0,
+      "center_id": "AAIC",
+      "alternate_zones": null,
+      "units": "english",
+      "timezone": "local",
+      "color_rules": false,
+      "source_legend": false,
+      "sources": ["mesowest", "snotel"],
+      "source_marker_color": true,
+      "within": "720",
+      "external_modal_links": [],
+      "token": "34cf1cb3e0cabe61526079482ea434c0bb6f"
+    }
+  },
+  "created_at": "2023-12-14 16:02:28.498175",
+  "zones": [
+    {
+      "id": 1102,
+      "name": "Valdez Maritime",
+      "url": "https://alaskasnow.org/valdez/?active=Valdez-Maritime",
+      "zone_id": "vac-maritime",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 3,000ft",
+          "middle": "1,500 to 3,000ft",
+          "lower": "Below 1,500ft"
+        }
+      },
+      "status": "active",
+      "rank": 1
+    },
+    {
+      "id": 1103,
+      "name": "Valdez Intermountain",
+      "url": "https://alaskasnow.org/valdez/?active=Valdez-Intermountain",
+      "zone_id": "vac-intermountain",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 4,000ft",
+          "middle": "2,000 to 4,000ft",
+          "lower": "Below 2,000ft"
+        }
+      },
+      "status": "active",
+      "rank": 2
+    },
+    {
+      "id": 1104,
+      "name": "Valdez Continental",
+      "url": "https://alaskasnow.org/valdez/?active=Valdez-Continental",
+      "zone_id": "vac-continental",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 4,000ft",
+          "middle": "2,000 to 4,000ft",
+          "lower": "Below 2,000ft"
+        }
+      },
+      "status": "active",
+      "rank": 3
+    },
+    {
+      "id": 1105,
+      "name": "Haines Lutak",
+      "url": "https://alaskasnow.org/haines-hac/?active=Haines-Lutak",
+      "zone_id": "lutak",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 2,500ft",
+          "middle": "1,500 to 2,500ft",
+          "lower": "Below 1500ft"
+        }
+      },
+      "status": "active",
+      "rank": 4
+    },
+    {
+      "id": 1106,
+      "name": "Haines Transitional",
+      "url": "https://alaskasnow.org/haines-hac/?active=Haines-Transitional",
+      "zone_id": "haines-transitional",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 2,500ft",
+          "middle": "1,500 to 2,500ft",
+          "lower": "Below 1500ft"
+        }
+      },
+      "status": "active",
+      "rank": 5
+    },
+    {
+      "id": 1107,
+      "name": "Haines Chilkat Pass",
+      "url": "https://alaskasnow.org/haines-hac/?active=Haines-Chilkat-Pass",
+      "zone_id": "chilkat-pass",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 2,500ft",
+          "middle": "1,500 to 2,500ft",
+          "lower": "Below 1500ft"
+        }
+      },
+      "status": "active",
+      "rank": 6
+    },
+    {
+      "id": 1108,
+      "name": "Valdez",
+      "url": "https://alaskasnow.org/valdez/?active=Valdez-Maritime",
+      "zone_id": "valdez",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 4,000ft",
+          "middle": "",
+          "lower": "Below 1,500ft"
+        }
+      },
+      "status": "disabled",
+      "rank": 7
+    },
+    {
+      "id": 1109,
+      "name": "Haines",
+      "url": "https://alaskasnow.org/haines-hac/?active=Haines-Lutak",
+      "zone_id": "haines",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 2,500ft",
+          "middle": "",
+          "lower": "Below 1,500ft"
+        }
+      },
+      "status": "disabled",
+      "rank": 8
+    },
+    {
+      "id": 1110,
+      "name": "Eastern Alaska Range",
+      "url": "http://alaskasnow.org/forecasts-observations/eastern-alaska/",
+      "zone_id": "eastern-ak-range",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "active",
+      "rank": 9
+    },
+    {
+      "id": 1111,
+      "name": "Test Zone",
+      "url": "https://test.com",
+      "zone_id": "test_zone",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "disabled",
+      "rank": 10
+    },
+    {
+      "id": 1112,
+      "name": "Cordova",
+      "url": "https://alaskasnow.org/cordova/",
+      "zone_id": "cordova",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Above 2,000ft",
+          "middle": "1,000 to 2,000ft",
+          "lower": "Below 1,000ft"
+        }
+      },
+      "status": "active",
+      "rank": 11
+    },
+    {
+      "id": 1113,
+      "name": "Valdez ",
+      "url": "https://alaskasnow.org/valdez/",
+      "zone_id": "valdez_",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "disabled",
+      "rank": 12
+    }
+  ],
+  "nws_zones": [],
+  "nws_offices": []
+}
