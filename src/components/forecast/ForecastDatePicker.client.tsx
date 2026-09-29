@@ -15,18 +15,18 @@
  * `./datePickerNavigation` so they can be unit-tested without React.
  */
 import { endOfMonth, format, parseISO, startOfMonth } from 'date-fns'
-import { CalendarIcon, ChevronLeft, ChevronRight, History, Loader2, MapPin } from 'lucide-react'
+import { History, Loader2, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useMemo, useState, type ComponentProps } from 'react'
 import type { DayButton } from 'react-day-picker'
 
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { dangerColor, dangerLevelFromRating, dangerTextColor } from '@/services/nac/dangerScale'
 import { ARCHIVE_PATH } from '@/services/nac/forecastArchive'
 import { cn } from '@/utilities/ui'
 
+import { DAY_CELL, DatePickerBar, DatePickerPopover, MutedDay } from './DatePickerParts.client'
 import {
   adjacentForecastHrefs,
   dayKey,
@@ -68,22 +68,13 @@ const DayLinkContext = createContext<{
   shownDate: string | null
 }>({ ratings: new Map(), hrefFor: () => '#', shownDate: null })
 
-const DAY_CELL =
-  'flex aspect-square h-full w-full min-w-[--cell-size] items-center justify-center rounded-md text-sm'
-
 /** Renders a calendar day as a danger-colored Link (or a muted, non-interactive cell if no product). */
 function DayLink({ day, className }: ComponentProps<typeof DayButton>) {
   const { ratings, hrefFor, shownDate } = useContext(DayLinkContext)
   const key = dayKey(day.date)
   const rating = ratings.get(key)
 
-  if (rating === undefined) {
-    return (
-      <span className={cn(DAY_CELL, 'text-muted-foreground opacity-40', className)}>
-        {day.date.getDate()}
-      </span>
-    )
-  }
+  if (rating === undefined) return <MutedDay date={day.date} className={className} />
 
   return (
     <DangerDay
@@ -200,25 +191,24 @@ export function ForecastDatePicker({
   )
 
   return (
-    <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-      <div className="inline-flex w-full items-stretch sm:w-auto">
-        <ArrowLink href={olderHref} label="Older forecast" side="left" />
-
-        <CalendarPopover
-          zoneName={zoneName}
-          basePath={basePath}
-          selectedDate={selectedDate}
-          currentDate={currentDate}
-          shownDate={shownDate}
-          ratings={ratings}
-          hrefFor={hrefFor}
-          loading={loading}
-          loadMonth={loadMonth}
-        />
-
-        <ArrowLink href={newerHref} label="Newer forecast" side="right" />
-      </div>
-    </div>
+    <DatePickerBar
+      olderHref={olderHref}
+      newerHref={newerHref}
+      olderLabel="Older forecast"
+      newerLabel="Newer forecast"
+    >
+      <CalendarPopover
+        zoneName={zoneName}
+        basePath={basePath}
+        selectedDate={selectedDate}
+        currentDate={currentDate}
+        shownDate={shownDate}
+        ratings={ratings}
+        hrefFor={hrefFor}
+        loading={loading}
+        loadMonth={loadMonth}
+      />
+    </DatePickerBar>
   )
 }
 
@@ -244,33 +234,20 @@ function CalendarPopover({
   loading: boolean
   loadMonth: (target: Date) => Promise<void>
 }) {
-  const [open, setOpen] = useState(false)
   const showBackToCurrent = Boolean(selectedDate && currentDate)
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          className="flex-1 justify-center gap-2 rounded-none sm:w-56 sm:flex-none"
-        >
-          <CalendarIcon className="h-4 w-4" />
-          {triggerLabel(selectedDate)}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="center">
-        <ZoneHeading zoneName={zoneName} />
-        <DangerCalendar
-          shownDate={shownDate}
-          ratings={ratings}
-          hrefFor={hrefFor}
-          loading={loading}
-          loadMonth={loadMonth}
-        />
-        <PopoverFooter basePath={basePath} showBackToCurrent={showBackToCurrent} />
-      </PopoverContent>
-    </Popover>
+    <DatePickerPopover label={triggerLabel(selectedDate)}>
+      <ZoneHeading zoneName={zoneName} />
+      <DangerCalendar
+        shownDate={shownDate}
+        ratings={ratings}
+        hrefFor={hrefFor}
+        loading={loading}
+        loadMonth={loadMonth}
+      />
+      <PopoverFooter basePath={basePath} showBackToCurrent={showBackToCurrent} />
+    </DatePickerPopover>
   )
 }
 
@@ -354,42 +331,5 @@ function DangerCalendar({
         </div>
       )}
     </div>
-  )
-}
-
-/** An arrow as a Link (so the global top-loader fires), or a disabled button at the edge. */
-function ArrowLink({
-  href,
-  label,
-  side,
-}: {
-  href: string | undefined
-  label: string
-  side: 'left' | 'right'
-}) {
-  const rounded = side === 'left' ? 'rounded-r-none border-r-0' : 'rounded-l-none border-l-0'
-  const Icon = side === 'left' ? ChevronLeft : ChevronRight
-
-  if (!href) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        aria-label={label}
-        className={rounded}
-        disabled
-      >
-        <Icon className="h-4 w-4" />
-      </Button>
-    )
-  }
-
-  return (
-    <Button asChild variant="outline" size="icon" aria-label={label} className={rounded}>
-      <Link href={href}>
-        <Icon className="h-4 w-4" />
-      </Link>
-    </Button>
   )
 }

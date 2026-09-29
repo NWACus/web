@@ -13,12 +13,12 @@ import {
   type WarningResult,
   type Weather,
 } from './types/forecastSchemas'
-import { productListSchema } from './types/productListSchemas'
 import {
   nwacWeatherArchiveSchema,
   nwacWeatherForecastsResponseSchema,
   type NWACWeatherForecastsWire,
 } from './types/nwacWeatherSchemas'
+import { productListSchema } from './types/productListSchemas'
 import {
   allAvalancheCenterCapabilitiesSchema,
   avalancheCenterSchema,
