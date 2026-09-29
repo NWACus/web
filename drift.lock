@@ -1163,17 +1163,17 @@ sig = "ff301eba57dc04e2"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/scripts/report-404s.ts"
-sig = "a328fec15c04971e"
+sig = "4864c6d3f01cd0d5"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/deadLegacyPath.ts"
-sig = "5727c2f18d66f5bb"
+sig = "d3cd76897aad26d4"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/notFoundReport.ts"
-sig = "dd84a2933ef9de86"
+sig = "d5fba26de46d2593"
 
 [[bindings]]
 doc = "docs/onboarding.md"

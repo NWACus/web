@@ -2,6 +2,7 @@ import { isDeadLegacyPath } from '@/utilities/deadLegacyPath'
 
 describe('isDeadLegacyPath', () => {
   it.each([
+    '/feed',
     '/feeds',
     '/feeds/',
     '/news-rss.xml',

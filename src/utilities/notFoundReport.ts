@@ -1,17 +1,21 @@
 import { isDeadLegacyPath } from './deadLegacyPath'
 
-type PathHits = { path: string; hits: number }
+export type PathHits = { path: string; hits: number }
 
 /** One row of the hand-off list. `to` is null when there is no single obvious destination. */
 type SuggestedRedirect = { from: string; to: string | null; hits: number }
 
-type ExclusionReason = 'dead-legacy-path' | 'not-redirectable' | 'live-path'
+type ExclusionReason = 'dead-legacy-path' | 'not-redirectable' | 'probe' | 'live-path'
 
 type ExcludedPath = PathHits & { reason: ExclusionReason }
 
-// Mirrors the middleware matcher: root-level file-like paths (/favicon.ico) never reach tenant
+// Mirrors the middleware matcher's exclusions (/api/..., /favicon.ico): these never reach tenant
 // routing, so a Redirects row can't catch them.
-const ROOT_FILE_PATH = /^\/[\w-]+\.\w+/
+const NOT_REDIRECTABLE_PATH =
+  /^\/(api|ingest|_next|_static|_vercel|[\w-]+\.\w+|media|thumbnail|assets)/
+
+// Dotfile paths (/.well-known/..., /.env) are browser and scanner probes, not people
+const PROBE_PATH = /^\/\./
 
 // Strips a query string or hash, then trailing slashes, which Redirects `from` values can't have
 function normalizePath(path: string): string {
@@ -30,7 +34,8 @@ function lastSegment(path: string): string | undefined {
 
 function exclusionReason(from: string, livePaths: Set<string>): ExclusionReason | null {
   if (isDeadLegacyPath(from)) return 'dead-legacy-path'
-  if (ROOT_FILE_PATH.test(from)) return 'not-redirectable'
+  if (NOT_REDIRECTABLE_PATH.test(from)) return 'not-redirectable'
+  if (PROBE_PATH.test(from)) return 'probe'
   if (livePaths.has(from)) return 'live-path'
   return null
 }
