@@ -1,13 +1,34 @@
+import { z } from 'zod'
 import { isDeadLegacyPath } from './deadLegacyPath'
 
-export type PathHits = { path: string; hits: number }
+const EXCLUSION_REASONS = ['dead-legacy-path', 'not-redirectable', 'probe', 'live-path'] as const
 
-/** One row of the hand-off list. `to` is null when there is no single obvious destination. */
-type SuggestedRedirect = { from: string; to: string | null; hits: number }
+const pathHitsSchema = z.object({ path: z.string(), hits: z.number() })
+const nameHitsSchema = z.object({ name: z.string(), hits: z.number() })
 
-type ExclusionReason = 'dead-legacy-path' | 'not-redirectable' | 'probe' | 'live-path'
+/** The `report.json` written by `pnpm report:404s`, which the CSV and HTML are rendered from. */
+export const notFoundReportSchema = z.object({
+  tenant: z.string(),
+  centerName: z.string(),
+  domain: z.string(),
+  hostnames: z.array(z.string()),
+  range: z.object({ start: z.string(), end: z.string() }),
+  totals: z.object({ notFound: z.number(), notFoundNonBot: z.number() }),
+  /** `to` is null when there is no single obvious destination */
+  redirects: z.array(z.object({ from: z.string(), to: z.string().nullable(), hits: z.number() })),
+  excluded: z.array(pathHitsSchema.extend({ reason: z.enum(EXCLUSION_REASONS) })),
+  bots: z.object({
+    byCategory: z.array(nameHitsSchema),
+    byName: z.array(nameHitsSchema),
+    topPaths: z.array(pathHitsSchema),
+  }),
+})
 
-type ExcludedPath = PathHits & { reason: ExclusionReason }
+export type NotFoundReport = z.infer<typeof notFoundReportSchema>
+export type PathHits = z.infer<typeof pathHitsSchema>
+type SuggestedRedirect = NotFoundReport['redirects'][number]
+type ExcludedPath = NotFoundReport['excluded'][number]
+type ExclusionReason = ExcludedPath['reason']
 
 // Mirrors the middleware matcher's exclusions (/api/..., /favicon.ico): these never reach tenant
 // routing, so a Redirects row can't catch them.
@@ -47,7 +68,8 @@ function suggestDestination(from: string, livePaths: Set<string>): string | null
   return matches.length === 1 ? matches[0] : null
 }
 
-function mergeByNormalizedPath(rows: PathHits[]): PathHits[] {
+/** Sums hits for paths that differ only by trailing slashes, a query string or a hash. */
+export function mergePathHits(rows: PathHits[]): PathHits[] {
   const hitsByPath = new Map<string, number>()
   for (const { path, hits } of rows) {
     const from = normalizePath(path)
@@ -65,7 +87,7 @@ export function buildNotFoundReport(rows: PathHits[], livePaths: string[]) {
   const redirects: SuggestedRedirect[] = []
   const excluded: ExcludedPath[] = []
 
-  for (const { path: from, hits } of mergeByNormalizedPath(rows)) {
+  for (const { path: from, hits } of mergePathHits(rows)) {
     const reason = exclusionReason(from, live)
     if (reason) excluded.push({ path: from, hits, reason })
     else redirects.push({ from, to: suggestDestination(from, live), hits })
@@ -79,4 +101,17 @@ const SITEMAP_LOC = /<loc>\s*([^<\s]+)\s*<\/loc>/g
 
 export function extractSitemapLocs(xml: string): string[] {
   return [...xml.matchAll(SITEMAP_LOC)].map((match) => match[1])
+}
+
+const WAYBACK_LOOKBACK_MS = 30 * 24 * 60 * 60 * 1000
+
+/**
+ * A Wayback Machine link to the old page. It asks for a capture from a month before the report
+ * window, so the nearest capture is the center's previous site rather than today's 404.
+ */
+export function waybackUrl(report: Pick<NotFoundReport, 'domain' | 'range'>, path: string) {
+  const before = new Date(Date.parse(report.range.start) - WAYBACK_LOOKBACK_MS)
+  // YYYYMMDD, the Wayback timestamp format
+  const timestamp = before.toISOString().slice(0, 10).replace(/-/g, '')
+  return `https://web.archive.org/web/${timestamp}/https://${report.domain}${path}`
 }
