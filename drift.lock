@@ -1163,7 +1163,7 @@ sig = "ff301eba57dc04e2"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/scripts/report-404s.ts"
-sig = "4864c6d3f01cd0d5"
+sig = "5c99e4e3cec72d4d"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -1173,7 +1173,17 @@ sig = "d3cd76897aad26d4"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/notFoundReport.ts"
-sig = "d5fba26de46d2593"
+sig = "fd59cc094f29a601"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/notFoundReportCsv.ts"
+sig = "4194dab839bee961"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/notFoundReportHtml.ts"
+sig = "74b46d2b6f15f202"
 
 [[bindings]]
 doc = "docs/onboarding.md"

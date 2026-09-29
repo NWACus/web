@@ -1,19 +1,34 @@
 /**
- * Lists a center's production 404s from Vercel Observability as suggested redirects.
+ * Reports a center's production 404s from Vercel Observability: suggested redirects for the
+ * center's staff to fill in, plus a breakdown of bot traffic.
  *
- * Usage: pnpm report:404s <tenant> [--days 30] [--limit 200] [--out <file.json>]
- * Needs VERCEL_TOKEN. See docs/not-found-report.md for the runbook and the output format.
+ * Usage: pnpm report:404s <tenant> [--days 30] [--limit 200] [--out <dir>]
+ *        pnpm report:404s --from <report.json> [--out <dir>]
+ * Needs VERCEL_TOKEN. See docs/not-found-report.md for the runbook and the output files.
  */
-import { buildNotFoundReport, extractSitemapLocs, type PathHits } from '@/utilities/notFoundReport'
+import {
+  buildNotFoundReport,
+  extractSitemapLocs,
+  mergePathHits,
+  notFoundReportSchema,
+  type NotFoundReport,
+  type PathHits,
+} from '@/utilities/notFoundReport'
+import { toRedirectsCsv } from '@/utilities/notFoundReportCsv'
+import { toReportHtml } from '@/utilities/notFoundReportHtml'
 import {
   AVALANCHE_CENTERS,
   isValidTenantSlug,
   type ValidTenantSlug,
 } from '@/utilities/tenancy/avalancheCenters'
 import 'dotenv/config'
-import { writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { dirname, join } from 'node:path'
 import { parseArgs } from 'node:util'
 import { z } from 'zod'
+
+const USAGE = `Usage: pnpm report:404s <tenant> [--days 30] [--limit 200] [--out <dir>]
+       pnpm report:404s --from <report.json> [--out <dir>]`
 
 const VERCEL_API = 'https://api.vercel.com'
 const VERCEL_TEAM_SLUG = 'nwac'
@@ -22,13 +37,14 @@ const DAY_MS = 24 * 60 * 60 * 1000
 
 // Vercel leaves both bot dimensions empty for requests it doesn't classify as bots
 const NON_BOT_FILTER = 'botName:"" AND botCategory:""'
+const BOT_FILTER = '(botName!="" OR botCategory!="")'
 
 const projectSchema = z.object({ id: z.string(), accountId: z.string() })
 
 const metricsResponseSchema = z.object({
   summary: z.array(
     z.object({
-      dimensions: z.record(z.string(), z.string()).optional(),
+      dimensions: z.record(z.string(), z.string()).default({}),
       values: z.record(z.string(), z.number().nullable()),
     }),
   ),
@@ -36,6 +52,14 @@ const metricsResponseSchema = z.object({
 
 type QueryScope = { ownerId: string; projectIds: string[] }
 type TimeRange = { start: string; end: string }
+type GroupBy = { dimension: string; limit: number }
+type Source = { from: string } | { tenant: ValidTenantSlug }
+
+function parseSource(tenant: string | undefined, from: string | undefined): Source {
+  if (from) return { from }
+  if (tenant && isValidTenantSlug(tenant)) return { tenant }
+  throw new Error(USAGE)
+}
 
 function parseCliArgs() {
   const { values, positionals } = parseArgs({
@@ -44,14 +68,46 @@ function parseCliArgs() {
       days: { type: 'string', default: '30' },
       limit: { type: 'string', default: '200' },
       out: { type: 'string' },
+      from: { type: 'string' },
     },
   })
-  const tenant = positionals[0]
-  if (!tenant || !isValidTenantSlug(tenant)) {
-    throw new Error('Usage: pnpm report:404s <tenant> [--days 30] [--limit 200] [--out file.json]')
+  return {
+    source: parseSource(positionals[0], values.from),
+    days: Number(values.days),
+    limit: Number(values.limit),
+    out: values.out,
   }
-  return { tenant, days: Number(values.days), limit: Number(values.limit), out: values.out }
 }
+
+// Braille dots, redrawn in place on stderr while the queries run
+const SPINNER_FRAMES = '⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+// Carriage return plus "erase line", so each frame overwrites the last
+const CLEAR_LINE = '\r\x1b[2K'
+
+function startSpinner() {
+  const startedAt = Date.now()
+  let label = 'Starting'
+  let frame = 0
+  const render = () => {
+    const seconds = Math.round((Date.now() - startedAt) / 1000)
+    process.stderr.write(
+      `${CLEAR_LINE}${SPINNER_FRAMES[frame++ % SPINNER_FRAMES.length]} ${label} (${seconds}s)`,
+    )
+  }
+  const timer = process.stderr.isTTY ? setInterval(render, 100) : undefined
+  return {
+    update(next: string) {
+      label = next
+      if (!timer) console.error(next)
+    },
+    stop() {
+      clearInterval(timer)
+      if (timer) process.stderr.write(CLEAR_LINE)
+    },
+  }
+}
+
+type Spinner = ReturnType<typeof startSpinner>
 
 const MAX_ATTEMPTS = 4
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -91,12 +147,24 @@ function dayAlignedRange(days: number): TimeRange {
   }
 }
 
-/** Sums `vercel.request.count` over the range, optionally split into the top `limit` paths. */
+function groupBySelection(groupBy?: GroupBy) {
+  if (!groupBy) return {}
+  return {
+    groupBy: [groupBy.dimension],
+    seriesSelection: {
+      limit: groupBy.limit,
+      mode: 'exact',
+      rankBy: [{ metric: 'value', direction: 'desc' }],
+    },
+  }
+}
+
+/** Counts requests over the range, optionally split into the top `limit` values of a dimension. */
 async function queryRequestCount(
   scope: QueryScope,
   range: TimeRange,
   filter: string,
-  byPath?: { limit: number },
+  groupBy?: GroupBy,
 ) {
   const body = {
     scope,
@@ -105,23 +173,22 @@ async function queryRequestCount(
     filter,
     metrics: { value: { metric: 'vercel.request.count', aggregation: 'count' } },
     outputs: ['value'],
-    ...(byPath && {
-      groupBy: ['requestPath'],
-      seriesSelection: {
-        limit: byPath.limit,
-        mode: 'exact',
-        rankBy: [{ metric: 'value', direction: 'desc' }],
-      },
-    }),
+    ...groupBySelection(groupBy),
   }
   const response = await vercelFetch(`/metrics/v1?teamId=${scope.ownerId}`, {
     method: 'POST',
     body: JSON.stringify(body),
   })
-  return metricsResponseSchema.parse(response).summary.map((row) => ({
-    path: row.dimensions?.requestPath ?? '',
-    hits: row.values.value ?? 0,
+  const dimension = groupBy?.dimension ?? ''
+  return metricsResponseSchema.parse(response).summary.map(({ dimensions, values }) => ({
+    name: dimensions[dimension] ?? '',
+    hits: values.value ?? 0,
   }))
+}
+
+async function queryTotal(scope: QueryScope, range: TimeRange, filter: string): Promise<number> {
+  const [total] = await queryRequestCount(scope, range, filter)
+  return total?.hits ?? 0
 }
 
 // Grouping by requestPath fails with query_failed on windows much longer than a week
@@ -138,15 +205,27 @@ function splitIntoWindows(range: TimeRange, days: number): TimeRange[] {
 }
 
 /**
- * The top `limit` paths in each week of the range. A path that misses the top `limit` in some
- * weeks is undercounted once the weeks are summed.
+ * The top `limit` paths in each week of the range, summed. A path that misses the top `limit` in
+ * some weeks is undercounted.
  */
-async function queryTopPaths(scope: QueryScope, range: TimeRange, filter: string, limit: number) {
+async function queryTopPaths(
+  scope: QueryScope,
+  range: TimeRange,
+  filter: string,
+  limit: number,
+  onWeek: (week: number, weeks: number) => void,
+): Promise<PathHits[]> {
+  const windows = splitIntoWindows(range, MAX_PATH_WINDOW_DAYS)
   const rows: PathHits[] = []
-  for (const window of splitIntoWindows(range, MAX_PATH_WINDOW_DAYS)) {
-    rows.push(...(await queryRequestCount(scope, window, filter, { limit })))
+  for (const [index, window] of windows.entries()) {
+    onWeek(index + 1, windows.length)
+    const weekRows = await queryRequestCount(scope, window, filter, {
+      dimension: 'requestPath',
+      limit,
+    })
+    rows.push(...weekRows.map(({ name, hits }) => ({ path: name, hits })))
   }
-  return rows
+  return mergePathHits(rows)
 }
 
 async function fetchText(url: string): Promise<string> {
@@ -163,64 +242,135 @@ async function fetchLivePaths(domain: string): Promise<string[]> {
 }
 
 // Both the apex and www hostnames, since a center's domain can serve either
-function centerHostnames(tenant: ValidTenantSlug): string[] {
-  const apex = AVALANCHE_CENTERS[tenant].customDomain.replace(/^www\./, '')
+function centerHostnames(domain: string): string[] {
+  const apex = domain.replace(/^www\./, '')
   return [apex, `www.${apex}`]
 }
 
-async function queryTotal(scope: QueryScope, range: TimeRange, filter: string): Promise<number> {
-  const [total] = await queryRequestCount(scope, range, filter)
-  return total?.hits ?? 0
+const BOT_PATH_LIMIT = 50
+const BOT_NAME_LIMIT = 25
+
+async function queryBotTraffic(
+  scope: QueryScope,
+  range: TimeRange,
+  notFound: string,
+  spinner: Spinner,
+): Promise<NotFoundReport['bots']> {
+  const bots = `${notFound} AND ${BOT_FILTER}`
+  spinner.update('Breaking down bot traffic by category')
+  const byCategory = await queryRequestCount(scope, range, `${notFound} AND botCategory!=""`, {
+    dimension: 'botCategory',
+    limit: BOT_NAME_LIMIT,
+  })
+  spinner.update('Breaking down bot traffic by bot')
+  const byName = await queryRequestCount(scope, range, `${notFound} AND botName!=""`, {
+    dimension: 'botName',
+    limit: BOT_NAME_LIMIT,
+  })
+  // One week only: paths across all bot traffic is millions of rows, too slow to page by week
+  spinner.update('Fetching the paths bots requested most in the last 7 days')
+  const lastWeek = {
+    start: new Date(Date.parse(range.end) - 7 * DAY_MS).toISOString(),
+    end: range.end,
+  }
+  const topPaths = await queryRequestCount(scope, lastWeek, bots, {
+    dimension: 'requestPath',
+    limit: BOT_PATH_LIMIT,
+  })
+  return {
+    byCategory,
+    byName,
+    topPaths: mergePathHits(topPaths.map(({ name, hits }) => ({ path: name, hits }))),
+  }
 }
 
-type Report = {
-  tenant: ValidTenantSlug
-  hostnames: string[]
-  range: TimeRange
-  totals: { notFound: number; notFoundNonBot: number }
-} & ReturnType<typeof buildNotFoundReport>
-
-function printReport({ tenant, hostnames, range, totals, redirects, excluded }: Report) {
-  console.log(`${tenant} 404s on ${hostnames.join(', ')}, ${range.start} to ${range.end}`)
-  console.log(`  ${totals.notFound} total, ${totals.notFoundNonBot} from non-bot clients`)
-  console.log(`\nSet aside: ${excluded.length}`)
-  for (const { path, hits, reason } of excluded) {
-    console.log(`  ${String(hits).padStart(6)}  ${path}  (${reason})`)
-  }
-  const withDestination = redirects.filter((redirect) => redirect.to).length
-  console.log(`\nSuggested redirects: ${redirects.length} (${withDestination} with a destination)`)
-  for (const { from, to, hits } of redirects) {
-    console.log(`  ${String(hits).padStart(6)}  ${from}  →  ${to ?? '?'}`)
-  }
-}
-
-async function main() {
-  const { tenant, days, limit, out } = parseCliArgs()
-  const hostnames = centerHostnames(tenant)
+/** Queries run one at a time; see fetchWithRetry. */
+async function collectReport(
+  tenant: ValidTenantSlug,
+  days: number,
+  limit: number,
+  spinner: Spinner,
+): Promise<NotFoundReport> {
+  const { name: centerName, customDomain: domain } = AVALANCHE_CENTERS[tenant]
+  const hostnames = centerHostnames(domain)
   const hostFilter = hostnames.map((host) => `requestHostname:"${host}"`).join(' OR ')
   const notFound = `httpStatus:"404" AND (${hostFilter})`
   const notFoundNonBot = `${notFound} AND ${NON_BOT_FILTER}`
-
-  const scope = await resolveScope()
   const range = dayAlignedRange(days)
-  // Queries run one at a time; see vercelFetch
-  const allTotal = await queryTotal(scope, range, notFound)
+
+  spinner.update('Resolving the Vercel project')
+  const scope = await resolveScope()
+  spinner.update('Counting 404s')
+  const notFoundTotal = await queryTotal(scope, range, notFound)
   const nonBotTotal = await queryTotal(scope, range, notFoundNonBot)
-  const rows = await queryTopPaths(scope, range, notFoundNonBot, limit)
-  const livePaths = await fetchLivePaths(AVALANCHE_CENTERS[tenant].customDomain)
-  const report: Report = {
+  const rows = await queryTopPaths(scope, range, notFoundNonBot, limit, (week, weeks) =>
+    spinner.update(`Fetching the paths people request most, week ${week} of ${weeks}`),
+  )
+  const bots = await queryBotTraffic(scope, range, notFound, spinner)
+  spinner.update(`Reading ${domain}/sitemap.xml`)
+  const livePaths = await fetchLivePaths(domain)
+
+  return {
     tenant,
+    centerName,
+    domain: hostnames[0],
     hostnames,
     range,
-    totals: { notFound: allTotal, notFoundNonBot: nonBotTotal },
+    totals: { notFound: notFoundTotal, notFoundNonBot: nonBotTotal },
     ...buildNotFoundReport(rows, livePaths),
+    bots,
   }
+}
 
-  printReport(report)
-  if (out) {
-    await writeFile(out, `${JSON.stringify(report, null, 2)}\n`)
-    console.log(`\nWrote ${out}`)
+async function readReport(path: string): Promise<NotFoundReport> {
+  return notFoundReportSchema.parse(JSON.parse(await readFile(path, 'utf8')))
+}
+
+async function queryReport(tenant: ValidTenantSlug, days: number, limit: number) {
+  const spinner = startSpinner()
+  try {
+    return await collectReport(tenant, days, limit, spinner)
+  } finally {
+    spinner.stop()
   }
+}
+
+const formatNumber = (value: number) => value.toLocaleString('en-US')
+
+function printSummary({ centerName, domain, totals, redirects, excluded, bots }: NotFoundReport) {
+  const withDestination = redirects.filter(({ to }) => to).length
+  const topCategories = bots.byCategory
+    .slice(0, 3)
+    .map(({ name, hits }) => `${name} ${formatNumber(hits)}`)
+  console.log(`${centerName} (${domain})`)
+  console.log(
+    `  ${formatNumber(totals.notFound)} 404s, ${formatNumber(totals.notFoundNonBot)} from people`,
+  )
+  console.log(
+    `  ${redirects.length} old URLs to review (${withDestination} with a suggestion), ${excluded.length} set aside`,
+  )
+  console.log(`  Top bot categories: ${topCategories.join(', ')}`)
+}
+
+function defaultOutDir(source: Source, report: NotFoundReport): string {
+  if ('from' in source) return dirname(source.from)
+  return join('404-reports', `${report.tenant}-${new Date().toISOString().slice(0, 10)}`)
+}
+
+async function writeReportFiles(dir: string, report: NotFoundReport) {
+  await mkdir(dir, { recursive: true })
+  await writeFile(join(dir, 'report.json'), `${JSON.stringify(report, null, 2)}\n`)
+  await writeFile(join(dir, 'redirects.csv'), toRedirectsCsv(report))
+  await writeFile(join(dir, 'report.html'), toReportHtml(report))
+  console.log(`\nWrote ${join(dir, 'report.html')}, redirects.csv and report.json`)
+}
+
+async function main() {
+  const { source, days, limit, out } = parseCliArgs()
+  const report =
+    'from' in source ? await readReport(source.from) : await queryReport(source.tenant, days, limit)
+  printSummary(report)
+  await writeReportFiles(out ?? defaultOutDir(source, report), report)
 }
 
 main().catch((error: unknown) => {
