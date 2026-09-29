@@ -33,8 +33,9 @@ type FetchOptions = {
 // CRAP is inflated by the lack of unit coverage on this URL builder.
 // fallow-ignore-next-line complexity
 function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token: string): string {
-  const bucketMs = options.revalidate ? options.revalidate * 1000 : 1
-  const end = options.end ?? new Date(Math.floor(Date.now() / bucketMs) * bucketMs)
+  const now = Date.now()
+  const bucketMs = (options.revalidate ?? 0) * 1000
+  const end = options.end ?? new Date(bucketMs ? Math.floor(now / bucketMs) * bucketMs : now)
   const start = options.start ?? subHours(end, options.windowHours ?? 24)
 
   // Both take comma lists; SnowObs returns each station tagged with its source.
