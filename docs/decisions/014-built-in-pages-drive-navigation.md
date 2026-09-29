@@ -58,6 +58,7 @@ What is intentionally **not** implemented (deferred to #1038):
   - `platforms.weather` → Mountain Weather (`/weather/forecast`)
   - `platforms.stations` → Weather Stations (`/weather/stations/map`)
   - `platforms.obs` → Recent Observations (`/observations`) and Submit Observations (`/observations/submit`)
+  - `platforms.forecasts` or `platforms.obs` changes whether the center is an Info Exchange → nothing switches automatically; the admin adjusts pages, home page, and navigation by hand (see [ADR 023](023-info-exchange-derived-from-nac-platforms.md))
 
 These changes go unnoticed if no one is watching the upstream. A stale title in nav is the worst likely outcome — the page still resolves and the widgets still render.
 
