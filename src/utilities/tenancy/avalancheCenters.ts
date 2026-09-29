@@ -111,6 +111,12 @@ export const AVALANCHE_CENTERS = {
     customDomain: 'nwac.us',
     timezone: US_TIMEZONES.PACIFIC,
   },
+  nysac: {
+    name: 'New York State Avalanche Center',
+    // Placeholder until NYSAC has a domain of its own
+    customDomain: 'nysac.avy-fx.org',
+    timezone: US_TIMEZONES.EASTERN,
+  },
   pac: {
     name: 'Payette Avalanche Center',
     customDomain: 'payetteavalanche.org',
@@ -125,6 +131,12 @@ export const AVALANCHE_CENTERS = {
     name: 'Sawtooth Avalanche Center',
     customDomain: 'www.sawtoothavalanche.com',
     timezone: US_TIMEZONES.MOUNTAIN,
+  },
+  soaix: {
+    name: 'Southern Oregon Avalanche Info Exchange',
+    // Placeholder until SOAIX has a domain of its own
+    customDomain: 'soaix.avy-fx.org',
+    timezone: US_TIMEZONES.PACIFIC,
   },
   tac: {
     name: 'Taos Avalanche Center',
