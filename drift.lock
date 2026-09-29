@@ -43,7 +43,7 @@ sig = "73fe81bc57c9bb24"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/decisions/014-built-in-pages-drive-navigation.md"
-sig = "670dda646337e58d"
+sig = "69e28bf0d9bbb7e4"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1216,6 +1216,16 @@ target = "src/collections/Documents/modifyDocumentResponseHeaders.ts"
 sig = "49f8be7472703468"
 
 [[bindings]]
+doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
+target = "src/collections/Tenants/endpoints/provisionTenant.ts"
+sig = "de746ef925a4072f"
+
+[[bindings]]
+doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
+target = "src/services/nac/types/schemas.ts"
+sig = "ca4c0503375bdf97"
+
+[[bindings]]
 doc = "docs/doc-drift.md"
 target = "scripts/drift-check.mjs"
 sig = "1109f2020067761a"
@@ -1409,6 +1419,11 @@ sig = "618f679e1566bb2e"
 doc = "docs/onboarding.md"
 target = "src/scripts/check-centers.ts"
 sig = "cf2a77a3852fcde8"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "src/services/nac/types/schemas.ts"
+sig = "ca4c0503375bdf97"
 
 [[bindings]]
 doc = "docs/onboarding.md"
