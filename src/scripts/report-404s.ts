@@ -61,11 +61,24 @@ function parseSource(tenant: string | undefined, from: string | undefined): Sour
   throw new Error(USAGE)
 }
 
+// Observability Plus keeps 30 days of request data
+const RETENTION_DAYS = 30
+
+function parseDays(value: string): number {
+  const days = Number(value)
+  if (days > RETENTION_DAYS) {
+    console.warn(
+      `Warning: Vercel keeps ${RETENTION_DAYS} days of data, so --days ${days} reports on at most the last ${RETENTION_DAYS}.`,
+    )
+  }
+  return days
+}
+
 function parseCliArgs() {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
     options: {
-      days: { type: 'string', default: '30' },
+      days: { type: 'string', default: String(RETENTION_DAYS) },
       limit: { type: 'string', default: '200' },
       out: { type: 'string' },
       from: { type: 'string' },
@@ -73,7 +86,7 @@ function parseCliArgs() {
   })
   return {
     source: parseSource(positionals[0], values.from),
-    days: Number(values.days),
+    days: parseDays(values.days),
     limit: Number(values.limit),
     out: values.out,
   }
