@@ -1022,6 +1022,11 @@ sig = "1910afa455f5574b"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
+target = "src/components/TrackPageNotFound.client.tsx"
+sig = "d217d568b825da64"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
 target = "src/instrumentation-client.ts"
 sig = "e5b929ccb285db09"
 
@@ -1144,6 +1149,31 @@ sig = "d4ffb46dc41c80e0"
 doc = "docs/migration-safety.md"
 target = "src/scripts/check-migrations.ts"
 sig = "a4824faf89f4051e"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/components/TrackPageNotFound.client.tsx"
+sig = "d217d568b825da64"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/middleware.ts"
+sig = "ff301eba57dc04e2"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/scripts/report-404s.ts"
+sig = "a328fec15c04971e"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/deadLegacyPath.ts"
+sig = "5727c2f18d66f5bb"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/notFoundReport.ts"
+sig = "dd84a2933ef9de86"
 
 [[bindings]]
 doc = "docs/onboarding.md"

@@ -47,6 +47,7 @@
     "test:all": "pnpm test && pnpm test:e2e && pnpm test:e2e:afp-products",
     "migrate": "payload migrate",
     "check:centers": "tsx ./src/scripts/check-centers.ts",
+    "report:404s": "tsx ./src/scripts/report-404s.ts",
     "migrate:check": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/check-migrations.ts",
     "migrate:diff": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/analyze-migration-diff.ts",
     "email:build": "email build",
