@@ -59,6 +59,23 @@ describe('Overall', () => {
   })
 })
 
+describe('Overall sensible weather', () => {
+  it('shows one day at a time and switches to the other', () => {
+    render(<Overall issuance={afternoon} />)
+    const sensible = screen.getByRole('region', { name: 'Sensible Weather' })
+    // An afternoon issuance opens on a night, so its first day is Tonight; each carries its date.
+    const [today, tomorrow] = within(sensible).getAllByRole('radio')
+    expect(today).toHaveTextContent(/^Tonight[A-Z][a-z]{2} [A-Z][a-z]{2} \d+$/)
+    expect(tomorrow).toHaveTextContent(/^Tomorrow/)
+    expect(today).toHaveAttribute('aria-checked', 'true')
+    expect(within(sensible).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
+
+    fireEvent.click(tomorrow)
+    expect(tomorrow).toHaveAttribute('aria-checked', 'true')
+    expect(today).toHaveAttribute('aria-checked', 'false')
+  })
+})
+
 describe('Overall extended section', () => {
   it('shows the snow levels without an outlook when the forecaster wrote none', () => {
     render(<Overall issuance={{ ...afternoon, extendedOutlook: null }} />)

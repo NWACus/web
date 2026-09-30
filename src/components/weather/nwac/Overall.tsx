@@ -30,6 +30,7 @@ import {
 import { cn } from '@/utilities/ui'
 
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
+import { SensibleDays, type SensibleDay, type SensibleRow } from './SensibleDays.client'
 import { DayNightDate, LevelValue, SnowValue, TempValue, WindValue } from './Values'
 
 interface Column {
@@ -63,8 +64,6 @@ interface Table {
   rowLabel: string
   columns: Column[]
   groups: Group[]
-  /** Free text: left-aligned, wrapping, equal columns. */
-  prose?: boolean
   /** Cells whose content fills them (shaded snow levels) take less padding. */
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
@@ -118,13 +117,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   const zoneRows = (cells: (zoneId: string) => ReactNode[]): Row[] =>
     issuance.zones.map((z) => ({ key: z.id, label: z.name, cells: cells(z.id) }))
 
-  const dates = periodDateGroups(issuance.periods)
-  const sensibleColumns = SENSIBLE_SLOTS.map((s, i) => ({
-    key: s.key,
-    date: dates[i] ? fmtCalendarDate(dates[i].date) : null,
-    sub: null,
-  }))
-
   const levelBlocks = snowLevelBlocks(issuance)
   const levels = shadedLevels(
     issuance.zones.map((z) =>
@@ -140,19 +132,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   const winds = windBlocks(issuance)
 
   return [
-    {
-      id: 'sensible',
-      nav: 'Sensible weather',
-      title: 'Sensible Weather',
-      rowLabel: 'Zone',
-      columns: sensibleColumns,
-      groups: flat(
-        zoneRows((id) =>
-          sensibleColumns.map((c) => issuance.sensible[id]?.[c.key]?.trim() || DASH),
-        ),
-      ),
-      prose: true,
-    },
     {
       id: 'snow-level',
       nav: 'Snow level',
@@ -303,11 +282,7 @@ function FlatHead({ table: t }: { table: Table }) {
     <tr className="bg-muted">
       <RowLabelHead table={t} rowSpan={1} />
       {t.columns.map((c) => (
-        <th
-          key={c.key}
-          scope="col"
-          className={cn(HEAD_CELL, t.prose ? 'text-left' : 'text-center')}
-        >
+        <th key={c.key} scope="col" className={cn(HEAD_CELL, 'text-center')}>
           <span className="whitespace-nowrap font-semibold">
             <DayNightDate date={c.date} night={c.night} />
           </span>
@@ -387,7 +362,6 @@ function TableHead({ table: t }: { table: Table }) {
 }
 
 function cellClassOf(t: Table) {
-  if (t.prose) return 'whitespace-pre-line p-2 text-left align-top'
   return t.filled ? 'p-0.5 align-middle' : 'p-2 text-center align-middle'
 }
 
@@ -482,19 +456,6 @@ function TableTitle({
   )
 }
 
-/** Prose tables get fixed-width columns; numeric ones size to content. */
-function ProseColumns({ table: t }: { table: Table }) {
-  if (!t.prose) return null
-  return (
-    <colgroup>
-      <col className="w-44" />
-      {t.columns.map((c) => (
-        <col key={c.key} />
-      ))}
-    </colgroup>
-  )
-}
-
 function GridTable({
   table: t,
   anchor,
@@ -510,14 +471,7 @@ function GridTable({
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
       {/* A grouped table is only as wide as its columns; stretched, its few periods sprawl. */}
       <div className={cn('overflow-x-auto rounded-md border', t.groupColumn && 'w-fit max-w-full')}>
-        <table
-          className={cn(
-            'border-collapse text-sm',
-            !t.groupColumn && 'w-full',
-            t.prose ? 'min-w-[640px] table-fixed' : 'min-w-max',
-          )}
-        >
-          <ProseColumns table={t} />
+        <table className={cn('border-collapse text-sm', !t.groupColumn && 'w-full', 'min-w-max')}>
           <TableHead table={t} />
           <TableBody table={t} />
         </table>
@@ -625,13 +579,37 @@ function ExtendedSection({
   )
 }
 
+/** Each sensible-weather day with its date, and each zone's text by day; empty when none. */
+function sensibleDays(issuance: NWACWeatherIssuance) {
+  const dates = periodDateGroups(issuance.periods)
+  // An afternoon issuance's first date is only its night, so "Today / Tonight" reads "Tonight".
+  const firstIsNight = issuance.periods
+    .filter((p) => p.date === dates[0]?.date)
+    .every((p) => p.kind === 'night')
+  const days: SensibleDay[] = SENSIBLE_SLOTS.map((s, i) => ({
+    key: s.key,
+    label: i === 0 && firstIsNight ? 'Tonight' : s.label,
+    date: dates[i] ? fmtCalendarDate(dates[i].date) : null,
+  }))
+  const rows: SensibleRow[] = issuance.zones.map((z) => ({
+    key: z.id,
+    zone: z.name,
+    text: Object.fromEntries(
+      days.map((d) => [d.key, issuance.sensible[z.id]?.[d.key]?.trim() ?? '']),
+    ),
+  }))
+  const any = rows.some((r) => Object.values(r.text).some(Boolean))
+  return { days, rows: any ? rows : [] }
+}
+
 function sectionLinks(issuance: NWACWeatherIssuance): SectionLink[] {
-  const [sensible, snowLevel, temps, wind] = zoneTables(issuance)
+  const [snowLevel, temps, wind] = zoneTables(issuance)
   const hasExtended =
     !!authoredOrNull(issuance.extendedOutlook) || hasContent(extendedTable(issuance))
   return [
     ...(authoredOrNull(issuance.synopsis) ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...[sensible, snowLevel, temps, wind, snowTable(issuance)]
+    ...(sensibleDays(issuance).rows.length ? [{ id: 'sensible', label: 'Sensible weather' }] : []),
+    ...[snowTable(issuance), snowLevel, temps, wind]
       .filter(hasContent)
       .map((t) => ({ id: t.id, label: t.nav })),
     ...(hasExtended ? [{ id: 'extended', label: 'Extended' }] : []),
@@ -652,7 +630,8 @@ export function Overall({
 }) {
   const synopsis = authoredOrNull(issuance.synopsis)
   const extended = authoredOrNull(issuance.extendedOutlook)
-  const [sensible, snowLevel, temps, wind] = zoneTables(issuance)
+  const [snowLevel, temps, wind] = zoneTables(issuance)
+  const sensible = sensibleDays(issuance)
   const snow = snowTable(issuance)
   const ext = extendedTable(issuance)
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
@@ -662,7 +641,17 @@ export function Overall({
   return (
     <div className="space-y-8">
       <SynopsisRow issuance={issuance} synopsis={synopsis} zonePaths={zonePaths} />
-      <MaybeTable table={sensible} anchor={anchor} />
+      {/* Sensible shows one day at a time, so it's narrow enough to share Snow's row. */}
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+        {sensible.rows.length > 0 && (
+          <SensibleDays
+            headingId={`${anchor}-sensible`}
+            days={sensible.days}
+            rows={sensible.rows}
+          />
+        )}
+        <MaybeTable table={snow} anchor={anchor} />
+      </div>
       <MaybeTable table={snowLevel} anchor={anchor} />
       {tempsOrWind && (
         <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
@@ -670,7 +659,6 @@ export function Overall({
           <MaybeTable table={wind} anchor={anchor} />
         </div>
       )}
-      <MaybeTable table={snow} anchor={anchor} />
       <ExtendedSection anchor={anchor} extended={extended} table={ext} />
     </div>
   )
