@@ -50,13 +50,13 @@ function DaySwitch({
           size="sm"
           className="h-auto flex-col gap-0 whitespace-nowrap py-1 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
         >
-          {/* Two lines: the day, then its date in bold. */}
+          {/* Two lines: the date in bold, then the day as the issuance frames it. */}
+          {d.date && <span className="font-semibold">{d.date}</span>}
           <span
             className={cn(d.date ? 'text-xs font-normal text-muted-foreground' : 'font-semibold')}
           >
             {d.label}
           </span>
-          {d.date && <span className="font-semibold">{d.date}</span>}
         </ToggleGroupItem>
       ))}
     </ToggleGroup>

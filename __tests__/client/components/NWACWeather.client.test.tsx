@@ -65,8 +65,8 @@ describe('Overall sensible weather', () => {
     const sensible = screen.getByRole('region', { name: 'Sensible Weather' })
     // An afternoon issuance opens on a night, so its first day is Tonight; each carries its date.
     const [today, tomorrow] = within(sensible).getAllByRole('radio')
-    expect(today).toHaveTextContent(/^Tonight[A-Z][a-z]{2} [A-Z][a-z]{2} \d+$/)
-    expect(tomorrow).toHaveTextContent(/^Tomorrow/)
+    expect(today).toHaveTextContent(/^[A-Z][a-z]{2} [A-Z][a-z]{2} \d+Tonight$/)
+    expect(tomorrow).toHaveTextContent(/Tomorrow$/)
     expect(today).toHaveAttribute('aria-checked', 'true')
     expect(within(sensible).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
 
