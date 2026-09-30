@@ -13,3 +13,6 @@
 export const nacApiHost = process.env.NAC_HOST || 'https://api.avalanche.org'
 
 export const afpApiHost = process.env.AFP_HOST || 'https://forecasts.avalanche.org'
+
+// Lets NWAC's Mountain Weather read a local products-api while everything else stays remote.
+export const nwacWeatherApiHost = process.env.NWAC_WEATHER_HOST || nacApiHost
