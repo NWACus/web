@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
 import type { ArchiveProductSummary } from './archiveDates'
-import { afpApiHost, nacApiHost } from './hosts'
+import { afpApiHost, nacApiHost, nwacWeatherApiHost } from './hosts'
 import {
   forecastResultSchema,
   warningResultSchema,
@@ -66,6 +66,7 @@ type Options = {
   // large for the 2MB data cache (e.g. the full product archive), which are cached one layer
   // up via unstable_cache after being trimmed down.
   noStore?: boolean
+  host?: string
 }
 
 const DEFAULT_CACHED_TIME_SECONDS = 24 * 60 * 60
@@ -87,7 +88,7 @@ function fetchInit(options: Options): RequestInit {
 
 export async function nacFetch(path: string, options: Options = {}) {
   const normalizedPath = normalizePath(path)
-  const url = `${nacApiHost}/${normalizedPath}`
+  const url = `${options.host ?? nacApiHost}/${normalizedPath}`
 
   try {
     const res = await fetch(url, fetchInit(options))
@@ -737,7 +738,11 @@ export async function fetchNWACWeatherForecasts(
   const path = `/v3/public/nwac-weather/forecasts${search ? `?${search}` : ''}`
 
   try {
-    const data = await nacFetch(path, { cachedTime: 300, tags: [nwacWeatherCacheTag] })
+    const data = await nacFetch(path, {
+      cachedTime: 300,
+      tags: [nwacWeatherCacheTag],
+      host: nwacWeatherApiHost,
+    })
     const parsed = nwacWeatherForecastsResponseSchema.safeParse(data)
     if (!parsed.success) {
       const payload = await getPayload({ config })
@@ -757,6 +762,7 @@ export async function fetchNWACWeatherDates(from: string, to: string): Promise<s
     const data = await nacFetch(`/v3/public/nwac-weather/forecast/archive?${params}`, {
       cachedTime: 300,
       tags: [nwacWeatherCacheTag],
+      host: nwacWeatherApiHost,
     })
     const parsed = nwacWeatherArchiveSchema.safeParse(data)
     if (!parsed.success) return []
