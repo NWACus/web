@@ -9,6 +9,10 @@ export const avalancheCenterPlatformsSchema = z.object({
 })
 export type AvalancheCenterPlatforms = z.infer<typeof avalancheCenterPlatformsSchema>
 
+/** An info exchange publishes observations but doesn't issue avalanche forecasts. */
+export const isInfoExchange = (platforms: AvalancheCenterPlatforms): boolean =>
+  !platforms.forecasts && platforms.obs
+
 export const avalancheCenterCapabilitiesSchema = z.object({
   id: z.string(),
   display_id: z.string(),
@@ -44,15 +48,16 @@ export const avalancheCenterConfigurationSchema = z.object({
   // expires_time and published_time seem to be fractional hours past midnight, in the locale
   expires_time: z
     .number()
-    .nullable()
+    .nullish()
     .transform((n) => n ?? 0),
   published_time: z
     .number()
-    .nullable()
+    .nullish()
     .transform((n) => n ?? 0),
-  blog: z.boolean(),
-  blog_title: z.string(),
-  weather_table: z.array(avalancheCenterWeatherConfigurationSchema),
+  // Some centers (e.g. CAC, AAIC) are registered with only part of this object
+  blog: z.boolean().optional(),
+  blog_title: z.string().optional(),
+  weather_table: z.array(avalancheCenterWeatherConfigurationSchema).optional(),
   zone_order: z.array(z.number()).optional(),
 })
 
@@ -90,12 +95,12 @@ export const avalancheCenterDangerMapWidgetConfigurationSchema = z.object({
 })
 
 export const avalancheCenterObservationViewerWidgetConfigurationSchema = z.object({
-  alternate_zones: z.string().nullable(),
+  alternate_zones: z.string().nullish(),
   color: z.string(),
   obs_form_url: z.string().nullable().optional(),
   obs_tab: z.boolean().optional(),
   obs_view_url: z.string().nullable().optional(),
-  saturation: z.number(),
+  saturation: z.number().optional(),
   require_approval: z.boolean().optional(),
 })
 
@@ -215,18 +220,19 @@ export type MapLayer = z.infer<typeof mapLayerSchema>
 export const avalancheCenterSchema = z.object({
   id: z.string(),
   name: z.string(),
-  url: z.string(),
+  // url, email, and type are unset for some centers (e.g. NYSAC, AAIC)
+  url: z.string().nullable(),
   city: z.string().nullable(),
   state: z.string(),
   timezone: z.string(),
-  email: z.string(),
+  email: z.string().nullable(),
   phone: z.string().nullable(),
   center_point: z.null(),
   created_at: z.string(),
   wkb_geometry: z.null(),
   // Newer centers (e.g. EWYAIX) are registered without a config object.
   config: avalancheCenterConfigurationSchema.nullable(),
-  type: avalancheCenterTypeSchema,
+  type: avalancheCenterTypeSchema.nullable(),
   widget_config: avalancheCenterWidgetConfigurationSchema,
   zones: z.array(avalancheForecastZoneSchema),
   nws_zones: z.array(nationalWeatherServiceZoneSchema),
