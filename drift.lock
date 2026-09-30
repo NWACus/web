@@ -53,7 +53,7 @@ sig = "286ceeb6748cf2a1"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "6fbe219d4009e348"
+sig = "e8170cb017da4aab"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "80e69afedc706be3"
+sig = "69a0fe2d69b727b8"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -592,6 +592,11 @@ sig = "07d1e99ca58658fd"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
+target = "src/components/TrackPageNotFound.client.tsx"
+sig = "d217d568b825da64"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
 target = "src/instrumentation-client.ts"
 sig = "e5b929ccb285db09"
 
@@ -699,6 +704,41 @@ sig = "d4ffb46dc41c80e0"
 doc = "docs/migration-safety.md"
 target = "src/scripts/check-migrations.ts"
 sig = "a4824faf89f4051e"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/components/TrackPageNotFound.client.tsx"
+sig = "d217d568b825da64"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/middleware.ts"
+sig = "ff301eba57dc04e2"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/scripts/report-404s.ts"
+sig = "5906a4274060bdcf"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/deadLegacyPath.ts"
+sig = "d3cd76897aad26d4"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/notFoundReport.ts"
+sig = "2461799d8f2d6536"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/notFoundReportCsv.ts"
+sig = "4194dab839bee961"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/notFoundReportHtml.ts"
+sig = "74b46d2b6f15f202"
 
 [[bindings]]
 doc = "docs/onboarding.md"

@@ -50,3 +50,6 @@ plans/
 /playwright/.cache/
 __tests__/e2e/.auth/
 .beads
+
+# pnpm report:404s output
+/404-reports/

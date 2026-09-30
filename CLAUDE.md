@@ -205,6 +205,7 @@ Read these docs for detailed guidance on specific topics:
 - **`/docs/onboarding.md`** - Checklist for new tenant setup
 - **`/docs/troubleshooting.md`** - Common local-dev failures and fixes
 - **`/docs/error-tracking.md`** - Sentry + PostHog setup and wiring
+- **`/docs/not-found-report.md`** - Post-launch 404 report: turning a center's production 404s into redirects
 - **`/docs/fallow.md`** - Dead-code/code-health tooling: commands, `audit` vs full scan, baselines
 - **`/docs/doc-drift.md`** - How docs stay bound to code via drift, and how to clear a stale-doc flag
 - **`/docs/decisions/`** - Architectural decision records (see [`/docs/decisions/README.md`](docs/decisions/README.md) for the index)
