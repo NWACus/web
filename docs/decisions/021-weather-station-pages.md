@@ -50,7 +50,7 @@ A block rather than a per-center settings document ([ADR 016](016-per-tenant-glo
 Like the legacy widgets, readings are at most about a minute behind SnowObs's own 60-second cache ([#1351](https://github.com/NWACus/web/issues/1351)).
 
 - `fetchStationTimeseries` is uncached and ends now unless the caller passes `revalidate`, which only station metadata and the CSV export do.
-- The detail page renders per request (it reads `searchParams`), so its table needs no route of its own. Every view of the Table tab is an uncached SnowObs request, leaning on SnowObs's own 60-second cache.
+- Station pages and tracked-station detail pages render per request (they read `searchParams`) and share the tab views (`stationTabViews.tsx`), so neither table needs a route of its own. Every view of the Table tab is an uncached SnowObs request, leaning on SnowObs's own 60-second cache.
 - `weather/graph-data` and `weather/precip-data` cache 60 seconds at the CDN (`STATION_DATA_CACHE_CONTROL`).
 
 ### A center has station pages when it has rows
