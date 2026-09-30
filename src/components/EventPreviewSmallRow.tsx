@@ -19,7 +19,6 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
     startDate,
     startDate_tz,
     endDate,
-    endDate_tz,
     slug,
     title,
     location,
@@ -81,7 +80,7 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
                   startDate={startDate}
                   startDate_tz={startDate_tz}
                   endDate={endDate}
-                  endDate_tz={endDate_tz}
+                  viewerTimeHint={false}
                 />
               </div>
             )}

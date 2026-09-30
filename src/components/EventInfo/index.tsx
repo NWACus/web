@@ -8,7 +8,7 @@ import { Badge } from '../ui/badge'
 
 export type EventInfoProps = Pick<
   Event,
-  'startDate' | 'startDate_tz' | 'endDate' | 'endDate_tz' | 'location' | 'skillLevel'
+  'startDate' | 'startDate_tz' | 'endDate' | 'location' | 'skillLevel'
 > & {
   className?: string
   itemsClassName?: string
@@ -18,7 +18,6 @@ export type EventInfoProps = Pick<
 export const EventInfo = ({
   className = '',
   endDate,
-  endDate_tz,
   itemsClassName = '',
   location,
   showLabels = false,
@@ -40,7 +39,6 @@ export const EventInfo = ({
               startDate={startDate}
               startDate_tz={startDate_tz}
               endDate={endDate}
-              endDate_tz={endDate_tz}
             />
           </div>
         </div>
