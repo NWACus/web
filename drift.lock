@@ -352,6 +352,11 @@ sig = "a350b01944d045e3"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/services/snowobs/access.ts"
+sig = "4b780e2cf82276c9"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/services/snowobs/stationMap/alternateZones.ts"
 sig = "f9b48febc4d66c13"
 
@@ -768,12 +773,12 @@ sig = "f445ae3bb3f380ef"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/graph-data/route.ts"
-sig = "e392952f2e62ffe9"
+sig = "fc2db391c5c7bf68"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/precip-data/route.ts"
-sig = "d9f5c27e6069371b"
+sig = "e60ed523ee08908d"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -813,7 +818,12 @@ sig = "ff3681ee4cfc577f"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationGraphs.tsx"
-sig = "1820243d6a42b333"
+sig = "22c66b7cef29079d"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/stationTabViews.tsx"
+sig = "4916b014e9136f8e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -843,7 +853,7 @@ sig = "448f0ac347be3739"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/access.ts"
-sig = "a219e0af8f0cbc9b"
+sig = "4b780e2cf82276c9"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -853,7 +863,7 @@ sig = "69442f95203a6a3c"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/snowobs.ts"
-sig = "7ed4f7efea99b251"
+sig = "c9e786ebad73b8c6"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1318,7 +1328,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "b5fb7f9c29acc56d"
+sig = "3d38d54e9b2e7973"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"
