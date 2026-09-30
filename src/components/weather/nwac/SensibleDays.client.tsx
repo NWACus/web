@@ -7,6 +7,7 @@
 import { useState } from 'react'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { cn } from '@/utilities/ui'
 
 export interface SensibleDay {
   key: string
@@ -47,10 +48,15 @@ function DaySwitch({
           key={d.key}
           value={d.key}
           size="sm"
-          className="whitespace-nowrap font-semibold data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
+          className="h-auto flex-col gap-0 whitespace-nowrap py-1 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
         >
-          {d.label}
-          {d.date && <span className="font-normal text-muted-foreground">{d.date}</span>}
+          {/* Two lines: the day, then its date in bold. */}
+          <span
+            className={cn(d.date ? 'text-xs font-normal text-muted-foreground' : 'font-semibold')}
+          >
+            {d.label}
+          </span>
+          {d.date && <span className="font-semibold">{d.date}</span>}
         </ToggleGroupItem>
       ))}
     </ToggleGroup>
