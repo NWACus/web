@@ -68,11 +68,30 @@ describe('deriveColumns', () => {
 describe('resolveColumns', () => {
   const res = response(station('1', ['air_temp', 'wind_speed']))
 
-  it('keeps only the readings a page chose, in table order', () => {
+  it('keeps only the readings a page chose', () => {
     expect(resolveColumns(res, { stations: [ref('1')], columns: ['wind_speed'] })).toEqual([
       col('1', 'wind_speed'),
     ])
     expect(resolveColumns(res, { stations: [ref('1')], columns: ['snow_depth'] })).toEqual([])
+  })
+
+  it('orders readings as the page chose them, stations in page order within each', () => {
+    const two = response(
+      station('1', ['air_temp', 'wind_speed', 'snow_depth']),
+      station('2', ['air_temp', 'wind_speed']),
+    )
+    expect(
+      resolveColumns(two, {
+        stations: [ref('1'), ref('2')],
+        columns: ['wind_speed', 'snow_depth', 'air_temp'],
+      }),
+    ).toEqual([
+      col('1', 'wind_speed'),
+      col('2', 'wind_speed'),
+      col('1', 'snow_depth'),
+      col('1', 'air_temp'),
+      col('2', 'air_temp'),
+    ])
   })
 
   it('derives when the page chose none', () => {

@@ -55,7 +55,7 @@ export const StationPages: CollectionConfig = {
       options: STATION_COLUMNS,
       admin: {
         description:
-          'Which readings the table shows, for every station on the page. Clearing every reading shows all the stations report.',
+          'Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.',
       },
     },
     {

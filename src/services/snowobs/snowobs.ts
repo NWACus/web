@@ -2,7 +2,7 @@ import { tz } from '@date-fns/tz'
 import config from '@payload-config'
 import { format, subHours } from 'date-fns'
 import { getPayload } from 'payload'
-import { resolveSnowObsToken, SNOWOBS_API, SnowObsError } from './access'
+import { resolveSnowObsToken, SNOWOBS_API, SnowObsError, snowObsFetch } from './access'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 import { snowObsTimeseriesResponseSchema } from './types/schemas'
 
@@ -23,21 +23,19 @@ type FetchOptions = {
   // Explicit window — overrides windowHours when provided.
   start?: Date
   end?: Date
+  // Data-cache lifetime; omitted means uncached so readings never lag SnowObs.
   revalidate?: number
   // Skip SnowObs' default integer rounding (graphs want full precision).
   rawData?: boolean
 }
 
-// Build the timeseries request URL. Defaults to a trailing window (last 24h)
-// with `end` floored to the revalidate bucket so the URL stays stable within a
-// window (an un-bucketed `new Date()` defeats Next's fetch cache); an explicit
-// start/end (CSV export) overrides the trailing window untouched.
+// A cached window floors `end` to its bucket so the URL stays stable.
 // CRAP is inflated by the lack of unit coverage on this URL builder.
 // fallow-ignore-next-line complexity
 function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token: string): string {
-  const bucketMs = Math.max(options.revalidate ?? 600, 1) * 1000
-  const endMs = Math.floor(Date.now() / bucketMs) * bucketMs
-  const end = options.end ?? new Date(endMs)
+  const now = Date.now()
+  const bucketMs = (options.revalidate ?? 0) * 1000
+  const end = options.end ?? new Date(bucketMs ? Math.floor(now / bucketMs) * bucketMs : now)
   const start = options.start ?? subHours(end, options.windowHours ?? 24)
 
   // Both take comma lists; SnowObs returns each station tagged with its source.
@@ -96,12 +94,14 @@ export async function fetchStationTimeseries(
   stations: StationRef[],
   options: FetchOptions = {},
 ): Promise<SnowObsTimeseriesResponse> {
-  const revalidate = options.revalidate ?? 600
   const stids = stations.map((s) => s.stid)
 
   try {
     const url = buildTimeseriesUrl(stations, options, await resolveSnowObsToken(centerSlug))
-    const res = await fetch(url, { next: { revalidate } })
+    const res = await snowObsFetch(
+      url,
+      options.revalidate ? { next: { revalidate: options.revalidate } } : { cache: 'no-store' },
+    )
     return await parseTimeseriesResponse(res, stids)
   } catch (error) {
     await logSnowObsError(error, stids)

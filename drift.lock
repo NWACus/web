@@ -417,8 +417,18 @@ sig = "f445ae3bb3f380ef"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/app/(frontend)/[center]/weather/graph-data/route.ts"
+sig = "e392952f2e62ffe9"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/precip-data/route.ts"
-sig = "2501db20479bd53c"
+sig = "a15a45fd726ff30a"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/app/(frontend)/[center]/weather/stations/[station]/page.tsx"
+sig = "a1150a655ce0a6f6"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -433,7 +443,7 @@ sig = "a66b6809d33344dc"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/blocks/PrecipTable/config.ts"
-sig = "de934c0923dec4d3"
+sig = "bb66e8620bc4d127"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -443,7 +453,17 @@ sig = "8364b5c2c9c54525"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/index.ts"
-sig = "87333add7daf9b56"
+sig = "b2ee9c081a7ce9c0"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/PrecipAccumulationTable.tsx"
+sig = "ff3681ee4cfc577f"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/StationGraphs.tsx"
+sig = "1820243d6a42b333"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -473,17 +493,17 @@ sig = "448f0ac347be3739"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/access.ts"
-sig = "8cedf6d23625a185"
+sig = "4b780e2cf82276c9"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/deriveColumns.ts"
-sig = "0a021b853172c05e"
+sig = "69442f95203a6a3c"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/snowobs.ts"
-sig = "9dc7ea95c9e7c91a"
+sig = "e68c200b382745fa"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -493,7 +513,7 @@ sig = "a3666673abcc6281"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/stationTracking.ts"
-sig = "89238abc0da25343"
+sig = "b12d023fdd32e552"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
