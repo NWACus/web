@@ -58,6 +58,10 @@ import * as migration_20260918_223529_station_pages from './20260918_223529_stat
 import * as migration_20260921_124724_station_pages_backfill from './20260921_124724_station_pages_backfill'
 import * as migration_20260922_180955_precip_table_block from './20260922_180955_precip_table_block'
 import * as migration_20260923_033051_add_shared_media from './20260923_033051_add_shared_media'
+import * as migration_20260924_221427_native_products_flags from './20260924_221427_native_products_flags'
+import * as migration_20260924_221440_forecast_archive_built_in_pages from './20260924_221440_forecast_archive_built_in_pages'
+import * as migration_20260924_234012_add_glossary_terms from './20260924_234012_add_glossary_terms'
+import * as migration_20260924_234036_seed_glossary_terms from './20260924_234036_seed_glossary_terms'
 
 export const migrations = [
   {
@@ -359,5 +363,25 @@ export const migrations = [
     up: migration_20260923_033051_add_shared_media.up,
     down: migration_20260923_033051_add_shared_media.down,
     name: '20260923_033051_add_shared_media',
+  },
+  {
+    up: migration_20260924_221427_native_products_flags.up,
+    down: migration_20260924_221427_native_products_flags.down,
+    name: '20260924_221427_native_products_flags',
+  },
+  {
+    up: migration_20260924_221440_forecast_archive_built_in_pages.up,
+    down: migration_20260924_221440_forecast_archive_built_in_pages.down,
+    name: '20260924_221440_forecast_archive_built_in_pages',
+  },
+  {
+    up: migration_20260924_234012_add_glossary_terms.up,
+    down: migration_20260924_234012_add_glossary_terms.down,
+    name: '20260924_234012_add_glossary_terms',
+  },
+  {
+    up: migration_20260924_234036_seed_glossary_terms.up,
+    down: migration_20260924_234036_seed_glossary_terms.down,
+    name: '20260924_234036_seed_glossary_terms',
   },
 ]

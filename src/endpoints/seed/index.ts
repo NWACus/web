@@ -17,6 +17,7 @@ import invariant from 'tiny-invariant'
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
+import { seedGlossaryTerms } from '@/services/glossary/seedGlossaryTerms'
 import { NWAC_STATION_PAGES, seedStationPages } from '@/services/stations/seedStationPages'
 import { getAnnouncementsData } from './announcements'
 import { seedStaff } from './biographies'
@@ -24,7 +25,7 @@ import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
 import { SeedProviders, seedCourses } from './courses'
 import { getEventsData } from './events'
-import { forecastZonesByTenant } from './forecast-zones'
+import { forecastZonesByTenant, weatherPlatformTenants } from './forecast-zones'
 import { getGalleriesData } from './galleries'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
@@ -65,6 +66,7 @@ const collections: CollectionSlug[] = [
   'eventGroups',
   'eventTags',
   'sharedMedia',
+  'glossaryTerms',
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -72,6 +74,40 @@ const defaultNacWidgetsConfig = {
     baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
     devMode: false,
   },
+}
+
+/**
+ * Control 1 (native product pages vs the embedded NAC widget), fixed per tenant so a seeded
+ * database carries both branches at once. The E2E suite reads both without writing either — a test
+ * that flipped a shared tenant's flag would race the other Playwright workers, and would not reach
+ * an already-prerendered page anyway.
+ *
+ * A native tenant gets every native product its center publishes through the AFP, so seeded content
+ * exercises the whole feature rather than the forecast alone. snfac is native because the AFP golden
+ * corpus the E2E mocks are built from is SNFAC-centric. nwac's weather stays off: NWAC authors its
+ * own Mountain Weather Forecast rather than the AFP weather product.
+ *
+ * dvac and nwac are the same upstream center — dvac is normalised to nwac at every NAC/AFP call
+ * site — so whichever of the two is native, the pair is the proof that Control 1 is per tenant and
+ * not per center. nwac holds the native side and dvac the widget side, which also puts the widget's
+ * own dvac→nwac fallback under test. sac is the second widget tenant, on its own upstream center.
+ * The station map is the exception: every tenant but dvac renders it natively, sac included, so the
+ * one center whose alternate-zones KML the e2e mocks serve is on the native side.
+ * Kept in step with `__tests__/e2e/mocks/scenarios.json` by __tests__/server/e2eMocks.server.test.ts.
+ */
+const nativeProductsByTenant: Record<
+  string,
+  {
+    forecast: boolean
+    warning: boolean
+    dangerMap: boolean
+    weather: boolean
+    stationMap: boolean
+  }
+> = {
+  snfac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
+  nwac: { forecast: true, warning: true, dangerMap: true, weather: false, stationMap: true },
+  sac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: true },
 }
 
 // Next.js revalidation errors are normal when seeding the database without a server running
@@ -198,7 +234,7 @@ export const seed = async ({
           name: 'Shared Content Editor',
           rules: [
             {
-              collections: ['sharedMedia'],
+              collections: ['sharedMedia', 'glossaryTerms'],
               actions: ['*'],
             },
           ],
@@ -546,6 +582,13 @@ export const seed = async ({
         return {
           tenant: tenant.id,
           description: data.description,
+          nativeProducts: nativeProductsByTenant[tenant.slug] ?? {
+            forecast: false,
+            warning: false,
+            dangerMap: false,
+            weather: false,
+            stationMap: false,
+          },
           footerForm: {
             type: 'none',
           },
@@ -797,6 +840,11 @@ export const seed = async ({
         ])
         .flat(),
     )
+
+    // The migration seeds all 82 on a deployed environment; push mode never runs it locally.
+    payload.logger.info(`— Seeding glossary terms...`)
+    const glossary = await seedGlossaryTerms(payload)
+    payload.logger.info(glossary, 'glossary terms seeded')
 
     payload.logger.info(`— Seeding the shared library...`)
 
@@ -1097,6 +1145,22 @@ export const seed = async ({
                 ]
           return [
             ...zonePages,
+            builtInPage(tenant, 'Forecast Archive', '/forecasts/avalanche/archive'),
+            builtInPage(
+              tenant,
+              'Danger Over Time',
+              '/forecasts/avalanche/archive/danger-over-time',
+            ),
+            ...(weatherPlatformTenants.has(tenant.slug)
+              ? [
+                  builtInPage(tenant, 'Mountain Weather', '/weather/forecast'),
+                  builtInPage(
+                    tenant,
+                    'Mountain Weather Archive',
+                    '/forecasts/avalanche/archive/mountain-weather',
+                  ),
+                ]
+              : []),
             builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
             builtInPage(tenant, 'Recent Observations', '/observations'),
             builtInPage(tenant, 'Submit Observations', '/observations/submit'),

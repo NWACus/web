@@ -9,6 +9,10 @@
       "ES2022"
     ],
     "allowJs": true,
+    // mapbox-gl's shipped .d.ts references the `GeoJSON` UMD global (from @types/geojson) from
+    // inside a module. Without this, skipLibCheck swallows the resulting error and GeoJSONFeature
+    // silently loses `id` and `properties` — the two fields map interaction code reads.
+    "allowUmdGlobalAccess": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "isolatedModules": true,
@@ -36,16 +40,17 @@
       ],
       "@/*": [
         "./src/*"
-      ],
+      ]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "redirects.js",
-    "next.config.js",
     "next-sitemap.config.cjs",
+    "next.config.js",
+    "redirects.js",
+    ".next-e2e/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

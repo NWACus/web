@@ -1,0 +1,175 @@
+{
+  "id": 184213,
+  "published_time": "2026-04-01T01:30:00+00:00",
+  "expires_time": "2026-04-02T01:30:00+00:00",
+  "created_at": "2026-03-31T23:49:34+00:00",
+  "updated_at": "2026-04-01T01:05:00+00:00",
+  "author": "Lee Lazzara",
+  "product_type": "forecast",
+  "bottom_line": "<p>Avalanche danger will rise through the day as a storm moves in and temperatures warm up. Shift to simpler, lower-angle terrain during stormy periods or if you see signs of instability like shooting cracks, rollerballs, or fresh avalanches.<\/p>",
+  "hazard_discussion": "<p>West North has been the outlier forecast zone over the last few days, with more snow and avalanche activity over the weekend and into Monday than anyplace else in the Cascades. Precipitation amounts haven't been especially noteworthy, nor have avalanches been very large, but the 4-10 inches of new snow just haven't bonded well to the crust layer just below it. This weak interface produced numerous loose snow avalanches and some slabs as well. The snowpack beneath recent snow is a mix of crusts with rounded grains and soft melt forms&mdash;a product of repeated swings between cold, snowy weather and warmer, rainy periods this winter.<\/p>\n<p>The most important factor heading into the next storm is the current snow surface. Light-density surface snow has faceted, with weak snow lingering even on sunnier aspects where you&rsquo;d typically expect to only find melt-freeze crusts. A few days of faceting alone isn&rsquo;t a classic setup for a persistent weak layer, but it is enough to increase sensitivity. Expect fresh slabs to be more reactive than usual, even with relatively moderate amounts of new snow.<\/p>",
+  "weather_discussion": null,
+  "announcement": null,
+  "status": "published",
+  "media": [
+    {
+      "id": 1,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_5066_69cad8ec14366-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_5066_69cad8ec14366-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_5066_69cad8ec14366.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_5066_69cad8ec14366-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/30\/2026) <p>Small soft slabs and sluffs&nbsp; in very steep areas with a human trigger. They ran on the crust beneath the&nbsp; 6 inches or so of snow that fell in the previous days.&nbsp;<\/p> Photo: Jess Trimble ",
+      "favorite": true
+    },
+    {
+      "id": 2,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/62F8E33D-42B0-4CEC-A90C-5CCC48325860_69cb1d1339a7c-large.heic",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/62F8E33D-42B0-4CEC-A90C-5CCC48325860_69cb1d1339a7c-medium.heic",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/62F8E33D-42B0-4CEC-A90C-5CCC48325860_69cb1d1339a7c.heic",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/62F8E33D-42B0-4CEC-A90C-5CCC48325860_69cb1d1339a7c-thumbnail.heic"
+      },
+      "type": "image",
+      "title": "Public Observation: Swift Creek\/Annette",
+      "caption": "<p>(3\/30\/2026)<\/p>\n<p>A human-triggered slab on the northeast side of Huntoon Point at 5100 feet.<\/p>\n<p>Photo: Conner Niemann<\/p>",
+      "favorite": false
+    },
+    {
+      "id": 3,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Pit%20Mar%2029_69c9d0df0eaf8-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Pit%20Mar%2029_69c9d0df0eaf8-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Pit%20Mar%2029_69c9d0df0eaf8.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Pit%20Mar%2029_69c9d0df0eaf8-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/29\/2026)  Photo: Lee Lazzara",
+      "favorite": false
+    },
+    {
+      "id": 4,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Shuksan%20Mar%2026_69c5b9f0d8853-large.JPG",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Shuksan%20Mar%2026_69c5b9f0d8853-medium.JPG",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Shuksan%20Mar%2026_69c5b9f0d8853.JPG",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Shuksan%20Mar%2026_69c5b9f0d8853-thumbnail.JPG"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/26\/2026) <p>A natural D3 slab avalanche on the North Face of Shuksan. With the crown slightly filled in, this likely released on March 25th during a period of heavy snowfall and strong winds. Northerly aspect at roughly 7500 feet.<\/p>\n<p>(HS-N-D3-U)<\/p> Photo: Lee Lazzara",
+      "favorite": false
+    }
+  ],
+  "weather_data": null,
+  "json_data": null,
+  "avalanche_center": {
+    "id": "NWAC",
+    "name": "Northwest Avalanche Center",
+    "url": "https:\/\/www.nwac.us\/",
+    "city": "Seattle",
+    "state": "WA"
+  },
+  "forecast_avalanche_problems": [
+    {
+      "id": 2986878,
+      "forecast_id": 184213,
+      "avalanche_problem_id": 2,
+      "rank": 1,
+      "likelihood": "likely",
+      "discussion": "<p>The incoming storm isn&rsquo;t arriving cleanly&mdash;expect variable snowfall rates, fluctuating snow levels, and shifting winds. Avalanche danger could rise quickly in the afternoon or evening, especially during heavier snowfall, but shallow, reactive slabs may exist from the start. Conditions will vary widely across the zone, with more precipitation near the Baker Backcountry and less along the Canadian border and in North Cascades National Park.<\/p>\n<p>You are more likely to trigger a slab on steep slopes that are loading up with wind-drifted snow. But with weak, faceted snow or crusts at the current snow surface, be ready to see shallow slabs in all terrain, wind-loaded or not.&nbsp;Track conditions through the day. As snowfall, wind, and poor visibility increase, step back from bigger, steeper, and more complex terrain.<\/p>",
+      "media": {
+        "url": {
+          "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Dec%2016%20small%20crown_6760c96a23f73-large.jpg",
+          "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Dec%2016%20small%20crown_6760c96a23f73-medium.jpg",
+          "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Dec%2016%20small%20crown_6760c96a23f73.jpg",
+          "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Dec%2016%20small%20crown_6760c96a23f73-thumbnail.jpg"
+        },
+        "type": "image",
+        "title": null,
+        "caption": "<p>(12\/16\/2024)<\/p>\n<p>You could find the slab in wind-sheltered terrain on Wednesday. Weak snow surfaces mean you might see some reactivity even with modest amounts of new snow.<\/p>\n<p>Photo: Gregg Oliveri<\/p>"
+      },
+      "location": [
+        "north upper",
+        "northeast upper",
+        "east upper",
+        "southeast upper",
+        "south upper",
+        "southwest upper",
+        "west upper",
+        "northwest upper",
+        "north middle",
+        "northeast middle",
+        "east middle",
+        "southeast middle",
+        "south middle",
+        "southwest middle",
+        "west middle",
+        "northwest middle"
+      ],
+      "size": ["1", "2"],
+      "name": "Storm Slab",
+      "problem_description": "Storm Slab avalanches are the release of a cohesive layer (a slab) of new snow that breaks within new snow or on the old snow surface. Storm-slabs typically last between a few hours and few days (following snowfall). Storm-slabs that form over a persistent weak layer (surface hoar, depth hoar, or near-surface facets) may be termed Persistent Slabs or may develop into Persistent Slabs.",
+      "icon": "http:\/\/api.avalanche.org\/img\/avalanche_problems\/StormSlab.png"
+    },
+    {
+      "id": 2986879,
+      "forecast_id": 184213,
+      "avalanche_problem_id": 6,
+      "rank": 2,
+      "likelihood": "possible",
+      "discussion": "<p>Wet loose avalanches should be on your radar at low and middle elevations as rising snow levels spit rain onto a bit of new snow. While all should be small, they can still pose a real hazard in rugged, marginally snow-covered terrain or where open creeks exist in the runout. Avoid travel on or directly beneath steep slopes where you see fresh rollerballs, pinwheels, or small wet avalanches.<\/p>",
+      "media": {
+        "url": {
+          "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Pond%20Jan%2020%202024_65ac6bff2dbf4-large.jpg",
+          "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Pond%20Jan%2020%202024_65ac6bff2dbf4-medium.jpg",
+          "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Pond%20Jan%2020%202024_65ac6bff2dbf4.jpg",
+          "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Pond%20Jan%2020%202024_65ac6bff2dbf4-thumbnail.jpg"
+        },
+        "type": "image",
+        "title": null,
+        "caption": "<p>(1\/20\/2024)<\/p>\n<p>Rain on new snow is a near-guarantee of snow sliding down the hill.<\/p>\n<p>Photo: Julz Holder - Grounding Truth<\/p>"
+      },
+      "location": [
+        "north middle",
+        "northeast middle",
+        "east middle",
+        "southeast middle",
+        "south middle",
+        "southwest middle",
+        "west middle",
+        "northwest middle",
+        "north lower",
+        "northeast lower",
+        "east lower",
+        "southeast lower",
+        "south lower",
+        "southwest lower",
+        "west lower",
+        "northwest lower"
+      ],
+      "size": ["1", "1.5"],
+      "name": "Wet Loose",
+      "problem_description": "Wet Loose avalanches are the release of wet unconsolidated snow or slush. These avalanches typically occur within layers of wet snow near the surface of the snowpack, but they may quickly gouge into lower snowpack layers. Like Loose Dry Avalanches, they start at a point and entrain snow as they move downhill, forming a fan-shaped avalanche. Other names for loose-wet avalanches include point-release avalanches or sluffs. Loose Wet avalanches can trigger slab avalanches that break into deeper snow layers.",
+      "icon": "http:\/\/api.avalanche.org\/img\/avalanche_problems\/WetLoose.png"
+    }
+  ],
+  "danger": [
+    { "lower": 2, "upper": 3, "middle": 2, "valid_day": "current" },
+    { "lower": 1, "upper": 2, "middle": 2, "valid_day": "tomorrow" }
+  ],
+  "forecast_zone": [
+    {
+      "id": 1646,
+      "name": "West Slopes North",
+      "url": "http:\/\/www.nwac.us\/avalanche-forecast\/#\/west-slopes-north",
+      "state": "WA",
+      "zone_id": "4",
+      "config": null
+    }
+  ]
+}

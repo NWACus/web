@@ -96,6 +96,7 @@ export interface Config {
     settings: Setting;
     redirects: Redirect;
     sharedMedia: SharedMedia;
+    glossaryTerms: GlossaryTerm;
     forms: Form;
     'form-submissions': FormSubmission;
     'payload-mcp-api-keys': PayloadMcpApiKey;
@@ -151,6 +152,7 @@ export interface Config {
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     sharedMedia: SharedMediaSelect<false> | SharedMediaSelect<true>;
+    glossaryTerms: GlossaryTermsSelect<false> | GlossaryTermsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
@@ -3172,6 +3174,31 @@ export interface Setting {
    */
   banner: number | Media;
   usfsLogo?: (number | null) | Media;
+  /**
+   * When enabled, these products render natively as Next.js pages on this site’s design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback.
+   */
+  nativeProducts?: {
+    /**
+     * Render the avalanche forecast page natively.
+     */
+    forecast?: boolean | null;
+    /**
+     * Render warning/watch/special bulletins natively: the center-wide alert banner on the home page, and the per-zone banner on the native forecast page.
+     */
+    warning?: boolean | null;
+    /**
+     * Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.
+     */
+    dangerMap?: boolean | null;
+    /**
+     * Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC — and, together with the forecast flag, the forecast archive’s Mountain Weather tab. Centers without one have neither the page nor the tab either way.
+     */
+    weather?: boolean | null;
+    /**
+     * Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.
+     */
+    stationMap?: boolean | null;
+  };
   socialMedia?: {
     instagram?: string | null;
     facebook?: string | null;
@@ -3219,6 +3246,30 @@ export interface Redirect {
   };
   tenant: number | Tenant;
   contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Terms underlined in forecast text on every center whose forecast has the glossary turned on. Hovering or tapping one shows its definition.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "glossaryTerms".
+ */
+export interface GlossaryTerm {
+  id: number;
+  /**
+   * The term as it should be matched in forecast text. Matching ignores case.
+   */
+  term: string;
+  /**
+   * Other forms that should show the same definition: plurals, tenses, synonyms (e.g. "beacon" for "transceiver"). A term or alias can belong to only one Glossary Term.
+   */
+  aliases?: string[] | null;
+  definition: string;
+  /**
+   * Optional page on avalanche.org to learn more. Shown as a "Learn more" link under the definition.
+   */
+  link?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3504,6 +3555,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'sharedMedia';
         value: number | SharedMedia;
+      } | null)
+    | ({
+        relationTo: 'glossaryTerms';
+        value: number | GlossaryTerm;
       } | null)
     | ({
         relationTo: 'forms';
@@ -5009,6 +5064,15 @@ export interface SettingsSelect<T extends boolean = true> {
   icon?: T;
   banner?: T;
   usfsLogo?: T;
+  nativeProducts?:
+    | T
+    | {
+        forecast?: T;
+        warning?: T;
+        dangerMap?: T;
+        weather?: T;
+        stationMap?: T;
+      };
   socialMedia?:
     | T
     | {
@@ -5081,6 +5145,18 @@ export interface SharedMediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "glossaryTerms_select".
+ */
+export interface GlossaryTermsSelect<T extends boolean = true> {
+  term?: T;
+  aliases?: T;
+  definition?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
