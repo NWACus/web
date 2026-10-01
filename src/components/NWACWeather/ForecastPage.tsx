@@ -2,8 +2,10 @@
 import { ForecastDisclaimer } from '@/components/forecast/ForecastDisclaimer'
 import { ForecastErrorBoundary } from '@/components/forecast/ForecastErrorBoundary'
 import { ForecastHeader } from '@/components/forecast/ForecastHeader'
+import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
 import { Card, CardContent } from '@/components/ui/card'
 import { todayInTimezone } from '@/services/nac/forecastArchive'
+import { nwacWeatherFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
 import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import {
   fmtCalendarDate,
@@ -42,6 +44,10 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
   const source = getNWACWeatherSource()
   const [day, dates] = await Promise.all([source.getDay(shown), source.getDates(yearAgo, today)])
   const picker = <DatePicker date={shown} dates={dates} today={today} />
+  // Today's page only: it is the one a correction, a new issuance or a withdrawal can change.
+  const freshness = date ? null : (
+    <RevalidateOnView endpoints={[nwacWeatherFreshnessEndpoint(centerSlug, day)]} />
+  )
 
   if (!day) {
     return (
@@ -52,6 +58,7 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
           No Mountain Weather forecast published for {fmtCalendarDate(shown)}.
         </p>
         <ForecastDisclaimer centerType={metadata.type} centerName={metadata.name} />
+        {freshness}
       </div>
     )
   }
@@ -92,6 +99,7 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
         }))}
       />
       <ForecastDisclaimer centerType={metadata.type} centerName={metadata.name} />
+      {freshness}
     </div>
   )
 }

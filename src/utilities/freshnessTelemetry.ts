@@ -31,6 +31,7 @@ export type IndeterminateCause =
   | 'zones-unreachable'
   | 'no-fresh-forecast'
   | 'no-fresh-weather'
+  | 'nwac-weather-unreachable'
   | 'warning-vanished'
   | 'warnings-unreachable'
 
