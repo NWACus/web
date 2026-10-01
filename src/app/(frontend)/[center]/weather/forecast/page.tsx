@@ -1,10 +1,10 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
+import { NativeWeatherPage } from '@/components/forecast/NativeWeatherPage'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
-import { NativeWeatherPage } from '@/components/forecast/NativeWeatherPage'
-import { ForecastPage } from '@/components/weather/nwac/ForecastPage'
+import { ForecastPage } from '@/components/NWACWeather/ForecastPage'
 import {
   assertCenterPlatform,
   centerRouteMetadata,

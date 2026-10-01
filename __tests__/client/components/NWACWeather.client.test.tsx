@@ -1,5 +1,5 @@
-import { IssuanceSwitch } from '@/components/weather/nwac/IssuanceSwitch.client'
-import { Overall, OverallSectionTabs } from '@/components/weather/nwac/Overall'
+import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
+import { Overall, OverallSectionTabs } from '@/components/NWACWeather/Overall'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
