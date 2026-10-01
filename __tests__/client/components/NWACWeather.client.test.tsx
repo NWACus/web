@@ -85,19 +85,22 @@ describe('Overall extended section', () => {
   })
 })
 
-describe('Overall table help', () => {
-  it('offers the legacy page’s info bubble on the snow level, temperature and wind tables', () => {
+describe('Overall table descriptions', () => {
+  it('continues each short note with the legacy page’s explanation', () => {
     render(<Overall issuance={afternoon} />)
 
-    for (const title of ['Snow Level (ft)', "5000' Temperatures (°F)", 'Ridgeline Winds (mph)']) {
-      expect(screen.getByRole('button', { name: `What "${title}" means` })).toBeInTheDocument()
-    }
-    expect(screen.queryByRole('button', { name: 'What "Snow (in)" means' })).toBeNull()
-    // Beside the heading, not inside it.
-    expect(screen.getByRole('heading', { name: 'Ridgeline Winds (mph)' })).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'What "Ridgeline Winds (mph)" means' }))
-    expect(screen.getByText(/16-point compass rose/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/^Where rain turns to snow\. Darker is higher\. The snow level forecast/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/^High \/ low\. The 5000’ temperature forecast/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/^Arrows point the way the wind blows\. Ridgeline winds are the average/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/16-point compass rose\.$/)).toBeInTheDocument()
+    // The extended snow levels have no note of their own, only the explanation.
+    expect(screen.getByText(/^The snow level forecast represents/)).toBeInTheDocument()
+    // The snow table has only its note.
+    expect(screen.getByText('New snow by station.')).toBeInTheDocument()
   })
 })
 
