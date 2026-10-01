@@ -1,4 +1,4 @@
-import { DatePicker, dateHref } from '@/components/weather/nwac/DatePicker.client'
+import { DatePicker, dateHref } from '@/components/NWACWeather/DatePicker.client'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 

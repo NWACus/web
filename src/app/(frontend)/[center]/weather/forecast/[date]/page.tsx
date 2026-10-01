@@ -1,7 +1,7 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import { ForecastPage } from '@/components/weather/nwac/ForecastPage'
+import { ForecastPage } from '@/components/NWACWeather/ForecastPage'
 import { fmtCalendarDate } from '@/services/nac/nwacWeatherFormat'
 import { notFound } from 'next/navigation'
 
