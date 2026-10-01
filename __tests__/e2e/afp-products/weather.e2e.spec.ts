@@ -56,8 +56,10 @@ test.describe('Native mountain weather page', () => {
   })
 
   test('a center without a NAC weather product has no page', async ({ page }) => {
-    // NWAC's `platforms.weather` is false upstream because it authors mountain weather in-house.
-    const response = await page.goto(`${tenant('nwac')}${WEATHER_PATH}`)
+    // DVAC reads NWAC's capabilities, and NWAC's `platforms.weather` is false upstream because it
+    // authors mountain weather in-house. NWAC itself renders that forecast here instead: see
+    // nwac-weather.e2e.spec.ts.
+    const response = await page.goto(`${tenant('dvac')}${WEATHER_PATH}`)
 
     expect(response?.status()).toBe(404)
   })

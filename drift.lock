@@ -453,7 +453,7 @@ sig = "16419183a532a566"
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/mocks/handlers.mjs"
-sig = "0571fb3d0067e3dc"
+sig = "cdcdc5bee62cdeed"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
