@@ -2,7 +2,8 @@
 
 /**
  * One of a day's issuances at a time, newest first, with a Morning / Afternoon switch when there
- * are two. With a `heading`, the switch sits beside it and the shown issuance's `meta` beneath.
+ * are two. With a `heading`, the switch sits beside it and the shown issuance's `meta` in a
+ * full-width row beneath.
  */
 import { useEffect, useState, type ReactNode } from 'react'
 
@@ -121,14 +122,7 @@ export function IssuanceSwitch({
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-        <div className="space-y-2">
-          {heading}
-          {panels.map((p) => (
-            <div key={p.key} hidden={!shown(p)}>
-              {p.meta}
-            </div>
-          ))}
-        </div>
+        {heading}
         <Switch
           panels={panels}
           active={active}
@@ -137,6 +131,14 @@ export function IssuanceSwitch({
           className="grid grid-cols-2 sm:inline-flex"
         />
       </header>
+      {panels.map(
+        (p) =>
+          p.meta && (
+            <div key={p.key} hidden={!shown(p)}>
+              {p.meta}
+            </div>
+          ),
+      )}
       {body}
     </div>
   )
