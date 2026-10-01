@@ -71,7 +71,7 @@ export function WeatherInfoHint({ html, field }: WeatherInfoHintProps) {
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-80 max-w-[min(20rem,calc(100vw-2rem))] p-3 text-sm font-normal leading-snug [&_h5]:mb-1 [&_h5]:text-xs [&_h5]:font-semibold [&_h5]:uppercase [&_h5]:tracking-wide [&_h5]:text-muted-foreground [&_strong]:font-semibold"
+        className="w-80 max-w-[min(20rem,calc(100vw-2rem))] p-3 text-sm font-normal leading-snug [&_p+p]:mt-2 [&_h5]:mb-1 [&_h5]:text-xs [&_h5]:font-semibold [&_h5]:uppercase [&_h5]:tracking-wide [&_h5]:text-muted-foreground [&_strong]:font-semibold"
         onMouseEnter={openFromPointer}
         onMouseLeave={closeFromPointer}
         onOpenAutoFocus={(event) => {

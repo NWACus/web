@@ -85,6 +85,22 @@ describe('Overall extended section', () => {
   })
 })
 
+describe('Overall table help', () => {
+  it('offers the legacy page’s info bubble on the snow level, temperature and wind tables', () => {
+    render(<Overall issuance={afternoon} />)
+
+    for (const title of ['Snow Level (ft)', "5000' Temperatures (°F)", 'Ridgeline Winds (mph)']) {
+      expect(screen.getByRole('button', { name: `What "${title}" means` })).toBeInTheDocument()
+    }
+    expect(screen.queryByRole('button', { name: 'What "Snow (in)" means' })).toBeNull()
+    // Beside the heading, not inside it.
+    expect(screen.getByRole('heading', { name: 'Ridgeline Winds (mph)' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'What "Ridgeline Winds (mph)" means' }))
+    expect(screen.getByText(/16-point compass rose/)).toBeInTheDocument()
+  })
+})
+
 describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
     render(<OverallSectionTabs issuance={afternoon} />)
