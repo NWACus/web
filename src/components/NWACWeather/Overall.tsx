@@ -507,18 +507,21 @@ function GridTable({
   )
 }
 
-function ZoneLinks({
-  issuance,
-  zonePaths,
-}: {
-  issuance: NWACWeatherIssuance
-  zonePaths: ZonePaths
-}) {
-  const links = issuance.zones.flatMap((z) => {
+interface ZoneLink {
+  id: string
+  name: string
+  href: string
+}
+
+/** The weather zones that have an avalanche forecast page to link to. */
+function zoneLinksOf(issuance: NWACWeatherIssuance, zonePaths: ZonePaths): ZoneLink[] {
+  return issuance.zones.flatMap((z) => {
     const href = z.avalancheZoneId != null ? zonePaths[z.avalancheZoneId] : undefined
     return href ? [{ id: z.id, name: z.name, href }] : []
   })
-  if (links.length === 0) return null
+}
+
+function ZoneLinks({ links }: { links: ZoneLink[] }) {
   return (
     <aside aria-label="Weather by zone" className="space-y-3 rounded-lg bg-muted p-4 print:hidden">
       <div>
@@ -558,19 +561,21 @@ function SynopsisRow({
   zonePaths: ZonePaths
 }) {
   const headingId = `${issuance.type}-synopsis`
+  const links = zoneLinksOf(issuance, zonePaths)
+  const text = synopsis && (
+    <section aria-labelledby={headingId} className="space-y-1">
+      <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
+        Weather Synopsis
+      </h3>
+      <DiscussionBody html={sanitizeHtml(synopsis)} />
+    </section>
+  )
+  // Without zone links the synopsis takes the full width.
+  if (links.length === 0) return text
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-      {synopsis ? (
-        <section aria-labelledby={headingId} className="space-y-1">
-          <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
-            Weather Synopsis
-          </h3>
-          <DiscussionBody html={sanitizeHtml(synopsis)} />
-        </section>
-      ) : (
-        <div />
-      )}
-      <ZoneLinks issuance={issuance} zonePaths={zonePaths} />
+      {text || <div />}
+      <ZoneLinks links={links} />
     </div>
   )
 }
