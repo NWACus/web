@@ -8,6 +8,7 @@
  */
 import type { ForecastResult, WarningProduct, Weather } from '../model/forecast'
 import type { ZoneMapLayer } from '../model/mapLayer'
+import type { NWACWeatherForecastDay } from '../model/nwacWeather'
 
 export interface ForecastSource {
   /** The zone's current forecast/summary, or `null` when none is published. */
@@ -63,4 +64,18 @@ export interface WeatherSource {
    * predate the weather pointer (inventory row F26). Historical, so cached long.
    */
   getWeatherForDate(centerId: string, zoneId: number, date: string): Promise<Weather | null>
+}
+
+/**
+ * NWAC's Mountain Weather Forecast. v3 only, and the center is fixed upstream, so no read takes
+ * one. Unlike the v2 sources, every read throws on an upstream failure: `null` means nothing is
+ * published, never "could not load".
+ */
+export interface NWACWeatherSource {
+  /** Every issuance published for a date (`YYYY-MM-DD`), newest first, or `null` when none is. */
+  getDay(date: string): Promise<NWACWeatherForecastDay | null>
+  /** The same read fetched fresh (short-cached), for the revalidate-on-view freshness check. */
+  getDayFresh(date: string): Promise<NWACWeatherForecastDay | null>
+  /** The dates from `from` to `to` with a published forecast, oldest first. */
+  getDates(from: string, to: string): Promise<string[]>
 }

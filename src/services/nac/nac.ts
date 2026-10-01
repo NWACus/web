@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
 import type { ArchiveProductSummary } from './archiveDates'
-import { afpApiHost, nacApiHost, nwacWeatherApiHost } from './hosts'
+import { afpApiHost, nacApiHost } from './hosts'
 import {
   forecastResultSchema,
   warningResultSchema,
@@ -13,11 +13,6 @@ import {
   type WarningResult,
   type Weather,
 } from './types/forecastSchemas'
-import {
-  nwacWeatherArchiveSchema,
-  nwacWeatherForecastsResponseSchema,
-  type NWACWeatherForecastsWire,
-} from './types/nwacWeatherSchemas'
 import { productListSchema } from './types/productListSchemas'
 import {
   allAvalancheCenterCapabilitiesSchema,
@@ -38,7 +33,7 @@ const normalizeCenterSlug = (centerSlug: string) => (centerSlug === 'dvac' ? 'nw
  * 500, a misdirected host) with "Cannot read properties of undefined (reading 'logger')". Logging
  * is best-effort; the caller's own error handling is what callers depend on.
  */
-async function logNacError(err: unknown, message: string): Promise<void> {
+export async function logNacError(err: unknown, message: string): Promise<void> {
   try {
     const payload = await getPayload({ config })
     payload?.logger?.error({ err }, message)
@@ -66,6 +61,7 @@ type Options = {
   // large for the 2MB data cache (e.g. the full product archive), which are cached one layer
   // up via unstable_cache after being trimmed down.
   noStore?: boolean
+  // An origin other than `NAC_HOST`; the v3 layer passes its own (`sources/v3/fetch.ts`).
   host?: string
 }
 
@@ -378,6 +374,9 @@ export function currentWeatherCacheTag(centerId: string, zoneId: number): string
 export function warningCacheTag(centerId: string, zoneId: number): string {
   return `warning:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
 }
+
+/** Data-cache tag for every NWAC Mountain Weather read; its freshness route purges it. */
+export const nwacWeatherCacheTag = 'nwac-weather'
 
 export async function fetchForecast(
   centerId: string,
@@ -726,64 +725,5 @@ export async function fetchWeatherProductForDate(
     return await parseWeatherResponse(data)
   } catch {
     return null
-  }
-}
-
-// ─── NWAC Mountain Weather Forecast (products-api) ───────────────────────────
-
-export interface NWACWeatherQuery {
-  /** `YYYY-MM-DD`; omit for the latest date with content. */
-  date?: string
-  /** A weather zone id, avalanche zone id, or zone name; omit for every zone. */
-  zone?: string | number
-}
-
-/** Data-cache tag for every NWAC weather read. */
-export const nwacWeatherCacheTag = 'nwac-weather'
-
-/** Every NWAC weather issuance published for a date, newest first; null on any failure. */
-export async function fetchNWACWeatherForecasts(
-  query: NWACWeatherQuery = {},
-): Promise<NWACWeatherForecastsWire | null> {
-  const params = new URLSearchParams()
-  if (query.date) params.set('date', query.date)
-  if (query.zone !== undefined && query.zone !== null && query.zone !== '') {
-    params.set('zone', String(query.zone))
-  }
-  const search = params.toString()
-  const path = `/v3/public/nwac-weather/forecasts${search ? `?${search}` : ''}`
-
-  try {
-    const data = await nacFetch(path, {
-      cachedTime: 300,
-      tags: [nwacWeatherCacheTag],
-      host: nwacWeatherApiHost,
-    })
-    const parsed = nwacWeatherForecastsResponseSchema.safeParse(data)
-    if (!parsed.success) {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: parsed.error }, 'Failed to parse NWAC weather forecasts response')
-      return null
-    }
-    return parsed.data
-  } catch {
-    return null
-  }
-}
-
-/** The dates between `from` and `to` with a published NWAC weather forecast, oldest first. */
-export async function fetchNWACWeatherDates(from: string, to: string): Promise<string[]> {
-  const params = new URLSearchParams({ from, to })
-  try {
-    const data = await nacFetch(`/v3/public/nwac-weather/forecast/archive?${params}`, {
-      cachedTime: 300,
-      tags: [nwacWeatherCacheTag],
-      host: nwacWeatherApiHost,
-    })
-    const parsed = nwacWeatherArchiveSchema.safeParse(data)
-    if (!parsed.success) return []
-    return [...new Set(parsed.data.map((r) => r.serviceDate))].sort()
-  } catch {
-    return []
   }
 }

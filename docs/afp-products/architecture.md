@@ -20,7 +20,7 @@ The whole design follows from one constraint: **the AFP is rewriting its product
 
 ### Normalized model
 
-`src/services/nac/model/` defines an API-agnostic representation of every product: `forecast.ts` covers the forecast, summary, warning and weather products, and `mapLayer.ts` covers the danger map's zone geometry and overlay. Presentation components consume only these. **No component ever sees an AFP response.**
+`src/services/nac/model/` defines an API-agnostic representation of every product: `forecast.ts` covers the forecast, summary, warning and weather products, `mapLayer.ts` covers the danger map's zone geometry and overlay, and `nwacWeather.ts` covers NWAC's own Mountain Weather Forecast. Presentation components consume only these. **No component ever sees an AFP response.**
 
 The model owns the top-level product types (`Forecast`, `Summary`, `ForecastResult`, `WarningProduct`, `Weather`, `ZoneMapLayer`) and re-exports the leaf enums it shares with the v2 wire schema. The dependency runs one way — model imports from the wire schema, never the reverse — so the wire schema stays a description of what the API sends while the model stays a description of what we need.
 
@@ -54,6 +54,14 @@ case 'v3':
 
 That is deliberate — the seam is proven by having two branches, and a misconfiguration fails loudly at the boundary rather than silently serving wrong data. Writing the v3 implementations is real work, not a config flip; see [sharp edges](#sharp-edges).
 
+### The first v3-only product
+
+NWAC's Mountain Weather Forecast never existed on v2, so `NWACWeatherSource` has one implementation, `v3/nwacWeatherSourceV3.ts`, and `getNWACWeatherSource()` has no backend to choose. It takes no center either: upstream fixes the center server-side, so a public read cannot ask for another center's data.
+
+It is built on `v3/fetch.ts`, the read path every v3 source shares: the host (`NAC_V3_HOST`, defaulting to `NAC_HOST`), error handling and schema parsing. The v3 implementations of the other four products ([#1210](https://github.com/NWACus/web/issues/1210)) are meant to use it rather than build their own. v3 sends a weak ETag on every read and the layer does not use it, because freshness is decided on a fingerprint of the normalized model (see [Freshness](#freshness)).
+
+**A v3 read throws on failure.** v3 answers "nothing published" with a 200, so `null` from this source means nothing is published and never "could not load" — a distinction the v2 sources cannot make. The page lets the throw propagate: an ISR regeneration that throws keeps serving the last good page and retries on the next request, where a caught failure would be cached as "No Mountain Weather forecast published".
+
 ## Control axes
 
 Four independent controls decide whether a reader sees a native page, and where its bytes come from. **Two are ours and two belong to the AFP.** Confusing them is the most common way to be wrong about why a page is rendering the way it is.
@@ -79,7 +87,7 @@ The flag gates more than which renderer a page picks. Each product's own endpoin
 
 ### 2. Data source — code and env, never a setting
 
-`sources/config.ts` reads one pair of vars per adapted product — `NAC_FORECAST_SOURCE`, `NAC_WARNING_SOURCE` and `NAC_MAP_LAYER_SOURCE` (`v2` | `v3`, defaulting to `v2`), plus `NAC_FORECAST_V3_CANARY_CENTERS`, `NAC_WARNING_V3_CANARY_CENTERS` and `NAC_MAP_LAYER_V3_CANARY_CENTERS` — comma-separated slugs that take v3 regardless of the default. Weather has no pair of its own; it follows the forecast selection, for the reason in [sharp edges](#sharp-edges).
+`sources/config.ts` reads one pair of vars per adapted product — `NAC_FORECAST_SOURCE`, `NAC_WARNING_SOURCE` and `NAC_MAP_LAYER_SOURCE` (`v2` | `v3`, defaulting to `v2`), plus `NAC_FORECAST_V3_CANARY_CENTERS`, `NAC_WARNING_V3_CANARY_CENTERS` and `NAC_MAP_LAYER_V3_CANARY_CENTERS` — comma-separated slugs that take v3 regardless of the default. Weather has no pair of its own; it follows the forecast selection, for the reason in [sharp edges](#sharp-edges). NWAC's Mountain Weather Forecast has none because it is v3-only.
 
 The map layer is the product closest to being ready to flip — dashboard-v2 already reads v3 in production, and v3 adds `Cache-Control`/ETag handling plus `as_of` on top of the `?day=` param v2 already honors. It still defaults to v2 so every native product page reads from one backend.
 
@@ -260,9 +268,9 @@ One variant cannot be captured on demand: the map feature's populated warning fi
 
 Known and deliberate, but easy to be caught by.
 
-- **v3 is a seam, not an implementation.** All four v3 branches throw. Control 2 is complete — env vars, canary allowlists, resolver — which can read as "v3 is a flip away." It isn't.
+- **v3 is a seam, not an implementation, for every product that has a v2.** All four v3 branches throw. The one v3 source that exists, NWAC's Mountain Weather Forecast, has no v2 to switch from. Control 2 is complete — env vars, canary allowlists, resolver — which can read as "v3 is a flip away." It isn't.
 - **Weather follows forecast.** `getWeatherSource` resolves off the **forecast** selection, because a weather product is fetched by an id the forecast points at. So flipping forecast to v3 drags weather with it, including through the canary allowlist. Live footgun in the canary path.
-- **NWAC's weather doesn't come from the AFP.** It is authored in-house and migrating into the AFP stack as the Mountain Weather Forecast variant, with no `weather_product_id` pointer — AM/PM issuances derive from center plus service date. The pointer-driven inline weather summary finds nothing for NWAC.
+- **NWAC's weather doesn't come from the AFP.** It is authored in-house and migrating into the AFP stack as the Mountain Weather Forecast variant, with no `weather_product_id` pointer — AM/PM issuances derive from center plus service date. The pointer-driven inline weather summary finds nothing for NWAC. Its own Mountain Weather page reads the forecast through `getNWACWeatherSource()` instead.
 - **v2 will serve a shape it never used to.** The MWF migration stores an object-shaped variant envelope in `weather_data`. v3 excludes those rows from generic product reads; the legacy PHP v2 does not. That was accepted upstream because "NWAC has no live v2 weather consumers" — and our native pages default to v2, which makes us one. So the wire schema accepts the envelope (`weatherVariantEnvelopeSchema`, discriminator only), the mapper degrades it to a product with no tables, and the Mountain Weather page says visibly that there is nothing to tabulate rather than rendering an empty card. Anything that is neither tables nor an envelope is still rejected.
 - **Two weather-table formats.** Chosen by shape detection (`periods` key present → V1, else columns/rows), inherited from the widget.
 - **Warning expiry is the API's job, not ours.** The `type=warning` query returns a product only while it is inside its start/end window, approved and uncancelled; otherwise it returns a five-key all-null placeholder. The client check (`published_time` truthy, collapsed to `null` by the mapper) only distinguishes a product from that placeholder. **Do not add a client-side expiry check** — it would double-filter and could hide a warning the AFP considers active. Note the field naming invites exactly that mistake: `published_time` is the warning's effective **start** (`start_date`), not when it was written.
@@ -278,7 +286,8 @@ Known and deliberate, but easy to be caught by.
 | `src/services/nac/model/`                 | Normalized, API-agnostic product model          |
 | `src/services/nac/sources/`               | Per-product source interfaces, config, resolver |
 | `src/services/nac/sources/v2/`            | Legacy-API implementations and mappers          |
-| `src/services/nac/types/`                 | v2 wire schemas (zod)                           |
+| `src/services/nac/sources/v3/`            | The shared v3 read path, and NWAC's weather source and mapper |
+| `src/services/nac/types/`                 | Wire schemas (zod): v2, and v3's NWAC weather   |
 | `src/services/nac/forecastFingerprint.ts` | The address a page asks freshness about         |
 | `src/services/nac/weatherForForecast.ts`  | How a forecast's weather product is located     |
 | `src/app/api/[center]/*-freshness/`       | Freshness route handlers, content-addressed     |
