@@ -3,6 +3,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { ForecastPage } from '@/components/NWACWeather/ForecastPage'
 import { fmtCalendarDate } from '@/services/nac/nwacWeatherFormat'
+import { format, isValid, parseISO } from 'date-fns'
 import { notFound } from 'next/navigation'
 
 // Rendered on first request, then refreshed like today's page in case of a correction.
@@ -21,14 +22,15 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/
 /** NWAC's Mountain Weather for one date. Other centers have no dated weather page. */
 export default async function Page({ params }: Args) {
   const { center, date } = await params
-  if (center !== 'nwac' || !DATE.test(date)) notFound()
+  if (center !== 'nwac' || !DATE.test(date) || !isValid(parseISO(date))) notFound()
 
   return (
     <>
       <Breadcrumbs
         center={center}
         path={`/weather/forecast/${date}`}
-        title={fmtCalendarDate(date)}
+        // The date picker's format.
+        title={format(parseISO(date), 'MMM d, yyyy')}
       />
       <ForecastPage centerSlug={center} date={date} />
     </>
