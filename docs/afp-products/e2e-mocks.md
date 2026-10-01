@@ -20,7 +20,7 @@ Two consequences worth knowing: `msw` is a devDependency and nothing under `src/
 
 The failure that would cost the most is a green suite that quietly tested the live AFP API. Four things rule it out:
 
-- **`.invalid` upstream hosts.** The mocked build and server run with `NAC_HOST=http://nac.e2e-mock.invalid` and `AFP_HOST=http://afp.e2e-mock.invalid`. `src/services/nac/hosts.ts` and the mock handlers both read those vars, so they agree by construction — but a process where interception failed gets a DNS failure instead of a forecast.
+- **`.invalid` upstream hosts.** The mocked build and server run with `NAC_HOST=http://nac.e2e-mock.invalid` and `AFP_HOST=http://afp.e2e-mock.invalid`. `src/services/nac/hosts.ts` and the mock handlers both read those vars, so they agree by construction — but a process where interception failed gets a DNS failure instead of a forecast. `NAC_V3_HOST` is pinned to the same mocked NAC host, so a developer's own value cannot route v3 reads past the mock.
 - **A boot probe.** After `server.listen()`, the preload fetches a path only the mock answers and exits non-zero if it does not come back.
 - **A separate `distDir`.** The mocked build writes to `.next-e2e`, so an ordinary `pnpm build` can never be served as if it were mocked. `globalSetup` also checks two build ids: the one on disk against the one the mocked build recorded, and — separately — the one the running server booted from, which the preload reads before Next starts and writes into `active.json`. Only the second catches a server left running across a rebuild, because a rebuild rewrites both on-disk records at once.
 - **A loud 501 for anything unmapped.** See below.

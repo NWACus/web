@@ -3,21 +3,15 @@ import { ForecastDisclaimer } from '@/components/forecast/ForecastDisclaimer'
 import { ForecastErrorBoundary } from '@/components/forecast/ForecastErrorBoundary'
 import { ForecastHeader } from '@/components/forecast/ForecastHeader'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  fetchNWACWeatherDates,
-  fetchNWACWeatherForecasts,
-  getActiveForecastZones,
-  getAvalancheCenterMetadata,
-} from '@/services/nac/nac'
+import { todayInTimezone } from '@/services/nac/forecastArchive'
+import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import {
   fmtCalendarDate,
   issuanceLabel,
   issuanceShortLabel,
 } from '@/services/nac/nwacWeatherFormat'
-import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
+import { getNWACWeatherSource } from '@/services/nac/sources'
 import { formatDateTime } from '@/utilities/formatDateTime'
-import { TZDate } from '@date-fns/tz'
-import { format } from 'date-fns/format'
 
 import { DatePicker } from './DatePicker.client'
 import { IssuanceSwitch } from './IssuanceSwitch.client'
@@ -34,12 +28,6 @@ async function zonePathsOf(centerSlug: string) {
   return paths
 }
 
-/** Today's calendar date in the center's timezone as `yyyy-MM-dd`. */
-function todayInTimezone(timezone: string | null | undefined) {
-  const now = new Date()
-  return format(timezone ? new TZDate(now.getTime(), timezone) : now, 'yyyy-MM-dd')
-}
-
 function issueTime(iso: string, timezone: string | null | undefined): string | null {
   return isNaN(new Date(iso).getTime()) ? null : formatDateTime(iso, timezone, 'h:mm a')
 }
@@ -49,11 +37,10 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
   const today = todayInTimezone(metadata.timezone)
   const shown = date ?? today
   const yearAgo = `${Number(today.slice(0, 4)) - 1}${today.slice(4)}`
-  const [wire, dates] = await Promise.all([
-    fetchNWACWeatherForecasts({ date: shown }),
-    fetchNWACWeatherDates(yearAgo, today),
-  ])
-  const day = wire && mapV3NWACWeatherForecastDay(wire)
+  // Either read throws on an upstream failure, so ISR keeps the last good page instead of caching
+  // "nothing published".
+  const source = getNWACWeatherSource()
+  const [day, dates] = await Promise.all([source.getDay(shown), source.getDates(yearAgo, today)])
   const picker = <DatePicker date={shown} dates={dates} today={today} />
 
   if (!day) {
