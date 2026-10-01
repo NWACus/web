@@ -15,7 +15,7 @@ import {
 import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 
-import { ZoneSummary } from '@/components/weather/nwac/ZoneSummary'
+import { ZoneSummary } from '@/components/NWACWeather/ZoneSummary'
 import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 import { AvalancheProblemCard } from './AvalancheProblemCard'
 import { BottomLine } from './BottomLine'
