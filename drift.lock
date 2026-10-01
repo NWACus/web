@@ -958,7 +958,7 @@ sig = "5056989806c9df98"
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
-sig = "3bc802c9f52b41f5"
+sig = "c006a41800eab981"
 
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
@@ -1213,7 +1213,7 @@ sig = "4ac8868f8d8d2ba3"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
-sig = "3bc802c9f52b41f5"
+sig = "c006a41800eab981"
 
 [[bindings]]
 doc = "docs/revalidation.md"
