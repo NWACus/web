@@ -46,6 +46,14 @@ describe('Overall', () => {
     )
   })
 
+  it('gives the synopsis the full width when no zone has a forecast page to link to', () => {
+    render(<Overall issuance={afternoon} />)
+
+    expect(screen.queryByRole('complementary', { name: 'Weather by zone' })).toBeNull()
+    const synopsis = screen.getByRole('heading', { name: 'Weather Synopsis' }).closest('section')
+    expect(synopsis?.parentElement).not.toHaveClass('grid')
+  })
+
   it('groups snow stations under their zones', () => {
     render(<Overall issuance={afternoon} />)
     const snow = screen.getByRole('region', { name: 'Snow (in)' })
