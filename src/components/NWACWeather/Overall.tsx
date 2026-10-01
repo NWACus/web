@@ -4,6 +4,7 @@
  */
 import { DiscussionBody } from '@/components/forecast/DiscussionBody'
 import { sanitizeHtml } from '@/components/forecast/sanitizeHtml'
+import { WeatherInfoHint } from '@/components/forecast/WeatherInfoHint'
 import Link from 'next/link'
 import { Fragment, type ReactNode } from 'react'
 
@@ -61,6 +62,8 @@ interface Table {
   nav: string
   title: string
   note?: string
+  /** The legacy page's info-bubble text for this table, as HTML. */
+  help?: string
   rowLabel: string
   columns: Column[]
   groups: Group[]
@@ -74,6 +77,16 @@ interface Table {
 export type ZonePaths = Record<number, string>
 
 const STICKY = 'sticky left-0 z-10'
+
+// The wording of the info bubbles on NWAC's legacy Mountain Weather Forecast page.
+const SNOW_LEVEL_HELP =
+  '<p>The snow level forecast represents the general snow level over a 6 hr time period. Freezing levels are forecast when precipitation is not expected.</p>'
+const TEMPS_HELP =
+  '<p>The 5000’ temperature forecast does not imply a trend over the 12 hr period and only represents the max and min temperatures within a 12 hr period in the zone. The 6-hr snow level forecast, the forecast discussion, and weather forecast sections may add detail regarding temperature trends.</p>'
+const WIND_HELP =
+  '<p>Ridgeline winds are the average wind speed and direction over a 6 hr time period.</p>' +
+  '<p>The wind forecast represents an elevation range instead of a single elevation slice. The elevation range overlaps with the near and above treeline elevation bands in the avalanche forecast and differs per zone.</p>' +
+  '<p>Wind direction indicates the direction the wind originates or comes from on the 16-point compass rose.</p>'
 
 // Grouped like the block tables: one date over its periods, Day or Night (with its sun or moon)
 // in the sub row.
@@ -137,6 +150,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: 'Snow level',
       title: 'Snow Level (ft)',
       note: 'Where rain turns to snow. Darker is higher.',
+      help: SNOW_LEVEL_HELP,
       rowLabel: 'Zone',
       columns: levelBlocks.map((b) => blockColumn(issuance, b)),
       groups: flat(zoneRows((id) => levelsByZone.get(id) ?? [])),
@@ -147,6 +161,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: "5000' temps",
       title: "5000' Temperatures (°F)",
       note: 'High / low.',
+      help: TEMPS_HELP,
       rowLabel: 'Zone',
       columns: temps.map(periodColumn),
       groups: flat(
@@ -160,6 +175,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: 'Ridgeline winds',
       title: 'Ridgeline Winds (mph)',
       note: 'Arrows point the way the wind blows.',
+      help: WIND_HELP,
       rowLabel: 'Zone',
       columns: winds.map((b) => blockColumn(issuance, b)),
       groups: flat(
@@ -445,12 +461,16 @@ function TableTitle({
 }) {
   return (
     <div>
-      <Heading
-        id={headingId}
-        className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
-      >
-        {t.title}
-      </Heading>
+      {/* The hint sits beside the heading, not in it, so its label stays out of the heading's name. */}
+      <div className="flex items-center">
+        <Heading
+          id={headingId}
+          className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
+        >
+          {t.title}
+        </Heading>
+        {t.help && <WeatherInfoHint html={t.help} field={t.title} />}
+      </div>
       {t.note && <p className="text-sm text-muted-foreground">{t.note}</p>}
     </div>
   )
