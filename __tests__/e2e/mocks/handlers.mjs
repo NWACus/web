@@ -49,6 +49,23 @@ function snowObsFixture(name) {
   return fixtureCache.get(key)
 }
 
+/**
+ * NWAC's Mountain Weather Forecast (v3). Like SnowObs it has no golden corpus, because it never
+ * existed on v2 and so carries no parity obligation: one recorded day, the same file the mapper's
+ * unit tests read.
+ */
+function nwacWeatherDay() {
+  const key = 'nwac-weather/day'
+  if (!fixtureCache.has(key)) {
+    const path = join(repoRoot, '__tests__/server/fixtures/nwac-weather-forecasts.json')
+    fixtureCache.set(key, JSON.parse(readFileSync(path, 'utf8')))
+  }
+  return fixtureCache.get(key)
+}
+
+/** v3's answer for a date with nothing published, as api.avalanche.org gave it on 2026-10-01. */
+const NWAC_WEATHER_NOTHING_PUBLISHED = { available: false, serviceDate: null, forecasts: [] }
+
 /** Answered only by this mock; the preload requests it at boot to prove interception is live. */
 export const PROBE_PATH = '/__e2e-mock-probe'
 
@@ -181,6 +198,25 @@ export function buildHandlers() {
       const absent = findAbsent(request)
       return absent ? absentResponse(absent) : recordMissing(request)
     }),
+
+    // NWAC's Mountain Weather Forecast: the recorded day for its own date, nothing for any other,
+    // and an archive listing that day's issuances whatever range is asked for.
+    http.get(`${mockNacHost}/v3/public/nwac-weather/forecasts`, ({ request }) => {
+      const day = nwacWeatherDay()
+      const date = new URL(request.url).searchParams.get('date')
+      return HttpResponse.json(date === day.serviceDate ? day : NWAC_WEATHER_NOTHING_PUBLISHED)
+    }),
+    http.get(`${mockNacHost}/v3/public/nwac-weather/forecast/archive`, () =>
+      HttpResponse.json(
+        nwacWeatherDay().forecasts.map(({ id, issuedAt, type, serviceDate, author }) => ({
+          id,
+          issuedAt,
+          type,
+          serviceDate,
+          author,
+        })),
+      ),
+    ),
 
     // SnowObs, behind the station map and its stations. Not a golden corpus (there is no v2→v3 parity obligation
     // there — see architecture.md, "Where test data comes from"): ordinary fixtures recorded next
