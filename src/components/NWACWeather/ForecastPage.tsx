@@ -1,5 +1,6 @@
 /** NWAC's native Mountain Weather page: a date's issuances (today's by default), region-wide. */
 import { ForecastDisclaimer } from '@/components/forecast/ForecastDisclaimer'
+import { ForecastErrorBoundary } from '@/components/forecast/ForecastErrorBoundary'
 import { ForecastHeader } from '@/components/forecast/ForecastHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -80,14 +81,16 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
           time: issueTime(issuance.issuedAt, metadata.timezone),
           anchor: issuance.type,
           meta: (
-            <ForecastHeader
-              forecast={{
-                published_time: issuance.issuedAt,
-                expires_time: null,
-                author: issuance.author,
-              }}
-              timezone={metadata.timezone}
-            />
+            <ForecastErrorBoundary fallbackMessage="Unable to display weather metadata">
+              <ForecastHeader
+                forecast={{
+                  published_time: issuance.issuedAt,
+                  expires_time: null,
+                  author: issuance.author,
+                }}
+                timezone={metadata.timezone}
+              />
+            </ForecastErrorBoundary>
           ),
           content: (
             <Card>
