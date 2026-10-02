@@ -7,6 +7,7 @@
 import { createHash } from 'node:crypto'
 
 import type { ForecastResult, WarningProduct, Weather } from './model/forecast'
+import type { NWACWeatherForecastDay } from './model/nwacWeather'
 
 function sha1(value: unknown): string {
   return createHash('sha1').update(JSON.stringify(value)).digest('hex')
@@ -80,4 +81,20 @@ export function weatherPageFingerprint(weather: Weather | null): string {
 /** The weather freshness endpoint a center's Mountain Weather page asks about. */
 export function weatherFreshnessEndpoint(centerSlug: string, weather: Weather | null): string {
   return `/api/${centerSlug}/weather-freshness/${weatherPageFingerprint(weather)}`
+}
+
+/**
+ * The address NWAC's Mountain Weather page asks freshness about: a fingerprint of every issuance
+ * it rendered for today, `null` included so "none published" has an address too. Server-only.
+ */
+export function nwacWeatherPageFingerprint(day: NWACWeatherForecastDay | null): string {
+  return sha1({ nwacWeather: day })
+}
+
+/** The freshness endpoint NWAC's Mountain Weather page asks about. */
+export function nwacWeatherFreshnessEndpoint(
+  centerSlug: string,
+  day: NWACWeatherForecastDay | null,
+): string {
+  return `/api/${centerSlug}/nwac-weather-freshness/${nwacWeatherPageFingerprint(day)}`
 }

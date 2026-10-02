@@ -20,7 +20,7 @@ The whole design follows from one constraint: **the AFP is rewriting its product
 
 ### Normalized model
 
-`src/services/nac/model/` defines an API-agnostic representation of every product: `forecast.ts` covers the forecast, summary, warning and weather products, and `mapLayer.ts` covers the danger map's zone geometry and overlay. Presentation components consume only these. **No component ever sees an AFP response.**
+`src/services/nac/model/` defines an API-agnostic representation of every product: `forecast.ts` covers the forecast, summary, warning and weather products, `mapLayer.ts` covers the danger map's zone geometry and overlay, and `nwacWeather.ts` covers NWAC's own Mountain Weather Forecast. Presentation components consume only these. **No component ever sees an AFP response.**
 
 The model owns the top-level product types (`Forecast`, `Summary`, `ForecastResult`, `WarningProduct`, `Weather`, `ZoneMapLayer`) and re-exports the leaf enums it shares with the v2 wire schema. The dependency runs one way — model imports from the wire schema, never the reverse — so the wire schema stays a description of what the API sends while the model stays a description of what we need.
 
@@ -54,6 +54,14 @@ case 'v3':
 
 That is deliberate — the seam is proven by having two branches, and a misconfiguration fails loudly at the boundary rather than silently serving wrong data. Writing the v3 implementations is real work, not a config flip; see [sharp edges](#sharp-edges).
 
+### The first v3-only product
+
+NWAC's Mountain Weather Forecast never existed on v2, so `NWACWeatherSource` has one implementation, `v3/nwacWeatherSourceV3.ts`, and `getNWACWeatherSource()` has no backend to choose. It takes no center either: upstream fixes the center server-side, so a public read cannot ask for another center's data.
+
+It is built on `v3/fetch.ts`, the read path every v3 source shares: the host (`NAC_V3_HOST`, defaulting to `NAC_HOST`), error handling and schema parsing. The v3 implementations of the other four products ([#1210](https://github.com/NWACus/web/issues/1210)) are meant to use it rather than build their own. v3 sends a weak ETag on every read and the layer does not use it, because freshness is decided on a fingerprint of the normalized model (see [Freshness](#freshness)).
+
+**A v3 read throws on failure.** v3 answers "nothing published" with a 200, so `null` from this source means nothing is published and never "could not load" — a distinction the v2 sources cannot make. The page lets the throw propagate: an ISR regeneration that throws keeps serving the last good page and retries on the next request, where a caught failure would be cached as "No Mountain Weather forecast published".
+
 ## Control axes
 
 Four independent controls decide whether a reader sees a native page, and where its bytes come from. **Two are ours and two belong to the AFP.** Confusing them is the most common way to be wrong about why a page is rendering the way it is.
@@ -73,11 +81,11 @@ They compose in that order. A product renders natively only when the AFP says th
 
 > When enabled, these products render natively as Next.js pages on this site's design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback.
 
-Per-product rather than one switch, so a center can run a native forecast while its observations stay on the widget. This is center-admin-facing on purpose — the people who own the site decide when it changes, and reverting is a checkbox rather than a deploy.
+Per-product rather than one switch, so a center can run a native forecast while its observations stay on the widget. NWAC's own Mountain Weather Forecast has a checkbox of its own, `nwacWeather`, separate from `weather` (the NAC weather product, which NWAC does not publish). It is the one flag with no widget behind it: off, `/weather/forecast` and its dated pages are not found for NWAC. This is center-admin-facing on purpose — the people who own the site decide when it changes, and reverting is a checkbox rather than a deploy.
 
 ### 2. Data source — code and env, never a setting
 
-`sources/config.ts` reads one pair of vars per adapted product — `NAC_FORECAST_SOURCE`, `NAC_WARNING_SOURCE` and `NAC_MAP_LAYER_SOURCE` (`v2` | `v3`, defaulting to `v2`), plus `NAC_FORECAST_V3_CANARY_CENTERS`, `NAC_WARNING_V3_CANARY_CENTERS` and `NAC_MAP_LAYER_V3_CANARY_CENTERS` — comma-separated slugs that take v3 regardless of the default. Weather has no pair of its own; it follows the forecast selection, for the reason in [sharp edges](#sharp-edges).
+`sources/config.ts` reads one pair of vars per adapted product — `NAC_FORECAST_SOURCE`, `NAC_WARNING_SOURCE` and `NAC_MAP_LAYER_SOURCE` (`v2` | `v3`, defaulting to `v2`), plus `NAC_FORECAST_V3_CANARY_CENTERS`, `NAC_WARNING_V3_CANARY_CENTERS` and `NAC_MAP_LAYER_V3_CANARY_CENTERS` — comma-separated slugs that take v3 regardless of the default. Weather has no pair of its own; it follows the forecast selection, for the reason in [sharp edges](#sharp-edges). NWAC's Mountain Weather Forecast has none because it is v3-only.
 
 The map layer is the product closest to being ready to flip — dashboard-v2 already reads v3 in production, and v3 adds `Cache-Control`/ETag handling plus `as_of` on top of the `?day=` param v2 already honors. It still defaults to v2 so every native product page reads from one backend.
 
@@ -103,6 +111,7 @@ Some `widget_config` flags switch a feature on a page rather than the page itsel
 | `/[center]/forecasts/avalanche/archive/mountain-weather` | Per request | —      | The archive's weather tab; same query string and cache entry as the list                  |
 | `/[center]/forecasts/avalanche/archive/mountain-weather/[id]` | Per request | —  | An archived weather product by id, `robots: noindex`                                      |
 | `/[center]/weather/forecast`                  | SSG + ISR       | 300s       | Standalone Mountain Weather; asks one center-scoped freshness address                   |
+| `/[center]/weather/forecast/[date]`           | On-demand + ISR | 300s       | NWAC only: its Mountain Weather Forecast for one date; no freshness check. The page stays short-lived because its date picker lists every published date, but a past date's forecast read is cached for 30 days |
 
 The current forecast is pre-rendered for every zone, so a request is normally served from a page that already exists — this is where the project's speed benefit comes from. See [ADR 011](../decisions/011-incremental-static-regeneration.md) for the platform's ISR conventions.
 
@@ -185,6 +194,8 @@ Weather is deliberately **not** in either address. The mountain-weather product 
 
 The **standalone Mountain Weather page** (`/[center]/weather/forecast`) is where weather *is* the whole page, so it has an address of its own: `weatherPageFingerprint(weather)`, asked at `/api/<center>/weather-freshness/<fingerprint>`. It is center-scoped like the home-page banner, because one weather product covers every zone — the route fetches the current product through the center's first active zone, exactly as the page and the legacy widget's Weather tab do. A change purges the current-product tag the page renders from *and* the product's by-id tag, so a forecast page whose inline weather card shares that product comes back corrected too. The same three answers, the same indeterminate handling for an unreachable zone list or an absent product, and the same "none published" tell that keeps an off-season center from reporting itself every view.
 
+**NWAC's Mountain Weather page** is the same route (`/nwac/weather/forecast`) showing a different product from a different backend — every issuance of its own Mountain Weather Forecast for the current day — so it has an address of its own too: `nwacWeatherPageFingerprint(day)`, asked at `/api/nwac/nwac-weather-freshness/<fingerprint>`. "Current" is one rule shared by the page and the route, `currentNWACWeatherDay`: the latest forecast, as long as it is today's or yesterday's in the center's timezone. Yesterday afternoon's forecast covers tonight and tomorrow, so it stands in from midnight until the morning issuance rather than the page going empty; anything older is an off-season leftover and the page says nothing is published. The route asks about that, never a date from the URL, so the address cannot be used to fan requests out across dates. A change purges the one `nwac-weather` tag every read of the product carries. Two things differ from the routes above, both because the v3 source throws on failure where the v2 sources return `null`: a failed read is the only indeterminate case, and a fresh "nothing published" is trusted rather than suspected. So a withdrawn issuance reaches an open tab like any correction, whether the afternoon forecast falls back to the morning one or the day's last issuance goes. Only today's page mounts the check; a dated page does not.
+
 ### Three answers, and only one of them is cacheable
 
 `src/utilities/freshnessResponses.ts` owns the vocabulary. Every answer is a `200` with a JSON body; the cache policy is the safety-critical part.
@@ -258,9 +269,9 @@ One variant cannot be captured on demand: the map feature's populated warning fi
 
 Known and deliberate, but easy to be caught by.
 
-- **v3 is a seam, not an implementation.** All four v3 branches throw. Control 2 is complete — env vars, canary allowlists, resolver — which can read as "v3 is a flip away." It isn't.
+- **v3 is a seam, not an implementation, for every product that has a v2.** All four v3 branches throw. The one v3 source that exists, NWAC's Mountain Weather Forecast, has no v2 to switch from. Control 2 is complete — env vars, canary allowlists, resolver — which can read as "v3 is a flip away." It isn't.
 - **Weather follows forecast.** `getWeatherSource` resolves off the **forecast** selection, because a weather product is fetched by an id the forecast points at. So flipping forecast to v3 drags weather with it, including through the canary allowlist. Live footgun in the canary path.
-- **NWAC's weather doesn't come from the AFP.** It is authored in-house and migrating into the AFP stack as the Mountain Weather Forecast variant, with no `weather_product_id` pointer — AM/PM issuances derive from center plus service date. The pointer-driven inline weather summary finds nothing for NWAC.
+- **NWAC's weather doesn't come from the AFP.** It is authored in-house and migrating into the AFP stack as the Mountain Weather Forecast variant, with no `weather_product_id` pointer — AM/PM issuances derive from center plus service date. The pointer-driven inline weather summary finds nothing for NWAC. Its own Mountain Weather page reads the forecast through `getNWACWeatherSource()` instead.
 - **v2 will serve a shape it never used to.** The MWF migration stores an object-shaped variant envelope in `weather_data`. v3 excludes those rows from generic product reads; the legacy PHP v2 does not. That was accepted upstream because "NWAC has no live v2 weather consumers" — and our native pages default to v2, which makes us one. So the wire schema accepts the envelope (`weatherVariantEnvelopeSchema`, discriminator only), the mapper degrades it to a product with no tables, and the Mountain Weather page says visibly that there is nothing to tabulate rather than rendering an empty card. Anything that is neither tables nor an envelope is still rejected.
 - **Two weather-table formats.** Chosen by shape detection (`periods` key present → V1, else columns/rows), inherited from the widget.
 - **Warning expiry is the API's job, not ours.** The `type=warning` query returns a product only while it is inside its start/end window, approved and uncancelled; otherwise it returns a five-key all-null placeholder. The client check (`published_time` truthy, collapsed to `null` by the mapper) only distinguishes a product from that placeholder. **Do not add a client-side expiry check** — it would double-filter and could hide a warning the AFP considers active. Note the field naming invites exactly that mistake: `published_time` is the warning's effective **start** (`start_date`), not when it was written.
@@ -276,7 +287,8 @@ Known and deliberate, but easy to be caught by.
 | `src/services/nac/model/`                 | Normalized, API-agnostic product model          |
 | `src/services/nac/sources/`               | Per-product source interfaces, config, resolver |
 | `src/services/nac/sources/v2/`            | Legacy-API implementations and mappers          |
-| `src/services/nac/types/`                 | v2 wire schemas (zod)                           |
+| `src/services/nac/sources/v3/`            | The shared v3 read path, and NWAC's weather source and mapper |
+| `src/services/nac/types/`                 | Wire schemas (zod): v2, and v3's NWAC weather   |
 | `src/services/nac/forecastFingerprint.ts` | The address a page asks freshness about         |
 | `src/services/nac/weatherForForecast.ts`  | How a forecast's weather product is located     |
 | `src/app/api/[center]/*-freshness/`       | Freshness route handlers, content-addressed     |

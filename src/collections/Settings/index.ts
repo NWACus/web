@@ -269,6 +269,16 @@ const featuresFields: Field[] = [
             'Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.',
         },
       },
+      {
+        name: 'nwacWeather',
+        type: 'checkbox',
+        label: 'NWAC Mountain Weather Forecast',
+        defaultValue: false,
+        admin: {
+          description:
+            'NWAC only. Render NWAC’s own Mountain Weather Forecast at /weather/forecast. It has no widget to fall back to, so while this is off the page is not found. Other centers are unaffected.',
+        },
+      },
     ],
   },
 ]
