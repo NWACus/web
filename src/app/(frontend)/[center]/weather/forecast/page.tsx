@@ -12,6 +12,7 @@ import {
   type CenterRouteArgs,
 } from '@/utilities/centerRoutePage'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
+import { notFound } from 'next/navigation'
 
 // Short ISR backstop (5 min), matching the forecast routes: the native page renders the current
 // weather product, so it must not be frozen at build time. The revalidate-on-view path catches a
@@ -24,7 +25,9 @@ export default async function Page({ params }: CenterRouteArgs) {
   const { center } = await params
 
   // NWAC's weather comes from products-api, not the widget, and its `platforms.weather` is false.
+  // It has a rollout flag of its own; with no widget to fall back to, off means no page.
   if (center === 'nwac') {
+    if (!(await getNativeProductFlag(center, 'nwacWeather'))) notFound()
     return (
       <>
         <Breadcrumbs center={center} path="/weather/forecast" />

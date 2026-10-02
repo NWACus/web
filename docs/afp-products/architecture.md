@@ -81,7 +81,7 @@ They compose in that order. A product renders natively only when the AFP says th
 
 > When enabled, these products render natively as Next.js pages on this site's design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback.
 
-Per-product rather than one switch, so a center can run a native forecast while its observations stay on the widget. This is center-admin-facing on purpose — the people who own the site decide when it changes, and reverting is a checkbox rather than a deploy.
+Per-product rather than one switch, so a center can run a native forecast while its observations stay on the widget. NWAC's own Mountain Weather Forecast has a checkbox of its own, `nwacWeather`, separate from `weather` (the NAC weather product, which NWAC does not publish). It is the one flag with no widget behind it: off, `/weather/forecast` and its dated pages are not found for NWAC. This is center-admin-facing on purpose — the people who own the site decide when it changes, and reverting is a checkbox rather than a deploy.
 
 ### 2. Data source — code and env, never a setting
 
