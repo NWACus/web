@@ -62,7 +62,7 @@ The station map reads SnowObs, which has no v2→v3 migration and so no golden c
 
 ## NWAC's Mountain Weather Forecast is mocked the same way
 
-NWAC's own weather forecast is read from products-api v3 and never existed on v2, so it has no parity obligation and no corpus either. `handlers.mjs` serves one recorded day, the fixture the mapper's unit tests already read (`__tests__/server/fixtures/nwac-weather-forecasts.json`), for that day's date, and v3's real "nothing published" answer for every other date. The archive endpoint lists that one day's issuances whatever range is asked for. So `/weather/forecast/2026-09-14` is the page with a forecast on it, and today's page is always the nothing-published state, which is also what its freshness spec asks about.
+NWAC's own weather forecast is read from products-api v3 and never existed on v2, so it has no parity obligation and no corpus either. `handlers.mjs` serves one recorded day, the fixture the mapper's unit tests already read (`__tests__/server/fixtures/nwac-weather-forecasts.json`), for that day's date and as the latest forecast when no date is asked for, and v3's real "nothing published" answer for every other date. The archive endpoint lists that one day's issuances whatever range is asked for. So `/weather/forecast/2026-09-14` is the page with a forecast on it, and today's page is always the nothing-published state (the recorded day is long past, so it is not current), which is also what its freshness spec asks about.
 
 These handlers are not optional for the build: the v3 source throws on a failed read, so an unmapped v3 URL fails NWAC's prerender rather than degrading it.
 

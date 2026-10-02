@@ -17,12 +17,12 @@ jest.mock('../../src/utilities/freshnessTelemetry', () => ({
   reportIndeterminate: (...args: unknown[]) => mockReportIndeterminate(...args),
 }))
 
-const mockGetDayFresh = jest.fn()
-const mockGetDay = jest.fn()
+const mockGetLatestFresh = jest.fn()
+const mockGetLatest = jest.fn()
 jest.mock('../../src/services/nac/sources', () => ({
   getNWACWeatherSource: () => ({
-    getDayFresh: (...a: unknown[]) => mockGetDayFresh(...a),
-    getDay: (...a: unknown[]) => mockGetDay(...a),
+    getLatestFresh: (...a: unknown[]) => mockGetLatestFresh(...a),
+    getLatest: (...a: unknown[]) => mockGetLatest(...a),
   }),
 }))
 
@@ -56,16 +56,16 @@ function check(fingerprint: string, center = 'nwac') {
 
 /** The common case: the shared cache holds `day`, and upstream agrees unless told otherwise. */
 function upstreamAndCacheHold(fresh: unknown = day) {
-  mockGetDayFresh.mockResolvedValue(fresh)
-  mockGetDay.mockResolvedValue(day)
+  mockGetLatestFresh.mockResolvedValue(fresh)
+  mockGetLatest.mockResolvedValue(day)
 }
 
 beforeEach(() => {
   jest.useFakeTimers({ now: new Date('2026-09-15T02:00:00Z') })
   mockRevalidateTag.mockClear()
   mockReportIndeterminate.mockClear()
-  mockGetDayFresh.mockReset()
-  mockGetDay.mockReset()
+  mockGetLatestFresh.mockReset()
+  mockGetLatest.mockReset()
   mockGetAvalancheCenterMetadata.mockReset()
   mockGetAvalancheCenterMetadata.mockResolvedValue({ timezone: 'America/Los_Angeles' })
 })
@@ -86,14 +86,26 @@ describe('nwac-weather-freshness route', () => {
     expect(mockRevalidateTag).not.toHaveBeenCalled()
   })
 
-  it('asks about today in the center’s timezone, not the caller’s or UTC’s', async () => {
+  it('treats yesterday afternoon’s forecast as current until the morning one is out', async () => {
+    // 15:00 UTC on the 15th is the morning of the 15th in Seattle; the latest forecast is the 14th's.
+    jest.setSystemTime(new Date('2026-09-15T15:00:00Z'))
     upstreamAndCacheHold()
 
-    await check(etag)
+    const res = await answer(await check(etag))
 
-    // 02:00 UTC on the 15th is still the 14th in Seattle.
-    expect(mockGetDayFresh).toHaveBeenCalledWith('2026-09-14')
-    expect(mockGetDay).toHaveBeenCalledWith('2026-09-14')
+    expect(res.body).toEqual({ changed: false })
+    expect(res.cacheControl).toBe(CACHEABLE)
+  })
+
+  it('reads the date in the center’s timezone: a forecast two days old is not current', async () => {
+    // 08:00 UTC on the 16th is already the 16th in Seattle, so the 14th's forecast has lapsed.
+    jest.setSystemTime(new Date('2026-09-16T08:00:00Z'))
+    upstreamAndCacheHold()
+
+    const res = await answer(await check(etag))
+
+    expect(res.body).toEqual({ changed: true, etag: nwacWeatherPageFingerprint(null) })
+    expect(mockRevalidateTag).not.toHaveBeenCalled()
   })
 
   it('reports a change, uncacheably, and purges when an issuance was corrected', async () => {
@@ -127,8 +139,8 @@ describe('nwac-weather-freshness route', () => {
   })
 
   it('reports and purges a first publish into a day that had nothing', async () => {
-    mockGetDayFresh.mockResolvedValue(day)
-    mockGetDay.mockResolvedValue(null)
+    mockGetLatestFresh.mockResolvedValue(day)
+    mockGetLatest.mockResolvedValue(null)
 
     const res = await answer(await check(nwacWeatherPageFingerprint(null)))
 
@@ -137,8 +149,8 @@ describe('nwac-weather-freshness route', () => {
   })
 
   it('answers "you’re current", cacheably, to a page that also has nothing published', async () => {
-    mockGetDayFresh.mockResolvedValue(null)
-    mockGetDay.mockResolvedValue(null)
+    mockGetLatestFresh.mockResolvedValue(null)
+    mockGetLatest.mockResolvedValue(null)
 
     const res = await answer(await check(nwacWeatherPageFingerprint(null)))
 
@@ -158,8 +170,8 @@ describe('nwac-weather-freshness route', () => {
   })
 
   it('is indeterminate, and reports it, when the fresh read fails', async () => {
-    mockGetDayFresh.mockRejectedValue(new Error('upstream down'))
-    mockGetDay.mockResolvedValue(day)
+    mockGetLatestFresh.mockRejectedValue(new Error('upstream down'))
+    mockGetLatest.mockResolvedValue(day)
 
     expectIndeterminate(await answer(await check(etag)), mockRevalidateTag)
     expect(mockReportIndeterminate).toHaveBeenCalledWith('nwac-weather-unreachable', 'nwac')
@@ -169,7 +181,7 @@ describe('nwac-weather-freshness route', () => {
     mockGetAvalancheCenterMetadata.mockRejectedValue(new Error('upstream down'))
 
     expectIndeterminate(await answer(await check(etag)), mockRevalidateTag)
-    expect(mockGetDayFresh).not.toHaveBeenCalled()
+    expect(mockGetLatestFresh).not.toHaveBeenCalled()
   })
 
   it('rejects a malformed fingerprint before going upstream', async () => {

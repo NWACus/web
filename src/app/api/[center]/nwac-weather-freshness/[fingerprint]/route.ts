@@ -4,6 +4,7 @@ import { todayInTimezone } from '@/services/nac/forecastArchive'
 import { nwacWeatherPageFingerprint } from '@/services/nac/forecastFingerprint'
 import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 import { getAvalancheCenterMetadata, nwacWeatherCacheTag } from '@/services/nac/nac'
+import { currentNWACWeatherDay } from '@/services/nac/nwacWeatherCurrent'
 import { getNWACWeatherSource } from '@/services/nac/sources'
 import { unknownCenterResponse } from '@/utilities/apiResponses'
 import {
@@ -19,20 +20,23 @@ import { revalidateTag } from 'next/cache'
 // Keeps each answer's own `Cache-Control` reaching the CDN, as on the sibling freshness routes.
 export const dynamic = 'force-dynamic'
 
-interface Today {
+interface Current {
   fresh: NWACWeatherForecastDay | null
   /** What the shared cache is serving. */
   cached: NWACWeatherForecastDay | null
 }
 
-/** Today's forecast, fresh and as cached, or `null` when either read (or the timezone) fails. */
-async function readToday(center: string): Promise<Today | null> {
+/** What today's page shows, fresh and as cached, or `null` when a read (or the timezone) fails. */
+async function readCurrent(center: string): Promise<Current | null> {
   try {
     const { timezone } = await getAvalancheCenterMetadata(center)
     const today = todayInTimezone(timezone)
     const source = getNWACWeatherSource()
-    const [fresh, cached] = await Promise.all([source.getDayFresh(today), source.getDay(today)])
-    return { fresh, cached }
+    const [fresh, cached] = await Promise.all([source.getLatestFresh(), source.getLatest()])
+    return {
+      fresh: currentNWACWeatherDay(fresh, today),
+      cached: currentNWACWeatherDay(cached, today),
+    }
   } catch {
     return null
   }
@@ -44,9 +48,10 @@ async function readToday(center: string): Promise<Today | null> {
  * when the server sees it differ from the fresh read, and refresh this viewer when their
  * fingerprint is behind. See docs/afp-products/architecture.md, "Freshness".
  *
- * The date is the server's own "today", never the caller's, so the address cannot be used to fan
- * requests out across dates. And because the v3 source throws on failure, a fresh `null` is a real
- * "nothing published": a withdrawn forecast is reported like any other change.
+ * It asks about what today's page shows (`currentNWACWeatherDay`), never a date from the caller,
+ * so the address cannot be used to fan requests out across dates. And because the v3 source
+ * throws on failure, a fresh `null` is a real "nothing published": a withdrawn forecast is
+ * reported like any other change.
  */
 export async function GET(
   _request: Request,
@@ -57,14 +62,14 @@ export async function GET(
   if (!isFingerprint(fingerprint)) return malformedFingerprintResponse()
   if (center !== 'nwac') return unknownCenterResponse()
 
-  const today = await readToday(center)
-  if (!today) {
+  const current = await readCurrent(center)
+  if (!current) {
     reportIndeterminate('nwac-weather-unreachable', center)
     return indeterminateResponse()
   }
 
-  const freshEtag = nwacWeatherPageFingerprint(today.fresh)
-  if (nwacWeatherPageFingerprint(today.cached) !== freshEtag) revalidateTag(nwacWeatherCacheTag)
+  const freshEtag = nwacWeatherPageFingerprint(current.fresh)
+  if (nwacWeatherPageFingerprint(current.cached) !== freshEtag) revalidateTag(nwacWeatherCacheTag)
 
   if (fingerprint !== freshEtag) return changedResponse(freshEtag)
   return unchangedResponse()

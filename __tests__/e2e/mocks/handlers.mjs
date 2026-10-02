@@ -199,12 +199,14 @@ export function buildHandlers() {
       return absent ? absentResponse(absent) : recordMissing(request)
     }),
 
-    // NWAC's Mountain Weather Forecast: the recorded day for its own date, nothing for any other,
-    // and an archive listing that day's issuances whatever range is asked for.
+    // NWAC's Mountain Weather Forecast: the recorded day for its own date and as the latest,
+    // nothing for any other date, and an archive listing that day's issuances whatever the range.
     http.get(`${mockNacHost}/v3/public/nwac-weather/forecasts`, ({ request }) => {
       const day = nwacWeatherDay()
       const date = new URL(request.url).searchParams.get('date')
-      return HttpResponse.json(date === day.serviceDate ? day : NWAC_WEATHER_NOTHING_PUBLISHED)
+      // With no date, v3 answers with the latest date that has a forecast.
+      const match = !date || date === day.serviceDate
+      return HttpResponse.json(match ? day : NWAC_WEATHER_NOTHING_PUBLISHED)
     }),
     http.get(`${mockNacHost}/v3/public/nwac-weather/forecast/archive`, () =>
       HttpResponse.json(

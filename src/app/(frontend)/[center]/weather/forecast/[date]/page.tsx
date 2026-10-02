@@ -6,7 +6,8 @@ import { fmtCalendarDate } from '@/services/nac/nwacWeatherFormat'
 import { format, isValid, parseISO } from 'date-fns'
 import { notFound } from 'next/navigation'
 
-// Rendered on first request, then refreshed like today's page in case of a correction.
+// The page stays on the short window because the picker's date list grows daily. A past date's
+// forecast itself no longer changes, and its read is cached for 30 days in the source.
 export const revalidate = 300
 
 export function generateStaticParams() {
