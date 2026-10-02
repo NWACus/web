@@ -72,10 +72,15 @@ export interface WeatherSource {
  * published, never "could not load".
  */
 export interface NWACWeatherSource {
-  /** Every issuance published for a date (`YYYY-MM-DD`), newest first, or `null` when none is. */
-  getDay(date: string): Promise<NWACWeatherForecastDay | null>
+  /**
+   * Every issuance published for a date (`YYYY-MM-DD`), newest first, or `null` when none is.
+   * `historical` marks a date already past, whose forecast no longer changes and is cached long.
+   */
+  getDay(date: string, options?: { historical?: boolean }): Promise<NWACWeatherForecastDay | null>
+  /** The most recent date with a forecast, or `null` when nothing has ever been published. */
+  getLatest(): Promise<NWACWeatherForecastDay | null>
   /** The same read fetched fresh (short-cached), for the revalidate-on-view freshness check. */
-  getDayFresh(date: string): Promise<NWACWeatherForecastDay | null>
+  getLatestFresh(): Promise<NWACWeatherForecastDay | null>
   /** The dates from `from` to `to` with a published forecast, oldest first. */
   getDates(from: string, to: string): Promise<string[]>
 }

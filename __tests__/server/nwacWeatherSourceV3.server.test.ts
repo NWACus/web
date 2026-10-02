@@ -39,30 +39,51 @@ describe('NWAC weather v3 source', () => {
     expect(day?.issuances.map((i) => i.type)).toEqual(['afternoon', 'morning'])
   })
 
-  it('reads the fresh day past the data cache', async () => {
+  it('caches a past date for 30 days, still under the purgeable tag', async () => {
     mockNacFetch.mockResolvedValue(fixture)
 
-    const day = await source.getDayFresh('2026-09-14')
+    await source.getDay('2026-09-14', { historical: true })
 
     expect(mockNacFetch).toHaveBeenCalledWith('/v3/public/nwac-weather/forecasts?date=2026-09-14', {
+      cachedTime: 2592000,
+      tags: ['nwac-weather'],
+      host: v3ApiHost,
+    })
+  })
+
+  it('reads the latest forecast with no date, cached, and fresh past the data cache', async () => {
+    mockNacFetch.mockResolvedValue(fixture)
+
+    const latest = await source.getLatest()
+    const fresh = await source.getLatestFresh()
+
+    expect(mockNacFetch).toHaveBeenNthCalledWith(1, '/v3/public/nwac-weather/forecasts', {
+      cachedTime: 300,
+      tags: ['nwac-weather'],
+      host: v3ApiHost,
+    })
+    expect(mockNacFetch).toHaveBeenNthCalledWith(2, '/v3/public/nwac-weather/forecasts', {
       noStore: true,
       host: v3ApiHost,
     })
-    expect(day?.issuances).toHaveLength(2)
+    expect(latest?.serviceDate).toBe('2026-09-14')
+    expect(fresh?.issuances).toHaveLength(2)
   })
 
-  it('answers null, not an error, when nothing is published for the date', async () => {
+  it('answers null, not an error, when nothing is published', async () => {
     mockNacFetch.mockResolvedValue(NOTHING_PUBLISHED)
 
     await expect(source.getDay('2026-09-15')).resolves.toBeNull()
-    await expect(source.getDayFresh('2026-09-15')).resolves.toBeNull()
+    await expect(source.getLatest()).resolves.toBeNull()
+    await expect(source.getLatestFresh()).resolves.toBeNull()
   })
 
   it('throws on an upstream failure rather than answering "nothing published"', async () => {
     mockNacFetch.mockRejectedValue(new Error('upstream down'))
 
     await expect(source.getDay('2026-09-14')).rejects.toThrow('upstream down')
-    await expect(source.getDayFresh('2026-09-14')).rejects.toThrow('upstream down')
+    await expect(source.getLatest()).rejects.toThrow('upstream down')
+    await expect(source.getLatestFresh()).rejects.toThrow('upstream down')
     await expect(source.getDates('2025-09-14', '2026-09-14')).rejects.toThrow('upstream down')
   })
 
