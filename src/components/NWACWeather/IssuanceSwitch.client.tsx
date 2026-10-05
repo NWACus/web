@@ -1,14 +1,12 @@
 'use client'
 
 /**
- * One of a day's issuances at a time, newest first, with a Morning / Afternoon switch when there
- * are two. With a `heading`, the switch sits beside it and the shown issuance's `meta` in a
- * full-width row beneath.
+ * One of a day's issuances at a time, newest first, with a Morning / Afternoon switch beside the
+ * heading when there are two, and the shown issuance's `meta` in a full-width row beneath.
  */
 import { useEffect, useState, type ReactNode } from 'react'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { cn } from '@/utilities/ui'
 
 export interface IssuancePanel {
   key: string
@@ -26,14 +24,10 @@ function Switch({
   panels,
   active,
   onPick,
-  markLatest,
-  className,
 }: {
   panels: IssuancePanel[]
   active: string | undefined
   onPick: (key: string) => void
-  markLatest: boolean
-  className?: string
 }) {
   if (panels.length < 2) return null
   return (
@@ -43,7 +37,7 @@ function Switch({
       // Radix clears the value when the pressed item is pressed again; keep one shown.
       onValueChange={(value) => value && onPick(value)}
       aria-label="Issuance"
-      className={cn('inline-flex rounded-md bg-muted p-1 print:hidden', className)}
+      className="grid grid-cols-2 rounded-md bg-muted p-1 print:hidden sm:inline-flex"
     >
       {/* Panels come newest first; the buttons read in time order, Morning before Afternoon. */}
       {[...panels].reverse().map((p) => (
@@ -56,13 +50,9 @@ function Switch({
           {p.label}
           {p.time && (
             // No room beside Latest on a phone; the issued line has the time.
-            <span
-              className={cn('font-normal text-muted-foreground', markLatest && 'hidden sm:inline')}
-            >
-              {p.time}
-            </span>
+            <span className="hidden font-normal text-muted-foreground sm:inline">{p.time}</span>
           )}
-          {markLatest && p.key === panels[0].key && (
+          {p.key === panels[0].key && (
             <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-sky-900">
               Latest
             </span>
@@ -98,38 +88,17 @@ export function IssuanceSwitch({
   heading,
 }: {
   panels: IssuancePanel[]
-  heading?: ReactNode
+  heading: ReactNode
 }) {
   const [active, setActive] = useState(panels[0]?.key)
   const shown = (p: IssuancePanel) => p.key === active
   useAnchoredPanel(panels, setActive)
 
-  const body = panels.map((p) => (
-    <div key={p.key} hidden={!shown(p)}>
-      {p.content}
-    </div>
-  ))
-
-  if (!heading) {
-    return (
-      <div className="space-y-4">
-        <Switch panels={panels} active={active} onPick={setActive} markLatest={false} />
-        {body}
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
         {heading}
-        <Switch
-          panels={panels}
-          active={active}
-          onPick={setActive}
-          markLatest
-          className="grid grid-cols-2 sm:inline-flex"
-        />
+        <Switch panels={panels} active={active} onPick={setActive} />
       </header>
       {panels.map(
         (p) =>
@@ -139,7 +108,11 @@ export function IssuanceSwitch({
             </div>
           ),
       )}
-      {body}
+      {panels.map((p) => (
+        <div key={p.key} hidden={!shown(p)}>
+          {p.content}
+        </div>
+      ))}
     </div>
   )
 }

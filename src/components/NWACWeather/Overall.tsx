@@ -634,38 +634,53 @@ function sensibleDays(issuance: NWACWeatherIssuance) {
   return { days, rows: any ? rows : [] }
 }
 
-function sectionLinks(issuance: NWACWeatherIssuance): SectionLink[] {
+/** Everything the issuance's card shows, built once for the section tabs and the body. */
+export interface OverallParts {
+  issuance: NWACWeatherIssuance
+  synopsis: string | null
+  extended: string | null
+  snowLevel: Table
+  temps: Table
+  wind: Table
+  snow: Table
+  ext: Table
+  sensible: ReturnType<typeof sensibleDays>
+}
+
+export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
   const [snowLevel, temps, wind] = zoneTables(issuance)
-  const hasExtended =
-    !!authoredOrNull(issuance.extendedOutlook) || hasContent(extendedTable(issuance))
+  return {
+    issuance,
+    synopsis: authoredOrNull(issuance.synopsis),
+    extended: authoredOrNull(issuance.extendedOutlook),
+    snowLevel,
+    temps,
+    wind,
+    snow: snowTable(issuance),
+    ext: extendedTable(issuance),
+    sensible: sensibleDays(issuance),
+  }
+}
+
+function sectionLinks(p: OverallParts): SectionLink[] {
+  const hasExtended = !!p.extended || hasContent(p.ext)
   return [
-    ...(authoredOrNull(issuance.synopsis) ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...(sensibleDays(issuance).rows.length ? [{ id: 'sensible', label: 'Sensible weather' }] : []),
-    ...[snowTable(issuance), snowLevel, temps, wind]
+    ...(p.synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
+    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Sensible weather' }] : []),
+    ...[p.snow, p.snowLevel, p.temps, p.wind]
       .filter(hasContent)
       .map((t) => ({ id: t.id, label: t.nav })),
     ...(hasExtended ? [{ id: 'extended', label: 'Extended' }] : []),
-  ].map((l) => ({ ...l, id: `${issuance.type}-${l.id}` }))
+  ].map((l) => ({ ...l, id: `${p.issuance.type}-${l.id}` }))
 }
 
 /** The issuance's section links, for the tabs across the top of its card. */
-export function OverallSectionTabs({ issuance }: { issuance: NWACWeatherIssuance }) {
-  return <SectionTabs links={sectionLinks(issuance)} />
+export function OverallSectionTabs({ parts }: { parts: OverallParts }) {
+  return <SectionTabs links={sectionLinks(parts)} />
 }
 
-export function Overall({
-  issuance,
-  zonePaths = {},
-}: {
-  issuance: NWACWeatherIssuance
-  zonePaths?: ZonePaths
-}) {
-  const synopsis = authoredOrNull(issuance.synopsis)
-  const extended = authoredOrNull(issuance.extendedOutlook)
-  const [snowLevel, temps, wind] = zoneTables(issuance)
-  const sensible = sensibleDays(issuance)
-  const snow = snowTable(issuance)
-  const ext = extendedTable(issuance)
+export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePaths?: ZonePaths }) {
+  const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, snow, ext } = parts
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
   const tempsOrWind = hasContent(temps) || hasContent(wind)

@@ -6,6 +6,30 @@ const DATES = ['2026-09-15', '2026-09-17', '2026-09-22', '2026-09-23']
 const RANGE = { from: '2026-08-01', to: '2026-09-30' }
 const TODAY = '2026-09-23'
 
+// The picker re-reads today from the clock after mount; only Date is faked, so waitFor still runs.
+beforeEach(() => {
+  jest.useFakeTimers({
+    now: new Date('2026-09-23T12:00:00'),
+    doNotFake: [
+      'setTimeout',
+      'clearTimeout',
+      'setInterval',
+      'clearInterval',
+      'setImmediate',
+      'clearImmediate',
+      'nextTick',
+      'queueMicrotask',
+      'requestAnimationFrame',
+      'cancelAnimationFrame',
+      'performance',
+    ],
+  })
+})
+
+afterEach(() => {
+  jest.useRealTimers()
+})
+
 function renderPicker(date: string) {
   return render(<DatePicker date={date} today={TODAY} initialDates={DATES} initialRange={RANGE} />)
 }

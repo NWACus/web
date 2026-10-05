@@ -1,5 +1,5 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
-import { Overall, OverallSectionTabs } from '@/components/NWACWeather/Overall'
+import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
@@ -12,7 +12,7 @@ const [afternoon, morning] = day.issuances
 
 describe('Overall', () => {
   it('renders one table per variable, stations and zones down the rows', () => {
-    render(<Overall issuance={afternoon} />)
+    render(<Overall parts={overallParts(afternoon)} />)
     for (const title of [
       'Snow (in)',
       "5000' Temperatures (°F)",
@@ -34,7 +34,7 @@ describe('Overall', () => {
   it('leads with sensible weather and links each zone to its forecast page', () => {
     render(
       <Overall
-        issuance={afternoon}
+        parts={overallParts(afternoon)}
         zonePaths={{ 1645: '/forecasts/avalanche/olympics#mountain-weather' }}
       />,
     )
@@ -47,7 +47,7 @@ describe('Overall', () => {
   })
 
   it('gives the synopsis the full width when no zone has a forecast page to link to', () => {
-    render(<Overall issuance={afternoon} />)
+    render(<Overall parts={overallParts(afternoon)} />)
 
     expect(screen.queryByRole('complementary', { name: 'Weather by zone' })).toBeNull()
     const synopsis = screen.getByRole('heading', { name: 'Weather Synopsis' }).closest('section')
@@ -55,21 +55,21 @@ describe('Overall', () => {
   })
 
   it('groups snow stations under their zones', () => {
-    render(<Overall issuance={afternoon} />)
+    render(<Overall parts={overallParts(afternoon)} />)
     const snow = screen.getByRole('region', { name: 'Snow (in)' })
     expect(within(snow).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
     expect(within(snow).getByRole('rowheader', { name: 'Hurricane Ridge' })).toBeInTheDocument()
   })
 
   it('has no extended table on a morning issuance', () => {
-    render(<Overall issuance={morning} />)
+    render(<Overall parts={overallParts(morning)} />)
     expect(screen.queryByRole('heading', { name: 'Snow Levels (ft)' })).toBeNull()
   })
 })
 
 describe('Overall sensible weather', () => {
   it('shows one day at a time and switches to the other', () => {
-    render(<Overall issuance={afternoon} />)
+    render(<Overall parts={overallParts(afternoon)} />)
     const sensible = screen.getByRole('region', { name: 'Sensible Weather' })
     // An afternoon issuance opens on a night, so its first day is Tonight; each carries its date.
     const [today, tomorrow] = within(sensible).getAllByRole('radio')
@@ -86,7 +86,7 @@ describe('Overall sensible weather', () => {
 
 describe('Overall extended section', () => {
   it('shows the snow levels without an outlook when the forecaster wrote none', () => {
-    render(<Overall issuance={{ ...afternoon, extendedOutlook: null }} />)
+    render(<Overall parts={overallParts({ ...afternoon, extendedOutlook: null })} />)
     expect(screen.getByRole('heading', { name: 'Extended' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Outlook' })).toBeNull()
     expect(screen.getByRole('heading', { name: 'Snow Levels (ft)' })).toBeInTheDocument()
@@ -95,7 +95,7 @@ describe('Overall extended section', () => {
 
 describe('Overall table descriptions', () => {
   it('continues each short note with the legacy page’s explanation', () => {
-    render(<Overall issuance={afternoon} />)
+    render(<Overall parts={overallParts(afternoon)} />)
 
     expect(
       screen.getByText(/^Where rain turns to snow\. Darker is higher\. The snow level forecast/),
@@ -114,7 +114,7 @@ describe('Overall table descriptions', () => {
 
 describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
-    render(<OverallSectionTabs issuance={afternoon} />)
+    render(<OverallSectionTabs parts={overallParts(afternoon)} />)
     const nav = screen.getByRole('navigation', { name: 'Forecast sections' })
     expect(within(nav).getByRole('link', { name: 'Sensible weather' })).toHaveAttribute(
       'href',
@@ -124,7 +124,7 @@ describe('OverallSectionTabs', () => {
   })
 
   it('leaves out Extended on a morning issuance', () => {
-    render(<OverallSectionTabs issuance={morning} />)
+    render(<OverallSectionTabs parts={overallParts(morning)} />)
     expect(screen.queryByRole('link', { name: 'Extended' })).toBeNull()
   })
 })
@@ -176,6 +176,7 @@ describe('IssuanceSwitch anchors', () => {
     window.history.replaceState(null, '', '/#morning-snow')
     render(
       <IssuanceSwitch
+        heading={<h1>Mountain Weather</h1>}
         panels={[
           { key: 'pm', label: 'Afternoon', time: null, anchor: 'afternoon', content: 'PM body' },
           { key: 'am', label: 'Morning', time: null, anchor: 'morning', content: 'AM body' },
