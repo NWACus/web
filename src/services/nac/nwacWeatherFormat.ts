@@ -3,7 +3,6 @@ import type {
   NWACWeatherBlock,
   NWACWeatherGrid,
   NWACWeatherIssuance,
-  NWACWeatherLevelCell,
   NWACWeatherPeriod,
 } from './model/nwacWeather'
 
@@ -31,16 +30,6 @@ export function fmtSnowAmount(snow: number | null): string {
   if (snow == null) return DASH
   if (snow < 0.5) return '0'
   return `${Math.round(snow)}"`
-}
-
-export function fmtTemp(cell: { high: number | null; low: number | null } | undefined) {
-  if (cell?.high == null || cell?.low == null) return DASH
-  return `${cell.high} / ${cell.low}`
-}
-
-export function fmtSnowLevel(cell: NWACWeatherLevelCell | undefined) {
-  const level = deriveSnowLevel(cell?.freezing, cell?.drop)
-  return level == null ? DASH : `${level.toLocaleString('en-US')}'`
 }
 
 export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
@@ -84,30 +73,6 @@ export function snowLevelTones(levels: (number | null)[]): (number | null)[] {
     if (l == null) return null
     return hi === lo ? 0 : Math.round(((l - lo) / (hi - lo)) * 3)
   })
-}
-
-/** A zone's snow for one period: the mean over its points, printed in 2-inch bands. */
-export function rangeBucket(value: number | null, step = 2): string {
-  if (value == null) return DASH
-  if (value <= 0) return '0'
-  const lo = Math.floor(value / step) * step
-  return `${lo}–${lo + step}"`
-}
-
-export function zoneSnow(
-  issuance: NWACWeatherIssuance,
-  zoneId: string,
-  periodKey: string,
-): number | null {
-  const snows = issuance.points
-    .filter((p) => p.zoneId === zoneId)
-    .map((p) => {
-      const cell = issuance.precip[p.code]?.[periodKey]
-      return deriveSnow(cell?.qpf, cell?.density)
-    })
-    .filter((s): s is number => s != null)
-  if (snows.length === 0) return null
-  return Math.round((snows.reduce((a, b) => a + b, 0) / snows.length) * 10) / 10
 }
 
 /** The periods the issuance forecasts precipitation for. */
@@ -185,11 +150,4 @@ export function periodDateGroups(periods: NWACWeatherPeriod[]): { date: string; 
 /** The date a 6h block falls on, via its parent period. */
 export function blockDate(issuance: NWACWeatherIssuance, block: NWACWeatherBlock): string | null {
   return issuance.periods.find((p) => p.key === block.period)?.date ?? null
-}
-
-/** The zones an issuance measured, narrowed to one avalanche zone when the page has one. */
-export function zonesFor(issuance: NWACWeatherIssuance, avalancheZoneId?: number | null) {
-  if (avalancheZoneId == null) return issuance.zones
-  const match = issuance.zones.filter((z) => z.avalancheZoneId === avalancheZoneId)
-  return match
 }

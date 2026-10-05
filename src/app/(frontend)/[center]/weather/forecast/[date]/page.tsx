@@ -2,8 +2,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { ForecastPage } from '@/components/NWACWeather/ForecastPage'
+import { isCalendarDate } from '@/services/nac/archiveDates'
 import { fmtCalendarDate } from '@/services/nac/nwacWeatherFormat'
-import { format, isValid, parseISO } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { notFound } from 'next/navigation'
 
 // Historical, like the dated avalanche route: no freshness check, and a long backstop. A date
@@ -18,12 +19,10 @@ type Args = {
   params: Promise<{ center: string; date: string }>
 }
 
-const DATE = /^\d{4}-\d{2}-\d{2}$/
-
 /** NWAC's Mountain Weather for one date. Other centers have no dated weather page. */
 export default async function Page({ params }: Args) {
   const { center, date } = await params
-  if (center !== 'nwac' || !DATE.test(date) || !isValid(parseISO(date))) notFound()
+  if (center !== 'nwac' || !isCalendarDate(date)) notFound()
 
   return (
     <>
