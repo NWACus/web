@@ -223,7 +223,7 @@ sig = "111f31bffb328604"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/NWACWeather/DatePicker.client.tsx"
-sig = "119a2a88acfa2dde"
+sig = "6229da14d17a5c14"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -318,7 +318,7 @@ sig = "620e3b1733d93855"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/archiveDates.ts"
-sig = "a7ce07d276b98474"
+sig = "cdd326f496aac82b"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -368,7 +368,7 @@ sig = "121350f7a91603bd"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/v3/nwacWeatherSourceV3.ts"
-sig = "52398a4808f5cd28"
+sig = "08f8a4d2419817fc"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

@@ -12,6 +12,7 @@ import { TZDate } from '@date-fns/tz'
 import { addDays } from 'date-fns/addDays'
 import { endOfMonth } from 'date-fns/endOfMonth'
 import { format } from 'date-fns/format'
+import { isValid } from 'date-fns/isValid'
 import { parseISO } from 'date-fns/parseISO'
 import { startOfMonth } from 'date-fns/startOfMonth'
 import { subMonths } from 'date-fns/subMonths'
@@ -187,6 +188,11 @@ export function parseArchiveWindowQuery(
   if (!zoneSlug || !window) return null
 
   return { zoneSlug, ...window }
+}
+
+/** A real `YYYY-MM-DD` day, not just the pattern: `2026-13-45` matches the pattern alone. */
+export function isCalendarDate(date: string): boolean {
+  return DATE_PATTERN.test(date) && isValid(parseISO(date))
 }
 
 /** A `from`..`to` window of `YYYY-MM-DD` dates, or `null` when either is missing or malformed or the window runs backwards. */

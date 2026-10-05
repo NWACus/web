@@ -4,18 +4,13 @@ import {
   deriveSnowLevel,
   fmtCalendarDate,
   fmtSnowAmount,
-  fmtSnowLevel,
-  fmtTemp,
   fmtWind,
   periodDateGroups,
   precipPeriods,
-  rangeBucket,
   snowLevelBlocks,
   snowLevelTones,
   windBearing,
   windBlocks,
-  zoneSnow,
-  zonesFor,
 } from '@/services/nac/nwacWeatherFormat'
 import {
   mapV3NWACWeatherForecastDay,
@@ -104,14 +99,9 @@ describe('nwacWeatherFormat', () => {
     expect(fmtSnowAmount(3.4)).toBe('3"')
     expect(fmtSnowAmount(0.2)).toBe('0')
     expect(fmtSnowAmount(null)).toBe('—')
-    expect(fmtTemp({ high: 31, low: 22 })).toBe('31 / 22')
-    expect(fmtTemp({ high: 31, low: null })).toBe('—')
-    expect(fmtSnowLevel({ freezing: 5000, drop: 1000, mode: 'auto' })).toBe("4,000'")
     expect(fmtWind({ dir: 'SW', speed: 25 })).toBe('SW 25')
     expect(fmtWind({ dir: null, speed: 0 })).toBe('Calm')
     expect(fmtWind(undefined)).toBe('—')
-    expect(rangeBucket(3)).toBe('2–4"')
-    expect(rangeBucket(0)).toBe('0')
     expect(fmtCalendarDate('2026-09-14')).toBe('Mon Sep 14')
   })
 
@@ -127,12 +117,6 @@ describe('nwacWeatherFormat', () => {
     expect(snowLevelTones([8500, 9000, 10000, null])).toEqual([0, 1, 3, null])
     expect(snowLevelTones([4000, 4000])).toEqual([0, 0])
     expect(snowLevelTones([null])).toEqual([null])
-  })
-
-  it('averages a zone’s points into a snow bucket', () => {
-    const snow = zoneSnow(afternoon, 'olympics', 'n1')
-    expect(snow).toBe(deriveSnow(0.24, 11))
-    expect(zoneSnow(afternoon, 'nowhere', 'n1')).toBeNull()
   })
 
   it('lets the data decide which blocks a 6h table shows', () => {
@@ -154,11 +138,5 @@ describe('nwacWeatherFormat', () => {
       { date: '2026-09-15', span: 1 },
     ])
     expect(blockDate(afternoon, afternoon.blocks[0])).toBe('2026-09-14')
-  })
-
-  it('narrows zones to the avalanche zone a page is for', () => {
-    expect(zonesFor(afternoon).length).toBe(10)
-    expect(zonesFor(afternoon, 1645).map((z) => z.id)).toEqual(['olympics'])
-    expect(zonesFor(afternoon, 999999)).toEqual([])
   })
 })

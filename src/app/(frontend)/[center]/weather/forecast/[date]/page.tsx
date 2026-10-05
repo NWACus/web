@@ -2,9 +2,10 @@ import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { ForecastPage } from '@/components/NWACWeather/ForecastPage'
+import { isCalendarDate } from '@/services/nac/archiveDates'
 import { fmtCalendarDate } from '@/services/nac/nwacWeatherFormat'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
-import { format, isValid, parseISO } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { notFound } from 'next/navigation'
 
 // Historical, like the dated avalanche route: no freshness check, and a long backstop. A date
@@ -18,11 +19,6 @@ export function generateStaticParams() {
 type Args = {
   params: Promise<{ center: string; date: string }>
 }
-
-const DATE = /^\d{4}-\d{2}-\d{2}$/
-
-/** A real day, not just the pattern: `2026-13-45` would otherwise reach the date formatter. */
-const isCalendarDate = (date: string) => DATE.test(date) && isValid(parseISO(date))
 
 /** NWAC's Mountain Weather for one date. Other centers have no dated weather page. */
 export default async function Page({ params }: Args) {
