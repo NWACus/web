@@ -11,7 +11,7 @@
 import { endOfMonth, format, parseISO, startOfMonth } from 'date-fns'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { createContext, useContext, useMemo, useState, type ComponentProps } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ComponentProps } from 'react'
 import type { DayButton } from 'react-day-picker'
 
 import {
@@ -77,6 +77,23 @@ function usePublishedDates(initialDates: string[], initialRange: { from: string;
   return { published, loading, loadMonth }
 }
 
+/** Today as the page rendered it, then the client's own clock: dated pages are cached for weeks. */
+function useToday(renderedToday: string) {
+  const [today, setToday] = useState(renderedToday)
+  useEffect(() => setToday(dayKey(new Date())), [])
+  return today
+}
+
+/** The month the calendar shows, loading its dates as the reader pages into it. */
+function useCalendarMonth(date: string, loadMonth: (target: Date) => Promise<void>) {
+  const [month, setMonth] = useState(() => startOfMonth(parseISO(date)))
+  const showMonth = (next: Date) => {
+    setMonth(next)
+    void loadMonth(next)
+  }
+  return { month, showMonth }
+}
+
 const DayContext = createContext<{ published: Set<string>; date: string; today: string }>({
   published: new Set(),
   date: '',
@@ -103,14 +120,45 @@ function Day({ day, className }: ComponentProps<typeof DayButton>) {
   )
 }
 
+/** The month grid, with a spinner over it while a month's dates load. */
+function PublishedCalendar({
+  month,
+  onMonthChange,
+  today,
+  loading,
+}: {
+  month: Date
+  onMonthChange: (next: Date) => void
+  today: string
+  loading: boolean
+}) {
+  return (
+    <div className="relative">
+      <Calendar
+        mode="single"
+        month={month}
+        onMonthChange={onMonthChange}
+        endMonth={parseISO(today)}
+        components={{ DayButton: Day }}
+      />
+      {loading && (
+        <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function DatePicker({
   date,
-  today,
+  today: renderedToday,
   initialDates,
   initialRange,
 }: {
   /** The date shown, `YYYY-MM-DD`. */
   date: string
+  /** Today when the page rendered; dated pages are cached for weeks, so the client re-reads it. */
   today: string
   /** Dates with a published forecast inside `initialRange`, oldest first. */
   initialDates: string[]
@@ -118,14 +166,10 @@ export function DatePicker({
   initialRange: { from: string; to: string }
 }) {
   const { published, loading, loadMonth } = usePublishedDates(initialDates, initialRange)
-  const [month, setMonth] = useState(() => startOfMonth(parseISO(date)))
+  const today = useToday(renderedToday)
+  const { month, showMonth } = useCalendarMonth(date, loadMonth)
   const loaded = useMemo(() => [...published], [published])
   const { olderHref, newerHref } = adjacentForecastHrefs(loaded, date, today, BASE)
-
-  const handleMonthChange = (next: Date) => {
-    setMonth(next)
-    void loadMonth(next)
-  }
 
   return (
     <DatePickerBar
@@ -135,22 +179,14 @@ export function DatePicker({
       newerLabel="Newer forecast"
     >
       <DatePickerPopover label={triggerLabel(date)}>
-        <div className="relative">
-          <DayContext.Provider value={{ published, date, today }}>
-            <Calendar
-              mode="single"
-              month={month}
-              onMonthChange={handleMonthChange}
-              endMonth={parseISO(today)}
-              components={{ DayButton: Day }}
-            />
-          </DayContext.Provider>
-          {loading && (
-            <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin" />
-            </div>
-          )}
-        </div>
+        <DayContext.Provider value={{ published, date, today }}>
+          <PublishedCalendar
+            month={month}
+            onMonthChange={showMonth}
+            today={today}
+            loading={loading}
+          />
+        </DayContext.Provider>
       </DatePickerPopover>
     </DatePickerBar>
   )

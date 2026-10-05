@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { initialArchiveWindow } from '@/services/nac/archiveDates'
 import { todayInTimezone } from '@/services/nac/forecastArchive'
 import { nwacWeatherFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
+import type { NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
 import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { currentNWACWeatherDay } from '@/services/nac/nwacWeatherCurrent'
 import {
@@ -16,10 +17,11 @@ import {
 } from '@/services/nac/nwacWeatherFormat'
 import { getNWACWeatherSource } from '@/services/nac/sources'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { addMonths, endOfMonth, format, parseISO } from 'date-fns'
 
 import { DatePicker } from './DatePicker.client'
 import { IssuanceSwitch } from './IssuanceSwitch.client'
-import { Overall, OverallSectionTabs, type ZonePaths } from './Overall'
+import { Overall, OverallSectionTabs, overallParts, type ZonePaths } from './Overall'
 
 const HEADING = <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Mountain Weather</h1>
 
@@ -36,6 +38,12 @@ function issueTime(iso: string, timezone: string | null | undefined): string | n
   return isNaN(new Date(iso).getTime()) ? null : formatDateTime(iso, timezone, 'h:mm a')
 }
 
+function pickerWindow(anchor: string, today: string) {
+  const { from } = initialArchiveWindow(anchor)
+  const nextMonthEnd = format(endOfMonth(addMonths(parseISO(anchor), 1)), 'yyyy-MM-dd')
+  return { from, to: nextMonthEnd < today ? nextMonthEnd : today }
+}
+
 /**
  * The forecast a page shows and the date it is for. A dated page shows its own date; today's page
  * shows the current forecast, which until the morning issuance is yesterday afternoon's.
@@ -47,16 +55,39 @@ async function readShown(date: string | undefined, today: string) {
   return { day, shown: day?.serviceDate ?? today }
 }
 
+/** One issuance's tables, built once for both the section tabs and the body. */
+function IssuanceCard({
+  issuance,
+  zonePaths,
+}: {
+  issuance: NWACWeatherIssuance
+  zonePaths: ZonePaths
+}) {
+  const parts = overallParts(issuance)
+  return (
+    <Card>
+      <section aria-label={issuanceLabel(issuance.type)}>
+        <OverallSectionTabs parts={parts} />
+        <CardContent className="pt-6">
+          <Overall parts={parts} zonePaths={zonePaths} />
+        </CardContent>
+      </section>
+    </Card>
+  )
+}
+
 export async function ForecastPage({ centerSlug, date }: { centerSlug: string; date?: string }) {
   const metadata = await getAvalancheCenterMetadata(centerSlug)
   const today = todayInTimezone(metadata.timezone)
-  // The picker opens populated for the shown month and the one before; it loads older months itself.
-  const window = initialArchiveWindow(date ?? today)
+  // The picker opens populated for the shown month, the one before and the one after (so the
+  // Newer arrow has a target from a month's last date); it loads other months itself.
+  const window = pickerWindow(date ?? today, today)
   // Either read throws on an upstream failure, so ISR keeps the last good page instead of caching
   // "nothing published".
-  const [{ day, shown }, dates] = await Promise.all([
+  const [{ day, shown }, dates, zonePaths] = await Promise.all([
     readShown(date, today),
     getNWACWeatherSource().getDates(window.from, window.to, { historical: window.to < today }),
+    zonePathsOf(centerSlug),
   ])
   const picker = (
     <DatePicker date={shown} today={today} initialDates={dates} initialRange={window} />
@@ -80,11 +111,12 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
     )
   }
 
-  const zonePaths = await zonePathsOf(centerSlug)
   return (
     <div className="container space-y-6 py-6">
       {picker}
+      {/* Keyed on the issuances, so a refresh that adds or withdraws one shows the newest. */}
       <IssuanceSwitch
+        key={day.issuances.map((i) => i.id).join('-')}
         heading={HEADING}
         panels={day.issuances.map((issuance) => ({
           key: String(issuance.id),
@@ -103,16 +135,7 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
               />
             </ForecastErrorBoundary>
           ),
-          content: (
-            <Card>
-              <section aria-label={issuanceLabel(issuance.type)}>
-                <OverallSectionTabs issuance={issuance} />
-                <CardContent className="pt-6">
-                  <Overall issuance={issuance} zonePaths={zonePaths} />
-                </CardContent>
-              </section>
-            </Card>
-          ),
+          content: <IssuanceCard issuance={issuance} zonePaths={zonePaths} />,
         }))}
       />
       <ForecastDisclaimer centerType={metadata.type} centerName={metadata.name} />
