@@ -375,8 +375,10 @@ export function warningCacheTag(centerId: string, zoneId: number): string {
   return `warning:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
 }
 
-/** Data-cache tag for every NWAC Mountain Weather read; its freshness route purges it. */
+/** Data-cache tag for the live NWAC Mountain Weather reads; its freshness route purges it. */
 export const nwacWeatherCacheTag = 'nwac-weather'
+/** The past dates' reads, which a publish does not change, so no purge reaches them. */
+export const nwacWeatherHistoricalCacheTag = 'nwac-weather-historical'
 
 export async function fetchForecast(
   centerId: string,

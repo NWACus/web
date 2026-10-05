@@ -13,6 +13,7 @@ jest.mock('../../src/services/nac/nac', () => ({
   logNacError: jest.fn(),
   NACError: class NACError extends Error {},
   nwacWeatherCacheTag: 'nwac-weather',
+  nwacWeatherHistoricalCacheTag: 'nwac-weather-historical',
 }))
 
 import { getNWACWeatherSource } from '@/services/nac/sources'
@@ -39,14 +40,14 @@ describe('NWAC weather v3 source', () => {
     expect(day?.issuances.map((i) => i.type)).toEqual(['afternoon', 'morning'])
   })
 
-  it('caches a past date for 30 days, still under the purgeable tag', async () => {
+  it('caches a past date for 30 days under a tag no publish purges', async () => {
     mockNacFetch.mockResolvedValue(fixture)
 
     await source.getDay('2026-09-14', { historical: true })
 
     expect(mockNacFetch).toHaveBeenCalledWith('/v3/public/nwac-weather/forecasts?date=2026-09-14', {
       cachedTime: 2592000,
-      tags: ['nwac-weather'],
+      tags: ['nwac-weather-historical'],
       host: v3ApiHost,
     })
   })
@@ -100,7 +101,7 @@ describe('NWAC weather v3 source', () => {
 
     expect(mockNacFetch).toHaveBeenCalledWith(
       '/v3/public/nwac-weather/forecast/archive?from=2026-07-01&to=2026-07-31',
-      { cachedTime: 2592000, tags: ['nwac-weather'], host: v3ApiHost },
+      { cachedTime: 2592000, tags: ['nwac-weather-historical'], host: v3ApiHost },
     )
   })
 
