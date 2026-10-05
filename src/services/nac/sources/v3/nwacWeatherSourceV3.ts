@@ -2,7 +2,7 @@
 import { unstable_cache } from 'next/cache'
 
 import type { NWACWeatherForecastDay } from '../../model/nwacWeather'
-import { nwacWeatherCacheTag } from '../../nac'
+import { nwacWeatherCacheTag, nwacWeatherHistoricalCacheTag } from '../../nac'
 import {
   nwacWeatherArchiveSchema,
   nwacWeatherForecastsResponseSchema,
@@ -12,9 +12,9 @@ import { v3Fetch } from './fetch'
 import { mapV3NWACWeatherForecastDay } from './nwacWeatherMappers'
 
 const CACHE = { cachedTime: 300, tags: [nwacWeatherCacheTag] }
-// A past date's forecast, or a window of past dates, no longer changes; the tag still lets a
-// purge reach it.
-const HISTORICAL_CACHE = { cachedTime: 30 * 24 * 60 * 60, tags: [nwacWeatherCacheTag] }
+// A past date's forecast, or a window of past dates, no longer changes, so a publish must not
+// purge it: its own tag keeps it out of the freshness route's reach.
+const HISTORICAL_CACHE = { cachedTime: 30 * 24 * 60 * 60, tags: [nwacWeatherHistoricalCacheTag] }
 
 // With no date, v3 answers with the latest date that has a forecast.
 const LATEST_PATH = 'nwac-weather/forecasts'
