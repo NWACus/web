@@ -12,7 +12,8 @@ import { v3Fetch } from './fetch'
 import { mapV3NWACWeatherForecastDay } from './nwacWeatherMappers'
 
 const CACHE = { cachedTime: 300, tags: [nwacWeatherCacheTag] }
-// A past date's forecast no longer changes; the tag still lets a purge reach it.
+// A past date's forecast, or a window of past dates, no longer changes; the tag still lets a
+// purge reach it.
 const HISTORICAL_CACHE = { cachedTime: 30 * 24 * 60 * 60, tags: [nwacWeatherCacheTag] }
 
 // With no date, v3 answers with the latest date that has a forecast.
@@ -52,12 +53,12 @@ export const nwacWeatherSourceV3: NWACWeatherSource = {
     return getCached()
   },
 
-  async getDates(from, to) {
+  async getDates(from, to, { historical = false } = {}) {
     const params = new URLSearchParams({ from, to })
     const rows = await v3Fetch(
       `nwac-weather/forecast/archive?${params}`,
       nwacWeatherArchiveSchema,
-      CACHE,
+      historical ? HISTORICAL_CACHE : CACHE,
     )
     return [...new Set(rows.map((r) => r.serviceDate))].sort()
   },

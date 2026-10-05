@@ -7,9 +7,9 @@ import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { format, isValid, parseISO } from 'date-fns'
 import { notFound } from 'next/navigation'
 
-// The page stays on the short window because the picker's date list grows daily. A past date's
-// forecast itself no longer changes, and its read is cached for 30 days in the source.
-export const revalidate = 300
+// Historical, like the dated avalanche route: no freshness check, and a long backstop. A date
+// that is not yet past reads through the 300s data cache, which shortens the page's window too.
+export const revalidate = 2592000 // 30 days
 
 export function generateStaticParams() {
   return []

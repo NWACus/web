@@ -93,6 +93,17 @@ describe('NWAC weather v3 source', () => {
     await expect(source.getDay('2026-09-14')).rejects.toThrow('schema validation')
   })
 
+  it('caches a window of past dates for 30 days', async () => {
+    mockNacFetch.mockResolvedValue([])
+
+    await source.getDates('2026-07-01', '2026-07-31', { historical: true })
+
+    expect(mockNacFetch).toHaveBeenCalledWith(
+      '/v3/public/nwac-weather/forecast/archive?from=2026-07-01&to=2026-07-31',
+      { cachedTime: 2592000, tags: ['nwac-weather'], host: v3ApiHost },
+    )
+  })
+
   it('lists each published date once, oldest first', async () => {
     mockNacFetch.mockResolvedValue([
       { serviceDate: '2026-09-14' },

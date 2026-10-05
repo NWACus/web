@@ -183,9 +183,20 @@ export function parseArchiveWindowQuery(
   from: string | null,
   to: string | null,
 ): ArchiveWindowQuery | null {
-  if (!zoneSlug || !from || !to) return null
+  const window = parseDateWindow(from, to)
+  if (!zoneSlug || !window) return null
+
+  return { zoneSlug, ...window }
+}
+
+/** A `from`..`to` window of `YYYY-MM-DD` dates, or `null` when either is missing or malformed or the window runs backwards. */
+export function parseDateWindow(
+  from: string | null,
+  to: string | null,
+): { from: string; to: string } | null {
+  if (!from || !to) return null
   if (!DATE_PATTERN.test(from) || !DATE_PATTERN.test(to)) return null
   if (from > to) return null
 
-  return { zoneSlug, from, to }
+  return { from, to }
 }

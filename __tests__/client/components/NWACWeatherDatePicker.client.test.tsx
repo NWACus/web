@@ -1,9 +1,14 @@
 import { DatePicker, dateHref } from '@/components/NWACWeather/DatePicker.client'
 import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 const DATES = ['2026-09-15', '2026-09-17', '2026-09-22', '2026-09-23']
+const RANGE = { from: '2026-08-01', to: '2026-09-30' }
 const TODAY = '2026-09-23'
+
+function renderPicker(date: string) {
+  return render(<DatePicker date={date} today={TODAY} initialDates={DATES} initialRange={RANGE} />)
+}
 
 describe('dateHref', () => {
   it('keeps today on the plain weather page', () => {
@@ -14,7 +19,7 @@ describe('dateHref', () => {
 
 describe('DatePicker', () => {
   it('steps to the neighboring published dates, skipping days with none', () => {
-    render(<DatePicker date="2026-09-17" dates={DATES} today={TODAY} />)
+    renderPicker('2026-09-17')
     expect(screen.getByRole('link', { name: 'Older forecast' })).toHaveAttribute(
       'href',
       '/weather/forecast/2026-09-15',
@@ -27,7 +32,7 @@ describe('DatePicker', () => {
   })
 
   it('links the next step back to today at the plain page', () => {
-    render(<DatePicker date="2026-09-22" dates={DATES} today={TODAY} />)
+    renderPicker('2026-09-22')
     expect(screen.getByRole('link', { name: 'Newer forecast' })).toHaveAttribute(
       'href',
       '/weather/forecast',
@@ -35,8 +40,37 @@ describe('DatePicker', () => {
   })
 
   it('disables a step with nowhere to go', () => {
-    render(<DatePicker date={TODAY} dates={DATES} today={TODAY} />)
+    renderPicker(TODAY)
     expect(screen.queryByRole('link', { name: 'Newer forecast' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Newer forecast' })).toBeDisabled()
+  })
+
+  it('loads a month the reader pages into, and only once', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ dates: ['2026-07-30'] }),
+    })
+    global.fetch = fetchMock
+
+    renderPicker('2026-09-17')
+    fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
+    // August is in the initial window; July is not.
+    fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
+    expect(fetchMock).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
+
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: 'Thu Jul 30 2026' })).toHaveAttribute(
+        'href',
+        '/weather/forecast/2026-07-30',
+      ),
+    )
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/nwac/nwac-weather-dates?from=2026-07-01&to=2026-07-31',
+    )
+    // Once loaded, the older arrow knows the new date too.
+    fireEvent.click(screen.getByRole('button', { name: /next month/i }))
+    fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 })
