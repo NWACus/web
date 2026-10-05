@@ -213,7 +213,7 @@ sig = "1dcc0ae71dce00a6"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/collections/Settings/index.ts"
-sig = "7ac51dee8997c982"
+sig = "111f31bffb328604"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -668,7 +668,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/Settings/index.ts"
-sig = "7ac51dee8997c982"
+sig = "111f31bffb328604"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"

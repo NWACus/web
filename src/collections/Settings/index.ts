@@ -272,7 +272,7 @@ const featuresFields: Field[] = [
       {
         name: 'nwacWeather',
         type: 'checkbox',
-        label: 'NWAC Mountain Weather Forecast',
+        label: 'NWAC Weather',
         defaultValue: false,
         admin: {
           description:
