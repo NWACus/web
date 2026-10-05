@@ -4,6 +4,7 @@ import { ForecastErrorBoundary } from '@/components/forecast/ForecastErrorBounda
 import { ForecastHeader } from '@/components/forecast/ForecastHeader'
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
 import { Card, CardContent } from '@/components/ui/card'
+import { initialArchiveWindow } from '@/services/nac/archiveDates'
 import { todayInTimezone } from '@/services/nac/forecastArchive'
 import { nwacWeatherFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
 import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/nac/nac'
@@ -49,14 +50,17 @@ async function readShown(date: string | undefined, today: string) {
 export async function ForecastPage({ centerSlug, date }: { centerSlug: string; date?: string }) {
   const metadata = await getAvalancheCenterMetadata(centerSlug)
   const today = todayInTimezone(metadata.timezone)
-  const yearAgo = `${Number(today.slice(0, 4)) - 1}${today.slice(4)}`
+  // The picker opens populated for the shown month and the one before; it loads older months itself.
+  const window = initialArchiveWindow(date ?? today)
   // Either read throws on an upstream failure, so ISR keeps the last good page instead of caching
   // "nothing published".
   const [{ day, shown }, dates] = await Promise.all([
     readShown(date, today),
-    getNWACWeatherSource().getDates(yearAgo, today),
+    getNWACWeatherSource().getDates(window.from, window.to, { historical: window.to < today }),
   ])
-  const picker = <DatePicker date={shown} dates={dates} today={today} />
+  const picker = (
+    <DatePicker date={shown} today={today} initialDates={dates} initialRange={window} />
+  )
   // Today's page only: it is the one a correction, a new issuance or a withdrawal can change.
   const freshness = date ? null : (
     <RevalidateOnView endpoints={[nwacWeatherFreshnessEndpoint(centerSlug, day)]} />

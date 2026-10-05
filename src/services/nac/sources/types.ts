@@ -81,6 +81,9 @@ export interface NWACWeatherSource {
   getLatest(): Promise<NWACWeatherForecastDay | null>
   /** The same read fetched fresh (short-cached), for the revalidate-on-view freshness check. */
   getLatestFresh(): Promise<NWACWeatherForecastDay | null>
-  /** The dates from `from` to `to` with a published forecast, oldest first. */
-  getDates(from: string, to: string): Promise<string[]>
+  /**
+   * The dates from `from` to `to` with a published forecast, oldest first. `historical` marks a
+   * window that ends before today, which no longer changes and is cached long.
+   */
+  getDates(from: string, to: string, options?: { historical?: boolean }): Promise<string[]>
 }
