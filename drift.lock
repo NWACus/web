@@ -218,7 +218,7 @@ sig = "1dcc0ae71dce00a6"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/collections/Settings/index.ts"
-sig = "111f31bffb328604"
+sig = "bc965a426995f0c2"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -433,7 +433,7 @@ sig = "6c3a3a51ca5aed8f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/utilities/getNativeProductFlag.ts"
-sig = "df93cce5dacdb880"
+sig = "8c6df8b9760606b8"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -678,7 +678,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/Settings/index.ts"
-sig = "111f31bffb328604"
+sig = "bc965a426995f0c2"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -1083,7 +1083,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "72372cb28c59b2f4"
+sig = "f8f2b5f32e9dbaf3"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -1358,7 +1358,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "1b7383125a696a5d"
+sig = "3d38d54e9b2e7973"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"

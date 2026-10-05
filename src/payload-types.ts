@@ -3198,10 +3198,6 @@ export interface Setting {
      * Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.
      */
     stationMap?: boolean | null;
-    /**
-     * NWAC only. Render NWAC’s own Mountain Weather Forecast at /weather/forecast. It has no widget to fall back to, so while this is off the page is not found. Other centers are unaffected.
-     */
-    nwacWeather?: boolean | null;
   };
   socialMedia?: {
     instagram?: string | null;
@@ -5076,7 +5072,6 @@ export interface SettingsSelect<T extends boolean = true> {
         dangerMap?: T;
         weather?: T;
         stationMap?: T;
-        nwacWeather?: T;
       };
   socialMedia?:
     | T

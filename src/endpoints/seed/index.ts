@@ -85,8 +85,7 @@ const defaultNacWidgetsConfig = {
  * A native tenant gets every native product its center publishes through the AFP, so seeded content
  * exercises the whole feature rather than the forecast alone. snfac is native because the AFP golden
  * corpus the E2E mocks are built from is SNFAC-centric. nwac's weather stays off: NWAC authors its
- * own Mountain Weather Forecast rather than the AFP weather product, and that has a flag of its
- * own (`nwacWeather`), seeded on for nwac alone in `nativeProductsFor`.
+ * own Mountain Weather Forecast rather than the AFP weather product.
  *
  * dvac and nwac are the same upstream center — dvac is normalised to nwac at every NAC/AFP call
  * site — so whichever of the two is native, the pair is the proof that Control 1 is per tenant and
@@ -109,20 +108,6 @@ const nativeProductsByTenant: Record<
   snfac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
   nwac: { forecast: true, warning: true, dangerMap: true, weather: false, stationMap: true },
   sac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: true },
-}
-
-function nativeProductsFor(slug: string) {
-  return {
-    ...(nativeProductsByTenant[slug] ?? {
-      forecast: false,
-      warning: false,
-      dangerMap: false,
-      weather: false,
-      stationMap: false,
-    }),
-    // NWAC's own Mountain Weather Forecast, which only NWAC has.
-    nwacWeather: slug === 'nwac',
-  }
 }
 
 // Next.js revalidation errors are normal when seeding the database without a server running
@@ -597,7 +582,13 @@ export const seed = async ({
         return {
           tenant: tenant.id,
           description: data.description,
-          nativeProducts: nativeProductsFor(tenant.slug),
+          nativeProducts: nativeProductsByTenant[tenant.slug] ?? {
+            forecast: false,
+            warning: false,
+            dangerMap: false,
+            weather: false,
+            stationMap: false,
+          },
           footerForm: {
             type: 'none',
           },
