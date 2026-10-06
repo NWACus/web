@@ -308,6 +308,7 @@ export interface HomePage {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | ObservationsWidgetBlock
     | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
@@ -1854,6 +1855,15 @@ export interface VideoEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'videoEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ObservationsWidgetBlock".
+ */
+export interface ObservationsWidgetBlock {
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'observationsWidget';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3877,6 +3887,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        observationsWidget?: T | ObservationsWidgetBlockSelect<T>;
         precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
@@ -4139,6 +4150,14 @@ export interface MediaBlockSelect<T extends boolean = true> {
 export interface NACMediaBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   mode?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ObservationsWidgetBlock_select".
+ */
+export interface ObservationsWidgetBlockSelect<T extends boolean = true> {
   id?: T;
   blockName?: T;
 }
