@@ -60,10 +60,11 @@ Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend
 
 | Variable | Purpose |
 |----------|---------|
-| `--primary` | Primary brand color (buttons, links) |
+| `--primary` | Primary brand color (buttons) |
 | `--primary-hover` | Hover state for primary |
 | `--secondary` | Secondary brand color |
 | `--secondary-hover` | Hover state for secondary |
+| `--link` | Rich-text link color (optional; defaults to `--secondary`) |
 | `--header` | Header background |
 | `--header-foreground` | Header text color |
 | `--header-foreground-highlight` | Header highlighted/active text |

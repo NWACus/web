@@ -100,6 +100,8 @@
   --secondary: hsl(193 42% 74%);
   --secondary-hover: hsla(193 42% 74% / 0.8);
 
+  --link: hsl(193 100% 82%);
+
   --header: hsl(217 62% 21%);
   --header-foreground: hsl(193 42% 74%);
   --header-foreground-highlight: hsl(0 0% 100%);
