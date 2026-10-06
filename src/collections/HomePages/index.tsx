@@ -17,6 +17,7 @@ import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import { DocumentBlock } from '@/blocks/Document/config'
 import { HeaderLexicalBlock } from '@/blocks/Header/config'
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
+import { validateLayoutBlocks } from '@/blocks/nacWidgetBlocks'
 import { ObservationsWidgetBlock } from '@/blocks/ObservationsWidget/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import colorPickerField from '@/fields/color'
@@ -31,7 +32,6 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import { blocks } from 'payload/shared'
 import { revalidateHomePage, revalidateHomePageDelete } from './hooks/revalidateHomePage'
 
 export const HomePages: CollectionConfig = {
@@ -145,22 +145,7 @@ export const HomePages: CollectionConfig = {
       ),
       required: true,
 
-      validate: (value, args) => {
-        if (!value || !Array.isArray(value)) return blocks(value, args)
-
-        // Each of these mounts a NAC widget, which supports one instance per page
-        for (const { slug, label } of [
-          { slug: 'nacMediaBlock', label: 'NACMediaBlock' },
-          { slug: 'observationsWidget', label: 'Observations Widget' },
-        ]) {
-          if (value.filter((block) => block.blockType === slug).length > 1) {
-            throw Error(`Only one ${label} is allowed per page`)
-          }
-        }
-
-        // Do not use default validation because of nacMediaBlock
-        return blocks(value, args)
-      },
+      validate: validateLayoutBlocks,
     },
     {
       name: 'publishedAt',
