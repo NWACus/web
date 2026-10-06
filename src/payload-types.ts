@@ -1639,7 +1639,7 @@ export interface NACMediaBlock {
  */
 export interface PrecipTableBlock {
   /**
-   * Which columns the table shows after the station name. Clearing every column shows them all.
+   * Which columns the table shows after the station name, in this order. Drag to reorder. Clearing every column shows them all.
    */
   columns?:
     | ('1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '72h' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation')[]
@@ -1803,7 +1803,7 @@ export interface StationPage {
     source: string;
   }[];
   /**
-   * Which readings the table shows, for every station on the page. Clearing every reading shows all the stations report.
+   * Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.
    */
   columns?:
     | (

@@ -2,6 +2,7 @@ import {
   MAX_COMPARE_STATIONS,
   STATION_GRAPH_PRESETS,
 } from '@/components/WeatherStations/stationGraphPresets'
+import { STATION_DATA_CACHE_CONTROL } from '@/services/snowobs/access'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
@@ -15,7 +16,6 @@ import { NextResponse } from 'next/server'
 
 const MAX_VARIABLES = new Set(STATION_GRAPH_PRESETS.flatMap((p) => p.variables)).size
 const MAX_WINDOW_MS = 5 * 366 * 24 * 60 * 60 * 1000 // ~5 years, verified against SnowObs
-const REVALIDATE_SECONDS = 300
 
 type Params = { center: string }
 
@@ -113,14 +113,11 @@ export async function GET(
     const response = await fetchStationTimeseries(center, stations, {
       start: from,
       end: to,
-      revalidate: REVALIDATE_SECONDS,
       rawData: true,
     })
     const data = buildGraphData(center, response, stations, vars, windowExceedsThreshold(from, to))
     return NextResponse.json(data, {
-      headers: {
-        'Cache-Control': `public, s-maxage=${REVALIDATE_SECONDS}, stale-while-revalidate=60`,
-      },
+      headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
     })
   } catch (error) {
     const message = error instanceof SnowObsError ? error.message : 'failed to load station data'
