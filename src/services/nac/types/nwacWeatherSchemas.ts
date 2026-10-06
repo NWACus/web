@@ -1,6 +1,7 @@
 /**
  * Zod schemas for products-api's public NWAC weather reads (`/v3/public/nwac-weather/…`), as
- * sent: flat rows with calendar dates already resolved.
+ * sent: flat rows with calendar dates already resolved, the rows and slots the forecast was
+ * published with, and the template that names its format's sections.
  */
 import { z } from 'zod'
 
@@ -30,8 +31,6 @@ export const nwacWeatherPeriodSchema = z.object({
   kind: z.enum(['day', 'night']).nullable().optional(),
   /** `YYYY-MM-DD`, resolved server-side. */
   date: z.string(),
-  /** Whether the issuance forecasts precipitation for this period. */
-  precip: z.boolean().optional(),
 })
 
 export const nwacWeatherBlockSchema = z.object({
@@ -46,6 +45,36 @@ export const nwacWeatherExtendedBlockSchema = z.object({
   label: z.string(),
   part: z.string().nullable().optional(),
   date: z.string(),
+})
+
+/** A sensible-weather text slot as this issuance labels it ("Tonight", "Tomorrow"). */
+export const nwacWeatherSensibleSlotSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  period: z.string().nullable().optional(),
+  date: z.string().nullable().optional(),
+})
+
+/** One section of the format's template: a grid the forecast has, and what it runs on. */
+export const nwacWeatherSectionSchema = z.object({
+  id: z.string(),
+  grid: z.string(),
+  /** The row list it runs down: `zones`, `points` or `extendedZones`. */
+  rows: z.string(),
+  /** The entry of `axes` it runs across. */
+  axis: z.string(),
+})
+
+const keys = z.array(z.string())
+
+/** The slot keys each grid covers, as the forecast was published. */
+export const nwacWeatherAxesSchema = z.object({
+  precipPeriods: keys,
+  tempPeriods: keys,
+  snowLevelBlocks: keys,
+  windBlocks: keys,
+  extendedBlocks: keys,
+  sensibleSlots: keys,
 })
 
 export const nwacWeatherPrecipRowSchema = z.object({
@@ -91,13 +120,22 @@ export const nwacWeatherForecastSchema = z.object({
   type: nwacWeatherIssuanceTypeSchema,
   serviceDate: z.string(),
   author: z.string().nullable(),
+  /** Which template draws the forecast, e.g. `dashboard-v2-2026-09-01`. */
+  format: z.string(),
+  template: z.object({ label: z.string(), sections: z.array(nwacWeatherSectionSchema) }),
+  /** The layout version the forecast was created under. */
+  layout: z.object({ id: z.number().nullable(), name: z.string().nullable() }).optional(),
   synopsis: z.string().nullable(),
   extendedOutlook: z.string().nullable(),
   zones: z.array(nwacWeatherZoneSchema),
   points: z.array(nwacWeatherPointSchema),
+  /** Ids of the zones that carry the extended snow-level outlook. */
+  extendedZones: keys,
   periods: z.array(nwacWeatherPeriodSchema),
   blocks: z.array(nwacWeatherBlockSchema),
   extendedBlocks: z.array(nwacWeatherExtendedBlockSchema),
+  sensibleSlots: z.array(nwacWeatherSensibleSlotSchema),
+  axes: nwacWeatherAxesSchema,
   precip: z.array(nwacWeatherPrecipRowSchema),
   temp: z.array(nwacWeatherTempRowSchema),
   wind: z.array(nwacWeatherWindRowSchema),

@@ -38,6 +38,9 @@ export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWea
     issuedAt: wire.issuedAt,
     serviceDate: wire.serviceDate,
     author: wire.author,
+    format: wire.format,
+    sections: wire.template.sections.map((s) => ({ id: s.id, grid: s.grid })),
+    layout: { id: wire.layout?.id ?? null, name: wire.layout?.name ?? null },
     synopsis: wire.synopsis,
     extendedOutlook: wire.extendedOutlook,
     zones: wire.zones.map((z) => ({
@@ -52,13 +55,13 @@ export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWea
       zoneName: p.zone ?? '',
       avalancheZoneId: p.avalancheZoneId ?? null,
     })),
+    extendedZones: wire.extendedZones,
     periods: wire.periods.map((p) => ({
       key: p.key,
       label: p.label,
       short: p.short ?? null,
       kind: p.kind === 'night' ? 'night' : 'day',
       date: p.date,
-      precip: p.precip ?? true,
     })),
     blocks: wire.blocks.map((b) => ({
       key: b.key,
@@ -72,6 +75,12 @@ export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWea
       part: b.part ?? b.label,
       date: b.date,
     })),
+    sensibleSlots: wire.sensibleSlots.map((s) => ({
+      key: s.key,
+      label: s.label,
+      date: s.date ?? null,
+    })),
+    axes: wire.axes,
     precip: grid(
       wire.precip,
       (r) => r.point,

@@ -1,9 +1,10 @@
 /** How Mountain Weather values read on the page, matching the dashboard preview. Pure. */
 import type {
   NWACWeatherBlock,
-  NWACWeatherGrid,
+  NWACWeatherGridName,
   NWACWeatherIssuance,
   NWACWeatherPeriod,
+  NWACWeatherSection,
 } from './model/nwacWeather'
 
 export const DASH = '—'
@@ -11,9 +12,14 @@ export const DASH = '—'
 /** Snow level = freezing level − drop; the drop defaults to 1,000 ft. */
 export const DEFAULT_DROP_FT = 1000
 
-/** New snow in inches from water equivalent and snow-to-liquid ratio (density 10 → 10:1). */
+/**
+ * New snow in inches from water equivalent and snow-to-liquid ratio (density 10 → 10:1). A dry
+ * period is QPF 0 with no density, and reads as 0 snow rather than a gap.
+ */
 export function deriveSnow(qpf: number | null | undefined, density: number | null | undefined) {
-  if (qpf == null || density == null || density <= 0) return null
+  if (qpf == null) return null
+  if (qpf === 0) return 0
+  if (density == null || density <= 0) return null
   return Math.round(((qpf * 100) / density) * 10) / 10
 }
 
@@ -75,41 +81,34 @@ export function snowLevelTones(levels: (number | null)[]): (number | null)[] {
   })
 }
 
-/** The periods the issuance forecasts precipitation for. */
-export function precipPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] {
-  return issuance.periods.filter((p) => p.precip)
+/** An axis's slots in the forecast's own order; a key with no definition has nothing to draw. */
+function onAxis<Slot extends { key: string }>(slots: Slot[], keys: string[]): Slot[] {
+  return keys.flatMap((key) => slots.find((s) => s.key === key) ?? [])
 }
 
-/** The 6h blocks with a value for any zone, else the whole window; the wire doesn't say. */
-export function blocksWithData<Cell>(
-  issuance: NWACWeatherIssuance,
-  grid: NWACWeatherGrid<Cell>,
-  hasValue: (cell: Cell) => boolean,
-): NWACWeatherBlock[] {
-  const used = new Set<string>()
-  for (const cells of Object.values(grid)) {
-    for (const [key, cell] of Object.entries(cells)) if (hasValue(cell)) used.add(key)
-  }
-  const shown = issuance.blocks.filter((b) => used.has(b.key))
-  return shown.length ? shown : issuance.blocks
+// The columns each grid covers come from the forecast (`axes`), never from which cells are full.
+export function precipPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] {
+  return onAxis(issuance.periods, issuance.axes.precipPeriods)
+}
+
+export function tempPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] {
+  return onAxis(issuance.periods, issuance.axes.tempPeriods)
 }
 
 export function windBlocks(issuance: NWACWeatherIssuance): NWACWeatherBlock[] {
-  return blocksWithData(issuance, issuance.wind, (c) => c.speed != null)
+  return onAxis(issuance.blocks, issuance.axes.windBlocks)
 }
 
 export function snowLevelBlocks(issuance: NWACWeatherIssuance): NWACWeatherBlock[] {
-  return blocksWithData(issuance, issuance.snowLevel, (c) => c.freezing != null)
+  return onAxis(issuance.blocks, issuance.axes.snowLevelBlocks)
 }
 
-/** The periods a 12h table shows: those with a value for any zone, else the whole window. */
-export function tempPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] {
-  const used = new Set<string>()
-  for (const cells of Object.values(issuance.temp)) {
-    for (const [key, cell] of Object.entries(cells)) if (cell.high != null) used.add(key)
-  }
-  const shown = issuance.periods.filter((p) => used.has(p.key))
-  return shown.length ? shown : issuance.periods
+/** The template's section for a grid; undefined when the format has none. */
+export function sectionFor(
+  issuance: NWACWeatherIssuance,
+  grid: NWACWeatherGridName,
+): NWACWeatherSection | undefined {
+  return issuance.sections.find((s) => s.grid === grid)
 }
 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']

@@ -1,0 +1,700 @@
+{
+  "available": true,
+  "id": 2,
+  "issuedAt": "2026-12-01T22:00:00+00:00",
+  "type": "afternoon",
+  "serviceDate": "2026-12-01",
+  "author": "Example Forecaster",
+  "format": "dashboard-v2-2026-09-01",
+  "template": {
+    "label": "dashboard-v2",
+    "sections": [
+      {
+        "id": "sensible",
+        "grid": "sensible",
+        "rows": "zones",
+        "axis": "sensibleSlots"
+      },
+      {
+        "id": "precip",
+        "grid": "precip",
+        "rows": "points",
+        "axis": "precipPeriods"
+      },
+      {
+        "id": "snowLevel",
+        "grid": "snowLevel",
+        "rows": "zones",
+        "axis": "snowLevelBlocks"
+      },
+      {
+        "id": "temps",
+        "grid": "temp",
+        "rows": "zones",
+        "axis": "tempPeriods"
+      },
+      {
+        "id": "wind",
+        "grid": "wind",
+        "rows": "zones",
+        "axis": "windBlocks"
+      },
+      {
+        "id": "extendedSnowLevel",
+        "grid": "extendedSnowLevel",
+        "rows": "extendedZones",
+        "axis": "extendedBlocks"
+      }
+    ]
+  },
+  "layout": {
+    "id": 1,
+    "name": "Example layout"
+  },
+  "synopsis": "<p>An example synopsis.</p>",
+  "extendedOutlook": "<p>An example extended outlook.</p>",
+  "zones": [
+    {
+      "id": "stevens-pass",
+      "name": "Stevens Pass",
+      "avalancheZoneId": 101
+    },
+    {
+      "id": "snoqualmie-pass",
+      "name": "Snoqualmie Pass",
+      "avalancheZoneId": 102
+    },
+    {
+      "id": "mt-hood",
+      "name": "Mt Hood",
+      "avalancheZoneId": 103
+    }
+  ],
+  "points": [
+    {
+      "code": "STV",
+      "name": "Stevens Pass",
+      "zone": "Stevens Pass",
+      "zoneId": "stevens-pass",
+      "avalancheZoneId": 101
+    },
+    {
+      "code": "SNO",
+      "name": "Snoqualmie Pass",
+      "zone": "Snoqualmie Pass",
+      "zoneId": "snoqualmie-pass",
+      "avalancheZoneId": 102
+    },
+    {
+      "code": "ALP",
+      "name": "Alpental",
+      "zone": "Snoqualmie Pass",
+      "zoneId": "snoqualmie-pass",
+      "avalancheZoneId": 102
+    },
+    {
+      "code": "MHM",
+      "name": "Mt Hood Meadows",
+      "zone": "Mt Hood",
+      "zoneId": "mt-hood",
+      "avalancheZoneId": 103
+    }
+  ],
+  "extendedZones": ["stevens-pass", "mt-hood"],
+  "periods": [
+    {
+      "key": "n1",
+      "label": "Night 1",
+      "short": "N1",
+      "kind": "night",
+      "date": "2026-12-01"
+    },
+    {
+      "key": "d2",
+      "label": "Day 2",
+      "short": "D2",
+      "kind": "day",
+      "date": "2026-12-02"
+    },
+    {
+      "key": "n2",
+      "label": "Night 2",
+      "short": "N2",
+      "kind": "night",
+      "date": "2026-12-02"
+    },
+    {
+      "key": "d3",
+      "label": "Day 3",
+      "short": "D3",
+      "kind": "day",
+      "date": "2026-12-03"
+    }
+  ],
+  "blocks": [
+    {
+      "key": "ev1",
+      "label": "Eve 1",
+      "part": "Evening",
+      "period": "n1"
+    },
+    {
+      "key": "nt1",
+      "label": "Night 1",
+      "part": "Night",
+      "period": "n1"
+    },
+    {
+      "key": "am2",
+      "label": "AM 2",
+      "part": "Morning",
+      "period": "d2"
+    },
+    {
+      "key": "pm2",
+      "label": "PM 2",
+      "part": "Afternoon",
+      "period": "d2"
+    },
+    {
+      "key": "ev2",
+      "label": "Eve 2",
+      "part": "Evening",
+      "period": "n2"
+    },
+    {
+      "key": "nt2",
+      "label": "Night 2",
+      "part": "Night",
+      "period": "n2"
+    },
+    {
+      "key": "am3",
+      "label": "AM 3",
+      "part": "Morning",
+      "period": "d3"
+    },
+    {
+      "key": "pm3",
+      "label": "PM 3",
+      "part": "Afternoon",
+      "period": "d3"
+    }
+  ],
+  "extendedBlocks": [
+    {
+      "key": "nt3",
+      "label": "Night",
+      "part": "Night",
+      "date": "2026-12-03"
+    },
+    {
+      "key": "am4",
+      "label": "Morning",
+      "part": "Morning",
+      "date": "2026-12-04"
+    },
+    {
+      "key": "nt4",
+      "label": "Night",
+      "part": "Night",
+      "date": "2026-12-04"
+    },
+    {
+      "key": "day5",
+      "label": "Day",
+      "part": "Day",
+      "date": "2026-12-05"
+    }
+  ],
+  "sensibleSlots": [
+    {
+      "key": "morning",
+      "label": "Tonight",
+      "period": "n1",
+      "date": "2026-12-01"
+    },
+    {
+      "key": "afternoon",
+      "label": "Tomorrow",
+      "period": "d2",
+      "date": "2026-12-02"
+    }
+  ],
+  "axes": {
+    "precipPeriods": ["n1", "d2", "n2", "d3"],
+    "tempPeriods": ["n1", "d2"],
+    "snowLevelBlocks": ["ev1", "nt1", "am2", "pm2", "ev2", "nt2", "am3", "pm3"],
+    "windBlocks": ["ev1", "nt1", "am2", "pm2"],
+    "extendedBlocks": ["nt3", "am4", "nt4", "day5"],
+    "sensibleSlots": ["morning", "afternoon"]
+  },
+  "precip": [
+    {
+      "point": "STV",
+      "period": "n1",
+      "qpf": 0.0,
+      "density": null
+    },
+    {
+      "point": "STV",
+      "period": "d2",
+      "qpf": 0.15,
+      "density": 9
+    },
+    {
+      "point": "STV",
+      "period": "n2",
+      "qpf": 0.3,
+      "density": 10
+    },
+    {
+      "point": "STV",
+      "period": "d3",
+      "qpf": 0.45,
+      "density": 11
+    },
+    {
+      "point": "SNO",
+      "period": "n1",
+      "qpf": 0.15,
+      "density": 9
+    },
+    {
+      "point": "SNO",
+      "period": "d2",
+      "qpf": 0.3,
+      "density": 10
+    },
+    {
+      "point": "SNO",
+      "period": "n2",
+      "qpf": 0.45,
+      "density": 11
+    },
+    {
+      "point": "SNO",
+      "period": "d3",
+      "qpf": 0.6,
+      "density": 12
+    },
+    {
+      "point": "ALP",
+      "period": "n1",
+      "qpf": 0.3,
+      "density": 10
+    },
+    {
+      "point": "ALP",
+      "period": "d2",
+      "qpf": 0.45,
+      "density": 11
+    },
+    {
+      "point": "ALP",
+      "period": "n2",
+      "qpf": 0.6,
+      "density": 12
+    },
+    {
+      "point": "ALP",
+      "period": "d3",
+      "qpf": 0.0,
+      "density": null
+    },
+    {
+      "point": "MHM",
+      "period": "n1",
+      "qpf": 0.45,
+      "density": 11
+    },
+    {
+      "point": "MHM",
+      "period": "d2",
+      "qpf": 0.6,
+      "density": 12
+    },
+    {
+      "point": "MHM",
+      "period": "n2",
+      "qpf": 0.0,
+      "density": null
+    },
+    {
+      "point": "MHM",
+      "period": "d3",
+      "qpf": 0.15,
+      "density": 14
+    }
+  ],
+  "temp": [
+    {
+      "zone": "stevens-pass",
+      "period": "n1",
+      "high": 34,
+      "low": 24
+    },
+    {
+      "zone": "stevens-pass",
+      "period": "d2",
+      "high": 35,
+      "low": 25
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "period": "n1",
+      "high": 32,
+      "low": 22
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "period": "d2",
+      "high": 33,
+      "low": 23
+    },
+    {
+      "zone": "mt-hood",
+      "period": "n1",
+      "high": 30,
+      "low": 20
+    },
+    {
+      "zone": "mt-hood",
+      "period": "d2",
+      "high": 31,
+      "low": 21
+    }
+  ],
+  "wind": [
+    {
+      "zone": "stevens-pass",
+      "block": "ev1",
+      "dir": "W",
+      "speed": 0
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "nt1",
+      "dir": "SW",
+      "speed": 5
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "am2",
+      "dir": "WNW",
+      "speed": 10
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "pm2",
+      "dir": "S",
+      "speed": 15
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "ev1",
+      "dir": "SW",
+      "speed": 5
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "nt1",
+      "dir": "WNW",
+      "speed": 10
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "am2",
+      "dir": "S",
+      "speed": 15
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "pm2",
+      "dir": "E",
+      "speed": 20
+    },
+    {
+      "zone": "mt-hood",
+      "block": "ev1",
+      "dir": "WNW",
+      "speed": 10
+    },
+    {
+      "zone": "mt-hood",
+      "block": "nt1",
+      "dir": "S",
+      "speed": 15
+    },
+    {
+      "zone": "mt-hood",
+      "block": "am2",
+      "dir": "E",
+      "speed": 20
+    },
+    {
+      "zone": "mt-hood",
+      "block": "pm2",
+      "dir": "W",
+      "speed": 25
+    }
+  ],
+  "snowLevel": [
+    {
+      "zone": "stevens-pass",
+      "block": "ev1",
+      "freezing": 3000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "nt1",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "am2",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "pm2",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "ev2",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "nt2",
+      "freezing": 5500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "am3",
+      "freezing": 3000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "pm3",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "ev1",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "nt1",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "am2",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "pm2",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "ev2",
+      "freezing": 5500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "nt2",
+      "freezing": 3000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "am3",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "block": "pm3",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "ev1",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "nt1",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "am2",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "pm2",
+      "freezing": 5500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "ev2",
+      "freezing": 3000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "nt2",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "am3",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "pm3",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "nt3",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "am4",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "nt4",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "stevens-pass",
+      "block": "day5",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "nt3",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "am4",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "nt4",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "mt-hood",
+      "block": "day5",
+      "freezing": 5500,
+      "drop": 1000,
+      "mode": "auto"
+    }
+  ],
+  "sensible": [
+    {
+      "zone": "stevens-pass",
+      "slot": "morning",
+      "text": "Example morning conditions for stevens-pass."
+    },
+    {
+      "zone": "stevens-pass",
+      "slot": "afternoon",
+      "text": "Example afternoon conditions for stevens-pass."
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "slot": "morning",
+      "text": "Example morning conditions for snoqualmie-pass."
+    },
+    {
+      "zone": "snoqualmie-pass",
+      "slot": "afternoon",
+      "text": "Example afternoon conditions for snoqualmie-pass."
+    },
+    {
+      "zone": "mt-hood",
+      "slot": "morning",
+      "text": "Example morning conditions for mt-hood."
+    },
+    {
+      "zone": "mt-hood",
+      "slot": "afternoon",
+      "text": "Example afternoon conditions for mt-hood."
+    }
+  ]
+}

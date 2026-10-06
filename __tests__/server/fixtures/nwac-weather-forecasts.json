@@ -9,6 +9,52 @@
       "type": "afternoon",
       "serviceDate": "2026-09-14",
       "author": "Forecaster",
+      "format": "dashboard-v2-2026-09-01",
+      "template": {
+        "label": "dashboard-v2",
+        "sections": [
+          {
+            "id": "sensible",
+            "grid": "sensible",
+            "rows": "zones",
+            "axis": "sensibleSlots"
+          },
+          {
+            "id": "precip",
+            "grid": "precip",
+            "rows": "points",
+            "axis": "precipPeriods"
+          },
+          {
+            "id": "snowLevel",
+            "grid": "snowLevel",
+            "rows": "zones",
+            "axis": "snowLevelBlocks"
+          },
+          {
+            "id": "temps",
+            "grid": "temp",
+            "rows": "zones",
+            "axis": "tempPeriods"
+          },
+          {
+            "id": "wind",
+            "grid": "wind",
+            "rows": "zones",
+            "axis": "windBlocks"
+          },
+          {
+            "id": "extendedSnowLevel",
+            "grid": "extendedSnowLevel",
+            "rows": "extendedZones",
+            "axis": "extendedBlocks"
+          }
+        ]
+      },
+      "layout": {
+        "id": 1,
+        "name": "Recorded day"
+      },
       "synopsis": "Ridging rebuilds tonight ahead of the next shortwave. Light showers linger over the Olympics into the evening.",
       "extendedOutlook": "Warm and dry Friday through the weekend, with freezing levels climbing toward 12,500 ft.",
       "zones": [
@@ -80,7 +126,7 @@
         },
         {
           "code": "BAR24",
-          "name": "Mt Loop \u2014 Barlow Pass",
+          "name": "Mt Loop — Barlow Pass",
           "zone": "West Slopes Central",
           "zoneId": "west-central",
           "avalancheZoneId": 1647
@@ -143,14 +189,14 @@
         },
         {
           "code": "GHL56",
-          "name": "Salmon la Sac \u2014 Gallagher Head",
+          "name": "Salmon la Sac — Gallagher Head",
           "zone": "East Slopes Central",
           "zoneId": "east-central",
           "avalancheZoneId": 1655
         },
         {
           "code": "DAR70",
-          "name": "Tieton River \u2014 Darland Mt",
+          "name": "Tieton River — Darland Mt",
           "zone": "East Slopes South",
           "zoneId": "east-south",
           "avalancheZoneId": 1656
@@ -170,38 +216,35 @@
           "avalancheZoneId": 1657
         }
       ],
+      "extendedZones": ["olympics", "west-north", "stevens"],
       "periods": [
         {
           "key": "n1",
           "label": "Night 1",
           "short": "N1",
           "kind": "night",
-          "date": "2026-09-14",
-          "precip": true
+          "date": "2026-09-14"
         },
         {
           "key": "d2",
           "label": "Day 2",
           "short": "D2",
           "kind": "day",
-          "date": "2026-09-15",
-          "precip": true
+          "date": "2026-09-15"
         },
         {
           "key": "n2",
           "label": "Night 2",
           "short": "N2",
           "kind": "night",
-          "date": "2026-09-15",
-          "precip": true
+          "date": "2026-09-15"
         },
         {
           "key": "d3",
           "label": "Day 3",
           "short": "D3",
           "kind": "day",
-          "date": "2026-09-16",
-          "precip": true
+          "date": "2026-09-16"
         }
       ],
       "blocks": [
@@ -280,6 +323,28 @@
           "date": "2026-09-18"
         }
       ],
+      "sensibleSlots": [
+        {
+          "key": "morning",
+          "label": "Tonight",
+          "period": "n1",
+          "date": "2026-09-14"
+        },
+        {
+          "key": "afternoon",
+          "label": "Tomorrow",
+          "period": "d2",
+          "date": "2026-09-15"
+        }
+      ],
+      "axes": {
+        "precipPeriods": ["n1", "d2", "n2", "d3"],
+        "tempPeriods": ["n1", "d2"],
+        "snowLevelBlocks": ["ev1", "nt1", "am2", "pm2", "ev2", "nt2", "am3", "pm3"],
+        "windBlocks": ["ev1", "nt1", "am2", "pm2"],
+        "extendedBlocks": ["nt3", "am4", "nt4", "day5"],
+        "sensibleSlots": ["morning", "afternoon"]
+      },
       "precip": [
         {
           "point": "HUR53",
@@ -656,18 +721,6 @@
           "low": 49
         },
         {
-          "zone": "olympics",
-          "period": "n2",
-          "high": 53,
-          "low": 47
-        },
-        {
-          "zone": "olympics",
-          "period": "d3",
-          "high": 71,
-          "low": 49
-        },
-        {
           "zone": "west-north",
           "period": "n1",
           "high": 52,
@@ -676,18 +729,6 @@
         {
           "zone": "west-north",
           "period": "d2",
-          "high": 70,
-          "low": 48
-        },
-        {
-          "zone": "west-north",
-          "period": "n2",
-          "high": 52,
-          "low": 46
-        },
-        {
-          "zone": "west-north",
-          "period": "d3",
           "high": 70,
           "low": 48
         },
@@ -704,18 +745,6 @@
           "low": 47
         },
         {
-          "zone": "east-north",
-          "period": "n2",
-          "high": 51,
-          "low": 45
-        },
-        {
-          "zone": "east-north",
-          "period": "d3",
-          "high": 69,
-          "low": 47
-        },
-        {
           "zone": "west-central",
           "period": "n1",
           "high": 50,
@@ -724,18 +753,6 @@
         {
           "zone": "west-central",
           "period": "d2",
-          "high": 68,
-          "low": 46
-        },
-        {
-          "zone": "west-central",
-          "period": "n2",
-          "high": 50,
-          "low": 44
-        },
-        {
-          "zone": "west-central",
-          "period": "d3",
           "high": 68,
           "low": 46
         },
@@ -752,18 +769,6 @@
           "low": 45
         },
         {
-          "zone": "east-central",
-          "period": "n2",
-          "high": 49,
-          "low": 43
-        },
-        {
-          "zone": "east-central",
-          "period": "d3",
-          "high": 67,
-          "low": 45
-        },
-        {
           "zone": "stevens",
           "period": "n1",
           "high": 48,
@@ -772,18 +777,6 @@
         {
           "zone": "stevens",
           "period": "d2",
-          "high": 66,
-          "low": 44
-        },
-        {
-          "zone": "stevens",
-          "period": "n2",
-          "high": 48,
-          "low": 42
-        },
-        {
-          "zone": "stevens",
-          "period": "d3",
           "high": 66,
           "low": 44
         },
@@ -800,18 +793,6 @@
           "low": 43
         },
         {
-          "zone": "snoqualmie",
-          "period": "n2",
-          "high": 47,
-          "low": 41
-        },
-        {
-          "zone": "snoqualmie",
-          "period": "d3",
-          "high": 65,
-          "low": 43
-        },
-        {
           "zone": "west-south",
           "period": "n1",
           "high": 46,
@@ -820,18 +801,6 @@
         {
           "zone": "west-south",
           "period": "d2",
-          "high": 64,
-          "low": 42
-        },
-        {
-          "zone": "west-south",
-          "period": "n2",
-          "high": 46,
-          "low": 40
-        },
-        {
-          "zone": "west-south",
-          "period": "d3",
           "high": 64,
           "low": 42
         },
@@ -848,18 +817,6 @@
           "low": 41
         },
         {
-          "zone": "east-south",
-          "period": "n2",
-          "high": 45,
-          "low": 39
-        },
-        {
-          "zone": "east-south",
-          "period": "d3",
-          "high": 63,
-          "low": 41
-        },
-        {
           "zone": "mt-hood",
           "period": "n1",
           "high": 44,
@@ -868,18 +825,6 @@
         {
           "zone": "mt-hood",
           "period": "d2",
-          "high": 62,
-          "low": 40
-        },
-        {
-          "zone": "mt-hood",
-          "period": "n2",
-          "high": 44,
-          "low": 38
-        },
-        {
-          "zone": "mt-hood",
-          "period": "d3",
           "high": 62,
           "low": 40
         }
@@ -910,30 +855,6 @@
           "speed": 21
         },
         {
-          "zone": "olympics",
-          "block": "ev2",
-          "dir": "SSW",
-          "speed": 23
-        },
-        {
-          "zone": "olympics",
-          "block": "nt2",
-          "dir": "SW",
-          "speed": 25
-        },
-        {
-          "zone": "olympics",
-          "block": "am3",
-          "dir": "WSW",
-          "speed": 27
-        },
-        {
-          "zone": "olympics",
-          "block": "pm3",
-          "dir": "W",
-          "speed": 29
-        },
-        {
           "zone": "west-north",
           "block": "ev1",
           "dir": "WNW",
@@ -956,30 +877,6 @@
           "block": "pm2",
           "dir": "SSW",
           "speed": 24
-        },
-        {
-          "zone": "west-north",
-          "block": "ev2",
-          "dir": "SW",
-          "speed": 26
-        },
-        {
-          "zone": "west-north",
-          "block": "nt2",
-          "dir": "WSW",
-          "speed": 28
-        },
-        {
-          "zone": "west-north",
-          "block": "am3",
-          "dir": "W",
-          "speed": 10
-        },
-        {
-          "zone": "west-north",
-          "block": "pm3",
-          "dir": "WNW",
-          "speed": 12
         },
         {
           "zone": "east-north",
@@ -1006,30 +903,6 @@
           "speed": 27
         },
         {
-          "zone": "east-north",
-          "block": "ev2",
-          "dir": "WSW",
-          "speed": 29
-        },
-        {
-          "zone": "east-north",
-          "block": "nt2",
-          "dir": "W",
-          "speed": 11
-        },
-        {
-          "zone": "east-north",
-          "block": "am3",
-          "dir": "WNW",
-          "speed": 13
-        },
-        {
-          "zone": "east-north",
-          "block": "pm3",
-          "dir": "NW",
-          "speed": 15
-        },
-        {
           "zone": "west-central",
           "block": "ev1",
           "dir": "S",
@@ -1052,30 +925,6 @@
           "block": "pm2",
           "dir": "WSW",
           "speed": 10
-        },
-        {
-          "zone": "west-central",
-          "block": "ev2",
-          "dir": "W",
-          "speed": 12
-        },
-        {
-          "zone": "west-central",
-          "block": "nt2",
-          "dir": "WNW",
-          "speed": 14
-        },
-        {
-          "zone": "west-central",
-          "block": "am3",
-          "dir": "NW",
-          "speed": 16
-        },
-        {
-          "zone": "west-central",
-          "block": "pm3",
-          "dir": "S",
-          "speed": 18
         },
         {
           "zone": "east-central",
@@ -1102,30 +951,6 @@
           "speed": 13
         },
         {
-          "zone": "east-central",
-          "block": "ev2",
-          "dir": "WNW",
-          "speed": 15
-        },
-        {
-          "zone": "east-central",
-          "block": "nt2",
-          "dir": "NW",
-          "speed": 17
-        },
-        {
-          "zone": "east-central",
-          "block": "am3",
-          "dir": "S",
-          "speed": 19
-        },
-        {
-          "zone": "east-central",
-          "block": "pm3",
-          "dir": "SSW",
-          "speed": 21
-        },
-        {
           "zone": "stevens",
           "block": "ev1",
           "dir": "SW",
@@ -1148,30 +973,6 @@
           "block": "pm2",
           "dir": "WNW",
           "speed": 16
-        },
-        {
-          "zone": "stevens",
-          "block": "ev2",
-          "dir": "NW",
-          "speed": 18
-        },
-        {
-          "zone": "stevens",
-          "block": "nt2",
-          "dir": "S",
-          "speed": 20
-        },
-        {
-          "zone": "stevens",
-          "block": "am3",
-          "dir": "SSW",
-          "speed": 22
-        },
-        {
-          "zone": "stevens",
-          "block": "pm3",
-          "dir": "SW",
-          "speed": 24
         },
         {
           "zone": "snoqualmie",
@@ -1198,30 +999,6 @@
           "speed": 19
         },
         {
-          "zone": "snoqualmie",
-          "block": "ev2",
-          "dir": "S",
-          "speed": 21
-        },
-        {
-          "zone": "snoqualmie",
-          "block": "nt2",
-          "dir": "SSW",
-          "speed": 23
-        },
-        {
-          "zone": "snoqualmie",
-          "block": "am3",
-          "dir": "SW",
-          "speed": 25
-        },
-        {
-          "zone": "snoqualmie",
-          "block": "pm3",
-          "dir": "WSW",
-          "speed": 27
-        },
-        {
           "zone": "west-south",
           "block": "ev1",
           "dir": "W",
@@ -1244,30 +1021,6 @@
           "block": "pm2",
           "dir": "S",
           "speed": 22
-        },
-        {
-          "zone": "west-south",
-          "block": "ev2",
-          "dir": "SSW",
-          "speed": 24
-        },
-        {
-          "zone": "west-south",
-          "block": "nt2",
-          "dir": "SW",
-          "speed": 26
-        },
-        {
-          "zone": "west-south",
-          "block": "am3",
-          "dir": "WSW",
-          "speed": 28
-        },
-        {
-          "zone": "west-south",
-          "block": "pm3",
-          "dir": "W",
-          "speed": 10
         },
         {
           "zone": "east-south",
@@ -1294,30 +1047,6 @@
           "speed": 25
         },
         {
-          "zone": "east-south",
-          "block": "ev2",
-          "dir": "SW",
-          "speed": 27
-        },
-        {
-          "zone": "east-south",
-          "block": "nt2",
-          "dir": "WSW",
-          "speed": 29
-        },
-        {
-          "zone": "east-south",
-          "block": "am3",
-          "dir": "W",
-          "speed": 11
-        },
-        {
-          "zone": "east-south",
-          "block": "pm3",
-          "dir": "WNW",
-          "speed": 13
-        },
-        {
           "zone": "mt-hood",
           "block": "ev1",
           "dir": "NW",
@@ -1340,30 +1069,6 @@
           "block": "pm2",
           "dir": "SW",
           "speed": 28
-        },
-        {
-          "zone": "mt-hood",
-          "block": "ev2",
-          "dir": "WSW",
-          "speed": 10
-        },
-        {
-          "zone": "mt-hood",
-          "block": "nt2",
-          "dir": "W",
-          "speed": 12
-        },
-        {
-          "zone": "mt-hood",
-          "block": "am3",
-          "dir": "WNW",
-          "speed": 14
-        },
-        {
-          "zone": "mt-hood",
-          "block": "pm3",
-          "dir": "NW",
-          "speed": 16
         }
       ],
       "snowLevel": [
@@ -2122,6 +1827,52 @@
       "type": "morning",
       "serviceDate": "2026-09-14",
       "author": "Forecaster",
+      "format": "dashboard-v2-2026-09-01",
+      "template": {
+        "label": "dashboard-v2",
+        "sections": [
+          {
+            "id": "sensible",
+            "grid": "sensible",
+            "rows": "zones",
+            "axis": "sensibleSlots"
+          },
+          {
+            "id": "precip",
+            "grid": "precip",
+            "rows": "points",
+            "axis": "precipPeriods"
+          },
+          {
+            "id": "snowLevel",
+            "grid": "snowLevel",
+            "rows": "zones",
+            "axis": "snowLevelBlocks"
+          },
+          {
+            "id": "temps",
+            "grid": "temp",
+            "rows": "zones",
+            "axis": "tempPeriods"
+          },
+          {
+            "id": "wind",
+            "grid": "wind",
+            "rows": "zones",
+            "axis": "windBlocks"
+          },
+          {
+            "id": "extendedSnowLevel",
+            "grid": "extendedSnowLevel",
+            "rows": "extendedZones",
+            "axis": "extendedBlocks"
+          }
+        ]
+      },
+      "layout": {
+        "id": 1,
+        "name": "Recorded day"
+      },
       "synopsis": "A weak upper-level trough grazes the Cascades today, keeping a marine push alive west of the crest. Freezing levels stay near 11,000 ft.",
       "extendedOutlook": null,
       "zones": [
@@ -2193,7 +1944,7 @@
         },
         {
           "code": "BAR24",
-          "name": "Mt Loop \u2014 Barlow Pass",
+          "name": "Mt Loop — Barlow Pass",
           "zone": "West Slopes Central",
           "zoneId": "west-central",
           "avalancheZoneId": 1647
@@ -2256,14 +2007,14 @@
         },
         {
           "code": "GHL56",
-          "name": "Salmon la Sac \u2014 Gallagher Head",
+          "name": "Salmon la Sac — Gallagher Head",
           "zone": "East Slopes Central",
           "zoneId": "east-central",
           "avalancheZoneId": 1655
         },
         {
           "code": "DAR70",
-          "name": "Tieton River \u2014 Darland Mt",
+          "name": "Tieton River — Darland Mt",
           "zone": "East Slopes South",
           "zoneId": "east-south",
           "avalancheZoneId": 1656
@@ -2283,30 +2034,28 @@
           "avalancheZoneId": 1657
         }
       ],
+      "extendedZones": [],
       "periods": [
         {
           "key": "d1",
           "label": "Day 1",
           "short": "D1",
           "kind": "day",
-          "date": "2026-09-14",
-          "precip": true
+          "date": "2026-09-14"
         },
         {
           "key": "n1",
           "label": "Night 1",
           "short": "N1",
           "kind": "night",
-          "date": "2026-09-14",
-          "precip": true
+          "date": "2026-09-14"
         },
         {
           "key": "d2",
           "label": "Day 2",
           "short": "D2",
           "kind": "day",
-          "date": "2026-09-15",
-          "precip": true
+          "date": "2026-09-15"
         }
       ],
       "blocks": [
@@ -2348,6 +2097,28 @@
         }
       ],
       "extendedBlocks": [],
+      "sensibleSlots": [
+        {
+          "key": "morning",
+          "label": "Today",
+          "period": "d1",
+          "date": "2026-09-14"
+        },
+        {
+          "key": "afternoon",
+          "label": "Tonight",
+          "period": "n1",
+          "date": "2026-09-14"
+        }
+      ],
+      "axes": {
+        "precipPeriods": ["d1", "n1", "d2"],
+        "tempPeriods": ["d1", "n1"],
+        "snowLevelBlocks": ["am1", "pm1", "ev1", "nt1", "am2", "pm2"],
+        "windBlocks": ["am1", "pm1", "ev1", "nt1"],
+        "extendedBlocks": [],
+        "sensibleSlots": ["morning", "afternoon"]
+      },
       "precip": [
         {
           "point": "HUR53",
@@ -2365,12 +2136,6 @@
           "point": "HUR53",
           "period": "d2",
           "qpf": 0.14,
-          "density": 11.0
-        },
-        {
-          "point": "HUR53",
-          "period": "n2",
-          "qpf": 0.09,
           "density": 11.0
         },
         {
@@ -2392,12 +2157,6 @@
           "density": 12.0
         },
         {
-          "point": "MTB42",
-          "period": "n2",
-          "qpf": 0.07,
-          "density": 12.0
-        },
-        {
           "point": "WAP55",
           "period": "d1",
           "qpf": 0.21,
@@ -2413,12 +2172,6 @@
           "point": "WAP55",
           "period": "d2",
           "qpf": 0.11,
-          "density": 10.0
-        },
-        {
-          "point": "WAP55",
-          "period": "n2",
-          "qpf": 0.06,
           "density": 10.0
         },
         {
@@ -2440,12 +2193,6 @@
           "density": 11.0
         },
         {
-          "point": "BAR24",
-          "period": "n2",
-          "qpf": 0.04,
-          "density": 11.0
-        },
-        {
           "point": "GHL56",
           "period": "d1",
           "qpf": 0.18,
@@ -2461,12 +2208,6 @@
           "point": "GHL56",
           "period": "d2",
           "qpf": 0.08,
-          "density": 12.0
-        },
-        {
-          "point": "GHL56",
-          "period": "n2",
-          "qpf": 0.03,
           "density": 12.0
         },
         {
@@ -2488,12 +2229,6 @@
           "density": 10.0
         },
         {
-          "point": "STS40",
-          "period": "n2",
-          "qpf": 0.01,
-          "density": 10.0
-        },
-        {
           "point": "SNO30",
           "period": "d1",
           "qpf": 0.15,
@@ -2509,12 +2244,6 @@
           "point": "SNO30",
           "period": "d2",
           "qpf": 0.05,
-          "density": 11.0
-        },
-        {
-          "point": "SNO30",
-          "period": "n2",
-          "qpf": 0.0,
           "density": 11.0
         },
         {
@@ -2536,12 +2265,6 @@
           "density": 12.0
         },
         {
-          "point": "MSR52",
-          "period": "n2",
-          "qpf": 0.0,
-          "density": 12.0
-        },
-        {
           "point": "CMT46",
           "period": "d1",
           "qpf": 0.12,
@@ -2560,12 +2283,6 @@
           "density": 10.0
         },
         {
-          "point": "CMT46",
-          "period": "n2",
-          "qpf": 0.0,
-          "density": 10.0
-        },
-        {
           "point": "PVC54",
           "period": "d1",
           "qpf": 0.1,
@@ -2580,12 +2297,6 @@
         {
           "point": "PVC54",
           "period": "d2",
-          "qpf": 0.0,
-          "density": 11.0
-        },
-        {
-          "point": "PVC54",
-          "period": "n2",
           "qpf": 0.0,
           "density": 11.0
         },
@@ -2608,12 +2319,6 @@
           "density": 12.0
         },
         {
-          "point": "WPS58",
-          "period": "n2",
-          "qpf": 0.0,
-          "density": 12.0
-        },
-        {
           "point": "MSH56",
           "period": "d1",
           "qpf": 0.07,
@@ -2628,12 +2333,6 @@
         {
           "point": "MSH56",
           "period": "d2",
-          "qpf": 0.0,
-          "density": 10.0
-        },
-        {
-          "point": "MSH56",
-          "period": "n2",
           "qpf": 0.0,
           "density": 10.0
         },
@@ -2656,12 +2355,6 @@
           "density": 11.0
         },
         {
-          "point": "DAR70",
-          "period": "n2",
-          "qpf": 0.0,
-          "density": 11.0
-        },
-        {
           "point": "MHM54",
           "period": "d1",
           "qpf": 0.04,
@@ -2676,12 +2369,6 @@
         {
           "point": "MHM54",
           "period": "d2",
-          "qpf": 0.0,
-          "density": 12.0
-        },
-        {
-          "point": "MHM54",
-          "period": "n2",
           "qpf": 0.0,
           "density": 12.0
         },
@@ -2702,12 +2389,6 @@
           "period": "d2",
           "qpf": 0.0,
           "density": 10.0
-        },
-        {
-          "point": "TIM59",
-          "period": "n2",
-          "qpf": 0.0,
-          "density": 10.0
         }
       ],
       "temp": [
@@ -2724,18 +2405,6 @@
           "low": 47
         },
         {
-          "zone": "olympics",
-          "period": "d2",
-          "high": 71,
-          "low": 49
-        },
-        {
-          "zone": "olympics",
-          "period": "n2",
-          "high": 53,
-          "low": 47
-        },
-        {
           "zone": "west-north",
           "period": "d1",
           "high": 70,
@@ -2744,18 +2413,6 @@
         {
           "zone": "west-north",
           "period": "n1",
-          "high": 52,
-          "low": 46
-        },
-        {
-          "zone": "west-north",
-          "period": "d2",
-          "high": 70,
-          "low": 48
-        },
-        {
-          "zone": "west-north",
-          "period": "n2",
           "high": 52,
           "low": 46
         },
@@ -2772,18 +2429,6 @@
           "low": 45
         },
         {
-          "zone": "east-north",
-          "period": "d2",
-          "high": 69,
-          "low": 47
-        },
-        {
-          "zone": "east-north",
-          "period": "n2",
-          "high": 51,
-          "low": 45
-        },
-        {
           "zone": "west-central",
           "period": "d1",
           "high": 68,
@@ -2792,18 +2437,6 @@
         {
           "zone": "west-central",
           "period": "n1",
-          "high": 50,
-          "low": 44
-        },
-        {
-          "zone": "west-central",
-          "period": "d2",
-          "high": 68,
-          "low": 46
-        },
-        {
-          "zone": "west-central",
-          "period": "n2",
           "high": 50,
           "low": 44
         },
@@ -2820,18 +2453,6 @@
           "low": 43
         },
         {
-          "zone": "east-central",
-          "period": "d2",
-          "high": 67,
-          "low": 45
-        },
-        {
-          "zone": "east-central",
-          "period": "n2",
-          "high": 49,
-          "low": 43
-        },
-        {
           "zone": "stevens",
           "period": "d1",
           "high": 66,
@@ -2840,18 +2461,6 @@
         {
           "zone": "stevens",
           "period": "n1",
-          "high": 48,
-          "low": 42
-        },
-        {
-          "zone": "stevens",
-          "period": "d2",
-          "high": 66,
-          "low": 44
-        },
-        {
-          "zone": "stevens",
-          "period": "n2",
           "high": 48,
           "low": 42
         },
@@ -2868,18 +2477,6 @@
           "low": 41
         },
         {
-          "zone": "snoqualmie",
-          "period": "d2",
-          "high": 65,
-          "low": 43
-        },
-        {
-          "zone": "snoqualmie",
-          "period": "n2",
-          "high": 47,
-          "low": 41
-        },
-        {
           "zone": "west-south",
           "period": "d1",
           "high": 64,
@@ -2888,18 +2485,6 @@
         {
           "zone": "west-south",
           "period": "n1",
-          "high": 46,
-          "low": 40
-        },
-        {
-          "zone": "west-south",
-          "period": "d2",
-          "high": 64,
-          "low": 42
-        },
-        {
-          "zone": "west-south",
-          "period": "n2",
           "high": 46,
           "low": 40
         },
@@ -2916,18 +2501,6 @@
           "low": 39
         },
         {
-          "zone": "east-south",
-          "period": "d2",
-          "high": 63,
-          "low": 41
-        },
-        {
-          "zone": "east-south",
-          "period": "n2",
-          "high": 45,
-          "low": 39
-        },
-        {
           "zone": "mt-hood",
           "period": "d1",
           "high": 62,
@@ -2936,18 +2509,6 @@
         {
           "zone": "mt-hood",
           "period": "n1",
-          "high": 44,
-          "low": 38
-        },
-        {
-          "zone": "mt-hood",
-          "period": "d2",
-          "high": 62,
-          "low": 40
-        },
-        {
-          "zone": "mt-hood",
-          "period": "n2",
           "high": 44,
           "low": 38
         }
@@ -2973,30 +2534,6 @@
         },
         {
           "zone": "olympics",
-          "block": "am2",
-          "dir": "SSW",
-          "speed": 23
-        },
-        {
-          "zone": "olympics",
-          "block": "pm2",
-          "dir": "SW",
-          "speed": 25
-        },
-        {
-          "zone": "olympics",
-          "block": "ev2",
-          "dir": "WSW",
-          "speed": 27
-        },
-        {
-          "zone": "olympics",
-          "block": "nt2",
-          "dir": "W",
-          "speed": 29
-        },
-        {
-          "zone": "olympics",
           "block": "am1",
           "dir": "W",
           "speed": 15
@@ -3018,30 +2555,6 @@
           "block": "nt1",
           "dir": "SSW",
           "speed": 24
-        },
-        {
-          "zone": "west-north",
-          "block": "am2",
-          "dir": "SW",
-          "speed": 26
-        },
-        {
-          "zone": "west-north",
-          "block": "pm2",
-          "dir": "WSW",
-          "speed": 28
-        },
-        {
-          "zone": "west-north",
-          "block": "ev2",
-          "dir": "W",
-          "speed": 10
-        },
-        {
-          "zone": "west-north",
-          "block": "nt2",
-          "dir": "WNW",
-          "speed": 12
         },
         {
           "zone": "west-north",
@@ -3069,30 +2582,6 @@
         },
         {
           "zone": "east-north",
-          "block": "am2",
-          "dir": "WSW",
-          "speed": 29
-        },
-        {
-          "zone": "east-north",
-          "block": "pm2",
-          "dir": "W",
-          "speed": 11
-        },
-        {
-          "zone": "east-north",
-          "block": "ev2",
-          "dir": "WNW",
-          "speed": 13
-        },
-        {
-          "zone": "east-north",
-          "block": "nt2",
-          "dir": "NW",
-          "speed": 15
-        },
-        {
-          "zone": "east-north",
           "block": "am1",
           "dir": "NW",
           "speed": 21
@@ -3117,30 +2606,6 @@
         },
         {
           "zone": "west-central",
-          "block": "am2",
-          "dir": "W",
-          "speed": 12
-        },
-        {
-          "zone": "west-central",
-          "block": "pm2",
-          "dir": "WNW",
-          "speed": 14
-        },
-        {
-          "zone": "west-central",
-          "block": "ev2",
-          "dir": "NW",
-          "speed": 16
-        },
-        {
-          "zone": "west-central",
-          "block": "nt2",
-          "dir": "S",
-          "speed": 18
-        },
-        {
-          "zone": "west-central",
           "block": "am1",
           "dir": "S",
           "speed": 24
@@ -3165,30 +2630,6 @@
         },
         {
           "zone": "east-central",
-          "block": "am2",
-          "dir": "WNW",
-          "speed": 15
-        },
-        {
-          "zone": "east-central",
-          "block": "pm2",
-          "dir": "NW",
-          "speed": 17
-        },
-        {
-          "zone": "east-central",
-          "block": "ev2",
-          "dir": "S",
-          "speed": 19
-        },
-        {
-          "zone": "east-central",
-          "block": "nt2",
-          "dir": "SSW",
-          "speed": 21
-        },
-        {
-          "zone": "east-central",
           "block": "am1",
           "dir": "SSW",
           "speed": 27
@@ -3210,30 +2651,6 @@
           "block": "nt1",
           "dir": "WNW",
           "speed": 16
-        },
-        {
-          "zone": "stevens",
-          "block": "am2",
-          "dir": "NW",
-          "speed": 18
-        },
-        {
-          "zone": "stevens",
-          "block": "pm2",
-          "dir": "S",
-          "speed": 20
-        },
-        {
-          "zone": "stevens",
-          "block": "ev2",
-          "dir": "SSW",
-          "speed": 22
-        },
-        {
-          "zone": "stevens",
-          "block": "nt2",
-          "dir": "SW",
-          "speed": 24
         },
         {
           "zone": "stevens",
@@ -3261,30 +2678,6 @@
         },
         {
           "zone": "snoqualmie",
-          "block": "am2",
-          "dir": "S",
-          "speed": 21
-        },
-        {
-          "zone": "snoqualmie",
-          "block": "pm2",
-          "dir": "SSW",
-          "speed": 23
-        },
-        {
-          "zone": "snoqualmie",
-          "block": "ev2",
-          "dir": "SW",
-          "speed": 25
-        },
-        {
-          "zone": "snoqualmie",
-          "block": "nt2",
-          "dir": "WSW",
-          "speed": 27
-        },
-        {
-          "zone": "snoqualmie",
           "block": "am1",
           "dir": "WSW",
           "speed": 13
@@ -3309,30 +2702,6 @@
         },
         {
           "zone": "west-south",
-          "block": "am2",
-          "dir": "SSW",
-          "speed": 24
-        },
-        {
-          "zone": "west-south",
-          "block": "pm2",
-          "dir": "SW",
-          "speed": 26
-        },
-        {
-          "zone": "west-south",
-          "block": "ev2",
-          "dir": "WSW",
-          "speed": 28
-        },
-        {
-          "zone": "west-south",
-          "block": "nt2",
-          "dir": "W",
-          "speed": 10
-        },
-        {
-          "zone": "west-south",
           "block": "am1",
           "dir": "W",
           "speed": 16
@@ -3357,30 +2726,6 @@
         },
         {
           "zone": "east-south",
-          "block": "am2",
-          "dir": "SW",
-          "speed": 27
-        },
-        {
-          "zone": "east-south",
-          "block": "pm2",
-          "dir": "WSW",
-          "speed": 29
-        },
-        {
-          "zone": "east-south",
-          "block": "ev2",
-          "dir": "W",
-          "speed": 11
-        },
-        {
-          "zone": "east-south",
-          "block": "nt2",
-          "dir": "WNW",
-          "speed": 13
-        },
-        {
-          "zone": "east-south",
           "block": "am1",
           "dir": "WNW",
           "speed": 19
@@ -3402,30 +2747,6 @@
           "block": "nt1",
           "dir": "SW",
           "speed": 28
-        },
-        {
-          "zone": "mt-hood",
-          "block": "am2",
-          "dir": "WSW",
-          "speed": 10
-        },
-        {
-          "zone": "mt-hood",
-          "block": "pm2",
-          "dir": "W",
-          "speed": 12
-        },
-        {
-          "zone": "mt-hood",
-          "block": "ev2",
-          "dir": "WNW",
-          "speed": 14
-        },
-        {
-          "zone": "mt-hood",
-          "block": "nt2",
-          "dir": "NW",
-          "speed": 16
         },
         {
           "zone": "mt-hood",
@@ -3478,20 +2799,6 @@
           "mode": "auto"
         },
         {
-          "zone": "olympics",
-          "block": "ev2",
-          "freezing": 11000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "olympics",
-          "block": "nt2",
-          "freezing": 10500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
           "zone": "west-north",
           "block": "am1",
           "freezing": 9500,
@@ -3530,20 +2837,6 @@
           "zone": "west-north",
           "block": "pm2",
           "freezing": 11000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "west-north",
-          "block": "ev2",
-          "freezing": 10500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "west-north",
-          "block": "nt2",
-          "freezing": 10000,
           "drop": 1000,
           "mode": "auto"
         },
@@ -3590,20 +2883,6 @@
           "mode": "auto"
         },
         {
-          "zone": "east-north",
-          "block": "ev2",
-          "freezing": 10000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "east-north",
-          "block": "nt2",
-          "freezing": 9500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
           "zone": "west-central",
           "block": "am1",
           "freezing": 10500,
@@ -3642,20 +2921,6 @@
           "zone": "west-central",
           "block": "pm2",
           "freezing": 10000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "west-central",
-          "block": "ev2",
-          "freezing": 9500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "west-central",
-          "block": "nt2",
-          "freezing": 11000,
           "drop": 1000,
           "mode": "auto"
         },
@@ -3702,20 +2967,6 @@
           "mode": "auto"
         },
         {
-          "zone": "east-central",
-          "block": "ev2",
-          "freezing": 11000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "east-central",
-          "block": "nt2",
-          "freezing": 10500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
           "zone": "stevens",
           "block": "am1",
           "freezing": 9500,
@@ -3754,20 +3005,6 @@
           "zone": "stevens",
           "block": "pm2",
           "freezing": 11000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "stevens",
-          "block": "ev2",
-          "freezing": 10500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "stevens",
-          "block": "nt2",
-          "freezing": 10000,
           "drop": 1000,
           "mode": "auto"
         },
@@ -3814,20 +3051,6 @@
           "mode": "auto"
         },
         {
-          "zone": "snoqualmie",
-          "block": "ev2",
-          "freezing": 10000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "snoqualmie",
-          "block": "nt2",
-          "freezing": 9500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
           "zone": "west-south",
           "block": "am1",
           "freezing": 10500,
@@ -3866,20 +3089,6 @@
           "zone": "west-south",
           "block": "pm2",
           "freezing": 10000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "west-south",
-          "block": "ev2",
-          "freezing": 9500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "west-south",
-          "block": "nt2",
-          "freezing": 11000,
           "drop": 1000,
           "mode": "auto"
         },
@@ -3926,20 +3135,6 @@
           "mode": "auto"
         },
         {
-          "zone": "east-south",
-          "block": "ev2",
-          "freezing": 11000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "east-south",
-          "block": "nt2",
-          "freezing": 10500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
           "zone": "mt-hood",
           "block": "am1",
           "freezing": 9500,
@@ -3978,20 +3173,6 @@
           "zone": "mt-hood",
           "block": "pm2",
           "freezing": 11000,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "mt-hood",
-          "block": "ev2",
-          "freezing": 10500,
-          "drop": 1000,
-          "mode": "auto"
-        },
-        {
-          "zone": "mt-hood",
-          "block": "nt2",
-          "freezing": 10000,
           "drop": 1000,
           "mode": "auto"
         }

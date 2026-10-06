@@ -1,6 +1,8 @@
 /**
  * The NWAC weather model components render. Grids are keyed for lookup (`temp[zoneId][periodKey]`)
- * and every axis carries its calendar date.
+ * and every axis carries its calendar date. Which grids the forecast has, its rows, and the slots
+ * each grid covers all come from the forecast, frozen with it when it was published; how each
+ * table reads is the page's own.
  */
 
 export type NWACWeatherIssuanceType = 'morning' | 'afternoon'
@@ -27,8 +29,6 @@ export interface NWACWeatherPeriod {
   kind: 'day' | 'night'
   /** `YYYY-MM-DD` */
   date: string
-  /** Whether the issuance forecasts precipitation for this period. */
-  precip: boolean
 }
 
 export interface NWACWeatherBlock {
@@ -46,6 +46,40 @@ export interface NWACWeatherExtendedBlock {
   part: string
   /** `YYYY-MM-DD` */
   date: string
+}
+
+export interface NWACWeatherSensibleSlot {
+  key: string
+  /** "Today", "Tonight", "Tomorrow", as the issuance frames it. */
+  label: string
+  /** `YYYY-MM-DD`; null when the slot isn't pinned to a period. */
+  date: string | null
+}
+
+/** The grids a template section can name. */
+export type NWACWeatherGridName =
+  | 'sensible'
+  | 'precip'
+  | 'snowLevel'
+  | 'temp'
+  | 'wind'
+  | 'extendedSnowLevel'
+
+/** One section of the forecast's template: a grid it has. */
+export interface NWACWeatherSection {
+  id: string
+  /** A grid this page knows how to draw, or another string from a newer template. */
+  grid: NWACWeatherGridName | (string & {})
+}
+
+/** The slot keys each grid covers. */
+export interface NWACWeatherAxes {
+  precipPeriods: string[]
+  tempPeriods: string[]
+  snowLevelBlocks: string[]
+  windBlocks: string[]
+  extendedBlocks: string[]
+  sensibleSlots: string[]
 }
 
 export interface NWACWeatherPrecipCell {
@@ -77,14 +111,24 @@ export interface NWACWeatherIssuance {
   /** `YYYY-MM-DD` — Day 1 of the forecast. */
   serviceDate: string
   author: string | null
+  /** Which template draws the forecast, e.g. `dashboard-v2-2026-09-01`. */
+  format: string
+  /** The grids this format has. */
+  sections: NWACWeatherSection[]
+  /** The layout version the forecast was created under: its rows and slots are the issuance's own. */
+  layout: { id: number | null; name: string | null }
   /** Forecaster-authored HTML; sanitize before rendering. */
   synopsis: string | null
   extendedOutlook: string | null
   zones: NWACWeatherZone[]
   points: NWACWeatherPoint[]
+  /** Ids of the zones that carry the extended snow-level outlook. */
+  extendedZones: string[]
   periods: NWACWeatherPeriod[]
   blocks: NWACWeatherBlock[]
   extendedBlocks: NWACWeatherExtendedBlock[]
+  sensibleSlots: NWACWeatherSensibleSlot[]
+  axes: NWACWeatherAxes
   /** by point code, then period key */
   precip: NWACWeatherGrid<NWACWeatherPrecipCell>
   /** by zone id, then period key */
@@ -94,7 +138,7 @@ export interface NWACWeatherIssuance {
   snowLevel: NWACWeatherGrid<NWACWeatherLevelCell>
   /** by zone id, then extended block key */
   extendedSnowLevel: NWACWeatherGrid<NWACWeatherLevelCell>
-  /** by zone id, then slot (`morning` = Today / Tonight, `afternoon` = Tomorrow) */
+  /** by zone id, then slot key (see `sensibleSlots` for what each means) */
   sensible: NWACWeatherGrid<string>
 }
 
