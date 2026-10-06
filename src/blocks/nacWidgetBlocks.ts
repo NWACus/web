@@ -20,9 +20,7 @@ export function repeatedNACWidgetBlockError(blockTypes: unknown[]): string | nul
 }
 
 function blockTypeOf(block: unknown): unknown {
-  return typeof block === 'object' && block !== null && 'blockType' in block
-    ? block.blockType
-    : undefined
+  return isRecord(block) ? block.blockType : undefined
 }
 
 export const validateLayoutBlocks: BlocksFieldValidation = (value, args) => {
