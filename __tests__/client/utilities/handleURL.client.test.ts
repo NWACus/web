@@ -1,5 +1,5 @@
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
-import { buildBuiltInPage, buildPage, buildPost } from '../../builders'
+import { buildBuiltInPage, buildPage, buildPost, buildStationPage } from '../../builders'
 
 describe('handleReferenceURL', () => {
   describe('when type is external', () => {
@@ -48,6 +48,17 @@ describe('handleReferenceURL', () => {
       })
 
       expect(result).toBe('/blog/my-blog-post')
+    })
+    it('should return URL for station page reference', () => {
+      const result = handleReferenceURL({
+        type: 'internal',
+        reference: {
+          relationTo: 'stationPages',
+          value: buildStationPage({ slug: 'alpental' }),
+        },
+      })
+
+      expect(result).toBe('/weather/stations/alpental')
     })
   })
 

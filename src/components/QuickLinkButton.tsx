@@ -1,5 +1,6 @@
 'use client'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
+import { referenceDocTitle } from '@/utilities/referenceDocTitle'
 import { isValidRelationship } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 import { useAnalytics } from '@/utilities/useAnalytics'
@@ -27,7 +28,7 @@ export default function QuickLinkButton({
   if (!href) return null
 
   const referenceTitle =
-    reference && isValidRelationship(reference.value) ? reference.value.title : ''
+    reference && isValidRelationship(reference.value) ? referenceDocTitle(reference.value) : ''
   const displayLabel = label || referenceTitle
 
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}

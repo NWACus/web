@@ -64,6 +64,7 @@ import * as migration_20261007_210013_forecast_archive_built_in_pages from './20
 import * as migration_20261007_210100_add_glossary_terms from './20261007_210100_add_glossary_terms'
 import * as migration_20261007_210124_seed_glossary_terms from './20261007_210124_seed_glossary_terms'
 import * as migration_20261007_225104_glossary_terms_mcp_access from './20261007_225104_glossary_terms_mcp_access'
+import * as migration_20261007_235049_link_to_station_pages from './20261007_235049_link_to_station_pages'
 
 export const migrations = [
   {
@@ -395,5 +396,10 @@ export const migrations = [
     up: migration_20261007_225104_glossary_terms_mcp_access.up,
     down: migration_20261007_225104_glossary_terms_mcp_access.down,
     name: '20261007_225104_glossary_terms_mcp_access',
+  },
+  {
+    up: migration_20261007_235049_link_to_station_pages.up,
+    down: migration_20261007_235049_link_to_station_pages.down,
+    name: '20261007_235049_link_to_station_pages',
   },
 ]

@@ -1,3 +1,4 @@
+import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
 import { clearIrrelevantLinkValues } from '@/utilities/clearIrrelevantLinkValues'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { isRecord } from '@/utilities/isRecord'
@@ -73,11 +74,16 @@ const buildLinkFields = ({
     type: 'relationship',
     admin: {
       condition: (_, siblingData) => siblingData?.type === 'internal',
-      sortOptions: { pages: 'title', builtInPages: 'title', posts: 'title' },
+      sortOptions: {
+        pages: 'title',
+        builtInPages: 'title',
+        posts: 'title',
+        stationPages: 'displayName',
+      },
       width: '50%',
     },
     label: 'Select page or post',
-    relationTo: ['pages', 'builtInPages', 'posts'],
+    relationTo: LINK_ENABLED_COLLECTIONS,
     required: true,
     filterOptions: getTenantFilter,
   }

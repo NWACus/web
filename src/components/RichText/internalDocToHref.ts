@@ -1,10 +1,10 @@
 import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
-import type { BuiltInPage, Page, Post } from '@/payload-types'
+import type { BuiltInPage, Page, Post, StationPage } from '@/payload-types'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import type { SerializedLinkNode } from '@payloadcms/richtext-lexical'
 
 type LinkDocRelationTo = (typeof LINK_ENABLED_COLLECTIONS)[number]
-type LinkDocValue = BuiltInPage | Page | Post
+type LinkDocValue = BuiltInPage | Page | Post | StationPage
 
 type ResolvedLinkDoc = {
   relationTo: LinkDocRelationTo

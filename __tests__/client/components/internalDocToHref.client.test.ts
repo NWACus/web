@@ -1,6 +1,6 @@
 import { internalDocToHref } from '@/components/RichText/internalDocToHref'
 import type { SerializedLinkNode } from '@payloadcms/richtext-lexical'
-import { buildPage } from '../../builders'
+import { buildStationPage } from '../../builders'
 
 function linkNode(doc: SerializedLinkNode['fields']['doc']): SerializedLinkNode {
   return {
@@ -15,16 +15,21 @@ function linkNode(doc: SerializedLinkNode['fields']['doc']): SerializedLinkNode 
 }
 
 describe('internalDocToHref', () => {
-  it('links to a page', () => {
-    const node = linkNode({ relationTo: 'pages', value: { ...buildPage({ slug: 'about' }) } })
+  it('links to a station page', () => {
+    const node = linkNode({
+      relationTo: 'stationPages',
+      value: { ...buildStationPage({ slug: 'alpental' }) },
+    })
 
-    expect(internalDocToHref({ linkNode: node })).toBe('/about')
+    expect(internalDocToHref({ linkNode: node })).toBe('/weather/stations/alpental')
   })
 
   it('renders an inert link when the target was deleted', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
 
-    expect(internalDocToHref({ linkNode: linkNode({ relationTo: 'pages', value: 42 }) })).toBe('#')
+    expect(
+      internalDocToHref({ linkNode: linkNode({ relationTo: 'stationPages', value: 42 }) }),
+    ).toBe('#')
     warn.mockRestore()
   })
 })
