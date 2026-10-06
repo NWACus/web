@@ -168,7 +168,7 @@ sig = "825853e16c676b61"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/[zone]/page.tsx"
-sig = "977dbf597b55369b"
+sig = "57a2dad357b65ad7"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
