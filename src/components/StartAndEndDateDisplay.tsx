@@ -1,22 +1,12 @@
 import { ZonedDateTime } from '@/components/ZonedDateTime'
 import type { Event } from '@/payload-types'
 
-type StartAndEndDateDisplayProps = Pick<Event, 'startDate' | 'startDate_tz' | 'endDate'> & {
-  viewerTimeHint?: boolean
-}
+type StartAndEndDateDisplayProps = Pick<Event, 'startDate' | 'startDate_tz' | 'endDate'>
 
 export function StartAndEndDateDisplay({
   startDate,
   startDate_tz,
   endDate,
-  viewerTimeHint,
 }: StartAndEndDateDisplayProps) {
-  return (
-    <ZonedDateTime
-      dateTime={startDate}
-      endDateTime={endDate}
-      timeZone={startDate_tz}
-      viewerTimeHint={viewerTimeHint}
-    />
-  )
+  return <ZonedDateTime dateTime={startDate} endDateTime={endDate} timeZone={startDate_tz} />
 }

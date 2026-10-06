@@ -16,21 +16,24 @@ export const formatDateTime = (
 }
 
 /**
- * An event's start and optional end as one string, e.g. `Jan 5, 2026, 3:00 PM - 5:00 PM PST`.
- * The date and year are only repeated when the end falls on a different day or year.
+ * An event's start and end as two halves, e.g. `Jan 5, 2026, 3:00 PM` and `5:00 PM PST`, so each
+ * can be annotated separately. The end carries the zone, and the date and year are only repeated
+ * when the end falls on a different day or year.
  */
-export const formatDateTimeRange = (
-  start: string,
-  end: string | null | undefined,
-  timeZone: string,
-) => {
-  if (!end) return formatDateTime(start, timeZone, 'MMM d, yyyy, p zzz')
-
+export const splitDateTimeRange = (start: string, end: string, timeZone: string) => {
   const inZone = { in: tz(timeZone) }
   if (isSameDay(start, end, inZone)) {
-    return `${formatDateTime(start, timeZone, 'MMM d, yyyy, p')} - ${formatDateTime(end, timeZone, 'p zzz')}`
+    return {
+      sameDay: true,
+      start: formatDateTime(start, timeZone, 'MMM d, yyyy, p'),
+      end: formatDateTime(end, timeZone, 'p zzz'),
+    }
   }
 
   const startFormat = isSameYear(start, end, inZone) ? 'MMM d, p' : 'MMM d, yyyy, p'
-  return `${formatDateTime(start, timeZone, startFormat)} - ${formatDateTime(end, timeZone, 'MMM d, yyyy, p zzz')}`
+  return {
+    sameDay: false,
+    start: formatDateTime(start, timeZone, startFormat),
+    end: formatDateTime(end, timeZone, 'MMM d, yyyy, p zzz'),
+  }
 }

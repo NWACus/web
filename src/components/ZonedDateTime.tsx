@@ -1,57 +1,41 @@
 'use client'
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { formatDateTime, formatDateTimeRange } from '@/utilities/formatDateTime'
+import { formatDateTime, splitDateTimeRange } from '@/utilities/formatDateTime'
 import { timezonesAgreeAt } from '@/utilities/timezones'
-import { cn } from '@/utilities/ui'
 import { useViewerTimezone } from '@/utilities/useViewerTimezone'
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
+import { Fragment } from 'react'
 
 // A bare calendar date like 2026-01-15, with no time of day.
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
 
-// Long enough for the pointer to cross the gap to the popover without it flickering shut.
-const HOVER_CLOSE_DELAY_MS = 150
-
 const DEFAULT_DATE_TIME_FORMAT = 'MMM d, yyyy, p'
 const DEFAULT_DATE_FORMAT = 'MMM d, yyyy'
-// Always includes the date, since the viewer's clock can be on a different day than the center's.
-const VIEWER_FORMAT = 'EEE, MMM d, h:mm a zzz'
 
 type ZonedDateTimeProps = {
   /** An ISO instant, or a `YYYY-MM-DD` calendar date. */
   dateTime: string
-  /** End of a range. Ranges use `formatDateTimeRange` and ignore `format`. */
+  /** End of a range. Ranges use `splitDateTimeRange` and ignore `format`. */
   endDateTime?: string | null
   /** IANA timezone to display in, usually the avalanche center's. */
   timeZone: string
   /** date-fns pattern without a zone token; instants always get the zone abbreviation appended. */
   format?: string
-  /** Turn off inside links and clickable cards, where a nested button would be invalid. */
-  viewerTimeHint?: boolean
   className?: string
 }
 
-function formatInZone({
-  dateTime,
-  endDateTime,
-  timeZone,
-  format,
-}: Pick<ZonedDateTimeProps, 'dateTime' | 'endDateTime' | 'timeZone' | 'format'>): string {
-  // A calendar date names the same day everywhere, so format it in UTC where it cannot shift.
-  if (DATE_ONLY.test(dateTime))
-    return formatDateTime(dateTime, 'UTC', format ?? DEFAULT_DATE_FORMAT)
-  if (endDateTime) return formatDateTimeRange(dateTime, endDateTime, timeZone)
-  return formatDateTime(dateTime, timeZone, `${format ?? DEFAULT_DATE_TIME_FORMAT} zzz`)
+/** A run of event text, with the viewer's local equivalent to follow it in parentheses. */
+type Segment = { dateTime: string; text: string; viewerText: string | null }
+
+const dayIn = (instant: string, timeZone: string) => formatDateTime(instant, timeZone, 'yyyy-MM-dd')
+
+/** A clock time, with its date only when the viewer's day is not one the reader already assumes. */
+function viewerFormat(instant: string, viewerTimeZone: string, assumedDays: string[]): string {
+  return assumedDays.includes(dayIn(instant, viewerTimeZone)) ? 'p' : 'MMM d, p'
 }
 
-/** The same moment on the viewer's clock, or null when there is nothing to add. */
-function formatForViewer(
-  {
-    dateTime,
-    endDateTime,
-    timeZone,
-  }: Pick<ZonedDateTimeProps, 'dateTime' | 'endDateTime' | 'timeZone'>,
+/** The viewer's timezone when it disagrees with the event's at any instant shown, otherwise null. */
+function differingViewerZone(
+  { dateTime, endDateTime, timeZone }: ZonedDateTimeProps,
   viewerTimeZone: string | null,
 ): string | null {
   if (!viewerTimeZone || DATE_ONLY.test(dateTime)) return null
@@ -59,115 +43,91 @@ function formatForViewer(
   const agrees = instants.every((value) =>
     timezonesAgreeAt(timeZone, viewerTimeZone, new Date(value)),
   )
-  if (agrees) return null
-  return endDateTime
-    ? formatDateTimeRange(dateTime, endDateTime, viewerTimeZone)
-    : formatDateTime(dateTime, viewerTimeZone, VIEWER_FORMAT)
+  return agrees ? null : viewerTimeZone
+}
+
+function formatViewerInstant(instant: string, timeZone: string, viewerTimeZone: string | null) {
+  if (!viewerTimeZone) return null
+  const format = viewerFormat(instant, viewerTimeZone, [dayIn(instant, timeZone)])
+  return formatDateTime(instant, viewerTimeZone, `${format} zzz`)
+}
+
+function formatViewerRange(
+  start: string,
+  end: string,
+  timeZone: string,
+  viewerTimeZone: string | null,
+) {
+  if (!viewerTimeZone) return null
+  const startFormat = viewerFormat(start, viewerTimeZone, [dayIn(start, timeZone)])
+  // An end on the event's day, or on the viewer's start day, reads correctly without a date.
+  const endFormat = viewerFormat(end, viewerTimeZone, [
+    dayIn(end, timeZone),
+    dayIn(start, viewerTimeZone),
+  ])
+  return `${formatDateTime(start, viewerTimeZone, startFormat)} - ${formatDateTime(end, viewerTimeZone, `${endFormat} zzz`)}`
 }
 
 /**
- * The time, underlined, with the viewer's local equivalent in a popover. A mouse opens it on
- * hover, since that is the cheaper gesture on a desktop; touch and keyboard open it on tap or
- * Enter, because neither can hover. Branching on `pointerType` rather than a breakpoint keeps
- * both gestures working on a touchscreen laptop.
+ * A single instant or same-day range is one segment. A multi-day range is two, so each day's time
+ * gets its own local equivalent beside it.
  */
-function ViewerTimeHint({
-  dateTime,
-  text,
-  viewerText,
-  className,
-}: {
-  dateTime: string
-  text: string
-  viewerText: string
-  className?: string
-}) {
-  const [open, setOpen] = useState(false)
-  const openedByHover = useRef(false)
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+function toSegments(value: ZonedDateTimeProps, viewerTimeZone: string | null): Segment[] {
+  const { dateTime, endDateTime, timeZone, format } = value
+  const viewer = differingViewerZone(value, viewerTimeZone)
 
-  const cancelScheduledClose = useCallback(() => clearTimeout(closeTimer.current), [])
-  useEffect(() => cancelScheduledClose, [cancelScheduledClose])
-
-  const setOpenState = (next: boolean) => {
-    if (!next) openedByHover.current = false
-    setOpen(next)
+  // A calendar date names the same day everywhere, so format it in UTC where it cannot shift.
+  if (DATE_ONLY.test(dateTime)) {
+    const text = formatDateTime(dateTime, 'UTC', format ?? DEFAULT_DATE_FORMAT)
+    return [{ dateTime, text, viewerText: null }]
+  }
+  if (!endDateTime) {
+    const text = formatDateTime(dateTime, timeZone, `${format ?? DEFAULT_DATE_TIME_FORMAT} zzz`)
+    return [{ dateTime, text, viewerText: formatViewerInstant(dateTime, timeZone, viewer) }]
   }
 
-  const openOnHover = (event: PointerEvent) => {
-    if (event.pointerType !== 'mouse') return
-    cancelScheduledClose()
-    openedByHover.current = true
-    setOpen(true)
+  const range = splitDateTimeRange(dateTime, endDateTime, timeZone)
+  if (range.sameDay) {
+    const viewerText = formatViewerRange(dateTime, endDateTime, timeZone, viewer)
+    return [{ dateTime, text: `${range.start} - ${range.end}`, viewerText }]
   }
-
-  const closeAfterHover = (event: PointerEvent) => {
-    if (event.pointerType !== 'mouse') return
-    cancelScheduledClose()
-    closeTimer.current = setTimeout(() => setOpenState(false), HOVER_CLOSE_DELAY_MS)
-  }
-
-  return (
-    <Popover open={open} onOpenChange={setOpenState}>
-      {/* Stop clicks reaching clickable ancestors, like an expandable table row. */}
-      <PopoverTrigger
-        className={cn(
-          'inline rounded-sm text-left underline decoration-dotted underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          className,
-        )}
-        onPointerEnter={openOnHover}
-        onPointerLeave={closeAfterHover}
-        onClick={(event) => {
-          event.stopPropagation()
-          // Hover already opened it, so a click should leave it alone rather than toggle it shut.
-          if (openedByHover.current) event.preventDefault()
-        }}
-      >
-        <time dateTime={dateTime}>{text}</time>
-        <span className="sr-only"> ({viewerText} your time)</span>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-auto p-2 text-sm"
-        // Hovering must not pull focus out of the page; tap and keyboard still focus it as usual.
-        onOpenAutoFocus={(event) => {
-          if (openedByHover.current) event.preventDefault()
-        }}
-        onPointerEnter={cancelScheduledClose}
-        onPointerLeave={closeAfterHover}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <p>{viewerText}</p>
-        <p className="text-xs text-muted-foreground">Your local time</p>
-      </PopoverContent>
-    </Popover>
-  )
+  return [
+    { dateTime, text: range.start, viewerText: formatViewerInstant(dateTime, timeZone, viewer) },
+    {
+      dateTime: endDateTime,
+      text: range.end,
+      viewerText: formatViewerInstant(endDateTime, timeZone, viewer),
+    },
+  ]
 }
 
 /**
  * A date or time shown in a fixed timezone, with the zone named. When the viewer's own timezone
- * disagrees, the text becomes a popover trigger revealing the viewer's local equivalent. That
- * hint only appears after hydration, so server and client markup always match.
+ * disagrees, their local time follows in parentheses, e.g. `1:00 PM PDT (2:00 PM MDT)`. That only
+ * appears after hydration, so server and client markup always match; it fades in unless the
+ * viewer prefers reduced motion.
  */
-export function ZonedDateTime({ viewerTimeHint = true, className, ...value }: ZonedDateTimeProps) {
+export function ZonedDateTime({ className, ...value }: ZonedDateTimeProps) {
   const viewerTimeZone = useViewerTimezone()
-  const text = formatInZone(value)
-  const viewerText = viewerTimeHint ? formatForViewer(value, viewerTimeZone) : null
-
-  if (!viewerText) {
-    return (
-      <time dateTime={value.dateTime} className={className}>
-        {text}
-      </time>
-    )
-  }
 
   return (
-    <ViewerTimeHint
-      dateTime={value.dateTime}
-      text={text}
-      viewerText={viewerText}
-      className={className}
-    />
+    <span className={className}>
+      {toSegments(value, viewerTimeZone).map(({ dateTime, text, viewerText }, index) => (
+        <Fragment key={index}>
+          {index > 0 && ' - '}
+          <time dateTime={dateTime}>{text}</time>
+          {viewerText && (
+            <>
+              {' '}
+              {/* Wraps as one unit rather than splitting a time from its AM/PM. */}
+              <span className="whitespace-nowrap motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+                (<span className="sr-only">your time: </span>
+                {viewerText})
+              </span>
+            </>
+          )}
+        </Fragment>
+      ))}
+    </span>
   )
 }

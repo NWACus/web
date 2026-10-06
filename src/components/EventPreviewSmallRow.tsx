@@ -74,13 +74,12 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
           <h3 className="text-lg leading-tight group-hover:underline">{title}</h3>
           <div className="flex flex-col">
             {startDate && (
-              <div className="flex items-center flex-wrap gap-0.5 text-sm text-muted-foreground">
-                <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+              <div className="flex items-start flex-wrap gap-0.5 text-sm text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5 mt-[3px] flex-shrink-0" />
                 <StartAndEndDateDisplay
                   startDate={startDate}
                   startDate_tz={startDate_tz}
                   endDate={endDate}
-                  viewerTimeHint={false}
                 />
               </div>
             )}
