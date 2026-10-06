@@ -11,13 +11,6 @@ import {
 const host = process.env.NAC_HOST || 'https://api.avalanche.org'
 const wordpressHost = process.env.AFP_HOST || 'https://forecasts.avalanche.org'
 
-// Where per-center platform flags come from. The WordPress AFP feed is the legacy source
-// and knows only the five legacy keys; products-api's v3 mirror of it adds `nwac_weather`.
-// v3 reads national.center.config.modules.platforms, which is seeded from WordPress per
-// environment, so an environment switches to 'nac' only once that seed has run there.
-const capabilitiesSource: 'afp' | 'nac' =
-  process.env.NAC_CAPABILITIES_SOURCE === 'nac' ? 'nac' : 'afp'
-
 // DVAC shares NWAC's upstream data, so map its slug to nwac for all NAC/AFP lookups.
 const normalizeCenterSlug = (centerSlug: string) => (centerSlug === 'dvac' ? 'nwac' : centerSlug)
 
@@ -141,18 +134,13 @@ export async function afpFetch(path: string, options: Options = {}) {
 }
 
 export async function getAllAvalancheCenterCapabilities() {
-  const data =
-    capabilitiesSource === 'nac'
-      ? await nacFetch('/v3/public/avalanche-centers')
-      : await afpFetch('/v1/public/avalanche-centers')
+  const data = await afpFetch('/v1/public/avalanche-centers')
 
   const parsed = allAvalancheCenterCapabilitiesSchema.safeParse(data)
 
   if (!parsed.success) {
     const errors = parsed.error.message
-    throw new Error(
-      `Failed to parse ${capabilitiesSource} avalanche center capabilities response: ${errors}`,
-    )
+    throw new Error(`Failed to parse afp avalanche center capabilities response: ${errors}`)
   }
 
   return parsed.data
@@ -176,7 +164,25 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
       nwac_weather: false,
     }
 
-  return foundAvalancheCenterBySlug.platforms
+  return {
+    ...foundAvalancheCenterBySlug.platforms,
+    nwac_weather: await getNwacWeatherPlatform(centerSlugToUse),
+  }
+}
+
+// The capabilities feed carries only the five flags WordPress knows. NWAC Weather is a
+// platform switch in the AFP dashboard, stored on the center record at
+// config.modules.platforms.nwac_weather, which the center metadata call already returns.
+// Opt-in like the dashboard and products-api read it: only a literal true counts, and a
+// center whose platforms have never been saved (no `modules` yet) reads false. A metadata
+// failure also reads false rather than taking every platform down with it.
+async function getNwacWeatherPlatform(centerSlug: string): Promise<boolean> {
+  try {
+    const metadata = await getAvalancheCenterMetadata(centerSlug)
+    return metadata.config?.modules?.platforms?.nwac_weather === true
+  } catch {
+    return false
+  }
 }
 
 export async function getAvalancheCenterMetadata(centerSlug: string) {
