@@ -6,4 +6,4 @@
 
 ## Conclusion
 
-Additive only. Each column is added with a default of `false`, so every existing tenant keeps the legacy widgets until an admin flips a flag; no rows are rewritten, no table is recreated, and `down` drops only the new columns. The safety check flags the `ALTER` keyword generically.
+Additive only. Each column is added with a default of `false`, so every existing tenant keeps the legacy widgets until a super admin flips a flag (the checkboxes are super-admin-only); no rows are rewritten, no table is recreated, and `down` drops only the new columns. The safety check flags the `ALTER` keyword generically.

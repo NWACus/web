@@ -33,7 +33,10 @@ const centerId = (tenantSlug: string) => (tenantSlug === 'dvac' ? 'nwac' : tenan
 
 /** Upstream ids of the centers whose AFP capabilities include forecasts and weather. */
 const fetchWeatherCenters = async (): Promise<Set<string>> => {
-  const res = await fetch(`${AFP_HOST}?rest_route=/v1/public/avalanche-centers`)
+  // Bounded so a hung AFP skips the weather tab instead of stalling the deploy
+  const res = await fetch(`${AFP_HOST}?rest_route=/v1/public/avalanche-centers`, {
+    signal: AbortSignal.timeout(10_000),
+  })
   if (!res.ok) throw new Error(`AFP fetch failed: ${res.status}`)
   const data: unknown = await res.json()
   if (!isRecord(data) || !Array.isArray(data.centers)) throw new Error('Unexpected AFP response')
