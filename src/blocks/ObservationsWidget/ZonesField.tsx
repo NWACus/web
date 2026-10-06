@@ -14,7 +14,10 @@ type ZoneNames =
 function useActiveZoneNames(center: string | undefined): ZoneNames {
   const [state, setState] = useState<ZoneNames>({ status: 'loading', names: [] })
   useEffect(() => {
-    if (!center) return
+    if (!center) {
+      setState({ status: 'ready', names: [] })
+      return
+    }
     let cancelled = false
     setState({ status: 'loading', names: [] })
     getActiveZoneNames(center).then(
