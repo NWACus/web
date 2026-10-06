@@ -420,6 +420,7 @@ export interface Page {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | ObservationsWidgetBlock
     | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
@@ -1707,6 +1708,27 @@ export interface NACMediaBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ObservationsWidgetBlock".
+ */
+export interface ObservationsWidgetBlock {
+  showHeader?: boolean | null;
+  heading?: string | null;
+  tab?: ('observations' | 'avalanches') | null;
+  avalanchesObservedOnly?: boolean | null;
+  /**
+   * Counted back from the day someone views the page.
+   */
+  dateRange: 'pastDay' | 'past3Days' | 'pastWeek' | 'past2Weeks' | 'pastMonth' | 'thisSeason';
+  /**
+   * Leave empty to show every zone.
+   */
+  zones?: string[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'observationsWidget';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "PrecipTableBlock".
  */
 export interface PrecipTableBlock {
@@ -1855,27 +1877,6 @@ export interface VideoEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'videoEmbed';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ObservationsWidgetBlock".
- */
-export interface ObservationsWidgetBlock {
-  showHeader?: boolean | null;
-  heading?: string | null;
-  tab?: ('observations' | 'avalanches') | null;
-  avalanchesObservedOnly?: boolean | null;
-  /**
-   * Counted back from the day someone views the page.
-   */
-  dateRange: 'pastDay' | 'past3Days' | 'pastWeek' | 'past2Weeks' | 'pastMonth' | 'thisSeason';
-  /**
-   * Leave empty to show every zone.
-   */
-  zones?: string[] | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'observationsWidget';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4276,6 +4277,7 @@ export interface PagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        observationsWidget?: T | ObservationsWidgetBlockSelect<T>;
         precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;

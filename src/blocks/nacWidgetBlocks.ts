@@ -1,5 +1,6 @@
-import type { BlocksFieldValidation } from 'payload'
-import { blocks } from 'payload/shared'
+import { isRecord } from '@/utilities/isRecord'
+import type { BlocksFieldValidation, RichTextFieldValidation } from 'payload'
+import { blocks, richText } from 'payload/shared'
 
 // Blocks that mount a NAC widget. The widget's DOM id and window controller are
 // page-global, so each of these can appear at most once per document.
@@ -30,4 +31,18 @@ export const validateLayoutBlocks: BlocksFieldValidation = (value, args) => {
     if (error) throw Error(error)
   }
   return blocks(value, args)
+}
+
+// The blockType of every block node in a Lexical editor state, at any depth
+export function lexicalBlockTypes(node: unknown): unknown[] {
+  if (!isRecord(node)) return []
+  const own = node.type === 'block' && isRecord(node.fields) ? [node.fields.blockType] : []
+  const children = isRecord(node.root) ? [node.root] : node.children
+  return [...own, ...(Array.isArray(children) ? children.flatMap(lexicalBlockTypes) : [])]
+}
+
+export const validateRichTextBlocks: RichTextFieldValidation = (value, args) => {
+  const error = repeatedNACWidgetBlockError(lexicalBlockTypes(value))
+  if (error) throw Error(error)
+  return richText(value, args)
 }
