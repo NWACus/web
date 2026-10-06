@@ -5,7 +5,12 @@ export const avalancheCenterPlatformsSchema = z.object({
   forecasts: z.boolean(),
   stations: z.boolean(),
   obs: z.boolean(),
+  // The legacy AFP weather product (weather table + widget).
   weather: z.boolean(),
+  // NWAC's own weather forecast product, authored in the AFP dashboard and served by
+  // products-api. Only the v3 feed carries it; the WordPress feed never did, so it
+  // defaults to false there. A center runs one weather product or the other.
+  nwac_weather: z.boolean().default(false),
 })
 export type AvalancheCenterPlatforms = z.infer<typeof avalancheCenterPlatformsSchema>
 
