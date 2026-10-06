@@ -16,6 +16,7 @@ import {
   toPageSummaries,
 } from '@/services/stations/getStationPages'
 import { centerRouteMetadata } from '@/utilities/centerRoutePage'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
 
@@ -30,6 +31,8 @@ type Args = {
 }
 
 async function loadTrackedStation({ center, source, stid }: PathArgs): Promise<TrackedStation> {
+  // The native station map's per-station view, so it only exists where that map is on.
+  if (!(await getNativeProductFlag(center, 'stationMap'))) notFound()
   const station = await findServedStation(center, { source, stid })
   if (!station) notFound()
   return station

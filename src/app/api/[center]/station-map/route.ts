@@ -20,7 +20,8 @@ import type { StationMapData, StationMapZone } from '@/services/snowobs/stationM
 import { resolveStationMapSettings } from '@/services/snowobs/stationMap/settings'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { getStationPages, toPageSummaries } from '@/services/stations/getStationPages'
-import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
+import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -95,6 +96,7 @@ export async function GET(
 ) {
   const { center } = await params
   if (!isValidTenantSlug(center)) return unknownCenterResponse()
+  if (!(await getNativeProductFlag(center, 'stationMap'))) return productDisabledResponse()
 
   const units = requestedUnits(request)
 

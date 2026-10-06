@@ -29,6 +29,11 @@ jest.mock('../../src/services/nac/nac', () => ({
     `warning:${centerId === 'dvac' ? 'nwac' : centerId}:${zoneId}`,
 }))
 
+const mockGetNativeProductFlag = jest.fn()
+jest.mock('../../src/utilities/getNativeProductFlag', () => ({
+  getNativeProductFlag: (...a: unknown[]) => mockGetNativeProductFlag(...a),
+}))
+
 // Import the handler after the mocks are registered (jest hoists the mocks above imports).
 import { GET } from '@/app/api/[center]/warning-freshness/[fingerprint]/route'
 import {
@@ -38,7 +43,7 @@ import {
 } from '@/services/nac/centerWarnings'
 import { ProductType } from '@/services/nac/model/forecast'
 import { warningFixture } from '../fixtures/warningProducts'
-import { CACHEABLE, answer } from '../helpers/freshnessRouteAnswers'
+import { CACHEABLE, STALE_ETAG, answer } from '../helpers/freshnessRouteAnswers'
 
 function group(
   productType: AlertProductType,
@@ -99,6 +104,8 @@ async function expectNoChange(res: Response) {
 let clock = Date.now()
 
 beforeEach(() => {
+  mockGetNativeProductFlag.mockReset()
+  mockGetNativeProductFlag.mockResolvedValue(true)
   jest.useFakeTimers()
   clock += 60 * 60_000
   jest.setSystemTime(clock)
@@ -115,6 +122,17 @@ afterEach(() => {
 })
 
 describe('warning-freshness route', () => {
+  it('404s without asking upstream when the center has native warning off', async () => {
+    mockGetNativeProductFlag.mockResolvedValue(false)
+
+    const res = await answer(await call(STALE_ETAG))
+
+    expect(res.status).toBe(404)
+    expect(res.cacheControl).toBe('no-store')
+    expect(mockGetNativeProductFlag).toHaveBeenCalledWith('nwac', 'warning')
+    expect(mockGetCenterWarningsFresh).not.toHaveBeenCalled()
+  })
+
   it('reports no change, cacheably, when nothing has changed', async () => {
     const res = await answer(
       await check({ fresh: WARNING_Z1, cached: WARNING_Z1, rendered: WARNING_Z1 }),

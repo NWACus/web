@@ -34,12 +34,7 @@ interface HomeDangerMapProps {
 }
 
 export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
-  const [metadata, useNative] = await Promise.all([
-    getAvalancheCenterMetadata(centerSlug),
-    getNativeProductFlag(centerSlug, 'dangerMap'),
-  ])
-
-  const settings = resolveDangerMapSettings(metadata?.widget_config?.danger_map)
+  const useNative = await getNativeProductFlag(centerSlug, 'dangerMap')
 
   if (!useNative) {
     return (
@@ -51,6 +46,9 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
       </div>
     )
   }
+
+  const metadata = await getAvalancheCenterMetadata(centerSlug)
+  const settings = resolveDangerMapSettings(metadata?.widget_config?.danger_map)
 
   return (
     <div className="space-y-2">

@@ -35,6 +35,11 @@ jest.mock('../../src/services/nac/nac', () => ({
   weatherCacheTag: (id: number) => `weather:${id}`,
 }))
 
+const mockGetNativeProductFlag = jest.fn()
+jest.mock('../../src/utilities/getNativeProductFlag', () => ({
+  getNativeProductFlag: (...a: unknown[]) => mockGetNativeProductFlag(...a),
+}))
+
 // Import the handler after the mocks are registered (jest hoists the mocks above imports).
 import { GET } from '@/app/api/[center]/weather-freshness/[fingerprint]/route'
 
@@ -58,6 +63,8 @@ function upstreamAndCacheHold(fresh: unknown = weather) {
 }
 
 beforeEach(() => {
+  mockGetNativeProductFlag.mockReset()
+  mockGetNativeProductFlag.mockResolvedValue(true)
   mockRevalidateTag.mockClear()
   mockReportIndeterminate.mockClear()
   mockGetActiveForecastZones.mockReset()
@@ -67,6 +74,17 @@ beforeEach(() => {
 })
 
 describe('weather-freshness route', () => {
+  it('404s without asking upstream when the center has native weather off', async () => {
+    mockGetNativeProductFlag.mockResolvedValue(false)
+
+    const res = await answer(await check(etag))
+
+    expect(res.status).toBe(404)
+    expect(res.cacheControl).toBe('no-store')
+    expect(mockGetNativeProductFlag).toHaveBeenCalledWith('sac', 'weather')
+    expect(mockGetActiveForecastZones).not.toHaveBeenCalled()
+  })
+
   it('reports no change, cacheably, when the viewer already has the current product', async () => {
     upstreamAndCacheHold()
 

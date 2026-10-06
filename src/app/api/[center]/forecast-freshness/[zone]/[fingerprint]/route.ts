@@ -13,7 +13,7 @@ import {
   type ForecastSource,
   type WarningSource,
 } from '@/services/nac/sources'
-import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
+import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
 import {
   changedResponse,
   indeterminateResponse,
@@ -22,6 +22,7 @@ import {
   unchangedResponse,
 } from '@/utilities/freshnessResponses'
 import { reportIndeterminate } from '@/utilities/freshnessTelemetry'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
@@ -139,6 +140,7 @@ export async function GET(
   // Both segments below are caller-controlled and the center is interpolated into an upstream NAC
   // URL, so only serve known tenants — matching the warning-freshness and danger-map siblings.
   if (!isValidTenantSlug(center)) return unknownCenterResponse()
+  if (!(await getNativeProductFlag(center, 'forecast'))) return productDisabledResponse()
 
   // Resolving the slug reaches upstream for the center's zone list, and unlike every product fetch
   // below it *throws* on failure rather than returning null. Those are two different answers: a
