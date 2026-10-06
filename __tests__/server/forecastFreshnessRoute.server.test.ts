@@ -48,6 +48,11 @@ jest.mock('../../src/services/nac/nac', () => ({
     `warning:${centerId === 'dvac' ? 'nwac' : centerId}:${zoneId}`,
 }))
 
+const mockGetNativeProductFlag = jest.fn()
+jest.mock('../../src/utilities/getNativeProductFlag', () => ({
+  getNativeProductFlag: (...a: unknown[]) => mockGetNativeProductFlag(...a),
+}))
+
 // Import the handler after the mocks are registered (jest hoists the mocks above imports).
 import { GET } from '@/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route'
 
@@ -86,6 +91,8 @@ function alertVanishedUpstream(fresh: unknown = forecast) {
 }
 
 beforeEach(() => {
+  mockGetNativeProductFlag.mockReset()
+  mockGetNativeProductFlag.mockResolvedValue(true)
   mockRevalidateTag.mockClear()
   mockReportIndeterminate.mockClear()
   mockResolveZone.mockReset()
@@ -97,6 +104,17 @@ beforeEach(() => {
 })
 
 describe('forecast-freshness route', () => {
+  it('404s without asking upstream when the center has native forecast off', async () => {
+    mockGetNativeProductFlag.mockResolvedValue(false)
+
+    const res = await answer(await check(etag))
+
+    expect(res.status).toBe(404)
+    expect(res.cacheControl).toBe('no-store')
+    expect(mockGetNativeProductFlag).toHaveBeenCalledWith('nwac', 'forecast')
+    expect(mockResolveZone).not.toHaveBeenCalled()
+  })
+
   it('reports no change, cacheably, when the viewer already has the current forecast', async () => {
     upstreamAndCacheHold()
 

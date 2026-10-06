@@ -11,7 +11,7 @@ import {
   type CenterWarningGroup,
 } from '@/services/nac/centerWarnings'
 import { warningCacheTag } from '@/services/nac/nac'
-import { unknownCenterResponse } from '@/utilities/apiResponses'
+import { productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
 import { createCooldown } from '@/utilities/cooldown'
 import {
   changedResponse,
@@ -21,6 +21,7 @@ import {
   unchangedResponse,
 } from '@/utilities/freshnessResponses'
 import { reportIndeterminate } from '@/utilities/freshnessTelemetry'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
@@ -104,6 +105,7 @@ export async function GET(
 
   // This endpoint fans one upstream request out per zone, so only serve known tenants.
   if (!isValidTenantSlug(center)) return unknownCenterResponse()
+  if (!(await getNativeProductFlag(center, 'warning'))) return productDisabledResponse()
 
   let fresh: CenterWarningGroup[]
   let cached: CenterWarningGroup[]

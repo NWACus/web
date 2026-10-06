@@ -174,9 +174,15 @@ export interface ArchiveWindowQuery {
   to: string
 }
 
+/** The date picker asks for one month at a time; this leaves room for a month plus its edges. */
+const MAX_WINDOW_DAYS = 62
+
+const DAY_MS = 24 * 60 * 60 * 1000
+
 /**
  * Validate the `zone`/`from`/`to` query the archive endpoint is called with. Returns `null` when
- * anything is missing, malformed, or the window runs backwards — the caller answers 400.
+ * anything is missing, malformed, runs backwards, or spans more than MAX_WINDOW_DAYS — the caller
+ * answers 400. The cap keeps one request from pulling years of a center's archive upstream.
  */
 export function parseArchiveWindowQuery(
   zoneSlug: string | null,
@@ -186,6 +192,7 @@ export function parseArchiveWindowQuery(
   if (!zoneSlug || !from || !to) return null
   if (!DATE_PATTERN.test(from) || !DATE_PATTERN.test(to)) return null
   if (from > to) return null
+  if ((Date.parse(to) - Date.parse(from)) / DAY_MS > MAX_WINDOW_DAYS) return null
 
   return { zoneSlug, from, to }
 }

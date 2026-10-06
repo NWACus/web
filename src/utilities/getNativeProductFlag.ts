@@ -1,17 +1,12 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { cache } from 'react'
 
 /** Products with a per-tenant native-vs-widget rollout flag (Control 1). */
 export type NativeProduct = 'forecast' | 'warning' | 'dangerMap' | 'weather' | 'stationMap'
 
-/**
- * Reads the per-tenant × per-product native rollout flag from Settings.
- * Returns false when the setting or product flag is not set (widget stays the default).
- */
-export async function getNativeProductFlag(
-  centerSlug: string,
-  product: NativeProduct,
-): Promise<boolean> {
+/** One Settings read per center per render, however many products and components ask. */
+const getNativeProducts = cache(async (centerSlug: string) => {
   const payload = await getPayload({ config: configPromise })
 
   const settingsRes = await payload.find({
@@ -27,6 +22,17 @@ export async function getNativeProductFlag(
     },
   })
 
-  const settings = settingsRes.docs[0]
-  return settings?.nativeProducts?.[product] ?? false
+  return settingsRes.docs[0]?.nativeProducts
+})
+
+/**
+ * Reads the per-tenant × per-product native rollout flag from Settings.
+ * Returns false when the setting or product flag is not set (widget stays the default).
+ */
+export async function getNativeProductFlag(
+  centerSlug: string,
+  product: NativeProduct,
+): Promise<boolean> {
+  const nativeProducts = await getNativeProducts(centerSlug)
+  return nativeProducts?.[product] ?? false
 }

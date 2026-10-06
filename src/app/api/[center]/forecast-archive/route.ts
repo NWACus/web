@@ -6,6 +6,9 @@
 import { buildZoneArchiveDates, parseArchiveWindowQuery } from '@/services/nac/archiveDates'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
+import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
@@ -19,6 +22,9 @@ export async function GET(
   { params }: { params: Promise<{ center: string }> },
 ) {
   const { center } = await params
+  if (!isValidTenantSlug(center)) return unknownCenterResponse()
+  if (!(await getNativeProductFlag(center, 'forecast'))) return productDisabledResponse()
+
   const searchParams = request.nextUrl.searchParams
   const query = parseArchiveWindowQuery(
     searchParams.get('zone'),
@@ -31,17 +37,24 @@ export async function GET(
   }
 
   const { zoneSlug, from, to } = query
-  const [zone, metadata] = await Promise.all([
-    resolveZoneFromSlug(center, zoneSlug),
-    getAvalancheCenterMetadata(center),
-  ])
 
-  if (!zone) {
-    return NextResponse.json({ error: 'Zone not found' }, { status: 404 })
+  let dates: ReturnType<typeof buildZoneArchiveDates>
+  try {
+    const [zone, metadata] = await Promise.all([
+      resolveZoneFromSlug(center, zoneSlug),
+      getAvalancheCenterMetadata(center),
+    ])
+
+    if (!zone) {
+      return NextResponse.json({ error: 'Zone not found' }, { status: 404, headers: NO_STORE })
+    }
+
+    const archive = await fetchProductArchive(center, { from, to })
+    dates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
+  } catch {
+    // The picker leaves the month unloaded and retries; nothing more useful to say.
+    return NextResponse.json({ error: 'Archive unavailable' }, { status: 502, headers: NO_STORE })
   }
-
-  const archive = await fetchProductArchive(center, { from, to })
-  const dates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 
   return NextResponse.json(
     { dates },

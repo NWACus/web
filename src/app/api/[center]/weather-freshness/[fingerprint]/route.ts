@@ -7,7 +7,7 @@ import { productFingerprint, weatherPageFingerprint } from '@/services/nac/forec
 import type { Weather } from '@/services/nac/model/forecast'
 import { currentWeatherCacheTag, getActiveForecastZones, weatherCacheTag } from '@/services/nac/nac'
 import { getWeatherSource, type WeatherSource } from '@/services/nac/sources'
-import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
+import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
 import {
   changedResponse,
   indeterminateResponse,
@@ -16,6 +16,7 @@ import {
   unchangedResponse,
 } from '@/utilities/freshnessResponses'
 import { reportIndeterminate } from '@/utilities/freshnessTelemetry'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
@@ -79,6 +80,7 @@ export async function GET(
 
   // The center is interpolated into an upstream NAC URL, so only serve known tenants.
   if (!isValidTenantSlug(center)) return unknownCenterResponse()
+  if (!(await getNativeProductFlag(center, 'weather'))) return productDisabledResponse()
 
   const zones = await getActiveForecastZones(center).catch(() => undefined)
   if (zones === undefined) {

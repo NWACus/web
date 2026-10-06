@@ -32,9 +32,12 @@ export const allAvalancheCenterCapabilitiesSchema = z.object({
 // stations widget configs and the weather table's forecast point. Modeling them as
 // `latitude`/`longitude` parsed fine (both keys are optional) but silently yielded `{}`, so no
 // caller could ever read a coordinate.
+// `.catch`: the center metadata is parsed on every page, so a malformed point must not take the
+// site down. Same for the other fields only native products read (start_year, allCenters,
+// source_marker_color).
 export const latLngSchema = z.object({
-  lat: z.number().nullable().optional(),
-  lng: z.number().nullable().optional(),
+  lat: z.number().nullable().optional().catch(null),
+  lng: z.number().nullable().optional().catch(null),
 })
 
 export const avalancheCenterWeatherConfigurationSchema = z.object({
@@ -95,7 +98,7 @@ export const avalancheCenterForecastWidgetConfigurationSchema = z.object({
   tabs: z.array(avalancheCenterForecastWidgetTabSchema),
   // The first season the center's archive browser offers, as the season's ending year (NWAC: 2020
   // for the 2019–20 season). Absent for most centers; the legacy widget falls back to 2020.
-  start_year: z.number().optional(),
+  start_year: z.number().optional().catch(undefined),
 })
 
 // Written by dashboard-v2's danger-map settings page (`app/utils/dangerMapSettings.js`), which is
@@ -109,7 +112,7 @@ export const avalancheCenterDangerMapWidgetConfigurationSchema = z.object({
   search: z.boolean().optional(),
   geolocate: z.boolean().optional(),
   advice: z.boolean().optional(),
-  allCenters: z.boolean().optional(),
+  allCenters: z.boolean().optional().catch(undefined),
   center: latLngSchema.optional(),
   zoom: z.number().optional(),
 })
@@ -151,7 +154,7 @@ export const avalancheCenterStationsWidgetConfigurationSchema = z.object({
   color_rules: z.boolean().optional(),
   source_legend: z.boolean().optional(),
   // Color station markers by data source; dashboard-v2 treats an unset value as on.
-  source_marker_color: z.boolean().optional(),
+  source_marker_color: z.boolean().optional().catch(undefined),
   sources: z.array(z.string()).optional(),
   within: z.union([z.string(), z.number()]).optional(),
   external_modal_links: z

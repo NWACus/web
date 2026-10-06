@@ -5,7 +5,8 @@
 // fallow-ignore-file dynamic-segment-name-conflicts
 import { decorateZoneFeatures } from '@/services/nac/dangerMap/dangerMapZones'
 import { getZoneMapLayer } from '@/services/nac/dangerMap/mapLayer'
-import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
+import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -41,6 +42,7 @@ export async function GET(
 ) {
   const { center } = await params
   if (!isValidTenantSlug(center)) return unknownCenterResponse()
+  if (!(await getNativeProductFlag(center, 'dangerMap'))) return productDisabledResponse()
 
   const allCenters = request.nextUrl.searchParams.get('allCenters') === 'true'
 

@@ -14,3 +14,8 @@ export const NO_STORE = { 'Cache-Control': 'no-store' }
 export function unknownCenterResponse(): NextResponse {
   return NextResponse.json({ error: 'Unknown center' }, { status: 404, headers: NO_STORE })
 }
+
+/** The reply for a native product's endpoint while the center has that product's rollout flag off. */
+export function productDisabledResponse(): NextResponse {
+  return NextResponse.json({ error: 'Not available' }, { status: 404, headers: NO_STORE })
+}

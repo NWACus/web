@@ -169,4 +169,12 @@ describe('parseArchiveWindowQuery', () => {
   it('rejects a window that runs backwards', () => {
     expect(parseArchiveWindowQuery('zone', '2026-03-01', '2026-02-01')).toBeNull()
   })
+
+  it('accepts the longest month the date picker asks for', () => {
+    expect(parseArchiveWindowQuery('zone', '2026-01-01', '2026-01-31')).not.toBeNull()
+  })
+
+  it('rejects a window longer than two months', () => {
+    expect(parseArchiveWindowQuery('zone', '2020-01-01', '2026-01-01')).toBeNull()
+  })
 })
