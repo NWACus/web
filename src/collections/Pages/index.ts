@@ -18,6 +18,7 @@ import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePa
 
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { validateLayoutBlocks } from '@/blocks/nacWidgetBlocks'
+import { ObservationsWidgetBlock } from '@/blocks/ObservationsWidget/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import { titleField } from '@/fields/title'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
@@ -68,7 +69,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [...DEFAULT_BLOCKS, NACMediaBlock].sort((a, b) =>
+              blocks: [...DEFAULT_BLOCKS, NACMediaBlock, ObservationsWidgetBlock].sort((a, b) =>
                 a.slug.localeCompare(b.slug),
               ),
               required: true,
