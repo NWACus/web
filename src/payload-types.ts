@@ -1790,6 +1790,18 @@ export interface VideoEmbedBlock {
  * via the `definition` "ObservationsWidgetBlock".
  */
 export interface ObservationsWidgetBlock {
+  showHeader?: boolean | null;
+  heading?: string | null;
+  tab?: ('observations' | 'avalanches') | null;
+  avalanchesObservedOnly?: boolean | null;
+  /**
+   * Counted back from the day someone views the page.
+   */
+  dateRange: 'pastDay' | 'past3Days' | 'pastWeek' | 'past2Weeks' | 'pastMonth' | 'thisSeason';
+  /**
+   * Leave empty to show every zone.
+   */
+  zones?: string[] | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'observationsWidget';
@@ -3897,6 +3909,12 @@ export interface NACMediaBlockSelect<T extends boolean = true> {
  * via the `definition` "ObservationsWidgetBlock_select".
  */
 export interface ObservationsWidgetBlockSelect<T extends boolean = true> {
+  showHeader?: T;
+  heading?: T;
+  tab?: T;
+  avalanchesObservedOnly?: T;
+  dateRange?: T;
+  zones?: T;
   id?: T;
   blockName?: T;
 }

@@ -50,6 +50,8 @@ export const RenderBlocks = (props: { blocks: LayoutBlock[]; payload: Payload })
   return null
 }
 
+// One switch case per block type; the branch count grows with the block list by design
+// fallow-ignore-next-line complexity
 export const RenderBlock = ({ block }: { block: LayoutBlock }) => {
   const { blockType } = block
   // if a block has two variants - to make TS happy we fallback to the default for the block variant
@@ -87,7 +89,7 @@ export const RenderBlock = ({ block }: { block: LayoutBlock }) => {
     case 'nacMediaBlock':
       return <NACMediaBlockComponent {...block} />
     case 'observationsWidget':
-      return <ObservationsWidgetBlockComponent />
+      return <ObservationsWidgetBlockComponent {...block} isLayoutBlock={true} />
     case 'precipTable':
       return <PrecipTableBlockComponent {...block} />
     case 'singleBlogPost':

@@ -5,10 +5,34 @@ import { ButtonLink } from '@/components/ButtonLink'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import ObservationsDisclaimer from '@/components/ObservationsDisclaimer'
+import type { ObservationsWidgetBlock as ObservationsWidgetBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
+import { cn } from '@/utilities/ui'
 import * as Sentry from '@sentry/nextjs'
+import { DEFAULT_OBSERVATIONS_HEADING } from './config'
+import { observationsWidgetPath } from './widgetPath'
 
-export const ObservationsWidgetBlockComponent = () => {
+type Props = ObservationsWidgetBlockProps & {
+  isLayoutBlock?: boolean
+}
+
+function Header({ heading }: { heading?: string | null }) {
+  return (
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-4 prose dark:prose-invert max-w-none">
+      <h2 className="font-bold">{heading || DEFAULT_OBSERVATIONS_HEADING}</h2>
+      <ButtonLink href="/observations/submit" variant="secondary">
+        Submit Observation
+      </ButtonLink>
+    </div>
+  )
+}
+
+export const ObservationsWidgetBlockComponent = ({
+  showHeader,
+  heading,
+  isLayoutBlock = true,
+  ...filters
+}: Props) => {
   const { tenant } = useTenant()
 
   const center = typeof tenant === 'object' && tenant !== null ? tenant.slug : null
@@ -19,18 +43,19 @@ export const ObservationsWidgetBlockComponent = () => {
   }
 
   return (
-    <div className="flex flex-col gap-4 py-4">
-      <WidgetRouterHandler initialPath="/view/observations" widgetPageKey="recent-observations" />
+    <div className={cn('flex flex-col gap-4', { 'py-4': isLayoutBlock })}>
+      <WidgetRouterHandler
+        initialPath={observationsWidgetPath(filters, new Date())}
+        widgetPageKey="recent-observations"
+      />
       <ObservationLinkHijacker />
-      <div className="container flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-4 prose dark:prose-invert max-w-none">
-          <h2 className="font-bold">Recent Observations</h2>
-          <ButtonLink href="/observations/submit" variant="secondary">
-            Submit Observation
-          </ButtonLink>
-        </div>
+      <div className={cn('flex flex-col gap-4', { container: isLayoutBlock })}>
+        {showHeader !== false && <Header heading={heading} />}
         <ObservationsDisclaimer />
-        <NACWidget center={center} widget="observations" />
+        {/* Keeps rich text typography off the widget's own markup */}
+        <div className="not-prose">
+          <NACWidget center={center} widget="observations" />
+        </div>
       </div>
     </div>
   )
