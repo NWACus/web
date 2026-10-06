@@ -30,8 +30,8 @@ export const ObservationsWidgetBlockComponent = () => {
           </ButtonLink>
         </div>
         <ObservationsDisclaimer />
+        <NACWidget center={center} widget="observations" />
       </div>
-      <NACWidget center={center} widget="observations" />
     </div>
   )
 }
