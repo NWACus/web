@@ -3175,7 +3175,7 @@ export interface Setting {
   banner: number | Media;
   usfsLogo?: (number | null) | Media;
   /**
-   * When enabled, these products render natively as Next.js pages on this site’s design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback.
+   * When enabled, these products render natively as Next.js pages on this site’s design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback. Only super admins can change these.
    */
   nativeProducts?: {
     /**
