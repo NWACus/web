@@ -71,9 +71,9 @@ They compose in that order. A product renders natively only when the AFP says th
 
 `nativeProducts` in `src/collections/Settings/index.ts` is a group of per-product checkboxes, defaulting to `false`:
 
-> When enabled, these products render natively as Next.js pages on this site's design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback.
+> When enabled, these products render natively as Next.js pages on this site's design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback. Only super admins can change these.
 
-Per-product rather than one switch, so a center can run a native forecast while its observations stay on the widget. This is center-admin-facing on purpose — the people who own the site decide when it changes, and reverting is a checkbox rather than a deploy.
+Per-product rather than one switch, so a center can run a native forecast while its observations stay on the widget. Reverting is a checkbox rather than a deploy. Until the native products are approved for release, the flags are super-admin-only: center admins see them read-only (field-level `access` via `hasSuperAdminPermissions`), and turning one on asks the super admin to type the center's name (`NativeProductCheckbox`), while turning one off stays a single click.
 
 ### 2. Data source — code and env, never a setting
 

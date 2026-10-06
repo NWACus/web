@@ -178,7 +178,7 @@ The backend a Product is fetched from — legacy **v2** (`avalanche.org-API`), t
 _Note_: "v3" names the AFP's new **platform generation**, not a URL segment or an API version shared across products — observations live at `/obs/v1`, not a `/v3` path. Saying a Product is "on v3" says which backend answers for that Product and nothing about any other.
 
 **Rollout flag**:
-The per-Tenant × per-Product `nativeProducts` checkbox in Settings that decides native page versus NAC widget. Defaults to off, so merging native code ships capability rather than behavior — nothing reaches readers until a center turns it on, and unchecking reverts without a deploy. Center-admin-facing, and distinct from Data source: rollout is a content decision, data source is an engineering one.
+The per-Tenant × per-Product `nativeProducts` checkbox in Settings that decides native page versus NAC widget. Defaults to off, so merging native code ships capability rather than behavior — nothing reaches readers until it is turned on, and unchecking reverts without a deploy. Visible to center admins but changeable only by super admins until the native products are approved for release, and distinct from Data source: rollout is a content decision, data source is an engineering one.
 
 **Capability flag** (`platforms.*`):
 A per-center boolean from the NAC capability feed — `forecasts`, `warnings`, `stations`, `obs`, `weather` — declaring whether a center _has_ that product at all. Read-only to AvyWeb and evaluated **above** the Rollout flag: no capability, no page, whatever Settings says.

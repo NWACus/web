@@ -34,7 +34,7 @@ page / component ──▶ getForecastSource(center).getForecast(...)   // sourc
 
 ## Two controls (don't conflate them)
 
-- **Rollout — native vs widget.** Per-tenant × per-product, in the Payload `Settings` collection (`nativeProducts: { forecast, warning }`), read via `getNativeProductFlag`. Center-admin-facing; this is _which renderer_ a center sees.
+- **Rollout — native vs widget.** Per-tenant × per-product, in the Payload `Settings` collection (`nativeProducts: { forecast, warning }`), read via `getNativeProductFlag`. Only super admins can change it; this is _which renderer_ a center sees.
 - **Data source — v2 vs v3.** Code/env config in `sources/config.ts`, uniform across tenants (with a per-center v3 canary allowlist). **Not** a Setting — an admin can't point a live page at an unverified backend, and the test matrix stays small. This is _where the data comes from_.
 
 ## Extending it
