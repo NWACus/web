@@ -2,9 +2,8 @@ import type { PayloadRequest } from 'payload'
 
 import { LEGACY_GLOSSARY_TERMS } from './legacyGlossaryTerms'
 
-// The glossary terms, run by the data migration in deployed environments and by `pnpm seed`
-// locally (push mode never runs migrations). Kept out of the migration file so the migration stays
-// disposable: branch migrations are deleted and recreated on a main merge (coding-guide.md).
+// The glossary terms for `pnpm seed` locally (push mode never runs migrations). Deployed
+// environments got them from `20260924_234036_seed_glossary_terms`, which inlines the same list.
 
 export type GlossaryTermSeed = {
   term: string
