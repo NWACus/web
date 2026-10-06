@@ -37,9 +37,20 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
       LinkFeature({
         enabledCollections: LINK_ENABLED_COLLECTIONS,
         fields: ({ defaultFields }) => {
-          const defaultFieldsWithoutUrl = defaultFields.filter(
-            (field) => field.name !== 'url' && field.name !== 'doc',
-          )
+          const defaultFieldsWithoutUrl = defaultFields
+            .filter((field) => field.name !== 'url' && field.name !== 'doc')
+            .map((field) =>
+              field.name === 'linkType' && field.type === 'radio'
+                ? {
+                    ...field,
+                    defaultValue: 'internal',
+                    options: [
+                      { label: 'Internal link', value: 'internal' },
+                      { label: 'External link', value: 'custom' },
+                    ],
+                  }
+                : field,
+            )
 
           return [
             ...defaultFieldsWithoutUrl,
