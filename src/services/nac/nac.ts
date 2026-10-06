@@ -170,12 +170,9 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
   }
 }
 
-// The capabilities feed carries only the five flags WordPress knows. NWAC Weather is a
-// platform switch in the AFP dashboard, stored on the center record at
-// config.modules.platforms.nwac_weather, which the center metadata call already returns.
-// Opt-in like the dashboard and products-api read it: only a literal true counts, and a
-// center whose platforms have never been saved (no `modules` yet) reads false. A metadata
-// failure also reads false rather than taking every platform down with it.
+// The capabilities feed has no nwac_weather flag; it lives on the center record at
+// config.modules.platforms. Only a literal true counts, matching the dashboard and products-api.
+// Missing `modules` (platforms never saved) or a failed fetch reads false.
 async function getNwacWeatherPlatform(centerSlug: string): Promise<boolean> {
   try {
     const metadata = await getAvalancheCenterMetadata(centerSlug)

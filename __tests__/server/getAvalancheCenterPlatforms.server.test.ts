@@ -36,8 +36,7 @@ const afpCentersResponse = {
   ],
 }
 
-// Minimal schema-compliant /v2/public/avalanche-center/:id response. NWAC's platforms
-// have been saved in the dashboard with NWAC Weather on; SAC's never have (no `modules`).
+// Minimal /v2/public/avalanche-center/:id response. NWAC has saved platforms; SAC has none.
 function makeCenterResponse(id: string, modules?: Record<string, unknown>) {
   return {
     id,

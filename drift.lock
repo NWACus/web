@@ -323,7 +323,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "0eaf10b586c5e99e"
+sig = "ac23a73bcc64ae64"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -718,7 +718,7 @@ sig = "c62d9aedb3a11293"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "0eaf10b586c5e99e"
+sig = "ac23a73bcc64ae64"
 
 [[bindings]]
 doc = "docs/onboarding.md"

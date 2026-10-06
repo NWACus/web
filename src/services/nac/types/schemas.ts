@@ -5,18 +5,12 @@ export const avalancheCenterPlatformsSchema = z.object({
   forecasts: z.boolean(),
   stations: z.boolean(),
   obs: z.boolean(),
-  // The AFP weather product every other center uses (weather table + widget).
   weather: z.boolean(),
-  // NWAC's own weather forecast product, authored in the AFP dashboard and served by
-  // products-api. The capabilities feed does not carry it; getAvalancheCenterPlatforms
-  // fills it in from the center's config.modules.platforms (see
-  // avalancheCenterModulesSchema). A center runs one weather product or the other.
+  // Not in the capabilities feed; getAvalancheCenterPlatforms fills it from config.modules.
   nwac_weather: z.boolean().default(false),
 })
 
-// `config.modules` on the center record: the platform switches a NAC admin sets in the AFP
-// dashboard (Settings → Center → Platforms). Only read for nwac_weather; the other flags
-// come from the capabilities feed. Absent until the center's platforms are first saved.
+// Platform switches from the AFP dashboard (Settings → Center → Platforms). Absent until saved.
 export const avalancheCenterModulesSchema = z.object({
   display_id: z.string().optional(),
   platforms: z.record(z.string(), z.unknown()).optional(),
