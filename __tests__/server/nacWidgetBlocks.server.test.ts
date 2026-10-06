@@ -1,9 +1,11 @@
 jest.mock('../../src/payload.config', () => ({}))
 
 import {
+  lexicalBlockTypes,
   NAC_WIDGET_BLOCKS,
   repeatedNACWidgetBlockError,
   validateLayoutBlocks,
+  validateRichTextBlocks,
 } from '@/blocks/nacWidgetBlocks'
 import { isRecord } from '@/utilities/isRecord'
 import { readdirSync } from 'fs'
@@ -58,6 +60,44 @@ describe('repeatedNACWidgetBlockError', () => {
   it.each(NAC_WIDGET_BLOCKS)('rejects a second $slug', ({ slug, label }) => {
     expect(repeatedNACWidgetBlockError([slug, 'content', slug])).toBe(
       `Only one ${label} is allowed per page`,
+    )
+  })
+})
+
+const blockNode = (blockType: string) => ({ type: 'block', fields: { blockType }, version: 2 })
+
+describe('lexicalBlockTypes', () => {
+  it('finds block nodes at any depth', () => {
+    const editorState = {
+      root: {
+        type: 'root',
+        children: [
+          blockNode('observationsWidget'),
+          { type: 'paragraph', children: [{ type: 'text', text: 'hi' }] },
+          { type: 'list', children: [{ type: 'listitem', children: [blockNode('mediaBlock')] }] },
+        ],
+      },
+    }
+    expect(lexicalBlockTypes(editorState)).toEqual(['observationsWidget', 'mediaBlock'])
+  })
+
+  it('reads nothing from an empty or missing value', () => {
+    expect(lexicalBlockTypes(null)).toEqual([])
+    expect(lexicalBlockTypes({ root: { type: 'root', children: [] } })).toEqual([])
+  })
+})
+
+describe('validateRichTextBlocks', () => {
+  it('rejects a second observations widget before the editor validates', () => {
+    const editorState = {
+      root: {
+        type: 'root',
+        children: [blockNode('observationsWidget'), blockNode('observationsWidget')],
+      },
+    }
+    // Throws before reaching the editor's own validation, so no editor args are needed
+    expect(() => validateRichTextBlocks(editorState, Object.create(null))).toThrow(
+      'Only one Observations Widget is allowed per page',
     )
   })
 })

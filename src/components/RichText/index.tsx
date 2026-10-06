@@ -23,6 +23,7 @@ import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageTextBlockComponent } from '@/blocks/ImageText/Component'
 import { InlineMediaComponent } from '@/blocks/InlineMedia/Component'
+import { ObservationsWidgetBlockComponent } from '@/blocks/ObservationsWidget/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
@@ -42,6 +43,7 @@ import type {
   ImageTextBlock as ImageTextBlockProps,
   InlineMediaBlock as InlineMediaBlockProps,
   MediaBlock as MediaBlockProps,
+  ObservationsWidgetBlock as ObservationsWidgetBlockProps,
   Page,
   Post,
   SingleBlogPostBlock as SingleBlogPostBlockProps,
@@ -91,6 +93,7 @@ type NodeTypes =
       | HeaderBlockProps
       | ImageTextBlockProps
       | MediaBlockProps
+      | ObservationsWidgetBlockProps
       | SingleBlogPostBlockProps
       | SingleEventBlockProps
       | SponsorsBlockProps
@@ -146,6 +149,9 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         isLayoutBlock={false}
         captionClassName="mx-auto max-w-[48rem]"
       />
+    ),
+    observationsWidget: ({ node }) => (
+      <ObservationsWidgetBlockComponent {...node.fields} isLayoutBlock={false} />
     ),
     singleBlogPost: ({ node }) => (
       <SingleBlogPostBlockComponent {...node.fields} isLayoutBlock={false} />

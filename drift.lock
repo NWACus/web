@@ -188,7 +188,7 @@ sig = "e4dc2b4ccd50dcc4"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/components/RichText/index.tsx"
-sig = "a6cfb9e47e74a6a0"
+sig = "88ef4fa70130ce8c"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
