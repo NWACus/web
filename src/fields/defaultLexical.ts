@@ -4,7 +4,6 @@ import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { VideoEmbedBlock } from '@/blocks/VideoEmbed/config'
 import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
-import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import {
   AlignFeature,
@@ -23,6 +22,7 @@ import {
 import { Config } from 'payload'
 
 import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
+import { linkReferenceField } from '@/fields/linkField'
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: () => {
@@ -54,18 +54,10 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
 
           return [
             ...defaultFieldsWithoutUrl,
-            {
+            linkReferenceField({
               name: 'doc',
-              type: 'relationship',
-              admin: {
-                condition: (_, siblingData) => siblingData?.linkType === 'internal',
-                width: '50%',
-              },
-              label: 'Select page or post',
-              relationTo: LINK_ENABLED_COLLECTIONS,
-              required: true,
-              filterOptions: getTenantFilter,
-            },
+              condition: (_, siblingData) => siblingData?.linkType === 'internal',
+            }),
             {
               name: 'url',
               type: 'text',
