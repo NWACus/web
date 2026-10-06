@@ -1,6 +1,8 @@
 /**
  * The region-wide view: synopsis and zone links, one table per variable (zones or stations down,
- * periods or blocks across), then the extended outlook.
+ * periods or blocks across), then the extended outlook. Which tables a forecast has, its rows and
+ * the columns each covers come from the forecast's own template and layout; what each is called,
+ * where it sits and how a value draws is this page's.
  */
 import { DiscussionBody } from '@/components/forecast/DiscussionBody'
 import { sanitizeHtml } from '@/components/forecast/sanitizeHtml'
@@ -14,14 +16,13 @@ import type {
 } from '@/services/nac/model/nwacWeather'
 import {
   DASH,
-  SENSIBLE_SLOTS,
   blockDate,
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
   fmtSnowAmount,
-  periodDateGroups,
   precipPeriods,
+  sectionFor,
   snowLevelBlocks,
   snowLevelTones,
   tempPeriods,
@@ -127,70 +128,78 @@ function shadedLevels(levels: (number | null)[][]): ReactNode[][] {
   )
 }
 
-function zoneTables(issuance: NWACWeatherIssuance): Table[] {
-  const flat = (rows: Row[]): Group[] => [{ key: 'all', label: null, rows }]
-  const zoneRows = (cells: (zoneId: string) => ReactNode[]): Row[] =>
-    issuance.zones.map((z) => ({ key: z.id, label: z.name, cells: cells(z.id) }))
+const flat = (rows: Row[]): Group[] => [{ key: 'all', label: null, rows }]
 
-  const levelBlocks = snowLevelBlocks(issuance)
+function zoneRows(issuance: NWACWeatherIssuance, cells: (zoneId: string) => ReactNode[]): Row[] {
+  return issuance.zones.map((z) => ({ key: z.id, label: z.name, cells: cells(z.id) }))
+}
+
+function snowLevelTable(issuance: NWACWeatherIssuance): Table | null {
+  if (!sectionFor(issuance, 'snowLevel')) return null
+  const blocks = snowLevelBlocks(issuance)
   const levels = shadedLevels(
     issuance.zones.map((z) =>
-      levelBlocks.map((b) => {
+      blocks.map((b) => {
         const cell = issuance.snowLevel[z.id]?.[b.key]
         return deriveSnowLevel(cell?.freezing, cell?.drop)
       }),
     ),
   )
-  const levelsByZone = new Map(issuance.zones.map((z, i) => [z.id, levels[i]]))
+  const byZone = new Map(issuance.zones.map((z, i) => [z.id, levels[i]]))
+  return {
+    id: 'snow-level',
+    nav: 'Snow level',
+    title: 'Snow Level (ft)',
+    note: 'Where rain turns to snow. Darker is higher.',
+    detail: SNOW_LEVEL_DETAIL,
+    rowLabel: 'Zone',
+    columns: blocks.map((b) => blockColumn(issuance, b)),
+    groups: flat(zoneRows(issuance, (id) => byZone.get(id) ?? [])),
+    filled: true,
+  }
+}
 
-  const temps = tempPeriods(issuance)
-  const winds = windBlocks(issuance)
+function tempsTable(issuance: NWACWeatherIssuance): Table | null {
+  if (!sectionFor(issuance, 'temp')) return null
+  const periods = tempPeriods(issuance)
+  return {
+    id: 'temps',
+    nav: "5000' temps",
+    title: "5000' Temperatures (°F)",
+    note: 'High / low.',
+    detail: TEMPS_DETAIL,
+    rowLabel: 'Zone',
+    columns: periods.map(periodColumn),
+    groups: flat(
+      zoneRows(issuance, (id) =>
+        periods.map((p) => <TempValue key={p.key} cell={issuance.temp[id]?.[p.key]} />),
+      ),
+    ),
+  }
+}
 
-  return [
-    {
-      id: 'snow-level',
-      nav: 'Snow level',
-      title: 'Snow Level (ft)',
-      note: 'Where rain turns to snow. Darker is higher.',
-      detail: SNOW_LEVEL_DETAIL,
-      rowLabel: 'Zone',
-      columns: levelBlocks.map((b) => blockColumn(issuance, b)),
-      groups: flat(zoneRows((id) => levelsByZone.get(id) ?? [])),
-      filled: true,
-    },
-    {
-      id: 'temps',
-      nav: "5000' temps",
-      title: "5000' Temperatures (°F)",
-      note: 'High / low.',
-      detail: TEMPS_DETAIL,
-      rowLabel: 'Zone',
-      columns: temps.map(periodColumn),
-      groups: flat(
-        zoneRows((id) =>
-          temps.map((p) => <TempValue key={p.key} cell={issuance.temp[id]?.[p.key]} />),
-        ),
+function windTable(issuance: NWACWeatherIssuance): Table | null {
+  if (!sectionFor(issuance, 'wind')) return null
+  const blocks = windBlocks(issuance)
+  return {
+    id: 'wind',
+    nav: 'Ridgeline winds',
+    title: 'Ridgeline Winds (mph)',
+    note: 'Arrows point the way the wind blows.',
+    detail: WIND_DETAIL,
+    rowLabel: 'Zone',
+    columns: blocks.map((b) => blockColumn(issuance, b)),
+    groups: flat(
+      zoneRows(issuance, (id) =>
+        blocks.map((b) => <WindValue key={b.key} cell={issuance.wind[id]?.[b.key]} />),
       ),
-    },
-    {
-      id: 'wind',
-      nav: 'Ridgeline winds',
-      title: 'Ridgeline Winds (mph)',
-      note: 'Arrows point the way the wind blows.',
-      detail: WIND_DETAIL,
-      rowLabel: 'Zone',
-      columns: winds.map((b) => blockColumn(issuance, b)),
-      groups: flat(
-        zoneRows((id) =>
-          winds.map((b) => <WindValue key={b.key} cell={issuance.wind[id]?.[b.key]} />),
-        ),
-      ),
-    },
-  ]
+    ),
+  }
 }
 
 /** New snow by station, the stations grouped under their zones in zone order. */
-function snowTable(issuance: NWACWeatherIssuance): Table {
+function snowTable(issuance: NWACWeatherIssuance): Table | null {
+  if (!sectionFor(issuance, 'precip')) return null
   const periods = precipPeriods(issuance)
   const row = (p: NWACWeatherIssuance['points'][number]): Row => ({
     key: p.code,
@@ -229,8 +238,10 @@ function snowTable(issuance: NWACWeatherIssuance): Table {
   }
 }
 
-function extendedTable(issuance: NWACWeatherIssuance): Table {
-  const zones = issuance.zones.filter((z) => issuance.extendedSnowLevel[z.id])
+function extendedTable(issuance: NWACWeatherIssuance): Table | null {
+  if (!sectionFor(issuance, 'extendedSnowLevel')) return null
+  // The zones the forecast was published with an outlook for, in zone order.
+  const zones = issuance.zones.filter((z) => issuance.extendedZones.includes(z.id))
   const blocks = issuance.extendedBlocks
   const levels = shadedLevels(
     zones.map((z) =>
@@ -263,7 +274,8 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
   }
 }
 
-const hasContent = (t: Table) => t.columns.length > 0 && t.groups.some((g) => g.rows.length > 0)
+const hasContent = (t: Table | null): t is Table =>
+  !!t && t.columns.length > 0 && t.groups.some((g) => g.rows.length > 0)
 
 /** Runs of columns sharing a group, each headed once. */
 function columnGroups(columns: Column[]) {
@@ -547,7 +559,7 @@ function ZoneLinks({ links }: { links: ZoneLink[] }) {
 }
 
 /** A table, or nothing when it has no rows worth showing. */
-function MaybeTable({ table, anchor }: { table: Table; anchor: string }) {
+function MaybeTable({ table, anchor }: { table: Table | null; anchor: string }) {
   return hasContent(table) ? <GridTable table={table} anchor={anchor} /> : null
 }
 
@@ -587,7 +599,7 @@ function ExtendedSection({
 }: {
   anchor: string
   extended: string | null
-  table: Table
+  table: Table | null
 }) {
   const showTable = hasContent(table)
   if (!extended && !showTable) return null
@@ -612,17 +624,15 @@ function ExtendedSection({
 }
 
 /** Each sensible-weather day with its date, and each zone's text by day; empty when none. */
+/** Each sensible-weather slot as the issuance frames it, and each zone's text by slot. */
 function sensibleDays(issuance: NWACWeatherIssuance) {
-  const dates = periodDateGroups(issuance.periods)
-  // An afternoon issuance's first date is only its night, so "Today / Tonight" reads "Tonight".
-  const firstIsNight = issuance.periods
-    .filter((p) => p.date === dates[0]?.date)
-    .every((p) => p.kind === 'night')
-  const days: SensibleDay[] = SENSIBLE_SLOTS.map((s, i) => ({
-    key: s.key,
-    label: i === 0 && firstIsNight ? 'Tonight' : s.label,
-    date: dates[i] ? fmtCalendarDate(dates[i].date) : null,
-  }))
+  const days: SensibleDay[] = sectionFor(issuance, 'sensible')
+    ? issuance.sensibleSlots.map((s) => ({
+        key: s.key,
+        label: s.label,
+        date: s.date ? fmtCalendarDate(s.date) : null,
+      }))
+    : []
   const rows: SensibleRow[] = issuance.zones.map((z) => ({
     key: z.id,
     zone: z.name,
@@ -630,7 +640,7 @@ function sensibleDays(issuance: NWACWeatherIssuance) {
       days.map((d) => [d.key, issuance.sensible[z.id]?.[d.key]?.trim() ?? '']),
     ),
   }))
-  const any = rows.some((r) => Object.values(r.text).some(Boolean))
+  const any = days.length > 0 && rows.some((r) => Object.values(r.text).some(Boolean))
   return { days, rows: any ? rows : [] }
 }
 
@@ -639,23 +649,23 @@ export interface OverallParts {
   issuance: NWACWeatherIssuance
   synopsis: string | null
   extended: string | null
-  snowLevel: Table
-  temps: Table
-  wind: Table
-  snow: Table
-  ext: Table
+  /** Each null when the forecast's format has no such section. */
+  snowLevel: Table | null
+  temps: Table | null
+  wind: Table | null
+  snow: Table | null
+  ext: Table | null
   sensible: ReturnType<typeof sensibleDays>
 }
 
 export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
-  const [snowLevel, temps, wind] = zoneTables(issuance)
   return {
     issuance,
     synopsis: authoredOrNull(issuance.synopsis),
     extended: authoredOrNull(issuance.extendedOutlook),
-    snowLevel,
-    temps,
-    wind,
+    snowLevel: snowLevelTable(issuance),
+    temps: tempsTable(issuance),
+    wind: windTable(issuance),
     snow: snowTable(issuance),
     ext: extendedTable(issuance),
     sensible: sensibleDays(issuance),

@@ -1,14 +1,22 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
-import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
-import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
+import {
+  mapV3NWACWeatherForecastDay,
+  mapV3NWACWeatherIssuance,
+} from '@/services/nac/sources/v3/nwacWeatherMappers'
+import {
+  nwacWeatherForecastSchema,
+  nwacWeatherForecastsResponseSchema,
+} from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
+import exampleWire from '../../server/fixtures/nwac-weather-formats/dashboard-v2-2026-09-01.afternoon.public.json'
 
 const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
 if (!day) throw new Error('fixture should map to a forecast day')
 const [afternoon, morning] = day.issuances
+const example = mapV3NWACWeatherIssuance(nwacWeatherForecastSchema.parse(exampleWire))
 
 describe('Overall', () => {
   it('renders one table per variable, stations and zones down the rows', () => {
@@ -64,6 +72,26 @@ describe('Overall', () => {
   it('has no extended table on a morning issuance', () => {
     render(<Overall parts={overallParts(morning)} />)
     expect(screen.queryByRole('heading', { name: 'Snow Levels (ft)' })).toBeNull()
+  })
+})
+
+describe('Overall from the shared example payload', () => {
+  it('draws only the grids its template names', () => {
+    const noWind = { ...example, sections: example.sections.filter((s) => s.grid !== 'wind') }
+    render(<Overall parts={overallParts(noWind)} />)
+    expect(screen.queryByRole('heading', { name: 'Ridgeline Winds (mph)' })).toBeNull()
+    expect(screen.getByRole('heading', { name: "5000' Temperatures (°F)" })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Snow (in)' })).toHaveTextContent('Alpental')
+  })
+
+  it('draws the extended outlook for the zones the forecast was published with', () => {
+    render(<Overall parts={overallParts(example)} />)
+    const ext = screen.getByRole('region', { name: 'Snow Levels (ft)' })
+    expect(
+      within(ext)
+        .getAllByRole('rowheader')
+        .map((h) => h.textContent),
+    ).toEqual(['Stevens Pass', 'Mt Hood'])
   })
 })
 

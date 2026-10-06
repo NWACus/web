@@ -122,11 +122,6 @@ export function fmtCalendarDate(ymd: string): string {
   return `${DOW[d.getDay()]} ${MON[d.getMonth()]} ${d.getDate()}`
 }
 
-export const SENSIBLE_SLOTS = [
-  { key: 'morning', label: 'Today / Tonight' },
-  { key: 'afternoon', label: 'Tomorrow' },
-] as const
-
 export function issuanceLabel(type: NWACWeatherIssuance['type']): string {
   return type === 'morning' ? 'Morning Forecast' : 'Afternoon Forecast'
 }
