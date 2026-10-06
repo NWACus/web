@@ -107,8 +107,8 @@ export async function resolveBuiltInPages(
 
   const nonForecastPages: Array<{ title: string; url: string }> = [...BUILT_IN_PAGES]
 
-  // Add Mountain Weather only if the center runs a weather product in NAC: the legacy AFP
-  // one or NWAC's own.
+  // Add Mountain Weather only if the center runs a weather product in NAC: the AFP one every
+  // other center uses, or NWAC's own.
   try {
     const { weather, nwac_weather } = await getAvalancheCenterPlatforms(tenantSlug)
     if (weather || nwac_weather) {
