@@ -17,6 +17,8 @@ import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import { DocumentBlock } from '@/blocks/Document/config'
 import { HeaderLexicalBlock } from '@/blocks/Header/config'
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
+import { validateLayoutBlocks } from '@/blocks/nacWidgetBlocks'
+import { ObservationsWidgetBlock } from '@/blocks/ObservationsWidget/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
@@ -30,7 +32,6 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import { blocks } from 'payload/shared'
 import { revalidateHomePage, revalidateHomePageDelete } from './hooks/revalidateHomePage'
 
 export const HomePages: CollectionConfig = {
@@ -139,21 +140,12 @@ export const HomePages: CollectionConfig = {
         initCollapsed: false,
       },
       type: 'blocks',
-      blocks: [...DEFAULT_BLOCKS, NACMediaBlock].sort((a, b) => a.slug.localeCompare(b.slug)),
+      blocks: [...DEFAULT_BLOCKS, NACMediaBlock, ObservationsWidgetBlock].sort((a, b) =>
+        a.slug.localeCompare(b.slug),
+      ),
       required: true,
 
-      validate: (value, args) => {
-        if (!value || !Array.isArray(value)) return blocks(value, args)
-
-        const nacMediaBlockCount = value.filter(
-          (block) => block.blockType === 'nacMediaBlock',
-        ).length
-
-        if (nacMediaBlockCount > 1) throw Error('Only one NACMediaBlock is allowed per page')
-
-        // Do not use default validation because of nacMediaBlock
-        return blocks(value, args)
-      },
+      validate: validateLayoutBlocks,
     },
     {
       name: 'publishedAt',

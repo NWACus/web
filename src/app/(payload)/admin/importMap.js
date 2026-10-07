@@ -20,6 +20,7 @@ import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b
 import { UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { default as default_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
+import { ZonesField as ZonesField_77b8df4c40d764f3c3941ef759d922e0 } from '@/blocks/ObservationsWidget/ZonesField'
 import { StationsInput as StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd } from '@/fields/stations/StationsInput'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
@@ -92,6 +93,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnorderedListFeatureClient": UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/ColumnLayoutPicker#default": default_923dc5ccc0b72de4298251644cbfe39e,
   "@/blocks/Content/components/DefaultColumnAdder#DefaultColumnAdder": DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01,
+  "@/blocks/ObservationsWidget/ZonesField#ZonesField": ZonesField_77b8df4c40d764f3c3941ef759d922e0,
   "@/fields/stations/StationsInput#StationsInput": StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
