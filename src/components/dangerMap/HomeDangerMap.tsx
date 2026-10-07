@@ -18,6 +18,7 @@ import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 
 import { DangerMapLoader } from './DangerMapLoader.client'
+import { DangerMapPrototypeLoader } from './prototype/DangerMapPrototypeLoader.client'
 
 /**
  * Both maps render at this height, ignoring the AFP-configured one. The native map's wrapper is
@@ -49,6 +50,20 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
 
   const metadata = await getAvalancheCenterMetadata(centerSlug)
   const settings = resolveDangerMapSettings(metadata?.widget_config?.danger_map)
+
+  // PROTOTYPE (#1312) — NWAC in dev only. Remove with ./prototype.
+  if (process.env.NODE_ENV !== 'production' && centerSlug === 'nwac') {
+    return (
+      <div className="space-y-2">
+        <DangerMapPrototypeLoader
+          centerSlug={centerSlug}
+          centerId={metadata.id}
+          settings={settings}
+        />
+        <DangerScale />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-2">
