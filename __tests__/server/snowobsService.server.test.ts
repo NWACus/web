@@ -17,7 +17,7 @@ import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas
 import type { Payload } from 'payload'
 import { getPayload } from 'payload'
 
-const TIMESERIES_URL = 'https://api.snowobs.com/wx/v1/station/data/timeseries/'
+const TIMESERIES_URL = 'https://api.snowobs.com/wx/v2/station/data/timeseries/'
 
 const ref = (stid: string, source = 'nwac') => ({ stid, source })
 
