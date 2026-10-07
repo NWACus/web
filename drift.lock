@@ -53,7 +53,7 @@ sig = "c0f3cad5d9018cee"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "ff5d3fe541e1dfad"
+sig = "f4b9eb14a74b8fb1"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "8181a2f7c6a662f3"
+sig = "594fac47679d08ad"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1158,7 +1158,7 @@ sig = "d217d568b825da64"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/middleware.ts"
-sig = "ff301eba57dc04e2"
+sig = "fd722c55fdb3239d"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -1173,7 +1173,7 @@ sig = "d3cd76897aad26d4"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/notFoundReport.ts"
-sig = "2461799d8f2d6536"
+sig = "15a3072e591e7723"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
