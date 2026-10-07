@@ -96,6 +96,7 @@ export interface Config {
     settings: Setting;
     redirects: Redirect;
     sharedMedia: SharedMedia;
+    glossaryTerms: GlossaryTerm;
     forms: Form;
     'form-submissions': FormSubmission;
     'payload-mcp-api-keys': PayloadMcpApiKey;
@@ -151,6 +152,7 @@ export interface Config {
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     sharedMedia: SharedMediaSelect<false> | SharedMediaSelect<true>;
+    glossaryTerms: GlossaryTermsSelect<false> | GlossaryTermsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
@@ -3180,6 +3182,31 @@ export interface Setting {
    */
   banner: number | Media;
   usfsLogo?: (number | null) | Media;
+  /**
+   * When enabled, these products render natively as Next.js pages on this site’s design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback. Only super admins can change these.
+   */
+  nativeProducts?: {
+    /**
+     * Render the avalanche forecast page natively.
+     */
+    forecast?: boolean | null;
+    /**
+     * Render warning/watch/special bulletins natively: the center-wide alert banner on the home page, and the per-zone banner on the native forecast page.
+     */
+    warning?: boolean | null;
+    /**
+     * Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.
+     */
+    dangerMap?: boolean | null;
+    /**
+     * Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC — and, together with the forecast flag, the forecast archive’s Mountain Weather tab. Centers without one have neither the page nor the tab either way. For NWAC, it turns on the Mountain Weather Forecast page NWAC authors itself.
+     */
+    weather?: boolean | null;
+    /**
+     * Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.
+     */
+    stationMap?: boolean | null;
+  };
   socialMedia?: {
     instagram?: string | null;
     facebook?: string | null;
@@ -3231,6 +3258,30 @@ export interface Redirect {
   createdAt: string;
 }
 /**
+ * Terms underlined in forecast text on every center whose forecast has the glossary turned on. Hovering or tapping one shows its definition.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "glossaryTerms".
+ */
+export interface GlossaryTerm {
+  id: number;
+  /**
+   * The term as it should be matched in forecast text. Matching ignores case.
+   */
+  term: string;
+  /**
+   * Other forms that should show the same definition: plurals, tenses, synonyms (e.g. "beacon" for "transceiver"). A term or alias can belong to only one Glossary Term.
+   */
+  aliases?: string[] | null;
+  definition: string;
+  /**
+   * Optional page on avalanche.org to learn more. Shown as a "Learn more" link under the definition.
+   */
+  link?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
@@ -3268,9 +3319,27 @@ export interface PayloadMcpApiKey {
    * The purpose of the API key.
    */
   description?: string | null;
+  homePages?: {
+    /**
+     * Allow clients to find homePages.
+     */
+    find?: boolean | null;
+  };
+  builtInPages?: {
+    /**
+     * Allow clients to find builtInPages.
+     */
+    find?: boolean | null;
+  };
   pages?: {
     /**
      * Allow clients to find pages.
+     */
+    find?: boolean | null;
+  };
+  stationPages?: {
+    /**
+     * Allow clients to find stationPages.
      */
     find?: boolean | null;
   };
@@ -3280,33 +3349,27 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
-  homePages?: {
-    /**
-     * Allow clients to find homePages.
-     */
-    find?: boolean | null;
-  };
-  events?: {
-    /**
-     * Allow clients to find events.
-     */
-    find?: boolean | null;
-  };
   media?: {
     /**
      * Allow clients to find media.
      */
     find?: boolean | null;
   };
-  teams?: {
+  galleries?: {
     /**
-     * Allow clients to find teams.
+     * Allow clients to find galleries.
      */
     find?: boolean | null;
   };
-  biographies?: {
+  documents?: {
     /**
-     * Allow clients to find biographies.
+     * Allow clients to find documents.
+     */
+    find?: boolean | null;
+  };
+  announcements?: {
+    /**
+     * Allow clients to find announcements.
      */
     find?: boolean | null;
   };
@@ -3322,15 +3385,51 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
-  documents?: {
+  events?: {
     /**
-     * Allow clients to find documents.
+     * Allow clients to find events.
      */
     find?: boolean | null;
   };
-  forms?: {
+  eventGroups?: {
     /**
-     * Allow clients to find forms.
+     * Allow clients to find eventGroups.
+     */
+    find?: boolean | null;
+  };
+  eventTags?: {
+    /**
+     * Allow clients to find eventTags.
+     */
+    find?: boolean | null;
+  };
+  providers?: {
+    /**
+     * Allow clients to find providers.
+     */
+    find?: boolean | null;
+  };
+  courses?: {
+    /**
+     * Allow clients to find courses.
+     */
+    find?: boolean | null;
+  };
+  biographies?: {
+    /**
+     * Allow clients to find biographies.
+     */
+    find?: boolean | null;
+  };
+  teams?: {
+    /**
+     * Allow clients to find teams.
+     */
+    find?: boolean | null;
+  };
+  tenants?: {
+    /**
+     * Allow clients to find tenants.
      */
     find?: boolean | null;
   };
@@ -3346,21 +3445,27 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
-  tenants?: {
+  redirects?: {
     /**
-     * Allow clients to find tenants.
+     * Allow clients to find redirects.
      */
     find?: boolean | null;
   };
-  eventGroups?: {
+  sharedMedia?: {
     /**
-     * Allow clients to find eventGroups.
+     * Allow clients to find sharedMedia.
      */
     find?: boolean | null;
   };
-  eventTags?: {
+  glossaryTerms?: {
     /**
-     * Allow clients to find eventTags.
+     * Allow clients to find glossaryTerms.
+     */
+    find?: boolean | null;
+  };
+  forms?: {
+    /**
+     * Allow clients to find forms.
      */
     find?: boolean | null;
   };
@@ -3512,6 +3617,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'sharedMedia';
         value: number | SharedMedia;
+      } | null)
+    | ({
+        relationTo: 'glossaryTerms';
+        value: number | GlossaryTerm;
       } | null)
     | ({
         relationTo: 'forms';
@@ -5024,6 +5133,15 @@ export interface SettingsSelect<T extends boolean = true> {
   icon?: T;
   banner?: T;
   usfsLogo?: T;
+  nativeProducts?:
+    | T
+    | {
+        forecast?: T;
+        warning?: T;
+        dangerMap?: T;
+        weather?: T;
+        stationMap?: T;
+      };
   socialMedia?:
     | T
     | {
@@ -5096,6 +5214,18 @@ export interface SharedMediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "glossaryTerms_select".
+ */
+export interface GlossaryTermsSelect<T extends boolean = true> {
+  term?: T;
+  aliases?: T;
+  definition?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5256,7 +5386,22 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
   user?: T;
   label?: T;
   description?: T;
+  homePages?:
+    | T
+    | {
+        find?: T;
+      };
+  builtInPages?:
+    | T
+    | {
+        find?: T;
+      };
   pages?:
+    | T
+    | {
+        find?: T;
+      };
+  stationPages?:
     | T
     | {
         find?: T;
@@ -5266,27 +5411,22 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
     | {
         find?: T;
       };
-  homePages?:
-    | T
-    | {
-        find?: T;
-      };
-  events?:
-    | T
-    | {
-        find?: T;
-      };
   media?:
     | T
     | {
         find?: T;
       };
-  teams?:
+  galleries?:
     | T
     | {
         find?: T;
       };
-  biographies?:
+  documents?:
+    | T
+    | {
+        find?: T;
+      };
+  announcements?:
     | T
     | {
         find?: T;
@@ -5301,12 +5441,42 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
     | {
         find?: T;
       };
-  documents?:
+  events?:
     | T
     | {
         find?: T;
       };
-  forms?:
+  eventGroups?:
+    | T
+    | {
+        find?: T;
+      };
+  eventTags?:
+    | T
+    | {
+        find?: T;
+      };
+  providers?:
+    | T
+    | {
+        find?: T;
+      };
+  courses?:
+    | T
+    | {
+        find?: T;
+      };
+  biographies?:
+    | T
+    | {
+        find?: T;
+      };
+  teams?:
+    | T
+    | {
+        find?: T;
+      };
+  tenants?:
     | T
     | {
         find?: T;
@@ -5321,17 +5491,22 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
     | {
         find?: T;
       };
-  tenants?:
+  redirects?:
     | T
     | {
         find?: T;
       };
-  eventGroups?:
+  sharedMedia?:
     | T
     | {
         find?: T;
       };
-  eventTags?:
+  glossaryTerms?:
+    | T
+    | {
+        find?: T;
+      };
+  forms?:
     | T
     | {
         find?: T;

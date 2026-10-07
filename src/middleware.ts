@@ -19,7 +19,7 @@ export const config = {
      * 6. /media, /thumbnail, /assets (inside /public)
      * 7. sitemap.xml, robots.txt, pages-sitemap.xml, posts-sitemap.xml
      */
-    '/((?!api|ingest|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets).*)',
+    '/((?!api|ingest|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets|images).*)',
     '/sitemap.xml',
     '/robots.txt',
     '/pages-sitemap.xml',

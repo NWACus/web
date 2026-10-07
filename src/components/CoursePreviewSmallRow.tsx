@@ -26,7 +26,6 @@ export const CoursePreviewSmallRow = (props: {
     startDate,
     startDate_tz,
     endDate,
-    endDate_tz,
     title,
     location,
     courseUrl,
@@ -90,7 +89,6 @@ export const CoursePreviewSmallRow = (props: {
                 startDate={startDate}
                 startDate_tz={startDate_tz}
                 endDate={endDate}
-                endDate_tz={endDate_tz}
               />
             </p>
           )}

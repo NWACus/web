@@ -1,19 +1,51 @@
 import { StationNotes } from '@/components/WeatherStations/StationNotes'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
-import type { AssembledStationPage, StationPageSummary } from '@/services/stations/getStationPages'
+import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 
+/** A station page, or a single tracked station shown on its own (`slug: null`). */
+type StationPageHeading = Pick<StationPageSummary, 'displayName' | 'archived'> & {
+  slug: string | null
+}
+
 type StationPageViewProps = {
-  page: AssembledStationPage
+  page: StationPageHeading
   pages: StationPageSummary[]
   notes: StationNote[]
-  stations: StationSummary[]
+  /** The page's stations, listed under the title; omitted where `details` already says it. */
+  stations?: StationSummary[]
   /** When an archived page's stations last reported; null if unknown. */
-  lastReported: Date | null
+  lastReported?: Date | null
   timeZone: string
+  /** A line under the title, such as a single station's source and elevation. */
+  details?: ReactNode
   tabContent?: ReactNode
+}
+
+function StationHeader({
+  page,
+  pages,
+  details,
+}: {
+  page: StationPageHeading
+  pages: StationPageSummary[]
+  details?: ReactNode
+}) {
+  return (
+    <div className="container flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <div className="prose dark:prose-invert max-w-none">
+          {/* Sized as the station map's title is. Station names run long — "Stevens Pass -
+              WSDOT Schmidt Haus" takes three lines at full size on a phone, before any reading. */}
+          <h1 className="text-3xl font-bold sm:text-4xl">{page.displayName}</h1>
+        </div>
+        {details}
+      </div>
+      {pages.length > 0 && <StationPicker pages={pages} current={page.slug ?? undefined} />}
+    </div>
+  )
 }
 
 function StationList({ stations }: { stations: StationSummary[] }) {
@@ -35,27 +67,6 @@ function StationList({ stations }: { stations: StationSummary[] }) {
         </li>
       ))}
     </ul>
-  )
-}
-
-function StationHeader({
-  page,
-  pages,
-}: {
-  page: AssembledStationPage
-  pages: StationPageSummary[]
-}) {
-  return (
-    <div className="container flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <div className="prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">{page.displayName}</h1>
-        </div>
-      </div>
-      <div className="flex flex-col items-end gap-1">
-        <StationPicker pages={pages} current={page.slug} />
-      </div>
-    </div>
   )
 }
 
@@ -89,15 +100,16 @@ export function StationPageView({
   pages,
   notes,
   stations,
-  lastReported,
+  lastReported = null,
   timeZone,
+  details,
   tabContent,
 }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <StationHeader page={page} pages={pages} />
-        <StationList stations={stations} />
+        <StationHeader page={page} pages={pages} details={details} />
+        {stations && <StationList stations={stations} />}
       </div>
       {page.archived && <RetiredNotice lastReported={lastReported} timeZone={timeZone} />}
       {notes.length > 0 && (
