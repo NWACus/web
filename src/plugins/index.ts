@@ -71,6 +71,8 @@ export const plugins: Plugin[] = [
   }),
   vercelBlobStorage({
     enabled: !!process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
+    // Keeps the schema identical when the token is missing (CI), so _objectKey still exists
+    alwaysInsertFields: true,
     collections: {
       documents: {
         prefix: getEnvironmentFriendlyName(),
