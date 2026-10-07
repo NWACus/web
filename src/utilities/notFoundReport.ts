@@ -33,7 +33,7 @@ type ExclusionReason = ExcludedPath['reason']
 // Mirrors the middleware matcher's exclusions (/api/..., /favicon.ico): these never reach tenant
 // routing, so a Redirects row can't catch them.
 const NOT_REDIRECTABLE_PATH =
-  /^\/(api|ingest|_next|_static|_vercel|[\w-]+\.\w+|media|thumbnail|assets)/
+  /^\/(api|ingest|_next|_static|_vercel|[\w-]+\.\w+|media|thumbnail|assets|images)/
 
 // Dotfile paths (/.well-known/..., /.env) are browser and scanner probes, not people
 const PROBE_PATH = /^\/\./
