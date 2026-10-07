@@ -1,5 +1,6 @@
 import { accessByTenantRole, byTenantRole } from '@/access/byTenantRole'
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
+import { MCP_COLLECTIONS, MCP_GLOBALS, mcpFindOnly } from '@/constants/mcp'
 import { getSharedMediaBlobPrefix } from '@/constants/sharedContent'
 import { revalidateForm, revalidateFormDelete } from '@/hooks/revalidateForm'
 import { Page, Post } from '@/payload-types'
@@ -95,28 +96,9 @@ export const plugins: Plugin[] = [
     },
   }),
   mcpPlugin({
-    // No create/update/delete operations are exposed on any collection/global.
-    collections: {
-      pages: { enabled: { find: true } },
-      posts: { enabled: { find: true } },
-      homePages: { enabled: { find: true } },
-      events: { enabled: { find: true } },
-      media: { enabled: { find: true } },
-      teams: { enabled: { find: true } },
-      biographies: { enabled: { find: true } },
-      sponsors: { enabled: { find: true } },
-      tags: { enabled: { find: true } },
-      documents: { enabled: { find: true } },
-      forms: { enabled: { find: true } },
-      navigations: { enabled: { find: true } },
-      settings: { enabled: { find: true } },
-      tenants: { enabled: { find: true } },
-      eventGroups: { enabled: { find: true } },
-      eventTags: { enabled: { find: true } },
-    },
-    globals: {
-      nacWidgetsConfig: { enabled: { find: true } },
-    },
+    // Which collections and globals are exposed, and why the rest are not, lives in @/constants/mcp
+    collections: mcpFindOnly(MCP_COLLECTIONS),
+    globals: mcpFindOnly(MCP_GLOBALS),
     mcp: {
       serverOptions: {
         serverInfo: {
@@ -131,6 +113,8 @@ export const plugins: Plugin[] = [
           '- Every content document (pages, posts, events, etc.) belongs to a tenant.',
           '- Use findTenants to discover available tenants and their IDs/slugs.',
           '- Filter by tenant using where clauses like {"tenant": {"equals": <tenantId>}}.',
+          '- Exception: courses and providers (A3) have no tenant. Each course belongs to a provider, so filter courses with {"provider": {"equals": <providerId>}}. Providers are global and their slugs are globally unique.',
+          '- Exception: sharedMedia has no tenant. It is Shared Content, usable by every center; per-center images live in media.',
           '- Use depth parameter to control relationship population (0 = IDs only, 1+ = resolved objects).',
           '',
           'Common queries:',
@@ -138,6 +122,9 @@ export const plugins: Plugin[] = [
           '- "Show me the homepage content" → findHomePages filtered by tenant.',
           '- "What events are coming up?" → findEvents filtered by tenant.',
           '- "What navigation items exist?" → findNavigations filtered by tenant.',
+          '- "What courses does a provider offer?" → findProviders filtered by slug, then findCourses filtered by provider.',
+          '- "Is there an announcement live?" → findAnnouncements filtered by tenant.',
+          '- "Where does this old URL redirect?" → findRedirects filtered by tenant and from.',
           '',
           'Tips:',
           '- Use the select parameter to return only specific fields: \'{"title": true, "slug": true}\'.',
