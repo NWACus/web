@@ -26,6 +26,15 @@ describe('assembleStationPages', () => {
     expect(pages[0].stations[1]).toEqual({ stid: '2', source: 'nwac' })
   })
 
+  it('shows only Download for an archived page, whatever its tab toggles say', () => {
+    const pages = assembleStationPages([
+      pageDoc({ slug: 'helens', archived: true, tabs: { table: true, graphs: true, csv: true } }),
+      pageDoc({ slug: 'alpental', tabs: { table: true, graphs: false, csv: true } }),
+    ])
+    expect(pages.find((p) => p.slug === 'helens')?.tabs).toEqual(['csv'])
+    expect(pages.find((p) => p.slug === 'alpental')?.tabs).toEqual(['table', 'csv'])
+  })
+
   it('carries the chosen readings, or none', () => {
     const pages = assembleStationPages([
       pageDoc({ slug: 'a', stations: [ref('1')], columns: ['air_temp'] }),

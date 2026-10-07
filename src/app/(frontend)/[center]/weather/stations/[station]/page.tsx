@@ -11,6 +11,7 @@ import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import { resolveColumns } from '@/services/snowobs/deriveColumns'
+import { fetchLastReported } from '@/services/snowobs/lastReported'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
@@ -162,13 +163,14 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   const timeZone = centerTimezone(center)
-  const [view, { notes, stations }] = await Promise.all([
+  const [view, { notes, stations }, lastReported] = await Promise.all([
     resolveTabView(
       { center, page, pages: toPageSummaries(pages), timeZone },
       rangeParam,
       periodParam,
     ),
     loadStationMeta(center, page),
+    page.archived ? fetchLastReported(center, page.stations) : null,
   ])
 
   return (
@@ -184,6 +186,7 @@ export default async function Page({ params, searchParams }: Args) {
         pages={toPageSummaries(pages)}
         notes={notes}
         stations={stations}
+        lastReported={lastReported}
         timeZone={timeZone}
         tabContent={view.tabContent}
       />

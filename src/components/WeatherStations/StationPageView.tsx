@@ -10,6 +10,8 @@ type StationPageViewProps = {
   pages: StationPageSummary[]
   notes: StationNote[]
   stations: StationSummary[]
+  /** When an archived page's stations last reported; null if unknown. */
+  lastReported: Date | null
   timeZone: string
   tabContent?: ReactNode
 }
@@ -57,7 +59,13 @@ function StationHeader({
   )
 }
 
-function ArchivedNotice() {
+function RetiredNotice({
+  lastReported,
+  timeZone,
+}: {
+  lastReported: Date | null
+  timeZone: string
+}) {
   return (
     <aside className="container">
       <div className="rounded-md border-l-4 border-warning bg-warning/30 px-3 py-2 text-sm">
@@ -66,8 +74,9 @@ function ArchivedNotice() {
           This station has been retired
         </p>
         <p>
-          It no longer reports observations, so the table and graphs are empty. Its historical data
-          is still available to download.
+          {lastReported &&
+            `Last reported ${new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone }).format(lastReported)}. `}
+          Its historical data is still available to download.
         </p>
       </div>
     </aside>
@@ -80,6 +89,7 @@ export function StationPageView({
   pages,
   notes,
   stations,
+  lastReported,
   timeZone,
   tabContent,
 }: StationPageViewProps) {
@@ -89,7 +99,7 @@ export function StationPageView({
         <StationHeader page={page} pages={pages} />
         <StationList stations={stations} />
       </div>
-      {page.archived && <ArchivedNotice />}
+      {page.archived && <RetiredNotice lastReported={lastReported} timeZone={timeZone} />}
       {notes.length > 0 && (
         <div className="container">
           <StationNotes notes={notes} timeZone={timeZone} />

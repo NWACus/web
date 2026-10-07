@@ -43,7 +43,8 @@ export function assembleStationPages(pages: PageRow[]): AssembledStationPage[] {
         archived: page.archived ?? false,
         stations,
         columns: toStationColumns(page.columns),
-        tabs: toStationTabs(page.tabs),
+        // A retired station reports nothing, so only its download is useful.
+        tabs: page.archived ? ['csv'] : toStationTabs(page.tabs),
       }
     })
     .sort(byName)
