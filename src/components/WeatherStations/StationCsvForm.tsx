@@ -2,11 +2,20 @@
 
 import { Loader2 } from 'lucide-react'
 import Script from 'next/script'
-import type { FormEvent, ReactNode, RefObject } from 'react'
+import type { FormEvent, RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKey, stationKey } from '@/services/snowobs/stationKey'
+import { cn } from '@/utilities/ui'
+import { stationSelectTriggerClass } from './StationPicker'
 
 export type Datalogger = { station: StationRef; label: string }
 
@@ -69,27 +78,45 @@ function TurnstileWidget({
   )
 }
 
+type FormOption = { value: string; label: string }
+
+// Radix renders a hidden native select under `name`, so the value still
+// submits with the form and bubbles a change event to it.
 function FormSelect({
   label,
   name,
-  children,
+  options,
 }: {
   label: string
   name: string
-  children: ReactNode
+  options: FormOption[]
 }) {
+  const id = `csv-${name}`
   return (
-    <label className="flex flex-col gap-1 text-sm">
-      <span className="font-medium">{label}</span>
-      <select
-        name={name}
-        className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm"
-      >
-        {children}
-      </select>
-    </label>
+    <div className="flex flex-col gap-1 text-sm">
+      <label htmlFor={id} className="font-medium">
+        {label}
+      </label>
+      <Select name={name} defaultValue={options[0]?.value}>
+        <SelectTrigger id={id} className={cn(stationSelectTriggerClass, 'min-w-32')}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent position="item-aligned">
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
+
+const UNIT_OPTIONS: FormOption[] = [
+  { value: 'imperial', label: 'Imperial' },
+  { value: 'metric', label: 'Metric' },
+]
 
 function DownloadButton({ downloading, disabled }: { downloading: boolean; disabled: boolean }) {
   return (
@@ -176,24 +203,20 @@ export function StationCsvForm({
       className="flex min-h-96 flex-col items-start gap-4"
     >
       <div className="flex flex-wrap items-end gap-3">
-        <FormSelect label="Datalogger" name="station">
-          {dataloggers.map((datalogger) => (
-            <option key={stationKey(datalogger.station)} value={stationKey(datalogger.station)}>
-              {datalogger.label}
-            </option>
-          ))}
-        </FormSelect>
-        <FormSelect label="Year" name="year">
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </FormSelect>
-        <FormSelect label="Units" name="units">
-          <option value="imperial">Imperial</option>
-          <option value="metric">Metric</option>
-        </FormSelect>
+        <FormSelect
+          label="Datalogger"
+          name="station"
+          options={dataloggers.map((datalogger) => ({
+            value: stationKey(datalogger.station),
+            label: datalogger.label,
+          }))}
+        />
+        <FormSelect
+          label="Year"
+          name="year"
+          options={years.map((year) => ({ value: String(year), label: String(year) }))}
+        />
+        <FormSelect label="Units" name="units" options={UNIT_OPTIONS} />
       </div>
       {siteKey && (
         <TurnstileWidget siteKey={siteKey} onChange={setCaptchaSolved} idRef={widgetIdRef} />
