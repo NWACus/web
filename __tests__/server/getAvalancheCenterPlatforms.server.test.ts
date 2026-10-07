@@ -36,8 +36,50 @@ const afpCentersResponse = {
   ],
 }
 
+// Minimal /v2/public/avalanche-center/:id response. NWAC has saved platforms; SAC has none.
+function makeCenterResponse(id: string, modules?: Record<string, unknown>) {
+  return {
+    id,
+    name: id,
+    url: `/${id.toLowerCase()}`,
+    city: 'X',
+    state: 'XX',
+    timezone: 'America/Los_Angeles',
+    email: 'x@example.com',
+    phone: null,
+    center_point: null,
+    created_at: '2026-01-01T00:00:00Z',
+    wkb_geometry: null,
+    config: {
+      expires_time: null,
+      published_time: null,
+      blog: false,
+      blog_title: '',
+      weather_table: [],
+      ...(modules ? { modules } : {}),
+    },
+    type: 'nonprofit',
+    widget_config: {},
+    zones: [],
+    nws_zones: [],
+    nws_offices: [],
+    off_season: false,
+  }
+}
+
+const nwacModules = {
+  display_id: 'NWAC',
+  platforms: { forecasts: true, weather: false, nwac_weather: true },
+}
+
 const server = setupServer(
   http.get('https://forecasts.avalanche.org/', () => HttpResponse.json(afpCentersResponse)),
+  http.get('https://api.avalanche.org/v2/public/avalanche-center/NWAC', () =>
+    HttpResponse.json(makeCenterResponse('NWAC', nwacModules)),
+  ),
+  http.get('https://api.avalanche.org/v2/public/avalanche-center/SAC', () =>
+    HttpResponse.json(makeCenterResponse('SAC')),
+  ),
 )
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
@@ -53,6 +95,7 @@ describe('services: getAvalancheCenterPlatforms', () => {
       stations: true,
       obs: true,
       weather: true,
+      nwac_weather: true,
     })
   })
 
@@ -64,6 +107,7 @@ describe('services: getAvalancheCenterPlatforms', () => {
       stations: true,
       obs: true,
       weather: true,
+      nwac_weather: true,
     })
   })
 
@@ -75,6 +119,7 @@ describe('services: getAvalancheCenterPlatforms', () => {
       stations: false,
       obs: true,
       weather: false,
+      nwac_weather: false,
     })
   })
 
@@ -86,6 +131,30 @@ describe('services: getAvalancheCenterPlatforms', () => {
       stations: false,
       obs: false,
       weather: false,
+      nwac_weather: false,
     })
+  })
+
+  it('reads nwac_weather only for a literal true in config.modules.platforms', async () => {
+    server.use(
+      http.get('https://api.avalanche.org/v2/public/avalanche-center/NWAC', () =>
+        HttpResponse.json(
+          makeCenterResponse('NWAC', { display_id: 'NWAC', platforms: { nwac_weather: 1 } }),
+        ),
+      ),
+    )
+    const result = await getAvalancheCenterPlatforms('nwac')
+    expect(result.nwac_weather).toBe(false)
+  })
+
+  it('reads nwac_weather false when the metadata call fails', async () => {
+    server.use(
+      http.get('https://api.avalanche.org/v2/public/avalanche-center/NWAC', () =>
+        HttpResponse.json({ message: 'nope' }, { status: 500 }),
+      ),
+    )
+    const result = await getAvalancheCenterPlatforms('nwac')
+    expect(result.forecasts).toBe(true)
+    expect(result.nwac_weather).toBe(false)
   })
 })

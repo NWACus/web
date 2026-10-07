@@ -6,6 +6,14 @@ export const avalancheCenterPlatformsSchema = z.object({
   stations: z.boolean(),
   obs: z.boolean(),
   weather: z.boolean(),
+  // Not in the capabilities feed; getAvalancheCenterPlatforms fills it from config.modules.
+  nwac_weather: z.boolean().default(false),
+})
+
+// Platform switches from the AFP dashboard (Settings → Center → Platforms). Absent until saved.
+export const avalancheCenterModulesSchema = z.object({
+  display_id: z.string().optional(),
+  platforms: z.record(z.string(), z.unknown()).optional(),
 })
 export type AvalancheCenterPlatforms = z.infer<typeof avalancheCenterPlatformsSchema>
 
@@ -54,6 +62,7 @@ export const avalancheCenterConfigurationSchema = z.object({
   blog_title: z.string(),
   weather_table: z.array(avalancheCenterWeatherConfigurationSchema),
   zone_order: z.array(z.number()).optional(),
+  modules: avalancheCenterModulesSchema.nullable().optional(),
 })
 
 export enum AvalancheCenterType {
