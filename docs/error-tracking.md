@@ -7,13 +7,17 @@ AvyWeb uses **Sentry** for error tracking and **PostHog** for product analytics.
 Shared options live in [`sentry-base-config.ts`](../sentry-base-config.ts), imported by every runtime so config stays in one place:
 
 - DSN is hardcoded (the `avy-web` project under the `nwac` org).
-- `enabled: NODE_ENV === 'production'` — inert in dev/test.
+- `enabled: NODE_ENV === 'production'` — inert in dev/test, and also in the mocked E2E build (see below).
 - `tracesSampleRate: 0` — error tracking only, no performance tracing.
 - `environment` comes from `VERCEL_GIT_COMMIT_REF` (falls back to `'local'`), so previews report under their branch name.
 
 Init per runtime: server ([`sentry.server.config.ts`](../sentry.server.config.ts)) and edge ([`sentry.edge.config.ts`](../sentry.edge.config.ts)) are loaded by [`src/instrumentation.ts`](../src/instrumentation.ts) `register()` (which also exports `onRequestError`); the browser inits in [`src/instrumentation-client.ts`](../src/instrumentation-client.ts).
 
 `next.config.js` wraps the build in `withSentryConfig` **only when `NODE_ENV === 'production'**` — `org: 'nwac'`, `project: 'avy-web'`, source-map upload, and `tunnelRoute: '/monitoring'` to route SDK requests past ad blockers. `serverExternalPackages` + a `webpack.ignoreWarnings` entry suppress harmless Sentry/OpenTelemetry import warnings.
+
+One exception: the mocked E2E build (`NEXT_PUBLIC_E2E_MOCK_ROLE`) skips `withSentryConfig` entirely. It is a production build, so it would otherwise report every synthetic failure the suite provokes to the real project — and, more importantly, the SDK's module instrumentation is loaded even when reporting is disabled, and does not co-exist with the E2E harness's MSW preload — the two together produce intermittent 5xx from the Payload API. That is an interaction between the two, not a production problem: a normal production build carries Sentry without the preload and does not reproduce it. See [afp-products/e2e-mocks.md](afp-products/e2e-mocks.md).
+
+The `NEXT_PUBLIC_` prefix on that flag is load-bearing, not habit. `sentry-base-config.ts` is imported by the browser copy of the SDK too ([`src/instrumentation-client.ts`](../src/instrumentation-client.ts)), and Next inlines only `NEXT_PUBLIC_` variables into the client bundle — an unprefixed flag reads as `undefined` there, leaving `enabled` true and the browser SDK reporting from the E2E run. The same mechanism is why `environment` is always `'local'` client-side.
 
 Because the SDK keys off production, it won't report from `pnpm dev`; run a local prod build (`pnpm dev:prod`) to exercise it.
 

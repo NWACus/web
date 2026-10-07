@@ -99,7 +99,7 @@ The MCP plugin is configured in every environment so you can create MCP server c
 
 The MCP server returns instructions to clients during initialization that describe:
 
-- The multi-tenant data model (tenant-scoped content belongs to a tenant; the exceptions are courses, which belong to a provider, providers, which are global with globally unique slugs, and sharedMedia, which is Shared Content usable by every center)
+- The multi-tenant data model (tenant-scoped content belongs to a tenant; the exceptions are courses, which belong to a provider, providers, which are global with globally unique slugs, and sharedMedia and glossaryTerms, which are Shared Content usable by every center)
 - How to discover tenants via `findTenants`
 - Common query patterns (filtering by tenant, sorting, selecting fields)
 - Available where clause operators
