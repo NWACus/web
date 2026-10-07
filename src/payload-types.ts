@@ -3191,7 +3191,7 @@ export interface Setting {
      */
     dangerMap?: boolean | null;
     /**
-     * Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC — and, together with the forecast flag, the forecast archive’s Mountain Weather tab. Centers without one have neither the page nor the tab either way.
+     * Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC — and, together with the forecast flag, the forecast archive’s Mountain Weather tab. Centers without one have neither the page nor the tab either way. For NWAC, it turns on the Mountain Weather Forecast page NWAC authors itself.
      */
     weather?: boolean | null;
     /**

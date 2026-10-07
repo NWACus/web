@@ -33,6 +33,11 @@ jest.mock('../../src/services/nac/nac', () => ({
   nwacWeatherCacheTag: 'nwac-weather',
 }))
 
+const mockGetNativeProductFlag = jest.fn()
+jest.mock('../../src/utilities/getNativeProductFlag', () => ({
+  getNativeProductFlag: (...a: unknown[]) => mockGetNativeProductFlag(...a),
+}))
+
 // Import the handler after the mocks are registered (jest hoists the mocks above imports).
 import { GET } from '@/app/api/[center]/nwac-weather-freshness/[fingerprint]/route'
 
@@ -66,6 +71,8 @@ beforeEach(() => {
   mockReportIndeterminate.mockClear()
   mockGetLatestFresh.mockReset()
   mockGetLatest.mockReset()
+  mockGetNativeProductFlag.mockReset()
+  mockGetNativeProductFlag.mockResolvedValue(true)
   mockGetAvalancheCenterMetadata.mockReset()
   mockGetAvalancheCenterMetadata.mockResolvedValue({ timezone: 'America/Los_Angeles' })
 })
@@ -75,6 +82,17 @@ afterEach(() => {
 })
 
 describe('nwac-weather-freshness route', () => {
+  it('404s without asking upstream when NWAC has native weather off', async () => {
+    mockGetNativeProductFlag.mockResolvedValue(false)
+
+    const res = await answer(await check(etag))
+
+    expect(res.status).toBe(404)
+    expect(res.cacheControl).toBe('no-store')
+    expect(mockGetNativeProductFlag).toHaveBeenCalledWith('nwac', 'weather')
+    expect(mockGetLatestFresh).not.toHaveBeenCalled()
+  })
+
   it('reports no change, cacheably, when the viewer already has today’s forecast', async () => {
     upstreamAndCacheHold()
 

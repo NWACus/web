@@ -73,7 +73,7 @@ Four independent controls decide whether a reader sees a native page, and where 
 | 3   | **`platforms.*`** — capability  | AFP   | Center metadata    | per center × per capability                    |
 | 4   | **`widget_config.mwf.enabled`** | AFP   | Center metadata    | per center                                     |
 
-They compose in that order. A product renders natively only when the AFP says the center has the capability **and** our rollout flag is on; the data source then decides which backend answers. NWAC's Mountain Weather Forecast is the one exception to both, below.
+They compose in that order. A product renders natively only when the AFP says the center has the capability **and** our rollout flag is on; the data source then decides which backend answers. NWAC's Mountain Weather Forecast is the one exception to the capability check, below.
 
 ### 1. Rollout — a Payload setting
 
@@ -81,9 +81,9 @@ They compose in that order. A product renders natively only when the AFP says th
 
 > When enabled, these products render natively as Next.js pages on this site's design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback. Only super admins can change these.
 
-Per-product rather than one switch, so a center can run a native forecast while its observations stay on the widget. NWAC's own Mountain Weather Forecast has no flag: it never had a widget to fall back to, so it renders for NWAC whatever Settings says, and the `weather` checkbox (the NAC weather product, which NWAC does not publish) does not apply to it. Reverting is a checkbox rather than a deploy. Until the native products are approved for release, the flags are super-admin-only: center admins see them read-only (field-level `access` via `hasSuperAdminPermissions`), and turning one on asks the super admin to type the center's name (`NativeProductCheckbox`), while turning one off stays a single click.
+Per-product rather than one switch, so a center can run a native forecast while its observations stay on the widget. NWAC's own Mountain Weather Forecast reuses the `weather` checkbox: NWAC publishes no NAC weather product, so on NWAC that flag means only this page. Off, the page has no widget to fall back to, so it 404s, as it does on `main`. Reverting is a checkbox rather than a deploy. Until the native products are approved for release, the flags are super-admin-only: center admins see them read-only (field-level `access` via `hasSuperAdminPermissions`), and turning one on asks the super admin to type the center's name (`NativeProductCheckbox`), while turning one off stays a single click.
 
-The flag gates more than which renderer a page picks. Each product's own endpoints check it too and answer 404 for a center that has the product off: the `danger-map`, `station-map` and `forecast-archive` API routes, the three freshness routes, and the station detail page with its CSV route. So merging native code adds no reachable surface until a flag is on — except NWAC's Mountain Weather page (`/weather/forecast` and its dated pages) and its `nwac-weather-freshness` and `nwac-weather-dates` routes, which have no flag and are live for NWAC as soon as they merge. `getNativeProductFlag` reads Settings once per center per render (React `cache()`), however many products and components ask.
+The flag gates more than which renderer a page picks. Each product's own endpoints check it too and answer 404 for a center that has the product off: the `danger-map`, `station-map` and `forecast-archive` API routes, the three freshness routes, and the station detail page with its CSV route. So merging native code adds no reachable surface until a flag is on. NWAC's Mountain Weather page (`/weather/forecast` and its dated pages) and its `nwac-weather-freshness` and `nwac-weather-dates` routes check NWAC's `weather` flag the same way. `getNativeProductFlag` reads Settings once per center per render (React `cache()`), however many products and components ask.
 
 ### 2. Data source — code and env, never a setting
 

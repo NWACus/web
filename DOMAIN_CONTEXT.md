@@ -185,6 +185,6 @@ A per-center boolean from the NAC capability feed — `forecasts`, `warnings`, `
 _Note_: NWAC's `weather` is `false` — NWAC authors mountain weather in its own system rather than in AFP.
 
 **Mountain Weather Forecast (MWF)**:
-NWAC's in-house mountain weather product, migrating out of a legacy app into the AFP's `products-api`. Served exclusively by dedicated `/mwf/*` endpoints, so unlike every other Product it has no legacy v2 equivalent to fall back to — "default to v2" is a per-Product default, not an invariant. Not consumed by AvyWeb yet.
+NWAC's in-house mountain weather product, migrating out of a legacy app into the AFP's `products-api`. Served exclusively by dedicated `/mwf/*` endpoints, so unlike every other Product it has no legacy v2 equivalent to fall back to — "default to v2" is a per-Product default, not an invariant. AvyWeb renders it natively for NWAC behind NWAC's `weather` Rollout flag, which otherwise has nothing to gate there.
 _Contrast_: the traditional weather product, which other centers author in AFP and which a forecast points at via `weather_data.weather_product_id`. MWF has no such pointer — its morning and afternoon forecasts derive from center plus service date.
 _Note_: MWF stores an object-shaped variant envelope in `weather_data` that v3 excludes from generic product reads but legacy v2 does not, so weather shape detection must degrade rather than throw.

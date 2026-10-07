@@ -4,7 +4,8 @@ import { parseDateWindow } from '@/services/nac/archiveDates'
 import { todayInTimezone } from '@/services/nac/forecastArchive'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { getNWACWeatherSource } from '@/services/nac/sources'
-import { unknownCenterResponse } from '@/utilities/apiResponses'
+import { productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
@@ -19,6 +20,7 @@ export async function GET(
 ) {
   const { center } = await params
   if (center !== 'nwac') return unknownCenterResponse()
+  if (!(await getNativeProductFlag(center, 'weather'))) return productDisabledResponse()
 
   const query = request.nextUrl.searchParams
   const window = parseDateWindow(query.get('from'), query.get('to'))

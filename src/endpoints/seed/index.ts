@@ -106,7 +106,7 @@ const nativeProductsByTenant: Record<
   }
 > = {
   snfac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
-  nwac: { forecast: true, warning: true, dangerMap: true, weather: false, stationMap: true },
+  nwac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
   sac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: true },
 }
 

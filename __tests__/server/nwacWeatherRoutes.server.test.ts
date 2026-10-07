@@ -1,6 +1,6 @@
 /**
- * The dated NWAC Mountain Weather route refuses another center, and a date that is not a day,
- * before rendering anything.
+ * The dated NWAC Mountain Weather route refuses another center, a date that is not a day, and
+ * NWAC with its `weather` flag off, before rendering anything.
  */
 // `notFound()` throws in Next; here it throws a recognisable error instead.
 jest.mock('next/navigation', () => ({
@@ -13,10 +13,20 @@ jest.mock('next/navigation', () => ({
 jest.mock('../../src/components/NWACWeather/ForecastPage', () => ({ ForecastPage: () => null }))
 jest.mock('../../src/components/Breadcrumbs/Breadcrumbs', () => ({ Breadcrumbs: () => null }))
 
+const mockGetNativeProductFlag = jest.fn()
+jest.mock('../../src/utilities/getNativeProductFlag', () => ({
+  getNativeProductFlag: (...a: unknown[]) => mockGetNativeProductFlag(...a),
+}))
+
 import DatedPage from '@/app/(frontend)/[center]/weather/forecast/[date]/page'
 
 const dated = (center: string, date: string) =>
   DatedPage({ params: Promise.resolve({ center, date }) })
+
+beforeEach(() => {
+  mockGetNativeProductFlag.mockReset()
+  mockGetNativeProductFlag.mockResolvedValue(true)
+})
 
 describe('NWAC Mountain Weather dated route', () => {
   it('renders for NWAC on a real day', async () => {
@@ -27,5 +37,12 @@ describe('NWAC Mountain Weather dated route', () => {
     await expect(dated('snfac', '2026-09-30')).rejects.toThrow('NEXT_NOT_FOUND')
     await expect(dated('nwac', '2026-13-45')).rejects.toThrow('NEXT_NOT_FOUND')
     await expect(dated('nwac', 'yesterday')).rejects.toThrow('NEXT_NOT_FOUND')
+  })
+
+  it('is not found for NWAC with native weather off', async () => {
+    mockGetNativeProductFlag.mockResolvedValue(false)
+
+    await expect(dated('nwac', '2026-09-30')).rejects.toThrow('NEXT_NOT_FOUND')
+    expect(mockGetNativeProductFlag).toHaveBeenCalledWith('nwac', 'weather')
   })
 })

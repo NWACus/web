@@ -6,7 +6,7 @@ import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 import { getAvalancheCenterMetadata, nwacWeatherCacheTag } from '@/services/nac/nac'
 import { currentNWACWeatherDay } from '@/services/nac/nwacWeatherCurrent'
 import { getNWACWeatherSource } from '@/services/nac/sources'
-import { unknownCenterResponse } from '@/utilities/apiResponses'
+import { productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
 import {
   changedResponse,
   indeterminateResponse,
@@ -15,6 +15,7 @@ import {
   unchangedResponse,
 } from '@/utilities/freshnessResponses'
 import { reportIndeterminate } from '@/utilities/freshnessTelemetry'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { revalidateTag } from 'next/cache'
 
 // Keeps each answer's own `Cache-Control` reaching the CDN, as on the sibling freshness routes.
@@ -61,6 +62,7 @@ export async function GET(
 
   if (!isFingerprint(fingerprint)) return malformedFingerprintResponse()
   if (center !== 'nwac') return unknownCenterResponse()
+  if (!(await getNativeProductFlag(center, 'weather'))) return productDisabledResponse()
 
   const current = await readCurrent(center)
   if (!current) {
