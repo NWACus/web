@@ -25,6 +25,7 @@
   .stations-table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: calc(var(--base) * 0.5);
     margin-bottom: calc(var(--base) * 0.5);
 
     th,
