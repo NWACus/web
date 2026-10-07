@@ -1785,7 +1785,7 @@ export interface VideoEmbedBlock {
   blockType: 'videoEmbed';
 }
 /**
- * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.
+ * A station page is the public page at /weather/stations/<slug> for one site, such as a ski area with summit, mid and base loggers. It groups SnowObs stations into a table, graphs and CSV download; the table columns follow what those stations report unless the page chooses its own.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "stationPages".
