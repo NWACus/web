@@ -1823,7 +1823,7 @@ export interface StationPage {
       )[]
     | null;
   /**
-   * Which views the page shows. A hidden tab falls back to the first shown one.
+   * Which views the page shows. An archived page shows only Download.
    */
   tabs?: {
     table?: boolean | null;

@@ -74,9 +74,7 @@ export const StationPages: CollectionConfig = {
       label: 'Tabs',
       admin: {
         position: 'sidebar',
-        description: 'Which views the page shows. A hidden tab falls back to the first shown one.',
-        // An archived page shows only Download, whatever these say.
-        condition: (data) => !data?.archived,
+        description: 'Which views the page shows. An archived page shows only Download.',
       },
       fields: stationTabFields,
     },

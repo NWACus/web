@@ -49,5 +49,13 @@ export const stationTabFields: CheckboxField[] = STATION_TABS.map((tab) => ({
   label: tab.label,
   defaultValue: true,
   validate: atLeastOneTab,
-  admin: { components: { Field: '@/components/ToggleField#ToggleField' } },
+  admin: {
+    components: {
+      Field: {
+        path: '@/components/ToggleField#ToggleField',
+        // A retired station reports nothing, so an archived page offers only Download.
+        clientProps: { lockedBy: { field: 'archived', value: tab.key === 'csv' } },
+      },
+    },
+  },
 }))
