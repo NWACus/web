@@ -6,6 +6,7 @@ import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import ObservationsDisclaimer from '@/components/ObservationsDisclaimer'
 import type { ObservationsWidgetBlock as ObservationsWidgetBlockProps } from '@/payload-types'
+import { useAvalancheCenter } from '@/providers/AvalancheCenterProvider'
 import { useTenant } from '@/providers/TenantProvider'
 import { cn } from '@/utilities/ui'
 import * as Sentry from '@sentry/nextjs'
@@ -27,13 +28,10 @@ function Header({ heading }: { heading?: string | null }) {
   )
 }
 
-export const ObservationsWidgetBlockComponent = ({
-  showHeader,
-  heading,
-  isLayoutBlock = true,
-  ...filters
-}: Props) => {
+// The center to show observations for, or null when it has none to show
+function useObservationsCenter(): string | null {
   const { tenant } = useTenant()
+  const { platforms } = useAvalancheCenter()
 
   const center = typeof tenant === 'object' && tenant !== null ? tenant.slug : null
 
@@ -41,6 +39,20 @@ export const ObservationsWidgetBlockComponent = ({
     Sentry.captureException('ObservationsWidgetBlock: center not defined')
     return null
   }
+
+  // Without the observations platform, /observations and the widget's links into it 404
+  return platforms?.obs ? center : null
+}
+
+export const ObservationsWidgetBlockComponent = ({
+  showHeader,
+  heading,
+  isLayoutBlock = true,
+  ...filters
+}: Props) => {
+  const center = useObservationsCenter()
+
+  if (!center) return null
 
   return (
     <div className={cn('flex flex-col gap-4', { 'py-4': isLayoutBlock })}>

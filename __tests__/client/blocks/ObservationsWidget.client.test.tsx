@@ -10,6 +10,12 @@ jest.mock('../../../src/providers/TenantProvider', () => ({
   useTenant: () => ({ tenant: mockTenant }),
 }))
 
+let mockPlatforms: { obs: boolean } | null = { obs: true }
+
+jest.mock('../../../src/providers/AvalancheCenterProvider', () => ({
+  useAvalancheCenter: () => ({ platforms: mockPlatforms, metadata: null }),
+}))
+
 jest.mock('../../../src/utilities/useAnalytics', () => ({
   useAnalytics: () => ({ captureWithTenant: jest.fn() }),
 }))
@@ -42,6 +48,7 @@ const renderBlock = (props: Partial<ObservationsWidgetBlock> = {}) =>
 describe('ObservationsWidgetBlockComponent', () => {
   afterEach(() => {
     mockTenant = { slug: 'ewyaix' }
+    mockPlatforms = { obs: true }
     delete window.obsWidgetData
     window.history.replaceState(null, '', '/')
   })
@@ -86,6 +93,13 @@ describe('ObservationsWidgetBlockComponent', () => {
     renderBlock({ tab: 'avalanches', zones: ['Mt Hood'] })
 
     expect(window.location.hash).toBe('#/view/observations?zone=%5B%22Olympics%22%5D')
+  })
+
+  it('renders nothing for a center without the observations platform', () => {
+    mockPlatforms = { obs: false }
+    const { container } = renderBlock()
+
+    expect(container).toBeEmptyDOMElement()
   })
 
   it('renders nothing without a tenant', () => {
