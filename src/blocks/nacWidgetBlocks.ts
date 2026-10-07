@@ -26,7 +26,7 @@ function blockTypeOf(block: unknown): unknown {
 export const validateLayoutBlocks: BlocksFieldValidation = (value, args) => {
   if (Array.isArray(value)) {
     const error = repeatedNACWidgetBlockError(value.map(blockTypeOf))
-    if (error) throw Error(error)
+    if (error) return error
   }
   return blocks(value, args)
 }
@@ -41,6 +41,6 @@ export function lexicalBlockTypes(node: unknown): unknown[] {
 
 export const validateRichTextBlocks: RichTextFieldValidation = (value, args) => {
   const error = repeatedNACWidgetBlockError(lexicalBlockTypes(value))
-  if (error) throw Error(error)
+  if (error) return error
   return richText(value, args)
 }

@@ -95,8 +95,17 @@ describe('validateRichTextBlocks', () => {
         children: [blockNode('observationsWidget'), blockNode('observationsWidget')],
       },
     }
-    // Throws before reaching the editor's own validation, so no editor args are needed
-    expect(() => validateRichTextBlocks(editorState, Object.create(null))).toThrow(
+    // Returns before reaching the editor's own validation, so no editor args are needed
+    expect(validateRichTextBlocks(editorState, Object.create(null))).toBe(
+      'Only one Observations Widget is allowed per page',
+    )
+  })
+})
+
+describe('validateLayoutBlocks', () => {
+  it('rejects a second observations widget before the default blocks validation', () => {
+    const layout = [{ blockType: 'observationsWidget' }, { blockType: 'observationsWidget' }]
+    expect(validateLayoutBlocks(layout, Object.create(null))).toBe(
       'Only one Observations Widget is allowed per page',
     )
   })
