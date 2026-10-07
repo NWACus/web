@@ -31,7 +31,7 @@ export const StationPages: CollectionConfig = {
     defaultColumns: ['displayName', 'slug', 'archived'],
     useAsTitle: 'displayName',
     description:
-      'A station page is the public page at /weather/stations/<slug> for one site, such as a ski area with summit, mid and base loggers. It groups SnowObs stations into a table, graphs and CSV download; the table columns follow what those stations report unless the page chooses its own.',
+      'A public weather page for a group of SnowObs stations as a table, graphs and CSV download.',
   },
   defaultSort: 'displayName',
   endpoints: [{ path: '/tracked-stations', method: 'get', handler: trackedStations }],

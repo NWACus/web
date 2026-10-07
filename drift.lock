@@ -453,7 +453,7 @@ sig = "8364b5c2c9c54525"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/index.ts"
-sig = "8961738012af1bd7"
+sig = "283103ddc14fc6a0"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
