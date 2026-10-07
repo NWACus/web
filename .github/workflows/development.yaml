@@ -80,12 +80,34 @@ jobs:
         run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --no-sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Variables into .env file
         run: vercel env pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }} .env
+      - name: Snapshot database before migrations
+        # Warn-only: the diff reports what migrations changed but never blocks the deploy.
+        continue-on-error: true
+        run: pnpm db:diff before "${RUNNER_TEMP}/db-diff"
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
       - name: Run database migrations
         run: pnpm migrate
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Diff database after migrations
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: pnpm db:diff after "${RUNNER_TEMP}/db-diff"
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+      - name: Upload database diff report
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-diff-report
+          path: ${{ runner.temp }}/db-diff/report.*
+          if-no-files-found: ignore
       - name: Sanitize database
         id: sanitize
         run: pnpm sanitize
