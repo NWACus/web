@@ -13,7 +13,8 @@ import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import { resolveColumns } from '@/services/snowobs/deriveColumns'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { stationKey } from '@/services/snowobs/stationKey'
-import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
+import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
+import { buildStationTable, stationNotes, stationSummaries } from '@/services/snowobs/tableHelpers'
 import type { AssembledStationPage, StationPageSummary } from '@/services/stations/getStationPages'
 import {
   allStationPageParams,
@@ -36,13 +37,20 @@ export async function generateStaticParams() {
   return allStationPageParams()
 }
 
-// Notes ride with the station metadata, so a 1-hour window is enough.
-async function loadStationNotes(center: string, page: AssembledStationPage) {
+// Notes and the header's station list ride with the station metadata, so a
+// 1-hour window is enough.
+async function loadStationMeta(
+  center: string,
+  page: AssembledStationPage,
+): Promise<{ notes: StationNote[]; stations: StationSummary[] }> {
   const meta = await fetchStationTimeseries(center, page.stations, {
     revalidate: METADATA_REVALIDATE,
     windowHours: 1,
   })
-  return stationNotes(meta.STATION)
+  return {
+    notes: stationNotes(meta.STATION),
+    stations: stationSummaries(page.stations, meta.STATION),
+  }
 }
 
 // A 1-hour window: only the station metadata is needed.
@@ -165,13 +173,13 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   const timeZone = centerTimezone(center)
-  const [view, notes] = await Promise.all([
+  const [view, { notes, stations }] = await Promise.all([
     resolveTabView(
       { center, page, pages: toPageSummaries(pages), timeZone },
       rangeParam,
       periodParam,
     ),
-    loadStationNotes(center, page),
+    loadStationMeta(center, page),
   ])
 
   return (
@@ -186,6 +194,7 @@ export default async function Page({ params, searchParams }: Args) {
         page={page}
         pages={toPageSummaries(pages)}
         notes={notes}
+        stations={stations}
         timeZone={timeZone}
         tabContent={view.tabContent}
       />

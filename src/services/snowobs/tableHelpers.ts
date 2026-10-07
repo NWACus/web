@@ -86,6 +86,25 @@ export type StationNote = {
 
 // Active notes first, then newest first; undated notes keep their SnowObs order.
 // A note whose end date has passed is over, whatever its status says.
+export type StationSummary = { key: string; name: string; elevation: number | null }
+
+// A page's stations in its own order, named from the response; a station
+// SnowObs didn't return falls back to its stid.
+export function stationSummaries(
+  refs: StationRef[],
+  stations: ResponseStation[],
+): StationSummary[] {
+  const byKey = new Map(stations.map((s) => [stationKey(s), s]))
+  return refs.map((ref) => {
+    const found = byKey.get(stationKey(ref))
+    return {
+      key: stationKey(ref),
+      name: found?.name ?? ref.stid,
+      elevation: found?.elevation ?? null,
+    }
+  })
+}
+
 export function stationNotes(stations: ResponseStation[], now = new Date()): StationNote[] {
   return stations
     .flatMap((station) =>

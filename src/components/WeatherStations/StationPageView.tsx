@@ -1,6 +1,6 @@
 import { StationNotes } from '@/components/WeatherStations/StationNotes'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
-import type { StationNote } from '@/services/snowobs/tableHelpers'
+import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
 import type { AssembledStationPage, StationPageSummary } from '@/services/stations/getStationPages'
 import { TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -9,8 +9,31 @@ type StationPageViewProps = {
   page: AssembledStationPage
   pages: StationPageSummary[]
   notes: StationNote[]
+  stations: StationSummary[]
   timeZone: string
   tabContent?: ReactNode
+}
+
+function StationList({ stations }: { stations: StationSummary[] }) {
+  return (
+    <ul className="container flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+      {stations.map((station, index) => (
+        <li key={station.key} className="inline-flex items-center gap-2">
+          {index > 0 && (
+            <span aria-hidden="true" className="text-muted-foreground">
+              ·
+            </span>
+          )}
+          <span className="font-medium text-foreground">{station.name}</span>
+          {station.elevation !== null && (
+            <span className="text-muted-foreground">
+              {Math.round(station.elevation).toLocaleString()}&apos;
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
+  )
 }
 
 function StationHeader({
@@ -56,12 +79,16 @@ export function StationPageView({
   page,
   pages,
   notes,
+  stations,
   timeZone,
   tabContent,
 }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
-      <StationHeader page={page} pages={pages} />
+      <div className="flex flex-col gap-2">
+        <StationHeader page={page} pages={pages} />
+        <StationList stations={stations} />
+      </div>
       {page.archived && <ArchivedNotice />}
       {notes.length > 0 && (
         <div className="container">
