@@ -157,6 +157,11 @@ sig = "2f6941731c97ccaa"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/[center]/forecasts/avalanche/[zone]/page.tsx"
+sig = "cb32b2b374c73a00"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/danger-over-time/page.tsx"
 sig = "61e457747c70fff3"
 
@@ -174,6 +179,16 @@ sig = "e7eda4c3acb85829"
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/page.tsx"
 sig = "179550e45d6f965c"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/[center]/forecasts/avalanche/page.tsx"
+sig = "a03f04eb361a053c"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/[center]/weather/forecast/page.tsx"
+sig = "324a6c8df33ad97c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

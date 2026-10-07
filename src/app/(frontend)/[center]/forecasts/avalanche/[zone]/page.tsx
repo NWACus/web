@@ -16,10 +16,9 @@ import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { notFound } from 'next/navigation'
 
-// Short ISR backstop (5 min) so a forecast is never frozen at build time and the og:description
-// travel advice in shared link previews stays current with the daily forecast. The per-view
-// revalidate-on-view path (ForecastFreshness) catches corrections/retractions faster than this.
-export const revalidate = 300
+// `main`'s 30 min for the widget. A native render reads the forecast through a 300s fetch, which
+// lowers this render's window to 5 min; see "Rebuild cadence" in docs/afp-products/architecture.md.
+export const revalidate = 1800
 
 /**
  * On-demand for a zone that is not in `generateStaticParams`, which is what the dated route below

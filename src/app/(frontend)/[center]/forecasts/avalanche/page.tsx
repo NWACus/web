@@ -12,9 +12,9 @@ import {
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { ZoneLinkHijacker } from './ZoneLinkHijacker.client'
 
-// Short ISR backstop (5 min) instead of force-static: bare force-static freezes the all-zones
-// grid (per-zone danger + bottom line) at build time, which is unsafe for a daily forecast.
-export const revalidate = 300
+// Static for the widget, as on `main`. The native grid reads each forecast through a 300s fetch,
+// which lowers its render's window to 5 min; see "Rebuild cadence" in docs/afp-products/architecture.md.
+export const revalidate = false
 
 export const generateStaticParams = centerStaticParams
 

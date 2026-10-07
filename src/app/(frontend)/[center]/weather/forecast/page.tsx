@@ -14,10 +14,10 @@ import {
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { notFound } from 'next/navigation'
 
-// Short ISR backstop (5 min), matching the forecast routes: the native page renders the current
-// weather product, so it must not be frozen at build time. The revalidate-on-view path catches a
-// correction faster than this.
-export const revalidate = 300
+// Static for the widget, as on `main`. Both native pages read the current product through a 300s
+// fetch, which lowers their render's window to 5 min; see "Rebuild cadence" in
+// docs/afp-products/architecture.md.
+export const revalidate = false
 
 export const generateStaticParams = centerStaticParams
 
