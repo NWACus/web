@@ -103,11 +103,6 @@ async function requestTimeseries(
   )
 }
 
-function isServerError(error: unknown): boolean {
-  const status = error instanceof SnowObsError ? error.context?.status : undefined
-  return typeof status === 'number' && status >= 500
-}
-
 function mergeTimeseries(responses: SnowObsTimeseriesResponse[]): SnowObsTimeseriesResponse {
   const variables = new Map(responses.flatMap((r) => r.VARIABLES).map((v) => [v.variable, v]))
   return {
@@ -115,25 +110,6 @@ function mergeTimeseries(responses: SnowObsTimeseriesResponse[]): SnowObsTimeser
     VARIABLES: Array.from(variables.values()),
     STATION: responses.flatMap((r) => r.STATION),
   }
-}
-
-// SnowObs fails a whole multi-station request with a 5xx when one station's
-// data trips it up (e.g. KMHS's object-valued sky_condition under raw_data).
-// Retry per station so one bad station drops out instead of blanking the page.
-async function requestEachStation(
-  stations: StationRef[],
-  options: FetchOptions,
-  token: string,
-  original: unknown,
-): Promise<SnowObsTimeseriesResponse> {
-  const results = await Promise.allSettled(
-    stations.map((station) => requestTimeseries([station], options, token)),
-  )
-  const ok = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
-  if (ok.length === 0) throw original
-  const failed = stations.filter((_, i) => results[i].status === 'rejected').map((s) => s.stid)
-  await logSnowObsError(original, failed)
-  return mergeTimeseries(ok)
 }
 
 // Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
@@ -149,8 +125,16 @@ export async function fetchStationTimeseries(
     try {
       return await requestTimeseries(stations, options, token)
     } catch (error) {
-      if (stations.length < 2 || !isServerError(error)) throw error
-      return await requestEachStation(stations, options, token, error)
+      if (stations.length < 2) throw error
+      // SnowObs fails the whole batch when one station's data trips it up
+      // (KMHS under raw_data), so retry each and keep the ones that load.
+      const results = await Promise.allSettled(
+        stations.map((station) => requestTimeseries([station], options, token)),
+      )
+      const loaded = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+      if (loaded.length === 0) throw error
+      await logSnowObsError(error, stids)
+      return mergeTimeseries(loaded)
     }
   } catch (error) {
     await logSnowObsError(error, stids)

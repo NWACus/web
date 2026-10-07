@@ -116,7 +116,7 @@ describe('fetchStationTimeseries', () => {
     await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(/status 500/)
   })
 
-  describe('when a multi-station request fails server-side', () => {
+  describe('when a multi-station request fails', () => {
     const stationResponse = (stid: string): SnowObsTimeseriesResponse => ({
       ...validResponse,
       STATION: [{ ...validResponse.STATION[0], id: stid, stid }],
@@ -156,20 +156,6 @@ describe('fetchStationTimeseries', () => {
       const requested = failOnStation('4')
       await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(/status 500/)
       expect(requested).toEqual(['4'])
-    })
-
-    it('does not retry a 4xx', async () => {
-      const requested: string[] = []
-      server.use(
-        http.get(TIMESERIES_URL, ({ request }) => {
-          requested.push(new URL(request.url).searchParams.get('stid') ?? '')
-          return new HttpResponse(null, { status: 403 })
-        }),
-      )
-      await expect(fetchStationTimeseries('nwac', [ref('1'), ref('2')])).rejects.toThrow(
-        /status 403/,
-      )
-      expect(requested).toEqual(['1,2'])
     })
   })
 
