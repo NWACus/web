@@ -18,7 +18,13 @@ export const generateBlurDataUrl: CollectionBeforeChangeHook<Media> = async ({
     return data
   }
 
-  const buffer = await sharp(req.file.data).resize({ width: 8 }).toFormat('webp').toBuffer()
+  // Since 3.89 client uploads leave `data` empty and put the bytes in a temp file
+  const input = req.file.data.length > 0 ? req.file.data : req.file.tempFilePath
+  if (!input) {
+    return data
+  }
+
+  const buffer = await sharp(input).resize({ width: 8 }).toFormat('webp').toBuffer()
 
   const base64 = buffer.toString('base64')
   data.blurDataUrl = `data:${mimetype};base64,${base64}`
