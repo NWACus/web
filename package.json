@@ -68,7 +68,7 @@
     "@mapbox/search-js-web": "^1.6.0",
     "@open-iframe-resizer/react": "^2.1.0",
     "@payloadcms/admin-bar": "3.88.0",
-    "@payloadcms/db-sqlite": "3.88.0",
+    "@payloadcms/db-sqlite": "3.90.0",
     "@payloadcms/email-nodemailer": "3.88.0",
     "@payloadcms/email-resend": "3.88.0",
     "@payloadcms/next": "3.88.0",
