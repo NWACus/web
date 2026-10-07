@@ -88,6 +88,54 @@ function toSnowObsError(error: unknown, stids: string[]): SnowObsError {
     : new SnowObsError('Failed to fetch SnowObs station timeseries', error, { stids })
 }
 
+async function requestTimeseries(
+  stations: StationRef[],
+  options: FetchOptions,
+  token: string,
+): Promise<SnowObsTimeseriesResponse> {
+  const res = await snowObsFetch(
+    buildTimeseriesUrl(stations, options, token),
+    options.revalidate ? { next: { revalidate: options.revalidate } } : { cache: 'no-store' },
+  )
+  return parseTimeseriesResponse(
+    res,
+    stations.map((s) => s.stid),
+  )
+}
+
+function isServerError(error: unknown): boolean {
+  const status = error instanceof SnowObsError ? error.context?.status : undefined
+  return typeof status === 'number' && status >= 500
+}
+
+function mergeTimeseries(responses: SnowObsTimeseriesResponse[]): SnowObsTimeseriesResponse {
+  const variables = new Map(responses.flatMap((r) => r.VARIABLES).map((v) => [v.variable, v]))
+  return {
+    UNITS: Object.assign({}, ...responses.map((r) => r.UNITS)),
+    VARIABLES: Array.from(variables.values()),
+    STATION: responses.flatMap((r) => r.STATION),
+  }
+}
+
+// SnowObs fails a whole multi-station request with a 5xx when one station's
+// data trips it up (e.g. KMHS's object-valued sky_condition under raw_data).
+// Retry per station so one bad station drops out instead of blanking the page.
+async function requestEachStation(
+  stations: StationRef[],
+  options: FetchOptions,
+  token: string,
+  original: unknown,
+): Promise<SnowObsTimeseriesResponse> {
+  const results = await Promise.allSettled(
+    stations.map((station) => requestTimeseries([station], options, token)),
+  )
+  const ok = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+  if (ok.length === 0) throw original
+  const failed = stations.filter((_, i) => results[i].status === 'rejected').map((s) => s.stid)
+  await logSnowObsError(original, failed)
+  return mergeTimeseries(ok)
+}
+
 // Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
 export async function fetchStationTimeseries(
   centerSlug: string,
@@ -97,12 +145,13 @@ export async function fetchStationTimeseries(
   const stids = stations.map((s) => s.stid)
 
   try {
-    const url = buildTimeseriesUrl(stations, options, await resolveSnowObsToken(centerSlug))
-    const res = await snowObsFetch(
-      url,
-      options.revalidate ? { next: { revalidate: options.revalidate } } : { cache: 'no-store' },
-    )
-    return await parseTimeseriesResponse(res, stids)
+    const token = await resolveSnowObsToken(centerSlug)
+    try {
+      return await requestTimeseries(stations, options, token)
+    } catch (error) {
+      if (stations.length < 2 || !isServerError(error)) throw error
+      return await requestEachStation(stations, options, token, error)
+    }
   } catch (error) {
     await logSnowObsError(error, stids)
     throw toSnowObsError(error, stids)
