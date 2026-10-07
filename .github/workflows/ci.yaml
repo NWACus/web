@@ -74,6 +74,9 @@ jobs:
   prettier:
     name: prettier
     runs-on: blacksmith-2vcpu-ubuntu-2404
+    env:
+      # Placeholder so the blob plugin is enabled and generates the same import map as dev/prod; never used to upload
+      VERCEL_BLOB_READ_WRITE_TOKEN: vercel_blob_rw_ci_placeholder
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v5
