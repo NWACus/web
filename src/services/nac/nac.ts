@@ -161,9 +161,25 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
       stations: false,
       obs: false,
       weather: false,
+      nwac_weather: false,
     }
 
-  return foundAvalancheCenterBySlug.platforms
+  return {
+    ...foundAvalancheCenterBySlug.platforms,
+    nwac_weather: await getNwacWeatherPlatform(centerSlugToUse),
+  }
+}
+
+// The capabilities feed has no nwac_weather flag; it lives on the center record at
+// config.modules.platforms. Only a literal true counts, matching the dashboard and products-api.
+// Missing `modules` (platforms never saved) or a failed fetch reads false.
+async function getNwacWeatherPlatform(centerSlug: string): Promise<boolean> {
+  try {
+    const metadata = await getAvalancheCenterMetadata(centerSlug)
+    return metadata.config?.modules?.platforms?.nwac_weather === true
+  } catch {
+    return false
+  }
 }
 
 export async function getAvalancheCenterMetadata(centerSlug: string) {

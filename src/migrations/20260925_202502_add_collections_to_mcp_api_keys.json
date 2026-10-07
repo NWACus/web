@@ -13911,13 +13911,6 @@
           "autoincrement": false,
           "default": "'local'"
         },
-        "_objectkey": {
-          "name": "_objectkey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
@@ -14368,13 +14361,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'local'"
-        },
-        "_objectkey": {
-          "name": "_objectkey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -18424,13 +18410,6 @@
         },
         "hash": {
           "name": "hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "reset_password_requested_at": {
-          "name": "reset_password_requested_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -24965,13 +24944,6 @@
           "autoincrement": false,
           "default": "'local/shared'"
         },
-        "_objectkey": {
-          "name": "_objectkey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
@@ -26615,6 +26587,70 @@
           "autoincrement": false,
           "default": false
         },
+        "courses_find": {
+          "name": "courses_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "providers_find": {
+          "name": "providers_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "built_in_pages_find": {
+          "name": "built_in_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "galleries_find": {
+          "name": "galleries_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "announcements_find": {
+          "name": "announcements_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "station_pages_find": {
+          "name": "station_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "redirects_find": {
+          "name": "redirects_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "shared_media_find": {
+          "name": "shared_media_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "nac_widgets_config_find": {
           "name": "nac_widgets_config_find",
           "type": "integer",
@@ -27877,6 +27913,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "0da1bf6e-7b58-4373-8188-841167340b9a",
+  "id": "89ca8f1d-8203-4813-a4a4-62b7a79b2abd",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

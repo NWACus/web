@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { ZonedDateTime } from '@/components/ZonedDateTime'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import {
@@ -99,14 +100,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
       color,
       isPast,
       isRegistrationClosed,
-    }
-  }
-
-  // Format date and time with timezone
-  const formatEventDateTime = (dateString: string, tz: string) => {
-    return {
-      date: formatDateTime(dateString, tz, 'MMM d, yyyy'),
-      time: formatDateTime(dateString, tz, 'h:mm a zzz'),
     }
   }
 
@@ -227,7 +220,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
         </TableHeader>
         <TableBody>
           {sortedEvents.map((event) => {
-            const { date, time } = formatEventDateTime(event.startDate, event.startDate_tz)
             const status = getStatus(event)
             const { isPast, isRegistrationClosed } = status
             const isExpanded = expandedRows.has(String(event.id))
@@ -249,8 +241,16 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   </TableCell>
                   <TableCell className="text-sm px-1 @sm:px-2">
                     <div>
-                      <div className="font-medium">{date}</div>
-                      <div className="text-gray-500 text-xs">{time}</div>
+                      <div className="font-medium">
+                        {formatDateTime(event.startDate, event.startDate_tz, 'MMM d, yyyy')}
+                      </div>
+                      <div className="text-gray-500 text-xs">
+                        <ZonedDateTime
+                          dateTime={event.startDate}
+                          timeZone={event.startDate_tz}
+                          format="h:mm a"
+                        />
+                      </div>
                     </div>
                   </TableCell>
 
