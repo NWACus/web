@@ -31,6 +31,13 @@ export const StationPages: CollectionConfig = {
     group: 'Content',
     defaultColumns: ['displayName', 'slug', 'archived'],
     useAsTitle: 'displayName',
+    components: {
+      edit: {
+        beforeDocumentControls: [
+          '@/collections/StationPages/components/ViewStationPageButton#ViewStationPageButton',
+        ],
+      },
+    },
     description:
       'A public weather page for a group of SnowObs stations as a table, graphs and CSV download.',
   },
