@@ -13,7 +13,6 @@ import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import { resolveColumns } from '@/services/snowobs/deriveColumns'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { stationKey } from '@/services/snowobs/stationKey'
-import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
 import type { AssembledStationPage, StationPageSummary } from '@/services/stations/getStationPages'
 import {
@@ -71,7 +70,6 @@ function csvYears(): number[] {
 }
 
 type TabView = {
-  table: StationTable | null
   tabContent?: ReactNode
 }
 
@@ -85,7 +83,6 @@ type TabContext = {
 
 async function csvTabView({ center, page }: TabContext): Promise<TabView> {
   return {
-    table: null,
     tabContent: (
       <>
         <StationViewBar>
@@ -103,7 +100,6 @@ async function csvTabView({ center, page }: TabContext): Promise<TabView> {
 
 function graphsTabView({ page, pages, timeZone }: TabContext): TabView {
   return {
-    table: null,
     tabContent: (
       <StationGraphs
         stations={page.stations}
@@ -125,7 +121,6 @@ async function tableTabView({ center, page, timeZone, periodParam }: TabContext)
   })
   const table = buildStationTable(center, response, resolveColumns(response, page))
   return {
-    table,
     tabContent: (
       <StationTableView
         table={table}
@@ -190,7 +185,6 @@ export default async function Page({ params, searchParams }: Args) {
       <StationPageView
         page={page}
         pages={toPageSummaries(pages)}
-        table={view.table}
         notes={notes}
         timeZone={timeZone}
         tabContent={view.tabContent}

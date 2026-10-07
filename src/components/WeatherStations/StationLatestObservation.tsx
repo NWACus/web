@@ -9,7 +9,7 @@ export function StationLatestObservation({ table }: { table: StationTable }) {
     table.latestObservation !== null && Date.now() - table.latestObservation > STALE_THRESHOLD_MS
 
   return (
-    <div className="mb-1 text-xs text-muted-foreground">
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
       {latest ? (
         <span>
           Latest observation {latest.display}

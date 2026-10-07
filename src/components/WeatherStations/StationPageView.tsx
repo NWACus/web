@@ -1,7 +1,6 @@
-import { StationLatestObservation } from '@/components/WeatherStations/StationLatestObservation'
 import { StationNotes } from '@/components/WeatherStations/StationNotes'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
-import type { StationNote, StationTable } from '@/services/snowobs/tableHelpers'
+import type { StationNote } from '@/services/snowobs/tableHelpers'
 import type { AssembledStationPage, StationPageSummary } from '@/services/stations/getStationPages'
 import { TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -9,7 +8,6 @@ import type { ReactNode } from 'react'
 type StationPageViewProps = {
   page: AssembledStationPage
   pages: StationPageSummary[]
-  table: StationTable | null
   notes: StationNote[]
   timeZone: string
   tabContent?: ReactNode
@@ -18,11 +16,9 @@ type StationPageViewProps = {
 function StationHeader({
   page,
   pages,
-  table,
 }: {
   page: AssembledStationPage
   pages: StationPageSummary[]
-  table: StationTable | null
 }) {
   return (
     <div className="container flex flex-wrap items-end justify-between gap-3">
@@ -32,7 +28,6 @@ function StationHeader({
         </div>
       </div>
       <div className="flex flex-col items-end gap-1">
-        {table && <StationLatestObservation table={table} />}
         <StationPicker pages={pages} current={page.slug} />
       </div>
     </div>
@@ -60,14 +55,13 @@ function ArchivedNotice() {
 export function StationPageView({
   page,
   pages,
-  table,
   notes,
   timeZone,
   tabContent,
 }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
-      <StationHeader page={page} pages={pages} table={table} />
+      <StationHeader page={page} pages={pages} />
       {page.archived && <ArchivedNotice />}
       {notes.length > 0 && (
         <div className="container">
