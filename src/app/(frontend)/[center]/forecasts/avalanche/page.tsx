@@ -1,85 +1,58 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-
-import { NACWidget } from '@/components/NACWidget'
-import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { notFound } from 'next/navigation'
+import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
+import { AllZonesForecast } from '@/components/forecast/AllZonesForecast'
+import {
+  assertCenterPlatform,
+  centerRouteMetadata,
+  centerStaticParams,
+  type CenterRouteArgs,
+} from '@/utilities/centerRoutePage'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { ZoneLinkHijacker } from './ZoneLinkHijacker.client'
 
-export const dynamic = 'force-static'
+// Static for the widget, as on `main`. The native grid reads each forecast through a 300s fetch,
+// which lowers its render's window to 5 min; see "Rebuild cadence" in docs/afp-products/architecture.md.
+export const revalidate = false
 
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
-    collection: 'tenants',
-    limit: 1000,
-    select: {
-      slug: true,
-    },
-  })
+export const generateStaticParams = centerStaticParams
 
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
-}
-
-type Args = {
-  params: Promise<PathArgs>
-}
-
-type PathArgs = {
-  center: string
-}
-
-export default async function Page({ params }: Args) {
+export default async function Page({ params }: CenterRouteArgs) {
   const { center } = await params
 
-  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
+  await assertCenterPlatform(center, 'forecasts')
 
-  if (!avalancheCenterPlatforms.forecasts) {
-    notFound()
+  const useNative = await getNativeProductFlag(center, 'forecast')
+
+  if (useNative) {
+    return (
+      <>
+        <Breadcrumbs center={center} path="/forecasts/avalanche" />
+        <AllZonesForecast centerSlug={center} />
+      </>
+    )
   }
 
   return (
-    <>
-      <WidgetRouterHandler initialPath="/all/" widgetPageKey="forecasts" />
+    <ForecastWidget center={center} initialPath="/all/" widgetPageKey="forecasts">
       <ZoneLinkHijacker />
       <Breadcrumbs center={center} path="/forecasts/avalanche" />
-      <div className="container flex flex-col">
-        <NACWidget center={center} widget="forecast" />
-      </div>
-    </>
+    </ForecastWidget>
   )
 }
 
 export async function generateMetadata(
-  props: Args,
+  props: CenterRouteArgs,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const { center } = await props.params
-  const parentMeta = await parent
 
-  const parentTitle =
-    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
-      ? parentMeta.title.absolute
-      : parentMeta.title
-
-  const parentOg = parentMeta.openGraph
-
-  return {
-    title: `Forecasts | ${parentTitle}`,
-    alternates: {
-      canonical: '/forecasts/avalanche',
-    },
-    openGraph: {
-      ...parentOg,
-      title: `Forecasts | ${parentTitle}`,
-      url: '/forecasts/avalanche',
-      images: [
-        { url: `/api/${center}/og?routeTitle=Avalanche%20Forecast`, width: 1200, height: 630 },
-      ],
-    },
-  }
+  return centerRouteMetadata({
+    parent,
+    label: 'Forecasts',
+    path: '/forecasts/avalanche',
+    center,
+    ogRouteTitle: 'Avalanche Forecast',
+  })
 }

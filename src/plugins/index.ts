@@ -117,6 +117,7 @@ export const plugins: Plugin[] = [
           '- Filter by tenant using where clauses like {"tenant": {"equals": <tenantId>}}.',
           '- Exception: courses and providers (A3) have no tenant. Each course belongs to a provider, so filter courses with {"provider": {"equals": <providerId>}}. Providers are global and their slugs are globally unique.',
           '- Exception: sharedMedia has no tenant. It is Shared Content, usable by every center; per-center images live in media.',
+          '- Exception: glossaryTerms has no tenant. It is Shared Content: the national avalanche term list behind the forecast glossary tooltips.',
           '- Use depth parameter to control relationship population (0 = IDs only, 1+ = resolved objects).',
           '',
           'Common queries:',

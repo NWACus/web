@@ -1,6 +1,6 @@
+import type { EChartOption } from '@/components/charts/EChart'
 import type { GraphData, GraphSeries } from '@/services/snowobs/graph'
 import { format } from 'date-fns'
-import type { EChartOption } from './EChart'
 import type { GraphPreset } from './stationGraphPresets'
 
 // Builds the ECharts option for one preset chart from the graph-data response.
