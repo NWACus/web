@@ -1645,7 +1645,7 @@ export interface ObservationsWidgetBlock {
   tab?: ('observations' | 'avalanches') | null;
   avalanchesObservedOnly?: boolean | null;
   /**
-   * Counted back from the day someone views the page.
+   * Counted back from the day someone views the page. Links and bookmarks keep the dates from the day they were copied or saved.
    */
   dateRange: 'pastDay' | 'past3Days' | 'pastWeek' | 'past2Weeks' | 'pastMonth' | 'thisSeason';
   /**

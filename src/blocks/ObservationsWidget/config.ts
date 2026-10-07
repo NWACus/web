@@ -58,7 +58,8 @@ export const ObservationsWidgetBlock: Block = {
           defaultValue: DEFAULT_DATE_RANGE,
           required: true,
           admin: {
-            description: 'Counted back from the day someone views the page.',
+            description:
+              'Counted back from the day someone views the page. Links and bookmarks keep the dates from the day they were copied or saved.',
           },
         },
         {
