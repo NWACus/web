@@ -15,15 +15,12 @@ jest.mock('@payloadcms/ui', () => ({
 import { ToggleField } from '@/components/ToggleField'
 
 function renderToggle(lockedBy?: { field: string; value: boolean }, readOnly = false) {
-  // Only the props ToggleField reads; the rest of Payload's client props don't matter here.
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const props = {
+  const props: CheckboxFieldClientProps = {
     path: 'tabs.graphs',
     field: { name: 'graphs', label: 'Graphs', type: 'checkbox' },
     readOnly,
-    lockedBy,
-  } as unknown as CheckboxFieldClientProps
-  render(<ToggleField {...props} />)
+  }
+  render(<ToggleField {...props} lockedBy={lockedBy} />)
   return screen.getByRole('switch', { name: 'Graphs' })
 }
 
