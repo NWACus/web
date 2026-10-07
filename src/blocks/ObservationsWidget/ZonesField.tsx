@@ -41,14 +41,22 @@ const DESCRIPTION_BY_STATUS: Record<ZoneNames['status'], string | undefined> = {
   error: 'Could not load zones from avalanche.org. Saved zones are kept.',
 }
 
+// Saved zones the center no longer lists stay visible, flagged, so they can be removed. The
+// widget drops a zone it can't find, or shows nothing if it finds none of them.
+function zoneOptions(zones: ZoneNames, selected: string[]) {
+  const flagRetired = zones.status === 'ready' && zones.names.length > 0
+  return [...new Set([...zones.names, ...selected])].map((name) => ({
+    label: flagRetired && !zones.names.includes(name) ? `${name} (no longer active)` : name,
+    value: name,
+  }))
+}
+
 // A multi-select over the center's active zones, stored as zone names.
 export function ZonesField({ path, field }: TextFieldClientProps) {
   const { value, setValue, showError } = useField<string[]>({ path })
   const { selectedTenantSlug } = useTenantSelection()
   const zones = useActiveZoneNames(selectedTenantSlug)
   const selected = Array.isArray(value) ? value : []
-  // Saved zones the center no longer lists stay visible so they can be removed
-  const names = [...new Set([...zones.names, ...selected])]
 
   return (
     <SelectInput
@@ -58,7 +66,7 @@ export function ZonesField({ path, field }: TextFieldClientProps) {
       description={DESCRIPTION_BY_STATUS[zones.status] ?? field.admin?.description}
       hasMany
       isClearable
-      options={names.map((name) => ({ label: name, value: name }))}
+      options={zoneOptions(zones, selected)}
       value={selected}
       showError={showError}
       onChange={(picked) =>
