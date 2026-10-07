@@ -72,7 +72,7 @@
     "@payloadcms/email-nodemailer": "3.88.0",
     "@payloadcms/email-resend": "3.88.0",
     "@payloadcms/next": "3.88.0",
-    "@payloadcms/plugin-form-builder": "3.88.0",
+    "@payloadcms/plugin-form-builder": "3.90.0",
     "@payloadcms/plugin-mcp": "3.88.0",
     "@payloadcms/plugin-sentry": "3.88.0",
     "@payloadcms/plugin-seo": "3.88.0",
