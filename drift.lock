@@ -238,7 +238,7 @@ sig = "b69ef0892c741f35"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/collections/Settings/index.ts"
-sig = "bc965a426995f0c2"
+sig = "b3c68e453f70be2c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -338,7 +338,7 @@ sig = "620e3b1733d93855"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/archiveDates.ts"
-sig = "cdd326f496aac82b"
+sig = "1d83f6d05f3524e9"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -453,7 +453,7 @@ sig = "6c3a3a51ca5aed8f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/utilities/getNativeProductFlag.ts"
-sig = "8c6df8b9760606b8"
+sig = "57e7a21fa3322a1a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -698,7 +698,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/Settings/index.ts"
-sig = "bc965a426995f0c2"
+sig = "b3c68e453f70be2c"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
