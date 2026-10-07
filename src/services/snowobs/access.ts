@@ -1,7 +1,7 @@
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 
 // Free of the Payload config so collection code can import it without a cycle.
-export const SNOWOBS_API = 'https://api.snowobs.com/wx/v2'
+export const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
 
 // Every server-side SnowObs request goes through here: SnowObs caches
 // Origin-less responses without CORS headers, breaking the legacy widget.

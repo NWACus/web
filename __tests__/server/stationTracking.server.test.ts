@@ -13,7 +13,7 @@ import {
 
 const origins: Record<string, string | null> = {}
 const server = setupServer(
-  http.get('https://api.snowobs.com/wx/v2/*', ({ request }) => {
+  http.get('https://api.snowobs.com/wx/v1/*', ({ request }) => {
     origins[new URL(request.url).pathname] = request.headers.get('origin')
     return HttpResponse.json(request.url.includes('/current/') ? { STATION: [] } : [])
   }),
@@ -73,9 +73,9 @@ describe('client feeds', () => {
     await fetchCatalogue('t', 'nwac')
     await fetchCurrentObservations('t')
     expect(origins).toEqual({
-      '/wx/v2/station/tracking/': 'https://avy-fx.org',
-      '/wx/v2/station/metadata/': 'https://avy-fx.org',
-      '/wx/v2/station/data/current/': 'https://avy-fx.org',
+      '/wx/v1/station/tracking/': 'https://avy-fx.org',
+      '/wx/v1/station/metadata/': 'https://avy-fx.org',
+      '/wx/v1/station/data/current/': 'https://avy-fx.org',
     })
   })
 })

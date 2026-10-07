@@ -493,7 +493,7 @@ sig = "448f0ac347be3739"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/access.ts"
-sig = "c571141b992c9815"
+sig = "4b780e2cf82276c9"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
