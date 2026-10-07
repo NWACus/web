@@ -58,6 +58,7 @@ import * as migration_20260918_223529_station_pages from './20260918_223529_stat
 import * as migration_20260921_124724_station_pages_backfill from './20260921_124724_station_pages_backfill'
 import * as migration_20260922_180955_precip_table_block from './20260922_180955_precip_table_block'
 import * as migration_20260923_033051_add_shared_media from './20260923_033051_add_shared_media'
+import * as migration_20261007_050623_add_station_page_tabs from './20261007_050623_add_station_page_tabs'
 
 export const migrations = [
   {
@@ -359,5 +360,10 @@ export const migrations = [
     up: migration_20260923_033051_add_shared_media.up,
     down: migration_20260923_033051_add_shared_media.down,
     name: '20260923_033051_add_shared_media',
+  },
+  {
+    up: migration_20261007_050623_add_station_page_tabs.up,
+    down: migration_20261007_050623_add_station_page_tabs.down,
+    name: '20261007_050623_add_station_page_tabs',
   },
 ]

@@ -21,6 +21,7 @@ import {
   getStationPages,
   toPageSummaries,
 } from '@/services/stations/getStationPages'
+import { resolveStationTab } from '@/services/stations/stationTabs'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -94,7 +95,7 @@ async function csvTabView({ center, page }: TabContext): Promise<TabView> {
     tabContent: (
       <>
         <StationViewBar>
-          <StationRangeTabs activeKey="csv" />
+          <StationRangeTabs activeKey="csv" tabs={page.tabs} />
         </StationViewBar>
         <StationCsvForm
           slug={page.slug}
@@ -115,7 +116,7 @@ function graphsTabView({ page, pages, timeZone }: TabContext): TabView {
         currentSlug={page.slug}
         pages={pages}
         timeZone={timeZone}
-        tabs={<StationRangeTabs activeKey="graphs" />}
+        tabs={<StationRangeTabs activeKey="graphs" tabs={page.tabs} />}
       />
     ),
   }
@@ -133,33 +134,21 @@ async function tableTabView({ center, page, timeZone, periodParam }: TabContext)
       <StationTableView
         table={table}
         activePeriodKey={period.key}
-        tabs={<StationRangeTabs activeKey="table" />}
+        tabs={<StationRangeTabs activeKey="table" tabs={page.tabs} />}
       />
     ),
   }
 }
-
-// An archived station's table and graphs are empty, so downloads lead.
-function defaultTabKey(page: AssembledStationPage): string {
-  return page.archived ? 'csv' : 'table'
-}
-
-// A Map, not an object: the key is raw user input (`?range=__proto__`).
-const TAB_VIEWS = new Map<string, (context: TabContext) => TabView | Promise<TabView>>([
-  ['csv', csvTabView],
-  ['graphs', graphsTabView],
-])
 
 async function resolveTabView(
   context: TabContext,
   rangeParam?: string,
   periodParam?: string,
 ): Promise<TabView> {
-  const build = TAB_VIEWS.get(rangeParam ?? defaultTabKey(context.page))
-  // Anything else is the table, including legacy `?range=24h` links.
-  return build
-    ? build(context)
-    : tableTabView({ ...context, periodParam: periodParam ?? rangeParam })
+  const { tab, period } = resolveStationTab(context.page.tabs, context.page.archived, rangeParam)
+  if (tab === 'csv') return csvTabView(context)
+  if (tab === 'graphs') return graphsTabView(context)
+  return tableTabView({ ...context, periodParam: periodParam ?? period })
 }
 
 export default async function Page({ params, searchParams }: Args) {

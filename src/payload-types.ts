@@ -1823,6 +1823,14 @@ export interface StationPage {
       )[]
     | null;
   /**
+   * Which views the page shows. A hidden tab falls back to the first shown one.
+   */
+  tabs?: {
+    table?: boolean | null;
+    graphs?: boolean | null;
+    csv?: boolean | null;
+  };
+  /**
    * The hardware is gone but the history is still queryable, so the page stays up for downloads.
    */
   archived?: boolean | null;
@@ -4017,6 +4025,13 @@ export interface StationPagesSelect<T extends boolean = true> {
   slug?: T;
   stations?: T;
   columns?: T;
+  tabs?:
+    | T
+    | {
+        table?: T;
+        graphs?: T;
+        csv?: T;
+      };
   archived?: T;
   contentHash?: T;
   updatedAt?: T;

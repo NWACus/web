@@ -9,6 +9,7 @@ import {
   revalidateStationPagesDelete,
 } from '@/services/stations/revalidate'
 import { STATION_COLUMNS } from '@/services/stations/stationColumns'
+import { stationTabFields } from '@/services/stations/stationTabs'
 import { CollectionConfig } from 'payload'
 import { trackedStations } from './endpoints/trackedStations'
 
@@ -59,6 +60,16 @@ export const StationPages: CollectionConfig = {
         description:
           'Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.',
       },
+    },
+    {
+      name: 'tabs',
+      type: 'group',
+      label: 'Tabs',
+      admin: {
+        position: 'sidebar',
+        description: 'Which views the page shows. A hidden tab falls back to the first shown one.',
+      },
+      fields: stationTabFields,
     },
     {
       name: 'archived',
