@@ -42,6 +42,21 @@ Potentially dangerous patterns it detects:
 - Column type changes
 - Constraint drops
 
+## Runtime Data Diff
+
+The static check reads migration SQL; this one watches what migrations actually do to prod data. The `development` workflow (push to `main`) and the nightly `Sync Production to Dev` workflow both clone prod into `payloadcms-dev` and then run `pnpm migrate`, so the dev database right before migrating is an exact copy of prod. `pnpm db:diff` snapshots it on each side of `pnpm migrate` and reports the difference. The `after` snapshot runs before `pnpm sanitize` and the media-prefix rewrite, so their edits don't show up as noise.
+
+- `pnpm db:diff before <dir>` exits immediately when no migration is pending (the usual nightly case). Otherwise it snapshots every table in `sqlite_master`: schema, foreign key violation counts, and a hash of every cell keyed by row `id`. Snapshots hold hashes only, never prod values, and stay on the runner.
+- `pnpm db:diff after <dir>` snapshots again, writes `report.md` and `report.json` (uploaded as the `db-diff-report` artifact), appends the report to the job summary, and raises a `::warning` per finding.
+
+**Findings** are changes to things that existed before the run: dropped tables, columns or indexes; altered column definitions; deleted rows (including `_rels` rows lost to the cascade-delete issue above); existing rows whose values changed (e.g. a bumped `updated_at`); and new foreign key violations. Rows are compared on the columns present in both snapshots, so adding a column doesn't mark every row as changed. New tables, columns, indexes and appended rows are listed but aren't findings. A clean run looks like "✅ No existing rows, tables, columns or indexes were removed or changed" plus the rows the migrations added.
+
+`payload_kv`, `payload_preferences*`, `payload_locked_documents*` and `users_sessions` are volatile (written by people using the dev site, not by migrations), so only their row counts are compared.
+
+The check is **warn-only**: both steps use `continue-on-error`, so a finding never blocks the deploy. A data migration such as a backfill legitimately changes rows. Read the findings and decide whether they match what the migration intended before the same migration reaches prod.
+
+To try it locally, point `DATABASE_URI` at a copy of a database (a `file:` path or a throwaway Turso copy), then run `pnpm db:diff before .context/db-diff`, `pnpm migrate`, and `pnpm db:diff after .context/db-diff`.
+
 ## Workflow
 
 ### Creating a new migration
@@ -181,3 +196,4 @@ Keep the old schema and mark fields as `hidden: true` (see "The fix: keep old at
 - CI Job: `.github/workflows/ci.yaml` (migration-safety job)
 - Migration check script: `src/scripts/check-migrations.ts`
 - Migration diff script: `src/scripts/analyze-migration-diff.ts`
+- Runtime data diff: `src/scripts/db-diff/` (`pnpm db:diff`), run from `.github/workflows/development.yaml` and `.github/workflows/sync-prod-to-dev.yml`
