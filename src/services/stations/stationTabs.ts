@@ -49,4 +49,5 @@ export const stationTabFields: CheckboxField[] = STATION_TABS.map((tab) => ({
   label: tab.label,
   defaultValue: true,
   validate: atLeastOneTab,
+  admin: { components: { Field: '@/components/ToggleField#ToggleField' } },
 }))
