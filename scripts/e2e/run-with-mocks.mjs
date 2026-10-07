@@ -56,6 +56,8 @@ function run(command, extraNodeOptions = []) {
       // the prefix the browser SDK reads it as `undefined` and stays enabled in this build.
       NEXT_PUBLIC_E2E_MOCK_ROLE: mode,
       NAC_HOST: 'http://nac.e2e-mock.invalid',
+      // Pinned to the mocked NAC host, so a developer's own `NAC_V3_HOST` cannot route past it.
+      NAC_V3_HOST: 'http://nac.e2e-mock.invalid',
       AFP_HOST: 'http://afp.e2e-mock.invalid',
       PORT: port,
       NEXT_PUBLIC_ROOT_DOMAIN: `localhost:${port}`,

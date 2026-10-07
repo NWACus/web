@@ -1,9 +1,10 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
+import { NativeWeatherPage } from '@/components/forecast/NativeWeatherPage'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
-import { NativeWeatherPage } from '@/components/forecast/NativeWeatherPage'
+import { ForecastPage } from '@/components/NWACWeather/ForecastPage'
 import {
   assertCenterPlatform,
   centerRouteMetadata,
@@ -21,6 +22,16 @@ export const generateStaticParams = centerStaticParams
 
 export default async function Page({ params }: CenterRouteArgs) {
   const { center } = await params
+
+  // NWAC's weather comes from products-api, not the widget, and its `platforms.weather` is false.
+  if (center === 'nwac') {
+    return (
+      <>
+        <Breadcrumbs center={center} path="/weather/forecast" />
+        <ForecastPage centerSlug={center} />
+      </>
+    )
+  }
 
   // The AFP's capability flag gates above our rollout flag: a center with no NAC weather product
   // (NWAC authors its own) has no Mountain Weather page whatever Settings says.

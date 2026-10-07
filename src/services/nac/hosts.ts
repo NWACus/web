@@ -13,3 +13,7 @@
 export const nacApiHost = process.env.NAC_HOST || 'https://api.avalanche.org'
 
 export const afpApiHost = process.env.AFP_HOST || 'https://forecasts.avalanche.org'
+
+// products-api's v3 reads. Its own var so a local or staging products-api can serve them while
+// v2 stays remote.
+export const v3ApiHost = process.env.NAC_V3_HOST || nacApiHost

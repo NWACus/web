@@ -12,6 +12,7 @@ import { TZDate } from '@date-fns/tz'
 import { addDays } from 'date-fns/addDays'
 import { endOfMonth } from 'date-fns/endOfMonth'
 import { format } from 'date-fns/format'
+import { isValid } from 'date-fns/isValid'
 import { parseISO } from 'date-fns/parseISO'
 import { startOfMonth } from 'date-fns/startOfMonth'
 import { subMonths } from 'date-fns/subMonths'
@@ -189,10 +190,26 @@ export function parseArchiveWindowQuery(
   from: string | null,
   to: string | null,
 ): ArchiveWindowQuery | null {
-  if (!zoneSlug || !from || !to) return null
+  const window = parseDateWindow(from, to)
+  if (!zoneSlug || !window) return null
+
+  return { zoneSlug, ...window }
+}
+
+/** A real `YYYY-MM-DD` day, not just the pattern: `2026-13-45` matches the pattern alone. */
+export function isCalendarDate(date: string): boolean {
+  return DATE_PATTERN.test(date) && isValid(parseISO(date))
+}
+
+/** A `from`..`to` window of `YYYY-MM-DD` dates, or `null` when either is missing or malformed or the window runs backwards. */
+export function parseDateWindow(
+  from: string | null,
+  to: string | null,
+): { from: string; to: string } | null {
+  if (!from || !to) return null
   if (!DATE_PATTERN.test(from) || !DATE_PATTERN.test(to)) return null
   if (from > to) return null
   if ((Date.parse(to) - Date.parse(from)) / DAY_MS > MAX_WINDOW_DAYS) return null
 
-  return { zoneSlug, from, to }
+  return { from, to }
 }

@@ -33,7 +33,7 @@ const normalizeCenterSlug = (centerSlug: string) => (centerSlug === 'dvac' ? 'nw
  * 500, a misdirected host) with "Cannot read properties of undefined (reading 'logger')". Logging
  * is best-effort; the caller's own error handling is what callers depend on.
  */
-async function logNacError(err: unknown, message: string): Promise<void> {
+export async function logNacError(err: unknown, message: string): Promise<void> {
   try {
     const payload = await getPayload({ config })
     payload?.logger?.error({ err }, message)
@@ -61,6 +61,8 @@ type Options = {
   // large for the 2MB data cache (e.g. the full product archive), which are cached one layer
   // up via unstable_cache after being trimmed down.
   noStore?: boolean
+  // An origin other than `NAC_HOST`; the v3 layer passes its own (`sources/v3/fetch.ts`).
+  host?: string
 }
 
 const DEFAULT_CACHED_TIME_SECONDS = 24 * 60 * 60
@@ -82,7 +84,7 @@ function fetchInit(options: Options): RequestInit {
 
 export async function nacFetch(path: string, options: Options = {}) {
   const normalizedPath = normalizePath(path)
-  const url = `${nacApiHost}/${normalizedPath}`
+  const url = `${options.host ?? nacApiHost}/${normalizedPath}`
 
   try {
     const res = await fetch(url, fetchInit(options))
@@ -372,6 +374,11 @@ export function currentWeatherCacheTag(centerId: string, zoneId: number): string
 export function warningCacheTag(centerId: string, zoneId: number): string {
   return `warning:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
 }
+
+/** Data-cache tag for the live NWAC Mountain Weather reads; its freshness route purges it. */
+export const nwacWeatherCacheTag = 'nwac-weather'
+/** The past dates' reads, which a publish does not change, so no purge reaches them. */
+export const nwacWeatherHistoricalCacheTag = 'nwac-weather-historical'
 
 export async function fetchForecast(
   centerId: string,
