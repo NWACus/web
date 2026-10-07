@@ -51,12 +51,16 @@ function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token
 }
 
 // Best-effort logging: bootstrapping payload must never mask the original error.
-async function logSnowObsError(error: unknown, stids: string[]): Promise<void> {
+async function logSnowObsError(
+  error: unknown,
+  stids: string[],
+  level: 'error' | 'warn' = 'error',
+): Promise<void> {
   try {
     const payload = await getPayload({ config })
-    payload.logger.error({ err: error, stids }, 'fetchStationTimeseries error')
+    payload.logger[level]({ err: error, stids }, `fetchStationTimeseries ${level}`)
   } catch {
-    console.error('fetchStationTimeseries error (payload logger unavailable)', { stids, error })
+    console[level](`fetchStationTimeseries ${level} (payload logger unavailable)`, { stids, error })
   }
 }
 
@@ -112,6 +116,36 @@ function mergeTimeseries(responses: SnowObsTimeseriesResponse[]): SnowObsTimeser
   }
 }
 
+// SnowObs 500s a raw_data request when a station reports a value its unit
+// conversion can't take (KMHS's object-valued sky_condition); the rounded path
+// skips that value, so the station comes back rounded instead of not at all.
+async function retryRounded(
+  stations: StationRef[],
+  options: FetchOptions,
+  token: string,
+  error: unknown,
+): Promise<SnowObsTimeseriesResponse> {
+  if (!options.rawData) throw error
+  await logSnowObsError(
+    error,
+    stations.map((s) => s.stid),
+    'warn',
+  )
+  return requestTimeseries(stations, { ...options, rawData: false }, token)
+}
+
+async function requestStation(
+  station: StationRef,
+  options: FetchOptions,
+  token: string,
+): Promise<SnowObsTimeseriesResponse> {
+  try {
+    return await requestTimeseries([station], options, token)
+  } catch (error) {
+    return retryRounded([station], options, token, error)
+  }
+}
+
 // Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
 export async function fetchStationTimeseries(
   centerSlug: string,
@@ -125,11 +159,11 @@ export async function fetchStationTimeseries(
     try {
       return await requestTimeseries(stations, options, token)
     } catch (error) {
-      if (stations.length < 2) throw error
-      // SnowObs fails the whole batch when one station's data trips it up
-      // (KMHS under raw_data), so retry each and keep the ones that load.
+      if (stations.length < 2) return await retryRounded(stations, options, token, error)
+      // One station's bad data fails the whole batch, so retry each and keep
+      // the ones that load, raw where they can be and rounded where not.
       const results = await Promise.allSettled(
-        stations.map((station) => requestTimeseries([station], options, token)),
+        stations.map((station) => requestStation(station, options, token)),
       )
       const loaded = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
       if (loaded.length === 0) throw error
