@@ -25133,6 +25133,137 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "glossary_terms": {
+      "name": "glossary_terms",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "term": {
+          "name": "term",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "definition": {
+          "name": "definition",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "link": {
+          "name": "link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        }
+      },
+      "indexes": {
+        "glossary_terms_term_idx": {
+          "name": "glossary_terms_term_idx",
+          "columns": ["term"],
+          "isUnique": true
+        },
+        "glossary_terms_updated_at_idx": {
+          "name": "glossary_terms_updated_at_idx",
+          "columns": ["updated_at"],
+          "isUnique": false
+        },
+        "glossary_terms_created_at_idx": {
+          "name": "glossary_terms_created_at_idx",
+          "columns": ["created_at"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "glossary_terms_texts": {
+      "name": "glossary_terms_texts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "path": {
+          "name": "path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "glossary_terms_texts_order_parent": {
+          "name": "glossary_terms_texts_order_parent",
+          "columns": ["order", "parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "glossary_terms_texts_parent_fk": {
+          "name": "glossary_terms_texts_parent_fk",
+          "tableFrom": "glossary_terms_texts",
+          "tableTo": "glossary_terms",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "forms_blocks_checkbox": {
       "name": "forms_blocks_checkbox",
       "columns": {
@@ -26627,6 +26758,70 @@
           "autoincrement": false,
           "default": false
         },
+        "courses_find": {
+          "name": "courses_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "providers_find": {
+          "name": "providers_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "built_in_pages_find": {
+          "name": "built_in_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "galleries_find": {
+          "name": "galleries_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "announcements_find": {
+          "name": "announcements_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "station_pages_find": {
+          "name": "station_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "redirects_find": {
+          "name": "redirects_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "shared_media_find": {
+          "name": "shared_media_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "nac_widgets_config_find": {
           "name": "nac_widgets_config_find",
           "type": "integer",
@@ -27025,6 +27220,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "glossary_terms_id": {
+          "name": "glossary_terms_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "forms_id": {
           "name": "forms_id",
           "type": "integer",
@@ -27201,6 +27403,11 @@
         "payload_locked_documents_rels_shared_media_id_idx": {
           "name": "payload_locked_documents_rels_shared_media_id_idx",
           "columns": ["shared_media_id"],
+          "isUnique": false
+        },
+        "payload_locked_documents_rels_glossary_terms_id_idx": {
+          "name": "payload_locked_documents_rels_glossary_terms_id_idx",
+          "columns": ["glossary_terms_id"],
           "isUnique": false
         },
         "payload_locked_documents_rels_forms_id_idx": {
@@ -27477,6 +27684,15 @@
           "tableFrom": "payload_locked_documents_rels",
           "tableTo": "shared_media",
           "columnsFrom": ["shared_media_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payload_locked_documents_rels_glossary_terms_fk": {
+          "name": "payload_locked_documents_rels_glossary_terms_fk",
+          "tableFrom": "payload_locked_documents_rels",
+          "tableTo": "glossary_terms",
+          "columnsFrom": ["glossary_terms_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -27889,6 +28105,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "aeea9eb1-e321-4707-9b80-8a29b04e4b08",
+  "id": "d2b07534-d93a-464e-9817-d53c9e74a93a",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

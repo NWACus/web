@@ -3,7 +3,7 @@ import type { PayloadRequest } from 'payload'
 import { LEGACY_GLOSSARY_TERMS } from './legacyGlossaryTerms'
 
 // The glossary terms for `pnpm seed` locally (push mode never runs migrations). Deployed
-// environments got them from `20260924_234036_seed_glossary_terms`, which inlines the same list.
+// environments got them from `20261007_210124_seed_glossary_terms`, which inlines the same list.
 
 export type GlossaryTermSeed = {
   term: string

@@ -26630,8 +26630,32 @@
           "notNull": false,
           "autoincrement": false
         },
+        "home_pages_find": {
+          "name": "home_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "built_in_pages_find": {
+          "name": "built_in_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "pages_find": {
           "name": "pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "station_pages_find": {
+          "name": "station_pages_find",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -26646,22 +26670,6 @@
           "autoincrement": false,
           "default": false
         },
-        "home_pages_find": {
-          "name": "home_pages_find",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": false
-        },
-        "events_find": {
-          "name": "events_find",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": false
-        },
         "media_find": {
           "name": "media_find",
           "type": "integer",
@@ -26670,16 +26678,24 @@
           "autoincrement": false,
           "default": false
         },
-        "teams_find": {
-          "name": "teams_find",
+        "galleries_find": {
+          "name": "galleries_find",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
           "default": false
         },
-        "biographies_find": {
-          "name": "biographies_find",
+        "documents_find": {
+          "name": "documents_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "announcements_find": {
+          "name": "announcements_find",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -26702,16 +26718,64 @@
           "autoincrement": false,
           "default": false
         },
-        "documents_find": {
-          "name": "documents_find",
+        "events_find": {
+          "name": "events_find",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
           "default": false
         },
-        "forms_find": {
-          "name": "forms_find",
+        "event_groups_find": {
+          "name": "event_groups_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "event_tags_find": {
+          "name": "event_tags_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "providers_find": {
+          "name": "providers_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "courses_find": {
+          "name": "courses_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "biographies_find": {
+          "name": "biographies_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "teams_find": {
+          "name": "teams_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "tenants_find": {
+          "name": "tenants_find",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -26734,24 +26798,32 @@
           "autoincrement": false,
           "default": false
         },
-        "tenants_find": {
-          "name": "tenants_find",
+        "redirects_find": {
+          "name": "redirects_find",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
           "default": false
         },
-        "event_groups_find": {
-          "name": "event_groups_find",
+        "shared_media_find": {
+          "name": "shared_media_find",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
           "default": false
         },
-        "event_tags_find": {
-          "name": "event_tags_find",
+        "glossary_terms_find": {
+          "name": "glossary_terms_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "forms_find": {
+          "name": "forms_find",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -28041,6 +28113,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "9db07b2d-2fb7-4b16-8ba7-d46c44fc0ff9",
+  "id": "ee64c657-39cc-4037-9ff9-53ebee55ec9e",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

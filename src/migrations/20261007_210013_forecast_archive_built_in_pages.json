@@ -26627,6 +26627,70 @@
           "autoincrement": false,
           "default": false
         },
+        "courses_find": {
+          "name": "courses_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "providers_find": {
+          "name": "providers_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "built_in_pages_find": {
+          "name": "built_in_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "galleries_find": {
+          "name": "galleries_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "announcements_find": {
+          "name": "announcements_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "station_pages_find": {
+          "name": "station_pages_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "redirects_find": {
+          "name": "redirects_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "shared_media_find": {
+          "name": "shared_media_find",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "nac_widgets_config_find": {
           "name": "nac_widgets_config_find",
           "type": "integer",
@@ -27889,6 +27953,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "e45ca66d-86dd-464f-bd23-251f91a40a69",
+  "id": "aeea9eb1-e321-4707-9b80-8a29b04e4b08",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

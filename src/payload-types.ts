@@ -3449,6 +3449,12 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
+  glossaryTerms?: {
+    /**
+     * Allow clients to find glossaryTerms.
+     */
+    find?: boolean | null;
+  };
   forms?: {
     /**
      * Allow clients to find forms.
@@ -5476,6 +5482,11 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
         find?: T;
       };
   sharedMedia?:
+    | T
+    | {
+        find?: T;
+      };
+  glossaryTerms?:
     | T
     | {
         find?: T;

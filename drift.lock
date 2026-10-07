@@ -8,7 +8,7 @@ sig = "6e9c5357969669d3"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "de26a0fc5a107f07"
+sig = "befd232286043c26"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -58,12 +58,12 @@ sig = "ff5d3fe541e1dfad"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "7a0c14b906deb859"
+sig = "81f5116bf33918a4"
 
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/mcp-server.md"
-sig = "1c5875f6bdcd750e"
+sig = "93e588f55d89ff59"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -83,7 +83,7 @@ sig = "870a8ad82cf3fe08"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/shared-content.md"
-sig = "1fdb5f43bf118ce1"
+sig = "04a9f83bd13380fc"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -133,7 +133,7 @@ sig = "1455813193c0068d"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/components/CoursePreviewSmallRow.tsx"
-sig = "e4a634046f7a05bc"
+sig = "c384833eb1353209"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -1033,7 +1033,7 @@ sig = "60bbd2c2347a4abd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/plugins/index.ts"
-sig = "bc3e7df4f0609ecb"
+sig = "4bd0bfe992d3cf3a"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1092,6 +1092,16 @@ sig = "ef162015be100d91"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/components/StartAndEndDateDisplay.tsx"
+sig = "f6c945859ec97179"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/ZonedDateTime.tsx"
+sig = "eb2718b09a4b6ff6"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/fields/slug/ensureUniqueSlug.ts"
 sig = "cb2e76810074aec2"
 
@@ -1107,8 +1117,13 @@ sig = "cdbcb90cb1c106cf"
 
 [[bindings]]
 doc = "docs/mcp-server.md"
+target = "src/constants/mcp.ts"
+sig = "72076b00f5d08fb4"
+
+[[bindings]]
+doc = "docs/mcp-server.md"
 target = "src/plugins/index.ts"
-sig = "bc3e7df4f0609ecb"
+sig = "4bd0bfe992d3cf3a"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -1118,7 +1133,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "f8f2b5f32e9dbaf3"
+sig = "ea79439584c980c2"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -1318,7 +1333,7 @@ sig = "2bbfded1dc092008"
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/plugins/index.ts"
-sig = "bc3e7df4f0609ecb"
+sig = "4bd0bfe992d3cf3a"
 
 [[bindings]]
 doc = "docs/shared-content.md"

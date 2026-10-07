@@ -6,7 +6,7 @@ Creates the `glossary_terms` table (with a unique index on `term`) and `glossary
 
 ## What caused these changes
 
-The `glossaryTerms` Shared Content collection (ADR 018, ADR 022), the national term list behind the native forecast glossary tooltips. The 82 legacy terms are loaded by the next migration, `20260924_234036_seed_glossary_terms`, kept separate so the schema and the data can be reasoned about (and regenerated) independently.
+The `glossaryTerms` Shared Content collection (ADR 018, ADR 022), the national term list behind the native forecast glossary tooltips. The 82 legacy terms are loaded by the next migration, `20261007_210124_seed_glossary_terms`, kept separate so the schema and the data can be reasoned about (and regenerated) independently.
 
 ## Conclusion
 

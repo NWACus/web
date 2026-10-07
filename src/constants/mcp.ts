@@ -29,6 +29,7 @@ export const MCP_COLLECTIONS: Record<CollectionSlug, McpExposure> = {
   settings: 'find',
   redirects: 'find',
   sharedMedia: 'find',
+  glossaryTerms: 'find',
   forms: 'find',
   users: { excluded: 'Emails and account data' },
   roleAssignments: { excluded: 'The map of who can do what' },
