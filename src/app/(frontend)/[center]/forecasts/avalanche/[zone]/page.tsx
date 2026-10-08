@@ -10,7 +10,6 @@ import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
 import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
 import { zoneOgImageVersion } from '@/services/nac/forecastFingerprint'
 import { ProductType, type ForecastResult } from '@/services/nac/model/forecast'
-import type { ZoneProperties } from '@/services/nac/model/mapLayer'
 import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
@@ -138,14 +137,18 @@ async function readNativeForecast(
  * travel advice, as plain text.
  */
 function previewDescription(
-  danger: ZoneProperties | null,
+  travelAdvice: string | null | undefined,
   forecast: ForecastResult | null | undefined,
 ): string | undefined {
-  const bottomLine =
-    forecast?.product_type === ProductType.Forecast
-      ? htmlToDescription(forecast.bottom_line)
-      : undefined
-  return bottomLine ?? htmlToDescription(danger?.travel_advice)
+  const bottomLine = forecast?.product_type === ProductType.Forecast ? forecast.bottom_line : null
+  return htmlToDescription(bottomLine) ?? htmlToDescription(travelAdvice)
+}
+
+/** The layout's title as text, whichever form it resolved to. */
+function parentTitleText(parentMeta: ResolvedMetadata) {
+  return parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+    ? parentMeta.title.absolute
+    : parentMeta.title
 }
 
 export async function generateMetadata(
@@ -156,23 +159,19 @@ export async function generateMetadata(
   const { center, zone: zoneParam } = await params
   const zone = zoneSlugFromParam(zoneParam)
 
-  const parentTitle =
-    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
-      ? parentMeta.title.absolute
-      : parentMeta.title
-
   const parentOg = parentMeta.openGraph
 
   const zoneName = formatZoneName(zone)
-  const title = `${zoneName} - Avalanche Forecast | ${parentTitle}`
+  const title = `${zoneName} - Avalanche Forecast | ${parentTitleText(parentMeta)}`
 
   const danger = await getForecastZoneDanger(center, zone).catch(() => null)
   const forecast = await readNativeForecast(center, zone)
-  const description = previewDescription(danger, forecast)
+  const description = previewDescription(danger?.travel_advice, forecast)
+  const described = description ? { description } : {}
 
   return {
     title,
-    ...(description ? { description } : {}),
+    ...described,
     alternates: {
       canonical: `/forecasts/avalanche/${zone}`,
     },
@@ -180,7 +179,7 @@ export async function generateMetadata(
       ...parentOg,
       title,
       url: `/forecasts/avalanche/${zone}`,
-      ...(description ? { description } : {}),
+      ...described,
       images: [
         {
           // Versioned by the forecast, so a link shared after a change isn't given a cached image
