@@ -243,6 +243,13 @@ That makes expiry the exact complement of the freshness check, so **every surfac
 
 Expiry is an **absolute-instant comparison** against `expires_time`, which is a forecaster-set instant stored as `bulletin.end_date` and normalized from center-local to UTC on write. The legacy widget compares it the same way (`ForecastBanner.vue`: `dayjs(expires_time).isBefore()`) with its own noon helper in scope and deliberately unused, and the avy app independently reached the same split. The noon valid-date rule (`validDateForProduct`) governs which calendar day a product is *for*, derived from `published_time`, and must not be applied to `expires_time`.
 
+### Link previews
+
+The zone page's metadata is route metadata, so it serves widget and native centers alike. Its description is the forecast's bottom line on a native center and the map layer's travel advice otherwise, both through `htmlToDescription` (`src/utilities/htmlToDescription.ts`: tags stripped, entities decoded, whitespace collapsed, cut at a sentence end or word boundary within 300 characters). Its `og:image` is the OG route (`/api/<center>/og?route=forecasts/avalanche/<zone>`), which draws the zone's danger from the map layer.
+
+Platforms cache a preview image by its URL, so the URL is versioned: `v=zoneOgImageVersion(danger, forecast)`, a hash of the zone's map-layer danger (read for every center, which is what lets a widget center have a version at all) plus the native forecast where the page reads one. Both are reads metadata already makes through the page's own cached fetches, so the version costs no upstream request, and it turns over whenever the page regenerates with a changed product. With neither available the URL goes unversioned. A time bucket would have needed no reads, but it moves the URL when nothing changed and still serves a stale rating until the bucket ends. The route sends zone images `public, max-age=300, s-maxage=300` instead of `@vercel/og`'s year-long `immutable` default. That bounds how long one address can serve a rating that has since moved, which can happen on a native center: a forecast change turns the version over before the map layer the image draws from has caught up.
+
+A dated page previews as itself: `og:url` is its dated address, `og:title` its own title, and the description that day's bottom line (`findDatedForecast`, the page's own cached reads again). Its image is the center's default from the layout, never the zone image, which draws today's danger.
 
 ## Product and View
 
