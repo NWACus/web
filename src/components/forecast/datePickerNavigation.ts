@@ -5,12 +5,13 @@
  */
 import { addMonths, format, parseISO, startOfMonth } from 'date-fns'
 
-export interface ForecastArchiveDate {
-  /** `YYYY-MM-DD` valid date. */
-  date: string
-  /** Overall danger rating (0-5; -1 = general info) for coloring the day. */
-  dangerRating: number
-}
+import type { ZoneArchiveDate } from '@/services/nac/archiveDates'
+
+/** One day the picker can show: its color, and the preview a hover or focus reveals. */
+export type ForecastArchiveDate = Pick<
+  ZoneArchiveDate,
+  'date' | 'dangerRating' | 'dangerLevelText' | 'danger'
+>
 
 export const dayKey = (date: Date) => format(date, 'yyyy-MM-dd')
 export const monthKey = (date: Date) => format(date, 'yyyy-MM')
@@ -35,13 +36,13 @@ export function forecastHref(basePath: string, currentDate: string | null, date:
   return currentDate && date === currentDate ? basePath : `${basePath}/${date}`
 }
 
-/** Fold a freshly fetched month's ratings into the accumulated map. */
-export function mergeRatings(
-  previous: Map<string, number>,
+/** Fold a freshly fetched month's days into the accumulated map. */
+export function mergeDays(
+  previous: Map<string, ForecastArchiveDate>,
   fetched: ForecastArchiveDate[],
-): Map<string, number> {
+): Map<string, ForecastArchiveDate> {
   const next = new Map(previous)
-  for (const d of fetched) next.set(d.date, d.dangerRating)
+  for (const d of fetched) next.set(d.date, d)
   return next
 }
 

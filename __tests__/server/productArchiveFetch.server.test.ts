@@ -22,6 +22,11 @@ const PRODUCT = {
   product_type: 'forecast',
   published_time: '2026-04-05T02:30:00+00:00',
   danger_rating: 2,
+  danger_level_text: 'moderate',
+  danger: [
+    { lower: 1, upper: 2, middle: 2, valid_day: 'current' },
+    { lower: null, upper: null, middle: null, valid_day: 'tomorrow' },
+  ],
   author: 'Forecaster',
   updated_at: '2026-04-05T02:30:00+00:00',
   forecast_zone: [{ id: 1646, name: 'Banner Summit' }],
@@ -53,6 +58,8 @@ describe('services: product archive fetchers', () => {
         product_type: 'forecast',
         published_time: '2026-04-05T02:30:00+00:00',
         danger_rating: 2,
+        danger_level_text: 'moderate',
+        current_danger: { upper: 2, middle: 2, lower: 1 },
         author: 'Forecaster',
         updated_at: '2026-04-05T02:30:00+00:00',
         forecast_zone: [{ id: 1646 }],
@@ -60,11 +67,27 @@ describe('services: product archive fetchers', () => {
     ])
   })
 
+  it('drops a malformed danger block rather than the archive', async () => {
+    respondWith([{ ...PRODUCT, danger: 'unexpected', danger_level_text: 7 }])
+
+    const [product] = await fetchProductArchiveOrThrow('snfac', WINDOW)
+
+    expect(product).toMatchObject({ current_danger: null, danger_level_text: null })
+  })
+
   it('defaults the nullable columns rather than dropping the product', async () => {
-    const { danger_rating: _d, author: _a, updated_at: _u, ...bare } = PRODUCT
+    const {
+      danger_rating: _d,
+      danger_level_text: _t,
+      danger: _e,
+      author: _a,
+      updated_at: _u,
+      ...bare
+    } = PRODUCT
     respondWith([bare])
 
     const [product] = await fetchProductArchiveOrThrow('snfac', WINDOW)
+    expect(product).toMatchObject({ danger_level_text: null, current_danger: null })
 
     expect(product).toMatchObject({ danger_rating: 0, author: null, updated_at: null })
   })

@@ -2,6 +2,7 @@ import { parseISO } from 'date-fns'
 
 import {
   buildZoneArchiveDates,
+  currentElevationDanger,
   findProductIdForDate,
   forecastCalendarStart,
   forecastPickerSettings,
@@ -19,6 +20,8 @@ function item(
     product_type: 'forecast',
     published_time: '2026-01-10T02:30:00+00:00',
     danger_rating: 2,
+    danger_level_text: 'moderate',
+    current_danger: { upper: 2, middle: 2, lower: 1 },
     author: 'Forecaster',
     updated_at: '2026-01-10T02:30:00+00:00',
     forecast_zone: [{ id: 1646 }],
@@ -96,18 +99,26 @@ describe('buildZoneArchiveDates', () => {
   it('collapses same-date products to the most recently published', () => {
     const items: ArchiveProductSummary[] = [
       item({ id: 10, published_time: '2026-02-01T02:00:00+00:00', danger_rating: 1 }), // 2026-01-31 18:00 PST → 2026-02-01
-      item({ id: 11, published_time: '2026-02-01T05:00:00+00:00', danger_rating: 3 }), // 2026-01-31 21:00 PST → 2026-02-01 (later)
+      item({
+        id: 11,
+        published_time: '2026-02-01T05:00:00+00:00', // 2026-01-31 21:00 PST → 2026-02-01 (later)
+        danger_rating: 3,
+        danger_level_text: 'considerable',
+        current_danger: { upper: 3, middle: 3, lower: 2 },
+      }),
     ]
 
     const dates = buildZoneArchiveDates(items, 1646, TZ)
 
     expect(dates).toHaveLength(1)
-    // The later publication wins, and its danger rating is carried for coloring.
+    // The later publication wins, and its danger is carried for coloring and the day preview.
     expect(dates[0]).toEqual({
       date: '2026-02-01',
       productId: 11,
       productType: 'forecast',
       dangerRating: 3,
+      dangerLevelText: 'considerable',
+      danger: { upper: 3, middle: 3, lower: 2 },
     })
   })
 
@@ -124,10 +135,27 @@ describe('buildZoneArchiveDates', () => {
   })
 })
 
+describe('currentElevationDanger', () => {
+  it('picks the current day, not the outlook', () => {
+    const danger = [
+      { upper: 3, middle: 2, lower: 1, valid_day: 'tomorrow' },
+      { upper: 2, middle: null, lower: 1, valid_day: 'current' },
+    ]
+    expect(currentElevationDanger(danger)).toEqual({ upper: 2, middle: null, lower: 1 })
+  })
+
+  it('is null when the product carries no current entry', () => {
+    expect(currentElevationDanger([])).toBeNull()
+    expect(currentElevationDanger(null)).toBeNull()
+    expect(currentElevationDanger([{ upper: 2, valid_day: 'tomorrow' }])).toBeNull()
+  })
+})
+
 describe('findProductIdForDate', () => {
+  const day = { productType: 'forecast', dangerRating: 2, dangerLevelText: null, danger: null }
   const dates = [
-    { date: '2026-01-08', productId: 21, productType: 'forecast', dangerRating: 2 },
-    { date: '2026-01-06', productId: 22, productType: 'forecast', dangerRating: 3 },
+    { ...day, date: '2026-01-08', productId: 21 },
+    { ...day, date: '2026-01-06', productId: 22 },
   ]
 
   it('resolves a known date to its product id', () => {

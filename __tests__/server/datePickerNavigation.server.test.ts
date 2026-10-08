@@ -3,7 +3,7 @@ import {
   dayKey,
   fetchArchiveMonth,
   forecastHref,
-  mergeRatings,
+  mergeDays,
   monthKey,
   monthsBetween,
   triggerLabel,
@@ -51,21 +51,26 @@ describe('forecastHref', () => {
   })
 })
 
-describe('mergeRatings', () => {
-  it('adds fetched ratings without mutating the previous map', () => {
-    const previous = new Map([['2026-02-01', 2]])
-    const next = mergeRatings(previous, [{ date: '2026-02-02', dangerRating: 3 }])
+describe('mergeDays', () => {
+  const day = (date: string, dangerRating: number) => ({
+    date,
+    dangerRating,
+    dangerLevelText: null,
+    danger: null,
+  })
 
-    expect(next.get('2026-02-01')).toBe(2)
-    expect(next.get('2026-02-02')).toBe(3)
+  it('adds fetched days without mutating the previous map', () => {
+    const previous = new Map([['2026-02-01', day('2026-02-01', 2)]])
+    const next = mergeDays(previous, [day('2026-02-02', 3)])
+
+    expect(next.get('2026-02-01')?.dangerRating).toBe(2)
+    expect(next.get('2026-02-02')?.dangerRating).toBe(3)
     expect(previous.has('2026-02-02')).toBe(false)
   })
 
-  it('lets a fetched rating overwrite a stale one', () => {
-    const next = mergeRatings(new Map([['2026-02-01', 2]]), [
-      { date: '2026-02-01', dangerRating: 4 },
-    ])
-    expect(next.get('2026-02-01')).toBe(4)
+  it('lets a fetched day overwrite a stale one', () => {
+    const next = mergeDays(new Map([['2026-02-01', day('2026-02-01', 2)]]), [day('2026-02-01', 4)])
+    expect(next.get('2026-02-01')?.dangerRating).toBe(4)
   })
 })
 

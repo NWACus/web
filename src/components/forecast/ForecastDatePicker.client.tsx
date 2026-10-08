@@ -18,15 +18,21 @@
 import { endOfMonth, format, parseISO, startOfMonth } from 'date-fns'
 import { CalendarX, History, Loader2, MapPin } from 'lucide-react'
 import Link from 'next/link'
-import { createContext, useContext, useMemo, useState, type ComponentProps } from 'react'
+import { createContext, useContext, useId, useMemo, useState, type ComponentProps } from 'react'
 import type { DayButton } from 'react-day-picker'
 
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import { dangerColor, dangerLevelFromRating, dangerTextColor } from '@/services/nac/dangerScale'
+import {
+  dangerColor,
+  dangerLevelFromRating,
+  dangerName,
+  dangerTextColor,
+} from '@/services/nac/dangerScale'
 import { ARCHIVE_PATH } from '@/services/nac/forecastArchive'
 import { cn } from '@/utilities/ui'
 
+import { DangerTriangle } from './DangerTriangle'
 import {
   DAY_CELL,
   DatePickerBar,
@@ -39,7 +45,7 @@ import {
   dayKey,
   fetchArchiveMonth,
   forecastHref,
-  mergeRatings,
+  mergeDays,
   monthKey,
   monthsBetween,
   triggerLabel,
@@ -73,16 +79,16 @@ const NOTHING_FOUND = 'Nothing found for the selected date and forecast zone'
 
 /**
  * Context feeding the custom day renderer, so `DayLink` can stay a stable module-level
- * component (no remount per render) while reading the live ratings map and link targets.
+ * component (no remount per render) while reading the live day map and link targets.
  */
 const DayLinkContext = createContext<{
-  ratings: Map<string, number>
+  days: Map<string, ForecastArchiveDate>
   loadedMonths: Set<string>
   hrefFor: (date: string) => string
   shownDate: string | null
   onEmptyDay: () => void
 }>({
-  ratings: new Map(),
+  days: new Map(),
   loadedMonths: new Set(),
   hrefFor: () => '#',
   shownDate: null,
@@ -95,11 +101,11 @@ const DayLinkContext = createContext<{
  * that it is empty) or while it is still in the future.
  */
 function DayLink({ day, className }: ComponentProps<typeof DayButton>) {
-  const { ratings, loadedMonths, hrefFor, shownDate, onEmptyDay } = useContext(DayLinkContext)
+  const { days, loadedMonths, hrefFor, shownDate, onEmptyDay } = useContext(DayLinkContext)
   const key = dayKey(day.date)
-  const rating = ratings.get(key)
+  const forecastDay = days.get(key)
 
-  if (rating === undefined) {
+  if (!forecastDay) {
     if (!loadedMonths.has(monthKey(day.date)) || key > dayKey(new Date())) {
       return <MutedDay date={day.date} className={className} />
     }
@@ -110,7 +116,7 @@ function DayLink({ day, className }: ComponentProps<typeof DayButton>) {
     <DangerDay
       date={day.date}
       href={hrefFor(key)}
-      rating={rating}
+      day={forecastDay}
       isChosen={key === shownDate}
       className={className}
     />
@@ -139,43 +145,82 @@ function EmptyDay({
   )
 }
 
-/** A day that has a product: a link colored by its danger rating. */
+/**
+ * A day that has a product: a link colored by its danger rating, previewing that day's danger
+ * while hovered or focused (the widget's day popover).
+ */
 function DangerDay({
   date,
   href,
-  rating,
+  day,
   isChosen,
   className,
 }: {
   date: Date
   href: string
-  rating: number
+  day: ForecastArchiveDate
   isChosen: boolean
   className?: string
 }) {
-  const level = dangerLevelFromRating(rating)
+  const level = dangerLevelFromRating(day.dangerRating)
+  const previewId = useId()
 
   return (
-    <Link
-      href={href}
-      prefetch={false}
-      aria-label={date.toDateString()}
-      aria-current={isChosen ? 'date' : undefined}
-      className={cn(DAY_CELL, isChosen && 'font-bold', className)}
-      style={{
-        backgroundColor: dangerColor(level),
-        color: dangerTextColor(level),
-        outline: isChosen ? '2px solid #2563eb' : undefined,
-        outlineOffset: '-2px',
-      }}
-    >
-      {date.getDate()}
-    </Link>
+    <span className="group/preview relative block h-full w-full">
+      <Link
+        href={href}
+        prefetch={false}
+        aria-label={date.toDateString()}
+        aria-describedby={previewId}
+        aria-current={isChosen ? 'date' : undefined}
+        className={cn(DAY_CELL, isChosen && 'font-bold', className)}
+        style={{
+          backgroundColor: dangerColor(level),
+          color: dangerTextColor(level),
+          outline: isChosen ? '2px solid #2563eb' : undefined,
+          outlineOffset: '-2px',
+        }}
+      >
+        {date.getDate()}
+      </Link>
+      <DayPreview id={previewId} day={day} />
+    </span>
   )
 }
 
 /**
- * The accumulated date → danger-rating map, plus lazy-loading of months the user pages into.
+ * The hover/focus preview: the rating in words, then a small elevation triangle of the day's
+ * danger — or "No Danger Rating", as the widget shows for a rating of 0 or below, or a product
+ * with no danger. Hidden until its day is hovered or focused; screen readers get the same text
+ * through the day's `aria-describedby`.
+ */
+function DayPreview({ id, day }: { id: string; day: ForecastArchiveDate }) {
+  const danger = day.dangerRating > 0 ? day.danger : null
+  const label = day.dangerLevelText ?? dangerName(dangerLevelFromRating(day.dangerRating))
+
+  return (
+    <span
+      id={id}
+      role="tooltip"
+      className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1 hidden -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap rounded-md border bg-popover px-2 py-1 text-xs text-popover-foreground shadow-md group-focus-within/preview:flex group-hover/preview:flex"
+    >
+      <span className="font-semibold capitalize">{label}</span>
+      {danger ? (
+        <DangerTriangle
+          upper={dangerLevelFromRating(danger.upper ?? 0)}
+          middle={dangerLevelFromRating(danger.middle ?? 0)}
+          lower={dangerLevelFromRating(danger.lower ?? 0)}
+          className="h-9 w-8"
+        />
+      ) : (
+        <span>No Danger Rating</span>
+      )}
+    </span>
+  )
+}
+
+/**
+ * The accumulated date → day map, plus lazy-loading of months the user pages into.
  */
 function useForecastArchive(
   center: string,
@@ -183,8 +228,8 @@ function useForecastArchive(
   initialDates: ForecastArchiveDate[],
   initialRange: { from: string; to: string },
 ) {
-  const [ratings, setRatings] = useState<Map<string, number>>(
-    () => new Map(initialDates.map((d) => [d.date, d.dangerRating])),
+  const [days, setDays] = useState<Map<string, ForecastArchiveDate>>(
+    () => new Map(initialDates.map((d) => [d.date, d])),
   )
   const [loadedMonths, setLoadedMonths] = useState<Set<string>>(
     () => new Set(monthsBetween(initialRange.from, initialRange.to)),
@@ -204,13 +249,13 @@ function useForecastArchive(
     )
     // A null result means the request failed; leave the month unloaded so it can be retried.
     if (fetched) {
-      setRatings((prev) => mergeRatings(prev, fetched))
+      setDays((prev) => mergeDays(prev, fetched))
       setLoadedMonths((prev) => new Set(prev).add(mk))
     }
     setLoading(false)
   }
 
-  return { ratings, loadedMonths, loading, loadMonth }
+  return { days, loadedMonths, loading, loadMonth }
 }
 
 export function ForecastDatePicker({
@@ -225,7 +270,7 @@ export function ForecastDatePicker({
   calendarStart,
   showZoneName,
 }: ForecastDatePickerProps) {
-  const { ratings, loadedMonths, loading, loadMonth } = useForecastArchive(
+  const { days, loadedMonths, loading, loadMonth } = useForecastArchive(
     center,
     zoneSlug,
     initialDates,
@@ -236,7 +281,7 @@ export function ForecastDatePicker({
   const shownDate = selectedDate ?? currentDate
   const hrefFor = (date: string) => forecastHref(basePath, currentDate, date)
 
-  const loadedDates = useMemo(() => Array.from(ratings.keys()), [ratings])
+  const loadedDates = useMemo(() => Array.from(days.keys()), [days])
   const { olderHref, newerHref } = adjacentForecastHrefs(
     loadedDates,
     shownDate,
@@ -258,7 +303,7 @@ export function ForecastDatePicker({
         currentDate={currentDate}
         shownDate={shownDate}
         calendarStart={calendarStart}
-        ratings={ratings}
+        days={days}
         loadedMonths={loadedMonths}
         hrefFor={hrefFor}
         loading={loading}
@@ -271,7 +316,7 @@ export function ForecastDatePicker({
 type CalendarProps = {
   shownDate: string | null
   calendarStart: string
-  ratings: Map<string, number>
+  days: Map<string, ForecastArchiveDate>
   loadedMonths: Set<string>
   hrefFor: (date: string) => string
   loading: boolean
@@ -350,7 +395,7 @@ function PopoverFooter({
 function DangerCalendar({
   shownDate,
   calendarStart,
-  ratings,
+  days,
   loadedMonths,
   hrefFor,
   loading,
@@ -367,7 +412,7 @@ function DangerCalendar({
   }
 
   const dayContext = {
-    ratings,
+    days,
     loadedMonths,
     hrefFor,
     shownDate,

@@ -8,8 +8,13 @@ const BASE = '/forecasts/avalanche/west-slopes-north'
 const CURRENT = '2026-02-09'
 
 const DATES: ForecastArchiveDate[] = [
-  { date: '2026-02-05', dangerRating: 2 },
-  { date: CURRENT, dangerRating: 3 },
+  {
+    date: '2026-02-05',
+    dangerRating: 2,
+    dangerLevelText: 'moderate',
+    danger: { upper: 2, middle: 2, lower: 1 },
+  },
+  { date: CURRENT, dangerRating: 0, dangerLevelText: 'no rating', danger: null },
 ]
 
 // Only Date is faked, so the notice's timer and waitFor still run on the real clock.
@@ -87,6 +92,26 @@ describe('ForecastDatePicker', () => {
     const status = notice.closest('[role="status"]')
     expect(status).not.toBeNull()
     await waitFor(() => expect(status).toHaveTextContent(''), { timeout: 3000 })
+  })
+
+  it('describes a rated day by its danger and draws its elevation triangle', () => {
+    renderPicker()
+    openCalendar('Feb 9, 2026')
+
+    const day = screen.getByRole('link', { name: 'Thu Feb 05 2026' })
+    expect(day).toHaveAccessibleDescription('moderate')
+
+    const preview = document.getElementById(day.getAttribute('aria-describedby') ?? '')
+    expect(preview).toHaveAttribute('role', 'tooltip')
+    expect(preview?.querySelector('svg')).not.toBeNull()
+  })
+
+  it('previews a day rated 0 or below as having no danger rating', () => {
+    renderPicker()
+    openCalendar('Feb 9, 2026')
+
+    const day = screen.getByRole('link', { name: 'Mon Feb 09 2026' })
+    expect(day).toHaveAccessibleDescription('no rating No Danger Rating')
   })
 
   it('leaves a future day inert', () => {

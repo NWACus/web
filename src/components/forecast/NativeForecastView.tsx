@@ -104,7 +104,12 @@ export function NativeForecastView({
             basePath={basePath}
             selectedDate={selectedDate}
             currentDate={currentDate}
-            initialDates={initialDates.map((d) => ({ date: d.date, dangerRating: d.dangerRating }))}
+            initialDates={initialDates.map((d) => ({
+              date: d.date,
+              dangerRating: d.dangerRating,
+              dangerLevelText: d.dangerLevelText,
+              danger: d.danger,
+            }))}
             initialRange={initialRange}
             calendarStart={pickerSettings.calendarStart}
             showZoneName={pickerSettings.showZoneName}

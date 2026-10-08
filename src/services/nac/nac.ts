@@ -3,7 +3,7 @@ import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
-import type { ArchiveProductSummary } from './archiveDates'
+import { currentElevationDanger, type ArchiveProductSummary } from './archiveDates'
 import { afpApiHost, nacApiHost } from './hosts'
 import type { ProductLookup } from './model/forecast'
 import {
@@ -541,6 +541,8 @@ async function fetchArchiveSummaries(
     product_type: item.product_type,
     published_time: item.published_time,
     danger_rating: item.danger_rating ?? 0,
+    danger_level_text: item.danger_level_text ?? null,
+    current_danger: currentElevationDanger(item.danger),
     author: item.author ?? null,
     updated_at: item.updated_at ?? null,
     forecast_zone: item.forecast_zone.map((zone) => ({ id: zone.id })),
