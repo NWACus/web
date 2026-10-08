@@ -64,7 +64,8 @@ import * as migration_20261007_210013_forecast_archive_built_in_pages from './20
 import * as migration_20261007_210100_add_glossary_terms from './20261007_210100_add_glossary_terms'
 import * as migration_20261007_210124_seed_glossary_terms from './20261007_210124_seed_glossary_terms'
 import * as migration_20261007_225104_glossary_terms_mcp_access from './20261007_225104_glossary_terms_mcp_access'
-import * as migration_20261007_234802_add_station_page_tabs from './20261007_234802_add_station_page_tabs'
+import * as migration_20261007_231209_payload_3_90_upgrade from './20261007_231209_payload_3_90_upgrade'
+import * as migration_20261008_000034_add_station_page_tabs from './20261008_000034_add_station_page_tabs'
 
 export const migrations = [
   {
@@ -398,8 +399,13 @@ export const migrations = [
     name: '20261007_225104_glossary_terms_mcp_access',
   },
   {
-    up: migration_20261007_234802_add_station_page_tabs.up,
-    down: migration_20261007_234802_add_station_page_tabs.down,
-    name: '20261007_234802_add_station_page_tabs',
+    up: migration_20261007_231209_payload_3_90_upgrade.up,
+    down: migration_20261007_231209_payload_3_90_upgrade.down,
+    name: '20261007_231209_payload_3_90_upgrade',
+  },
+  {
+    up: migration_20261008_000034_add_station_page_tabs.up,
+    down: migration_20261008_000034_add_station_page_tabs.down,
+    name: '20261008_000034_add_station_page_tabs',
   },
 ]

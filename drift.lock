@@ -1038,7 +1038,7 @@ sig = "60bbd2c2347a4abd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/plugins/index.ts"
-sig = "4bd0bfe992d3cf3a"
+sig = "795806f511f0878d"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1128,7 +1128,7 @@ sig = "72076b00f5d08fb4"
 [[bindings]]
 doc = "docs/mcp-server.md"
 target = "src/plugins/index.ts"
-sig = "4bd0bfe992d3cf3a"
+sig = "795806f511f0878d"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -1138,7 +1138,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "32d481ae7834064e"
+sig = "2730e5fb74263884"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -1338,7 +1338,7 @@ sig = "2bbfded1dc092008"
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/plugins/index.ts"
-sig = "4bd0bfe992d3cf3a"
+sig = "795806f511f0878d"
 
 [[bindings]]
 doc = "docs/shared-content.md"

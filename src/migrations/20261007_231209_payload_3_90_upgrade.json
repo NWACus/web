@@ -12881,30 +12881,6 @@
           "autoincrement": false,
           "default": "'[]'"
         },
-        "tabs_table": {
-          "name": "tabs_table",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": true
-        },
-        "tabs_graphs": {
-          "name": "tabs_graphs",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": true
-        },
-        "tabs_csv": {
-          "name": "tabs_csv",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": true
-        },
         "archived": {
           "name": "archived",
           "type": "integer",
@@ -13935,6 +13911,13 @@
           "autoincrement": false,
           "default": "'local'"
         },
+        "_objectkey": {
+          "name": "_objectkey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
@@ -14385,6 +14368,13 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'local'"
+        },
+        "_objectkey": {
+          "name": "_objectkey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -18434,6 +18424,13 @@
         },
         "hash": {
           "name": "hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reset_password_requested_at": {
+          "name": "reset_password_requested_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -25008,6 +25005,13 @@
           "autoincrement": false,
           "default": "'local/shared'"
         },
+        "_objectkey": {
+          "name": "_objectkey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
@@ -28137,6 +28141,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "bbb1c743-2646-4c86-a570-d823b8cde939",
+  "id": "7e45819b-c828-435d-8eaa-d8ba67c4fafb",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
