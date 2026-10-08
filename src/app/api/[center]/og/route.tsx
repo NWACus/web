@@ -25,6 +25,13 @@ import { OgDocContent } from './OgDocContent'
 
 const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
 
+/**
+ * A zone image shows a live danger rating, so it gets the native page's 5-minute window rather
+ * than @vercel/og's year-long `immutable` default. The versioned URL is what turns a preview over;
+ * this bounds how long one address can serve a rating that has since changed.
+ */
+const ZONE_IMAGE_CACHE_CONTROL = 'public, max-age=300, s-maxage=300'
+
 const isOgDocType = (value: string | null): value is OgDocType =>
   value === 'post' || value === 'event'
 
@@ -363,6 +370,9 @@ export async function GET(
       {
         width: 1200,
         height: 630,
+        // Lowercase on purpose: @vercel/og spreads these over its own `cache-control` key, and a
+        // differently-cased one would be appended alongside the year-long immutable default.
+        headers: zone ? { 'cache-control': ZONE_IMAGE_CACHE_CONTROL } : undefined,
         fonts: [
           {
             name: 'Lato',

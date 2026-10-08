@@ -7,6 +7,7 @@
 import { createHash } from 'node:crypto'
 
 import type { ForecastResult, WarningProduct, Weather } from './model/forecast'
+import type { ZoneProperties } from './model/mapLayer'
 import type { NWACWeatherForecastDay } from './model/nwacWeather'
 
 function sha1(value: unknown): string {
@@ -46,6 +47,23 @@ export function productFingerprint(
   product: ForecastResult | WarningProduct | Weather | null,
 ): string {
   return sha1(product)
+}
+
+/**
+ * The version a zone's link-preview image URL is keyed by, so the URL — and every cache keyed on
+ * it, a platform's preview cache included — turns over when the forecast does.
+ *
+ * Built from what metadata already holds: the zone's map-layer danger, which is what the image
+ * draws and is read for every center, plus the forecast where the page reads one (`undefined` on a
+ * widget center, which never does). Null when neither was available, so the URL goes unversioned.
+ * A cache key rather than an address the server compares against, so 16 hex characters is plenty.
+ */
+export function zoneOgImageVersion(
+  danger: ZoneProperties | null,
+  forecast: ForecastResult | null | undefined,
+): string | null {
+  if (!danger && !forecast) return null
+  return sha1({ danger, forecast: forecast ?? null }).slice(0, 16)
 }
 
 /**
