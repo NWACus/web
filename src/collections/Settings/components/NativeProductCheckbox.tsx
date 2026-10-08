@@ -1,6 +1,5 @@
 'use client'
 
-import { isNativeProductAllowed } from '@/utilities/nativeProductCenters'
 import { cn } from '@/utilities/ui'
 import {
   Button,
@@ -14,30 +13,20 @@ import {
 import type { CheckboxFieldClientComponent } from 'payload'
 import { useEffect, useId, useState } from 'react'
 
-type TenantSummary = { name: string; slug: string }
-
-function useTenant(tenantId: unknown) {
-  const [tenant, setTenant] = useState<TenantSummary | null>(null)
+function useTenantName(tenantId: unknown) {
+  const [tenantName, setTenantName] = useState<string | null>(null)
 
   useEffect(() => {
     if (typeof tenantId !== 'number') return
     const controller = new AbortController()
-    fetch(`/api/tenants/${tenantId}?depth=0&select[name]=true&select[slug]=true`, {
-      signal: controller.signal,
-    })
+    fetch(`/api/tenants/${tenantId}?depth=0&select[name]=true`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : null))
-      .then((doc) =>
-        setTenant(
-          typeof doc?.name === 'string' && typeof doc?.slug === 'string'
-            ? { name: doc.name, slug: doc.slug }
-            : null,
-        ),
-      )
+      .then((tenant) => setTenantName(typeof tenant?.name === 'string' ? tenant.name : null))
       .catch(() => undefined)
     return () => controller.abort()
   }, [tenantId])
 
-  return tenant
+  return tenantName
 }
 
 function ConfirmNameInput({
@@ -106,14 +95,14 @@ function ModalControls({
 function EnableNativeProductModal({
   slug,
   productLabel,
-  tenantName,
   onConfirm,
 }: {
   slug: string
   productLabel: string
-  tenantName: string | null
   onConfirm: () => void
 }) {
+  const tenantId = useFormFields(([fields]) => fields.tenant?.value)
+  const tenantName = useTenantName(tenantId)
   const { closeModal } = useModal()
   const [confirmInput, setConfirmInput] = useState('')
 
@@ -148,8 +137,7 @@ function EnableNativeProductModal({
 
 /**
  * Turning a native product on replaces a live NAC widget on the center's public site, so it
- * requires typing the center's name. Turning one off (rollback) stays a single click. A product
- * limited to other centers shows no toggle at all.
+ * requires typing the center's name. Turning one off (rollback) stays a single click.
  */
 export const NativeProductCheckbox: CheckboxFieldClientComponent = ({
   field,
@@ -160,8 +148,6 @@ export const NativeProductCheckbox: CheckboxFieldClientComponent = ({
     potentiallyStalePath: pathFromProps,
   })
   const { openModal } = useModal()
-  const tenantId = useFormFields(([fields]) => fields.tenant?.value)
-  const tenant = useTenant(tenantId)
 
   const modalSlug = `enable-native-product-${path}`
   const isReadOnly = readOnly || disabled
@@ -171,9 +157,6 @@ export const NativeProductCheckbox: CheckboxFieldClientComponent = ({
     if (value) setValue(false)
     else openModal(modalSlug)
   }
-
-  // Until the tenant loads, a limited product stays hidden so it never flashes for another center.
-  if (!isNativeProductAllowed(tenant?.slug ?? '', field.name)) return null
 
   return (
     <div className={cn('field-type checkbox', isReadOnly && 'checkbox--read-only')}>
@@ -190,7 +173,6 @@ export const NativeProductCheckbox: CheckboxFieldClientComponent = ({
       <EnableNativeProductModal
         slug={modalSlug}
         productLabel={typeof field.label === 'string' ? field.label : field.name}
-        tenantName={tenant?.name ?? null}
         onConfirm={() => setValue(true)}
       />
     </div>

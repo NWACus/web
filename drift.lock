@@ -248,12 +248,12 @@ sig = "1dcc0ae71dce00a6"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/collections/Settings/components/NativeProductCheckbox.tsx"
-sig = "78ea0e2db7bc5a6b"
+sig = "b69ef0892c741f35"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/collections/Settings/index.ts"
-sig = "57db7674ef48e03b"
+sig = "b9a9327bf48bb9b0"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -468,12 +468,7 @@ sig = "6c3a3a51ca5aed8f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/utilities/getNativeProductFlag.ts"
-sig = "b0752cfeba8a0198"
-
-[[bindings]]
-doc = "docs/afp-products/architecture.md"
-target = "src/utilities/nativeProductCenters.ts"
-sig = "6bcc17d33c508b66"
+sig = "57e7a21fa3322a1a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -718,7 +713,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/Settings/index.ts"
-sig = "57db7674ef48e03b"
+sig = "b9a9327bf48bb9b0"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"

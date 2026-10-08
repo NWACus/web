@@ -69,13 +69,12 @@ function renderCheckbox(overrides: Partial<Props> = {}) {
   )
 }
 
-function mockTenant(name: string, slug: string) {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ name, slug }) })
-}
-
 beforeEach(() => {
   mockValue = false
-  mockTenant('Northwest Avalanche Center', 'nwac')
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ name: 'Northwest Avalanche Center' }),
+  })
 })
 
 describe('NativeProductCheckbox', () => {
@@ -132,12 +131,5 @@ describe('NativeProductCheckbox', () => {
     await waitFor(() => expect(global.fetch).toHaveBeenCalled())
     expect(screen.getByText(/Loading avalanche center name/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Turn on' })).toBeDisabled()
-  })
-
-  it('hides the toggle of a product no center may turn on yet', async () => {
-    renderCheckbox({ field: { name: 'weather', label: 'Weather', type: 'checkbox' } })
-
-    await waitFor(() => expect(global.fetch).toHaveBeenCalled())
-    expect(screen.queryByRole('checkbox', { name: 'Weather' })).not.toBeInTheDocument()
   })
 })
