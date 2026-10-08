@@ -3,7 +3,6 @@ import {
   AvalancheProblemLikelihood,
   AvalancheProblemLocation,
   AvalancheProblemName,
-  AvalancheProblemType,
   MediaType,
   type AvalancheProblem,
 } from '@/services/nac/types/forecastSchemas'
@@ -16,7 +15,7 @@ const baseProblem: AvalancheProblem = {
   id: 1,
   forecast_id: 100,
   rank: 1,
-  avalanche_problem_id: AvalancheProblemType.StormSlab,
+  avalanche_problem_id: 2, // Storm Slab
   name: AvalancheProblemName.StormSlab,
   likelihood: AvalancheProblemLikelihood.Likely,
   location: [
@@ -84,6 +83,19 @@ describe('AvalancheProblemCard', () => {
   it('renders the numbered problem heading', () => {
     render(<AvalancheProblemCard problem={{ ...baseProblem, rank: 2 }} />)
     expect(screen.getByText('Problem #2: Storm Slab')).toBeInTheDocument()
+  })
+
+  // Forecast-80: a type added upstream reads by its name, with no icon rather than a broken one.
+  it('heads and labels an unknown problem type with its name and shows no icon', () => {
+    render(
+      <AvalancheProblemCard
+        problem={{ ...baseProblem, rank: 3, avalanche_problem_id: 99, name: 'Snow Goblin' }}
+      />,
+    )
+
+    expect(screen.getByText('Problem #3: Snow Goblin')).toBeInTheDocument()
+    expect(screen.getByText('Snow Goblin')).toBeInTheDocument()
+    expect(document.querySelector('img[src^="/images/problem-icons/"]')).not.toBeInTheDocument()
   })
 
   it('renders the four labeled problem columns', () => {

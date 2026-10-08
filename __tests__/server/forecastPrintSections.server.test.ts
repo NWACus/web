@@ -6,7 +6,6 @@ import {
   AvalancheProblemLikelihood,
   AvalancheProblemName,
   AvalancheProblemSize,
-  AvalancheProblemType,
   DangerLevel,
   ForecastPeriod,
   ProductStatus,
@@ -84,7 +83,7 @@ const problemFixture: AvalancheProblem = {
   id: 1,
   forecast_id: 1,
   rank: 1,
-  avalanche_problem_id: AvalancheProblemType.StormSlab,
+  avalanche_problem_id: 2, // Storm Slab
   name: AvalancheProblemName.StormSlab,
   likelihood: AvalancheProblemLikelihood.Possible,
   icon: 'storm-slab',

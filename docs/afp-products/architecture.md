@@ -26,6 +26,8 @@ The model owns the top-level product types (`Forecast`, `Summary`, `ForecastResu
 
 Where they differ, the model is opinionated. The clearest case: v2 represents "no active warning" as a null-object with empty fields, and the model represents it as plain `null`. The mapper performs that collapse once, which is why no component carries a "is this warning actually a warning?" check.
 
+The wire schema is strict about a product's shape but lenient at its leaves, because a parse failure takes the whole forecast down. An unrecognized media item, problem type, likelihood, aspect/elevation location or size degrades the one graphic that shows it — an "unknown" media tile, a problem with no icon, an unmarked scale, an unfilled wedge — and the rest of the forecast renders.
+
 ### Source adapters
 
 `src/services/nac/sources/` holds one interface per product and one implementation per backend.

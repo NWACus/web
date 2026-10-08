@@ -1,4 +1,5 @@
 import {
+  AvalancheProblemLocation,
   DangerLevel,
   ForecastPeriod,
   forecastResultSchema,
@@ -82,6 +83,47 @@ describe('forecastResultSchema', () => {
         expect(item.type).not.toBe(MediaType.Unknown)
       }
     }
+  })
+})
+
+describe('forecastResultSchema with values upstream may add', () => {
+  /** The active NWAC forecast with its first problem's fields overridden. */
+  function parseFirstProblemWith(overrides: Record<string, unknown>) {
+    const [first, ...rest] = nwacForecastActive.forecast_avalanche_problems
+    const result = forecastResultSchema.parse({
+      ...nwacForecastActive,
+      forecast_avalanche_problems: [{ ...first, ...overrides }, ...rest],
+    })
+    if (result.product_type !== ProductType.Forecast) throw new Error('expected a forecast')
+    return result.forecast_avalanche_problems[0]
+  }
+
+  it('keeps a problem whose type it does not know, with its name as sent (Forecast-80)', () => {
+    const problem = parseFirstProblemWith({ avalanche_problem_id: 99, name: 'Snow Goblin' })
+
+    expect(problem.avalanche_problem_id).toBe(99)
+    expect(problem.name).toBe('Snow Goblin')
+  })
+
+  it('drops only the locations it does not know (Forecast-88)', () => {
+    const problem = parseFirstProblemWith({
+      location: ['north upper', 'north alpine', 'east middle', 42],
+    })
+
+    expect(problem.location).toEqual([
+      AvalancheProblemLocation.NorthUpper,
+      AvalancheProblemLocation.EastMiddle,
+    ])
+  })
+
+  it('reads a likelihood it does not know as none (Forecast-96)', () => {
+    expect(parseFirstProblemWith({ likelihood: 'improbable' }).likelihood).toBeNull()
+    expect(parseFirstProblemWith({ likelihood: undefined }).likelihood).toBeNull()
+  })
+
+  it('drops non-numeric sizes and keeps the rest (Forecast-96)', () => {
+    expect(parseFirstProblemWith({ size: ['1', 'big', 2.5, null] }).size).toEqual([1, 2.5])
+    expect(parseFirstProblemWith({ size: ['huge'] }).size).toEqual([])
   })
 })
 

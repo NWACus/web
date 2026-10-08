@@ -37,8 +37,15 @@ const problemIconFile: Record<AvalancheProblemName, string> = {
   [AvalancheProblemName.GlideAvalanches]: 'Glide',
 }
 
-function problemIconUrl(name: AvalancheProblemName): string {
-  return `/images/problem-icons/${problemIconFile[name]}.png`
+const knownProblemNames: readonly string[] = Object.values(AvalancheProblemName)
+
+function isKnownProblemName(name: string): name is AvalancheProblemName {
+  return knownProblemNames.includes(name)
+}
+
+/** Null for a type we have no icon for, which shows its name alone rather than a broken image. */
+function problemIconUrl(name: string): string | null {
+  return isKnownProblemName(name) ? `/images/problem-icons/${problemIconFile[name]}.png` : null
 }
 
 /**
@@ -100,17 +107,21 @@ function ProblemAttributes({
   problem: AvalancheProblem
   elevationBandNames: ElevationBandNames | undefined
 }) {
+  const iconUrl = problemIconUrl(problem.name)
+
   return (
     <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4 printWide:grid-cols-4">
       <div className="mb-8 text-center">
         <h5 className={cn(labelHeading, 'mb-2')}>Problem Type</h5>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={problemIconUrl(problem.name)}
-          alt=""
-          className="mx-auto mb-2.5 mt-6 h-[130px] w-[130px] sm:mt-5 sm:h-[170px] sm:w-[170px]"
-          aria-hidden="true"
-        />
+        {iconUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={iconUrl}
+            alt=""
+            className="mx-auto mb-2.5 mt-6 h-[130px] w-[130px] sm:mt-5 sm:h-[170px] sm:w-[170px]"
+            aria-hidden="true"
+          />
+        )}
         <div className="text-sm font-medium">{problem.name}</div>
       </div>
       <div className="mb-8 text-center">

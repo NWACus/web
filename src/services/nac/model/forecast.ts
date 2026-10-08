@@ -22,7 +22,6 @@ export {
   AvalancheProblemLocation,
   AvalancheProblemName,
   AvalancheProblemSize,
-  AvalancheProblemType,
   DangerLevel,
   ExternalMediaType,
   ForecastPeriod,
