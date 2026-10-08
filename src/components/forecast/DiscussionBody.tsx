@@ -9,6 +9,7 @@ import { AuthoredHtml } from './AuthoredHtml'
 import { MediaLightbox } from './MediaLightbox'
 import { MediaOverlay } from './MediaOverlay'
 import { collectEmbeddedMedia, type EmbeddedMedia } from './embeddedMedia'
+import { forecastProse } from './forecastProse'
 
 /** Marks a figure with its position in the lightbox, so a delegated click can resolve the index. */
 const MEDIA_INDEX_ATTR = 'data-embedded-media-index'
@@ -84,11 +85,7 @@ export function DiscussionBody({ html }: DiscussionBodyProps) {
           hang a handler, and keeping the handler off AuthoredHtml keeps that subtree from
           re-rendering. */}
       <div onClick={handleClick}>
-        <AuthoredHtml
-          html={html}
-          className="prose max-w-none dark:prose-invert"
-          containerRef={rootRef}
-        />
+        <AuthoredHtml html={html} className={forecastProse} containerRef={rootRef} />
       </div>
 
       {media.map((item, index) =>

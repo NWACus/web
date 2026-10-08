@@ -6,8 +6,10 @@ import { GlossaryProse } from '@/components/glossary/GlossaryProse.client'
 import { Card, CardContent } from '@/components/ui/card'
 import { dangerIconSize, dangerIconUrl } from '@/services/nac/dangerScale'
 import type { DangerLevel } from '@/services/nac/model/forecast'
+import { cn } from '@/utilities/ui'
 
 import { sectionHeading } from './forecastHeadings'
+import { forecastProse } from './forecastProse'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface BottomLineProps {
@@ -35,10 +37,7 @@ export function BottomLine({ html, dangerLevel }: BottomLineProps) {
         />
         <CardContent className="p-6 sm:p-8">
           <h2 className={sectionHeading}>The Bottom Line</h2>
-          <GlossaryProse
-            html={sanitizeHtml(html)}
-            className="prose mt-4 max-w-none dark:prose-invert"
-          />
+          <GlossaryProse html={sanitizeHtml(html)} className={cn(forecastProse, 'mt-4')} />
         </CardContent>
       </Card>
     </div>

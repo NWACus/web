@@ -10,6 +10,7 @@ import { GlossaryProse } from '@/components/glossary/GlossaryProse.client'
 
 import { ForecastHeader } from './ForecastHeader'
 import { sectionHeading } from './forecastHeadings'
+import { forecastProse } from './forecastProse'
 import { sanitizeHtml } from './sanitizeHtml'
 import { WeatherTable } from './WeatherTable'
 import { WeatherTableV1 } from './WeatherTableV1'
@@ -39,12 +40,7 @@ export function WeatherSummary({ weather, zoneId, timezone }: WeatherSummaryProp
         }}
         timezone={timezone}
       />
-      {discussion && (
-        <GlossaryProse
-          html={sanitizeHtml(discussion)}
-          className="prose max-w-none dark:prose-invert"
-        />
-      )}
+      {discussion && <GlossaryProse html={sanitizeHtml(discussion)} className={forecastProse} />}
       {table &&
         ('periods' in table ? <WeatherTableV1 table={table} /> : <WeatherTable table={table} />)}
     </section>
