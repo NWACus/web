@@ -20,21 +20,14 @@ async function loadStationPages(center: string): Promise<AssembledStationPage[]>
   return assembleStationPages(docs)
 }
 
-// Bump when AssembledStationPage changes shape. Vercel's data cache outlives a
-// deploy and is shared across deployments, so an entry written by older code
-// would otherwise be read as the new shape (pages without `tabs` crashed).
-const STATION_PAGES_CACHE_VERSION = 'v2-tabs'
-
 // Cached per center and busted by the collection hooks, so an admin edit shows
-// on the next request without waiting out the ISR window.
+// on the next request without waiting out the ISR window. Bump the key's
+// version when AssembledStationPage changes shape: Vercel's data cache is shared
+// across deployments, so older code's entries would otherwise be read as new.
 export const getCachedStationPages = (center: string) =>
-  unstable_cache(
-    () => loadStationPages(center),
-    ['station-pages', STATION_PAGES_CACHE_VERSION, center],
-    {
-      tags: [stationPagesTag(center)],
-    },
-  )
+  unstable_cache(() => loadStationPages(center), ['station-pages', 'v2-tabs', center], {
+    tags: [stationPagesTag(center)],
+  })
 
 export async function getStationPages(center: string): Promise<AssembledStationPage[]> {
   return getCachedStationPages(center)()

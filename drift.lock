@@ -448,7 +448,7 @@ sig = "f010ada87a757f62"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/stations/getStationPages.ts"
-sig = "51e3c1542bc0ebd1"
+sig = "f2df069ba51472f5"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -953,7 +953,7 @@ sig = "f010ada87a757f62"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/getStationPages.ts"
-sig = "51e3c1542bc0ebd1"
+sig = "f2df069ba51472f5"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
