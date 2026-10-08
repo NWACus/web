@@ -1,4 +1,4 @@
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { NativeForecastView } from '@/components/forecast/NativeForecastView'
@@ -9,6 +9,7 @@ import {
   initialArchiveWindow,
   validDateForProduct,
 } from '@/services/nac/archiveDates'
+import { findDatedForecast } from '@/services/nac/datedForecast'
 import {
   fetchProductArchive,
   fetchProductById,
@@ -21,6 +22,7 @@ import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
 import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
+import { htmlToDescription } from '@/utilities/htmlToDescription'
 import { format, parseISO } from 'date-fns'
 import { notFound } from 'next/navigation'
 
@@ -157,18 +159,51 @@ export default async function Page({ params }: Args) {
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { zone: zoneParam, date } = await params
+/** The archived product's bottom line as plain text, or undefined where there's no product. */
+async function datedPreviewDescription(
+  center: string,
+  zone: string,
+  date: string,
+): Promise<string | undefined> {
+  if (!DATE_PATTERN.test(date) || !(await getNativeProductFlag(center, 'forecast'))) {
+    return undefined
+  }
+
+  // A description is optional; failing to find one must not fail the page.
+  const forecast = await findDatedForecast(center, zone, date).catch(() => null)
+  return htmlToDescription(forecast?.bottom_line)
+}
+
+export async function generateMetadata(
+  { params }: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const { center, zone: zoneParam, date } = await params
   const zone = zoneSlugFromParam(zoneParam)
 
   const zoneName = formatZoneName(zone)
   const dateLabel = DATE_PATTERN.test(date) ? format(parseISO(date), 'MMMM d, yyyy') : date
   const title = `${zoneName} - Avalanche Forecast for ${dateLabel}`
+  const url = `/forecasts/avalanche/${zone}/${date}`
+
+  const [parentMeta, description] = await Promise.all([
+    parent,
+    datedPreviewDescription(center, zone, date),
+  ])
 
   return {
     title,
+    ...(description ? { description } : {}),
     alternates: {
-      canonical: `/forecasts/avalanche/${zone}/${date}`,
+      canonical: url,
+    },
+    // Previews as this dated page, not the site root. The image stays the center's default from
+    // the layout: the zone image draws *today's* danger, which an archived forecast must not show.
+    openGraph: {
+      ...parentMeta.openGraph,
+      title,
+      url,
+      ...(description ? { description } : {}),
     },
     // Thousands of immutable archive pages shouldn't compete with the live page in search.
     robots: { index: false, follow: true },
