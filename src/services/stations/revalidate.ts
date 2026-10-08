@@ -22,7 +22,13 @@ async function tenantSlugOf(payload: BasePayload, tenant: TenantRef): Promise<st
   }
 }
 
-async function revalidateFor(payload: BasePayload, tenants: TenantRef[]): Promise<void> {
+// The nav cache has no time expiry, so a nav link to a renamed or deleted page
+// would stay stale until the nav itself is edited.
+async function revalidateFor(
+  payload: BasePayload,
+  tenants: TenantRef[],
+  { nav }: { nav: boolean },
+): Promise<void> {
   const slugs = new Set<string>()
   for (const tenant of tenants) {
     const slug = await tenantSlugOf(payload, tenant)
@@ -31,6 +37,7 @@ async function revalidateFor(payload: BasePayload, tenants: TenantRef[]): Promis
   for (const slug of slugs) {
     payload.logger.info(`Revalidating station pages for ${slug}`)
     revalidateTag(stationPagesTag(slug))
+    if (nav) revalidateTag(`navigation-${slug}`)
   }
 }
 
@@ -40,7 +47,9 @@ export const revalidateStationPages: CollectionAfterChangeHook = async ({
   req: { payload, context },
 }) => {
   if (context.disableRevalidate) return doc
-  await revalidateFor(payload, [doc?.tenant, previousDoc?.tenant])
+  const linkChanged =
+    doc?.slug !== previousDoc?.slug || doc?.displayName !== previousDoc?.displayName
+  await revalidateFor(payload, [doc?.tenant, previousDoc?.tenant], { nav: linkChanged })
   return doc
 }
 
@@ -49,6 +58,6 @@ export const revalidateStationPagesDelete: CollectionAfterDeleteHook = async ({
   req: { payload, context },
 }) => {
   if (context.disableRevalidate) return doc
-  await revalidateFor(payload, [doc?.tenant])
+  await revalidateFor(payload, [doc?.tenant], { nav: true })
   return doc
 }

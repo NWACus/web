@@ -7,6 +7,7 @@ import { fetchLastReported } from '@/services/snowobs/lastReported'
 import {
   allStationPageParams,
   getStationPages,
+  stationPagePath,
   toPageSummaries,
 } from '@/services/stations/getStationPages'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
@@ -32,7 +33,7 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   const timeZone = centerTimezone(center)
-  const csv = { action: `/weather/stations/${page.slug}/csv`, filePrefix: page.slug }
+  const csv = { action: `${stationPagePath(page.slug)}/csv`, filePrefix: page.slug }
   const [view, { notes, stations }, lastReported] = await Promise.all([
     resolveTabView(
       { center, subject: page, pages: toPageSummaries(pages), timeZone, csv },
@@ -47,7 +48,7 @@ export default async function Page({ params, searchParams }: Args) {
     <>
       <Breadcrumbs
         center={center}
-        path={`/weather/stations/${station}`}
+        path={stationPagePath(station)}
         title={page.displayName}
         hasStationsIndex
       />
@@ -80,7 +81,7 @@ export async function generateMetadata(
 
   const parentTitle = resolveParentTitle(parentMeta)
   const routeTitle = page ? page.displayName : 'Weather Station'
-  const canonical = `/weather/stations/${station}`
+  const canonical = stationPagePath(station)
 
   return {
     title: `${routeTitle} | ${parentTitle}`,

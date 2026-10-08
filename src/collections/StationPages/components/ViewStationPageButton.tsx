@@ -1,4 +1,5 @@
 import { ViewDocumentButton } from '@/components/ViewDocumentButton'
+import { stationPagePath } from '@/services/stations/stationPages'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import type { BeforeDocumentControlsServerProps } from 'payload'
 
@@ -24,5 +25,5 @@ export const ViewStationPageButton = async (props: BeforeDocumentControlsServerP
   const page = pageRes.docs[0]
   const pageTenant = await resolveTenant(page.tenant)
 
-  return <ViewDocumentButton url={`/${pageTenant.slug}/weather/stations/${page.slug}`} />
+  return <ViewDocumentButton url={`/${pageTenant.slug}${stationPagePath(page.slug)}`} />
 }

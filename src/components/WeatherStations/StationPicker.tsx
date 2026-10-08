@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
+import { stationPagePath } from '@/services/stations/stationPages'
 import { cn } from '@/utilities/ui'
 import { useRouter } from 'next/navigation'
 
@@ -64,10 +65,7 @@ export function StationPicker({
   const router = useRouter()
 
   return (
-    <Select
-      value={current ?? ''}
-      onValueChange={(slug) => router.push(`/weather/stations/${slug}`)}
-    >
+    <Select value={current ?? ''} onValueChange={(slug) => router.push(stationPagePath(slug))}>
       <SelectTrigger
         aria-label="Jump to a weather station"
         className={cn(stationSelectTriggerClass, 'min-w-48', className)}
