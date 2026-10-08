@@ -7,22 +7,26 @@
  * lazy-loads older months' danger colors on demand from `/api/{center}/forecast-archive` so
  * the page never ships the full ~9.6k-product archive.
  *
- * Each day (and the arrows) is a real Next `<Link>` to the dated route, so navigation uses the
- * app's global `nextjs-toploader` progress bar — the bar only starts on anchor clicks, not on
- * programmatic `router.push`. The dated route resolves the date to a product id server-side. A day
- * with no product is a button that says so briefly, as the legacy widget's calendar does.
+ * Each day (and an arrow with a loaded neighbour) is a real Next `<Link>` to the dated route, so
+ * navigation uses the app's global `nextjs-toploader` progress bar — the bar starts on anchor
+ * clicks, and on `router.push` only through the top-loader's own router, which is what an arrow
+ * uses after looking its neighbour up past the loaded months. The dated route resolves the date
+ * to a product id server-side. A day with no product is a button that says so briefly, as the
+ * legacy widget's calendar does.
  *
  * The pure decisions (month windows, link targets, arrow stepping) live in
  * `./datePickerNavigation` so they can be unit-tested without React.
  */
-import { parseISO, startOfMonth } from 'date-fns'
+import { addDays, parseISO, startOfMonth } from 'date-fns'
 import { CalendarX, History, Loader2, MapPin } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'nextjs-toploader/app'
 import { createContext, useContext, useId, useMemo, useState, type ComponentProps } from 'react'
 import type { DayButton } from 'react-day-picker'
 
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import type { AdjacentDirection } from '@/services/nac/adjacentForecast'
 import {
   dangerColor,
   dangerLevelFromRating,
@@ -40,12 +44,15 @@ import {
   MutedDay,
   useFlashMessage,
   useMonthLoader,
+  type ArrowLookup,
 } from './DatePickerParts.client'
 import {
-  adjacentForecastHrefs,
   dayKey,
+  fetchAdjacentDate,
   fetchArchiveMonth,
+  forecastArrowPlan,
   forecastHref,
+  lookupOutcome,
   mergeDays,
   monthKey,
   triggerLabel,
@@ -74,6 +81,9 @@ interface ForecastDatePickerProps {
 
 /** How long the "nothing found" notice stays up — the legacy widget's 1.5 seconds. */
 const NOTICE_MS = 1500
+
+/** An arrow's notice is longer to read than a day's, and has no widget timing to match. */
+const ARROW_NOTICE_MS = 4000
 
 const NOTHING_FOUND = 'Nothing found for the selected date and forecast zone'
 
@@ -240,6 +250,56 @@ function useForecastArchive(
   return { days, loadedMonths, loading, loadMonth }
 }
 
+/**
+ * An arrow's lookup past the loaded months: pending while the server searches, then a navigation
+ * (through the top-loader's router, so the progress bar still runs), or a notice — "no older
+ * forecast" also disables that arrow, a failure leaves it enabled to try again.
+ */
+function useArrowLookup({
+  center,
+  zoneSlug,
+  shownDate,
+  currentDate,
+  basePath,
+}: {
+  center: string
+  zoneSlug: string
+  shownDate: string | null
+  currentDate: string | null
+  basePath: string
+}) {
+  const router = useRouter()
+  const [pending, setPending] = useState<AdjacentDirection | null>(null)
+  const [exhausted, setExhausted] = useState<Set<AdjacentDirection>>(() => new Set())
+  const [notice, flashNotice] = useFlashMessage(ARROW_NOTICE_MS)
+
+  const lookUp = async (direction: AdjacentDirection) => {
+    if (!shownDate) return
+
+    setPending(direction)
+    const answer = await fetchAdjacentDate(center, zoneSlug, shownDate, direction)
+    const outcome = lookupOutcome(answer, direction, shownDate, currentDate, basePath)
+
+    // Left pending on success: the navigation replaces this page and its picker.
+    if (typeof outcome === 'object') return router.push(outcome.href)
+
+    setPending(null)
+    if (outcome === 'none') {
+      setExhausted((prev) => new Set(prev).add(direction))
+      flashNotice(`No ${direction} forecast for this zone.`)
+    } else {
+      flashNotice(`Couldn't find the ${direction} forecast. Try again.`)
+    }
+  }
+
+  const lookupFor = (direction: AdjacentDirection, wanted: boolean): ArrowLookup | undefined =>
+    wanted && !exhausted.has(direction)
+      ? { onClick: () => void lookUp(direction), pending: pending === direction }
+      : undefined
+
+  return { notice, lookupFor }
+}
+
 export function ForecastDatePicker({
   center,
   zoneSlug,
@@ -264,19 +324,32 @@ export function ForecastDatePicker({
   const hrefFor = (date: string) => forecastHref(basePath, currentDate, date)
 
   const loadedDates = useMemo(() => Array.from(days.keys()), [days])
-  const { olderHref, newerHref } = adjacentForecastHrefs(
+  const arrows = forecastArrowPlan({
     loadedDates,
+    loadedMonths,
     shownDate,
     currentDate,
     basePath,
-  )
+    calendarStart,
+    latest: dayKey(addDays(new Date(), 1)),
+  })
+  const { notice, lookupFor } = useArrowLookup({
+    center,
+    zoneSlug,
+    shownDate,
+    currentDate,
+    basePath,
+  })
 
   return (
     <DatePickerBar
-      olderHref={olderHref}
-      newerHref={newerHref}
+      olderHref={arrows.olderHref}
+      newerHref={arrows.newerHref}
+      olderLookup={lookupFor('older', arrows.lookOlder)}
+      newerLookup={lookupFor('newer', arrows.lookNewer)}
       olderLabel="Older forecast"
       newerLabel="Newer forecast"
+      status={notice}
     >
       <CalendarPopover
         zoneName={showZoneName ? zoneName : null}

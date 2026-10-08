@@ -1,3 +1,6 @@
+const mockPush = jest.fn()
+jest.mock('nextjs-toploader/app', () => ({ useRouter: () => ({ push: mockPush }) }))
+
 import { ForecastDatePicker } from '@/components/forecast/ForecastDatePicker.client'
 import type { ForecastArchiveDate } from '@/components/forecast/datePickerNavigation'
 import '@testing-library/jest-dom'
@@ -121,6 +124,45 @@ describe('ForecastDatePicker', () => {
     const calendar = screen.getByRole('grid')
     expect(within(calendar).queryByRole('button', { name: 'Fri Feb 20 2026' })).toBeNull()
     expect(within(calendar).queryByRole('link', { name: 'Fri Feb 20 2026' })).toBeNull()
+  })
+
+  it('steps older across the loaded window by asking the server', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ date: '2025-04-21' }),
+    })
+    renderPicker({ selectedDate: '2026-02-05' })
+
+    // 2026-02-05 is the oldest loaded date, but months remain back to the calendar start.
+    fireEvent.click(screen.getByRole('button', { name: 'Older forecast' }))
+
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith(`${BASE}/2025-04-21`))
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/nwac/forecast-archive/adjacent?zone=west-slopes-north&date=2026-02-05&dir=older',
+    )
+  })
+
+  it('says so, and disables the arrow, when there is no older forecast', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ date: null }) })
+    renderPicker({ selectedDate: '2026-02-05' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Older forecast' }))
+
+    expect(await screen.findByText('No older forecast for this zone.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Older forecast' })).toBeDisabled()
+    expect(mockPush).not.toHaveBeenCalled()
+  })
+
+  it('keeps the arrow for another try when the lookup fails', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: false })
+    renderPicker({ selectedDate: '2026-02-05' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Older forecast' }))
+
+    expect(
+      await screen.findByText("Couldn't find the older forecast. Try again."),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Older forecast' })).toBeEnabled()
   })
 
   it('does not page back past the calendar start', async () => {

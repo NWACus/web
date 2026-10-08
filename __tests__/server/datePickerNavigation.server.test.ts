@@ -1,13 +1,119 @@
 import {
   adjacentForecastHrefs,
   dayKey,
+  fetchAdjacentDate,
   fetchArchiveMonth,
+  forecastArrowPlan,
   forecastHref,
+  lookupOutcome,
   mergeDays,
   monthKey,
   monthsBetween,
   triggerLabel,
 } from '@/components/forecast/datePickerNavigation'
+
+describe('forecastArrowPlan', () => {
+  const basePath = '/forecasts/avalanche/west-slopes-north'
+  const plan = (overrides: Partial<Parameters<typeof forecastArrowPlan>[0]>) =>
+    forecastArrowPlan({
+      loadedDates: ['2025-11-28', '2025-12-01'],
+      loadedMonths: new Set(['2025-11', '2025-12']),
+      shownDate: '2025-11-28',
+      currentDate: '2026-02-09',
+      basePath,
+      calendarStart: '2019-09-01',
+      latest: '2026-02-10',
+      ...overrides,
+    })
+
+  it('links a loaded neighbour and leaves the lookup off that way', () => {
+    expect(plan({})).toMatchObject({ newerHref: `${basePath}/2025-12-01`, lookNewer: false })
+  })
+
+  it('looks older up when unloaded months remain before the season’s first forecast', () => {
+    // The season's first forecast: last season's last one is months back, outside the window.
+    expect(plan({})).toMatchObject({ olderHref: undefined, lookOlder: true })
+  })
+
+  it('disables older once every month back to the calendar start is loaded', () => {
+    expect(plan({ calendarStart: '2025-11-01' })).toMatchObject({
+      olderHref: undefined,
+      lookOlder: false,
+    })
+  })
+
+  it('looks newer up past the loaded months on a dated page', () => {
+    expect(plan({ shownDate: '2025-12-01' })).toMatchObject({
+      newerHref: undefined,
+      lookNewer: true,
+    })
+  })
+
+  it('never offers newer on the live page', () => {
+    const live = plan({
+      loadedDates: ['2026-02-09'],
+      loadedMonths: new Set(['2026-01', '2026-02']),
+      shownDate: '2026-02-09',
+    })
+    expect(live).toMatchObject({ newerHref: undefined, lookNewer: false })
+  })
+
+  it('has nothing to offer with nothing shown', () => {
+    expect(plan({ shownDate: null })).toMatchObject({ lookOlder: false, lookNewer: false })
+  })
+})
+
+describe('lookupOutcome', () => {
+  const basePath = '/forecasts/avalanche/olympics'
+
+  it('links a found date, the current product’s at the live page', () => {
+    expect(lookupOutcome({ date: '2025-04-21' }, 'older', '2025-11-28', null, basePath)).toEqual({
+      href: `${basePath}/2025-04-21`,
+    })
+    expect(
+      lookupOutcome({ date: '2026-02-09' }, 'newer', '2026-01-02', '2026-02-09', basePath),
+    ).toEqual({ href: basePath })
+  })
+
+  it('reaches the live page going newer when the archive trails a fresh publish', () => {
+    expect(lookupOutcome({ date: null }, 'newer', '2026-02-08', '2026-02-09', basePath)).toEqual({
+      href: basePath,
+    })
+  })
+
+  it('reports none, or a failure, otherwise', () => {
+    expect(lookupOutcome({ date: null }, 'older', '2019-11-01', '2026-02-09', basePath)).toBe(
+      'none',
+    )
+    expect(lookupOutcome(null, 'older', '2025-11-28', null, basePath)).toBe('failed')
+  })
+})
+
+describe('fetchAdjacentDate', () => {
+  const originalFetch = global.fetch
+  afterEach(() => {
+    global.fetch = originalFetch
+  })
+
+  it('asks for the zone, date and direction, encoding the slug', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ date: null }) })
+
+    await expect(fetchAdjacentDate('snfac', 'banner-&-x', '2026-01-02', 'older')).resolves.toEqual({
+      date: null,
+    })
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/snfac/forecast-archive/adjacent?zone=banner-%26-x&date=2026-01-02&dir=older',
+    )
+  })
+
+  it('returns null on a failed request, so the arrow can try again', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: false })
+    expect(await fetchAdjacentDate('snfac', 'z', '2026-01-02', 'newer')).toBeNull()
+
+    global.fetch = jest.fn().mockRejectedValue(new Error('offline'))
+    expect(await fetchAdjacentDate('snfac', 'z', '2026-01-02', 'newer')).toBeNull()
+  })
+})
 
 describe('dayKey / monthKey', () => {
   it('formats a date as its day and month keys', () => {

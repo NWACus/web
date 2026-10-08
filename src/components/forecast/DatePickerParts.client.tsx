@@ -6,7 +6,7 @@
  * loading both calendars do.
  */
 import { endOfMonth, format, startOfMonth } from 'date-fns'
-import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarIcon, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 
@@ -89,27 +89,50 @@ export function useMonthLoader<T>(
   return { loadedMonths, loading, loadMonth }
 }
 
-/** Older and newer arrows around the calendar trigger. */
+/**
+ * An arrow with no loaded neighbour that can still ask the server for one: enabled, and busy while
+ * the answer is on its way.
+ */
+export interface ArrowLookup {
+  onClick: () => void
+  pending: boolean
+}
+
+/**
+ * Older and newer arrows around the calendar trigger. `status` is a live region beside them for
+ * what an arrow lookup has to report; it is mounted only when the picker passes one.
+ */
 export function DatePickerBar({
   olderHref,
   newerHref,
+  olderLookup,
+  newerLookup,
   olderLabel,
   newerLabel,
+  status,
   children,
 }: {
   olderHref: string | undefined
   newerHref: string | undefined
+  olderLookup?: ArrowLookup
+  newerLookup?: ArrowLookup
   olderLabel: string
   newerLabel: string
+  status?: string
   children: ReactNode
 }) {
   return (
     <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
       <div className="inline-flex w-full items-stretch sm:w-auto">
-        <ArrowLink href={olderHref} label={olderLabel} side="left" />
+        <ArrowLink href={olderHref} lookup={olderLookup} label={olderLabel} side="left" />
         {children}
-        <ArrowLink href={newerHref} label={newerLabel} side="right" />
+        <ArrowLink href={newerHref} lookup={newerLookup} label={newerLabel} side="right" />
       </div>
+      {status !== undefined && (
+        <p role="status" className="text-sm text-muted-foreground">
+          {status}
+        </p>
+      )}
     </div>
   )
 }
@@ -146,39 +169,74 @@ export function DatePickerPopover({
   )
 }
 
-/** An arrow as a Link (so the global top-loader fires), or a disabled button at the edge. */
+type ArrowSide = 'left' | 'right'
+
+const ARROW_ROUNDING: Record<ArrowSide, string> = {
+  left: 'rounded-r-none border-r-0',
+  right: 'rounded-l-none border-l-0',
+}
+
+const ARROW_ICON: Record<ArrowSide, typeof ChevronLeft> = { left: ChevronLeft, right: ChevronRight }
+
+/**
+ * An arrow as a Link (so the global top-loader fires); a button that looks its target up when no
+ * loaded date is that way; or a disabled button at the edge.
+ */
 function ArrowLink({
   href,
+  lookup,
   label,
   side,
 }: {
   href: string | undefined
+  lookup: ArrowLookup | undefined
   label: string
-  side: 'left' | 'right'
+  side: ArrowSide
 }) {
-  const rounded = side === 'left' ? 'rounded-r-none border-r-0' : 'rounded-l-none border-l-0'
-  const Icon = side === 'left' ? ChevronLeft : ChevronRight
+  const Icon = ARROW_ICON[side]
 
-  if (!href) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        aria-label={label}
-        className={rounded}
-        disabled
-      >
-        <Icon className="h-4 w-4" />
-      </Button>
-    )
-  }
+  if (!href) return <ArrowButton lookup={lookup} label={label} side={side} />
 
   return (
-    <Button asChild variant="outline" size="icon" aria-label={label} className={rounded}>
+    <Button
+      asChild
+      variant="outline"
+      size="icon"
+      aria-label={label}
+      className={ARROW_ROUNDING[side]}
+    >
       <Link href={href}>
         <Icon className="h-4 w-4" />
       </Link>
+    </Button>
+  )
+}
+
+/** An arrow with no loaded target: a lookup (spinning while it runs), or disabled at the edge. */
+function ArrowButton({
+  lookup,
+  label,
+  side,
+}: {
+  lookup: ArrowLookup | undefined
+  label: string
+  side: ArrowSide
+}) {
+  const pending = lookup?.pending ?? false
+  const Icon = pending ? Loader2 : ARROW_ICON[side]
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      aria-label={label}
+      aria-busy={pending || undefined}
+      className={ARROW_ROUNDING[side]}
+      onClick={lookup?.onClick}
+      disabled={!lookup || pending}
+    >
+      <Icon className={cn('h-4 w-4', pending && 'animate-spin')} />
     </Button>
   )
 }
