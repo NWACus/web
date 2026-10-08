@@ -1,6 +1,7 @@
 import {
   adjacentSearchWindows,
   findAdjacentDate,
+  isWithinCalendar,
   latestValidDate,
   nearestDate,
   parseAdjacentQuery,
@@ -60,6 +61,21 @@ describe('nearestDate', () => {
   it('ignores dates outside the window it asked for', () => {
     expect(nearestDate(['2026-03-31', '2026-05-01'], '2026-04-15', 'older', april)).toBeNull()
     expect(nearestDate(['2026-03-31', '2026-05-01'], '2026-04-15', 'newer', april)).toBeNull()
+  })
+})
+
+describe('isWithinCalendar', () => {
+  it('accepts both ends and the days between', () => {
+    expect(isWithinCalendar('2019-09-01', '2019-09-01', '2026-10-08')).toBe(true)
+    expect(isWithinCalendar('2026-10-08', '2019-09-01', '2026-10-08')).toBe(true)
+    expect(isWithinCalendar('2024-01-05', '2019-09-01', '2026-10-08')).toBe(true)
+  })
+
+  it('refuses a date before the calendar start or after tomorrow', () => {
+    expect(isWithinCalendar('2019-08-31', '2019-09-01', '2026-10-08')).toBe(false)
+    expect(isWithinCalendar('2026-10-09', '2019-09-01', '2026-10-08')).toBe(false)
+    expect(isWithinCalendar('1900-01-01', '2019-09-01', '2026-10-08')).toBe(false)
+    expect(isWithinCalendar('2090-01-01', '2019-09-01', '2026-10-08')).toBe(false)
   })
 })
 

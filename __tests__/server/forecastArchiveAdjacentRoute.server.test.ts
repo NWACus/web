@@ -17,6 +17,7 @@ jest.mock('../../src/services/nac/resolveZone', () => ({
 }))
 
 import { GET } from '@/app/api/[center]/forecast-archive/adjacent/route'
+import { addDays, format } from 'date-fns'
 import { NextRequest } from 'next/server'
 
 const params = Promise.resolve({ center: 'nwac' })
@@ -77,6 +78,26 @@ describe('GET /api/[center]/forecast-archive/adjacent', () => {
 
   it('400s a malformed query', async () => {
     expect((await call('zone=olympics&date=yesterday&dir=older')).status).toBe(400)
+  })
+
+  it.each([
+    // Each would walk hundreds of empty months, one cold upstream read apiece.
+    ['far in the future', 'date=2090-01-01&dir=older'],
+    ['far in the past', 'date=1900-01-01&dir=newer'],
+    ['the day before the calendar start', 'date=2025-08-31&dir=older'],
+    ['past tomorrow', `date=${format(addDays(new Date(), 2), 'yyyy-MM-dd')}&dir=newer`],
+  ])('400s, uncached and without reading upstream, a date %s', async (_label, query) => {
+    const res = await call(`zone=olympics&${query}`)
+
+    expect([res.status, res.headers.get('Cache-Control')]).toEqual([400, 'no-store'])
+    expect(await res.json()).toEqual({ error: 'Date outside the calendar' })
+    expect([mockResolveZone, mockArchive].map((mock) => mock.mock.calls.length)).toEqual([0, 0])
+  })
+
+  it('accepts the calendar start itself', async () => {
+    const res = await call('zone=olympics&date=2025-09-01&dir=newer')
+
+    expect(await res.json()).toEqual({ date: '2025-09-02' })
   })
 
   it('404s a zone that is not one of the center’s', async () => {

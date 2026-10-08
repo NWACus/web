@@ -90,6 +90,15 @@ export function nearestDate(
   return direction === 'older' ? beyond[beyond.length - 1] : beyond[0]
 }
 
+/**
+ * Whether `date` lies within the calendar the picker offers. The search walks month by month from
+ * `date`, so a date far outside it would walk hundreds of empty months, each a cold upstream read;
+ * the picker never asks outside it, so anything else is refused before any upstream call.
+ */
+export function isWithinCalendar(date: string, calendarStart: string, latest: string): boolean {
+  return date >= calendarStart && date <= latest
+}
+
 /** The latest valid date that can exist now: tomorrow, for a forecast published this evening. */
 export function latestValidDate(now: Date = new Date()): string {
   return format(addDays(now, 1), 'yyyy-MM-dd')

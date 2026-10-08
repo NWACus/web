@@ -4,6 +4,7 @@
 // fallow-ignore-file dynamic-segment-name-conflicts
 import {
   findAdjacentDate,
+  isWithinCalendar,
   latestValidDate,
   parseAdjacentQuery,
   type AdjacentQuery,
@@ -21,31 +22,36 @@ const CACHE_CONTROL = {
   newer: 'public, s-maxage=300',
 }
 
+type AdjacentSearch = { date: string | null } | { error: string; status: 400 | 404 }
+
+const OUTSIDE_CALENDAR: AdjacentSearch = { error: 'Date outside the calendar', status: 400 }
+const ZONE_NOT_FOUND: AdjacentSearch = { error: 'Zone not found', status: 404 }
+
 /**
- * The adjacent date for a valid query, or `undefined` when the zone isn't one of the center's.
- * Throws when the archive can't be read, which the caller must not mistake for "none".
+ * The adjacent date for a valid query, or the refusal to send. A date outside the calendar is
+ * refused before the zone lookup or any archive read (`isWithinCalendar`). Throws when the archive
+ * can't be read, which the caller must not mistake for "none".
  */
-async function searchAdjacent(
-  center: string,
-  query: AdjacentQuery,
-): Promise<string | null | undefined> {
-  const [zone, metadata] = await Promise.all([
-    resolveZoneFromSlug(center, query.zoneSlug),
-    getAvalancheCenterMetadata(center),
-  ])
-  if (!zone) return undefined
-
+async function searchAdjacent(center: string, query: AdjacentQuery): Promise<AdjacentSearch> {
+  const metadata = await getAvalancheCenterMetadata(center)
   const calendarStart = forecastCalendarStart(metadata.widget_config.forecast?.start_year)
+  const latest = latestValidDate()
+  if (!isWithinCalendar(query.date, calendarStart, latest)) return OUTSIDE_CALENDAR
 
-  return findAdjacentDate({
+  const zone = await resolveZoneFromSlug(center, query.zoneSlug)
+  if (!zone) return ZONE_NOT_FOUND
+
+  const date = await findAdjacentDate({
     date: query.date,
     direction: query.direction,
-    bound: query.direction === 'older' ? calendarStart : latestValidDate(),
+    bound: query.direction === 'older' ? calendarStart : latest,
     fetchDates: async (window) => {
       const archive = await fetchProductArchiveOrThrow(center, window)
       return buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone).map((d) => d.date)
     },
   })
+
+  return { date }
 }
 
 /**
@@ -72,20 +78,20 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid zone/date/dir parameters' }, { status: 400 })
   }
 
-  let adjacent: string | null | undefined
+  let search: AdjacentSearch
   try {
-    adjacent = await searchAdjacent(center, query)
+    search = await searchAdjacent(center, query)
   } catch {
     // The picker keeps the arrow enabled and says so; a failure is never "no older forecast".
     return NextResponse.json({ error: 'Archive unavailable' }, { status: 502, headers: NO_STORE })
   }
 
-  if (adjacent === undefined) {
-    return NextResponse.json({ error: 'Zone not found' }, { status: 404, headers: NO_STORE })
+  if ('error' in search) {
+    return NextResponse.json({ error: search.error }, { status: search.status, headers: NO_STORE })
   }
 
   return NextResponse.json(
-    { date: adjacent },
+    { date: search.date },
     { headers: { 'Cache-Control': CACHE_CONTROL[query.direction] } },
   )
 }
