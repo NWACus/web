@@ -52,9 +52,9 @@ The two halves do different jobs. `sync` reads a **local products-api checkout**
 
 A NAC/AFP request with no fixture behind it answers **501**, is appended to `.e2e-mocks/missing-fixtures.jsonl`, and fails the Playwright run — `globalSetup` for anything the build hit, `globalTeardown` for anything a test hit.
 
-It has to be that loud because of how these pages behave. `nacFetch` turns any failure into a `NACError`, `fetchForecast` catches it and returns `null`, and the page renders "Unable to load forecast data. Please try again later." That is correct behaviour for a life-safety page — visibly degraded beats blank — but it means a missing fixture would otherwise look like a passing test of a degraded page.
+It has to be that loud because of how these pages behave. `nacFetch` turns any failure into a `NACError`, `fetchForecastLookup` catches it and reports a failed read, and the page renders "Unable to load forecast data. Please try again later." That is correct behaviour for a life-safety page — visibly degraded beats blank — but it means a missing fixture would otherwise look like a passing test of a degraded page.
 
-A gap we already know about is different: it goes in `scenarios.json` under `absent`, answers the way v2 answers (a warning nomatch is a five-key all-null object; a forecast nomatch is a 200 carrying the legacy PHP error page), and is not recorded as a harness bug.
+A gap we already know about is different: it goes in `scenarios.json` under `absent`, answers the way v2 answers (a warning nomatch is a five-key all-null object; the corpus's forecast nomatch is the legacy PHP error page, which live v2 sends for an unknown zone id, while a real zone with nothing published gets an all-null object), and is not recorded as a harness bug.
 
 ## SnowObs is mocked too, but not from a corpus
 
@@ -99,6 +99,7 @@ These specs are written and `test.skip` themselves with a reason until the fixtu
 | A forecast whose authored HTML carries an `afp-photoswipe` figure, an `afp-video-modal` figure and a pasted `iframe` | `product_forecast_SNFAC_embedded_media` | Everything #1228 added to the discussion: the expand chip, the play button, an inline provider frame, the blocked-embed note |
 | A weather product at an id a forecast points at, with non-empty `weather_data` | `product_weather_SNFAC_populated` | Both mountain-weather table shapes — inline on the forecast page and per zone on the Mountain Weather page — and the print picker's Mountain Weather checkbox. The corpus's one weather golden is the center's current product, served for the Mountain Weather page and by its id for the archive's Mountain Weather tab, but its `weather_data` is empty — when the populated capture lands, repoint the `type: weather` scenario at it too, or the Mountain Weather table spec turns on against empty tables |
 | A by-id golden for archive product 184562 | `product_by_id_SNFAC_summary` | The archive's second date |
+| v2's 200 all-null placeholder for a real zone with nothing published (`v2_public_product_forecast_null.json`, served at a zone in `products`) | `product_forecast_nothing_published` | The live page's "The requested product doesn't exist" state. The corpus's `v2_public_product_forecast_nomatch.html` is the Slim error page v2 sends for an unknown zone id (a 500), which reads as a failed read, so NWAC zones exercise only the outage state |
 | `/v2/public/avalanche-center/{NWAC,SAC}` | `center_NWAC`, `center_SAC` | Nothing today — held in `provisional/` |
 | Map layers with real danger levels, `off_season`, or an active warning | `map_layer_*` | Danger-map styling, outside this suite's scope |
 

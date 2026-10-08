@@ -344,6 +344,16 @@ export const forecastResultSchema = z.discriminatedUnion('product_type', [
 ])
 export type ForecastResult = z.infer<typeof forecastResultSchema>
 
+/**
+ * v2's answer for a zone with nothing published: a 200 carrying an all-null placeholder rather than
+ * a 404, as with `nullWarningSchema`. Recognized so that absence is not mistaken for a failure.
+ */
+export const nullForecastSchema = z.object({
+  avalanche_center: z.null(),
+  published_time: z.null(),
+  updated_at: z.null(),
+})
+
 // ─── Weather product schemas ────────────────────────────────────────────────
 // The weather product is issued separately from the forecast and pointed to by
 // forecast.weather_data.weather_product_id. Its own weather_data is an array of per-zone tables

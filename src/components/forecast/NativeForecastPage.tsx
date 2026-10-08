@@ -18,6 +18,7 @@ import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
 import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 
+import { ForecastUnavailable } from './ForecastUnavailable'
 import { NativeForecastView } from './NativeForecastView'
 
 interface NativeForecastPageProps {
@@ -36,21 +37,24 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
     return <div className="container py-8 text-center text-muted-foreground">Zone not found.</div>
   }
 
-  const [forecastResult, warning] = await Promise.all([
-    getForecastSource(centerSlug).getForecast(centerSlug, zone.zone.id),
+  const [lookup, warning] = await Promise.all([
+    getForecastSource(centerSlug).lookupForecast(centerSlug, zone.zone.id),
     getWarningSource(centerSlug).getWarning(centerSlug, zone.zone.id),
   ])
 
   // The address covers both safety-critical products on this page: an alert issued for this zone
   // is a change an open tab must hear about even when the forecast itself is untouched.
-  const freshnessEndpoint = forecastFreshnessEndpoint(centerSlug, zoneSlug, forecastResult, warning)
+  const freshnessEndpoint = forecastFreshnessEndpoint(
+    centerSlug,
+    zoneSlug,
+    lookup.status === 'found' ? lookup.product : null,
+    warning,
+  )
 
-  if (!forecastResult) {
+  if (lookup.status !== 'found') {
     return (
       <>
-        <div className="container py-8 text-center text-muted-foreground">
-          Unable to load forecast data. Please try again later.
-        </div>
+        <ForecastUnavailable reason={lookup.status} />
         {/* Keep asking even with nothing to show. A first publish into a zone that had none is the
             change an open tab most needs to hear about, and it is the one the (deferred) upstream
             publish notification would miss. */}
@@ -58,6 +62,8 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
       </>
     )
   }
+
+  const forecastResult = lookup.product
 
   // Anchor the picker window on the current product's date, not "today": off-season the
   // latest forecast can be months old (e.g. an April summary), and the calendar opens on

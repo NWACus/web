@@ -101,6 +101,13 @@ export interface Summary
 export type ForecastResult = Forecast | Summary
 
 /**
+ * A live product read that keeps "nothing published" (`none`) apart from "could not load"
+ * (`failed`), so a page can tell a reader which one it is. Generic so a source's fetcher can carry
+ * its wire product before mapping it.
+ */
+export type ProductLookup<T> = { status: 'found'; product: T } | { status: 'none' | 'failed' }
+
+/**
  * A mountain-weather product, issued separately from the forecast and pointed to by
  * `Forecast.weather_data.weather_product_id`. Its `weather_data` is an array of per-zone tables,
  * each in one of two shapes (columns/rows or inline/periods) detected by a `periods` key. A

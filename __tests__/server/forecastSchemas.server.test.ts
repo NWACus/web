@@ -5,6 +5,7 @@ import {
   forecastResultSchema,
   mediaItemSchema,
   MediaType,
+  nullForecastSchema,
   ProductType,
   warningResultSchema,
 } from '@/services/nac/types/forecastSchemas'
@@ -124,6 +125,32 @@ describe('forecastResultSchema with values upstream may add', () => {
   it('drops non-numeric sizes and keeps the rest (Forecast-96)', () => {
     expect(parseFirstProblemWith({ size: ['1', 'big', 2.5, null] }).size).toEqual([1, 2.5])
     expect(parseFirstProblemWith({ size: ['huge'] }).size).toEqual([])
+  })
+})
+
+describe('nullForecastSchema', () => {
+  // v2's answer for a real zone with nothing published, as api.avalanche.org gave it for NWAC zone
+  // 3025 on 2026-10-07.
+  const nothingPublished = {
+    avalanche_center: null,
+    media: null,
+    weather_data: null,
+    json_data: null,
+    published_time: null,
+    expires_time: null,
+    created_at: null,
+    updated_at: null,
+    forecast_avalanche_problems: [],
+    danger: [],
+    forecast_zone: [],
+  }
+
+  it('recognizes the nothing-published placeholder', () => {
+    expect(nullForecastSchema.safeParse(nothingPublished).success).toBe(true)
+  })
+
+  it('does not mistake a product for the placeholder', () => {
+    expect(nullForecastSchema.safeParse(nwacForecastActive).success).toBe(false)
   })
 })
 
