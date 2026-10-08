@@ -1,14 +1,10 @@
 /**
  * Inline "Mountain Weather" section of the forecast panel. The mountain-weather product is issued
- * separately from the forecast, so it carries its own author/issued time and discussion. Selects
- * the table for the viewed zone (by name, falling back to the first), then shape-detects the two
- * table formats via a `periods` key. Renders nothing when there is neither a table nor discussion.
+ * separately from the forecast, so it carries its own author/issued time and discussion. Shows the
+ * viewed zone's table only (see `zoneWeather`), shape-detecting the two table formats via a
+ * `periods` key. Renders nothing when there is neither a table nor discussion.
  */
-import type {
-  InlineWeatherData,
-  RowColumnWeatherData,
-  Weather,
-} from '@/services/nac/model/forecast'
+import type { Weather } from '@/services/nac/model/forecast'
 
 import { GlossaryProse } from '@/components/glossary/GlossaryProse.client'
 
@@ -17,25 +13,20 @@ import { sectionHeading } from './forecastHeadings'
 import { sanitizeHtml } from './sanitizeHtml'
 import { WeatherTable } from './WeatherTable'
 import { WeatherTableV1 } from './WeatherTableV1'
-
-type WeatherTableData = RowColumnWeatherData | InlineWeatherData
-
-function selectTable(tables: WeatherTableData[], zoneName: string): WeatherTableData | null {
-  if (tables.length === 0) return null
-  return tables.find((t) => t.zone_name === zoneName) ?? tables[0]
-}
+import { zoneWeather } from './zoneWeather'
 
 interface WeatherSummaryProps {
   weather: Weather
-  zoneName: string
+  /** The viewed zone's short `zone_id` string, which weather tables are keyed by. */
+  zoneId: string
   timezone: string | null | undefined
 }
 
-export function WeatherSummary({ weather, zoneName, timezone }: WeatherSummaryProps) {
-  const table = selectTable(weather.weather_data, zoneName)
-  const discussion = weather.weather_discussion?.trim() ? weather.weather_discussion : null
+export function WeatherSummary({ weather, zoneId, timezone }: WeatherSummaryProps) {
+  const content = zoneWeather(weather, zoneId)
+  if (!content) return null
 
-  if (!table && !discussion) return null
+  const { table, discussion } = content
 
   return (
     <section className="space-y-4">
