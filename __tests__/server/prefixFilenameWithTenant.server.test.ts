@@ -1,3 +1,7 @@
+import { mkdtemp, rm, writeFile } from 'fs/promises'
+import os from 'os'
+import path from 'path'
+
 const mockResolveTenant = jest.fn()
 jest.mock('../../src/utilities/tenancy/resolveTenant', () => ({
   resolveTenant: (...args: unknown[]) => mockResolveTenant(...args),
@@ -13,6 +17,7 @@ type UploadedFile = {
   mimetype: string
   name: string
   size: number
+  tempFilePath?: string
 }
 
 function buildFile(overrides: Partial<UploadedFile> = {}): UploadedFile {
@@ -69,6 +74,28 @@ describe('prefixFilenameWithTenant', () => {
     await runHook({ data: { tenant: { id: 4, slug: 'snfac' } }, file })
 
     expect(file.name).toBe('snfac-photo.png')
+    expect(file).not.toHaveProperty('clientUploadContext')
+  })
+
+  it('loads a client upload from its temp file before handing it back for a server re-upload', async () => {
+    // Since Payload 3.89 client uploads arrive with empty `data` and the bytes in a temp file,
+    // which the blob adapter never reads.
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'prefix-filename-'))
+    const tempFilePath = path.join(dir, 'upload')
+    await writeFile(tempFilePath, 'png-bytes')
+    const file = buildFile({
+      clientUploadContext: { prefix: 'local' },
+      data: Buffer.alloc(0),
+      tempFilePath,
+    })
+
+    try {
+      await runHook({ data: { tenant: 4 }, file })
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+
+    expect(file.data.toString()).toBe('png-bytes')
     expect(file).not.toHaveProperty('clientUploadContext')
   })
 

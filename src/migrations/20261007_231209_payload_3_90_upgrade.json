@@ -2934,13 +2934,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "station_pages_id": {
-          "name": "station_pages_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "tags_id": {
           "name": "tags_id",
           "type": "integer",
@@ -3008,11 +3001,6 @@
           "columns": ["posts_id"],
           "isUnique": false
         },
-        "home_pages_rels_station_pages_id_idx": {
-          "name": "home_pages_rels_station_pages_id_idx",
-          "columns": ["station_pages_id"],
-          "isUnique": false
-        },
         "home_pages_rels_tags_id_idx": {
           "name": "home_pages_rels_tags_id_idx",
           "columns": ["tags_id"],
@@ -3072,15 +3060,6 @@
           "tableFrom": "home_pages_rels",
           "tableTo": "posts",
           "columnsFrom": ["posts_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "home_pages_rels_station_pages_fk": {
-          "name": "home_pages_rels_station_pages_fk",
-          "tableFrom": "home_pages_rels",
-          "tableTo": "station_pages",
-          "columnsFrom": ["station_pages_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -6313,13 +6292,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "station_pages_id": {
-          "name": "station_pages_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "tags_id": {
           "name": "tags_id",
           "type": "integer",
@@ -6387,11 +6359,6 @@
           "columns": ["posts_id"],
           "isUnique": false
         },
-        "_home_pages_v_rels_station_pages_id_idx": {
-          "name": "_home_pages_v_rels_station_pages_id_idx",
-          "columns": ["station_pages_id"],
-          "isUnique": false
-        },
         "_home_pages_v_rels_tags_id_idx": {
           "name": "_home_pages_v_rels_tags_id_idx",
           "columns": ["tags_id"],
@@ -6451,15 +6418,6 @@
           "tableFrom": "_home_pages_v_rels",
           "tableTo": "posts",
           "columnsFrom": ["posts_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "_home_pages_v_rels_station_pages_fk": {
-          "name": "_home_pages_v_rels_station_pages_fk",
-          "tableFrom": "_home_pages_v_rels",
-          "tableTo": "station_pages",
-          "columnsFrom": ["station_pages_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -9445,13 +9403,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "station_pages_id": {
-          "name": "station_pages_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "sponsors_id": {
           "name": "sponsors_id",
           "type": "integer",
@@ -9509,11 +9460,6 @@
         "pages_rels_built_in_pages_id_idx": {
           "name": "pages_rels_built_in_pages_id_idx",
           "columns": ["built_in_pages_id"],
-          "isUnique": false
-        },
-        "pages_rels_station_pages_id_idx": {
-          "name": "pages_rels_station_pages_id_idx",
-          "columns": ["station_pages_id"],
           "isUnique": false
         },
         "pages_rels_sponsors_id_idx": {
@@ -9591,15 +9537,6 @@
           "tableFrom": "pages_rels",
           "tableTo": "built_in_pages",
           "columnsFrom": ["built_in_pages_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "pages_rels_station_pages_fk": {
-          "name": "pages_rels_station_pages_fk",
-          "tableFrom": "pages_rels",
-          "tableTo": "station_pages",
-          "columnsFrom": ["station_pages_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -12694,13 +12631,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "station_pages_id": {
-          "name": "station_pages_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "sponsors_id": {
           "name": "sponsors_id",
           "type": "integer",
@@ -12758,11 +12688,6 @@
         "_pages_v_rels_built_in_pages_id_idx": {
           "name": "_pages_v_rels_built_in_pages_id_idx",
           "columns": ["built_in_pages_id"],
-          "isUnique": false
-        },
-        "_pages_v_rels_station_pages_id_idx": {
-          "name": "_pages_v_rels_station_pages_id_idx",
-          "columns": ["station_pages_id"],
           "isUnique": false
         },
         "_pages_v_rels_sponsors_id_idx": {
@@ -12840,15 +12765,6 @@
           "tableFrom": "_pages_v_rels",
           "tableTo": "built_in_pages",
           "columnsFrom": ["built_in_pages_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "_pages_v_rels_station_pages_fk": {
-          "name": "_pages_v_rels_station_pages_fk",
-          "tableFrom": "_pages_v_rels",
-          "tableTo": "station_pages",
-          "columnsFrom": ["station_pages_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -13995,6 +13911,13 @@
           "autoincrement": false,
           "default": "'local'"
         },
+        "_objectkey": {
+          "name": "_objectkey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
@@ -14445,6 +14368,13 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'local'"
+        },
+        "_objectkey": {
+          "name": "_objectkey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -18499,6 +18429,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "reset_password_requested_at": {
+          "name": "reset_password_requested_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "login_attempts": {
           "name": "login_attempts",
           "type": "numeric",
@@ -21689,13 +21626,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "station_pages_id": {
-          "name": "station_pages_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -21727,11 +21657,6 @@
         "navigations_rels_posts_id_idx": {
           "name": "navigations_rels_posts_id_idx",
           "columns": ["posts_id"],
-          "isUnique": false
-        },
-        "navigations_rels_station_pages_id_idx": {
-          "name": "navigations_rels_station_pages_id_idx",
-          "columns": ["station_pages_id"],
           "isUnique": false
         }
       },
@@ -21768,15 +21693,6 @@
           "tableFrom": "navigations_rels",
           "tableTo": "posts",
           "columnsFrom": ["posts_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "navigations_rels_station_pages_fk": {
-          "name": "navigations_rels_station_pages_fk",
-          "tableFrom": "navigations_rels",
-          "tableTo": "station_pages",
-          "columnsFrom": ["station_pages_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -24274,13 +24190,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "station_pages_id": {
-          "name": "station_pages_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -24312,11 +24221,6 @@
         "_navigations_v_rels_posts_id_idx": {
           "name": "_navigations_v_rels_posts_id_idx",
           "columns": ["posts_id"],
-          "isUnique": false
-        },
-        "_navigations_v_rels_station_pages_id_idx": {
-          "name": "_navigations_v_rels_station_pages_id_idx",
-          "columns": ["station_pages_id"],
           "isUnique": false
         }
       },
@@ -24353,15 +24257,6 @@
           "tableFrom": "_navigations_v_rels",
           "tableTo": "posts",
           "columnsFrom": ["posts_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "_navigations_v_rels_station_pages_fk": {
-          "name": "_navigations_v_rels_station_pages_fk",
-          "tableFrom": "_navigations_v_rels",
-          "tableTo": "station_pages",
-          "columnsFrom": ["station_pages_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -24973,13 +24868,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "station_pages_id": {
-          "name": "station_pages_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -25011,11 +24899,6 @@
         "redirects_rels_posts_id_idx": {
           "name": "redirects_rels_posts_id_idx",
           "columns": ["posts_id"],
-          "isUnique": false
-        },
-        "redirects_rels_station_pages_id_idx": {
-          "name": "redirects_rels_station_pages_id_idx",
-          "columns": ["station_pages_id"],
           "isUnique": false
         }
       },
@@ -25052,15 +24935,6 @@
           "tableFrom": "redirects_rels",
           "tableTo": "posts",
           "columnsFrom": ["posts_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "redirects_rels_station_pages_fk": {
-          "name": "redirects_rels_station_pages_fk",
-          "tableFrom": "redirects_rels",
-          "tableTo": "station_pages",
-          "columnsFrom": ["station_pages_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -25130,6 +25004,13 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'local/shared'"
+        },
+        "_objectkey": {
+          "name": "_objectkey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -28260,6 +28141,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "92675736-09bf-4add-af6e-a3d60a80df6b",
+  "id": "7e45819b-c828-435d-8eaa-d8ba67c4fafb",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

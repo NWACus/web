@@ -1,6 +1,7 @@
 import { Tenant } from '@/payload-types'
 import { isTenantValue } from '@/utilities/isTenantValue'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
+import { readFile } from 'fs/promises'
 import { CollectionConfig } from 'payload'
 
 type BeforeOperationHook = Exclude<
@@ -41,6 +42,10 @@ export const prefixFilenameWithTenant: BeforeOperationHook = async ({ args, oper
     // which is what happened for every upload before 3.82.
     if ('clientUploadContext' in req.file) {
       delete req.file.clientUploadContext
+      // Since 3.89 client uploads arrive as a temp file, which the blob adapter never reads
+      if (req.file.tempFilePath && req.file.data.length === 0) {
+        req.file.data = await readFile(req.file.tempFilePath)
+      }
     }
   }
 }
