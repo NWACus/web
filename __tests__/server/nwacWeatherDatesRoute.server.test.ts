@@ -11,11 +11,6 @@ jest.mock('../../src/services/nac/nac', () => ({
   getAvalancheCenterMetadata: (...a: unknown[]) => mockGetAvalancheCenterMetadata(...a),
 }))
 
-const mockGetNativeProductFlag = jest.fn()
-jest.mock('../../src/utilities/getNativeProductFlag', () => ({
-  getNativeProductFlag: (...a: unknown[]) => mockGetNativeProductFlag(...a),
-}))
-
 import { GET } from '@/app/api/[center]/nwac-weather-dates/route'
 
 function ask(query: string, center = 'nwac') {
@@ -26,8 +21,6 @@ function ask(query: string, center = 'nwac') {
 beforeEach(() => {
   jest.useFakeTimers({ now: new Date('2026-09-15T15:00:00Z') })
   mockGetDates.mockReset()
-  mockGetNativeProductFlag.mockReset()
-  mockGetNativeProductFlag.mockResolvedValue(true)
   mockGetAvalancheCenterMetadata.mockReset()
   mockGetAvalancheCenterMetadata.mockResolvedValue({ timezone: 'America/Los_Angeles' })
 })
@@ -69,17 +62,6 @@ describe('nwac-weather-dates route', () => {
     expect((await ask('?from=2026-07-01')).status).toBe(400)
     expect((await ask('?from=July&to=2026-07-31')).status).toBe(400)
     expect((await ask('?from=2026-08-01&to=2026-07-31')).status).toBe(400)
-    expect(mockGetDates).not.toHaveBeenCalled()
-  })
-
-  it('404s without asking upstream when NWAC has native weather off', async () => {
-    mockGetNativeProductFlag.mockResolvedValue(false)
-
-    const res = await ask('?from=2026-07-01&to=2026-07-31')
-
-    expect(res.status).toBe(404)
-    expect(res.headers.get('Cache-Control')).toBe('no-store')
-    expect(mockGetNativeProductFlag).toHaveBeenCalledWith('nwac', 'weather')
     expect(mockGetDates).not.toHaveBeenCalled()
   })
 
