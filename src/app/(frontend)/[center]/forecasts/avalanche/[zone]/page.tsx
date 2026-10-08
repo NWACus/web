@@ -14,6 +14,7 @@ import { getForecastSource } from '@/services/nac/sources'
 import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
+import { htmlToDescription } from '@/utilities/htmlToDescription'
 import { notFound } from 'next/navigation'
 
 // `main`'s 30 min for the widget. A native render reads the forecast through a 300s fetch, which
@@ -134,15 +135,16 @@ export async function generateMetadata(
   // Description: the forecaster's bottom line when native mode is on (richer), otherwise the
   // map-layer travel advice. The og:image is always the live dynamic OG route.
   const danger = await getForecastZoneDanger(center, zone).catch(() => null)
-  let description = danger?.travel_advice ?? undefined
+  let description = htmlToDescription(danger?.travel_advice)
 
   const useNative = await getNativeProductFlag(center, 'forecast')
   if (useNative) {
     const resolved = await resolveZoneFromSlug(center, zone)
     if (resolved) {
       const forecast = await getForecastSource(center).getForecast(center, resolved.zone.id)
-      if (forecast && forecast.product_type === ProductType.Forecast && forecast.bottom_line) {
-        description = forecast.bottom_line
+      if (forecast && forecast.product_type === ProductType.Forecast) {
+        // The bottom line is forecaster HTML; previews and search snippets show it as plain text.
+        description = htmlToDescription(forecast.bottom_line) ?? description
       }
     }
   }
