@@ -8,15 +8,15 @@ const WEATHER_URL = `${ARCHIVE_URL}/mountain-weather`
 // 2026-08-31). The browser opens on the current season, so every spec names that season.
 const SEASON = '?season=2026'
 
-const NWAC_ONLY =
-  'Native NAC weather is limited to NWAC for now; see src/utilities/nativeProductCenters.ts.'
+const NATIVE_WEATHER_OFF =
+  'Native NAC weather is off for every center for now; see src/utilities/nativeProductCenters.ts.'
 
 /** The archive's Mountain Weather tab and the archived products it opens (inventory row F8). */
 test.describe('Forecast archive mountain weather', () => {
   test('lists the season’s weather products, each linking to the product by id', async ({
     page,
   }) => {
-    test.skip(true, NWAC_ONLY)
+    test.skip(true, NATIVE_WEATHER_OFF)
     const errors = await loadPage(page, `${WEATHER_URL}${SEASON}`)
 
     await expect(page.getByRole('heading', { name: 'Forecast Archive' })).toBeVisible()
@@ -42,7 +42,7 @@ test.describe('Forecast archive mountain weather', () => {
   })
 
   test('ignores the zone and danger filters carried over from the other tabs', async ({ page }) => {
-    test.skip(true, NWAC_ONLY)
+    test.skip(true, NATIVE_WEATHER_OFF)
     await loadPage(page, `${WEATHER_URL}${SEASON}&zone=banner-summit&danger=2`)
 
     await expect(page.getByRole('heading', { name: '1 Product' })).toBeVisible()
@@ -60,7 +60,7 @@ test.describe('Forecast archive mountain weather', () => {
   })
 
   test('a row opens the archived product, marked as archived', async ({ page }) => {
-    test.skip(true, NWAC_ONLY)
+    test.skip(true, NATIVE_WEATHER_OFF)
     await loadPage(page, `${WEATHER_URL}${SEASON}`)
 
     await page.getByRole('link', { name: /Apr 6, 2026/ }).click()

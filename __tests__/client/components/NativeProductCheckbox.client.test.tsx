@@ -134,21 +134,10 @@ describe('NativeProductCheckbox', () => {
     expect(screen.getByRole('button', { name: 'Turn on' })).toBeDisabled()
   })
 
-  describe('a product limited to NWAC', () => {
-    const weather: Props['field'] = { name: 'weather', label: 'Weather', type: 'checkbox' }
+  it('hides the toggle of a product no center may turn on yet', async () => {
+    renderCheckbox({ field: { name: 'weather', label: 'Weather', type: 'checkbox' } })
 
-    it('shows its toggle for NWAC', async () => {
-      renderCheckbox({ field: weather })
-
-      expect(await screen.findByRole('checkbox', { name: 'Weather' })).toBeInTheDocument()
-    })
-
-    it('hides its toggle for any other center', async () => {
-      mockTenant('Sawtooth Avalanche Center', 'snfac')
-      renderCheckbox({ field: weather })
-
-      await waitFor(() => expect(global.fetch).toHaveBeenCalled())
-      expect(screen.queryByRole('checkbox', { name: 'Weather' })).not.toBeInTheDocument()
-    })
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled())
+    expect(screen.queryByRole('checkbox', { name: 'Weather' })).not.toBeInTheDocument()
   })
 })

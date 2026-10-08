@@ -12,7 +12,6 @@ import {
   type CenterRouteArgs,
 } from '@/utilities/centerRoutePage'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
-import { notFound } from 'next/navigation'
 
 // Static for the widget, as on `main`. Both native pages read the current product through a 300s
 // fetch, which lowers their render's window to 5 min; see "Rebuild cadence" in
@@ -25,9 +24,8 @@ export default async function Page({ params }: CenterRouteArgs) {
   const { center } = await params
 
   // NWAC's weather comes from products-api, not the widget, and its `platforms.weather` is false,
-  // so its `weather` flag gates this page instead. Off, NWAC has no page, as before.
+  // so no flag applies: NWAC always has its own page.
   if (center === 'nwac') {
-    if (!(await getNativeProductFlag(center, 'weather'))) notFound()
     return (
       <>
         <Breadcrumbs center={center} path="/weather/forecast" />

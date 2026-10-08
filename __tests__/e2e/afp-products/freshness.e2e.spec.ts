@@ -76,7 +76,7 @@ test.describe('Revalidate on view', () => {
   }) => {
     test.skip(
       true,
-      'Native NAC weather is limited to NWAC for now; see src/utilities/nativeProductCenters.ts.',
+      'Native NAC weather is off for every center for now; see src/utilities/nativeProductCenters.ts.',
     )
     await stubExternalAssets(page)
     const freshnessCheck = armFreshnessCheck(page, 'weather-freshness')

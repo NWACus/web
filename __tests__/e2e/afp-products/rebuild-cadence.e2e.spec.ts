@@ -61,7 +61,7 @@ test.describe('Rebuild cadence', () => {
     page,
   }) => {
     expect(await windowOf(page, `${tenant('nwac')}/weather/forecast`)).toBe(NATIVE_WINDOW)
-    // SNFAC's weather flag is seeded on, but native weather is limited to NWAC for now.
+    // SNFAC's weather flag is seeded on, but native NAC weather is off for every center for now.
     for (const center of ['snfac', 'sac']) {
       expect(await windowOf(page, `${tenant(center)}/weather/forecast`)).toBeGreaterThan(
         WIDGET_ZONE_WINDOW,

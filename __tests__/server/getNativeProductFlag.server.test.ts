@@ -17,12 +17,9 @@ describe('getNativeProductFlag', () => {
     expect(await getNativeProductFlag('snfac', 'dangerMap')).toBe(false)
   })
 
-  it('honors weather for NWAC', async () => {
-    expect(await getNativeProductFlag('nwac', 'weather')).toBe(true)
-  })
-
-  it('ignores weather for any other center, whatever Settings says', async () => {
+  it('ignores weather for every center, whatever Settings says', async () => {
     expect(await getNativeProductFlag('snfac', 'weather')).toBe(false)
+    expect(await getNativeProductFlag('nwac', 'weather')).toBe(false)
     expect(mockFind).not.toHaveBeenCalled()
   })
 })

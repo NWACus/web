@@ -4,7 +4,6 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import { ForecastPage } from '@/components/NWACWeather/ForecastPage'
 import { isCalendarDate } from '@/services/nac/archiveDates'
 import { fmtCalendarDate } from '@/services/nac/nwacWeatherFormat'
-import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { format, parseISO } from 'date-fns'
 import { notFound } from 'next/navigation'
 
@@ -24,7 +23,6 @@ type Args = {
 export default async function Page({ params }: Args) {
   const { center, date } = await params
   if (center !== 'nwac' || !isCalendarDate(date)) notFound()
-  if (!(await getNativeProductFlag(center, 'weather'))) notFound()
 
   return (
     <>

@@ -256,7 +256,7 @@ const featuresFields: Field[] = [
       ),
       nativeProductFlag(
         'weather',
-        'Turn on the Mountain Weather Forecast page NWAC authors itself. NWAC only for now: other centers keep the NAC weather widget whatever this says.',
+        'Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC — and, together with the forecast flag, the forecast archive’s Mountain Weather tab. Not available to any center yet.',
       ),
       nativeProductFlag(
         'stationMap',

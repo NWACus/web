@@ -2,11 +2,11 @@ import type { NativeProduct } from '@/utilities/getNativeProductFlag'
 
 /**
  * Products only these centers may turn on. Elsewhere the flag reads false whatever Settings says,
- * and the admin hides its toggle. `weather` is NWAC's own Mountain Weather Forecast for now; the
- * native NAC weather page and archive tab stay off for other centers until they're ready.
+ * and the admin hides its toggle. Native NAC weather (the Mountain Weather page and archive tab)
+ * is off for every center until it's ready; NWAC's own Mountain Weather Forecast needs no flag.
  */
 const NATIVE_PRODUCT_CENTERS: Partial<Record<string, readonly string[]>> = {
-  weather: ['nwac'],
+  weather: [],
 } satisfies Partial<Record<NativeProduct, readonly string[]>>
 
 /** Takes any field name, so the admin checkbox can pass its own. */
