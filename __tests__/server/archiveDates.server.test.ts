@@ -1,6 +1,10 @@
+import { parseISO } from 'date-fns'
+
 import {
   buildZoneArchiveDates,
   findProductIdForDate,
+  forecastCalendarStart,
+  forecastPickerSettings,
   parseArchiveWindowQuery,
   validDateForProduct,
   type ArchiveProductSummary,
@@ -176,5 +180,41 @@ describe('parseArchiveWindowQuery', () => {
 
   it('rejects a window longer than two months', () => {
     expect(parseArchiveWindowQuery('zone', '2020-01-01', '2026-01-01')).toBeNull()
+  })
+})
+
+describe('forecastCalendarStart', () => {
+  it('opens on September 1 of the season before start_year', () => {
+    // start_year is a season's ending year: 2020 is the 2019–20 season.
+    expect(forecastCalendarStart(2020)).toBe('2019-09-01')
+  })
+
+  it('falls back to September 1, 2019 when start_year is unset', () => {
+    expect(forecastCalendarStart(undefined)).toBe('2019-09-01')
+  })
+
+  it('is a plain calendar day, so the client parses it as local midnight', () => {
+    const start = parseISO(forecastCalendarStart(2013))
+    expect([start.getFullYear(), start.getMonth(), start.getDate()]).toEqual([2012, 8, 1])
+  })
+})
+
+describe('forecastPickerSettings', () => {
+  const zone = (status: string) => ({ status })
+
+  it('reads the calendar start from the forecast widget config', () => {
+    const settings = forecastPickerSettings({
+      widget_config: { forecast: { start_year: 2025 } },
+      zones: [zone('active')],
+    })
+    expect(settings.calendarStart).toBe('2024-09-01')
+  })
+
+  it('names the zone only when the center has more than one active zone', () => {
+    const single = { widget_config: {}, zones: [zone('active'), zone('disabled')] }
+    const several = { widget_config: {}, zones: [zone('active'), zone('active')] }
+
+    expect(forecastPickerSettings(single).showZoneName).toBe(false)
+    expect(forecastPickerSettings(several).showZoneName).toBe(true)
   })
 })

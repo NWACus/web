@@ -6,7 +6,7 @@
  */
 import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import { useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -22,6 +22,33 @@ export function MutedDay({ date, className }: { date: Date; className?: string }
       {date.getDate()}
     </span>
   )
+}
+
+/**
+ * A message that clears itself after `durationMs`, for the picker's brief notices. A new message
+ * restarts the clock, and the timer is cleared on unmount.
+ */
+export function useFlashMessage(durationMs: number): [string, (message: string) => void] {
+  const [message, setMessage] = useState('')
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current)
+    },
+    [],
+  )
+
+  const flash = useCallback(
+    (next: string) => {
+      if (timer.current) clearTimeout(timer.current)
+      setMessage(next)
+      timer.current = setTimeout(() => setMessage(''), durationMs)
+    },
+    [durationMs],
+  )
+
+  return [message, flash]
 }
 
 /** Older and newer arrows around the calendar trigger. */
@@ -49,8 +76,16 @@ export function DatePickerBar({
   )
 }
 
-/** The trigger button and the popover it opens. */
-export function DatePickerPopover({ label, children }: { label: string; children: ReactNode }) {
+/** The trigger button and the popover it opens. `tooltip` is the button's hover hint. */
+export function DatePickerPopover({
+  label,
+  tooltip,
+  children,
+}: {
+  label: string
+  tooltip?: string
+  children: ReactNode
+}) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -59,6 +94,7 @@ export function DatePickerPopover({ label, children }: { label: string; children
         <Button
           type="button"
           variant="outline"
+          title={tooltip}
           className="flex-1 justify-center gap-2 rounded-none sm:w-56 sm:flex-none"
         >
           <CalendarIcon className="h-4 w-4" />

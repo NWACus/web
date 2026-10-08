@@ -7,6 +7,7 @@ import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 import {
   buildZoneArchiveDates,
   findProductIdForDate,
+  forecastPickerSettings,
   initialArchiveWindow,
   validDateForProduct,
 } from '@/services/nac/archiveDates'
@@ -152,6 +153,7 @@ export default async function Page({ params }: Args) {
           currentDate={currentDate}
           selectedDate={date}
           basePath={`/forecasts/avalanche/${zone}`}
+          pickerSettings={forecastPickerSettings(metadata)}
           centerType={metadata.type}
           weather={weather}
         />

@@ -9,13 +9,14 @@
  *
  * Each day (and the arrows) is a real Next `<Link>` to the dated route, so navigation uses the
  * app's global `nextjs-toploader` progress bar — the bar only starts on anchor clicks, not on
- * programmatic `router.push`. The dated route resolves the date to a product id server-side.
+ * programmatic `router.push`. The dated route resolves the date to a product id server-side. A day
+ * with no product is a button that says so briefly, as the legacy widget's calendar does.
  *
  * The pure decisions (month windows, link targets, arrow stepping) live in
  * `./datePickerNavigation` so they can be unit-tested without React.
  */
 import { endOfMonth, format, parseISO, startOfMonth } from 'date-fns'
-import { History, Loader2, MapPin } from 'lucide-react'
+import { CalendarX, History, Loader2, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useMemo, useState, type ComponentProps } from 'react'
 import type { DayButton } from 'react-day-picker'
@@ -26,7 +27,13 @@ import { dangerColor, dangerLevelFromRating, dangerTextColor } from '@/services/
 import { ARCHIVE_PATH } from '@/services/nac/forecastArchive'
 import { cn } from '@/utilities/ui'
 
-import { DAY_CELL, DatePickerBar, DatePickerPopover, MutedDay } from './DatePickerParts.client'
+import {
+  DAY_CELL,
+  DatePickerBar,
+  DatePickerPopover,
+  MutedDay,
+  useFlashMessage,
+} from './DatePickerParts.client'
 import {
   adjacentForecastHrefs,
   dayKey,
@@ -53,10 +60,16 @@ interface ForecastDatePickerProps {
   initialDates: ForecastArchiveDate[]
   /** The `from`/`to` (YYYY-MM-DD) window covered by initialDates. */
   initialRange: { from: string; to: string }
+  /** First day the calendar offers (`YYYY-MM-DD`), from the center's `start_year`. */
+  calendarStart: string
+  /** Name the zone in the dropdown; the widget does only when the center has several. */
+  showZoneName: boolean
 }
 
-// The legacy widget's calendar starts at the 2018-19 season.
-const ARCHIVE_START = new Date(2018, 8, 1)
+/** How long the "nothing found" notice stays up — the legacy widget's 1.5 seconds. */
+const NOTICE_MS = 1500
+
+const NOTHING_FOUND = 'Nothing found for the selected date and forecast zone'
 
 /**
  * Context feeding the custom day renderer, so `DayLink` can stay a stable module-level
@@ -64,17 +77,34 @@ const ARCHIVE_START = new Date(2018, 8, 1)
  */
 const DayLinkContext = createContext<{
   ratings: Map<string, number>
+  loadedMonths: Set<string>
   hrefFor: (date: string) => string
   shownDate: string | null
-}>({ ratings: new Map(), hrefFor: () => '#', shownDate: null })
+  onEmptyDay: () => void
+}>({
+  ratings: new Map(),
+  loadedMonths: new Set(),
+  hrefFor: () => '#',
+  shownDate: null,
+  onEmptyDay: () => {},
+})
 
-/** Renders a calendar day as a danger-colored Link (or a muted, non-interactive cell if no product). */
+/**
+ * Renders a calendar day as a danger-colored Link. A day with no product says so when picked, as
+ * the widget's does; it stays muted and inert only while its month is unloaded (we can't yet tell
+ * that it is empty) or while it is still in the future.
+ */
 function DayLink({ day, className }: ComponentProps<typeof DayButton>) {
-  const { ratings, hrefFor, shownDate } = useContext(DayLinkContext)
+  const { ratings, loadedMonths, hrefFor, shownDate, onEmptyDay } = useContext(DayLinkContext)
   const key = dayKey(day.date)
   const rating = ratings.get(key)
 
-  if (rating === undefined) return <MutedDay date={day.date} className={className} />
+  if (rating === undefined) {
+    if (!loadedMonths.has(monthKey(day.date)) || key > dayKey(new Date())) {
+      return <MutedDay date={day.date} className={className} />
+    }
+    return <EmptyDay date={day.date} onPick={onEmptyDay} className={className} />
+  }
 
   return (
     <DangerDay
@@ -84,6 +114,28 @@ function DayLink({ day, className }: ComponentProps<typeof DayButton>) {
       isChosen={key === shownDate}
       className={className}
     />
+  )
+}
+
+/** A day with no product: pickable, and answered with the "nothing found" notice. */
+function EmptyDay({
+  date,
+  onPick,
+  className,
+}: {
+  date: Date
+  onPick: () => void
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onPick}
+      aria-label={date.toDateString()}
+      className={cn(DAY_CELL, 'text-muted-foreground hover:bg-accent', className)}
+    >
+      {date.getDate()}
+    </button>
   )
 }
 
@@ -158,7 +210,7 @@ function useForecastArchive(
     setLoading(false)
   }
 
-  return { ratings, loading, loadMonth }
+  return { ratings, loadedMonths, loading, loadMonth }
 }
 
 export function ForecastDatePicker({
@@ -170,8 +222,10 @@ export function ForecastDatePicker({
   currentDate,
   initialDates,
   initialRange,
+  calendarStart,
+  showZoneName,
 }: ForecastDatePickerProps) {
-  const { ratings, loading, loadMonth } = useForecastArchive(
+  const { ratings, loadedMonths, loading, loadMonth } = useForecastArchive(
     center,
     zoneSlug,
     initialDates,
@@ -198,12 +252,14 @@ export function ForecastDatePicker({
       newerLabel="Newer forecast"
     >
       <CalendarPopover
-        zoneName={zoneName}
+        zoneName={showZoneName ? zoneName : null}
         basePath={basePath}
         selectedDate={selectedDate}
         currentDate={currentDate}
         shownDate={shownDate}
+        calendarStart={calendarStart}
         ratings={ratings}
+        loadedMonths={loadedMonths}
         hrefFor={hrefFor}
         loading={loading}
         loadMonth={loadMonth}
@@ -212,40 +268,39 @@ export function ForecastDatePicker({
   )
 }
 
-/** The trigger button and the danger-colored calendar it opens. */
+type CalendarProps = {
+  shownDate: string | null
+  calendarStart: string
+  ratings: Map<string, number>
+  loadedMonths: Set<string>
+  hrefFor: (date: string) => string
+  loading: boolean
+  loadMonth: (target: Date) => Promise<void>
+}
+
+/**
+ * The trigger button and the danger-colored calendar it opens. The button reads the shown
+ * product's valid date on the live page too, as the widget's does.
+ */
 function CalendarPopover({
   zoneName,
   basePath,
   selectedDate,
   currentDate,
-  shownDate,
-  ratings,
-  hrefFor,
-  loading,
-  loadMonth,
-}: {
-  zoneName: string
+  ...calendar
+}: CalendarProps & {
+  /** Null when the center has a single zone, which the widget doesn't name. */
+  zoneName: string | null
   basePath: string
   selectedDate: string | null
   currentDate: string | null
-  shownDate: string | null
-  ratings: Map<string, number>
-  hrefFor: (date: string) => string
-  loading: boolean
-  loadMonth: (target: Date) => Promise<void>
 }) {
   const showBackToCurrent = Boolean(selectedDate && currentDate)
 
   return (
-    <DatePickerPopover label={triggerLabel(selectedDate)}>
-      <ZoneHeading zoneName={zoneName} />
-      <DangerCalendar
-        shownDate={shownDate}
-        ratings={ratings}
-        hrefFor={hrefFor}
-        loading={loading}
-        loadMonth={loadMonth}
-      />
+    <DatePickerPopover label={triggerLabel(calendar.shownDate)} tooltip="Choose a date">
+      {zoneName && <ZoneHeading zoneName={zoneName} />}
+      <DangerCalendar {...calendar} />
       <PopoverFooter basePath={basePath} showBackToCurrent={showBackToCurrent} />
     </DatePickerPopover>
   )
@@ -288,39 +343,48 @@ function PopoverFooter({
   )
 }
 
-/** The month grid itself: days colored by danger, with a spinner while a month loads. */
+/**
+ * The month grid itself: days colored by danger, with a spinner while a month loads and the
+ * "nothing found" notice over it when an empty day is picked.
+ */
 function DangerCalendar({
   shownDate,
+  calendarStart,
   ratings,
+  loadedMonths,
   hrefFor,
   loading,
   loadMonth,
-}: {
-  shownDate: string | null
-  ratings: Map<string, number>
-  hrefFor: (date: string) => string
-  loading: boolean
-  loadMonth: (target: Date) => Promise<void>
-}) {
+}: CalendarProps) {
   const [month, setMonth] = useState<Date>(() =>
     startOfMonth(shownDate ? parseISO(shownDate) : new Date()),
   )
+  const [notice, flashNotice] = useFlashMessage(NOTICE_MS)
 
   const handleMonthChange = (next: Date) => {
     setMonth(next)
     void loadMonth(next)
   }
 
+  const dayContext = {
+    ratings,
+    loadedMonths,
+    hrefFor,
+    shownDate,
+    onEmptyDay: () => flashNotice(NOTHING_FOUND),
+  }
+
   return (
     <div className="relative">
-      <DayLinkContext.Provider value={{ ratings, hrefFor, shownDate }}>
+      <DayLinkContext.Provider value={dayContext}>
         {/* mode="single" makes react-day-picker render an interactive DayButton per day
             (our DayLink); without a mode it renders plain, non-interactive text. */}
         <Calendar
           mode="single"
           month={month}
           onMonthChange={handleMonthChange}
-          startMonth={ARCHIVE_START}
+          // A plain calendar day parses as local midnight, so the start can't slip to Aug 31.
+          startMonth={parseISO(calendarStart)}
           endMonth={new Date()}
           components={{ DayButton: DayLink }}
         />
@@ -329,6 +393,30 @@ function DangerCalendar({
         <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
+      )}
+      <CalendarNotice message={notice} />
+    </div>
+  )
+}
+
+/**
+ * Always mounted, so the live region exists before its text arrives and screen readers announce
+ * the notice; it covers the calendar only while there is something to say.
+ */
+function CalendarNotice({ message }: { message: string }) {
+  return (
+    <div
+      role="status"
+      className={cn(
+        'pointer-events-none absolute inset-0 flex items-center justify-center p-4',
+        !message && 'sr-only',
+      )}
+    >
+      {message && (
+        <p className="flex flex-col items-center gap-1 rounded-md border bg-background px-4 py-3 text-center text-sm shadow-md">
+          <CalendarX className="h-5 w-5" aria-hidden="true" />
+          {message}
+        </p>
       )}
     </div>
   )

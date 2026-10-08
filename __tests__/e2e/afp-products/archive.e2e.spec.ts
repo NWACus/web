@@ -8,9 +8,10 @@ test.describe('Forecast archive', () => {
   test('the date picker offers the dates the archive actually holds', async ({ page }) => {
     await loadPage(page, FORECAST_URL)
 
-    // The corpus archive holds two products for this zone, both in April 2026.
+    // The corpus archive holds two products for this zone, both in April 2026. The button reads
+    // the live product's valid date, as the widget's does.
     await clickUntil(
-      page.getByRole('button', { name: 'Current forecast' }),
+      page.getByRole('button', { name: 'Apr 5, 2026' }),
       page.getByRole('link', { name: 'Sun Apr 05 2026' }),
     )
     await expect(page.getByRole('button', { name: 'Newer forecast' })).toBeDisabled()

@@ -166,6 +166,38 @@ export function initialArchiveWindow(anchor: string | null): { from: string; to:
   }
 }
 
+/** The season the legacy widget's calendar opens on when a center sets no `start_year`. */
+const DEFAULT_CALENDAR_START_YEAR = 2019
+
+/**
+ * The first day the date picker offers, as `YYYY-MM-DD`: September 1 of the year before the
+ * center's `start_year` (a season's ending year), or September 1, 2019 when that is unset.
+ * Returned as a plain calendar day so the client builds it as a *local* date — the widget's
+ * `new Date('YYYY-09-01')` parses as UTC midnight, which is still August 31 in US timezones.
+ */
+export function forecastCalendarStart(startYear: number | undefined): string {
+  const year = startYear ? startYear - 1 : DEFAULT_CALENDAR_START_YEAR
+  return `${year}-09-01`
+}
+
+/** What the forecast date picker needs from the center's own configuration. */
+export interface ForecastPickerSettings {
+  /** First day the calendar offers, `YYYY-MM-DD` (see `forecastCalendarStart`). */
+  calendarStart: string
+  /** The widget names the zone in the dropdown only when the center has more than one. */
+  showZoneName: boolean
+}
+
+export function forecastPickerSettings(center: {
+  widget_config: { forecast?: { start_year?: number } }
+  zones: { status: string }[]
+}): ForecastPickerSettings {
+  return {
+    calendarStart: forecastCalendarStart(center.widget_config.forecast?.start_year),
+    showZoneName: center.zones.filter((zone) => zone.status === 'active').length > 1,
+  }
+}
+
 // Matches a YYYY-MM-DD date.
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
