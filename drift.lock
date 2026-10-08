@@ -553,7 +553,7 @@ sig = "e4dc2b4ccd50dcc4"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/components/RichText/index.tsx"
-sig = "a6cfb9e47e74a6a0"
+sig = "9e28753f888be7e1"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -873,7 +873,7 @@ sig = "8364b5c2c9c54525"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/index.ts"
-sig = "b2ee9c081a7ce9c0"
+sig = "a309845a1948e4bf"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -953,7 +953,7 @@ sig = "c19b9d838501d204"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/revalidate.ts"
-sig = "7b0c3163dddc0895"
+sig = "b103c089e2b429c2"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1133,7 +1133,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "0c04cf9c0f152296"
+sig = "1b3c613ccc6bc73c"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

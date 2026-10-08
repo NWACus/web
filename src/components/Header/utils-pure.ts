@@ -1,5 +1,7 @@
-import { BuiltInPage, Navigation, Page, Post } from '@/payload-types'
+import { BuiltInPage, Navigation, Page, Post, StationPage } from '@/payload-types'
+import { stationPagePath } from '@/services/stations/stationPages'
 import { normalizePath } from '@/utilities/path'
+import { referenceDocTitle } from '@/utilities/referenceDocTitle'
 import invariant from 'tiny-invariant'
 import type { DisplayMode, NavItem, NavLink, TopLevelNavItem } from './utils'
 
@@ -112,6 +114,10 @@ export function convertToNavLink(
           relationTo: 'posts'
           value: number | Post
         } | null)
+      | ({
+          relationTo: 'stationPages'
+          value: number | StationPage
+        } | null)
 
     url?: string | null
     label?: string | null
@@ -133,7 +139,7 @@ export function convertToNavLink(
     }
   }
 
-  // internal page/post/builtInPage reference links
+  // internal page/post/builtInPage/stationPage reference links
   if (link.type === 'internal' && link.reference) {
     const reference = link.reference
 
@@ -142,13 +148,8 @@ export function convertToNavLink(
       `Link reference.value is a number. Depth not set correctly on navigations collection query.`,
     )
 
-    if (
-      !linkLabel &&
-      typeof reference.value === 'object' &&
-      reference.value &&
-      'title' in reference.value
-    ) {
-      linkLabel = reference.value.title
+    if (!linkLabel && typeof reference.value === 'object' && reference.value) {
+      linkLabel = referenceDocTitle(reference.value)
     }
 
     invariant(
@@ -175,6 +176,14 @@ export function convertToNavLink(
         type: 'internal',
         label: linkLabel,
         url,
+      }
+    }
+
+    if (reference.relationTo === 'stationPages') {
+      return {
+        type: 'internal',
+        label: linkLabel,
+        url: stationPagePath(reference.value.slug),
       }
     }
 

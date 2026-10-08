@@ -1,7 +1,8 @@
 'use client'
 import { Button, type ButtonProps } from '@/components/ui/button'
-import type { BuiltInPage, Page, Post } from '@/payload-types'
+import type { BuiltInPage, Page, Post, StationPage } from '@/payload-types'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
+import { referenceDocTitle } from '@/utilities/referenceDocTitle'
 import { useAnalytics } from '@/utilities/useAnalytics'
 import Link from 'next/link'
 import * as React from 'react'
@@ -12,8 +13,8 @@ export interface ButtonLinkProps extends Omit<ButtonProps, 'type'> {
   newTab?: boolean | null
   label?: string | null
   reference?: {
-    relationTo: 'builtInPages' | 'pages' | 'posts'
-    value: BuiltInPage | Page | Post | number
+    relationTo: 'builtInPages' | 'pages' | 'posts' | 'stationPages'
+    value: BuiltInPage | Page | Post | StationPage | number
   } | null
   type?: 'internal' | 'external' | null
   url?: string | null
@@ -32,11 +33,9 @@ const ButtonLink = React.forwardRef<HTMLButtonElement, ButtonLinkProps>(
     if (!href) return null
 
     const referenceTitle =
-      (reference &&
-        reference.value &&
-        typeof reference.value !== 'number' &&
-        reference?.value.title) ||
-      ''
+      reference && reference.value && typeof reference.value !== 'number'
+        ? referenceDocTitle(reference.value)
+        : ''
     const buttonLabel = label || referenceTitle
 
     const newTabProps = newTab

@@ -248,6 +248,10 @@ export interface HomePage {
           | ({
               relationTo: 'posts';
               value: number | Post;
+            } | null)
+          | ({
+              relationTo: 'stationPages';
+              value: number | StationPage;
             } | null);
         url?: string | null;
         label?: string | null;
@@ -1423,6 +1427,10 @@ export interface ImageLinkGridBlock {
             | ({
                 relationTo: 'posts';
                 value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'stationPages';
+                value: number | StationPage;
               } | null);
           url?: string | null;
         };
@@ -1446,6 +1454,52 @@ export interface BuiltInPage {
   title: string;
   url: string;
   tenant: number | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationPages".
+ */
+export interface StationPage {
+  id: number;
+  tenant: number | Tenant;
+  displayName: string;
+  /**
+   * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
+  slug: string;
+  stations?: {
+    stid: string;
+    source: string;
+  }[];
+  /**
+   * Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.
+   */
+  columns?:
+    | (
+        | 'air_temp'
+        | 'relative_humidity'
+        | 'wind_speed_min'
+        | 'wind_speed'
+        | 'wind_gust'
+        | 'wind_direction'
+        | 'precip_accum_one_hour'
+        | 'snow_depth_24h'
+        | 'snow_depth'
+        | 'intermittent_snow'
+        | 'solar_radiation'
+        | 'pressure'
+        | 'equip_temperature'
+      )[]
+    | null;
+  /**
+   * The hardware is gone but the history is still queryable, so the page stays up for downloads.
+   */
+  archived?: boolean | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1525,6 +1579,10 @@ export interface LinkPreviewBlock {
             | ({
                 relationTo: 'posts';
                 value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'stationPages';
+                value: number | StationPage;
               } | null);
           url?: string | null;
           label?: string | null;
@@ -1788,52 +1846,6 @@ export interface VideoEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'videoEmbed';
-}
-/**
- * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "stationPages".
- */
-export interface StationPage {
-  id: number;
-  tenant: number | Tenant;
-  displayName: string;
-  /**
-   * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
-   */
-  slug: string;
-  stations?: {
-    stid: string;
-    source: string;
-  }[];
-  /**
-   * Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.
-   */
-  columns?:
-    | (
-        | 'air_temp'
-        | 'relative_humidity'
-        | 'wind_speed_min'
-        | 'wind_speed'
-        | 'wind_gust'
-        | 'wind_direction'
-        | 'precip_accum_one_hour'
-        | 'snow_depth_24h'
-        | 'snow_depth'
-        | 'intermittent_snow'
-        | 'solar_radiation'
-        | 'pressure'
-        | 'equip_temperature'
-      )[]
-    | null;
-  /**
-   * The hardware is gone but the history is still queryable, so the page stays up for downloads.
-   */
-  archived?: boolean | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2308,6 +2320,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2336,6 +2352,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2357,6 +2377,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2387,6 +2411,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2415,6 +2443,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2436,6 +2468,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2470,6 +2506,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2498,6 +2538,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2519,6 +2563,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2553,6 +2601,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2581,6 +2633,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2602,6 +2658,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2636,6 +2696,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2664,6 +2728,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2685,6 +2753,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2719,6 +2791,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2747,6 +2823,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2768,6 +2848,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2802,6 +2886,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2830,6 +2918,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2851,6 +2943,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2885,6 +2981,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2913,6 +3013,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2934,6 +3038,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2968,6 +3076,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2996,6 +3108,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -3017,6 +3133,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -3051,6 +3171,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -3079,6 +3203,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -3100,6 +3228,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -3245,6 +3377,10 @@ export interface Redirect {
       | ({
           relationTo: 'posts';
           value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'stationPages';
+          value: number | StationPage;
         } | null);
     url?: string | null;
   };
@@ -5668,6 +5804,10 @@ export interface ButtonBlock {
       | ({
           relationTo: 'posts';
           value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'stationPages';
+          value: number | StationPage;
         } | null);
     url?: string | null;
     label?: string | null;

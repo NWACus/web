@@ -8,6 +8,7 @@ import {
 
 import type { TopLevelNavItem } from '../../src/components/Header/utils'
 import type { Navigation } from '../../src/payload-types'
+import { buildStationPage } from '../builders'
 
 type NavTab = Navigation['weather']
 
@@ -566,6 +567,31 @@ describe('Header Utilities', () => {
               link: { type: 'internal', url: '/education/learn', label: 'Learn' },
             },
           ],
+        })
+      })
+
+      it('links station pages at their absolute path, labelled by displayName', () => {
+        const tab: NavTab = {
+          items: [
+            {
+              id: 'alpental',
+              link: {
+                type: 'internal',
+                reference: {
+                  relationTo: 'stationPages',
+                  value: buildStationPage({ slug: 'alpental', displayName: 'Alpental' }),
+                },
+              },
+            },
+          ],
+        }
+
+        const [entry] = topLevelNavItem({ tab, label: 'Weather' })
+
+        expect(entry.items?.[0].link).toEqual({
+          type: 'internal',
+          url: '/weather/stations/alpental',
+          label: 'Alpental',
         })
       })
 

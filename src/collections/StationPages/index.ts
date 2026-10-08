@@ -22,9 +22,13 @@ import { trackedStations } from './endpoints/trackedStations'
 // are read live from SnowObs, both here (the picker) and on the public page.
 // The table's columns follow what those stations report unless the page
 // lists its own.
-export const StationPages: CollectionConfig = {
+export const StationPages: CollectionConfig<'stationPages'> = {
   slug: 'stationPages',
   access: accessByTenantRole('stationPages'),
+  defaultPopulate: {
+    displayName: true,
+    slug: true,
+  },
   admin: {
     baseListFilter: filterByTenant,
     group: 'Content',
