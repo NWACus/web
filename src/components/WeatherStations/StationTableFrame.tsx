@@ -2,11 +2,10 @@ import { TableHeader } from '@/components/ui/table'
 import { cn } from '@/utilities/ui'
 import type { ComponentProps, ReactNode } from 'react'
 
-// A sticky header sticks to the nearest scroll container. Below xl that's this
-// wrapper, capped at the viewport so it scrolls vertically too; from xl every
-// station table fits its container (the widest is ~1140px in 1216px), so the
-// wrapper stops scrolling and the header sticks to the page. The region makes
-// the box reachable by keyboard.
+// A sticky header sticks to the nearest scroll container, so at every width
+// this wrapper scrolls both ways, capped at the viewport: a page can add
+// stations until the table outgrows any container. The region makes the box
+// reachable by keyboard.
 export function StationTableFrame({
   label,
   className,
@@ -21,7 +20,7 @@ export function StationTableFrame({
       role="region"
       aria-label={label}
       tabIndex={0}
-      className="relative w-full max-h-[calc(100dvh-5rem)] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:max-h-[calc(100dvh-2rem)] xl:max-h-none xl:overflow-visible"
+      className="relative w-full max-h-[calc(100dvh-5rem)] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:max-h-[calc(100dvh-2rem)]"
     >
       <table className={cn('w-full caption-bottom text-sm', className)}>{children}</table>
     </div>
