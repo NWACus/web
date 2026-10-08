@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test } from './fixture'
-import { hasFixture, loadPage, tenant } from './helpers'
+import { loadPage, tenant } from './helpers'
 import { repoRoot } from './mockState'
 
 /**
@@ -14,25 +14,25 @@ import { repoRoot } from './mockState'
  * reaches an open tab.
  */
 
-/** v2's 200 all-null placeholder for a real zone with nothing published. */
+/** v2's 200 all-null placeholder for a real zone with nothing published (a provisional capture). */
 const NOTHING_PUBLISHED_FIXTURE = 'v2_public_product_forecast_null.json'
-const NOTHING_PUBLISHED_BLOCKED =
-  "Blocked on products-api Case product_forecast_nothing_published — the corpus has no capture of v2's all-null placeholder for a zone with nothing published"
 
-/** The tenant and zone slug a scenario serves `fixture` at, if any. */
-function zoneServing(fixture: string): { tenantSlug: string; zoneSlug: string } | undefined {
+/** The tenant and zone slug a scenario serves `fixture` at, so the spec can't drift from the mock. */
+function zoneServing(fixture: string): { tenantSlug: string; zoneSlug: string } {
   const parsed: unknown = JSON.parse(
     readFileSync(join(repoRoot, '__tests__/e2e/mocks/scenarios.json'), 'utf8'),
   )
-  if (!parsed || typeof parsed !== 'object' || !('products' in parsed)) return undefined
-  if (!Array.isArray(parsed.products)) return undefined
+  const products =
+    parsed && typeof parsed === 'object' && 'products' in parsed && Array.isArray(parsed.products)
+      ? parsed.products
+      : []
 
-  for (const product of parsed.products) {
+  for (const product of products) {
     if (product?.fixture === fixture && typeof product.zoneSlug === 'string') {
       return { tenantSlug: String(product.center).toLowerCase(), zoneSlug: product.zoneSlug }
     }
   }
-  return undefined
+  throw new Error(`No scenario serves ${fixture}`)
 }
 
 async function expectWayOnLinks(page: Page) {
@@ -48,8 +48,8 @@ async function expectWayOnLinks(page: Page) {
 
 test.describe('Live zone page with no forecast to show', () => {
   /**
-   * The corpus answers every NWAC forecast request with the Slim error page, which does not parse:
-   * a failed read. The page keeps its outage wording rather than claiming there is no forecast.
+   * The corpus answers NWAC forecast requests (bar the one zone mapped to the placeholder below)
+   * with the Slim error page, which does not parse: a failed read. The page keeps its outage wording rather than claiming there is no forecast.
    */
   test('a failed read keeps the outage wording, offers the way on, and keeps checking', async ({
     page,
@@ -75,10 +75,9 @@ test.describe('Live zone page with no forecast to show', () => {
     page,
   }) => {
     const zone = zoneServing(NOTHING_PUBLISHED_FIXTURE)
-    test.skip(!hasFixture(NOTHING_PUBLISHED_FIXTURE) || !zone, NOTHING_PUBLISHED_BLOCKED)
-    if (!zone) return
-
-    const freshnessCheck = page.waitForRequest((r) => r.url().includes('/forecast-freshness/'))
+    const freshnessCheck = page.waitForRequest((r) =>
+      r.url().includes(`/forecast-freshness/${zone.zoneSlug}/`),
+    )
     const errors = await loadPage(
       page,
       `${tenant(zone.tenantSlug)}/forecasts/avalanche/${zone.zoneSlug}`,

@@ -1,6 +1,7 @@
 import { afpApiHost, nacApiHost } from '@/services/nac/hosts'
 import {
   forecastResultSchema,
+  nullForecastSchema,
   warningResultSchema,
   weatherSchema,
 } from '@/services/nac/types/forecastSchemas'
@@ -113,7 +114,8 @@ function productTypeOf(value: unknown): string {
 function schemaForProductType(type: string) {
   if (type === 'warning') return warningResultSchema
   if (type === 'weather') return weatherSchema
-  return forecastResultSchema
+  // A zone with nothing published answers with v2's all-null placeholder, which the app reads too.
+  return forecastResultSchema.or(nullForecastSchema)
 }
 
 describe('E2E fixtures against the wire schemas', () => {
