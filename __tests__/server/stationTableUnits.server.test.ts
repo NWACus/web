@@ -57,6 +57,7 @@ const table: StationTable = {
   ],
   timezoneLabel: 'PST',
   latestObservation: 1_700_000_000_000,
+  latestDisplay: null,
 }
 
 describe('convertStationTable', () => {

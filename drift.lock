@@ -947,6 +947,11 @@ sig = "b12d023fdd32e552"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/snowobs/tableHelpers.ts"
+sig = "442533ef317e39f7"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/trackedStations.ts"
 sig = "f010ada87a757f62"
 
