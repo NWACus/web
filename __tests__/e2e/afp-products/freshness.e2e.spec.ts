@@ -74,6 +74,10 @@ test.describe('Revalidate on view', () => {
   test('the mountain weather page asks its own route, and is current for a stable product', async ({
     page,
   }) => {
+    test.skip(
+      true,
+      'Native NAC weather is limited to NWAC for now; see src/utilities/nativeProductCenters.ts.',
+    )
     await stubExternalAssets(page)
     const freshnessCheck = armFreshnessCheck(page, 'weather-freshness')
     await loadPage(page, WEATHER_URL)

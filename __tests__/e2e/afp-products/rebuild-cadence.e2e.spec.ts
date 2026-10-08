@@ -60,10 +60,12 @@ test.describe('Rebuild cadence', () => {
   test('Mountain Weather rebuilds every 5 min native and stays static on the widget', async ({
     page,
   }) => {
-    expect(await windowOf(page, `${tenant('snfac')}/weather/forecast`)).toBe(NATIVE_WINDOW)
     expect(await windowOf(page, `${tenant('nwac')}/weather/forecast`)).toBe(NATIVE_WINDOW)
-    expect(await windowOf(page, `${tenant('sac')}/weather/forecast`)).toBeGreaterThan(
-      WIDGET_ZONE_WINDOW,
-    )
+    // SNFAC's weather flag is seeded on, but native weather is limited to NWAC for now.
+    for (const center of ['snfac', 'sac']) {
+      expect(await windowOf(page, `${tenant(center)}/weather/forecast`)).toBeGreaterThan(
+        WIDGET_ZONE_WINDOW,
+      )
+    }
   })
 })

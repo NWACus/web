@@ -1,3 +1,4 @@
+import { isNativeProductAllowed } from '@/utilities/nativeProductCenters'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
@@ -27,12 +28,14 @@ const getNativeProducts = cache(async (centerSlug: string) => {
 
 /**
  * Reads the per-tenant × per-product native rollout flag from Settings.
- * Returns false when the setting or product flag is not set (widget stays the default).
+ * Returns false when the setting or product flag is not set (widget stays the default), or when the
+ * product is limited to other centers.
  */
 export async function getNativeProductFlag(
   centerSlug: string,
   product: NativeProduct,
 ): Promise<boolean> {
+  if (!isNativeProductAllowed(centerSlug, product)) return false
   const nativeProducts = await getNativeProducts(centerSlug)
   return nativeProducts?.[product] ?? false
 }

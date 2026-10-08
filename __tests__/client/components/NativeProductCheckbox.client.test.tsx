@@ -69,12 +69,13 @@ function renderCheckbox(overrides: Partial<Props> = {}) {
   )
 }
 
+function mockTenant(name: string, slug: string) {
+  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ name, slug }) })
+}
+
 beforeEach(() => {
   mockValue = false
-  global.fetch = jest.fn().mockResolvedValue({
-    ok: true,
-    json: async () => ({ name: 'Northwest Avalanche Center' }),
-  })
+  mockTenant('Northwest Avalanche Center', 'nwac')
 })
 
 describe('NativeProductCheckbox', () => {
@@ -131,5 +132,23 @@ describe('NativeProductCheckbox', () => {
     await waitFor(() => expect(global.fetch).toHaveBeenCalled())
     expect(screen.getByText(/Loading avalanche center name/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Turn on' })).toBeDisabled()
+  })
+
+  describe('a product limited to NWAC', () => {
+    const weather: Props['field'] = { name: 'weather', label: 'Weather', type: 'checkbox' }
+
+    it('shows its toggle for NWAC', async () => {
+      renderCheckbox({ field: weather })
+
+      expect(await screen.findByRole('checkbox', { name: 'Weather' })).toBeInTheDocument()
+    })
+
+    it('hides its toggle for any other center', async () => {
+      mockTenant('Sawtooth Avalanche Center', 'snfac')
+      renderCheckbox({ field: weather })
+
+      await waitFor(() => expect(global.fetch).toHaveBeenCalled())
+      expect(screen.queryByRole('checkbox', { name: 'Weather' })).not.toBeInTheDocument()
+    })
   })
 })
