@@ -31,6 +31,12 @@ const ALLOWED_TAGS = [
   'td',
   'strong',
   'em',
+  // Pasted content carries the presentational forms; TinyMCE itself emits strong/em.
+  'b',
+  'i',
+  'u',
+  'blockquote',
+  'hr',
   'br',
   'figure',
   'figcaption',

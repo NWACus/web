@@ -40,6 +40,29 @@ describe('sanitizeHtml', () => {
     expect(out).toContain('Safe')
   })
 
+  describe('pasted formatting', () => {
+    it.each(['b', 'i', 'u'])('keeps <%s>', (tag) => {
+      const html = `<p>Watch for <${tag}>wind slab</${tag}> today.</p>`
+      expect(sanitizeHtml(html)).toBe(html)
+    })
+
+    it('keeps a blockquote and its paragraphs', () => {
+      const html = '<blockquote><p>Quoted observation.</p></blockquote>'
+      expect(sanitizeHtml(html)).toBe(html)
+    })
+
+    it('keeps a horizontal rule', () => {
+      expect(sanitizeHtml('<p>Above</p><hr /><p>Below</p>')).toBe('<p>Above</p><hr /><p>Below</p>')
+    })
+
+    it('still strips event-handler attributes from the newly allowed tags', () => {
+      const out = sanitizeHtml(
+        '<b onclick="alert(1)">x</b><blockquote onmouseover="alert(1)">y</blockquote>',
+      )
+      expect(out).toBe('<b>x</b><blockquote>y</blockquote>')
+    })
+  })
+
   it('strips forms', () => {
     const out = sanitizeHtml('<form action="/x"><input name="a"></form><p>Safe</p>')
     expect(out).not.toContain('<form')
