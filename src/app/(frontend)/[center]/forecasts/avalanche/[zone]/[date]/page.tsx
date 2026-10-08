@@ -2,6 +2,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { ogImageUrlForDatedZone } from '@/app/api/[center]/og/buildOgImageUrl'
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
+import { CurrentForecastRedirect } from '@/components/forecast/CurrentForecastRedirect.client'
 import { NativeForecastView } from '@/components/forecast/NativeForecastView'
 import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 import {
@@ -12,6 +13,10 @@ import {
   validDateForProduct,
 } from '@/services/nac/archiveDates'
 import { findDatedForecast } from '@/services/nac/datedForecast'
+import {
+  currentForecastDateEndpoint,
+  mayBeCurrentProductDate,
+} from '@/services/nac/currentForecastDate'
 import {
   fetchProductArchive,
   fetchProductById,
@@ -30,7 +35,8 @@ import { notFound } from 'next/navigation'
 
 // Historical products are immutable: render on demand and cache for a long time. This route
 // deliberately does NOT run the live revalidate-on-view freshness path — only the current
-// forecast page needs that. The long revalidate is a backstop, not a staleness check.
+// forecast page needs that. The long revalidate is a backstop, not a staleness check. Which date
+// is the live product's is decided on view instead (`CurrentForecastRedirect`), never cached here.
 export const revalidate = 2592000 // 30 days
 export const dynamicParams = true
 
@@ -173,6 +179,13 @@ export default async function Page({ params }: Args) {
           weather={weather}
         />
       </ForecastGlossary>
+      {/* The live product's own date opens the live page — decided on view, not cached here. */}
+      <CurrentForecastRedirect
+        enabled={mayBeCurrentProductDate(date, currentDate, resolvedZone.active)}
+        endpoint={currentForecastDateEndpoint(center, zone)}
+        date={date}
+        liveHref={`/forecasts/avalanche/${zone}`}
+      />
     </>
   )
 }

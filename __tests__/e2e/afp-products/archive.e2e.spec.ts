@@ -17,7 +17,23 @@ test.describe('Forecast archive', () => {
     await expect(page.getByRole('button', { name: 'Newer forecast' })).toBeDisabled()
   })
 
+  test('the live product’s own date opens the live page', async ({ page }) => {
+    const errors = await loadPage(page, `${FORECAST_URL}/2026-04-05`)
+
+    // 2026-04-05 is this zone's live product, so the dated address hands over to the live one.
+    // Compared decoded: the slug's `&` may come back percent-encoded.
+    await expect(page).toHaveURL(
+      (url) => decodeURIComponent(url.pathname) === `/forecasts/avalanche/${SLUG}`,
+    )
+    await expect(page.getByText('This is an archived product.')).toBeHidden()
+
+    expect(errors).toEqual([])
+  })
+
   test('a dated product is marked archived and links back to the current one', async ({ page }) => {
+    // The corpus's one by-id golden is this zone's live product, whose dated page would hand over
+    // to the live one (above); hold that check off to see the dated page itself.
+    await page.route('**/forecast-current-date/**', (route) => route.abort('failed'))
     const errors = await loadPage(page, `${FORECAST_URL}/2026-04-05`)
 
     // Inventory row X6, archived half.
