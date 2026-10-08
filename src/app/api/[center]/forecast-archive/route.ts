@@ -5,7 +5,7 @@
 // fallow-ignore-file dynamic-segment-name-conflicts
 import { buildZoneArchiveDates, parseArchiveWindowQuery } from '@/services/nac/archiveDates'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
-import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
+import { resolveDatedZoneFromSlug } from '@/services/nac/resolveZone'
 import { NO_STORE } from '@/utilities/apiResponses'
 import { nativeProductGate } from '@/utilities/nativeProductGate'
 import { NextRequest, NextResponse } from 'next/server'
@@ -40,7 +40,7 @@ export async function GET(
   let dates: ReturnType<typeof buildZoneArchiveDates>
   try {
     const [zone, metadata] = await Promise.all([
-      resolveZoneFromSlug(center, zoneSlug),
+      resolveDatedZoneFromSlug(center, zoneSlug),
       getAvalancheCenterMetadata(center),
     ])
 

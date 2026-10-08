@@ -12,6 +12,7 @@ jest.mock('../../src/services/nac/nac', () => ({
 }))
 jest.mock('../../src/services/nac/resolveZone', () => ({
   resolveZoneFromSlug: (...a: unknown[]) => mockUpstream('zone', ...a),
+  resolveDatedZoneFromSlug: (...a: unknown[]) => mockUpstream('zone', ...a),
 }))
 jest.mock('../../src/services/nac/dangerMap/mapLayer', () => ({
   getZoneMapLayer: (...a: unknown[]) => mockUpstream('mapLayer', ...a),

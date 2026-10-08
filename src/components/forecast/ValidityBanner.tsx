@@ -23,14 +23,21 @@ interface ValidityBannerProps {
   selectedDate: string | null
   /** Tenant-relative path to this zone's live forecast, for the "most recent forecast" link. */
   basePath: string
+  /** False for a retired zone: it has no live page, so the notice links to the archive only. */
+  hasLivePage?: boolean
 }
 
-export function ValidityBanner({ forecast, selectedDate, basePath }: ValidityBannerProps) {
+export function ValidityBanner({
+  forecast,
+  selectedDate,
+  basePath,
+  hasLivePage = true,
+}: ValidityBannerProps) {
   // Archived: a dated/history view is, by definition, not the current product.
   if (selectedDate != null) {
     return (
       <ArchivedProductNotice
-        current={{ href: basePath, label: 'most recent forecast' }}
+        current={hasLivePage ? { href: basePath, label: 'most recent forecast' } : undefined}
         archive={{ href: ARCHIVE_PATH, label: 'all archived forecasts' }}
       />
     )

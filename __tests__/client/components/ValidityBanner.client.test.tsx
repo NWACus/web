@@ -20,6 +20,19 @@ describe('ValidityBanner', () => {
     )
   })
 
+  it('links a retired zone’s archived product to the archive only, since it has no live page', () => {
+    const { container } = render(
+      <ValidityBanner
+        forecast={{ expires_time: null }}
+        selectedDate="2024-01-09"
+        basePath={BASE}
+        hasLivePage={false}
+      />,
+    )
+    expect(container.textContent).toBe('This is an archived product. View all archived forecasts.')
+    expect(screen.queryByRole('link', { name: /most recent forecast/i })).toBeNull()
+  })
+
   it('prefers the archived notice over the expired one, matching the legacy banner', () => {
     // An archived product is always past its expiry; legacy's v-if/v-else-if never labels it
     // expired, and neither do we.

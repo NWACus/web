@@ -286,10 +286,12 @@ export async function getMapLayer(centerSlug: string, options: MapLayerOptions =
 // It cannot live here: this module is what the v2 source *fetches with*, so importing the source
 // back into it would be a cycle.
 
-export type ActiveZone = Extract<
-  Awaited<ReturnType<typeof getAvalancheCenterMetadata>>['zones'][number],
-  { status: 'active' }
->
+/** One of a center's zones as its metadata lists it, active or retired. */
+export type AvalancheCenterZone = Awaited<
+  ReturnType<typeof getAvalancheCenterMetadata>
+>['zones'][number]
+
+export type ActiveZone = Extract<AvalancheCenterZone, { status: 'active' }>
 
 export type ActiveForecastZoneWithSlug = {
   slug: string

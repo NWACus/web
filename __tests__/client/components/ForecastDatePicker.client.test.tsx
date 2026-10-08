@@ -117,6 +117,22 @@ describe('ForecastDatePicker', () => {
     expect(day).toHaveAccessibleDescription('No Danger Rating')
   })
 
+  it('keeps a retired zone’s days, newest included, on dated addresses', () => {
+    // A retired zone's dated page has no live product, so nothing links to its (missing) live page.
+    renderPicker({ selectedDate: '2026-02-05', currentDate: null })
+    openCalendar('Feb 5, 2026')
+
+    expect(screen.getByRole('link', { name: 'Mon Feb 09 2026' })).toHaveAttribute(
+      'href',
+      `${BASE}/2026-02-09`,
+    )
+    expect(screen.getByRole('link', { name: 'Newer forecast' })).toHaveAttribute(
+      'href',
+      `${BASE}/2026-02-09`,
+    )
+    expect(screen.queryByRole('link', { name: 'Current forecast' })).toBeNull()
+  })
+
   it('leaves a future day inert', () => {
     renderPicker()
     openCalendar('Feb 9, 2026')

@@ -18,7 +18,7 @@ import {
   getAvalancheCenterMetadata,
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
-import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
+import { resolveDatedZoneFromSlug, type DatedForecastZone } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
 import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
 import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
@@ -80,6 +80,21 @@ function liveProductDate(
   return validDateForProduct(currentProduct.published_time, timezone)
 }
 
+/**
+ * The zone's live product, fetched only to anchor the picker's way back to the live page. A
+ * retired zone has neither, so its picker and notices keep to dated addresses.
+ */
+async function liveProductFor(center: string, zone: DatedForecastZone) {
+  if (!zone.active) return null
+
+  return getForecastSource(center).getForecast(center, zone.zone.id)
+}
+
+/** A retired zone has no live page for its breadcrumb to link to. */
+function zonePathsWithoutPages(zone: DatedForecastZone): string[] {
+  return zone.active ? [] : [`/forecasts/avalanche/${zone.slug}`]
+}
+
 export default async function Page({ params }: Args) {
   const { center, zone: zoneParam, date } = await params
   const zone = zoneSlugFromParam(zoneParam)
@@ -87,7 +102,7 @@ export default async function Page({ params }: Args) {
   await assertDatedForecastAvailable(center, date)
 
   const [resolvedZone, metadata] = await Promise.all([
-    resolveZoneFromSlug(center, zone),
+    resolveDatedZoneFromSlug(center, zone),
     getAvalancheCenterMetadata(center),
   ])
 
@@ -105,10 +120,9 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  // The current/live product is fetched only to anchor the picker's "return to current" path.
   const [forecastResult, currentProduct] = await Promise.all([
     fetchProductById(productId),
-    getForecastSource(center).getForecast(center, resolvedZone.zone.id),
+    liveProductFor(center, resolvedZone),
   ])
 
   if (!forecastResult) {
@@ -139,6 +153,7 @@ export default async function Page({ params }: Args) {
         // The zone's real name, not the slug: a derived crumb is lowercase in the DOM and only
         // looks capitalized through CSS, so assistive tech reads it as the reader never sees it.
         labels={{ [`/forecasts/avalanche/${zone}`]: resolvedZone.zone.name }}
+        pathsWithoutPages={zonePathsWithoutPages(resolvedZone)}
       />
       <ForecastGlossary center={metadata}>
         <NativeForecastView
