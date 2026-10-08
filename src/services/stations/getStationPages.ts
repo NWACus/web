@@ -8,7 +8,7 @@ import { assembleStationPages } from './stationPages'
 export { allStations, areaPageFor, stationPagePath, toPageSummaries } from './stationPages'
 export type { AssembledStationPage, StationPageSummary } from './stationPages'
 
-async function loadStationPages(center: string): Promise<AssembledStationPage[]> {
+async function loadStationPageRows(center: string) {
   const payload = await getPayload({ config: configPromise })
   const { docs } = await payload.find({
     collection: 'stationPages',
@@ -17,20 +17,20 @@ async function loadStationPages(center: string): Promise<AssembledStationPage[]>
     limit: 0,
     pagination: false,
   })
-  return assembleStationPages(docs)
+  return docs
 }
 
-// Cached per center and busted by the collection hooks, so an admin edit shows
-// on the next request without waiting out the ISR window. Bump the key's
-// version when AssembledStationPage changes shape: Vercel's data cache is shared
-// across deployments, so older code's entries would otherwise be read as new.
-export const getCachedStationPages = (center: string) =>
-  unstable_cache(() => loadStationPages(center), ['station-pages', 'v2-tabs', center], {
+// The raw rows are cached, not the assembled pages: Vercel's data cache is
+// shared across deployments, so a cached shape outlives the code that wrote it,
+// and assembly already copes with fields an older row lacks. Busted by the
+// collection hooks, so an admin edit shows on the next request.
+const getCachedStationPageRows = (center: string) =>
+  unstable_cache(() => loadStationPageRows(center), ['station-page-rows', center], {
     tags: [stationPagesTag(center)],
   })
 
 export async function getStationPages(center: string): Promise<AssembledStationPage[]> {
-  return getCachedStationPages(center)()
+  return assembleStationPages(await getCachedStationPageRows(center)())
 }
 
 export async function getStationPage(
