@@ -93,29 +93,16 @@ export function NativeForecastView({
     // rhythm costs about three quarters of an inch before the bottom line — enough to decide
     // whether the danger card clears the first page boundary. See print.css.
     <div className="container space-y-6 py-6 print:space-y-4 print:py-0">
-      {/* Date picker — browse this zone's published forecast history, colored by danger.
-          Screen-only: an interactive calendar is noise on paper. */}
-      <ForecastErrorBoundary fallbackMessage="Unable to display the date picker">
-        <div data-print-hide>
-          <ForecastDatePicker
-            center={center}
-            zoneSlug={zone.slug}
-            zoneName={zone.zone.name}
-            basePath={basePath}
-            selectedDate={selectedDate}
-            currentDate={currentDate}
-            initialDates={initialDates.map((d) => ({
-              date: d.date,
-              dangerRating: d.dangerRating,
-              dangerLevelText: d.dangerLevelText,
-              danger: d.danger,
-            }))}
-            initialRange={initialRange}
-            calendarStart={pickerSettings.calendarStart}
-            showZoneName={pickerSettings.showZoneName}
-          />
-        </div>
-      </ForecastErrorBoundary>
+      <DatePickerSection
+        center={center}
+        zone={zone}
+        initialDates={initialDates}
+        initialRange={initialRange}
+        currentDate={currentDate}
+        selectedDate={selectedDate}
+        basePath={basePath}
+        pickerSettings={pickerSettings}
+      />
 
       <ForecastTitleRow
         center={center}
@@ -161,6 +148,56 @@ export function NativeForecastView({
         centerName={forecastResult.avalanche_center.name}
       />
     </div>
+  )
+}
+
+/**
+ * The date picker — browse this zone's published forecast history, colored by danger.
+ * Screen-only: an interactive calendar is noise on paper. Each day ships only what the calendar
+ * draws, not the product id it resolves to server-side.
+ */
+function DatePickerSection({
+  center,
+  zone,
+  initialDates,
+  initialRange,
+  currentDate,
+  selectedDate,
+  basePath,
+  pickerSettings,
+}: Pick<
+  NativeForecastViewProps,
+  | 'center'
+  | 'zone'
+  | 'initialDates'
+  | 'initialRange'
+  | 'currentDate'
+  | 'selectedDate'
+  | 'basePath'
+  | 'pickerSettings'
+>) {
+  return (
+    <ForecastErrorBoundary fallbackMessage="Unable to display the date picker">
+      <div data-print-hide>
+        <ForecastDatePicker
+          center={center}
+          zoneSlug={zone.slug}
+          zoneName={zone.zone.name}
+          basePath={basePath}
+          selectedDate={selectedDate}
+          currentDate={currentDate}
+          initialDates={initialDates.map(({ date, dangerRating, dangerLevelText, danger }) => ({
+            date,
+            dangerRating,
+            dangerLevelText,
+            danger,
+          }))}
+          initialRange={initialRange}
+          calendarStart={pickerSettings.calendarStart}
+          showZoneName={pickerSettings.showZoneName}
+        />
+      </div>
+    </ForecastErrorBoundary>
   )
 }
 

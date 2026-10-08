@@ -2,8 +2,10 @@
 
 /**
  * The look shared by the forecast and Mountain Weather date pickers: arrows either side of a
- * calendar trigger, and the muted cell for a day with nothing published.
+ * calendar trigger, the muted cell for a day with nothing published, and the month-by-month
+ * loading both calendars do.
  */
+import { endOfMonth, format, startOfMonth } from 'date-fns'
 import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
@@ -11,6 +13,8 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/utilities/ui'
+
+import { monthKey, monthsBetween } from './datePickerNavigation'
 
 export const DAY_CELL =
   'flex aspect-square h-full w-full min-w-[--cell-size] items-center justify-center rounded-md text-sm'
@@ -49,6 +53,40 @@ export function useFlashMessage(durationMs: number): [string, (message: string) 
   )
 
   return [message, flash]
+}
+
+/**
+ * The months a picker has loaded, and loading one more as its calendar pages into it. The page
+ * seeds `initialRange`; `fetchMonth` answers null on failure, which leaves the month unloaded so
+ * the next visit to it retries. `onLoaded` folds a fetched month into the picker's own state.
+ */
+export function useMonthLoader<T>(
+  initialRange: { from: string; to: string },
+  fetchMonth: (from: string, to: string) => Promise<T | null>,
+  onLoaded: (fetched: T) => void,
+) {
+  const [loadedMonths, setLoadedMonths] = useState(
+    () => new Set(monthsBetween(initialRange.from, initialRange.to)),
+  )
+  const [loading, setLoading] = useState(false)
+
+  const loadMonth = async (target: Date) => {
+    const month = monthKey(target)
+    if (loadedMonths.has(month)) return
+
+    setLoading(true)
+    const fetched = await fetchMonth(
+      format(startOfMonth(target), 'yyyy-MM-dd'),
+      format(endOfMonth(target), 'yyyy-MM-dd'),
+    )
+    if (fetched) {
+      onLoaded(fetched)
+      setLoadedMonths((prev) => new Set(prev).add(month))
+    }
+    setLoading(false)
+  }
+
+  return { loadedMonths, loading, loadMonth }
 }
 
 /** Older and newer arrows around the calendar trigger. */

@@ -15,7 +15,7 @@
  * The pure decisions (month windows, link targets, arrow stepping) live in
  * `./datePickerNavigation` so they can be unit-tested without React.
  */
-import { endOfMonth, format, parseISO, startOfMonth } from 'date-fns'
+import { parseISO, startOfMonth } from 'date-fns'
 import { CalendarX, History, Loader2, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useId, useMemo, useState, type ComponentProps } from 'react'
@@ -39,6 +39,7 @@ import {
   DatePickerPopover,
   MutedDay,
   useFlashMessage,
+  useMonthLoader,
 } from './DatePickerParts.client'
 import {
   adjacentForecastHrefs,
@@ -47,7 +48,6 @@ import {
   forecastHref,
   mergeDays,
   monthKey,
-  monthsBetween,
   triggerLabel,
   type ForecastArchiveDate,
 } from './datePickerNavigation'
@@ -231,29 +231,11 @@ function useForecastArchive(
   const [days, setDays] = useState<Map<string, ForecastArchiveDate>>(
     () => new Map(initialDates.map((d) => [d.date, d])),
   )
-  const [loadedMonths, setLoadedMonths] = useState<Set<string>>(
-    () => new Set(monthsBetween(initialRange.from, initialRange.to)),
+  const { loadedMonths, loading, loadMonth } = useMonthLoader(
+    initialRange,
+    (from, to) => fetchArchiveMonth(center, zoneSlug, from, to),
+    (fetched) => setDays((prev) => mergeDays(prev, fetched)),
   )
-  const [loading, setLoading] = useState(false)
-
-  const loadMonth = async (target: Date) => {
-    const mk = monthKey(target)
-    if (loadedMonths.has(mk)) return
-
-    setLoading(true)
-    const fetched = await fetchArchiveMonth(
-      center,
-      zoneSlug,
-      format(startOfMonth(target), 'yyyy-MM-dd'),
-      format(endOfMonth(target), 'yyyy-MM-dd'),
-    )
-    // A null result means the request failed; leave the month unloaded so it can be retried.
-    if (fetched) {
-      setDays((prev) => mergeDays(prev, fetched))
-      setLoadedMonths((prev) => new Set(prev).add(mk))
-    }
-    setLoading(false)
-  }
 
   return { days, loadedMonths, loading, loadMonth }
 }
