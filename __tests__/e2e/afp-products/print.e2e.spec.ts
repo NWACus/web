@@ -145,7 +145,8 @@ test.describe('Printing a forecast', () => {
 
     const zoneHeading = page.getByRole('heading', {
       level: 1,
-      name: 'Soldier & Wood River Valley Mtns',
+      name: 'Backcountry Avalanche Forecast Soldier & Wood River Valley Mtns',
+      exact: true,
     })
     const header = page.locator('header')
     const footer = page.locator('footer')

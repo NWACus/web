@@ -19,6 +19,7 @@ import {
   type WarningProduct,
   type Weather,
 } from '@/services/nac/model/forecast'
+import { productTypeTitle } from '@/services/nac/productTypeTitle'
 import type { ForecastZoneFacts } from '@/services/nac/resolveZone'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 
@@ -208,8 +209,9 @@ function DatePickerSection({
 }
 
 /**
- * The product's title row: zone name on the left, the print control on the right — the same
- * arrangement the legacy afp widget used.
+ * The product's title row: the product-type title over the zone name on the left, the print
+ * control on the right — the same arrangement the legacy afp widget used. Both lines sit in the
+ * one `<h1>`, so the page's heading names the zone as well as the product.
  *
  * A div rather than a `<header>`: the print stylesheet hides the site's `<header>`/`<footer>`/
  * `<nav>` chrome wholesale, and this row has to survive that.
@@ -227,8 +229,13 @@ function ForecastTitleRow({
 >) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl printWide:text-3xl">
-        {zone.zone.name}
+      <h1 className="space-y-1">
+        <span className="block text-2xl font-bold tracking-tight sm:text-3xl printWide:text-3xl">
+          {productTypeTitle(forecastResult.product_type)}
+        </span>{' '}
+        <span className="block text-lg font-semibold tracking-tight text-muted-foreground sm:text-xl printWide:text-xl">
+          {zone.zone.name}
+        </span>
       </h1>
 
       <ForecastErrorBoundary fallbackMessage="Unable to display the print control">

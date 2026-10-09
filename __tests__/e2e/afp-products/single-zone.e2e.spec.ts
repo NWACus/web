@@ -8,8 +8,13 @@ test.describe('Native single-zone forecast', () => {
   test('renders the forecast product', async ({ page }) => {
     const errors = await loadPage(page, FORECAST_URL)
 
+    // The product-type title heads the page, with the zone name below it (Forecast-6).
     await expect(
-      page.getByRole('heading', { level: 1, name: 'Soldier & Wood River Valley Mtns' }),
+      page.getByRole('heading', {
+        level: 1,
+        name: 'Backcountry Avalanche Forecast Soldier & Wood River Valley Mtns',
+        exact: true,
+      }),
     ).toBeVisible()
     await expect(page.getByText('Test Forecaster A', { exact: true })).toBeVisible()
     await expect(page.getByText('Sunday, April 5, 2026 - 6:19AM', { exact: true })).toBeVisible()
