@@ -31,7 +31,7 @@ A 30-day run takes a few minutes; the terminal shows which step it's on. The scr
 1. Counts 404s on both the apex and `www.` hostnames of the center's `customDomain`, in total and excluding bots (requests with a `botName` or `botCategory`).
 2. Fetches the top non-bot 404 paths one week at a time, because grouping by path over longer windows fails with `query_failed`. The weekly counts are then summed, so a path that misses the top `--limit` in some weeks is undercounted.
 3. Breaks down the bot 404s by `botCategory` and `botName` over the whole range, and lists the paths bots requested most in the last 7 days.
-4. Reads the center's live URLs from its public `sitemap.xml` (the home page, Pages and Posts), plus its active forecast zone routes from the NAC API, since the sitemap doesn't list those.
+4. Reads the center's live URLs from its public `sitemap.xml` (the home page, Pages and Posts), plus its active forecast zone routes from the NAC API, since the sitemap doesn't list those. Zone routes count only if the center publishes forecasts on the AFP.
 5. Merges paths that differ only by a trailing slash or query string, then sets aside:
    - `dead-legacy-path`: known-dead WordPress-era paths (`isDeadLegacyPath`, shared with #1280 — Short-circuit dead legacy URLs (old WordPress paths, RSS feeds, icons) before they reach the page pipeline).
    - `not-redirectable`: paths the middleware matcher skips, such as `/api/...` and root-level files like `/favicon.ico`. A Redirects row can never catch these.

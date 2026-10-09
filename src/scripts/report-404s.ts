@@ -6,6 +6,12 @@
  *        pnpm report:404s --from <report.json> [--out <dir>]
  * Needs VERCEL_TOKEN. See docs/not-found-report.md for the runbook and the output files.
  */
+// First, so .env is loaded before hosts.ts reads NAC_HOST and AFP_HOST at module load
+import 'dotenv/config'
+
+import { nacCenterId } from '@/services/nac/centerSlug'
+import { afpApiHost, nacApiHost } from '@/services/nac/hosts'
+import { allAvalancheCenterCapabilitiesSchema } from '@/services/nac/types/schemas'
 import {
   buildNotFoundReport,
   extractSitemapLocs,
@@ -23,7 +29,6 @@ import {
   isValidTenantSlug,
   type ValidTenantSlug,
 } from '@/utilities/tenancy/avalancheCenters'
-import 'dotenv/config'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { parseArgs } from 'node:util'
@@ -264,14 +269,20 @@ async function fetchSitemapPaths(domain: string): Promise<string[]> {
   return sitemaps.flatMap(extractSitemapLocs).map((loc) => new URL(loc).pathname)
 }
 
-const NAC_API = process.env.NAC_HOST || 'https://api.avalanche.org'
+const fetchJson = async (url: string): Promise<unknown> => JSON.parse(await fetchText(url))
 
-// DVAC is the template tenant and shares NWAC's upstream data
-const nacCenterId = (tenant: ValidTenantSlug) => (tenant === 'dvac' ? 'NWAC' : tenant.toUpperCase())
-
+// Zone routes 404 unless the center publishes forecasts on the AFP, as getActiveForecastZones checks
 async function fetchForecastZonePaths(tenant: ValidTenantSlug): Promise<string[]> {
-  const url = `${NAC_API}/v2/public/avalanche-center/${nacCenterId(tenant)}`
-  return forecastZonePaths(nacCenterZonesSchema.parse(JSON.parse(await fetchText(url))))
+  const centerId = nacCenterId(tenant)
+  const [capabilities, metadata] = await Promise.all([
+    fetchJson(`${afpApiHost}?rest_route=/v1/public/avalanche-centers`),
+    fetchJson(`${nacApiHost}/v2/public/avalanche-center/${centerId}`),
+  ])
+  const { centers } = allAvalancheCenterCapabilitiesSchema.parse(capabilities)
+  const publishesForecasts = centers.some(
+    ({ id, platforms }) => id === centerId && platforms.forecasts,
+  )
+  return publishesForecasts ? forecastZonePaths(nacCenterZonesSchema.parse(metadata)) : []
 }
 
 /** The center's live URL paths: its sitemap, plus the forecast zone routes the sitemap omits. */
