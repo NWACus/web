@@ -8,6 +8,8 @@ export type ColumnInfo = {
 
 export type TableSnapshot = {
   columns: ColumnInfo[]
+  /** Foreign keys and UNIQUE / PRIMARY KEY constraints, described by content so renames don't count. */
+  constraints: string[]
   rowCount: number
   /** Row id → one value hash per column, in `columns` order. Omitted for volatile tables. */
   rows?: Record<string, string[]>
@@ -20,13 +22,21 @@ export type SchemaObject = {
   sql: string | null
 }
 
+/** A table (or the foreign key check) that couldn't be read. */
+export type SnapshotError = {
+  target: string
+  code: string
+  message: string
+}
+
 export type DbSnapshot = {
   takenAt: string
   pendingMigrations: string[]
   tables: Record<string, TableSnapshot>
   schemaObjects: SchemaObject[]
-  /** `PRAGMA foreign_key_check` violation counts keyed by "child → parent". */
-  foreignKeyViolations: Record<string, number>
+  /** `PRAGMA foreign_key_check` violation counts keyed by "child → parent"; null when the check failed. */
+  foreignKeyViolations: Record<string, number> | null
+  errors: SnapshotError[]
 }
 
 export type TableDiff = {
@@ -36,6 +46,8 @@ export type TableDiff = {
   addedColumns: string[]
   droppedColumns: string[]
   alteredColumns: string[]
+  addedConstraints: string[]
+  droppedConstraints: string[]
   /** False for volatile tables, which only compare counts and leave the row-level fields empty. */
   rowsCompared: boolean
   addedIds: string[]
@@ -54,4 +66,5 @@ export type DbDiffReport = {
   alteredObjects: string[]
   tables: TableDiff[]
   newForeignKeyViolations: string[]
+  failures: (SnapshotError & { snapshot: 'before' | 'after' })[]
 }

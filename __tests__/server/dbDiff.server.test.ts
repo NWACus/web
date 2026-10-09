@@ -1,4 +1,4 @@
-import { diffSnapshots } from '@/scripts/db-diff/diffSnapshots'
+import { diffSnapshots, isReinsertedOnUpdate } from '@/scripts/db-diff/diffSnapshots'
 import { findingsFor, formatReport } from '@/scripts/db-diff/formatReport'
 import type { ColumnInfo, DbSnapshot, TableSnapshot } from '@/scripts/db-diff/types'
 
@@ -9,6 +9,7 @@ function column(name: string, type = 'text'): ColumnInfo {
 function table(columnNames: string[], rows: Record<string, string[]>): TableSnapshot {
   return {
     columns: columnNames.map((name) => column(name)),
+    constraints: [],
     rowCount: Object.keys(rows).length,
     rows,
   }
@@ -21,6 +22,7 @@ function snapshot(overrides: Partial<DbSnapshot> = {}): DbSnapshot {
     tables: {},
     schemaObjects: [],
     foreignKeyViolations: {},
+    errors: [],
     ...overrides,
   }
 }
@@ -97,6 +99,7 @@ describe('diffSnapshots', () => {
   it('compares rows on shared columns only when a column is added', () => {
     const after: TableSnapshot = {
       columns: [...pages.columns, column('glossary_enabled', 'integer')],
+      constraints: [],
       rowCount: 2,
       rows: {
         1: ['h-1', 'h-title-1', 'h-t0', 'h-null'],
@@ -130,6 +133,7 @@ describe('diffSnapshots', () => {
   it('flags dropped and altered columns', () => {
     const after: TableSnapshot = {
       columns: [column('id'), { ...column('title'), type: 'integer', notNull: true }],
+      constraints: [],
       rowCount: 2,
       rows: { 1: ['h-1', 'h-title-1'], 2: ['h-2', 'h-title-2'] },
     }
@@ -163,8 +167,8 @@ describe('diffSnapshots', () => {
   })
 
   it('compares only row counts for volatile tables', () => {
-    const before: TableSnapshot = { columns: [column('id')], rowCount: 4 }
-    const after: TableSnapshot = { columns: [column('id')], rowCount: 5 }
+    const before: TableSnapshot = { columns: [column('id')], constraints: [], rowCount: 4 }
+    const after: TableSnapshot = { columns: [column('id')], constraints: [], rowCount: 5 }
 
     const report = diffSnapshots(
       snapshot({ tables: { users_sessions: before } }),
@@ -232,6 +236,96 @@ describe('diffSnapshots', () => {
     expect(report.newForeignKeyViolations).toEqual(['posts_rels → media (+2)'])
     expect(findingsFor(report)).toEqual(['foreign key violations: posts_rels → media (+2)'])
   })
+
+  describe('tables Payload re-inserts on update', () => {
+    const relsColumns = [column('id', 'integer'), column('parent_id', 'integer'), column('tags_id')]
+    const rels = (rows: Record<string, string[]>): TableSnapshot => ({
+      columns: relsColumns,
+      constraints: [],
+      rowCount: Object.keys(rows).length,
+      rows,
+    })
+
+    it('treats rows re-inserted with fresh ids as unchanged', () => {
+      const before = rels({ 1: ['h-1', 'h-post-1', 'h-tag-a'], 2: ['h-2', 'h-post-1', 'h-tag-b'] })
+      const after = rels({ 7: ['h-7', 'h-post-1', 'h-tag-a'], 8: ['h-8', 'h-post-1', 'h-tag-b'] })
+
+      const report = diffSnapshots(
+        snapshot({ tables: { posts_rels: before } }),
+        snapshot({ tables: { posts_rels: after } }),
+      )
+
+      expect(report.tables).toEqual([])
+    })
+
+    it('still flags relationships that disappeared', () => {
+      const before = rels({ 1: ['h-1', 'h-post-1', 'h-tag-a'], 2: ['h-2', 'h-post-1', 'h-tag-a'] })
+      const after = rels({ 7: ['h-7', 'h-post-1', 'h-tag-a'] })
+
+      const report = diffSnapshots(
+        snapshot({ tables: { posts_rels: before } }),
+        snapshot({ tables: { posts_rels: after } }),
+      )
+
+      expect(findingsFor(report)).toEqual(['`posts_rels`: 1 row deleted'])
+    })
+
+    it('keys array tables with text ids by id', () => {
+      expect(isReinsertedOnUpdate([column('id', 'text'), column('_parent_id', 'integer')])).toBe(
+        false,
+      )
+      expect(isReinsertedOnUpdate([column('id', 'INTEGER'), column('_parent_id', 'integer')])).toBe(
+        true,
+      )
+      expect(isReinsertedOnUpdate([column('id', 'integer'), column('title')])).toBe(false)
+    })
+  })
+
+  it('flags a row count drop in a volatile table', () => {
+    const before: TableSnapshot = { columns: [column('id')], constraints: [], rowCount: 5 }
+    const after: TableSnapshot = { columns: [column('id')], constraints: [], rowCount: 0 }
+
+    const report = diffSnapshots(
+      snapshot({ tables: { users_sessions: before } }),
+      snapshot({ tables: { users_sessions: after } }),
+    )
+
+    expect(findingsFor(report)).toEqual([
+      '`users_sessions`: row count dropped by 5 (count-only table)',
+    ])
+  })
+
+  it('flags a foreign key whose ON DELETE action changed', () => {
+    const fk = (onDelete: string) =>
+      `FOREIGN KEY (tags_id) → tags(id) ON UPDATE NO ACTION ON DELETE ${onDelete}`
+    const before = { ...table(['id'], {}), constraints: [fk('CASCADE')] }
+    const after = { ...table(['id'], {}), constraints: [fk('NO ACTION')] }
+
+    const report = diffSnapshots(
+      snapshot({ tables: { posts_rels: before } }),
+      snapshot({ tables: { posts_rels: after } }),
+    )
+
+    expect(report.tables[0].addedConstraints).toEqual([fk('NO ACTION')])
+    expect(findingsFor(report)).toEqual([
+      `\`posts_rels\`: constraint dropped or changed (${fk('CASCADE')})`,
+    ])
+  })
+
+  it('reports unreadable tables instead of comparing them', () => {
+    const error = { target: 'pages', code: 'RESPONSE_TOO_LARGE', message: 'Response is too large' }
+
+    const report = diffSnapshots(
+      snapshot({ tables: { pages } }),
+      snapshot({ errors: [error], foreignKeyViolations: null }),
+    )
+
+    expect(report.droppedTables).toEqual([])
+    expect(report.newForeignKeyViolations).toEqual([])
+    expect(findingsFor(report)).toEqual([
+      "`pages`: couldn't be read in the after snapshot (RESPONSE_TOO_LARGE), so it wasn't compared",
+    ])
+  })
 })
 
 describe('formatReport', () => {
@@ -245,11 +339,11 @@ describe('formatReport', () => {
       snapshot({ tables: { pages: after } }),
     )
 
-    const markdown = formatReport(report)
+    const markdown = formatReport(report, { detailed: true })
 
     expect(markdown).toContain('`20261007_add_pages`')
     expect(markdown).toContain(
-      'No existing rows, tables, columns or indexes were removed or changed',
+      'No existing rows, tables, columns, constraints or indexes were removed or changed',
     )
     expect(markdown).toContain('| `pages` | 2 | 3 | +1 | 0 | 0 |')
   })
@@ -264,9 +358,28 @@ describe('formatReport', () => {
       snapshot({ tables: { pages_rels: table(['id'], {}) } }),
     )
 
-    const markdown = formatReport(report)
+    const markdown = formatReport(report, { detailed: true })
 
     expect(markdown).toContain('`pages_rels`: 15 rows deleted')
     expect(markdown).toContain('deleted ids: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 … +5 more')
+  })
+
+  it('leaves row ids, table sizes and error messages out of public output', () => {
+    const before = table(['id'], { 1: ['h-1'], 2: ['h-2'] })
+    const report = diffSnapshots(
+      snapshot({ tables: { pages_rels: before, pages } }),
+      snapshot({
+        tables: { pages_rels: table(['id'], { 1: ['h-1'] }) },
+        errors: [{ target: 'pages', code: 'SQLITE_ERROR', message: 'secret detail' }],
+      }),
+    )
+
+    const markdown = formatReport(report, { detailed: false })
+
+    expect(markdown).toContain('`pages_rels`: 1 row deleted')
+    expect(markdown).toContain('| `pages_rels` | +0 | 1 | 0 |')
+    expect(markdown).not.toContain('deleted ids')
+    expect(markdown).not.toContain('Before')
+    expect(markdown).not.toContain('secret detail')
   })
 })

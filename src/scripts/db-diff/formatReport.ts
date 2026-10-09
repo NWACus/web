@@ -2,13 +2,14 @@ import type { DbDiffReport, TableDiff } from './types'
 
 const SAMPLE_SIZE = 10
 
-type Finding = { summary: string; sample?: { label: string; ids: string[] } }
+/** `detail` holds row ids and error messages, which stay out of public CI output. */
+type Finding = { summary: string; detail?: string }
 
 const rows = (count: number) => `${count} row${count === 1 ? '' : 's'}`
 
-function sampleIds(ids: string[]): string {
+function sampleIds(label: string, ids: string[]): string {
   const extra = ids.length - SAMPLE_SIZE
-  return ids.slice(0, SAMPLE_SIZE).join(', ') + (extra > 0 ? ` … +${extra} more` : '')
+  return `${label}: ${ids.slice(0, SAMPLE_SIZE).join(', ')}${extra > 0 ? ` … +${extra} more` : ''}`
 }
 
 function describeChangedColumns(changedColumns: Record<string, number>): string {
@@ -18,29 +19,48 @@ function describeChangedColumns(changedColumns: Record<string, number>): string 
     .join(', ')
 }
 
-function tableFindings(diff: TableDiff): Finding[] {
-  const name = `\`${diff.table}\``
-  const findings: Finding[] = [
+function schemaFindings(name: string, diff: TableDiff): Finding[] {
+  return [
     ...diff.droppedColumns.map((column) => ({ summary: `${name}: column \`${column}\` dropped` })),
     ...diff.alteredColumns.map((change) => ({ summary: `${name}: column altered (${change})` })),
+    ...diff.droppedConstraints.map((constraint) => ({
+      summary: `${name}: constraint dropped or changed (${constraint})`,
+    })),
   ]
+}
+
+function rowFindings(name: string, diff: TableDiff): Finding[] {
+  const findings: Finding[] = []
+  const countDrop = diff.rowsBefore - diff.rowsAfter
+  if (!diff.rowsCompared && countDrop > 0) {
+    findings.push({ summary: `${name}: row count dropped by ${countDrop} (count-only table)` })
+  }
   if (diff.deletedIds.length) {
     findings.push({
       summary: `${name}: ${rows(diff.deletedIds.length)} deleted`,
-      sample: { label: 'deleted ids', ids: diff.deletedIds },
+      detail: sampleIds('deleted ids', diff.deletedIds),
     })
   }
   if (diff.changedIds.length) {
     findings.push({
       summary: `${name}: ${diff.changedIds.length} existing ${diff.changedIds.length === 1 ? 'row' : 'rows'} changed (${describeChangedColumns(diff.changedColumns)})`,
-      sample: { label: 'changed ids', ids: diff.changedIds },
+      detail: sampleIds('changed ids', diff.changedIds),
     })
   }
   return findings
 }
 
+function tableFindings(diff: TableDiff): Finding[] {
+  const name = `\`${diff.table}\``
+  return [...schemaFindings(name, diff), ...rowFindings(name, diff)]
+}
+
 function findings(report: DbDiffReport): Finding[] {
   return [
+    ...report.failures.map(({ target, code, message, snapshot }) => ({
+      summary: `\`${target}\`: couldn't be read in the ${snapshot} snapshot (${code}), so it wasn't compared`,
+      detail: message,
+    })),
     ...report.droppedTables.map(({ table, rows: count }) => ({
       summary: `\`${table}\`: table dropped (${rows(count)})`,
     })),
@@ -58,16 +78,16 @@ export function findingsFor(report: DbDiffReport): string[] {
   return findings(report).map((finding) => finding.summary)
 }
 
-function findingsSection(report: DbDiffReport): string[] {
+function findingsSection(report: DbDiffReport, detailed: boolean): string[] {
   const list = findings(report)
   if (!list.length) {
-    return ['✅ No existing rows, tables, columns or indexes were removed or changed.']
+    return ['✅ No existing rows, tables, columns, constraints or indexes were removed or changed.']
   }
   return [
     `### ⚠️ ${list.length} ${list.length === 1 ? 'finding' : 'findings'} to review`,
     '',
-    ...list.flatMap(({ summary, sample }) =>
-      sample ? [`- ${summary}`, `  - ${sample.label}: ${sampleIds(sample.ids)}`] : [`- ${summary}`],
+    ...list.flatMap(({ summary, detail }) =>
+      detailed && detail ? [`- ${summary}`, `  - ${detail}`] : [`- ${summary}`],
     ),
   ]
 }
@@ -80,6 +100,10 @@ function schemaSection(report: DbDiffReport): string[] {
       'Columns added',
       report.tables.flatMap((diff) => diff.addedColumns.map((c) => code(`${diff.table}.${c}`))),
     ],
+    [
+      'Constraints added',
+      report.tables.flatMap((diff) => diff.addedConstraints.map((c) => `${code(diff.table)} ${c}`)),
+    ],
     ['Indexes, triggers and views added', report.addedObjects],
   ] satisfies [string, string[]][]
   const items = lines.filter(([, values]) => values.length)
@@ -91,40 +115,49 @@ function schemaSection(report: DbDiffReport): string[] {
   ]
 }
 
-function rowCountLine(diff: TableDiff): string {
-  const [added, deleted, changed] = diff.rowsCompared
-    ? [`+${diff.addedIds.length}`, `${diff.deletedIds.length}`, `${diff.changedIds.length}`]
-    : ['—', '—', '—']
-  return `| \`${diff.table}\` | ${diff.rowsBefore} | ${diff.rowsAfter} | ${added} | ${deleted} | ${changed} |`
+function rowDeltas(diff: TableDiff): string[] {
+  if (diff.rowsCompared) {
+    return [`+${diff.addedIds.length}`, `${diff.deletedIds.length}`, `${diff.changedIds.length}`]
+  }
+  const delta = diff.rowsAfter - diff.rowsBefore
+  return [`+${Math.max(delta, 0)}`, `${Math.max(-delta, 0)}`, '—']
 }
 
-function rowCountSection(report: DbDiffReport): string[] {
+function rowCountSection(report: DbDiffReport, detailed: boolean): string[] {
   if (!report.tables.length) return []
+  const totals = (diff: TableDiff) => (detailed ? [`${diff.rowsBefore}`, `${diff.rowsAfter}`] : [])
+  const header = detailed ? ['Table', 'Before', 'After'] : ['Table']
+  const line = (cells: string[]) => `| ${cells.join(' | ')} |`
   return [
     '### Tables with changes',
     '',
-    '| Table | Before | After | Added | Deleted | Changed |',
-    '| --- | --: | --: | --: | --: | --: |',
-    ...report.tables.map(rowCountLine),
+    line([...header, 'Added', 'Deleted', 'Changed']),
+    line(['---', ...Array(header.length + 2).fill('--:')]),
+    ...report.tables.map((diff) =>
+      line([`\`${diff.table}\``, ...totals(diff), ...rowDeltas(diff)]),
+    ),
     ...(report.tables.every((diff) => diff.rowsCompared)
       ? []
-      : ['', '— = volatile table, compared by row count only.']),
+      : ['', '— = volatile table: only its row count is compared.']),
   ]
 }
 
-/** Renders the report as Markdown for the GitHub step summary. */
-export function formatReport(report: DbDiffReport): string {
+/**
+ * Renders the report as Markdown. Without `detailed`, it leaves out row ids, table sizes and error
+ * messages, because CI logs and step summaries on this public repo are world-readable.
+ */
+export function formatReport(report: DbDiffReport, { detailed }: { detailed: boolean }): string {
   const migrations = report.migrations.map((name) => `\`${name}\``).join(', ')
   return [
     '## Database diff across migrations',
     '',
     `Migrations pending before the run: ${migrations || 'none'}`,
     '',
-    ...findingsSection(report),
+    ...findingsSection(report, detailed),
     '',
     ...schemaSection(report),
     '',
-    ...rowCountSection(report),
+    ...rowCountSection(report, detailed),
     '',
   ].join('\n')
 }
