@@ -30,6 +30,7 @@
     "reseed": "./reseed.sh",
     "bootstrap": "./bootstrap.sh",
     "sanitize": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/sanitize-db.ts",
+    "sync-providers": "cross-env NODE_OPTIONS=--no-deprecation tsx ./src/scripts/sync-providers.ts",
     "sync-blobs": "cross-env NODE_OPTIONS=--no-deprecation tsx ./src/scripts/sync-blob-storage.ts",
     "sync-blobs:debug": "cross-env NODE_OPTIONS='--no-deprecation --inspect-brk' tsx ./src/scripts/sync-blob-storage.ts",
     "update-media-prefix": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/update-media-prefix.ts",

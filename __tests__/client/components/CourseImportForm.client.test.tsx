@@ -77,7 +77,10 @@ describe('CourseImportForm', () => {
     expect(screen.getByText('Blocked · 1')).toBeInTheDocument()
     expect(screen.getByText('Provider "Unknown Guides" not found.')).toBeInTheDocument()
     expect(screen.getByText('Likely duplicates · 1')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Import 1 course' })).toBeEnabled()
+    // The button stays disabled until the preview transition settles
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Import 1 course' })).toBeEnabled(),
+    )
   })
 
   it('imports the ready rows plus only the duplicates that were ticked', async () => {

@@ -75,7 +75,9 @@ export type CourseImportPlan = {
   likelyDuplicates: PlannedCourse[]
 }
 
-const normalizeName = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase() // collapse runs of whitespace
+/** How a sheet's Provider name is compared: case and runs of whitespace don't matter. */
+export const normalizeProviderName = (name: string) =>
+  name.trim().replace(/\s+/g, ' ').toLowerCase() // collapse runs of whitespace
 
 /**
  * Label → value for a select field's options. The guard narrows each value to the field's
@@ -161,7 +163,7 @@ function checkProvider(
     reasons.push('Provider is required.')
     return undefined
   }
-  const matches = providersByName.get(normalizeName(name)) ?? []
+  const matches = providersByName.get(normalizeProviderName(name)) ?? []
   if (matches.length === 0) reasons.push(`Provider "${name}" not found.`)
   if (matches.length > 1) reasons.push(`Provider "${name}" matches more than one Provider.`)
   return matches.length === 1 ? matches[0] : undefined
@@ -387,7 +389,7 @@ export function planCourseImport({
 
   const providersByName = new Map<string, CatalogProvider[]>()
   for (const provider of providers) {
-    const key = normalizeName(provider.name)
+    const key = normalizeProviderName(provider.name)
     providersByName.set(key, [...(providersByName.get(key) ?? []), provider])
   }
 
