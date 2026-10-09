@@ -1,3 +1,4 @@
+import { zoneSlugFromUrl } from '@/services/nac/zoneSlug'
 import { z } from 'zod'
 import { isDeadLegacyPath } from './deadLegacyPath'
 
@@ -156,7 +157,7 @@ export const nacCenterZonesSchema = z.object({
 /** The forecast routes for a center's active zones, slugged like getActiveForecastZones. */
 export function forecastZonePaths({ zones }: z.infer<typeof nacCenterZonesSchema>): string[] {
   const zonePaths = zones.flatMap(({ status, url }) => {
-    const slug = status === 'active' ? url?.split('/').filter(Boolean).pop() : undefined
+    const slug = status === 'active' && url ? zoneSlugFromUrl(url) : undefined
     return slug ? [`/forecasts/avalanche/${slug}`] : []
   })
   return ['/forecasts/avalanche', ...zonePaths]
