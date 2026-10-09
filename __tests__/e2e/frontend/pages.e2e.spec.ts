@@ -49,6 +49,11 @@ test.describe('Frontend pages load correctly', () => {
   test.describe.configure({ timeout: 60000 })
 
   test('root landing page', async ({ page }) => {
+    // Each center's map fetches live NAC data; an upstream outage answers 502 and would fail this
+    // test for a reason unrelated to the page. The route itself is covered by server tests.
+    await page.route('**/api/*/danger-map**', (route) =>
+      route.fulfill({ json: { type: 'FeatureCollection', features: [] } }),
+    )
     const errors = await loadPage(page, '/')
 
     await expect(page.getByRole('heading', { name: 'AvyWeb', level: 1 })).toBeVisible()
