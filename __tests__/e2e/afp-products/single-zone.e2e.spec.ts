@@ -45,7 +45,8 @@ test.describe('Native single-zone forecast', () => {
 
     // Every danger value in the corpus is null, which the wire schema maps to "no rating" — three
     // bands across two days. A fixture with real ratings is an upstream capture we are waiting on.
-    await expect(page.getByText('0 - No Rating')).toHaveCount(6)
+    // Visible only: the phone's collapsed outlook carries its own hidden copy of tomorrow's three.
+    await expect(page.getByText('0 - No Rating').filter({ visible: true })).toHaveCount(6)
     await expect(
       page.getByText(
         'Insufficient data for issuing of danger ratings, but a summary of avalanche conditions exists. Read the summary for more information.',

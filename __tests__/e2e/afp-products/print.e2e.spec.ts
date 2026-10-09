@@ -252,9 +252,9 @@ test.describe('Printing a forecast', () => {
     page,
   }) => {
     // 800px is the one window where `printWide:` can be told apart from the breakpoint it shadows:
-    // wide enough for `printWide` (700) and not for `lg` (1024). So the screen stacks the two
-    // danger days and the print must not — which is only true if the `printWide:flex-row` twin on
-    // `DangerDayColumns` is there and sorts after `lg:`.
+    // wide enough for `printWide` (700) and not for `lg` (1024). So the screen folds tomorrow into
+    // a collapsed row under today and the print sets it beside today — which is only true if the
+    // `printWide:` twins on `DangerDayColumns` are there and sort after `lg:`.
     await page.setViewportSize(NARROWER_THAN_LG)
     await loadPage(page, FORECAST_URL)
 
