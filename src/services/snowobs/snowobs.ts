@@ -193,6 +193,8 @@ export async function fetchStationTimeseries(
       return await requestTimeseries(stations, options, token)
     } catch (error) {
       if (stations.length < 2) return await retryRounded(stations, options, token, error)
+      // Only a 500 is one station's data; a bad token or an outage fails them all alike.
+      if (!isServerError(error)) throw error
       return await requestEachStation(stations, options, token, error)
     }
   } catch (error) {

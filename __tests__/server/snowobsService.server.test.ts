@@ -216,6 +216,20 @@ describe('fetchStationTimeseries', () => {
       expect(requested).toEqual(['4 (rounded)'])
     })
 
+    it('does not fan out a batch that fails with anything but a 500', async () => {
+      const requested: string[] = []
+      server.use(
+        http.get(TIMESERIES_URL, ({ request }) => {
+          requested.push(new URL(request.url).searchParams.get('stid') ?? '')
+          return new HttpResponse(null, { status: 403 })
+        }),
+      )
+      await expect(
+        fetchStationTimeseries('nwac', [ref('1'), ref('2')], { rawData: true }),
+      ).rejects.toThrow(/status 403/)
+      expect(requested).toEqual(['1,2'])
+    })
+
     it('throws when every station fails on its own too', async () => {
       server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
       await expect(

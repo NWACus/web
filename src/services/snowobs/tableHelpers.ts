@@ -86,8 +86,6 @@ export type StationNote = {
   startDate: string | null
 }
 
-// Active notes first, then newest first; undated notes keep their SnowObs order.
-// A note whose end date has passed is over, whatever its status says.
 export type StationSummary = { key: string; name: string; elevation: number | null }
 
 // A page's stations in its own order, named from the response; a station
@@ -107,6 +105,8 @@ export function stationSummaries(
   })
 }
 
+// Active notes first, then newest first; undated notes keep their SnowObs order.
+// A note whose end date has passed is over, whatever its status says.
 export function stationNotes(stations: ResponseStation[], now = new Date()): StationNote[] {
   return stations
     .flatMap((station) =>
