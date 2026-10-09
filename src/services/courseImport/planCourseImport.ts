@@ -180,9 +180,11 @@ function checkTitle(title: string, courseType: CourseType, reasons: string[]) {
   if (!title) return
   // Titles are "<Course Type full name> – <modes>"; only the part before the en dash is checked
   const prefix = title.split(' – ')[0].trim()
-  if (prefix !== courseType.fullName) {
+  const names = [courseType.fullName, ...(courseType.alsoTitled ?? [])]
+  if (!names.includes(prefix)) {
+    const expected = names.map((name) => `"${name}"`).join(' or ')
     reasons.push(
-      `Title starts with "${prefix}", but Course Type ${courseType.label} titles start with "${courseType.fullName}".`,
+      `Title starts with "${prefix}", but Course Type ${courseType.label} titles start with ${expected}.`,
     )
   }
 }

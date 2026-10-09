@@ -4,6 +4,8 @@ export type CourseType = {
   description?: string | null
   /** The name course titles start with in A3's catalog sheets, e.g. "Recreational Level 1". */
   fullName?: string
+  /** Other names its titles may start with, e.g. a Rec 1 that also covers Avalanche Rescue. */
+  alsoTitled?: string[]
 }
 
 export const courseTypesData: CourseType[] = [
@@ -13,6 +15,7 @@ export const courseTypesData: CourseType[] = [
       'Recreational Level 1: Introduction to avalanche safety for recreational backcountry travelers. Covers avalanche basics, rescue, and decision-making.',
     value: 'rec-1',
     fullName: 'Recreational Level 1',
+    alsoTitled: ['Recreational Level 1 & Avalanche Rescue'],
   },
   {
     label: 'Rec 2',
@@ -20,6 +23,7 @@ export const courseTypesData: CourseType[] = [
       'Recreational Level 2: Advanced avalanche course building on Rec 1. Emphasizes weather, snowpack analysis, and complex terrain travel.',
     value: 'rec-2',
     fullName: 'Recreational Level 2',
+    alsoTitled: ['Recreational Level 2 & Avalanche Rescue'],
   },
   {
     label: 'Pro 1',

@@ -68,9 +68,9 @@ describe('planCourseImport', () => {
   it('sorts every row into exactly one group', () => {
     const plan = planFixture()
     expect(plan.fileErrors).toEqual([])
-    expect(plan.ready.map((r) => r.row)).toEqual([2, 3, 4, 9, 18])
+    expect(plan.ready.map((r) => r.row)).toEqual([2, 3, 4, 7, 9, 18])
     expect(plan.likelyDuplicates.map((r) => r.row)).toEqual([15, 16])
-    expect(plan.blocked.map((r) => r.row)).toEqual([5, 6, 7, 8, 10, 11, 12, 13, 14, 17])
+    expect(plan.blocked.map((r) => r.row)).toEqual([5, 6, 8, 10, 11, 12, 13, 14, 17])
   })
 
   it('builds the Course data for a clean row, in the row time zone', () => {
@@ -121,9 +121,19 @@ describe('planCourseImport', () => {
     ])
   })
 
-  it('blocks a combined-course title typed as Rec 1', () => {
-    expect(blockedReasons(7)).toEqual([
-      'Title starts with "Recreational Level 1 & Avalanche Rescue", but Course Type Rec 1 titles start with "Recreational Level 1".',
+  it('accepts a Rec 1 whose title also names Avalanche Rescue', () => {
+    expect(planFixture().ready.find((r) => r.row === 7)?.data).toMatchObject({
+      title: 'Recreational Level 1 & Avalanche Rescue – Ski',
+      courseType: 'rec-1',
+    })
+  })
+
+  it('blocks a title that names a different Course Type', () => {
+    const { headers, rows } = parseCourseCsv(csv)
+    const row = { ...rows[0], Title: 'Recreational Level 2 – Ski/Splitboard' }
+    const plan = planCourseImport({ headers, rows: [row], providers, existingCourses: [] })
+    expect(plan.blocked[0].reasons).toEqual([
+      'Title starts with "Recreational Level 2", but Course Type Rec 1 titles start with "Recreational Level 1" or "Recreational Level 1 & Avalanche Rescue".',
     ])
   })
 
