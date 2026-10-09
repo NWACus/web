@@ -57,15 +57,17 @@ export interface DangerMapProps {
   /** The center's upstream id (e.g. `NWAC`), used to decide which links stay in this tab. */
   centerId: string
   settings: DangerMapSettings
+  /** Set by the root landing page's directory, which shows the map regardless of the center's rollout flag. */
+  directory?: boolean
 }
 
-export function DangerMap({ centerSlug, centerId, settings }: DangerMapProps) {
+export function DangerMap({ centerSlug, centerId, settings, directory = false }: DangerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   // Mounted into Mapbox's top-right control stack.
   const recenterRef = useRef<HTMLDivElement>(null)
 
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-  const { zones, failed } = useZoneData(centerSlug, settings.allCenters)
+  const { zones, failed } = useZoneData(centerSlug, settings.allCenters, directory)
   const mapRef = useMapInstance(containerRef, recenterRef, token, settings)
 
   /** Return to the configured viewport, or to a view that fits the center's own zones. */

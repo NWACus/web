@@ -1,77 +1,93 @@
-import Link from 'next/link'
-
-import { ImageMedia } from '@/components/Media/ImageMedia'
-import { getURL } from '@/utilities/getURL'
-import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
+/**
+ * The root landing page: a directory of the avalanche centers that run their sites on AvyWeb.
+ *
+ * Only production tenants are listed — the ones routed to their custom domain via
+ * `PRODUCTION_TENANTS` — so a center that is provisioned but not yet launched stays out of sight.
+ * Each row pairs the center's identity with its live danger map; the map fetches its zones in the
+ * browser on every load, so the ratings stay current even though this page is static.
+ *
+ * Design settled 2026-09-09 after a three-variant prototype: board rows won over one-map-per-
+ * section and a single switchable map, without per-zone rating chips.
+ */
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { AvalancheOrgSection } from '@/components/landing/AvalancheOrgSection'
+import { CenterDirectory } from '@/components/landing/CenterDirectory'
+import { LandingFooter } from '@/components/landing/LandingFooter'
+import { LandingHeader } from '@/components/landing/LandingHeader'
+import type { DirectoryCenter } from '@/components/landing/types'
+import type { Media, Setting } from '@/payload-types'
+import { getURL } from '@/utilities/getURL'
+import { isValidRelationship, relationshipID } from '@/utilities/relationships'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
+import { PRODUCTION_TENANTS } from '@/utilities/tenancy/tenants'
+
 export const dynamic = 'force-static'
 
-export default async function LandingPage() {
+/** The template tenant, never a real center; excluded from the local stand-in list. */
+const TEMPLATE_TENANT_SLUG = 'dvac'
+
+async function getDirectoryCenters(): Promise<DirectoryCenter[]> {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload
-    .find({
-      collection: 'tenants',
-      limit: 1000,
-      where: {
-        slug: {
-          not_equals: 'dvac', // Filter out templated tenant
-        },
-      },
-      sort: 'slug',
-    })
+    .find({ collection: 'tenants', limit: 1000, sort: 'name' })
     .then((result) => result.docs)
 
-  const tenantIds = tenants.map((tenant) => tenant.id)
+  // Local dev has no PRODUCTION_TENANTS, so it stands in with every seeded center except the
+  // template. Anywhere the env var is set, it is the only source of truth.
+  const productionSlugs: readonly string[] =
+    PRODUCTION_TENANTS.length > 0
+      ? PRODUCTION_TENANTS
+      : tenants
+          .map((tenant) => tenant.slug)
+          .filter(isValidTenantSlug)
+          .filter((slug) => slug !== TEMPLATE_TENANT_SLUG)
 
-  const tenantsLogo = await payload
+  const productionTenants = tenants.filter((tenant) => productionSlugs.includes(tenant.slug))
+
+  const settings = await payload
     .find({
       collection: 'settings',
-      where: {
-        tenant: {
-          in: tenantIds,
-        },
-      },
-      select: {
-        logo: true,
-        tenant: true,
-      },
+      where: { tenant: { in: productionTenants.map((tenant) => tenant.id) } },
+      select: { logo: true, description: true, tenant: true },
+      pagination: false,
     })
     .then((result) => result.docs)
 
+  return productionTenants.map((tenant) => {
+    const tenantSettings = settings.find((doc) => relationshipID(doc.tenant) === tenant.id)
+    // The center's custom domain in production, its subdomain of this deployment anywhere else.
+    const hostname = getHostnameFromTenant(tenant)
+
+    return {
+      slug: tenant.slug,
+      name: tenant.name,
+      // Strip a leading `www.` for display; the link keeps the full host.
+      domain: hostname.replace(/^www\./, ''),
+      href: getURL(hostname),
+      description: tenantSettings?.description ?? null,
+      logo: resolvedLogo(tenantSettings),
+    }
+  })
+}
+
+/** The logo only when the relationship came back populated; an unresolved id has nothing to render. */
+function resolvedLogo(settings: Pick<Setting, 'logo'> | undefined): Media | null {
+  const logo = settings?.logo
+  return isValidRelationship(logo) ? logo : null
+}
+
+export default async function LandingPage() {
+  const centers = await getDirectoryCenters()
+
   return (
-    <div className="py-12">
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="font-bold">Avalanche Centers</h1>
-            <Link href="/admin">Login</Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {tenants.map(async (tenant) => {
-              const hostname = getHostnameFromTenant(tenant)
-              const href = getURL(hostname)
-              const logo = tenantsLogo.find((logo) => {
-                const logoTenantId = typeof logo.tenant === 'number' ? logo.tenant : logo.tenant.id
-                return logoTenantId === tenant.id
-              })?.logo
-              return (
-                <Link
-                  key={tenant.slug}
-                  href={href}
-                  className="p-6 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition no-underline text-center"
-                >
-                  <div className="aspect-square flex items-center justify-center w-48 mx-auto">
-                    <ImageMedia resource={logo} imgClassName="w-48" sizes="192px" />
-                  </div>
-                  <div className="text-xl mt-4 font-semibold">{tenant.name} ➡️</div>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </div>
+    <div className="bg-white text-[#14213d]">
+      <LandingHeader />
+      <CenterDirectory centers={centers} />
+      <AvalancheOrgSection />
+      <LandingFooter />
     </div>
   )
 }

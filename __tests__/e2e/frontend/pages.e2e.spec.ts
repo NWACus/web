@@ -49,11 +49,18 @@ test.describe('Frontend pages load correctly', () => {
   test.describe.configure({ timeout: 60000 })
 
   test('root landing page', async ({ page }) => {
+    // Each center's map fetches live NAC data; an upstream outage answers 502 and would fail this
+    // test for a reason unrelated to the page. The route itself is covered by server tests.
+    await page.route('**/api/*/danger-map**', (route) =>
+      route.fulfill({ json: { type: 'FeatureCollection', features: [] } }),
+    )
     const errors = await loadPage(page, '/')
 
-    await expect(page.getByRole('heading', { name: 'Avalanche Centers' })).toBeVisible()
-    // Should have at least one link to an avalanche center
-    await expect(page.locator('a[href*="localhost"]').first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'AvyWeb', level: 1 })).toBeVisible()
+    // Should list at least one avalanche center, linked to its own site
+    await expect(
+      page.getByRole('region', { name: 'Avalanche centers on AvyWeb' }).getByRole('link').first(),
+    ).toBeVisible()
 
     expect(errors).toEqual([])
   })

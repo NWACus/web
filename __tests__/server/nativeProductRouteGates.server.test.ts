@@ -70,6 +70,21 @@ describe.each([
   })
 })
 
+it('danger-map answers the root directory even when the center has native dangerMap off', async () => {
+  mockUpstream.mockResolvedValue({ features: [] })
+
+  const res = await dangerMap(new NextRequest('http://x/api/nwac/danger-map?directory=true'), {
+    params,
+  })
+
+  expect(res.status).toBe(200)
+  expect(mockGetNativeProductFlag).not.toHaveBeenCalled()
+  expect(mockUpstream).toHaveBeenCalledWith('mapLayer', 'nwac', {
+    day: undefined,
+    allCenters: false,
+  })
+})
+
 it('forecast-archive answers 502 rather than throwing when upstream fails', async () => {
   mockGetNativeProductFlag.mockResolvedValue(true)
   mockUpstream.mockRejectedValue(new Error('NAC down'))
