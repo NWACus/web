@@ -8,6 +8,8 @@ const EXCLUSION_DESCRIPTIONS: Record<ExclusionReason, string> = {
   'not-redirectable': "Files and API addresses the site can't redirect, like /favicon.ico.",
   probe: 'Automatic checks by browsers and security scanners.',
   'live-path': 'Addresses that work now; the errors were temporary.',
+  'built-in-route':
+    "Addresses under the site's own forecast, observation and weather pages, which redirects can't cover yet.",
 }
 
 const HTML_ENTITIES: Record<string, string> = {

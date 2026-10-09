@@ -1,7 +1,13 @@
 import { z } from 'zod'
 import { isDeadLegacyPath } from './deadLegacyPath'
 
-const EXCLUSION_REASONS = ['dead-legacy-path', 'not-redirectable', 'probe', 'live-path'] as const
+const EXCLUSION_REASONS = [
+  'dead-legacy-path',
+  'not-redirectable',
+  'probe',
+  'live-path',
+  'built-in-route',
+] as const
 
 const pathHitsSchema = z.object({ path: z.string(), hits: z.number() })
 const nameHitsSchema = z.object({ name: z.string(), hits: z.number() })
@@ -38,6 +44,39 @@ const NOT_REDIRECTABLE_PATH =
 // Dotfile paths (/.well-known/..., /.env) are browser and scanner probes, not people
 const PROBE_PATH = /^\/\./
 
+// Center pages that 404 without rendering <Redirects>, so a Redirects row can't fix them. A test
+// keeps this list in step with the pages under src/app/(frontend)/[center].
+export const ROUTES_WITHOUT_REDIRECTS = [
+  '/',
+  '/blog',
+  '/events',
+  '/forecasts/avalanche',
+  '/forecasts/avalanche/:zone',
+  '/forecasts/avalanche/:zone/:date',
+  '/forecasts/avalanche/archive',
+  '/forecasts/avalanche/archive/danger-over-time',
+  '/forecasts/avalanche/archive/mountain-weather',
+  '/forecasts/avalanche/archive/mountain-weather/:id',
+  '/observations',
+  '/observations/:id',
+  '/observations/avalanches/:id',
+  '/observations/submit',
+  '/theme-preview',
+  '/weather/forecast',
+  '/weather/forecast/:date',
+  '/weather/stations/:station',
+  '/weather/stations/map',
+  '/weather/stations/station/:source/:stid',
+]
+
+// Each :param matches one path segment, so '/observations/:id' matches /observations/123
+const ROUTE_WITHOUT_REDIRECTS_PATTERNS = ROUTES_WITHOUT_REDIRECTS.map(
+  (route) => new RegExp(`^${route.replace(/:\w+/g, '[^/]+')}$`),
+)
+
+const isRouteWithoutRedirects = (path: string) =>
+  ROUTE_WITHOUT_REDIRECTS_PATTERNS.some((pattern) => pattern.test(path))
+
 // Strips a query string or hash, then trailing slashes, which Redirects `from` values can't have
 function normalizePath(path: string): string {
   return path.replace(/[?#].*$/, '').replace(/\/+$/, '') || '/'
@@ -53,12 +92,17 @@ function lastSegment(path: string): string | undefined {
     .toLowerCase()
 }
 
+// In priority order: a live zone that 404'd briefly is `live-path`, not `built-in-route`
+const EXCLUSION_CHECKS: [ExclusionReason, (path: string, livePaths: Set<string>) => boolean][] = [
+  ['dead-legacy-path', isDeadLegacyPath],
+  ['not-redirectable', (path) => NOT_REDIRECTABLE_PATH.test(path)],
+  ['probe', (path) => PROBE_PATH.test(path)],
+  ['live-path', (path, livePaths) => livePaths.has(path)],
+  ['built-in-route', isRouteWithoutRedirects],
+]
+
 function exclusionReason(from: string, livePaths: Set<string>): ExclusionReason | null {
-  if (isDeadLegacyPath(from)) return 'dead-legacy-path'
-  if (NOT_REDIRECTABLE_PATH.test(from)) return 'not-redirectable'
-  if (PROBE_PATH.test(from)) return 'probe'
-  if (livePaths.has(from)) return 'live-path'
-  return null
+  return EXCLUSION_CHECKS.find(([, matches]) => matches(from, livePaths))?.[0] ?? null
 }
 
 function suggestDestination(from: string, livePaths: Set<string>): string | null {
