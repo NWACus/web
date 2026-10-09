@@ -140,10 +140,15 @@ type Spinner = ReturnType<typeof startSpinner>
 const MAX_ATTEMPTS = 4
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// The metrics API intermittently answers 502 query_failed, most often under concurrent queries
-async function fetchWithRetry(url: string, init: RequestInit, attempt = 1): Promise<Response> {
-  const res = await fetch(url, init)
-  if (res.status < 500 || attempt >= MAX_ATTEMPTS) return res
+const isRetryableStatus = (status: number) => status === 429 || status >= 500
+
+// The metrics API intermittently answers 502 query_failed, most often under concurrent queries. A
+// run takes minutes, so a rate limit or dropped connection shouldn't throw away the queries so far.
+async function fetchWithRetry(url: string, init: RequestInit = {}, attempt = 1): Promise<Response> {
+  if (attempt >= MAX_ATTEMPTS) return fetch(url, init)
+  // fetch throws on a network failure, such as a reset connection
+  const res = await fetch(url, init).catch(() => null)
+  if (res && !isRetryableStatus(res.status)) return res
   await sleep(2000 * attempt)
   return fetchWithRetry(url, init, attempt + 1)
 }
@@ -257,7 +262,7 @@ async function queryTopPaths(
 }
 
 async function fetchText(url: string): Promise<string> {
-  const res = await fetch(url)
+  const res = await fetchWithRetry(url)
   if (!res.ok) throw new Error(`${url} responded ${res.status}`)
   return res.text()
 }
@@ -351,6 +356,9 @@ async function collectReport(
   const notFoundNonBot = `${notFound} AND ${NON_BOT_FILTER}`
   const range = dayAlignedRange(days)
 
+  // First, so an unreachable sitemap fails the run before minutes of metrics queries
+  spinner.update(`Reading ${domain}/sitemap.xml and the center's forecast zones`)
+  const livePaths = await fetchLivePaths(tenant, domain)
   spinner.update('Resolving the Vercel project')
   const scope = await resolveScope()
   spinner.update('Counting 404s')
@@ -360,8 +368,6 @@ async function collectReport(
     spinner.update(`Fetching the paths people request most, week ${week} of ${weeks}`),
   )
   const bots = await queryBotTraffic(scope, range, notFound, spinner)
-  spinner.update(`Reading ${domain}/sitemap.xml and the center's forecast zones`)
-  const livePaths = await fetchLivePaths(tenant, domain)
 
   return {
     tenant,

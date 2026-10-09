@@ -1163,7 +1163,7 @@ sig = "fd722c55fdb3239d"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/scripts/report-404s.ts"
-sig = "da40d186fb4f6d2e"
+sig = "2a76fac2aa1d1f6c"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
