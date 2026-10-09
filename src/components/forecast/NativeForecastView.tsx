@@ -106,16 +106,12 @@ export function NativeForecastView({
         pickerSettings={pickerSettings}
       />
 
-      {/* Validity-date banner: archived on a dated view, expired on the live view. Above the
-          title, as the widget had it; unlike the picker, it prints. */}
-      <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
-        <ValidityBanner
-          forecast={forecastResult}
-          selectedDate={selectedDate}
-          basePath={basePath}
-          hasLivePage={zone.active !== false}
-        />
-      </ForecastErrorBoundary>
+      <ForecastValidityNotice
+        forecastResult={forecastResult}
+        selectedDate={selectedDate}
+        basePath={basePath}
+        hasLivePage={zone.active !== false}
+      />
 
       <ForecastTitleRow
         center={center}
@@ -204,6 +200,30 @@ function DatePickerSection({
           showZoneName={pickerSettings.showZoneName}
         />
       </div>
+    </ForecastErrorBoundary>
+  )
+}
+
+/**
+ * The validity-date banner: archived on a dated view, expired on the live view. Above the title,
+ * as the widget had it; unlike the date picker, it prints.
+ */
+function ForecastValidityNotice({
+  forecastResult,
+  selectedDate,
+  basePath,
+  hasLivePage,
+}: Pick<NativeForecastViewProps, 'forecastResult' | 'selectedDate' | 'basePath'> & {
+  hasLivePage: boolean
+}) {
+  return (
+    <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
+      <ValidityBanner
+        forecast={forecastResult}
+        selectedDate={selectedDate}
+        basePath={basePath}
+        hasLivePage={hasLivePage}
+      />
     </ForecastErrorBoundary>
   )
 }
