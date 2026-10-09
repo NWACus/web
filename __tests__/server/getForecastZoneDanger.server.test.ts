@@ -75,6 +75,27 @@ describe('services: getForecastZoneDanger', () => {
     expect(danger?.travel_advice).toBe('Watch for signs of unstable snow.')
   })
 
+  it("reads a past day's map layer when given a day", async () => {
+    // Upstream answers `?day=` with that day's ratings, e.g. Stevens Pass at Low on 2026-04-01.
+    const requestedDays: (string | null)[] = []
+    server.use(
+      http.get(`${nacApiHost}/v2/public/products/map-layer/:center`, ({ request }) => {
+        const day = new URL(request.url).searchParams.get('day')
+        requestedDays.push(day)
+        const pastDay = { ...stevensPass, danger: 'low', danger_level: 1 }
+        return HttpResponse.json({
+          ...mapLayerResponse,
+          features: [{ ...mapLayerResponse.features[0], properties: day ? pastDay : stevensPass }],
+        })
+      }),
+    )
+
+    const danger = await getForecastZoneDanger('nwac', 'stevens-pass', '2026-04-01')
+    expect(requestedDays).toEqual(['2026-04-01'])
+    expect(danger?.danger).toBe('low')
+    expect(danger?.danger_level).toBe(1)
+  })
+
   it('returns null when no zone matches the slug', async () => {
     const danger = await getForecastZoneDanger('nwac', 'does-not-exist')
     expect(danger).toBeNull()

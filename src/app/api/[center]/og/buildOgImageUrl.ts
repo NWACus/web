@@ -21,3 +21,12 @@ export function ogImageUrlForZone(center: string, zone: string, version: string 
   if (version) search.set('v', version)
   return `/api/${center}/og?${search.toString()}`
 }
+
+/**
+ * Builds the OG image URL for a zone's archived forecast: its card with that day's danger. No
+ * version, since a past day's rating doesn't change; the route caches it for a day instead.
+ */
+export function ogImageUrlForDatedZone(center: string, zone: string, date: string): string {
+  const search = new URLSearchParams({ route: `forecasts/avalanche/${zone}/${date}` })
+  return `/api/${center}/og?${search.toString()}`
+}

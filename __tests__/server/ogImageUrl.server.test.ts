@@ -1,4 +1,8 @@
-import { ogImageUrlForDoc, ogImageUrlForZone } from '@/app/api/[center]/og/buildOgImageUrl'
+import {
+  ogImageUrlForDatedZone,
+  ogImageUrlForDoc,
+  ogImageUrlForZone,
+} from '@/app/api/[center]/og/buildOgImageUrl'
 
 describe('ogImageUrlForDoc', () => {
   it('builds a blog post OG image URL', () => {
@@ -39,5 +43,13 @@ describe('ogImageUrlForZone', () => {
     const search = new URLSearchParams(url.split('?')[1])
     expect(search.get('route')).toBe('forecasts/avalanche/soldier-&-wood-river-valley-mtns')
     expect(search.get('v')).toBe('abc')
+  })
+})
+
+describe('ogImageUrlForDatedZone', () => {
+  it('puts the date in the route, unversioned', () => {
+    const url = ogImageUrlForDatedZone('nwac', 'stevens-pass', '2026-04-01')
+    expect(url).toBe('/api/nwac/og?route=forecasts%2Favalanche%2Fstevens-pass%2F2026-04-01')
+    expect(new URLSearchParams(url.split('?')[1]).get('v')).toBeNull()
   })
 })

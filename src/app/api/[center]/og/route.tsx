@@ -19,18 +19,14 @@ import { getPayload } from 'payload'
 
 import type { OgDocType } from './buildOgImageUrl'
 import { centerColorMap, isKnownCenter } from './centerColorMap'
+import {
+  forecastImageCacheControl,
+  forecastImageSubtitle,
+  parseForecastRoute,
+} from './forecastRoute'
 import { getDangerBadge } from './getDangerBadge'
 import { getOgDocData, type OgDocData } from './getOgDocData'
 import { OgDocContent } from './OgDocContent'
-
-const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
-
-/**
- * A zone image shows a live danger rating, so it gets the native page's 5-minute window rather
- * than @vercel/og's year-long `immutable` default. The versioned URL is what turns a preview over;
- * this bounds how long one address can serve a rating that has since changed.
- */
-const ZONE_IMAGE_CACHE_CONTROL = 'public, max-age=300, s-maxage=300'
 
 const isOgDocType = (value: string | null): value is OgDocType =>
   value === 'post' || value === 'event'
@@ -49,10 +45,11 @@ export async function GET(
   const title = searchParams.get('title')
   const description = searchParams.get('description')
   const route = searchParams.get('route')
-  const zone =
-    route && route.startsWith(FORECAST_ZONE_PATH_PREFIX)
-      ? (route.slice(FORECAST_ZONE_PATH_PREFIX.length).split('/').filter(Boolean).pop() ?? null)
-      : null
+  // A zone, or a zone on an archived day; a rejected date draws the center card instead.
+  const forecastTarget = parseForecastRoute(route)
+  const zone = forecastTarget?.kind === 'zone' ? forecastTarget.zone : null
+  const day = forecastTarget?.kind === 'zone' ? forecastTarget.day : null
+  const cacheControl = forecastImageCacheControl(forecastTarget)
 
   // Blog post / event shares: `?type=post&slug=...` or `?type=event&slug=...`
   const docTypeParam = searchParams.get('type')
@@ -158,7 +155,7 @@ export async function GET(
       zoneName = formatZoneName(zone)
 
       try {
-        const danger = await getForecastZoneDanger(center, zone)
+        const danger = await getForecastZoneDanger(center, zone, day ?? undefined)
         if (danger) {
           dangerBadge = getDangerBadge(danger)
         }
@@ -249,7 +246,8 @@ export async function GET(
                   marginBottom: '1.5rem',
                 }}
               >
-                Avalanche Forecast
+                {/* An archived card names its day, so it can't pass for today's. */}
+                {forecastImageSubtitle(day)}
               </p>
               {dangerBadge && (
                 <div
@@ -372,7 +370,7 @@ export async function GET(
         height: 630,
         // Lowercase on purpose: @vercel/og spreads these over its own `cache-control` key, and a
         // differently-cased one would be appended alongside the year-long immutable default.
-        headers: zone ? { 'cache-control': ZONE_IMAGE_CACHE_CONTROL } : undefined,
+        headers: cacheControl ? { 'cache-control': cacheControl } : undefined,
         fonts: [
           {
             name: 'Lato',

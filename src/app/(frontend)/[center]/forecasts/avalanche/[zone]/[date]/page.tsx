@@ -1,5 +1,6 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
+import { ogImageUrlForDatedZone } from '@/app/api/[center]/og/buildOgImageUrl'
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { NativeForecastView } from '@/components/forecast/NativeForecastView'
 import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
@@ -197,13 +198,14 @@ export async function generateMetadata(
     alternates: {
       canonical: url,
     },
-    // Previews as this dated page, not the site root. The image stays the center's default from
-    // the layout: the zone image draws *today's* danger, which an archived forecast must not show.
+    // Previews as this dated page, not the site root, with the zone card for this day's danger.
+    // The OG route validates the date and draws the center card if it can't use it.
     openGraph: {
       ...parentMeta.openGraph,
       title,
       url,
       ...(description ? { description } : {}),
+      images: [{ url: ogImageUrlForDatedZone(center, zone, date), width: 1200, height: 630 }],
     },
     // Thousands of immutable archive pages shouldn't compete with the live page in search.
     robots: { index: false, follow: true },

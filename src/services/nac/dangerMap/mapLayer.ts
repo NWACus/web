@@ -23,13 +23,15 @@ export function getZoneMapLayer(
  *
  * This is how the forecast page and the OG image get a rating without fetching a whole forecast
  * product — the map layer already carries the rating, color and travel advice for every zone in a
- * single cached request. Returns null when no zone matches.
+ * single cached request. `day` (`YYYY-MM-DD`) reads a past day's layer instead of today's, for an
+ * archived forecast's card. Returns null when no zone matches.
  */
 export async function getForecastZoneDanger(
   centerSlug: string,
   zoneSlug: string,
+  day?: string,
 ): Promise<ZoneProperties | null> {
-  const mapLayer = await getZoneMapLayer(centerSlug)
+  const mapLayer = await getZoneMapLayer(centerSlug, day ? { day } : {})
 
   const feature = mapLayer.features.find(
     (f) => f.properties.link && zoneSlugFromUrl(f.properties.link) === zoneSlug,
