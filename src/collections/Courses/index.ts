@@ -16,6 +16,7 @@ import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig, DateField, ValidateOptions } from 'payload'
 import { date } from 'payload/shared'
 import { accessByProviderOrProviderManager } from './access/byProviderOrProviderManager'
+import { requireApprovedCourseType } from './hooks/requireApprovedCourseType'
 
 export const Courses: CollectionConfig = {
   slug: 'courses',
@@ -200,7 +201,7 @@ export const Courses: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    beforeValidate: [validateEventDates],
+    beforeValidate: [validateEventDates, requireApprovedCourseType],
     beforeChange: [populatePublishedAt],
   },
   versions: {

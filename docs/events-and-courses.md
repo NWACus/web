@@ -145,7 +145,7 @@ Key fields:
 - Contact information (email, phone, website)
 - Business location
 - States serviced (for filtering by region)
-- Approved course types (controls which course types they can create)
+- Approved course types (controls which course types they can create). Enforced server-side when a Course is created or its course type or provider changes, so Courses that predate the rule stay editable.
 - Notification email
 
 ### Course Types

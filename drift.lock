@@ -58,7 +58,7 @@ sig = "ff5d3fe541e1dfad"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "81f5116bf33918a4"
+sig = "8025b8bd50c0b894"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -648,7 +648,7 @@ sig = "c995ef0ec2eae6b4"
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/collections/Courses/index.ts"
-sig = "bb8e3d97f774bec9"
+sig = "7eb7d06adc0e0f07"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
@@ -693,7 +693,7 @@ sig = "2b85786965cc0125"
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
 target = "src/collections/Courses/index.ts"
-sig = "bb8e3d97f774bec9"
+sig = "7eb7d06adc0e0f07"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -1067,8 +1067,13 @@ sig = "9fea7eae9c72b62e"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/collections/Courses/hooks/requireApprovedCourseType.ts"
+sig = "276dc2e03f9919b6"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/collections/Courses/index.ts"
-sig = "bb8e3d97f774bec9"
+sig = "7eb7d06adc0e0f07"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
