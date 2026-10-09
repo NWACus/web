@@ -1128,12 +1128,12 @@ sig = "4bd0bfe992d3cf3a"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = ".github/workflows/development.yaml"
-sig = "f5d42cb873e9eafb"
+sig = "a39933cca411b367"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = ".github/workflows/sync-prod-to-dev.yml"
-sig = "912e0b1b785f4f4c"
+sig = "09d80e62ae23e9fc"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

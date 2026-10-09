@@ -1,4 +1,8 @@
 name: Sync Production to Dev
+# Shares development.yaml's group: both destroy and re-clone payloadcms-dev, so they must never overlap.
+concurrency:
+  group: payloadcms-dev
+  cancel-in-progress: false
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
