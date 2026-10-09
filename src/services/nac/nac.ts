@@ -4,6 +4,7 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
 import type { ArchiveProductSummary } from './archiveDates'
+import { normalizeCenterSlug } from './centerSlug'
 import { afpApiHost, nacApiHost } from './hosts'
 import {
   forecastResultSchema,
@@ -20,9 +21,6 @@ import {
   mapLayerSchema,
 } from './types/schemas'
 import { zoneSlugFromUrl } from './zoneSlug'
-
-// DVAC shares NWAC's upstream data, so map its slug to nwac for all NAC/AFP lookups.
-const normalizeCenterSlug = (centerSlug: string) => (centerSlug === 'dvac' ? 'nwac' : centerSlug)
 
 /**
  * Log an upstream failure without letting the logging become the failure.

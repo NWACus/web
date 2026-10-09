@@ -1,6 +1,7 @@
 'use client'
 
 import { useNACWidgetsConfig } from '@/providers/NACWidgetsConfigProvider'
+import { nacCenterId } from '@/services/nac/centerSlug'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
@@ -117,10 +118,9 @@ export function NACWidget({
   useEffect(function initializeWidgetData() {
     // Base URL (used for Google Analytics)
     const baseUrl = window.location.pathname
-    const fallbackCenter = center === 'dvac' ? 'nwac' : center
     const widgetData = {
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-      centerId: fallbackCenter.toUpperCase(),
+      centerId: nacCenterId(center),
       devMode,
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,

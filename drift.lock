@@ -823,7 +823,7 @@ sig = "2692f90f08a4a4d1"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/scripts/check-centers.ts"
-sig = "cf2a77a3852fcde8"
+sig = "8eb97b822b21e97b"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
@@ -1208,7 +1208,7 @@ sig = "2b85786965cc0125"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/scripts/check-centers.ts"
-sig = "cf2a77a3852fcde8"
+sig = "8eb97b822b21e97b"
 
 [[bindings]]
 doc = "docs/onboarding.md"
