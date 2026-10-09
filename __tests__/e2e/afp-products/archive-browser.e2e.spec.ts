@@ -54,6 +54,9 @@ test.describe('Forecast archive browser', () => {
   })
 
   test('a row opens the dated forecast, which links back to the archive', async ({ page }) => {
+    // 2026-04-05 is this zone's live product, whose dated page would hand over to the live one
+    // (Forecast-202) and race the assertions below; hold that check off.
+    await page.route('**/forecast-current-date/**', (route) => route.abort('failed'))
     const slug = zoneSlug(ZONE.forecast)
     await loadPage(page, `${ARCHIVE_URL}${SEASON}&zone=${encodeURIComponent(slug)}`)
 
