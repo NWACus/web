@@ -58,7 +58,7 @@ sig = "ff5d3fe541e1dfad"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "8025b8bd50c0b894"
+sig = "e4d506f8018eca8b"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -653,7 +653,7 @@ sig = "c995ef0ec2eae6b4"
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/collections/Courses/index.ts"
-sig = "7eb7d06adc0e0f07"
+sig = "fdce644046330424"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
@@ -698,7 +698,7 @@ sig = "2b85786965cc0125"
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
 target = "src/collections/Courses/index.ts"
-sig = "7eb7d06adc0e0f07"
+sig = "fdce644046330424"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -1072,13 +1072,18 @@ sig = "9fea7eae9c72b62e"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/collections/Courses/components/ImportCoursesLink.tsx"
+sig = "92523247734c377d"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/collections/Courses/hooks/requireApprovedCourseType.ts"
 sig = "276dc2e03f9919b6"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Courses/index.ts"
-sig = "7eb7d06adc0e0f07"
+sig = "fdce644046330424"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1117,6 +1122,16 @@ sig = "cb2e76810074aec2"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/services/courseImport/planCourseImport.ts"
+sig = "623a5277a82c2f8c"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/services/courseImport/runCourseImport.ts"
+sig = "eb60401b28845a25"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/utilities/queries/getCourses.ts"
 sig = "3ca1fb7994f74406"
 
@@ -1124,6 +1139,16 @@ sig = "3ca1fb7994f74406"
 doc = "docs/events-and-courses.md"
 target = "src/utilities/queries/getEvents.ts"
 sig = "cdbcb90cb1c106cf"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/views/CourseImport/actions.ts"
+sig = "b6d310467d6857c0"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/views/CourseImport/index.tsx"
+sig = "5f5bb4044d2bd6e9"
 
 [[bindings]]
 doc = "docs/mcp-server.md"

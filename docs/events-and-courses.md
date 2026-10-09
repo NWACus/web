@@ -187,6 +187,16 @@ Courses use a provider-based access model:
   - Provider managers are indicated by the role selected in the A3Management global
 - Global roles (e.g., super admin) have full access
 
+### Course Import
+
+Provider Managers and Super Admins can load A3's season spreadsheet at `/admin/course-import` (the "Import courses" button beside Create New on the Courses list). The upload is checked without writing anything and every row lands in one of three groups:
+
+- **Ready**: created as published Courses.
+- **Blocked**: every reason is listed. Values must exactly match the catalog (Provider name, Course Type and the Provider's Approved Course Types, the title's Course Type full name, modes, Affinity Groups, state, time zone), and real start and end times are required. Nothing is corrected or guessed.
+- **Likely duplicates**: match an existing Course, or an earlier row, on every field. Skipped unless ticked.
+
+Confirming re-checks access and re-plans against the current catalog. The database runs without transactions, so if a save fails part-way the Courses already created by that import are deleted.
+
 ### Frontend Display
 
 Courses are primarily displayed through embeddable widgets designed for external sites (like the A3 website). See the [A3 Embeds documentation](./a3-embeds.md) for details on:

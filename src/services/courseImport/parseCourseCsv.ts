@@ -23,8 +23,11 @@ export function parseCourseCsv(text: string): {
   return {
     headers: result.meta.fields ?? [],
     rows: result.data,
-    errors: result.errors.map((error) =>
-      error.row === undefined ? error.message : `Row ${error.row + 2}: ${error.message}`,
-    ),
+    // A one-column file has no delimiter to detect; that warning isn't a read failure
+    errors: result.errors
+      .filter((error) => error.code !== 'UndetectableDelimiter')
+      .map((error) =>
+        error.row === undefined ? error.message : `Row ${error.row + 2}: ${error.message}`,
+      ),
   }
 }

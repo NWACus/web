@@ -91,6 +91,10 @@ export default buildConfig({
           Component: '@/views/AcceptInvite#AcceptInvite',
           path: '/accept-invite',
         },
+        'course-import': {
+          Component: '@/views/CourseImport#CourseImport',
+          path: '/course-import',
+        },
         'embed-generator': {
           Component: '@/views/EmbedGenerator#EmbedGenerator',
           path: '/embed-generator',

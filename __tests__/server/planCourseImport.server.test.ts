@@ -29,7 +29,7 @@ const existingKafRescue: CourseImportData = {
   endDate: '2026-12-21T00:00:00.000Z',
   endDate_tz: 'America/Los_Angeles',
   registrationDeadline: null,
-  registrationDeadline_tz: null,
+  registrationDeadline_tz: 'America/Los_Angeles',
   location: { placeName: 'Mt. Hood', address: '', city: '', state: 'OR', zip: '' },
   courseUrl: '',
   modeOfTravel: ['snowshoe', 'ski', 'splitboard'],
@@ -86,7 +86,7 @@ describe('planCourseImport', () => {
       endDate: '2027-01-24T23:00:00.000Z',
       endDate_tz: 'America/Denver',
       registrationDeadline: null,
-      registrationDeadline_tz: null,
+      registrationDeadline_tz: 'America/Denver',
       location: {
         placeName: 'Snowbird, Little Cottonwood Canyon',
         address: '',

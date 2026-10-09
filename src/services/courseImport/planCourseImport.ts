@@ -4,6 +4,7 @@ import { type CourseType, courseTypesData } from '@/constants/courseTypes'
 import { affinityGroupOptions } from '@/fields/affinityGroupField'
 import { stateOptionsWIntl } from '@/fields/location/states'
 import { modeOfTravelOptions } from '@/fields/modeOfTravelField'
+import type { Course } from '@/payload-types'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { isValidFullUrl } from '@/utilities/validateUrl'
 import { zipCodeSchema } from '@/utilities/validateZipCode'
@@ -37,23 +38,29 @@ export type CourseImportRow = Partial<Record<string, string>>
 
 export type CatalogProvider = { id: number; name: string; courseTypes: string[] }
 
+type CourseTypeValue = Course['courseType']
+type CourseTimeZone = Course['startDate_tz']
+type CourseState = Course['location']['state']
+type CourseMode = NonNullable<Course['modeOfTravel']>[number]
+type CourseAffinityGroup = NonNullable<Course['affinityGroups']>[number]
+
 /** The Course fields an import writes. Existing Courses are compared in this same shape. */
 export type CourseImportData = {
   title: string
   subtitle: string
   description: string
   provider: number
-  courseType: string
+  courseType: CourseTypeValue
   startDate: string
-  startDate_tz: string
+  startDate_tz: CourseTimeZone
   endDate: string
-  endDate_tz: string
+  endDate_tz: CourseTimeZone
   registrationDeadline: string | null
-  registrationDeadline_tz: string | null
-  location: { placeName: string; address: string; city: string; state: string; zip: string }
+  registrationDeadline_tz: CourseTimeZone
+  location: { placeName: string; address: string; city: string; state: CourseState; zip: string }
   courseUrl: string
-  modeOfTravel: string[]
-  affinityGroups: string[]
+  modeOfTravel: CourseMode[]
+  affinityGroups: CourseAffinityGroup[]
 }
 
 type RowSummary = { row: number; provider: string; title: string; start: string }
@@ -70,15 +77,24 @@ export type CourseImportPlan = {
 
 const normalizeName = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase() // collapse runs of whitespace
 
-function labelLookup(options: { label: string; value: string }[]) {
-  return new Map(options.map((option) => [option.label, option.value]))
+/**
+ * Label → value for a select field's options. The guard narrows each value to the field's
+ * generated type, which is built from these same option lists.
+ */
+function labelLookup<T extends string>(options: { label: string; value: string }[]) {
+  const values = new Set(options.map((option) => option.value))
+  const isValue = (value: string): value is T => values.has(value)
+  const map = new Map<string, T>()
+  for (const option of options) if (isValue(option.value)) map.set(option.label, option.value)
+  return map
 }
 
 const courseTypeByLabel = new Map(courseTypesData.map((type) => [type.label, type]))
-const stateByLabel = labelLookup(stateOptionsWIntl)
-const timezoneByLabel = labelLookup(TIMEZONE_OPTIONS)
-const modeByLabel = labelLookup(modeOfTravelOptions)
-const affinityByLabel = labelLookup(affinityGroupOptions)
+const courseTypeValueByLabel = labelLookup<CourseTypeValue>(courseTypesData)
+const stateByLabel = labelLookup<CourseState>(stateOptionsWIntl)
+const timezoneByLabel = labelLookup<CourseTimeZone>(TIMEZONE_OPTIONS)
+const modeByLabel = labelLookup<CourseMode>(modeOfTravelOptions)
+const affinityByLabel = labelLookup<CourseAffinityGroup>(affinityGroupOptions)
 
 // M/D/YYYY, as A3's spreadsheet exports dates
 const DATE_PATTERN = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
@@ -114,12 +130,17 @@ function zonedInstant(
 }
 
 /** Splits a comma-separated cell into catalog values, collecting any label the catalog lacks. */
-function listValues(cell: string, lookup: Map<string, string>, column: Column, errors: string[]) {
+function listValues<T extends string>(
+  cell: string,
+  lookup: Map<string, T>,
+  column: Column,
+  errors: string[],
+) {
   const labels = cell
     .split(',')
     .map((label) => label.trim())
     .filter(Boolean)
-  const values: string[] = []
+  const values: T[] = []
   for (const label of labels) {
     const value = lookup.get(label)
     if (value) values.push(value)
@@ -182,7 +203,7 @@ function checkCourseType(
   return courseType
 }
 
-function checkTimeZone(cell: Cell, reasons: string[]): string | undefined {
+function checkTimeZone(cell: Cell, reasons: string[]): CourseTimeZone | undefined {
   const label = cell('A3 Time Zone')
   const timeZone = timezoneByLabel.get(label)
   if (!label) reasons.push('A3 Time Zone is required.')
@@ -221,7 +242,7 @@ function instantOrReason(
   return undefined
 }
 
-function checkTimes(cell: Cell, timeZone: string | undefined, reasons: string[]) {
+function checkTimes(cell: Cell, timeZone: CourseTimeZone | undefined, reasons: string[]) {
   if (!timeZone) return undefined
   const instant = (label: 'Start' | 'End') =>
     instantOrReason(
@@ -288,7 +309,10 @@ function checkRow(
     reasons,
   )
 
-  if (reasons.length > 0 || !provider || !courseType || !times || !location) return { reasons }
+  const courseTypeValue = courseType && courseTypeValueByLabel.get(courseType.label)
+  if (reasons.length > 0 || !provider || !courseTypeValue || !times || !location) {
+    return { reasons }
+  }
 
   return {
     data: {
@@ -296,13 +320,13 @@ function checkRow(
       subtitle: cell('Subtitle'),
       description: cell('Description'),
       provider: provider.id,
-      courseType: courseType.value,
+      courseType: courseTypeValue,
       startDate: times.startDate,
       startDate_tz: times.timeZone,
       endDate: times.endDate,
       endDate_tz: times.timeZone,
       registrationDeadline: times.registrationDeadline,
-      registrationDeadline_tz: times.registrationDeadline ? times.timeZone : null,
+      registrationDeadline_tz: times.timeZone,
       location,
       courseUrl,
       modeOfTravel,

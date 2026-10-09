@@ -25,6 +25,9 @@ export const Courses: CollectionConfig = {
     group: 'Courses',
     defaultColumns: ['title', 'subtitle', 'featuredImage', 'startDate', 'updatedAt'],
     useAsTitle: 'title',
+    components: {
+      beforeList: ['@/collections/Courses/components/ImportCoursesLink#ImportCoursesLink'],
+    },
   },
   fields: [
     titleField(),

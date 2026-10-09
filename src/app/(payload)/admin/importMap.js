@@ -32,6 +32,7 @@ import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } fro
 import { DescriptionWithCharCount as DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b } from '@/components/DescriptionWithCharCount'
 import { InitialTimezoneSetter as InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643 } from '@/fields/startAndEndDateField/components/InitialTimezoneSetter'
 import { CourseTypeField as CourseTypeField_348fff62462d32a00f93a0ac5be86e99 } from '@/collections/Courses/components/CourseTypeField'
+import { ImportCoursesLink as ImportCoursesLink_3792484abe7f8efe9c719fc1c40c4667 } from '@/collections/Courses/components/ImportCoursesLink'
 import { UserStatusCell as UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee } from '@/collections/Users/components/UserStatusCell'
 import { InviteUser as InviteUser_6042b6804e11048cd4fbe6206cbc2b0f } from '@/collections/Users/components/InviteUser'
 import { ResendInviteButton as ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735 } from '@/collections/Users/components/ResendInviteButton'
@@ -65,6 +66,7 @@ import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 }
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688 } from '@payloadcms/plugin-sentry/client'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
+import { CourseImport as CourseImport_f7d4bc544b81d02b18b806c329b35762 } from '@/views/CourseImport'
 import { EmbedGenerator as EmbedGenerator_1b7ef53264c103176ad65c34c5002f79 } from '@/views/EmbedGenerator'
 import { GettingStartedWidget as GettingStartedWidget_71651c7371b649fc7904c7f1624b31dd } from '@/components/dashboard-widgets/GettingStartedWidget'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -105,6 +107,7 @@ export const importMap = {
   "@/components/DescriptionWithCharCount#DescriptionWithCharCount": DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b,
   "@/fields/startAndEndDateField/components/InitialTimezoneSetter#InitialTimezoneSetter": InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643,
   "@/collections/Courses/components/CourseTypeField#CourseTypeField": CourseTypeField_348fff62462d32a00f93a0ac5be86e99,
+  "@/collections/Courses/components/ImportCoursesLink#ImportCoursesLink": ImportCoursesLink_3792484abe7f8efe9c719fc1c40c4667,
   "@/collections/Users/components/UserStatusCell#UserStatusCell": UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee,
   "@/collections/Users/components/InviteUser#InviteUser": InviteUser_6042b6804e11048cd4fbe6206cbc2b0f,
   "@/collections/Users/components/ResendInviteButton#ResendInviteButton": ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735,
@@ -138,6 +141,7 @@ export const importMap = {
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@payloadcms/plugin-sentry/client#AdminErrorBoundary": AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688,
   "@/views/AcceptInvite#AcceptInvite": AcceptInvite_a090ee9cb5b31ae357daa74987d3109a,
+  "@/views/CourseImport#CourseImport": CourseImport_f7d4bc544b81d02b18b806c329b35762,
   "@/views/EmbedGenerator#EmbedGenerator": EmbedGenerator_1b7ef53264c103176ad65c34c5002f79,
   "@/components/dashboard-widgets/GettingStartedWidget#GettingStartedWidget": GettingStartedWidget_71651c7371b649fc7904c7f1624b31dd,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
