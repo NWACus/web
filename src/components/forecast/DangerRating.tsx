@@ -29,8 +29,10 @@ import { cn } from '@/utilities/ui'
 import { DangerScale } from './DangerScale'
 import { DangerTriangle } from './DangerTriangle'
 import { ExternalLink } from './ExternalLink'
+import { HelpHeading } from './HelpHeading'
 import { dangerHeadings, isNoRatingDay, type DangerHeadings } from './dangerRatingLayout'
 import { sectionHeading } from './forecastHeadings'
+import { AVALANCHE_DANGER_HELP } from './forecastHelp'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface DangerRatingProps {
@@ -57,7 +59,16 @@ export function DangerRating({
 
   return (
     <section className="space-y-4">
-      <h2 className={sectionHeading}>Avalanche Danger</h2>
+      {/* The ⓘ belongs to the zone page's section; the all-zones card keeps its plain heading. */}
+      {headings.dated ? (
+        <HelpHeading
+          title="Avalanche Danger"
+          help={AVALANCHE_DANGER_HELP}
+          helpLabel="About Avalanche Danger"
+        />
+      ) : (
+        <h2 className={sectionHeading}>Avalanche Danger</h2>
+      )}
       <DangerDayColumns
         today={today}
         tomorrow={tomorrow}

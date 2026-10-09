@@ -98,6 +98,48 @@ describe('AvalancheProblemCard', () => {
     expect(document.querySelector('img[src^="/images/problem-icons/"]')).not.toBeInTheDocument()
   })
 
+  // Forecast-79: the type's description opens from its icon, sanitized on the server.
+  it('opens the problem type description from its icon', () => {
+    const { baseElement } = render(
+      <AvalancheProblemCard
+        problem={{
+          ...baseProblem,
+          problem_description: '<p>Storm slabs form in new snow.</p><script>alert(1)</script>',
+        }}
+      />,
+    )
+
+    expect(screen.queryByText('Storm slabs form in new snow.')).not.toBeInTheDocument()
+    expect(screen.getByText('Click to learn more')).toBeInTheDocument()
+
+    const trigger = screen.getByRole('button', { name: 'What "Storm Slab" means' })
+    expect(trigger.querySelector('img[src="/images/problem-icons/StormSlab.png"]')).not.toBeNull()
+
+    fireEvent.click(trigger)
+
+    expect(screen.getByText('Storm slabs form in new snow.')).toBeInTheDocument()
+    expect(baseElement.querySelector('script')).toBeNull()
+  })
+
+  it('opens an unknown type’s description from its name, as it has no icon', () => {
+    render(
+      <AvalancheProblemCard
+        problem={{ ...baseProblem, name: 'Snow Goblin', problem_description: 'Goblins.' }}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'What "Snow Goblin" means' }))
+
+    expect(screen.getByText('Goblins.')).toBeInTheDocument()
+  })
+
+  it('leaves the icon plain when the type has no description', () => {
+    render(<AvalancheProblemCard problem={{ ...baseProblem, problem_description: ' ' }} />)
+
+    expect(screen.queryByRole('button', { name: /means/ })).not.toBeInTheDocument()
+    expect(document.querySelector('img[src="/images/problem-icons/StormSlab.png"]')).not.toBeNull()
+  })
+
   it('renders the four labeled problem columns', () => {
     render(<AvalancheProblemCard problem={baseProblem} />)
     expect(screen.getByText('Problem Type')).toBeInTheDocument()

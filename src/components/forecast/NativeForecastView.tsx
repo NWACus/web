@@ -24,7 +24,6 @@ import type { ForecastZoneFacts } from '@/services/nac/resolveZone'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 
 import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/utilities/ui'
 
 import { AvalancheProblemCard } from './AvalancheProblemCard'
 import { BottomLine } from './BottomLine'
@@ -35,6 +34,7 @@ import { ForecastDiscussion } from './ForecastDiscussion'
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ForecastHeader } from './ForecastHeader'
 import { sectionHeading } from './forecastHeadings'
+import { AVALANCHE_PROBLEMS_HELP } from './forecastHelp'
 import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
 import { ForecastPrint } from './ForecastPrint.client'
 import {
@@ -42,6 +42,7 @@ import {
   forecastPrintFilename,
   type PrintSection,
 } from './forecastPrintSections'
+import { HelpHeading } from './HelpHeading'
 import { toLightboxMediaList } from './lightboxMedia'
 import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
@@ -465,7 +466,12 @@ function AvalancheProblems({
 }) {
   return (
     <section>
-      <h2 className={cn(sectionHeading, 'mb-8')}>Avalanche Problems ({problems.length})</h2>
+      <HelpHeading
+        title={`Avalanche Problems (${problems.length})`}
+        help={AVALANCHE_PROBLEMS_HELP}
+        helpLabel="About Avalanche Problems"
+        className="mb-8"
+      />
       {problems.map((problem) => (
         <ForecastErrorBoundary
           key={problem.id}
