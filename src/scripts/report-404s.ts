@@ -29,7 +29,7 @@ import {
   isValidTenantSlug,
   type ValidTenantSlug,
 } from '@/utilities/tenancy/avalancheCenters'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { parseArgs } from 'node:util'
 import { z } from 'zod'
@@ -416,12 +416,25 @@ function defaultOutDir(source: Source, report: NotFoundReport): string {
   return join('404-reports', `${report.tenant}-${new Date().toISOString().slice(0, 10)}`)
 }
 
+const fileExists = (path: string) =>
+  access(path).then(
+    () => true,
+    () => false,
+  )
+
 async function writeReportFiles(dir: string, report: NotFoundReport) {
   await mkdir(dir, { recursive: true })
   await writeFile(join(dir, 'report.json'), `${JSON.stringify(report, null, 2)}\n`)
-  await writeFile(join(dir, 'redirects.csv'), toRedirectsCsv(report))
   await writeFile(join(dir, 'report.html'), toReportHtml(report))
-  console.log(`\nWrote ${join(dir, 'report.html')}, redirects.csv and report.json`)
+  console.log(`\nWrote ${join(dir, 'report.html')} and report.json`)
+  // redirects.csv is where reviewers and staff fill in destinations, so a re-run never replaces it
+  const csvPath = join(dir, 'redirects.csv')
+  if (await fileExists(csvPath)) {
+    console.log(`Kept the existing ${csvPath}; delete it to regenerate it`)
+    return
+  }
+  await writeFile(csvPath, toRedirectsCsv(report))
+  console.log(`Wrote ${csvPath}`)
 }
 
 async function main() {

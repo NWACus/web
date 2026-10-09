@@ -24,7 +24,7 @@ pnpm report:404s nwac
 | `--days`   | `30`                           | How many whole UTC days to look back; capped at 30, the retention limit    |
 | `--limit`  | `200`                          | How many of the top non-bot 404 paths to fetch per week           |
 | `--out`    | `404-reports/<tenant>-<date>/` | Directory to write the output files to (gitignored by default)    |
-| `--from`   | —                              | Re-render the CSV and HTML from an existing `report.json` instead of querying; writes next to it unless `--out` is set |
+| `--from`   | —                              | Re-render the HTML (and the CSV, if missing) from an existing `report.json` instead of querying; writes next to it unless `--out` is set |
 
 A 30-day run takes a few minutes; the terminal shows which step it's on. The script:
 
@@ -48,7 +48,7 @@ A 30-day run takes a few minutes; the terminal shows which step it's on. The scr
 | `redirects.csv` | Center staff       | The spreadsheet staff fill in, and the input to the redirect importer. |
 | `report.json`   | `--from`, scripts  | Everything the other two are rendered from; its shape is `notFoundReportSchema`. |
 
-`redirects.csv` is the hand-off, so keep its columns stable:
+`redirects.csv` is the hand-off, so keep its columns stable. The script never overwrites an existing `redirects.csv`, so filled-in values survive a re-run or `--from`; delete the file to regenerate it.
 
 | Column          | Meaning |
 | --------------- | ------- |
