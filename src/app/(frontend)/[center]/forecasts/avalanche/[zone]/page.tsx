@@ -14,6 +14,7 @@ import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
 import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
+import { centerShortName } from '@/utilities/centerShortName'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { htmlToDescription } from '@/utilities/htmlToDescription'
@@ -144,11 +145,12 @@ function previewDescription(
   return htmlToDescription(bottomLine) ?? htmlToDescription(travelAdvice)
 }
 
-/** The layout's title as text, whichever form it resolved to. */
-function parentTitleText(parentMeta: ResolvedMetadata) {
-  return parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
-    ? parentMeta.title.absolute
-    : parentMeta.title
+/**
+ * "Stevens Pass - Avalanche Forecast | NWAC", for both `<title>` and `og:title`. The short name
+ * keeps the zone in view in a tab or a preview; other pages keep the layout's full center name.
+ */
+function zoneForecastTitle(center: string, zone: string): string {
+  return `${formatZoneName(zone)} - Avalanche Forecast | ${centerShortName(center)}`
 }
 
 export async function generateMetadata(
@@ -161,8 +163,7 @@ export async function generateMetadata(
 
   const parentOg = parentMeta.openGraph
 
-  const zoneName = formatZoneName(zone)
-  const title = `${zoneName} - Avalanche Forecast | ${parentTitleText(parentMeta)}`
+  const title = zoneForecastTitle(center, zone)
 
   const danger = await getForecastZoneDanger(center, zone).catch(() => null)
   const forecast = await readNativeForecast(center, zone)

@@ -19,6 +19,14 @@ function descriptionContent(page: Page): Promise<string | null> {
 }
 
 test.describe('Link previews', () => {
+  test('a zone page is titled with the center short name', async ({ page }) => {
+    await loadPage(page, `${tenant('snfac')}${ZONE_PATH}`)
+
+    const title = 'Soldier & Wood River Valley Mtns - Avalanche Forecast | SNFAC'
+    await expect(page).toHaveTitle(title)
+    expect(await ogContent(page, 'og:title')).toBe(title)
+  })
+
   test('a zone page describes itself with the bottom line as plain text', async ({ page }) => {
     await loadPage(page, `${tenant('snfac')}${ZONE_PATH}`)
 
