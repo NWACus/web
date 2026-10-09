@@ -2184,7 +2184,7 @@ export interface Course {
     | 'pro-rescue'
     | 'pro-avsar';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
-  affinityGroups?: ('lgbtq' | 'women' | 'youth')[] | null;
+  affinityGroups?: ('lgbtq' | 'women' | 'bipoc' | 'youth')[] | null;
   provider: number | Provider;
   contentHash?: string | null;
   updatedAt: string;

@@ -3,7 +3,7 @@ version = 1
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/a3-embeds.md"
-sig = "6e9c5357969669d3"
+sig = "e7f21d9462d7b9ac"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -144,6 +144,11 @@ sig = "0c9d89ddd42a7f7d"
 doc = "docs/a3-embeds.md"
 target = "src/components/ProviderPreview.tsx"
 sig = "2433d2218a295ca5"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/fields/affinityGroupField.ts"
+sig = "0f665dac6e71e260"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
