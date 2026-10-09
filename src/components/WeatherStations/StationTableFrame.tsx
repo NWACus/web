@@ -35,8 +35,12 @@ function useScrollEdges(ref: RefObject<HTMLDivElement | null>): ScrollEdges {
   return edges
 }
 
-const shadowClass =
-  'pointer-events-none absolute bottom-0 top-0 z-40 w-6 from-foreground/15 to-transparent transition-opacity'
+const shadowClass = 'pointer-events-none absolute bottom-0 top-0 z-40 w-6 transition-opacity'
+
+// Theme colors are bare CSS variables, so Tailwind can't fade them; mix one inline.
+function shadow(direction: 'right' | 'left'): string {
+  return `linear-gradient(to ${direction}, color-mix(in srgb, var(--foreground) 15%, transparent), transparent)`
+}
 
 // A sticky header sticks to the nearest scroll container, so at every width
 // this wrapper scrolls both ways, capped at the viewport: a page can add
@@ -66,12 +70,13 @@ export function StationTableFrame({
       </div>
       <div
         aria-hidden
-        className={cn(shadowClass, 'bg-gradient-to-r', left ? 'opacity-100' : 'opacity-0')}
-        style={{ left: pinnedWidth }}
+        className={cn(shadowClass, left ? 'opacity-100' : 'opacity-0')}
+        style={{ left: pinnedWidth, background: shadow('right') }}
       />
       <div
         aria-hidden
-        className={cn(shadowClass, 'right-0 bg-gradient-to-l', right ? 'opacity-100' : 'opacity-0')}
+        className={cn(shadowClass, 'right-0', right ? 'opacity-100' : 'opacity-0')}
+        style={{ background: shadow('left') }}
       />
     </div>
   )
