@@ -6,16 +6,22 @@
  * lives in `./v2`; a future v3 implementation drops in behind the same interface. The active
  * implementation per product is chosen by code/env config (see `./config`), not by tenant.
  */
-import type { ForecastResult, WarningProduct, Weather } from '../model/forecast'
+import type { ForecastResult, ProductLookup, WarningProduct, Weather } from '../model/forecast'
 import type { ZoneMapLayer } from '../model/mapLayer'
 import type { NWACWeatherForecastDay } from '../model/nwacWeather'
 
 export interface ForecastSource {
-  /** The zone's current forecast/summary, or `null` when none is published. */
+  /**
+   * The zone's current forecast/summary, saying whether a miss is "none published" or a failed
+   * read. A stub that was never published (null `updated_at`) counts as none.
+   */
+  lookupForecast(centerId: string, zoneId: number): Promise<ProductLookup<ForecastResult>>
+  /** The zone's current forecast/summary, or `null` when none is published or the read failed. */
   getForecast(centerId: string, zoneId: number): Promise<ForecastResult | null>
   /**
    * The zone's current forecast fetched fresh (short-cached), for the revalidate-on-view freshness
-   * check — so a correction/retraction is caught faster than the page's ISR window.
+   * check — so a correction/retraction is caught faster than the page's ISR window. A stub counts
+   * as none here too, so an open page cannot refresh into one.
    */
   getForecastFresh(centerId: string, zoneId: number): Promise<ForecastResult | null>
 }

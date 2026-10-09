@@ -13,8 +13,9 @@
  * widget_config API tokens become test_token_scrubbed. A center's published phone number stays —
  * the corpus keeps SNFAC's — as do organisational names, zone geometry and ids.
  *
- *   node scripts/e2e/capture-provisional.mjs            # re-capture every registered target
- *   node scripts/e2e/capture-provisional.mjs --verify   # scrub-check what is committed, no network
+ *   node scripts/e2e/capture-provisional.mjs                # re-capture every registered target
+ *   node scripts/e2e/capture-provisional.mjs --only <file>  # re-capture one, leave the rest as committed
+ *   node scripts/e2e/capture-provisional.mjs --verify       # scrub-check what is committed, no network
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
@@ -44,6 +45,15 @@ const TARGETS = [
     upstreamCase: 'center_SAC',
     blocks:
       'Every SAC page. SAC is the widget-mode control tenant in the native-vs-widget spec, and its layout needs center metadata to render at all.',
+  },
+  {
+    file: 'v2_public_product_forecast_null.json',
+    // A real NWAC zone (disabled, so nothing is published) — v2's answer is the same all-null
+    // placeholder for every zone with no product.
+    path: '/v2/public/product?type=forecast&center_id=NWAC&zone_id=3025',
+    upstreamCase: 'not yet filed',
+    blocks:
+      "The live zone page's \"The requested product doesn't exist\" state (Forecast-176). The corpus's forecast nomatch is the error page v2 sends for an unknown zone id, which reads as a failed read.",
   },
 ]
 
@@ -89,11 +99,28 @@ function readManifest() {
   return existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : { files: [] }
 }
 
+/** The targets `--only <file>` names, or every target. */
+function selectedTargets() {
+  const index = process.argv.indexOf('--only')
+  if (index === -1) return TARGETS
+
+  const name = process.argv[index + 1]
+  const targets = TARGETS.filter((target) => target.file === name)
+  if (targets.length === 0) throw new Error(`--only ${name}: not a registered target`)
+  return targets
+}
+
 async function capture() {
   mkdirSync(provisionalDir, { recursive: true })
-  const files = []
+  const targets = selectedTargets()
+  // Entries for targets not re-captured this run keep their committed provenance.
+  const files = readManifest().files.filter(
+    (file) =>
+      TARGETS.some((target) => target.file === file.file) &&
+      !targets.some((target) => target.file === file.file),
+  )
 
-  for (const target of TARGETS) {
+  for (const target of targets) {
     const url = `${NAC_HOST}${target.path}`
     const res = await fetch(url)
     if (!res.ok) throw new Error(`GET ${url} -> ${res.status}`)

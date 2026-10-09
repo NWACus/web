@@ -114,7 +114,8 @@ async function reconcileCaches({
  * - **The zone list is unreachable**, which is the one upstream call here that throws rather than
  *   returning null. Indeterminate, not a 500: an unhandled throw is an answer whose cache policy
  *   nothing below decides.
- * - **No fresh forecast** (upstream error, parse failure, or genuinely none published) is
+ * - **No fresh forecast** (upstream error, parse failure, none published, or an unpublished stub —
+ *   which the source reports as none, as the page does, so an open tab can't refresh into one) is
  *   *indeterminate*: it reports no change and never purges — so a transient upstream blip can't
  *   blank the last-known-good forecast — but it is never cached, so the next viewer retries
  *   immediately. The ISR window remains the backstop, and a genuine withdrawal is caught there.

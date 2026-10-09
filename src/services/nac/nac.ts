@@ -5,8 +5,10 @@ import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
 import type { ArchiveProductSummary } from './archiveDates'
 import { afpApiHost, nacApiHost } from './hosts'
+import type { ProductLookup } from './model/forecast'
 import {
   forecastResultSchema,
+  nullForecastSchema,
   warningResultSchema,
   weatherSchema,
   type ForecastResult,
@@ -380,28 +382,33 @@ export const nwacWeatherCacheTag = 'nwac-weather'
 /** The past dates' reads, which a publish does not change, so no purge reaches them. */
 export const nwacWeatherHistoricalCacheTag = 'nwac-weather-historical'
 
-export async function fetchForecast(
+/**
+ * The zone's current forecast, told apart from v2's "nothing published" placeholder (`none`) and
+ * from an upstream or parse failure (`failed`), so the page can say which one the reader is facing.
+ */
+export async function fetchForecastLookup(
   centerId: string,
   zoneId: number,
-): Promise<ForecastResult | null> {
+): Promise<ProductLookup<ForecastResult>> {
   const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
 
+  let data: unknown
   try {
-    const data = await nacFetch(
+    data = await nacFetch(
       `/v2/public/product?type=forecast&center_id=${centerIdToUse}&zone_id=${zoneId}`,
       { cachedTime: 300, tags: [forecastCacheTag(centerId, zoneId)] },
     )
-
-    const parsed = forecastResultSchema.safeParse(data)
-    if (!parsed.success) {
-      await logNacError(parsed.error, 'Failed to parse forecast response')
-      return null
-    }
-
-    return parsed.data
   } catch {
-    return null
+    // nacFetch has already logged it.
+    return { status: 'failed' }
   }
+
+  const parsed = forecastResultSchema.safeParse(data)
+  if (parsed.success) return { status: 'found', product: parsed.data }
+  if (nullForecastSchema.safeParse(data).success) return { status: 'none' }
+
+  await logNacError(parsed.error, 'Failed to parse forecast response')
+  return { status: 'failed' }
 }
 
 /**

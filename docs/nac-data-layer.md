@@ -22,7 +22,7 @@ All paths are under `src/services/nac/`.
 page / component ──▶ getForecastSource(center).getForecast(...)   // sources/index.ts
                             │
                             ▼
-                     forecastSourceV2  ──▶ fetchForecast (nac.ts, hits v2, zod-parses)
+                     forecastSourceV2  ──▶ fetchForecastLookup (nac.ts, hits v2, zod-parses)
                             │                    │
                             ▼                    ▼
                      mapV2ForecastResult(wire) ─▶ NormalizedForecast        // model

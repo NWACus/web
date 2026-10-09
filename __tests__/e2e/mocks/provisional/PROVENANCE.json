@@ -20,6 +20,14 @@
       "blocks": "Every SAC page. SAC is the widget-mode control tenant in the native-vs-widget spec, and its layout needs center metadata to render at all.",
       "url": "https://api.avalanche.org/v2/public/avalanche-center/SAC",
       "capturedAt": "2026-08-23"
+    },
+    {
+      "file": "v2_public_product_forecast_null.json",
+      "path": "/v2/public/product?type=forecast&center_id=NWAC&zone_id=3025",
+      "upstreamCase": "not yet filed",
+      "blocks": "The live zone page's \"The requested product doesn't exist\" state (Forecast-176). The corpus's forecast nomatch is the error page v2 sends for an unknown zone id, which reads as a failed read.",
+      "url": "https://api.avalanche.org/v2/public/product?type=forecast&center_id=NWAC&zone_id=3025",
+      "capturedAt": "2026-10-08"
     }
   ]
 }

@@ -75,8 +75,13 @@ const likelihoodStep: Record<AvalancheProblemLikelihood, number> = {
   [AvalancheProblemLikelihood.Certain]: 4,
 }
 
-export function LikelihoodSlider({ likelihood }: { likelihood: AvalancheProblemLikelihood }) {
-  const step = likelihoodStep[likelihood]
+/** Null when upstream sent a likelihood we don't recognize: the scale shows with nothing marked. */
+export function LikelihoodSlider({
+  likelihood,
+}: {
+  likelihood: AvalancheProblemLikelihood | null
+}) {
+  const step = likelihood === null ? undefined : likelihoodStep[likelihood]
   return (
     <ProblemSliderCore
       labels={LIKELIHOOD_LABELS}

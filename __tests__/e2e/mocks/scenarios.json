@@ -65,6 +65,14 @@
       "scenario": "freshness (row X5) \u2014 the product changes between the prerender and the request-time freshness check, which is exactly the correction a reader must see without reloading"
     },
     {
+      "center": "NWAC",
+      "zone": 1649,
+      "zoneSlug": "stevens-pass",
+      "type": "forecast",
+      "fixture": "v2_public_product_forecast_null.json",
+      "scenario": "nothing published — v2's 200 all-null placeholder (captured at NWAC zone 3025, identical for every zone with no product); the live page shows \"The requested product doesn't exist\""
+    },
+    {
       "center": "SNFAC",
       "zone": 2906,
       "type": "warning",
@@ -93,7 +101,7 @@
       "match": "product?type=forecast&center_id=NWAC",
       "fixture": "v2_public_product_forecast_nomatch.html",
       "blockedOn": "product_forecast_NWAC",
-      "note": "No NWAC product goldens exist, so every NWAC zone gets v2's real not-found answer: a 200 carrying the legacy PHP error page. The native page degrades to visible copy, which is what the dvac spec asserts."
+      "note": "No NWAC product goldens exist, so every NWAC zone not mapped in `products` gets the corpus's forecast nomatch: the legacy PHP error page, which live v2 sends for an unknown zone id. The native page reads it as a failed read and shows the outage copy, which is what the dvac spec asserts."
     },
     {
       "match": "products/map-layer/NWAC",

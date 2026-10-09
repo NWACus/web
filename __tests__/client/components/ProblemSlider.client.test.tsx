@@ -32,4 +32,10 @@ describe('LikelihoodSlider', () => {
     render(<LikelihoodSlider likelihood={AvalancheProblemLikelihood.AlmostCertain} />)
     expect(boldLabels()).toEqual(['Certain'])
   })
+
+  it('marks nothing for a likelihood the schema did not recognize', () => {
+    render(<LikelihoodSlider likelihood={null} />)
+    expect(boldLabels()).toEqual([])
+    expect(screen.getByText('Unlikely')).toBeInTheDocument()
+  })
 })

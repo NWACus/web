@@ -42,34 +42,6 @@ export enum ForecastPeriod {
   Tomorrow = 'tomorrow',
 }
 
-/**
- * Upstream's numeric avalanche-problem id.
- *
- * Every member is load-bearing through `z.nativeEnum(AvalancheProblemType)` on
- * `avalanche_problem_id` below: zod validates against the member *values*, so dropping `WindSlab`
- * would make zod reject every forecast carrying a wind-slab problem. Only `StormSlab` is referenced
- * by name, which is why the other eight read as unused.
- */
-export enum AvalancheProblemType {
-  // fallow-ignore-next-line unused-enum-member
-  DryLoose = 1,
-  StormSlab,
-  // fallow-ignore-next-line unused-enum-member
-  WindSlab,
-  // fallow-ignore-next-line unused-enum-member
-  PersistentSlab,
-  // fallow-ignore-next-line unused-enum-member
-  DeepPersistentSlab,
-  // fallow-ignore-next-line unused-enum-member
-  WetLoose,
-  // fallow-ignore-next-line unused-enum-member
-  WetSlab,
-  // fallow-ignore-next-line unused-enum-member
-  CorniceFall,
-  // fallow-ignore-next-line unused-enum-member
-  Glide,
-}
-
 export enum AvalancheProblemName {
   DryLoose = 'Dry Loose',
   StormSlab = 'Storm Slab',
@@ -173,6 +145,19 @@ export const avalancheProblemSizeSchema = z
     }
     return parsed
   })
+
+/**
+ * An array that drops the elements `element` rejects instead of failing the whole parse, so one
+ * unrecognized value upstream costs that value, not the forecast it sits in.
+ */
+function lenientArray<T extends z.ZodTypeAny>(element: T) {
+  return z.array(z.unknown()).transform((values) =>
+    values.flatMap((value): z.output<T>[] => {
+      const parsed = element.safeParse(value)
+      return parsed.success ? [parsed.data] : []
+    }),
+  )
+}
 
 export const forecastPeriodSchema = z.nativeEnum(ForecastPeriod)
 
@@ -295,15 +280,17 @@ export const avalancheDangerForecastSchema = z.object({
 })
 export type AvalancheDangerForecast = z.infer<typeof avalancheDangerForecastSchema>
 
+// The type, likelihood, locations and sizes are open-ended: an unrecognized value degrades the one
+// graphic that shows it (no icon, an unmarked scale, an unfilled wedge) instead of the forecast.
 export const avalancheProblemSchema = z.object({
   id: z.number(),
   forecast_id: z.number(),
   rank: z.number(),
-  avalanche_problem_id: z.nativeEnum(AvalancheProblemType),
-  name: z.nativeEnum(AvalancheProblemName),
-  likelihood: z.nativeEnum(AvalancheProblemLikelihood),
-  location: z.array(avalancheProblemLocationSchema),
-  size: z.array(avalancheProblemSizeSchema),
+  avalanche_problem_id: z.number(),
+  name: z.string(),
+  likelihood: z.nativeEnum(AvalancheProblemLikelihood).nullable().catch(null),
+  location: lenientArray(avalancheProblemLocationSchema),
+  size: lenientArray(avalancheProblemSizeSchema),
   discussion: z.string().nullable(),
   problem_description: z.string(),
   icon: z.string(),
@@ -356,6 +343,16 @@ export const forecastResultSchema = z.discriminatedUnion('product_type', [
   summarySchema,
 ])
 export type ForecastResult = z.infer<typeof forecastResultSchema>
+
+/**
+ * v2's answer for a zone with nothing published: a 200 carrying an all-null placeholder rather than
+ * a 404, as with `nullWarningSchema`. Recognized so that absence is not mistaken for a failure.
+ */
+export const nullForecastSchema = z.object({
+  avalanche_center: z.null(),
+  published_time: z.null(),
+  updated_at: z.null(),
+})
 
 // ─── Weather product schemas ────────────────────────────────────────────────
 // The weather product is issued separately from the forecast and pointed to by

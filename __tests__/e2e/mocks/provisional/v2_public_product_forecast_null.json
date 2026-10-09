@@ -1,0 +1,13 @@
+{
+  "avalanche_center": null,
+  "media": null,
+  "weather_data": null,
+  "json_data": null,
+  "published_time": null,
+  "expires_time": null,
+  "created_at": null,
+  "updated_at": null,
+  "forecast_avalanche_problems": [],
+  "danger": [],
+  "forecast_zone": []
+}
