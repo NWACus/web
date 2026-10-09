@@ -15,8 +15,9 @@ import type { User } from '@/payload-types'
 import { canImportCourses } from '@/utilities/rbac/canImportCourses'
 import type { Payload } from 'payload'
 
-// @ts-expect-error -- canImportCourses only passes payload through to the mocked checks
-const payload: Payload = {}
+const mockFind = jest.fn()
+// @ts-expect-error -- canImportCourses only calls find; the role checks are mocked
+const payload: Payload = { find: mockFind }
 // @ts-expect-error -- only the identity matters to the mocked checks
 const user: User = { id: 1, email: 'someone@example.org' }
 
@@ -24,6 +25,21 @@ describe('canImportCourses', () => {
   beforeEach(() => {
     mockIsProviderManager.mockReset()
     mockHasSuperAdminPermissions.mockReset()
+    mockFind.mockReset().mockResolvedValue({ docs: [{ id: 3, globalRole: 2 }] })
+  })
+
+  it('checks roles loaded for the user, not ones field access may have stripped', async () => {
+    mockIsProviderManager.mockResolvedValue(true)
+    await canImportCourses(payload, user)
+    expect(mockFind).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'globalRoleAssignments',
+        where: { user: { equals: 1 } },
+      }),
+    )
+    expect(mockIsProviderManager.mock.calls[0][1].globalRoleAssignments).toEqual({
+      docs: [{ id: 3, globalRole: 2 }],
+    })
   })
 
   it('allows a Provider Manager', async () => {
