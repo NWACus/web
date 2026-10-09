@@ -1128,7 +1128,7 @@ sig = "f7f90a1ae2a53e86"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/services/courseImport/planCourseImport.ts"
-sig = "38acf3f3a3c1577a"
+sig = "1832e0063186e292"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

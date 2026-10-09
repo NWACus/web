@@ -305,7 +305,6 @@ function checkRow(
   const times = checkTimes(cell, checkTimeZone(cell, reasons), reasons)
   const location = checkLocation(cell, reasons)
   const courseUrl = checkCourseUrl(cell, reasons)
-  if (!cell('Mode of Travel')) reasons.push('Mode of Travel is required.')
   const modeOfTravel = listValues(cell('Mode of Travel'), modeByLabel, 'Mode of Travel', reasons)
   const affinityGroups = listValues(
     cell('Interest Groups'),

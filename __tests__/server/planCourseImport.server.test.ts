@@ -143,6 +143,14 @@ describe('planCourseImport', () => {
     ])
   })
 
+  it('allows a row with no Mode of Travel, which is optional on a Course', () => {
+    const { headers, rows } = parseCourseCsv(csv)
+    const row = { ...rows[0], 'Mode of Travel': '' }
+    const plan = planCourseImport({ headers, rows: [row], providers, existingCourses: [] })
+    expect(plan.blocked).toEqual([])
+    expect(plan.ready[0].data.modeOfTravel).toEqual([])
+  })
+
   it('accepts the For BIPOC Affinity Group', () => {
     expect(planFixture().ready.find((r) => r.row === 9)?.data.affinityGroups).toEqual([
       'lgbtq',
