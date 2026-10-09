@@ -6,8 +6,8 @@
  */
 import type { InlineWeatherData } from '@/services/nac/model/forecast'
 
+import { InfoPopover } from './InfoPopover'
 import { sanitizeHtml } from './sanitizeHtml'
-import { WeatherInfoHint } from './WeatherInfoHint'
 
 /**
  * Static help for the well-known inline fields (hardcoded in the legacy widget), in the same HTML
@@ -48,7 +48,7 @@ export function WeatherTableV1({ table }: { table: InlineWeatherData }) {
               <td className="whitespace-nowrap border px-3 py-2 text-left align-middle">
                 <span className="font-medium">{row.field}</span>
                 {FIELD_HELP[row.field] && (
-                  <WeatherInfoHint html={FIELD_HELP[row.field]} field={row.field} />
+                  <InfoPopover html={FIELD_HELP[row.field]} label={`What "${row.field}" means`} />
                 )}
               </td>
               {row.values.map((value, i) => (

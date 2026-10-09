@@ -1,12 +1,12 @@
 'use client'
 
 /**
- * Field-help marker for the weather tables — the native equivalent of the legacy widget's "?"
- * bubble. Opens on hover and on click/Enter, because the table is read on both desktop and touch
- * and a `title` attribute reaches neither reliably.
+ * The forecast's ⓘ help marker — the native equivalent of the legacy widget's info popovers and
+ * the weather table's "?" bubble. Opens on hover and on click/Enter, because it is read on both
+ * desktop and touch and a `title` attribute reaches neither reliably.
  *
- * This is deliberately NOT the glossary tooltip system (issue 06) — it is the weather table's own
- * hardcoded/structural help, whose HTML the server has already sanitized.
+ * This is deliberately NOT the glossary tooltip system (issue 06) — it shows hardcoded/structural
+ * help whose HTML the server has already sanitized.
  */
 import { Info } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -16,14 +16,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 /** Long enough to cross the gap between the trigger and the panel without the panel vanishing. */
 const CLOSE_DELAY_MS = 150
 
-interface WeatherInfoHintProps {
+interface InfoPopoverProps {
   /** Sanitized help HTML. */
   html: string
-  /** The field this help belongs to, for the trigger's accessible name. */
-  field: string
+  /** The trigger's accessible name, e.g. `What "Ridgeline Wind Speed" means`. */
+  label: string
 }
 
-export function WeatherInfoHint({ html, field }: WeatherInfoHintProps) {
+export function InfoPopover({ html, label }: InfoPopoverProps) {
   const [open, setOpen] = useState(false)
   // A pointer-opened panel must not steal focus; a click- or keyboard-opened one should take it.
   const focusOnOpen = useRef(false)
@@ -60,7 +60,7 @@ export function WeatherInfoHint({ html, field }: WeatherInfoHintProps) {
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger
-        aria-label={`What "${field}" means`}
+        aria-label={label}
         /* `align-middle` centres on the x-height midpoint, ~0.11em below the centre of the cap band
            the eye reads a label by, so the marker sits visibly low. Lift it back. */
         className="ml-1 inline-flex -translate-y-[0.11em] align-middle text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
@@ -77,7 +77,7 @@ export function WeatherInfoHint({ html, field }: WeatherInfoHintProps) {
         onOpenAutoFocus={(event) => {
           if (!focusOnOpen.current) event.preventDefault()
         }}
-        /* Sanitized on the server; see WeatherTable / WeatherTableV1. */
+        /* Sanitized on the server by every caller. */
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </Popover>
