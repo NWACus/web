@@ -69,10 +69,18 @@ interface NativeForecastViewProps {
   basePath: string
   /** The picker's calendar range and zone heading, from the center's configuration. */
   pickerSettings: ForecastPickerSettings
-  /** Avalanche center type, for the scope disclaimer's provider wording (USFS vs center name). */
-  centerType: AvalancheCenterType
+  /** What the view needs from the center's metadata. */
+  centerDetails: ForecastCenterDetails
   /** The separately-issued weather product, when one is available (live page only). */
   weather?: Weather | null
+}
+
+/** One prop, so the view's signature doesn't grow with each setting it reads from the center. */
+interface ForecastCenterDetails {
+  /** Avalanche center type, for the scope disclaimer's provider wording (USFS vs center name). */
+  type: AvalancheCenterType
+  /** The center's elevation-band explainer page, or null when it has none. */
+  elevationBandsUrl: string | null
 }
 
 export function NativeForecastView({
@@ -87,7 +95,7 @@ export function NativeForecastView({
   selectedDate,
   basePath,
   pickerSettings,
-  centerType,
+  centerDetails,
   weather,
 }: NativeForecastViewProps) {
   return (
@@ -143,11 +151,12 @@ export function NativeForecastView({
         elevationBandNames={zone.zone.config.elevation_band_names}
         zoneId={zone.zone.zone_id}
         timezone={timezone}
+        elevationBandsUrl={centerDetails.elevationBandsUrl}
       />
 
       {/* Scope disclaimer — safety/scope language shown under every afp product */}
       <ForecastDisclaimer
-        centerType={centerType}
+        centerType={centerDetails.type}
         centerName={forecastResult.avalanche_center.name}
       />
     </div>
@@ -307,6 +316,7 @@ interface ForecastPanelProps {
   /** The zone's short `zone_id` string, which picks its Mountain Weather table. */
   zoneId: string
   timezone: string | null | undefined
+  elevationBandsUrl: string | null
 }
 
 /**
@@ -344,7 +354,12 @@ function hasMedia(forecastResult: ForecastResult): boolean {
 }
 
 /** Printed under "Bottom Line & Danger", which the widget gated on a single checkbox. */
-function DangerPanelSection({ forecastResult, elevationBandNames, timezone }: ForecastPanelProps) {
+function DangerPanelSection({
+  forecastResult,
+  elevationBandNames,
+  timezone,
+  elevationBandsUrl,
+}: ForecastPanelProps) {
   if (forecastResult.product_type !== ProductType.Forecast) return null
 
   return (
@@ -355,6 +370,7 @@ function DangerPanelSection({ forecastResult, elevationBandNames, timezone }: Fo
           elevationBandNames={elevationBandNames}
           publishedTime={forecastResult.published_time}
           timezone={timezone}
+          elevationBandsUrl={elevationBandsUrl}
         />
       </ForecastErrorBoundary>
     </PanelSection>

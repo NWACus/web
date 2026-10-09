@@ -12,7 +12,6 @@
 import Image from 'next/image'
 
 import {
-  ELEVATION_BANDS_URL,
   NO_RATING_ADVICE,
   dangerIconSize,
   dangerIconUrl,
@@ -41,6 +40,8 @@ interface DangerRatingProps {
   publishedTime?: string
   /** Center timezone for the noon valid-date rule. */
   timezone?: string | null
+  /** The center's elevation-band explainer, linked under the dated view's ratings when it has one. */
+  elevationBandsUrl?: string | null
 }
 
 export function DangerRating({
@@ -48,6 +49,7 @@ export function DangerRating({
   elevationBandNames,
   publishedTime,
   timezone,
+  elevationBandsUrl,
 }: DangerRatingProps) {
   const today = danger.find((d) => d.valid_day === ForecastPeriod.Current)
   const tomorrow = danger.find((d) => d.valid_day === ForecastPeriod.Tomorrow)
@@ -62,7 +64,12 @@ export function DangerRating({
         headings={headings}
         elevationBandNames={elevationBandNames}
       />
-      {headings.dated && <DatedDangerExtras noRatingToday={isNoRatingDay(today)} />}
+      {headings.dated && (
+        <DatedDangerExtras
+          noRatingToday={isNoRatingDay(today)}
+          elevationBandsUrl={elevationBandsUrl}
+        />
+      )}
     </section>
   )
 }
@@ -128,14 +135,22 @@ function DayColumn({
 }
 
 /** The explanatory material shown only on the full dated view, not the compact all-zones card. */
-function DatedDangerExtras({ noRatingToday }: { noRatingToday: boolean }) {
+function DatedDangerExtras({
+  noRatingToday,
+  elevationBandsUrl,
+}: {
+  noRatingToday: boolean
+  elevationBandsUrl: string | null | undefined
+}) {
   return (
     <>
       {/* No Rating everywhere today → show the legacy explanation pointing to the summary. */}
       {noRatingToday && <p className="text-sm text-muted-foreground">{NO_RATING_ADVICE}</p>}
-      <ExternalLink href={ELEVATION_BANDS_URL} className="text-sm text-muted-foreground">
-        Elevation Band Descriptions
-      </ExternalLink>
+      {elevationBandsUrl && (
+        <ExternalLink href={elevationBandsUrl} className="text-sm text-muted-foreground">
+          Elevation Band Descriptions
+        </ExternalLink>
+      )}
       <DangerScale />
     </>
   )

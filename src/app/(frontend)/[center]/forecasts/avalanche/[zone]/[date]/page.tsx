@@ -24,6 +24,7 @@ import {
   mayBeCurrentProductDate,
 } from '@/services/nac/currentForecastDate'
 import { findDatedForecast } from '@/services/nac/datedForecast'
+import { elevationBandsUrl } from '@/services/nac/dangerScale'
 import {
   fetchProductArchive,
   fetchProductArchiveOrThrow,
@@ -244,7 +245,7 @@ export default async function Page({ params }: Args) {
           selectedDate={date}
           basePath={`/forecasts/avalanche/${zone}`}
           pickerSettings={forecastPickerSettings(metadata)}
-          centerType={metadata.type}
+          centerDetails={{ type: metadata.type, elevationBandsUrl: elevationBandsUrl(metadata) }}
           weather={weather}
         />
       </ForecastGlossary>

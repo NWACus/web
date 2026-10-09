@@ -10,6 +10,7 @@ import {
   initialArchiveWindow,
   validDateForProduct,
 } from '@/services/nac/archiveDates'
+import { elevationBandsUrl } from '@/services/nac/dangerScale'
 import { forecastFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
@@ -94,7 +95,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
           selectedDate={null}
           basePath={`/forecasts/avalanche/${zoneSlug}`}
           pickerSettings={forecastPickerSettings(metadata)}
-          centerType={metadata.type}
+          centerDetails={{ type: metadata.type, elevationBandsUrl: elevationBandsUrl(metadata) }}
           weather={weather}
         />
       </ForecastGlossary>

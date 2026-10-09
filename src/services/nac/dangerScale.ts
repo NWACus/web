@@ -4,6 +4,7 @@
  * avy/components/AvalancheDangerTriangle.tsx (colorFor).
  */
 import { DangerLevel } from './types/forecastSchemas'
+import type { AvalancheCenter } from './types/schemas'
 
 /**
  * Coerce a raw numeric `danger_rating` (from the product list endpoint, -1..5) to a
@@ -126,10 +127,13 @@ export function dangerLevelLabel(level: DangerLevel): string {
 export const DANGER_SCALE_URL = 'https://avalanche.org/avalanche-encyclopedia/danger-scale/'
 
 /**
- * Explainer for what the elevation bands mean. NWAC-specific for now; when other centers ship
- * native forecasts this should come from per-center config rather than a hardcoded URL.
+ * The center's own page explaining its elevation bands (`widget_config.forecast.elevInfoUrl`), or
+ * null when it has none, as SAC, BTAC, SNFAC and GNFAC don't — the link is then left out.
  */
-export const ELEVATION_BANDS_URL = 'https://nwac.us/avalanche-forecasts-elevation-bands/'
+export function elevationBandsUrl(center: Pick<AvalancheCenter, 'widget_config'>): string | null {
+  const url = center.widget_config.forecast?.elevInfoUrl.trim()
+  return url ? url : null
+}
 
 /**
  * Legacy afp advice shown when the danger resolves to No Rating (level 0) — explains why there's
