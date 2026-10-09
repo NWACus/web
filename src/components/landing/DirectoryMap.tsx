@@ -8,6 +8,9 @@
  * center id differs from its own as another center's and keeps the zone's upstream link, which
  * is the center's own forecast page — exactly where a directory should send people. A real id
  * would rewrite the link to an AvyWeb path that does not exist on the root domain.
+ *
+ * `directory` has the data endpoint skip the center's `dangerMap` rollout flag: a center whose own
+ * site is still on the legacy widget is listed here with a live map all the same.
  */
 import { DangerMapLoader } from '@/components/dangerMap/DangerMapLoader.client'
 import {
@@ -38,6 +41,7 @@ export function DirectoryMap({ centerSlug, className }: DirectoryMapProps) {
         centerSlug={centerSlug}
         centerId={DIRECTORY_CENTER_ID}
         settings={DIRECTORY_SETTINGS}
+        directory
       />
     </div>
   )

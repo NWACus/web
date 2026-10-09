@@ -155,13 +155,17 @@ function buildSearchBox(map: MapboxMap, token: string): MapboxSearchBox {
  * zones as props is what keeps the ratings current, exactly as the legacy widget's fetch-per-page
  * -load did.
  */
-export function useZoneData(centerSlug: string, allCenters: boolean) {
+export function useZoneData(centerSlug: string, allCenters: boolean, directory: boolean) {
   const [zones, setZones] = useState<ZoneCollection | null>(null)
   const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
-    const query = allCenters ? '?allCenters=true' : ''
+    const params = new URLSearchParams()
+    if (allCenters) params.set('allCenters', 'true')
+    if (directory) params.set('directory', 'true')
+    const search = params.toString()
+    const query = search ? `?${search}` : ''
 
     fetch(`/api/${centerSlug}/danger-map${query}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
@@ -172,7 +176,7 @@ export function useZoneData(centerSlug: string, allCenters: boolean) {
       })
 
     return () => controller.abort()
-  }, [centerSlug, allCenters])
+  }, [centerSlug, allCenters, directory])
 
   return { zones, failed }
 }
