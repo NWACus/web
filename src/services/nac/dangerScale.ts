@@ -203,3 +203,11 @@ export const dangerScaleRows: DangerScaleRow[] = [
     sizeDist: 'Very large avalanches in many areas.',
   },
 ]
+
+/**
+ * The danger scale's travel advice for a level, as the widget shows it — HTML with a <strong> lead.
+ * Unrated levels get the No Rating explanation, as the widget's level 0 does.
+ */
+export function travelAdvice(level: DangerLevel): string {
+  return dangerScaleRows.find((row) => row.level === level)?.advice ?? NO_RATING_ADVICE
+}
