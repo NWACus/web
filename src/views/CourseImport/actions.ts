@@ -7,8 +7,9 @@ import {
   courseToImportData,
   createAllOrNone,
   importablePlan,
-  type ImportResult,
+  importSummary,
   planFromCsvText,
+  type ImportResult,
   type PreviewResult,
 } from '@/services/courseImport/runCourseImport'
 import { getUser } from '@/utilities/isUser'
@@ -94,10 +95,5 @@ export async function runCourseImport(
     }
   }
 
-  return {
-    ok: true,
-    created: outcome.createdIds.length,
-    skipped: plan.likelyDuplicates.length - (courses.length - plan.ready.length),
-    blocked: plan.blocked.length,
-  }
+  return { ok: true, ...importSummary(plan, courses) }
 }

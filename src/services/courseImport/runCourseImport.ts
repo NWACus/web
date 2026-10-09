@@ -1,20 +1,22 @@
 import type { Course } from '@/payload-types'
 import { parseCourseCsv } from './parseCourseCsv'
 import {
+  planCourseImport,
+  type BlockedRow,
   type CatalogProvider,
   type CourseImportData,
   type CourseImportPlan,
   type PlannedCourse,
-  planCourseImport,
+  type RowSummary,
 } from './planCourseImport'
 
 const MAX_FILE_CHARACTERS = 5_000_000
 const MAX_ROWS = 2_000
 
 export type PreviewResult = { ok: true; plan: CourseImportPlan } | { ok: false; error: string }
-export type ImportResult =
-  | { ok: true; created: number; skipped: number; blocked: number }
-  | { ok: false; error: string }
+/** What an import did, row by row, for the summary screen. */
+export type ImportSummary = { created: RowSummary[]; skipped: RowSummary[]; blocked: BlockedRow[] }
+export type ImportResult = ({ ok: true } & ImportSummary) | { ok: false; error: string }
 
 const orEmpty = (value: string | null | undefined) => value ?? ''
 
@@ -82,6 +84,23 @@ export function coursesToCreate(plan: CourseImportPlan, includeDuplicateRows: un
     ...plan.ready,
     ...plan.likelyDuplicates.filter((duplicate) => included.has(duplicate.row)),
   ].sort((a, b) => a.row - b.row)
+}
+
+const summary = ({ row, provider, title, start }: RowSummary): RowSummary => ({
+  row,
+  provider,
+  title,
+  start,
+})
+
+/** The rows an import created, the likely duplicates it skipped, and the rows it couldn't take. */
+export function importSummary(plan: CourseImportPlan, created: PlannedCourse[]): ImportSummary {
+  const createdRows = new Set(created.map((course) => course.row))
+  return {
+    created: created.map(summary),
+    skipped: plan.likelyDuplicates.filter((d) => !createdRows.has(d.row)).map(summary),
+    blocked: plan.blocked,
+  }
 }
 
 /**

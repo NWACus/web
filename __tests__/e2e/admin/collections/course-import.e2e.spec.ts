@@ -35,7 +35,7 @@ authTest.describe('Course Import', () => {
       buffer: Buffer.from(sheet(subtitle)),
     })
 
-    await expect(page.getByText('Ready · 1')).toBeVisible()
+    await expect(page.getByText('Ready to import · 1')).toBeVisible()
     await expect(page.getByText('Blocked · 1')).toBeVisible()
     await expect(
       page.getByText('Mountain Education Center is not approved to offer Pro 1 courses.'),
@@ -43,6 +43,12 @@ authTest.describe('Course Import', () => {
 
     await page.getByRole('button', { name: 'Import 1 course' }).click()
     await expect(page.getByRole('status')).toContainText('Imported 1 course.')
+    await expect(page.getByRole('region', { name: 'Imported' })).toContainText(
+      'Row 2 · Recreational Level 1 – Ski/Splitboard',
+    )
+    await expect(page.getByRole('region', { name: 'Not imported' })).toContainText(
+      'not approved to offer Pro 1 courses',
+    )
 
     const res = await page.request.get(
       `${SERVER_URL}/api/courses?where[subtitle][equals]=${encodeURIComponent(subtitle)}&depth=0`,

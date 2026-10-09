@@ -5,6 +5,7 @@ import {
   courseToImportData,
   createAllOrNone,
   importablePlan,
+  importSummary,
   planFromCsvText,
   type PreviewResult,
 } from '@/services/courseImport/runCourseImport'
@@ -148,5 +149,22 @@ describe('importablePlan', () => {
       ok: false,
       error: 'Choose a CSV file.',
     })
+  })
+})
+
+describe('importSummary', () => {
+  it('lists the created rows, the duplicates left out, and the blocked rows', () => {
+    const blocked = [{ row: 6, provider: 'X', title: 'T', start: 'S', reasons: ['Nope.'] }]
+    const plan: CourseImportPlan = {
+      fileErrors: [],
+      ready: [planned(2)],
+      blocked,
+      likelyDuplicates: [planned(3), planned(4)],
+    }
+    const summary = importSummary(plan, [planned(2), planned(4)])
+    expect(summary.created.map((r) => r.row)).toEqual([2, 4])
+    expect(summary.skipped.map((r) => r.row)).toEqual([3])
+    expect(summary.blocked).toBe(blocked)
+    expect(summary.created[0]).not.toHaveProperty('data')
   })
 })

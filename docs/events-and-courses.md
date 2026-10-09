@@ -189,7 +189,7 @@ Courses use a provider-based access model:
 
 ### Course Import
 
-Provider Managers and Super Admins can load A3's season spreadsheet at `/admin/course-import` (the "Import courses" button beside Create New on the Courses list). The upload is checked without writing anything and every row lands in one of three groups:
+Provider Managers and Super Admins can load A3's season spreadsheet at `/admin/course-import` (the "Import courses" button beside Create New on the Courses list). The upload is checked without writing anything and every row lands in one of three side-by-side boxes, each scrolling on its own so the whole preview fits on one screen:
 
 - **Ready**: created as published Courses.
 - **Blocked**: every reason is listed. Values must exactly match the catalog (Provider name, Course Type and the Provider's Approved Course Types, the title's Course Type full name, modes, Affinity Groups, state, time zone), and real start and end times are required. Nothing is corrected or guessed.
@@ -197,7 +197,7 @@ Provider Managers and Super Admins can load A3's season spreadsheet at `/admin/c
 
 To test an import locally against real Provider names, `pnpm sync-providers` copies published Providers from a source database (`SOURCE_DATABASE_URI`, `SOURCE_DATABASE_AUTH_TOKEN`) into the local `file:` database, and with `SHEET=path/to/sheet.csv` lists the sheet's Provider names that have no published match. Any source value the app doesn't know (a Course Type or state) is printed rather than silently left out.
 
-Confirming re-checks access and re-plans against the current catalog. The database runs without transactions, so if a save fails part-way the Courses already created by that import are deleted.
+Confirming re-checks access and re-plans against the current catalog. Afterwards the same three boxes show what happened to every row: imported (green), not imported (red, with reasons), and skipped duplicates. The database runs without transactions, so if a save fails part-way the Courses already created by that import are deleted.
 
 ### Frontend Display
 

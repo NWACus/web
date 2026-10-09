@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 
 import type { CourseImportPlan, PlannedCourse } from '@/services/courseImport/planCourseImport'
 import { CourseImportForm } from '@/views/CourseImport/CourseImportForm'
@@ -72,7 +72,7 @@ describe('CourseImportForm', () => {
     render(<CourseImportForm />)
     upload('csv text')
 
-    expect(await screen.findByText('Ready · 1')).toBeInTheDocument()
+    expect(await screen.findByText('Ready to import · 1')).toBeInTheDocument()
     expect(mockPreview).toHaveBeenCalledWith('csv text')
     expect(screen.getByText('Blocked · 1')).toBeInTheDocument()
     expect(screen.getByText('Provider "Unknown Guides" not found.')).toBeInTheDocument()
@@ -85,17 +85,46 @@ describe('CourseImportForm', () => {
 
   it('imports the ready rows plus only the duplicates that were ticked', async () => {
     mockPreview.mockResolvedValue({ ok: true, plan })
-    mockRun.mockResolvedValue({ ok: true, created: 2, skipped: 0, blocked: 1 })
+    mockRun.mockResolvedValue({
+      ok: true,
+      created: [plan.ready[0], plan.likelyDuplicates[0]],
+      skipped: [],
+      blocked: plan.blocked,
+    })
     render(<CourseImportForm />)
     upload('csv text')
 
-    fireEvent.click(await screen.findByRole('checkbox'))
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Import row 4 anyway' }))
     fireEvent.click(screen.getByRole('button', { name: 'Import 2 courses' }))
 
     await waitFor(() => expect(mockRun).toHaveBeenCalledWith('csv text', [4]))
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      'Imported 2 courses. Skipped 0 likely duplicates. 1 blocked row was not imported.',
+    expect(await screen.findByRole('status')).toHaveTextContent('Imported 2 courses.')
+  })
+
+  it('shows every row and what happened to it after importing', async () => {
+    mockPreview.mockResolvedValue({ ok: true, plan })
+    mockRun.mockResolvedValue({
+      ok: true,
+      created: plan.ready,
+      skipped: plan.likelyDuplicates,
+      blocked: plan.blocked,
+    })
+    render(<CourseImportForm />)
+    upload('csv text')
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Import 1 course' })).toBeEnabled(),
     )
+    fireEvent.click(screen.getByRole('button', { name: 'Import 1 course' }))
+
+    const imported = await screen.findByRole('region', { name: 'Imported' })
+    expect(within(imported).getByText('Row 2 · Recreational Level 1 – Ski')).toBeInTheDocument()
+    const notImported = screen.getByRole('region', { name: 'Not imported' })
+    expect(
+      within(notImported).getByText('Provider "Unknown Guides" not found.'),
+    ).toBeInTheDocument()
+    const skipped = screen.getByRole('region', { name: 'Skipped duplicates' })
+    expect(within(skipped).getByText('Row 4 · Avalanche Rescue – Ski')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Import/ })).not.toBeInTheDocument()
   })
 
   it('shows problems with the file itself instead of a preview', async () => {
@@ -107,7 +136,7 @@ describe('CourseImportForm', () => {
     upload('csv text')
 
     expect(await screen.findByText('Missing columns: End Time.')).toBeInTheDocument()
-    expect(screen.queryByText('Ready · 1')).not.toBeInTheDocument()
+    expect(screen.queryByText('Ready to import · 1')).not.toBeInTheDocument()
   })
 
   it('shows an error from the server', async () => {

@@ -63,7 +63,8 @@ export type CourseImportData = {
   affinityGroups: CourseAffinityGroup[]
 }
 
-type RowSummary = { row: number; provider: string; title: string; start: string }
+/** How a sheet row is identified on screen. */
+export type RowSummary = { row: number; provider: string; title: string; start: string }
 export type PlannedCourse = RowSummary & { data: CourseImportData }
 export type BlockedRow = RowSummary & { reasons: string[] }
 

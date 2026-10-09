@@ -58,7 +58,7 @@ sig = "ff5d3fe541e1dfad"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "eba8b5307f42ff12"
+sig = "ec6357c41f86ec7f"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1128,12 +1128,12 @@ sig = "f7f90a1ae2a53e86"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/services/courseImport/planCourseImport.ts"
-sig = "bb0026852652791d"
+sig = "0a7e170ab2029a47"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/services/courseImport/runCourseImport.ts"
-sig = "eb60401b28845a25"
+sig = "487ee925d56ddc46"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1153,7 +1153,7 @@ sig = "cdbcb90cb1c106cf"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/views/CourseImport/actions.ts"
-sig = "b6d310467d6857c0"
+sig = "396ac7c8b22c436f"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
