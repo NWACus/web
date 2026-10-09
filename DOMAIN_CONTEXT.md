@@ -80,9 +80,23 @@ An organization that offers avalanche education courses under A3 accreditation. 
 _Also called_: Course Provider
 
 **Course**:
-An avalanche education class offered by a Provider — type (Rec 1/2, Pro 1/2, Rescue, Awareness), dates, location, interest groups, and mode of travel. National and intended to surface on Avalanche Center sites (e.g. via blocks). A distinct entity from an Event.
+An avalanche education class offered by a Provider — type (Rec 1/2, Pro 1/2, Rescue, Awareness), dates, location, Affinity Groups, and mode of travel. National and intended to surface on Avalanche Center sites (e.g. via blocks). A distinct entity from an Event. Its start and end are real published times in the Course's own time zone, not day-level placeholders.
 _Also called_: A3 course
 _Avoid_: Event (a Course is not an Event, despite some legacy "event" wording in the Courses config)
+
+**Course Type**:
+The kind of A3 course a Course is, from a fixed national set (e.g. Rec 1, Rec 2, Pro 1, Rescue, Level 1 + Rescue Combined). Not editable per Provider or per Avalanche Center. A Level 1/2 + Rescue Combined course is its own Course Type, not a Rec 1/2 that also covers rescue.
+
+**Approved Course Types**:
+The Course Types a Provider is accredited to offer, granted only by a Provider Manager. A Course's Course Type must be one of its Provider's Approved Course Types.
+
+**Affinity Group**:
+A community a Course is designed for (For Women, For LGBTQ+, For BIPOC, For Youth), from a fixed set.
+_Avoid_: Interest group
+
+**Course Import**:
+A Provider Manager loading many Courses at once from a spreadsheet, typically spanning many Providers. An A3-level action on the national catalog, not a Provider User's tool for their own schedule. Done once per season and only ever creates Courses; afterwards the national catalog, not the spreadsheet, is the source of truth. Rows attach to existing Providers by exact name; a Course Import never creates a Provider. Every value must exactly match the catalog's own names; a row that doesn't is blocked for A3 to fix in the sheet, never corrected or guessed. Imported Courses are published immediately; a row that looks like an existing Course is skipped unless the Provider Manager chooses to import it anyway.
+_Avoid_: Bulk upload, CSV import
 
 ## Shared Content
 
