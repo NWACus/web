@@ -893,7 +893,7 @@ sig = "56f8d0a6c991cec4"
 [[bindings]]
 doc = "docs/decisions/019-native-product-page-architecture.md"
 target = "src/services/nac/types/forecastSchemas.ts"
-sig = "14a37f7e27d71f3a"
+sig = "dc0e8ab5fddb2597"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
