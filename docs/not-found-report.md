@@ -28,10 +28,10 @@ pnpm report:404s nwac
 
 A 30-day run takes a few minutes; the terminal shows which step it's on. The script:
 
-1. Counts 404s on both the apex and `www.` hostnames of the center's `customDomain`, in total and excluding bots (requests with a `botName` or `botCategory`).
-2. Fetches the top non-bot 404 paths one week at a time, because grouping by path over longer windows fails with `query_failed`. The weekly counts are then summed, so a path that misses the top `--limit` in some weeks is undercounted.
-3. Breaks down the bot 404s by `botCategory` and `botName` over the whole range, and lists the paths bots requested most in the last 7 days.
-4. Reads the center's live URLs from its public `sitemap.xml` (the home page, Pages and Posts), plus its active forecast zone routes from the NAC API, since the sitemap doesn't list those. Zone routes count only if the center publishes forecasts on the AFP.
+1. Reads the center's live URLs from its public `sitemap.xml` (the home page, Pages and Posts), plus its active forecast zone routes from the NAC API, since the sitemap doesn't list those. Zone routes count only if the center publishes forecasts on the AFP. This runs first so a bad domain fails fast.
+2. Counts 404s on both the apex and `www.` hostnames of the center's `customDomain`, in total and excluding bots (requests with a `botName` or `botCategory`).
+3. Fetches the top non-bot 404 paths one week at a time, because grouping by path over longer windows fails with `query_failed`. The weekly counts are then summed, so a path that misses the top `--limit` in some weeks is undercounted.
+4. Breaks down the bot 404s by `botCategory` and `botName` over the whole range, and lists the paths bots requested most in the last 7 days.
 5. Merges paths that differ only by a trailing slash or query string, then sets aside:
    - `dead-legacy-path`: known-dead WordPress-era paths (`isDeadLegacyPath`, shared with #1280 — Short-circuit dead legacy URLs (old WordPress paths, RSS feeds, icons) before they reach the page pipeline).
    - `not-redirectable`: paths the middleware matcher skips, such as `/api/...` and root-level files like `/favicon.ico`. A Redirects row can never catch these.
@@ -75,6 +75,6 @@ The event is sent from the browser on purpose. The not-found render is ISR-cache
 
 - The script calls the same Observability API that `vercel metrics` uses. For ad-hoc queries, use `npx -y vercel@latest metrics vercel.request.count …` because older installed CLIs don't have `metrics`. Filters are KQL (`httpStatus:"404" AND requestHostname:"nwac.us"`); dimension names are camelCase.
 - `vercel.request.count` only accepts the `count` aggregation, not `sum`.
-- Grouping by `requestPath` fails with `query_failed` unless the query is narrowed: filter to 404s and keep the window to about a week. The API also fails intermittently when several queries run at once, so the script runs its queries one at a time and retries 5xx responses.
+- Grouping by `requestPath` fails with `query_failed` unless the query is narrowed: filter to 404s and keep the window to about a week. The API also fails intermittently when several queries run at once, so the script runs its queries one at a time and retries 5xx responses, 429s and network errors.
 - Most 404 traffic is bots, and most of that is `botCategory: unknown`, meaning automated clients Vercel can't identify. On NWAC in September 2026 that was 2.06M of 2.17M 404s. Most were machine clients of the old site's data portal and API (`/data-portal/csv/q`, `/api/v3/...`), not people following links. The report's bot section lists them.
 - The same data can answer other launch-week questions: 5xx by `route`, `cacheResult`/`cacheReason` by `route`, and p75 duration by `route`.
