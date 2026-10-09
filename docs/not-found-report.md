@@ -37,6 +37,7 @@ A 30-day run takes a few minutes; the terminal shows which step it's on. The scr
    - `not-redirectable`: paths the middleware matcher skips, such as `/api/...` and root-level files like `/favicon.ico`. A Redirects row can never catch these.
    - `probe`: dotfile paths such as `/.well-known/...` and `/.env`, which come from browsers and scanners, not people.
    - `live-path`: paths that exist now; the 404 was temporary.
+   - `built-in-route`: paths that land on a built-in page route, such as a forecast zone, observation or weather station, which 404s without checking Redirects (`ROUTES_WITHOUT_REDIRECTS`). A test keeps that list in step with the app's routes.
 6. Suggests a destination for each remaining path when exactly one live URL has the same last path segment (`/2024/01/meet-liz/` → `/blog/meet-liz`). Otherwise `to` is empty.
 
 ## Output files
@@ -62,7 +63,7 @@ A 30-day run takes a few minutes; the terminal shows which step it's on. The scr
 1. Skim `report.html` yourself first. Fill in the obvious `to` values in `redirects.csv` and check the suggested ones: the match is by slug only, so `/events/annual-report` → `/about/annual-report` might be wrong.
 2. Send the HTML and CSV to the center's staff. The HTML explains what to do with the spreadsheet: fill in `to`, or explain in `notes`, and send it back as CSV.
 3. Resolve the `notes` rows with them, then load the CSV into the center's Redirects. The importer lives in `NWACus/avy-scripts` and creates a Redirects row for every row with a `to`. Entering rows by hand in the admin panel under **Settings → Redirects** also works.
-4. Skim the set-aside paths. A high-traffic `dead-legacy-path` may deserve a real destination (tracked in #495 — Handle redirects at the middleware layer).
+4. Skim the set-aside paths. A high-traffic `dead-legacy-path` may deserve a real destination (tracked in #495 — Handle redirects at the middleware layer). A high-traffic `built-in-route` path can only be redirected once its route renders `<Redirects>`.
 
 ## PostHog `page_not_found` event
 

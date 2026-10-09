@@ -2,7 +2,10 @@ import {
   buildNotFoundReport,
   extractSitemapLocs,
   forecastZonePaths,
+  ROUTES_WITHOUT_REDIRECTS,
 } from '@/utilities/notFoundReport'
+import { readdirSync, readFileSync } from 'node:fs'
+import { basename, dirname, join } from 'node:path'
 
 const livePaths = [
   '/',
@@ -81,6 +84,48 @@ describe('buildNotFoundReport', () => {
       { path: '/.well-known/security.txt', hits: 5, reason: 'probe' },
       { path: '/about/about-us', hits: 1, reason: 'live-path' },
     ])
+  })
+
+  it('sets aside paths on built-in routes that never check Redirects, unless they are live', () => {
+    const { redirects, excluded } = buildNotFoundReport(
+      [
+        { path: '/weather/stations/accumulated-precipitation', hits: 9 },
+        { path: '/forecasts/avalanche/old-zone', hits: 8 },
+        { path: '/forecasts/avalanche/mt-hood', hits: 7 },
+        { path: '/observations/2019/photos', hits: 6 },
+      ],
+      ['/forecasts/avalanche/mt-hood'],
+    )
+
+    expect(excluded).toEqual([
+      { path: '/weather/stations/accumulated-precipitation', hits: 9, reason: 'built-in-route' },
+      { path: '/forecasts/avalanche/old-zone', hits: 8, reason: 'built-in-route' },
+      { path: '/forecasts/avalanche/mt-hood', hits: 7, reason: 'live-path' },
+    ])
+    // Too deep for any observations route, so it reaches the catch-all, which checks Redirects
+    expect(redirects).toEqual([{ from: '/observations/2019/photos', to: null, hits: 6 }])
+  })
+})
+
+const CENTER_APP_DIR = join(process.cwd(), 'src/app/(frontend)/[center]')
+
+// 'forecasts/avalanche/[zone]/page.tsx' → '/forecasts/avalanche/:zone', dropping route groups
+function routeOf(pageFile: string): string {
+  const segments = dirname(pageFile)
+    .split('/')
+    .filter((segment) => segment !== '.' && !/^\(.+\)$/.test(segment))
+    .map((segment) => segment.replace(/^\[(\w+)\]$/, ':$1'))
+  return `/${segments.join('/')}`
+}
+
+describe('ROUTES_WITHOUT_REDIRECTS', () => {
+  it('lists every center page that does not render <Redirects>', () => {
+    const routes = readdirSync(CENTER_APP_DIR, { recursive: true, encoding: 'utf8' })
+      .filter((file) => basename(file) === 'page.tsx')
+      .filter((file) => !readFileSync(join(CENTER_APP_DIR, file), 'utf8').includes('<Redirects'))
+      .map(routeOf)
+
+    expect([...ROUTES_WITHOUT_REDIRECTS].sort()).toEqual(routes.sort())
   })
 })
 

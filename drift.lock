@@ -1173,7 +1173,7 @@ sig = "d3cd76897aad26d4"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/notFoundReport.ts"
-sig = "15a3072e591e7723"
+sig = "ac20b48802fc7780"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -1183,7 +1183,7 @@ sig = "4194dab839bee961"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/notFoundReportHtml.ts"
-sig = "74b46d2b6f15f202"
+sig = "006ace2d385d431e"
 
 [[bindings]]
 doc = "docs/onboarding.md"
