@@ -18,7 +18,10 @@ import { LandingFooter } from '@/components/landing/LandingFooter'
 import { LandingHeader } from '@/components/landing/LandingHeader'
 import type { DirectoryCenter } from '@/components/landing/types'
 import type { Media, Setting } from '@/payload-types'
-import { AVALANCHE_CENTERS, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
+import { getURL } from '@/utilities/getURL'
+import { isValidRelationship, relationshipID } from '@/utilities/relationships'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { PRODUCTION_TENANTS } from '@/utilities/tenancy/tenants'
 
 export const dynamic = 'force-static'
@@ -34,7 +37,7 @@ async function getDirectoryCenters(): Promise<DirectoryCenter[]> {
 
   // Local dev has no PRODUCTION_TENANTS, so it stands in with every seeded center except the
   // template. Anywhere the env var is set, it is the only source of truth.
-  const productionSlugs =
+  const productionSlugs: readonly string[] =
     PRODUCTION_TENANTS.length > 0
       ? PRODUCTION_TENANTS
       : tenants
@@ -42,47 +45,38 @@ async function getDirectoryCenters(): Promise<DirectoryCenter[]> {
           .filter(isValidTenantSlug)
           .filter((slug) => slug !== TEMPLATE_TENANT_SLUG)
 
-  const productionTenants = tenants.filter(
-    (tenant) => isValidTenantSlug(tenant.slug) && productionSlugs.includes(tenant.slug),
-  )
+  const productionTenants = tenants.filter((tenant) => productionSlugs.includes(tenant.slug))
 
   const settings = await payload
     .find({
       collection: 'settings',
       where: { tenant: { in: productionTenants.map((tenant) => tenant.id) } },
       select: { logo: true, description: true, tenant: true },
+      pagination: false,
     })
     .then((result) => result.docs)
 
-  return productionTenants.flatMap((tenant) => {
-    if (!isValidTenantSlug(tenant.slug)) return []
+  return productionTenants.map((tenant) => {
+    const tenantSettings = settings.find((doc) => relationshipID(doc.tenant) === tenant.id)
+    // The center's custom domain in production, its subdomain of this deployment anywhere else.
+    const hostname = getHostnameFromTenant(tenant)
 
-    const tenantSettings = settings.find((doc) => settingsTenantId(doc) === tenant.id)
-    const customDomain = AVALANCHE_CENTERS[tenant.slug].customDomain
-
-    return [
-      {
-        slug: tenant.slug,
-        name: tenant.name,
-        // Strip a leading `www.` for display; the link keeps the full host.
-        domain: customDomain.replace(/^www\./, ''),
-        // Always https: these are the live custom domains, whatever protocol this page serves on.
-        href: `https://${customDomain}`,
-        description: tenantSettings?.description ?? null,
-        logo: resolvedLogo(tenantSettings),
-      },
-    ]
+    return {
+      slug: tenant.slug,
+      name: tenant.name,
+      // Strip a leading `www.` for display; the link keeps the full host.
+      domain: hostname.replace(/^www\./, ''),
+      href: getURL(hostname),
+      description: tenantSettings?.description ?? null,
+      logo: resolvedLogo(tenantSettings),
+    }
   })
 }
 
-function settingsTenantId(doc: Pick<Setting, 'tenant'>): number {
-  return typeof doc.tenant === 'number' ? doc.tenant : doc.tenant.id
-}
-
 /** The logo only when the relationship came back populated; an unresolved id has nothing to render. */
-function resolvedLogo(doc: Pick<Setting, 'logo'> | undefined): Media | null {
-  const logo = doc?.logo
-  return logo && typeof logo === 'object' ? logo : null
+function resolvedLogo(settings: Pick<Setting, 'logo'> | undefined): Media | null {
+  const logo = settings?.logo
+  return isValidRelationship(logo) ? logo : null
 }
 
 export default async function LandingPage() {

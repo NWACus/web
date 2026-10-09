@@ -4,9 +4,9 @@ import type { Media } from '@/payload-types'
 export interface DirectoryCenter {
   slug: string
   name: string
-  /** The public custom domain as people would type it, e.g. `nwac.us`. */
+  /** The center's host as people would type it, e.g. `nwac.us` (`nwac.localhost:3000` locally). */
   domain: string
-  /** Absolute link to the center's site. */
+  /** Absolute link to the center's site in this deployment. */
   href: string
   description: string | null
   logo: Media | null
