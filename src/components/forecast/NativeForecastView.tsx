@@ -105,6 +105,17 @@ export function NativeForecastView({
         pickerSettings={pickerSettings}
       />
 
+      {/* Validity-date banner: archived on a dated view, expired on the live view. Above the
+          title, as the widget had it; unlike the picker, it prints. */}
+      <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
+        <ValidityBanner
+          forecast={forecastResult}
+          selectedDate={selectedDate}
+          basePath={basePath}
+          hasLivePage={zone.active !== false}
+        />
+      </ForecastErrorBoundary>
+
       <ForecastTitleRow
         center={center}
         zone={zone}
@@ -114,14 +125,7 @@ export function NativeForecastView({
         selectedDate={selectedDate}
       />
 
-      <ForecastMasthead
-        timezone={timezone}
-        forecastResult={forecastResult}
-        warning={warning}
-        selectedDate={selectedDate}
-        basePath={basePath}
-        hasLivePage={zone.active !== false}
-      />
+      <ForecastMasthead timezone={timezone} forecastResult={forecastResult} warning={warning} />
 
       {/* `data-print-section` marks what the print dialog's checkboxes toggle; the print
           stylesheet in print.css hides any section the reader left unchecked. */}
@@ -245,36 +249,20 @@ function ForecastTitleRow({
 }
 
 /**
- * Everything between the page heading and the bottom line: any active warning, the validity
- * banner, and the product's metadata. Each is independently boundaried so one malformed field
+ * Everything between the page heading and the bottom line: any active warning and the product's
+ * metadata, in the widget's order. Each is independently boundaried so one malformed field
  * degrades that strip only.
  */
 function ForecastMasthead({
   timezone,
   forecastResult,
   warning,
-  selectedDate,
-  basePath,
-  hasLivePage,
-}: Pick<
-  NativeForecastViewProps,
-  'timezone' | 'forecastResult' | 'warning' | 'selectedDate' | 'basePath'
-> & { hasLivePage: boolean }) {
+}: Pick<NativeForecastViewProps, 'timezone' | 'forecastResult' | 'warning'>) {
   return (
     <>
       {/* Warning banner */}
       <ForecastErrorBoundary fallbackMessage="Unable to display warning information">
         <WarningBanner warning={warning} timezone={timezone} />
-      </ForecastErrorBoundary>
-
-      {/* Validity-date banner: archived on a dated view, expired on the live view */}
-      <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
-        <ValidityBanner
-          forecast={forecastResult}
-          selectedDate={selectedDate}
-          basePath={basePath}
-          hasLivePage={hasLivePage}
-        />
       </ForecastErrorBoundary>
 
       {/* Header: issued, expires, author */}
