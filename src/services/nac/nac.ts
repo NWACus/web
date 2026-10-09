@@ -546,6 +546,7 @@ async function fetchArchiveSummaries(
     danger_level_text: item.danger_level_text ?? null,
     current_danger: currentElevationDanger(item.danger),
     author: item.author ?? null,
+    expires_time: item.expires_time ?? null,
     updated_at: item.updated_at ?? null,
     forecast_zone: item.forecast_zone.map((zone) => ({ id: zone.id })),
   }))

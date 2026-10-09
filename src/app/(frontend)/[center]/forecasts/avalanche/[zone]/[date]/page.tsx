@@ -7,10 +7,12 @@ import { NativeForecastView } from '@/components/forecast/NativeForecastView'
 import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 import {
   buildZoneArchiveDates,
+  findCoveringProductDate,
   findProductIdForDate,
   forecastPickerSettings,
   initialArchiveWindow,
   validDateForProduct,
+  type ZoneArchiveDate,
 } from '@/services/nac/archiveDates'
 import { findDatedForecast } from '@/services/nac/datedForecast'
 import {
@@ -31,7 +33,7 @@ import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { htmlToDescription } from '@/utilities/htmlToDescription'
 import { format, parseISO } from 'date-fns'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 // Historical products are immutable: render on demand and cache for a long time. This route
 // deliberately does NOT run the live revalidate-on-view freshness path — only the current
@@ -96,6 +98,23 @@ async function liveProductFor(center: string, zone: DatedForecastZone) {
   return getForecastSource(center).getForecast(center, zone.zone.id)
 }
 
+/**
+ * A day with no product of its own opens the product that covers it — a multi-day summary still
+ * valid that morning — at that product's own dated address, which hands over to the live page in
+ * turn when it is the live one. A temporary redirect: a later product for this day would replace
+ * it. Otherwise the address 404s.
+ */
+function redirectToCoveringProduct(
+  archiveDates: ZoneArchiveDate[],
+  date: string,
+  timezone: string,
+  zoneSlug: string,
+): never {
+  const covering = findCoveringProductDate(archiveDates, date, timezone)
+  if (covering && covering !== date) redirect(`/forecasts/avalanche/${zoneSlug}/${covering}`)
+  notFound()
+}
+
 /** A retired zone has no live page for its breadcrumb to link to. */
 function zonePathsWithoutPages(zone: DatedForecastZone): string[] {
   return zone.active ? [] : [`/forecasts/avalanche/${zone.slug}`]
@@ -123,7 +142,7 @@ export default async function Page({ params }: Args) {
   const productId = findProductIdForDate(initialDates, date)
 
   if (productId === null) {
-    notFound()
+    redirectToCoveringProduct(initialDates, date, metadata.timezone, zone)
   }
 
   const [forecastResult, currentProduct] = await Promise.all([

@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { existsSync, readFileSync } from 'node:fs'
+import { request } from 'node:http'
 import { join } from 'node:path'
 import { repoRoot } from './mockState'
 
@@ -155,6 +156,28 @@ export async function clickUntil(target: Locator, expected: Locator): Promise<vo
     await target.click()
     await expect(expected).toBeVisible({ timeout: 1000 })
   }).toPass({ timeout: 15000 })
+}
+
+/**
+ * One request to a tenant path without following a redirect, for asserting where the server sends
+ * a reader without the browser fetching the target (whose own upstream reads may have no golden).
+ * Loopback plus a `Host` header, as `globalSetup`'s warm-up does and for the same reason.
+ */
+export function requestTenantPath(
+  slug: string,
+  path: string,
+): Promise<{ status: number | undefined; location: string | undefined }> {
+  return new Promise((resolve, reject) => {
+    const req = request(
+      { host: '127.0.0.1', port: PORT, path, headers: { host: `${slug}.localhost:${PORT}` } },
+      (res) => {
+        res.resume()
+        res.on('end', () => resolve({ status: res.statusCode, location: res.headers.location }))
+      },
+    )
+    req.on('error', reject)
+    req.end()
+  })
 }
 
 /** The zone ids each scenario is served at, named so specs read as intent rather than numbers. */

@@ -1,5 +1,13 @@
 import { expect, test } from './fixture'
-import { ZONE, clickUntil, hasFixture, loadPage, tenant, zoneSlug } from './helpers'
+import {
+  ZONE,
+  clickUntil,
+  hasFixture,
+  loadPage,
+  requestTenantPath,
+  tenant,
+  zoneSlug,
+} from './helpers'
 
 const SLUG = zoneSlug(ZONE.forecast)
 const FORECAST_URL = `${tenant('snfac')}/forecasts/avalanche/${SLUG}`
@@ -45,6 +53,23 @@ test.describe('Forecast archive', () => {
     await expect(page.getByRole('heading', { name: 'The Bottom Line' })).toBeVisible()
 
     expect(errors).toEqual([])
+  })
+
+  test('a day inside a summary’s validity redirects to that summary’s dated address', async () => {
+    // The 2026-04-06 summary expires 2026-04-10 18:00Z, so it covers the 7th–10th, which have no
+    // product of their own. Its by-id golden is missing, so only the server's answer is checked;
+    // following it would ask upstream for that product.
+    const res = await requestTenantPath('snfac', `/forecasts/avalanche/${SLUG}/2026-04-08`)
+
+    expect(res.status).toBe(307)
+    expect(decodeURIComponent(res.location ?? '')).toBe(`/forecasts/avalanche/${SLUG}/2026-04-06`)
+  })
+
+  test('a day no product covers is still a 404', async ({ page }) => {
+    // The summary expired at 18:00Z on the 10th, before the 11th began in Boise.
+    const response = await page.goto(`${FORECAST_URL}/2026-04-11`)
+
+    expect(response?.status()).toBe(404)
   })
 
   test('the second archived date renders', async ({ page }) => {

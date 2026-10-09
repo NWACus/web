@@ -38,6 +38,8 @@ export interface ArchiveProductSummary {
   current_danger: ElevationDanger | null
   /** Forecaster name, for the archive browser's rows. Null on bulk-imported history. */
   author: string | null
+  /** When the product stops being valid, for finding the product that covers a later day. */
+  expires_time: string | null
   /**
    * Null on stub forecasts (NWAC 2019–2020, SAC 2019–2021: date, zone and overall rating only),
    * which every legacy view hides (`updated_at != null`). Present only to apply the same rule.
@@ -91,6 +93,8 @@ export interface ZoneArchiveDate {
   dangerLevelText: string | null
   /** The day's danger by elevation, drawn as the preview's triangle. */
   danger: ElevationDanger | null
+  /** When the product stops being valid (ISO-8601), or null when unknown. */
+  expiresTime: string | null
 }
 
 /**
@@ -176,6 +180,7 @@ export function buildZoneArchiveDates(
       dangerRating: item.danger_rating,
       dangerLevelText: item.danger_level_text,
       danger: item.current_danger,
+      expiresTime: item.expires_time,
     }))
     .sort((a, b) => b.date.localeCompare(a.date))
 }
@@ -183,6 +188,33 @@ export function buildZoneArchiveDates(
 /** Resolve a `YYYY-MM-DD` date to its product id within a prebuilt zone date list. */
 export function findProductIdForDate(archiveDates: ZoneArchiveDate[], date: string): number | null {
   return archiveDates.find((entry) => entry.date === date)?.productId ?? null
+}
+
+/** The first instant of a `YYYY-MM-DD` day in the center's timezone. */
+function startOfValidDay(date: string, timezone: string | null | undefined): Date {
+  const [year, month, day] = date.split('-').map(Number)
+  return timezone ? new TZDate(year, month - 1, day, timezone) : new Date(year, month - 1, day)
+}
+
+/**
+ * The dated address that shows `date`: its own when it has a product, otherwise the latest earlier
+ * product still valid when that day began (a multi-day summary, say), so the address doesn't 404
+ * on a day the product covers. Null when nothing covers it. `archiveDates` is newest first, as
+ * `buildZoneArchiveDates` returns it; an unparseable expiry covers nothing.
+ */
+export function findCoveringProductDate(
+  archiveDates: ZoneArchiveDate[],
+  date: string,
+  timezone: string | null | undefined,
+): string | null {
+  if (archiveDates.some((entry) => entry.date === date)) return date
+
+  const dayStart = startOfValidDay(date, timezone).getTime()
+  const covering = archiveDates.find(
+    (entry) =>
+      entry.date < date && entry.expiresTime !== null && Date.parse(entry.expiresTime) > dayStart,
+  )
+  return covering?.date ?? null
 }
 
 /**

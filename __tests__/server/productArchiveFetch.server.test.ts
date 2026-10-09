@@ -28,6 +28,7 @@ const PRODUCT = {
     { lower: null, upper: null, middle: null, valid_day: 'tomorrow' },
   ],
   author: 'Forecaster',
+  expires_time: '2026-04-06T10:00:00+00:00',
   updated_at: '2026-04-05T02:30:00+00:00',
   forecast_zone: [{ id: 1646, name: 'Banner Summit' }],
 }
@@ -61,6 +62,7 @@ describe('services: product archive fetchers', () => {
         danger_level_text: 'moderate',
         current_danger: { upper: 2, middle: 2, lower: 1 },
         author: 'Forecaster',
+        expires_time: '2026-04-06T10:00:00+00:00',
         updated_at: '2026-04-05T02:30:00+00:00',
         forecast_zone: [{ id: 1646 }],
       },

@@ -3,6 +3,7 @@ import { parseISO } from 'date-fns'
 import {
   buildZoneArchiveDates,
   currentElevationDanger,
+  findCoveringProductDate,
   findProductIdForDate,
   forecastCalendarStart,
   forecastPickerSettings,
@@ -23,6 +24,7 @@ function item(
     danger_level_text: 'moderate',
     current_danger: { upper: 2, middle: 2, lower: 1 },
     author: 'Forecaster',
+    expires_time: null,
     updated_at: '2026-01-10T02:30:00+00:00',
     forecast_zone: [{ id: 1646 }],
     ...partial,
@@ -119,6 +121,7 @@ describe('buildZoneArchiveDates', () => {
       dangerRating: 3,
       dangerLevelText: 'considerable',
       danger: { upper: 3, middle: 3, lower: 2 },
+      expiresTime: null,
     })
   })
 
@@ -152,7 +155,13 @@ describe('currentElevationDanger', () => {
 })
 
 describe('findProductIdForDate', () => {
-  const day = { productType: 'forecast', dangerRating: 2, dangerLevelText: null, danger: null }
+  const day = {
+    productType: 'forecast',
+    dangerRating: 2,
+    dangerLevelText: null,
+    danger: null,
+    expiresTime: null,
+  }
   const dates = [
     { ...day, date: '2026-01-08', productId: 21 },
     { ...day, date: '2026-01-06', productId: 22 },
@@ -164,6 +173,64 @@ describe('findProductIdForDate', () => {
 
   it('returns null for a date with no product', () => {
     expect(findProductIdForDate(dates, '2026-01-07')).toBeNull()
+  })
+})
+
+describe('findCoveringProductDate', () => {
+  // Boise is UTC-6 in April, so a day there starts at 06:00Z.
+  const BOISE = 'America/Boise'
+  const day = (date: string, expiresTime: string | null) => ({
+    date,
+    productId: Number(date.replaceAll('-', '')),
+    productType: 'summary',
+    dangerRating: -1,
+    dangerLevelText: null,
+    danger: null,
+    expiresTime,
+  })
+  // Newest first, as buildZoneArchiveDates returns them.
+  const dates = [
+    day('2026-04-06', '2026-04-10T18:00:00+00:00'),
+    day('2026-04-05', '2026-04-06T10:00:00+00:00'),
+  ]
+
+  it('finds the earlier product still valid when the day began', () => {
+    expect(findCoveringProductDate(dates, '2026-04-08', BOISE)).toBe('2026-04-06')
+    // 2026-04-10 begins at 06:00Z, before the 18:00Z expiry.
+    expect(findCoveringProductDate(dates, '2026-04-10', BOISE)).toBe('2026-04-06')
+  })
+
+  it('finds nothing once the covering product expired before the day began', () => {
+    expect(findCoveringProductDate(dates, '2026-04-11', BOISE)).toBeNull()
+  })
+
+  it('finds nothing in a gap no product covers', () => {
+    const gap = [day('2026-03-20', '2026-03-21T10:00:00+00:00')]
+    expect(findCoveringProductDate(gap, '2026-03-25', BOISE)).toBeNull()
+  })
+
+  it('takes the latest of several products that cover the day', () => {
+    const several = [
+      day('2026-04-07', '2026-04-12T18:00:00+00:00'),
+      day('2026-04-06', '2026-04-12T18:00:00+00:00'),
+    ]
+    expect(findCoveringProductDate(several, '2026-04-09', BOISE)).toBe('2026-04-07')
+  })
+
+  it('keeps a day that has a product of its own', () => {
+    expect(findCoveringProductDate(dates, '2026-04-05', BOISE)).toBe('2026-04-05')
+  })
+
+  it('reads the day in the center timezone, not UTC', () => {
+    // Expires 2026-04-08 05:00Z: still the evening of the 7th in Boise, so the 8th isn't covered.
+    const early = [day('2026-04-06', '2026-04-08T05:00:00+00:00')]
+    expect(findCoveringProductDate(early, '2026-04-08', BOISE)).toBeNull()
+    expect(findCoveringProductDate(early, '2026-04-08', 'UTC')).toBe('2026-04-06')
+  })
+
+  it('treats an unknown or unparseable expiry as covering nothing', () => {
+    const unknown = [day('2026-04-06', null), day('2026-04-05', 'soon')]
+    expect(findCoveringProductDate(unknown, '2026-04-07', BOISE)).toBeNull()
   })
 })
 
