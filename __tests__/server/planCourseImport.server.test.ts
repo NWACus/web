@@ -141,6 +141,23 @@ describe('planCourseImport', () => {
     ])
   })
 
+  it('imports an international course in Japan Time, stored in UTC', () => {
+    const { headers } = parseCourseCsv(csv)
+    const japanRow = {
+      ...parseCourseCsv(csv).rows[8],
+      'A3 Time Zone': 'Japan Time (JST)',
+      'Start Date': '1/17/2027',
+      'End Date': '1/19/2027',
+    }
+    const plan = planCourseImport({ headers, rows: [japanRow], providers, existingCourses: [] })
+    expect(plan.blocked).toEqual([])
+    expect(plan.ready[0].data).toMatchObject({
+      startDate: '2027-01-16T23:00:00.000Z',
+      startDate_tz: 'Asia/Tokyo',
+      location: { state: 'INTL', placeName: 'Otaru' },
+    })
+  })
+
   it('blocks a row with no time zone', () => {
     expect(blockedReasons(10)).toEqual(['A3 Time Zone is required.'])
   })
