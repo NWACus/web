@@ -94,3 +94,4 @@ Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend
 4. Add this domain to our [list of domains](https://vercel.com/nwac/avy/settings/domains) for avy in Vercel.
 5. For domains not managed on Vercel, we'll need to coordinate with the avalanche center to set the appropriate DNS record in their DNS provider's console. Adding a non-Vercel-managed domain will display the records to add and once verified Vercel will automatically generate an SSL certificate. We should include the apex domain -> www. redirect for these custom domains.
 6. Add the tenant's custom domain to the list of authorized web analytics urls in PostHog under Settings -> Environment (/settings/environment#web-analytics-authorized-urls)
+7. After cutover, run the [post-launch 404 report](not-found-report.md) at launch, about 1 week later, and about 1 month later, and turn the real 404s into redirects.

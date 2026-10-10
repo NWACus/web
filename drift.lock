@@ -53,7 +53,7 @@ sig = "c0f3cad5d9018cee"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "ff5d3fe541e1dfad"
+sig = "f4b9eb14a74b8fb1"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "8181a2f7c6a662f3"
+sig = "594fac47679d08ad"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -868,7 +868,7 @@ sig = "2692f90f08a4a4d1"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/scripts/check-centers.ts"
-sig = "cf2a77a3852fcde8"
+sig = "8eb97b822b21e97b"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
@@ -1067,6 +1067,11 @@ sig = "1910afa455f5574b"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
+target = "src/components/TrackPageNotFound.client.tsx"
+sig = "d217d568b825da64"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
 target = "src/instrumentation-client.ts"
 sig = "e5b929ccb285db09"
 
@@ -1191,6 +1196,41 @@ target = "src/scripts/check-migrations.ts"
 sig = "a4824faf89f4051e"
 
 [[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/components/TrackPageNotFound.client.tsx"
+sig = "d217d568b825da64"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/middleware.ts"
+sig = "fd722c55fdb3239d"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/scripts/report-404s.ts"
+sig = "fa777a94cd66bd94"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/deadLegacyPath.ts"
+sig = "d3cd76897aad26d4"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/notFoundReport.ts"
+sig = "0e2f4a63bf88c2ed"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/notFoundReportCsv.ts"
+sig = "4194dab839bee961"
+
+[[bindings]]
+doc = "docs/not-found-report.md"
+target = "src/utilities/notFoundReportHtml.ts"
+sig = "006ace2d385d431e"
+
+[[bindings]]
 doc = "docs/onboarding.md"
 target = "next.config.js"
 sig = "4d750bcc62ef50a1"
@@ -1213,7 +1253,7 @@ sig = "2b85786965cc0125"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/scripts/check-centers.ts"
-sig = "cf2a77a3852fcde8"
+sig = "8eb97b822b21e97b"
 
 [[bindings]]
 doc = "docs/onboarding.md"
