@@ -108,7 +108,7 @@ function adviceForLevel(level: DangerLevel): string {
  * UTC. Read as local time they would drift by the viewer's offset. The product endpoints, by
  * contrast, send a real offset, so only add one when it is missing.
  */
-function asUtcTimestamp(value: string): string {
+export function asUtcTimestamp(value: string): string {
   // Matches a trailing `Z` or a `+hh:mm` / `-hhmm` UTC offset.
   return /(?:Z|[+-]\d{2}:?\d{2})$/.test(value) ? value : `${value}Z`
 }
