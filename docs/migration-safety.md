@@ -44,30 +44,44 @@ Potentially dangerous patterns it detects:
 
 ## Runtime Data Diff
 
-The static check reads migration SQL; this one watches what migrations actually do to prod data. The `development` workflow (push to `main`) and the nightly `Sync Production to Dev` workflow both clone prod into `payloadcms-dev` and then run `pnpm migrate`, so the dev database right before migrating is an exact copy of prod. `pnpm db:diff` snapshots it on each side of `pnpm migrate` and reports the difference. The `after` snapshot runs before `pnpm sanitize` and the media-prefix rewrite, so their edits don't show up as noise.
+The static check reads migration SQL; this one checks what migrations actually do to prod data. The `development` (push to `main`) and nightly `Sync Production to Dev` workflows clone prod into `payloadcms-dev`, then run `pnpm migrate`. `pnpm db:diff` snapshots the database on each side of `pnpm migrate` (before `pnpm sanitize`) and reports the difference. It skips itself when no migration is pending.
 
-- `pnpm db:diff before <dir>` exits immediately when no migration is pending. Otherwise it snapshots every table in `sqlite_master`: columns, foreign keys and UNIQUE constraints, indexes, foreign key violation counts, and a hash of every cell keyed by row `id`. Snapshots hold hashes only, never prod values, and stay on the runner.
-- `pnpm db:diff after <dir>` snapshots again, writes `report.md` and `report.json` to `<dir>`, appends the report to the job summary, and raises a `::warning` per finding.
+A snapshot records every table's columns, constraints and indexes, the foreign key violation counts, and a hash of every cell keyed by row `id`. It stores hashes only, never values.
 
-Migrations sit on `main` until the next release, and both workflows re-clone prod each run, so every push and every nightly sync re-reports the same pending migrations until they're released.
+**Findings** are changes to anything that existed before the run:
 
-**Findings** are changes to things that existed before the run:
-
-- dropped tables, columns, indexes or constraints, and altered column definitions (e.g. a foreign key losing its `ON DELETE`)
-- deleted rows, including `_rels` rows lost to the cascade-delete issue above
-- existing rows whose values changed (e.g. a bumped `updated_at`)
+- deleted rows, e.g. `_rels` rows lost to the cascade-delete issue above
+- existing rows whose values changed, e.g. a bumped `updated_at`
+- dropped tables, columns, indexes or constraints, and altered column definitions
 - new foreign key violations
-- tables the snapshot couldn't read, which are reported rather than compared
+- tables that couldn't be read
 
-Rows are compared on the columns present in both snapshots, so adding a column doesn't mark every row as changed. Payload deletes and re-inserts `_rels`, `_texts`, `_locales` and version-block rows with fresh ids on every `payload.update`, so tables with an integer `id` and a `parent_id`/`_parent_id` column are matched by content instead of id; a changed row there shows up as one deleted plus one added. New tables, columns, indexes and appended rows are listed but aren't findings.
+New tables, columns and rows are listed but aren't findings. `payload.update` re-inserts `_rels`-style rows with new ids, so tables with an integer `id` and a `parent_id`/`_parent_id` column are matched by content instead of id. Volatile tables (`payload_kv`, `payload_preferences*`, `payload_locked_documents*`, `users_sessions`) compare row counts only.
 
-`payload_kv`, `payload_preferences*`, `payload_locked_documents*` and `users_sessions` are volatile (written by people using the dev site, not by migrations), so only their row counts are compared, and a drop in count is a finding. Keeping `users_sessions` count-only also keeps session ids out of every report.
+The check is **warn-only**: it never blocks the deploy, and a backfill legitimately changes rows. Migrations stay pending until the next release, so every run re-reports them.
 
-The check is **warn-only**: both steps use `continue-on-error`, so a finding never blocks the deploy. A data migration such as a backfill legitimately changes rows. Read the findings and decide whether they match what the migration intended before the same migration reaches prod.
+**CI output is public.** The job summary and annotations show only table, column and migration names, the kind of change, and row deltas. They leave out row ids, table sizes and error messages.
 
-**What's public.** This repo is public, so anyone can read workflow logs, step summaries and annotations. In CI (`GITHUB_ACTIONS=true`) the report therefore lists only table and column names, migration names, the kind of change, and how many rows were added, deleted or changed. It leaves out row ids, table sizes and error messages, and nothing is uploaded as an artifact. Run it locally for the detailed report.
+### Debugging a warning
 
-To run it locally, point `DATABASE_URI` at a copy of a database (a `file:` path, a `turso dev` server, or a throwaway Turso copy), then run `pnpm db:diff before .context/db-diff`, `pnpm migrate`, and `pnpm db:diff after .context/db-diff`. To reproduce Turso-only behavior such as the cascade deletes, serve the copy with `turso dev -f <copy>.db` rather than opening the file directly.
+1. Check out the commit the workflow ran on.
+2. Clone prod into a throwaway Turso database. To match the data CI saw exactly, add `--timestamp <RFC3339>` set to the time of the workflow's clone step.
+   ```bash
+   turso db create payloadcms-dbdiff-debug --from-db payloadcms-prod --wait
+   export DATABASE_URI=$(turso db show payloadcms-dbdiff-debug --url)
+   export DATABASE_AUTH_TOKEN=$(turso db tokens create payloadcms-dbdiff-debug)
+   ```
+3. Re-run the diff locally, where the output is detailed. `NODE_ENV=production` turns off dev push mode.
+   ```bash
+   pnpm db:diff before .context/db-diff
+   NODE_ENV=production pnpm migrate
+   pnpm db:diff after .context/db-diff
+   ```
+   `.context/db-diff/report.md` lists the affected row ids and any error messages, and `report.json` has every id.
+4. Inspect the rows with `turso db shell payloadcms-dbdiff-debug`. Deleted rows are gone after migrating, so look them up in a fresh clone.
+5. `turso db destroy payloadcms-dbdiff-debug --yes`
+
+To iterate on a fix without Turso round trips, serve a local copy with `turso dev -f <copy>.db` and point `DATABASE_URI` at it. A plain `file:` URL doesn't reproduce Turso's cascade behavior.
 
 ## Workflow
 

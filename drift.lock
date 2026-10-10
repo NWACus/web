@@ -68,7 +68,7 @@ sig = "93e588f55d89ff59"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/migration-safety.md"
-sig = "058ed6c985b72709"
+sig = "a02132c7fc322866"
 
 [[bindings]]
 doc = "CLAUDE.md"
