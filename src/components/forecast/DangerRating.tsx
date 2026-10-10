@@ -80,6 +80,7 @@ export function DangerRating({
       {headings.dated && (
         <DatedDangerExtras
           noRatingToday={isNoRatingDay(today)}
+          adviceBesideToday={!tomorrow}
           elevationBandsUrl={elevationBandsUrl}
         />
       )}
@@ -236,15 +237,27 @@ function OutlookSummary({
 /** The explanatory material shown only on the full dated view, not the compact all-zones card. */
 function DatedDangerExtras({
   noRatingToday,
+  adviceBesideToday,
   elevationBandsUrl,
 }: {
   noRatingToday: boolean
+  adviceBesideToday: boolean
   elevationBandsUrl: string | null | undefined
 }) {
   return (
     <>
-      {/* No Rating everywhere today → show the legacy explanation pointing to the summary. */}
-      {noRatingToday && <p className="text-sm text-muted-foreground">{NO_RATING_ADVICE}</p>}
+      {/* No Rating everywhere today → the legacy explanation pointing to the summary. Not beside
+          the travel-advice column, which already says it for each band (as the widget does). */}
+      {noRatingToday && (
+        <p
+          className={cn(
+            'text-sm text-muted-foreground',
+            adviceBesideToday && 'lg:hidden printWide:hidden',
+          )}
+        >
+          {NO_RATING_ADVICE}
+        </p>
+      )}
       {elevationBandsUrl && (
         <ExternalLink href={elevationBandsUrl} className="text-sm text-muted-foreground">
           Elevation Band Descriptions

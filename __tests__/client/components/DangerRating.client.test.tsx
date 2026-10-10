@@ -83,6 +83,27 @@ describe('DangerRating', () => {
     expect(screen.queryByRole('button', { name: /Tuesday/ })).toBeNull()
   })
 
+  // Forecast-61 beside Forecast-67: the advice column already explains No Rating for each band.
+  it('keeps the No Rating line off desktop only when the advice column stands in for the outlook', () => {
+    const unrated = {
+      ...today,
+      upper: DangerLevel.None,
+      middle: DangerLevel.None,
+      lower: DangerLevel.None,
+    }
+    const line = () =>
+      screen
+        .getAllByText(/^Insufficient data for issuing of danger ratings/)
+        .find((el) => el.tagName === 'P')
+
+    const { unmount } = renderDated([unrated])
+    expect(line()).toHaveClass('lg:hidden', 'printWide:hidden')
+    unmount()
+
+    renderDated([unrated, tomorrow])
+    expect(line()).not.toHaveClass('lg:hidden')
+  })
+
   it('leaves the all-zones card as it was: both days, no help, no collapsible outlook', () => {
     render(<DangerRating danger={[today, tomorrow]} elevationBandNames={bandNames} />)
 
