@@ -64,6 +64,8 @@ function summaryFixture(overrides: Partial<Summary> = {}): Summary {
   }
 }
 
+const ZONE_ID = '1'
+
 const weatherFixture: Weather = {
   id: 9,
   product_type: ProductType.Weather,
@@ -96,7 +98,7 @@ const problemFixture: AvalancheProblem = {
 
 describe('availablePrintSections', () => {
   it('offers bottom line and danger for a forecast, and nothing it has no content for', () => {
-    expect(availablePrintSections(forecastFixture(), null)).toEqual(['bottomLine'])
+    expect(availablePrintSections(forecastFixture(), null, ZONE_ID)).toEqual(['bottomLine'])
   })
 
   it('offers avalanche problems only when the forecast has some', () => {
@@ -104,39 +106,56 @@ describe('availablePrintSections', () => {
       availablePrintSections(
         forecastFixture({ forecast_avalanche_problems: [problemFixture] }),
         null,
+        ZONE_ID,
       ),
     ).toEqual(['bottomLine', 'problems'])
   })
 
   it('never offers avalanche problems for a summary, which carries none', () => {
-    expect(availablePrintSections(summaryFixture(), null)).toEqual(['bottomLine'])
+    expect(availablePrintSections(summaryFixture(), null, ZONE_ID)).toEqual(['bottomLine'])
   })
 
   it('offers the discussion only when the product has one', () => {
     expect(
-      availablePrintSections(forecastFixture({ hazard_discussion: null }), null),
+      availablePrintSections(forecastFixture({ hazard_discussion: null }), null, ZONE_ID),
     ).not.toContain('discussion')
     expect(
-      availablePrintSections(forecastFixture({ hazard_discussion: '<p>Spring.</p>' }), null),
+      availablePrintSections(
+        forecastFixture({ hazard_discussion: '<p>Spring.</p>' }),
+        null,
+        ZONE_ID,
+      ),
     ).toContain('discussion')
   })
 
   it('offers mountain weather only when a weather product was fetched', () => {
     // The legacy widget rendered this checkbox unconditionally, so centers that publish no
     // weather product got a checkbox that silently did nothing.
-    expect(availablePrintSections(forecastFixture(), null)).not.toContain('weather')
-    expect(availablePrintSections(forecastFixture(), weatherFixture)).toContain('weather')
+    expect(availablePrintSections(forecastFixture(), null, ZONE_ID)).not.toContain('weather')
+    expect(availablePrintSections(forecastFixture(), weatherFixture, ZONE_ID)).toContain('weather')
+  })
+
+  it('does not offer mountain weather when the product has nothing for this zone', () => {
+    // Only the zone's own table is shown, so another zone's table is not content for this page.
+    const otherZoneOnly: Weather = {
+      ...weatherFixture,
+      weather_discussion: ' ',
+      weather_data: [{ zone_id: '2', zone_name: 'Other Zone', periods: [], data: [] }],
+    }
+    expect(availablePrintSections(forecastFixture(), otherZoneOnly, ZONE_ID)).not.toContain(
+      'weather',
+    )
   })
 
   it('still offers bottom line and danger for a forecast with an empty bottom line', () => {
     // A forecast always has danger ratings, which ride on this same checkbox.
-    expect(availablePrintSections(forecastFixture({ bottom_line: null }), null)).toContain(
+    expect(availablePrintSections(forecastFixture({ bottom_line: null }), null, ZONE_ID)).toContain(
       'bottomLine',
     )
   })
 
   it('drops the bottom line checkbox on a summary with no bottom line, which has nothing to show', () => {
-    expect(availablePrintSections(summaryFixture({ bottom_line: null }), null)).toEqual([])
+    expect(availablePrintSections(summaryFixture({ bottom_line: null }), null, ZONE_ID)).toEqual([])
   })
 
   it('returns sections in a stable, canonical order', () => {
@@ -147,6 +166,7 @@ describe('availablePrintSections', () => {
           hazard_discussion: '<p>Spring.</p>',
         }),
         weatherFixture,
+        ZONE_ID,
       ),
     ).toEqual(['bottomLine', 'problems', 'discussion', 'weather'])
   })

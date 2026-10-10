@@ -15,6 +15,7 @@ import { warningBannerColor, warningBannerHeading } from '@/components/warnings/
 import type { WarningProduct } from '@/services/nac/model/forecast'
 import { formatDateTime } from '@/utilities/formatDateTime'
 
+import { forecastProse } from './forecastProse'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface WarningBannerProps {
@@ -81,7 +82,7 @@ function AlertDetail({ warning, color }: { warning: WarningProduct; color: strin
       )}
       {warning.hazard_discussion && (
         <div
-          className="prose max-w-none dark:prose-invert"
+          className={forecastProse}
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(warning.hazard_discussion) }}
         />
       )}

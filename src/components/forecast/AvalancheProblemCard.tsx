@@ -15,12 +15,13 @@ import {
 import type { ElevationBandNames } from '@/services/nac/types/schemas'
 import { cn } from '@/utilities/ui'
 
+import { labelHeading, subsectionHeading } from './forecastHeadings'
+import { forecastProse } from './forecastProse'
+import { toLightboxMedia, type LightboxMedia } from './lightboxMedia'
 import { LocatorRose } from './LocatorRose'
+import { getPosterUrl } from './mediaItem'
 import { ProblemMediaFigure } from './ProblemMediaFigure'
 import { LikelihoodSlider, SizeSlider } from './ProblemSlider'
-import { labelHeading, subsectionHeading } from './forecastHeadings'
-import { toLightboxMedia, type LightboxMedia } from './lightboxMedia'
-import { getPosterUrl } from './mediaItem'
 import { sanitizeHtml } from './sanitizeHtml'
 
 /** Maps problem names to local icon filenames at /images/problem-icons/{name}.png */
@@ -160,12 +161,7 @@ function ProblemDiscussion({
           isVideo={media.isVideo}
         />
       )}
-      {discussion && (
-        <GlossaryProse
-          html={sanitizeHtml(discussion)}
-          className="prose max-w-none dark:prose-invert"
-        />
-      )}
+      {discussion && <GlossaryProse html={sanitizeHtml(discussion)} className={forecastProse} />}
     </div>
   )
 }

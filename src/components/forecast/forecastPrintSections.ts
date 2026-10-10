@@ -10,6 +10,8 @@
  */
 import { ProductType, type ForecastResult, type Weather } from '@/services/nac/model/forecast'
 
+import { zoneWeather } from './zoneWeather'
+
 export const PRINT_SECTIONS = ['bottomLine', 'problems', 'discussion', 'weather'] as const
 
 export type PrintSection = (typeof PRINT_SECTIONS)[number]
@@ -37,10 +39,12 @@ export const DEFAULT_PRINT_SECTIONS: readonly PrintSection[] = ['bottomLine', 'p
  * Only offer a section the product actually has content for. The legacy modal rendered the
  * Mountain Weather checkbox unconditionally even though the section was gated on the weather
  * product existing, so centers that publish no weather product got a checkbox that did nothing.
+ * `zoneId` is the zone's short `zone_id`, since the weather section shows only that zone's table.
  */
 export function availablePrintSections(
   forecastResult: ForecastResult,
   weather: Weather | null | undefined,
+  zoneId: string,
 ): PrintSection[] {
   const isForecast = forecastResult.product_type === ProductType.Forecast
 
@@ -50,7 +54,7 @@ export function availablePrintSections(
   if (forecastResult.bottom_line || isForecast) sections.push('bottomLine')
   if (isForecast && forecastResult.forecast_avalanche_problems.length > 0) sections.push('problems')
   if (forecastResult.hazard_discussion) sections.push('discussion')
-  if (weather) sections.push('weather')
+  if (zoneWeather(weather, zoneId)) sections.push('weather')
 
   return sections
 }

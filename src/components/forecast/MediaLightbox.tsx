@@ -5,10 +5,12 @@ import { type ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 
 import { Lightbox, LightboxSlide, useLightboxCarousel } from '@/components/Lightbox'
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
+import { cn } from '@/utilities/ui'
 
-import { MediaSlide } from './MediaSlide'
+import { noBlockquoteQuotes } from './forecastProse'
 import type { LightboxMedia } from './lightboxMedia'
 import { resolveMediaSlide } from './mediaItem'
+import { MediaSlide } from './MediaSlide'
 
 interface MediaLightboxProps {
   /**
@@ -77,7 +79,7 @@ export function MediaLightbox({ media, initialIndex, open, onOpenChange }: Media
 function Caption({ html }: { html: string }) {
   return (
     <div
-      className="prose prose-sm prose-invert max-w-none text-white/80"
+      className={cn('prose prose-sm prose-invert max-w-none text-white/80', noBlockquoteQuotes)}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   )

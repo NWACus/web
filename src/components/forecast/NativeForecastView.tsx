@@ -33,19 +33,20 @@ import { ForecastDisclaimer } from './ForecastDisclaimer'
 import { ForecastDiscussion } from './ForecastDiscussion'
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ForecastHeader } from './ForecastHeader'
+import { sectionHeading } from './forecastHeadings'
 import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
 import { ForecastPrint } from './ForecastPrint.client'
-import { ValidityBanner } from './ValidityBanner'
-import { WarningBanner } from './WarningBanner'
-import { WeatherSummary } from './WeatherSummary'
-import { sectionHeading } from './forecastHeadings'
 import {
   availablePrintSections,
   forecastPrintFilename,
   type PrintSection,
 } from './forecastPrintSections'
 import { toLightboxMediaList } from './lightboxMedia'
+import { ValidityBanner } from './ValidityBanner'
+import { WarningBanner } from './WarningBanner'
+import { WeatherSummary } from './WeatherSummary'
 import { bottomLineDangerLevel } from './zoneCardDanger'
+import { zoneWeather } from './zoneWeather'
 
 interface NativeForecastViewProps {
   center: string
@@ -140,7 +141,7 @@ export function NativeForecastView({
         forecastResult={forecastResult}
         weather={weather}
         elevationBandNames={zone.zone.config.elevation_band_names}
-        zoneName={zone.zone.name}
+        zoneId={zone.zone.zone_id}
         timezone={timezone}
       />
 
@@ -179,7 +180,7 @@ function ForecastTitleRow({
 
       <ForecastErrorBoundary fallbackMessage="Unable to display the print control">
         <ForecastPrint
-          availableSections={availablePrintSections(forecastResult, weather)}
+          availableSections={availablePrintSections(forecastResult, weather, zone.zone.zone_id)}
           filename={forecastPrintFilename({
             centerSlug: center,
             zoneName: zone.zone.name,
@@ -233,7 +234,8 @@ interface ForecastPanelProps {
   forecastResult: ForecastResult
   weather: Weather | null | undefined
   elevationBandNames: ElevationBandNames
-  zoneName: string
+  /** The zone's short `zone_id` string, which picks its Mountain Weather table. */
+  zoneId: string
   timezone: string | null | undefined
 }
 
@@ -258,12 +260,12 @@ function ForecastPanel(props: ForecastPanelProps) {
   )
 }
 
-function hasPanelContent({ forecastResult, weather }: ForecastPanelProps): boolean {
+function hasPanelContent({ forecastResult, weather, zoneId }: ForecastPanelProps): boolean {
   return (
     forecastResult.product_type === ProductType.Forecast ||
     Boolean(forecastResult.hazard_discussion) ||
     hasMedia(forecastResult) ||
-    Boolean(weather)
+    zoneWeather(weather, zoneId) !== null
   )
 }
 
@@ -331,13 +333,13 @@ function MediaPanelSection({ forecastResult }: ForecastPanelProps) {
   )
 }
 
-function WeatherPanelSection({ weather, zoneName, timezone }: ForecastPanelProps) {
+function WeatherPanelSection({ weather, zoneId, timezone }: ForecastPanelProps) {
   if (!weather) return null
 
   return (
     <PanelSection printSection="weather">
       <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
-        <WeatherSummary weather={weather} zoneName={zoneName} timezone={timezone} />
+        <WeatherSummary weather={weather} zoneId={zoneId} timezone={timezone} />
       </ForecastErrorBoundary>
     </PanelSection>
   )
