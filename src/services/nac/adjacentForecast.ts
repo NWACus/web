@@ -6,7 +6,8 @@
  * picker's calendar asks for, so the two share cache entries — and stops at the first month that
  * holds a product. It is bounded by the calendar's own range: never before the calendar start, and
  * never past tomorrow (an evening forecast is valid for the next day). The fetch is injected so
- * the walk is unit-testable without the network.
+ * the walk is unit-testable without the network. The dated page walks it too, to find a long
+ * summary that covers a day from before the months the page loads.
  */
 import { addDays } from 'date-fns/addDays'
 import { addMonths } from 'date-fns/addMonths'
@@ -15,7 +16,7 @@ import { format } from 'date-fns/format'
 import { parseISO } from 'date-fns/parseISO'
 import { startOfMonth } from 'date-fns/startOfMonth'
 
-import { isCalendarDate } from './archiveDates'
+import { coversDay, isCalendarDate, type ZoneArchiveDate } from './archiveDates'
 
 export type AdjacentDirection = 'older' | 'newer'
 
@@ -133,4 +134,39 @@ export async function findAdjacentDate({
   }
 
   return null
+}
+
+/**
+ * The covering product for a day whose dated page loaded nothing earlier than it: the zone's
+ * nearest older product, found by the arrows' month walk back from `windowStart`, if it was still
+ * valid when the day began. A summary can outlast the page's two-month window — a 09-15 summary
+ * valid to 11-21 covers 11-10, whose window starts 10-01. Rejects when a month can't be read.
+ */
+export async function findCoveringDateBeforeWindow({
+  date,
+  windowStart,
+  calendarStart,
+  timezone,
+  fetchEntries,
+}: {
+  date: string
+  windowStart: string
+  calendarStart: string
+  timezone: string | null | undefined
+  fetchEntries: (window: MonthWindow) => Promise<ZoneArchiveDate[]>
+}): Promise<string | null> {
+  const seen = new Map<string, ZoneArchiveDate>()
+  const older = await findAdjacentDate({
+    date: windowStart,
+    direction: 'older',
+    bound: calendarStart,
+    fetchDates: async (window) => {
+      const entries = await fetchEntries(window)
+      for (const entry of entries) seen.set(entry.date, entry)
+      return entries.map((entry) => entry.date)
+    },
+  })
+
+  const nearest = older ? seen.get(older) : undefined
+  return nearest && coversDay(nearest, date, timezone) ? nearest.date : null
 }

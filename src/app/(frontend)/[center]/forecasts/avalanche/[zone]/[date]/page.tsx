@@ -6,6 +6,11 @@ import { CurrentForecastRedirect } from '@/components/forecast/CurrentForecastRe
 import { NativeForecastView } from '@/components/forecast/NativeForecastView'
 import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 import {
+  findCoveringDateBeforeWindow,
+  isWithinCalendar,
+  latestValidDate,
+} from '@/services/nac/adjacentForecast'
+import {
   buildZoneArchiveDates,
   findCoveringProductDate,
   findProductIdForDate,
@@ -21,6 +26,7 @@ import {
 import { findDatedForecast } from '@/services/nac/datedForecast'
 import {
   fetchProductArchive,
+  fetchProductArchiveOrThrow,
   fetchProductById,
   getAvalancheCenterMetadata,
   getAvalancheCenterPlatforms,
@@ -98,19 +104,52 @@ async function liveProductFor(center: string, zone: DatedForecastZone) {
   return getForecastSource(center).getForecast(center, zone.zone.id)
 }
 
+interface CoveringSearch {
+  center: string
+  zone: DatedForecastZone
+  /** The page's loaded window and its zone dates, newest first. */
+  window: { from: string; to: string }
+  archiveDates: ZoneArchiveDate[]
+  date: string
+  timezone: string
+  calendarStart: string
+}
+
+/**
+ * The covering product when the window loaded nothing before `date`: the nearest older product
+ * past it, if still valid. Only inside the picker's calendar, which bounds the month walk.
+ */
+async function coveringDateBeforeWindow(search: CoveringSearch): Promise<string | null> {
+  const { center, zone, window, date, timezone, calendarStart } = search
+  if (!isWithinCalendar(date, calendarStart, latestValidDate())) return null
+
+  return findCoveringDateBeforeWindow({
+    date,
+    windowStart: window.from,
+    calendarStart,
+    timezone,
+    fetchEntries: async (month) =>
+      buildZoneArchiveDates(
+        await fetchProductArchiveOrThrow(center, month),
+        zone.zone.id,
+        timezone,
+      ),
+  })
+}
+
 /**
  * A day with no product of its own opens the product that covers it — a multi-day summary still
  * valid that morning — at that product's own dated address, which hands over to the live page in
  * turn when it is the live one. A temporary redirect: a later product for this day would replace
  * it. Otherwise the address 404s.
  */
-function redirectToCoveringProduct(
-  archiveDates: ZoneArchiveDate[],
-  date: string,
-  timezone: string,
-  zoneSlug: string,
-): never {
-  const covering = findCoveringProductDate(archiveDates, date, timezone)
+async function redirectToCoveringProduct(search: CoveringSearch, zoneSlug: string): Promise<never> {
+  const { archiveDates, date, timezone } = search
+  const loadedEarlier = archiveDates.some((entry) => entry.date < date)
+  const covering = loadedEarlier
+    ? findCoveringProductDate(archiveDates, date, timezone)
+    : await coveringDateBeforeWindow(search)
+
   if (covering && covering !== date) redirect(`/forecasts/avalanche/${zoneSlug}/${covering}`)
   notFound()
 }
@@ -142,7 +181,18 @@ export default async function Page({ params }: Args) {
   const productId = findProductIdForDate(initialDates, date)
 
   if (productId === null) {
-    redirectToCoveringProduct(initialDates, date, metadata.timezone, zone)
+    return redirectToCoveringProduct(
+      {
+        center,
+        zone: resolvedZone,
+        window,
+        archiveDates: initialDates,
+        date,
+        timezone: metadata.timezone,
+        calendarStart: forecastPickerSettings(metadata).calendarStart,
+      },
+      zone,
+    )
   }
 
   const [forecastResult, currentProduct] = await Promise.all([

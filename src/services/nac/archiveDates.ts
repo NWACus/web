@@ -209,12 +209,21 @@ export function findCoveringProductDate(
 ): string | null {
   if (archiveDates.some((entry) => entry.date === date)) return date
 
-  const dayStart = startOfValidDay(date, timezone).getTime()
   const covering = archiveDates.find(
-    (entry) =>
-      entry.date < date && entry.expiresTime !== null && Date.parse(entry.expiresTime) > dayStart,
+    (entry) => entry.date < date && coversDay(entry, date, timezone),
   )
   return covering?.date ?? null
+}
+
+/** Whether a product was still valid when `date` began in the center's timezone. */
+export function coversDay(
+  entry: ZoneArchiveDate,
+  date: string,
+  timezone: string | null | undefined,
+): boolean {
+  if (entry.expiresTime === null) return false
+
+  return Date.parse(entry.expiresTime) > startOfValidDay(date, timezone).getTime()
 }
 
 /**

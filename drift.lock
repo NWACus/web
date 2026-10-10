@@ -158,7 +158,7 @@ sig = "2f6941731c97ccaa"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/[zone]/[date]/page.tsx"
-sig = "3a729d93de081c7c"
+sig = "47ca9356f60e209a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -393,12 +393,12 @@ sig = "620e3b1733d93855"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/adjacentForecast.ts"
-sig = "6ed082351bbf71c0"
+sig = "753d056d3881b84c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/archiveDates.ts"
-sig = "b23dc205b8ab4743"
+sig = "e95d4f885a4d66de"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
