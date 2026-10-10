@@ -199,10 +199,10 @@ function DangerDay({
 }
 
 /**
- * The hover/focus preview: the rating in words, then a small elevation triangle of the day's
- * danger — or "No Danger Rating", as the widget shows for a rating of 0 or below, or a product
- * with no danger. Hidden until its day is hovered or focused; screen readers get the same text
- * through the day's `aria-describedby`.
+ * The hover/focus preview, styled as the widget's day popover: a gray box below the day with the
+ * elevation triangle of the day's danger — or "No Danger Rating", as the widget shows for a rating
+ * of 0 or below, or a product with no danger. The widget shows no rating in words, so that is for
+ * screen readers only, through the day's `aria-describedby`.
  */
 function DayPreview({ id, day }: { id: string; day: ForecastArchiveDate }) {
   const danger = day.dangerRating > 0 ? day.danger : null
@@ -212,18 +212,21 @@ function DayPreview({ id, day }: { id: string; day: ForecastArchiveDate }) {
     <span
       id={id}
       role="tooltip"
-      className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1 hidden -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap rounded-md border bg-popover px-2 py-1 text-xs text-popover-foreground shadow-md group-focus-within/preview:flex group-hover/preview:flex"
+      // The `before:` borders draw the caret pointing up at the day, in the box's own gray.
+      className="pointer-events-none absolute left-1/2 top-full z-20 mt-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-sm bg-[#797d80] p-1 text-xs font-medium text-white shadow-lg before:absolute before:bottom-full before:left-1/2 before:-translate-x-1/2 before:border-x-[6px] before:border-b-[6px] before:border-x-transparent before:border-b-[#797d80] before:content-[''] group-focus-within/preview:block group-hover/preview:block"
     >
-      <span className="font-semibold capitalize">{label}</span>
       {danger ? (
-        <DangerTriangle
-          upper={dangerLevelFromRating(danger.upper ?? 0)}
-          middle={dangerLevelFromRating(danger.middle ?? 0)}
-          lower={dangerLevelFromRating(danger.lower ?? 0)}
-          className="h-9 w-8"
-        />
+        <>
+          <span className="sr-only">{label}</span>
+          <DangerTriangle
+            upper={dangerLevelFromRating(danger.upper ?? 0)}
+            middle={dangerLevelFromRating(danger.middle ?? 0)}
+            lower={dangerLevelFromRating(danger.lower ?? 0)}
+            className="block h-[60px] w-[50px]"
+          />
+        </>
       ) : (
-        <span>No Danger Rating</span>
+        'No Danger Rating'
       )}
     </span>
   )

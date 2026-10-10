@@ -114,7 +114,7 @@ describe('ForecastDatePicker', () => {
     openCalendar('Feb 9, 2026')
 
     const day = screen.getByRole('link', { name: 'Mon Feb 09 2026' })
-    expect(day).toHaveAccessibleDescription('no rating No Danger Rating')
+    expect(day).toHaveAccessibleDescription('No Danger Rating')
   })
 
   it('leaves a future day inert', () => {
