@@ -184,7 +184,8 @@ export async function generateMetadata(
 
   const zoneName = formatZoneName(zone)
   const dateLabel = DATE_PATTERN.test(date) ? format(parseISO(date), 'MMMM d, yyyy') : date
-  const title = `${zoneName} - Avalanche Forecast for ${dateLabel}`
+  // `<title>` and `og:title` alike: a shared archived forecast must not read as today's.
+  const title = `${zoneName} - Archived Avalanche Forecast for ${dateLabel}`
   const url = `/forecasts/avalanche/${zone}/${date}`
 
   const [parentMeta, description] = await Promise.all([

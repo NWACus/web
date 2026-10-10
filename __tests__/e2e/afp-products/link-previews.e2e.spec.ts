@@ -77,7 +77,9 @@ test.describe('Link previews', () => {
     await loadPage(page, `${tenant('snfac')}${DATED_PATH}`)
 
     const title = await page.title()
-    expect(title).toBe('Soldier & Wood River Valley Mtns - Avalanche Forecast for April 5, 2026')
+    expect(title).toBe(
+      'Soldier & Wood River Valley Mtns - Archived Avalanche Forecast for April 5, 2026',
+    )
     expect(await ogContent(page, 'og:title')).toBe(title)
     expect(new URL((await ogContent(page, 'og:url')) ?? '').pathname).toBe(DATED_PATH)
     expect(await ogContent(page, 'og:description')).toBe(BOTTOM_LINE_TEXT)

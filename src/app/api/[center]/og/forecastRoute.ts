@@ -1,4 +1,7 @@
 import { isCalendarDate } from '@/services/nac/archiveDates'
+import { asUtcTimestamp } from '@/services/nac/dangerMap/dangerMapZones'
+import type { ZoneProperties } from '@/services/nac/model/mapLayer'
+import { formatDateTime } from '@/utilities/formatDateTime'
 import { format, parseISO, subDays } from 'date-fns'
 
 const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
@@ -73,9 +76,48 @@ export function forecastImageCacheControl(
   return LIVE_IMAGE_CACHE_CONTROL
 }
 
-/** "Avalanche Forecast", or "Avalanche Forecast · April 1, 2026" for an archived day's card. */
-export function forecastImageSubtitle(day: string | null): string {
-  return day
-    ? `Avalanche Forecast · ${format(parseISO(day), 'MMMM d, yyyy')}`
-    : 'Avalanche Forecast'
+/** The zone card's words, and whether its rating is muted. */
+export interface ForecastCardText {
+  /** The warning strip across the top of an archived card; null on the live card. */
+  banner: string | null
+  subtitle: string
+  /** The travel-advice line, or null when the day has none. */
+  advice: string | null
+  /** An archived card dims its badge and icon so the rating doesn't read as live. */
+  mutedRating: boolean
+}
+
+type CardDanger = Pick<ZoneProperties, 'end_date' | 'timezone' | 'travel_advice'>
+
+/** "Apr 2, 2026 7:00 AM PDT" from the map layer's naive-UTC `end_date`, or null if unusable. */
+function expiryText(danger: CardDanger | null): string | null {
+  if (!danger?.end_date) return null
+
+  const instant = asUtcTimestamp(danger.end_date)
+  if (Number.isNaN(Date.parse(instant))) return null
+
+  return formatDateTime(instant, danger.timezone, 'MMM d, yyyy h:mm a zzz')
+}
+
+/** "Archived forecast · Expired Apr 2, 2026 7:00 AM PDT", or the day itself without an expiry. */
+function archivedSubtitle(day: string, danger: CardDanger | null): string {
+  const expiry = expiryText(danger)
+  return `Archived forecast · ${expiry ? `Expired ${expiry}` : format(parseISO(day), 'MMMM d, yyyy')}`
+}
+
+/**
+ * The live card is unchanged. An archived day's card must not pass for current conditions: a
+ * warning strip, an "Archived forecast · Expired …" subtitle, a muted rating, and the travel advice
+ * marked as that day's.
+ */
+export function forecastCardText(day: string | null, danger: CardDanger | null): ForecastCardText {
+  const advice = danger?.travel_advice || null
+  if (!day) return { banner: null, subtitle: 'Avalanche Forecast', advice, mutedRating: false }
+
+  return {
+    banner: 'EXPIRED FORECAST — NOT CURRENT CONDITIONS',
+    subtitle: archivedSubtitle(day, danger),
+    advice: advice && `That day: ${advice}`,
+    mutedRating: true,
+  }
 }

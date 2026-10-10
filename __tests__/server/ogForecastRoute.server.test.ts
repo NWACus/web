@@ -1,6 +1,6 @@
 import {
+  forecastCardText,
   forecastImageCacheControl,
-  forecastImageSubtitle,
   parseForecastRoute,
 } from '@/app/api/[center]/og/forecastRoute'
 
@@ -91,12 +91,49 @@ describe('forecastImageCacheControl', () => {
   })
 })
 
-describe('forecastImageSubtitle', () => {
-  it('names the day on an archived card', () => {
-    expect(forecastImageSubtitle('2026-04-01')).toBe('Avalanche Forecast · April 1, 2026')
+describe('forecastCardText', () => {
+  // Stevens Pass on 2026-04-01 as the v2 map layer returns it (`?day=2026-04-01`).
+  const stevensPassApril1 = {
+    end_date: '2026-04-02T01:30:00',
+    timezone: 'America/Los_Angeles',
+    travel_advice:
+      'Generally safe avalanche conditions. Watch for unstable snow on isolated terrain features.',
+  }
+
+  it('leaves the live card as it was', () => {
+    expect(forecastCardText(null, stevensPassApril1)).toEqual({
+      banner: null,
+      subtitle: 'Avalanche Forecast',
+      advice: stevensPassApril1.travel_advice,
+      mutedRating: false,
+    })
   })
 
-  it('stays plain on the live card', () => {
-    expect(forecastImageSubtitle(null)).toBe('Avalanche Forecast')
+  it('marks an archived card as expired everywhere a reader looks', () => {
+    expect(forecastCardText('2026-04-01', stevensPassApril1)).toEqual({
+      banner: 'EXPIRED FORECAST — NOT CURRENT CONDITIONS',
+      // The naive end_date is UTC: 01:30Z on Apr 2 is 6:30 PM Pacific on Apr 1.
+      subtitle: 'Archived forecast · Expired Apr 1, 2026 6:30 PM PDT',
+      advice: `That day: ${stevensPassApril1.travel_advice}`,
+      mutedRating: true,
+    })
+  })
+
+  it('falls back to the day when there is no usable expiry', () => {
+    const subtitle = 'Archived forecast · April 1, 2026'
+    expect(forecastCardText('2026-04-01', null).subtitle).toBe(subtitle)
+    expect(forecastCardText('2026-04-01', { ...stevensPassApril1, end_date: null }).subtitle).toBe(
+      subtitle,
+    )
+    expect(
+      forecastCardText('2026-04-01', { ...stevensPassApril1, end_date: 'not a date' }).subtitle,
+    ).toBe(subtitle)
+  })
+
+  it('has no advice line when the day had none', () => {
+    expect(forecastCardText('2026-04-01', null).advice).toBeNull()
+    expect(
+      forecastCardText('2026-04-01', { ...stevensPassApril1, travel_advice: null }).advice,
+    ).toBeNull()
   })
 })
