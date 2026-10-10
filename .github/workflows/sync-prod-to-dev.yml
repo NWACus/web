@@ -1,4 +1,8 @@
 name: Sync Production to Dev
+# Shares development.yaml's group: both destroy and re-clone payloadcms-dev, so they must never overlap.
+concurrency:
+  group: payloadcms-dev
+  cancel-in-progress: false
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -77,12 +81,29 @@ jobs:
         run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --no-sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Variables into .env file
         run: vercel env pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }} .env
+      - name: Snapshot database before migrations
+        # Warn-only: the diff reports what migrations changed but never blocks the deploy.
+        # Output is public, so the report leaves out row ids and table sizes (see docs/migration-safety.md).
+        continue-on-error: true
+        timeout-minutes: 10
+        run: pnpm db:diff before "${RUNNER_TEMP}/db-diff"
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
       - name: Run database migrations
         run: pnpm migrate
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Diff database after migrations
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        timeout-minutes: 10
+        run: pnpm db:diff after "${RUNNER_TEMP}/db-diff"
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
       - name: Sanitize database
         id: sanitize
         run: pnpm sanitize

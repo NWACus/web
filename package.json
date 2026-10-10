@@ -49,6 +49,7 @@
     "check:centers": "tsx ./src/scripts/check-centers.ts",
     "migrate:check": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/check-migrations.ts",
     "migrate:diff": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/analyze-migration-diff.ts",
+    "db:diff": "cross-env NODE_OPTIONS=--no-deprecation tsx ./src/scripts/db-diff/index.ts",
     "email:build": "email build",
     "email:dev": "email dev --dir ./src/emails --port 3001",
     "email:export": "email export",
