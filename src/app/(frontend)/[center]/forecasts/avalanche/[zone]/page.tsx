@@ -4,16 +4,20 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { ogImageUrlForZone } from '@/app/api/[center]/og/buildOgImageUrl'
 import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
 import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
 import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
-import { ProductType } from '@/services/nac/model/forecast'
+import { zoneOgImageVersion } from '@/services/nac/forecastFingerprint'
+import { ProductType, type ForecastResult } from '@/services/nac/model/forecast'
 import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
 import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
+import { centerShortName } from '@/utilities/centerShortName'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
+import { htmlToDescription } from '@/utilities/htmlToDescription'
 import { notFound } from 'next/navigation'
 
 // `main`'s 30 min for the widget. A native render reads the forecast through a 300s fetch, which
@@ -113,6 +117,42 @@ export default async function Page({ params }: Args) {
   )
 }
 
+/**
+ * The native forecast the page renders, or `undefined` on a widget center, which never reads one.
+ * The same cached read the page makes, so metadata costs no extra upstream request.
+ */
+async function readNativeForecast(
+  center: string,
+  zone: string,
+): Promise<ForecastResult | null | undefined> {
+  if (!(await getNativeProductFlag(center, 'forecast'))) return undefined
+
+  const resolved = await resolveZoneFromSlug(center, zone)
+  if (!resolved) return undefined
+
+  return getForecastSource(center).getForecast(center, resolved.zone.id)
+}
+
+/**
+ * The forecaster's bottom line when the page renders a native forecast, otherwise the map-layer
+ * travel advice, as plain text.
+ */
+function previewDescription(
+  travelAdvice: string | null | undefined,
+  forecast: ForecastResult | null | undefined,
+): string | undefined {
+  const bottomLine = forecast?.product_type === ProductType.Forecast ? forecast.bottom_line : null
+  return htmlToDescription(bottomLine) ?? htmlToDescription(travelAdvice)
+}
+
+/**
+ * "Stevens Pass - Avalanche Forecast | NWAC", for both `<title>` and `og:title`. The short name
+ * keeps the zone in view in a tab or a preview; other pages keep the layout's full center name.
+ */
+function zoneForecastTitle(center: string, zone: string): string {
+  return `${formatZoneName(zone)} - Avalanche Forecast | ${centerShortName(center)}`
+}
+
 export async function generateMetadata(
   { params }: Args,
   parent: Promise<ResolvedMetadata>,
@@ -121,35 +161,18 @@ export async function generateMetadata(
   const { center, zone: zoneParam } = await params
   const zone = zoneSlugFromParam(zoneParam)
 
-  const parentTitle =
-    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
-      ? parentMeta.title.absolute
-      : parentMeta.title
-
   const parentOg = parentMeta.openGraph
 
-  const zoneName = formatZoneName(zone)
-  const title = `${zoneName} - Avalanche Forecast | ${parentTitle}`
+  const title = zoneForecastTitle(center, zone)
 
-  // Description: the forecaster's bottom line when native mode is on (richer), otherwise the
-  // map-layer travel advice. The og:image is always the live dynamic OG route.
   const danger = await getForecastZoneDanger(center, zone).catch(() => null)
-  let description = danger?.travel_advice ?? undefined
-
-  const useNative = await getNativeProductFlag(center, 'forecast')
-  if (useNative) {
-    const resolved = await resolveZoneFromSlug(center, zone)
-    if (resolved) {
-      const forecast = await getForecastSource(center).getForecast(center, resolved.zone.id)
-      if (forecast && forecast.product_type === ProductType.Forecast && forecast.bottom_line) {
-        description = forecast.bottom_line
-      }
-    }
-  }
+  const forecast = await readNativeForecast(center, zone)
+  const description = previewDescription(danger?.travel_advice, forecast)
+  const described = description ? { description } : {}
 
   return {
     title,
-    ...(description ? { description } : {}),
+    ...described,
     alternates: {
       canonical: `/forecasts/avalanche/${zone}`,
     },
@@ -157,12 +180,12 @@ export async function generateMetadata(
       ...parentOg,
       title,
       url: `/forecasts/avalanche/${zone}`,
-      ...(description ? { description } : {}),
+      ...described,
       images: [
         {
-          // Encoded because the slug carries a literal `&` for zones whose name contains one,
-          // which would otherwise end the query parameter early.
-          url: `/api/${center}/og?route=${encodeURIComponent(`forecasts/avalanche/${zone}`)}`,
+          // Versioned by the forecast, so a link shared after a change isn't given a cached image
+          // of the old rating.
+          url: ogImageUrlForZone(center, zone, zoneOgImageVersion(danger, forecast)),
           width: 1200,
           height: 630,
         },

@@ -4,8 +4,10 @@ import {
   productFingerprint,
   weatherFreshnessEndpoint,
   weatherPageFingerprint,
+  zoneOgImageVersion,
 } from '@/services/nac/forecastFingerprint'
 import { ProductType } from '@/services/nac/model/forecast'
+import type { ZoneProperties } from '@/services/nac/model/mapLayer'
 import { mapV2ForecastResult, mapV2Weather } from '@/services/nac/sources/v2/mappers'
 import { forecastResultSchema, weatherSchema } from '@/services/nac/types/forecastSchemas'
 import { isFingerprint } from '@/utilities/freshnessResponses'
@@ -173,5 +175,63 @@ describe('weatherFreshnessEndpoint', () => {
   it('ends in a segment the route will accept', () => {
     const segments = weatherFreshnessEndpoint('sac', null).split('/')
     expect(isFingerprint(segments[segments.length - 1])).toBe(true)
+  })
+})
+
+describe('zoneOgImageVersion', () => {
+  const forecast = mapV2ForecastResult(forecastResultSchema.parse(nwacForecastActive))
+  const danger: ZoneProperties = {
+    name: 'Stevens Pass',
+    center: 'Northwest Avalanche Center',
+    center_link: null,
+    timezone: 'America/Los_Angeles',
+    center_id: 'NWAC',
+    state: 'WA',
+    off_season: false,
+    travel_advice: 'Dangerous avalanche conditions.',
+    danger: 'considerable',
+    danger_level: 3,
+    color: '#f7941e',
+    stroke: null,
+    font_color: '#ffffff',
+    link: 'https://nwac.us/avalanche-forecast/#/stevens-pass',
+    start_date: '2026-01-05T14:00:00',
+    end_date: '2026-01-06T14:00:00',
+    warning: { product: null },
+  }
+
+  it('versions a widget center by its map-layer danger alone', () => {
+    // A widget center's metadata never reads the forecast, so the key can't need it.
+    const version = zoneOgImageVersion(danger, undefined)
+    expect(version).toMatch(/^[0-9a-f]{16}$/)
+    expect(zoneOgImageVersion({ ...danger }, undefined)).toBe(version)
+  })
+
+  it('moves when the rating the image draws changes', () => {
+    const raised = { ...danger, danger: 'high', danger_level: 4 }
+    expect(zoneOgImageVersion(raised, undefined)).not.toBe(zoneOgImageVersion(danger, undefined))
+  })
+
+  it('moves when the zone gets its next day’s forecast', () => {
+    const tomorrow = {
+      ...danger,
+      start_date: '2026-01-06T14:00:00',
+      end_date: '2026-01-07T14:00:00',
+    }
+    expect(zoneOgImageVersion(tomorrow, undefined)).not.toBe(zoneOgImageVersion(danger, undefined))
+  })
+
+  it('moves on a native forecast correction the map layer has not caught up with yet', () => {
+    const corrected = { ...forecast, bottom_line: `${forecast.bottom_line ?? ''} (corrected)` }
+    expect(zoneOgImageVersion(danger, corrected)).not.toBe(zoneOgImageVersion(danger, forecast))
+  })
+
+  it('still versions a native page whose map-layer read failed', () => {
+    expect(zoneOgImageVersion(null, forecast)).toMatch(/^[0-9a-f]{16}$/)
+  })
+
+  it('is null with nothing to key on, so the URL goes unversioned', () => {
+    expect(zoneOgImageVersion(null, undefined)).toBeNull()
+    expect(zoneOgImageVersion(null, null)).toBeNull()
   })
 })

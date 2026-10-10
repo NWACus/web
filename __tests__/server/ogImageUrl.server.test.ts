@@ -1,4 +1,8 @@
-import { ogImageUrlForDoc } from '@/app/api/[center]/og/buildOgImageUrl'
+import {
+  ogImageUrlForDatedZone,
+  ogImageUrlForDoc,
+  ogImageUrlForZone,
+} from '@/app/api/[center]/og/buildOgImageUrl'
 
 describe('ogImageUrlForDoc', () => {
   it('builds a blog post OG image URL', () => {
@@ -18,5 +22,34 @@ describe('ogImageUrlForDoc', () => {
     expect(url).toBe('/api/snfac/og?type=post&slug=a+%26+b')
     // the resolvable slug round-trips out of the query string
     expect(new URLSearchParams(url.split('?')[1]).get('slug')).toBe('a & b')
+  })
+})
+
+describe('ogImageUrlForZone', () => {
+  it('builds a versioned zone OG image URL', () => {
+    expect(ogImageUrlForZone('nwac', 'stevens-pass', '0123456789abcdef')).toBe(
+      '/api/nwac/og?route=forecasts%2Favalanche%2Fstevens-pass&v=0123456789abcdef',
+    )
+  })
+
+  it('leaves the version off when there is none', () => {
+    expect(ogImageUrlForZone('nwac', 'stevens-pass', null)).toBe(
+      '/api/nwac/og?route=forecasts%2Favalanche%2Fstevens-pass',
+    )
+  })
+
+  it('encodes a zone slug carrying a literal &, so it cannot end the route parameter early', () => {
+    const url = ogImageUrlForZone('snfac', 'soldier-&-wood-river-valley-mtns', 'abc')
+    const search = new URLSearchParams(url.split('?')[1])
+    expect(search.get('route')).toBe('forecasts/avalanche/soldier-&-wood-river-valley-mtns')
+    expect(search.get('v')).toBe('abc')
+  })
+})
+
+describe('ogImageUrlForDatedZone', () => {
+  it('puts the date in the route, unversioned', () => {
+    const url = ogImageUrlForDatedZone('nwac', 'stevens-pass', '2026-04-01')
+    expect(url).toBe('/api/nwac/og?route=forecasts%2Favalanche%2Fstevens-pass%2F2026-04-01')
+    expect(new URLSearchParams(url.split('?')[1]).get('v')).toBeNull()
   })
 })
