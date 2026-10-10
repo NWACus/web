@@ -163,7 +163,7 @@ sig = "47ca9356f60e209a"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/[zone]/page.tsx"
-sig = "336823ce2cf06cc8"
+sig = "977dbf597b55369b"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -328,7 +328,7 @@ sig = "2fc6d01b927f646f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/NativeForecastPage.tsx"
-sig = "f9e348d2ee6db1e4"
+sig = "736195d14edc89cc"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

@@ -1,4 +1,4 @@
-import { productTypeTitle } from '../../src/services/nac/productTypeTitle'
+import { productTabLabel, productTypeTitle } from '../../src/services/nac/productTypeTitle'
 import { ProductType } from '../../src/services/nac/types/forecastSchemas'
 
 describe('productTypeTitle', () => {
@@ -16,4 +16,16 @@ describe('productTypeTitle', () => {
       expect(productTypeTitle(productType)).toBe('General Avalanche Information')
     },
   )
+})
+
+describe('productTabLabel', () => {
+  it('keeps the short "Avalanche Forecast" for a forecast, or when the product is unknown', () => {
+    expect(productTabLabel(ProductType.Forecast)).toBe('Avalanche Forecast')
+    expect(productTabLabel(undefined)).toBe('Avalanche Forecast')
+    expect(productTabLabel(null)).toBe('Avalanche Forecast')
+  })
+
+  it('names a summary as general avalanche information', () => {
+    expect(productTabLabel(ProductType.Summary)).toBe('General Avalanche Information')
+  })
 })

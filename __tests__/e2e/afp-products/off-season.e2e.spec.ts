@@ -20,6 +20,8 @@ test.describe('Off-season degradation', () => {
         exact: true,
       }),
     ).toBeVisible()
+    // The tab names the product too, not "Avalanche Forecast" (Forecast-6).
+    await expect(page).toHaveTitle(/ - General Avalanche Information \| SNFAC$/)
     await expect(page.getByRole('heading', { name: 'Avalanche Danger' })).toHaveCount(0)
     await expect(page.getByText('0 - No Rating')).toHaveCount(0)
     await expect(page.getByRole('heading', { name: /^Avalanche Problems \(/ })).toHaveCount(0)

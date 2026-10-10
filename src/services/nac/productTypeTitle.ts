@@ -11,3 +11,13 @@ const GENERAL_INFORMATION_TITLE = 'General Avalanche Information'
 export function productTypeTitle(productType: ProductType): string {
   return productType === ProductType.Forecast ? FORECAST_TITLE : GENERAL_INFORMATION_TITLE
 }
+
+/**
+ * The product's name in a browser tab or link-preview title. Unlike the heading this stays the
+ * short "Avalanche Forecast" for a forecast, and for a widget center, whose product we never read.
+ */
+export function productTabLabel(productType: ProductType | null | undefined): string {
+  return productType == null || productType === ProductType.Forecast
+    ? 'Avalanche Forecast'
+    : GENERAL_INFORMATION_TITLE
+}

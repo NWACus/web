@@ -11,6 +11,7 @@ import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
 import { zoneOgImageVersion } from '@/services/nac/forecastFingerprint'
 import { ProductType, type ForecastResult } from '@/services/nac/model/forecast'
 import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { productTabLabel } from '@/services/nac/productTypeTitle'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
 import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
@@ -146,11 +147,16 @@ function previewDescription(
 }
 
 /**
- * "Stevens Pass - Avalanche Forecast | NWAC", for both `<title>` and `og:title`. The short name
- * keeps the zone in view in a tab or a preview; other pages keep the layout's full center name.
+ * "Stevens Pass - Avalanche Forecast | NWAC", for both `<title>` and `og:title`, or "General
+ * Avalanche Information" for a summary. The short name keeps the zone in view in a tab or a
+ * preview; other pages keep the layout's full center name.
  */
-function zoneForecastTitle(center: string, zone: string): string {
-  return `${formatZoneName(zone)} - Avalanche Forecast | ${centerShortName(center)}`
+function zoneForecastTitle(
+  center: string,
+  zone: string,
+  forecast: ForecastResult | null | undefined,
+): string {
+  return `${formatZoneName(zone)} - ${productTabLabel(forecast?.product_type)} | ${centerShortName(center)}`
 }
 
 export async function generateMetadata(
@@ -163,10 +169,9 @@ export async function generateMetadata(
 
   const parentOg = parentMeta.openGraph
 
-  const title = zoneForecastTitle(center, zone)
-
   const danger = await getForecastZoneDanger(center, zone).catch(() => null)
   const forecast = await readNativeForecast(center, zone)
+  const title = zoneForecastTitle(center, zone, forecast)
   const description = previewDescription(danger?.travel_advice, forecast)
   const described = description ? { description } : {}
 
