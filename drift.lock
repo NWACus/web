@@ -233,12 +233,12 @@ sig = "523c64a479aa916d"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/og/forecastRoute.ts"
-sig = "c8cd6c6ea5a809b6"
+sig = "d948bafb9e09eeda"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/og/route.tsx"
-sig = "0f51e91bf351640e"
+sig = "5342a390d5f19e6a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
