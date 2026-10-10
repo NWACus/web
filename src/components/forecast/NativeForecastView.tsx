@@ -22,6 +22,7 @@ import {
 import { productTypeTitle } from '@/services/nac/productTypeTitle'
 import type { ForecastZoneFacts } from '@/services/nac/resolveZone'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
+import { MapPin } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -263,7 +264,9 @@ function ForecastTitleRow({
         <span className="block text-2xl font-bold tracking-tight sm:text-3xl printWide:text-3xl">
           {productTypeTitle(forecastResult.product_type)}
         </span>{' '}
-        <span className="block text-lg font-semibold tracking-tight text-muted-foreground sm:text-xl printWide:text-xl">
+        <span className="flex items-center gap-1.5 text-lg font-semibold tracking-tight text-muted-foreground sm:text-xl printWide:text-xl">
+          {/* The widget's map marker; its printout drops it. */}
+          <MapPin aria-hidden className="size-5 shrink-0 print:hidden" />
           {zone.zone.name}
         </span>
       </h1>
