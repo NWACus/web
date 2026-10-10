@@ -11,7 +11,7 @@ import {
 } from '@/services/nac/adjacentForecast'
 import { buildZoneArchiveDates, forecastCalendarStart } from '@/services/nac/archiveDates'
 import { fetchProductArchiveOrThrow, getAvalancheCenterMetadata } from '@/services/nac/nac'
-import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
+import { resolveDatedZoneFromSlug } from '@/services/nac/resolveZone'
 import { NO_STORE } from '@/utilities/apiResponses'
 import { nativeProductGate } from '@/utilities/nativeProductGate'
 import { NextRequest, NextResponse } from 'next/server'
@@ -38,7 +38,7 @@ async function searchAdjacent(center: string, query: AdjacentQuery): Promise<Adj
   const latest = latestValidDate()
   if (!isWithinCalendar(query.date, calendarStart, latest)) return OUTSIDE_CALENDAR
 
-  const zone = await resolveZoneFromSlug(center, query.zoneSlug)
+  const zone = await resolveDatedZoneFromSlug(center, query.zoneSlug)
   if (!zone) return ZONE_NOT_FOUND
 
   const date = await findAdjacentDate({

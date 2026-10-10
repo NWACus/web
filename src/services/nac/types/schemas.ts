@@ -205,6 +205,10 @@ export const avalancheForecastZoneSchema = z.discriminatedUnion('status', [
     name: z.string(),
     zone_id: z.string(),
     status: z.literal(AvalancheForecastZoneStatus.Disabled),
+    // A retired zone keeps dated addresses for its past forecasts, which need its slug and band
+    // names. Caught: a malformed retired zone costs only its own archive, not the center's metadata.
+    url: z.string().nullable().optional().catch(null),
+    config: avalancheForecastZoneConfigurationSchema.optional().catch(undefined),
   }),
 ])
 

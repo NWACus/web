@@ -19,7 +19,7 @@ import {
   type WarningProduct,
   type Weather,
 } from '@/services/nac/model/forecast'
-import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
+import type { ForecastZoneFacts } from '@/services/nac/resolveZone'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -50,7 +50,8 @@ import { zoneWeather } from './zoneWeather'
 
 interface NativeForecastViewProps {
   center: string
-  zone: ActiveForecastZoneWithSlug
+  /** `active` is false only on a retired zone's dated page: that zone has no live page. */
+  zone: { slug: string; zone: ForecastZoneFacts; active?: boolean }
   timezone: string | null | undefined
   forecastResult: ForecastResult
   /** Active warning banner — live view only; null for historical/dated views. */
@@ -119,6 +120,7 @@ export function NativeForecastView({
         warning={warning}
         selectedDate={selectedDate}
         basePath={basePath}
+        hasLivePage={zone.active !== false}
       />
 
       {/* `data-print-section` marks what the print dialog's checkboxes toggle; the print
@@ -253,10 +255,11 @@ function ForecastMasthead({
   warning,
   selectedDate,
   basePath,
+  hasLivePage,
 }: Pick<
   NativeForecastViewProps,
   'timezone' | 'forecastResult' | 'warning' | 'selectedDate' | 'basePath'
->) {
+> & { hasLivePage: boolean }) {
   return (
     <>
       {/* Warning banner */}
@@ -266,7 +269,12 @@ function ForecastMasthead({
 
       {/* Validity-date banner: archived on a dated view, expired on the live view */}
       <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
-        <ValidityBanner forecast={forecastResult} selectedDate={selectedDate} basePath={basePath} />
+        <ValidityBanner
+          forecast={forecastResult}
+          selectedDate={selectedDate}
+          basePath={basePath}
+          hasLivePage={hasLivePage}
+        />
       </ForecastErrorBoundary>
 
       {/* Header: issued, expires, author */}

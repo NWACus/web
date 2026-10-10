@@ -13,7 +13,7 @@ jest.mock('../../src/services/nac/nac', () => ({
 
 const mockResolveZone = jest.fn()
 jest.mock('../../src/services/nac/resolveZone', () => ({
-  resolveZoneFromSlug: (...a: unknown[]) => mockResolveZone(...a),
+  resolveDatedZoneFromSlug: (...a: unknown[]) => mockResolveZone(...a),
 }))
 
 import { GET } from '@/app/api/[center]/forecast-archive/adjacent/route'

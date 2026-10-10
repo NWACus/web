@@ -12,6 +12,7 @@ jest.mock('../../src/services/nac/nac', () => ({
 }))
 jest.mock('../../src/services/nac/resolveZone', () => ({
   resolveZoneFromSlug: (...a: unknown[]) => mockUpstream('zone', ...a),
+  resolveDatedZoneFromSlug: (...a: unknown[]) => mockUpstream('zone', ...a),
 }))
 jest.mock('../../src/services/nac/dangerMap/mapLayer', () => ({
   getZoneMapLayer: (...a: unknown[]) => mockUpstream('mapLayer', ...a),
@@ -31,6 +32,7 @@ jest.mock('../../src/services/stations/getStationPages', () => ({
 import { GET as dangerMap } from '@/app/api/[center]/danger-map/route'
 import { GET as forecastArchiveAdjacent } from '@/app/api/[center]/forecast-archive/adjacent/route'
 import { GET as forecastArchive } from '@/app/api/[center]/forecast-archive/route'
+import { GET as forecastCurrentDate } from '@/app/api/[center]/forecast-current-date/[zone]/route'
 import { GET as stationMap } from '@/app/api/[center]/station-map/route'
 import { NextRequest } from 'next/server'
 
@@ -71,6 +73,14 @@ describe.each([
         ),
         { params },
       ),
+  ],
+  [
+    'forecast-current-date',
+    'forecast',
+    () =>
+      forecastCurrentDate(new Request('http://x/api/nwac/forecast-current-date/z'), {
+        params: Promise.resolve({ center: 'nwac', zone: 'z' }),
+      }),
   ],
 ])('%s', (_route, product, call) => {
   it(`404s without reading upstream when the center has native ${product} off`, async () => {

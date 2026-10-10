@@ -32,6 +32,9 @@ export const productListItemSchema = z
     danger_level_text: z.string().nullable().optional().catch(null),
     danger: z.array(dangerEntrySchema).nullable().optional().catch(null),
     author: z.string().nullable().optional(),
+    // When the product stops being valid. Lets a dated address with no product of its own find
+    // the one that covers it; caught, so a malformed value just covers nothing.
+    expires_time: z.string().nullable().optional().catch(null),
     // Null on stub forecasts (NWAC 2019–2020, SAC 2019–2021), which every legacy view hides.
     // Kept so the native pages can apply the same rule.
     updated_at: z.string().nullable().optional(),

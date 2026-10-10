@@ -1,6 +1,7 @@
 import {
   adjacentSearchWindows,
   findAdjacentDate,
+  findCoveringDateBeforeWindow,
   isWithinCalendar,
   latestValidDate,
   nearestDate,
@@ -139,5 +140,77 @@ describe('findAdjacentDate', () => {
         },
       }),
     ).rejects.toThrow('NAC down')
+  })
+})
+
+describe('findCoveringDateBeforeWindow', () => {
+  const PACIFIC = 'America/Los_Angeles'
+  const entry = (date: string, expiresTime: string | null) => ({
+    date,
+    productId: Number(date.replaceAll('-', '')),
+    productType: 'summary',
+    dangerRating: -1,
+    dangerLevelText: null,
+    danger: null,
+    expiresTime,
+  })
+  /** A fake archive serving each entry from whichever month window holds its date. */
+  function archive(entries: ReturnType<typeof entry>[]) {
+    return jest.fn(async (window: MonthWindow) =>
+      entries.filter((e) => e.date >= window.from && e.date <= window.to),
+    )
+  }
+
+  // stevens-pass: the 2026-09-15 summary runs to 2026-11-21, past the 11-10 page's Oct–Nov window.
+  const summary = entry('2026-09-15', '2026-11-21T02:30:00+00:00')
+
+  it('finds a summary published before the window that still covers the day', async () => {
+    await expect(
+      findCoveringDateBeforeWindow({
+        date: '2026-11-10',
+        windowStart: '2026-10-01',
+        calendarStart: '2019-09-01',
+        timezone: PACIFIC,
+        fetchEntries: archive([entry('2026-04-20', '2026-04-21T02:30:00+00:00'), summary]),
+      }),
+    ).resolves.toBe('2026-09-15')
+  })
+
+  it('finds nothing once that summary has expired', async () => {
+    await expect(
+      findCoveringDateBeforeWindow({
+        date: '2026-11-22',
+        windowStart: '2026-10-01',
+        calendarStart: '2019-09-01',
+        timezone: PACIFIC,
+        fetchEntries: archive([summary]),
+      }),
+    ).resolves.toBeNull()
+  })
+
+  it('looks only at the nearest older product, not one it superseded', async () => {
+    const longer = entry('2026-08-01', '2026-12-31T00:00:00+00:00')
+    const nearest = entry('2026-09-15', '2026-09-16T02:30:00+00:00')
+    await expect(
+      findCoveringDateBeforeWindow({
+        date: '2026-11-10',
+        windowStart: '2026-10-01',
+        calendarStart: '2019-09-01',
+        timezone: PACIFIC,
+        fetchEntries: archive([longer, nearest]),
+      }),
+    ).resolves.toBeNull()
+  })
+
+  it('finds nothing when no product precedes the window', async () => {
+    await expect(
+      findCoveringDateBeforeWindow({
+        date: '2019-11-10',
+        windowStart: '2019-10-01',
+        calendarStart: '2019-09-01',
+        timezone: PACIFIC,
+        fetchEntries: archive([]),
+      }),
+    ).resolves.toBeNull()
   })
 })

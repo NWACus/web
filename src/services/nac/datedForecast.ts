@@ -1,12 +1,13 @@
 import { buildZoneArchiveDates, findProductIdForDate, initialArchiveWindow } from './archiveDates'
 import type { ForecastResult } from './model/forecast'
 import { fetchProductArchive, fetchProductById, getAvalancheCenterMetadata } from './nac'
-import { resolveZoneFromSlug } from './resolveZone'
+import { resolveDatedZoneFromSlug } from './resolveZone'
 
 /**
  * The product a dated forecast address shows: the zone-day's product in the archive window the
  * dated page loads, fetched by id. These are the same cached reads the page makes, so calling this
- * beside it (from its metadata) adds no upstream request. Null when there is no such product.
+ * beside it (from its metadata) adds no upstream request. Resolves retired zones too, as the dated
+ * page does. Null when there is no such product.
  */
 export async function findDatedForecast(
   centerSlug: string,
@@ -14,7 +15,7 @@ export async function findDatedForecast(
   date: string,
 ): Promise<ForecastResult | null> {
   const [resolvedZone, metadata] = await Promise.all([
-    resolveZoneFromSlug(centerSlug, zoneSlug),
+    resolveDatedZoneFromSlug(centerSlug, zoneSlug),
     getAvalancheCenterMetadata(centerSlug),
   ])
   if (!resolvedZone) return null

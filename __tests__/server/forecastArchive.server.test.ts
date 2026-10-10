@@ -35,6 +35,7 @@ function item(
     danger_level_text: 'moderate',
     current_danger: null,
     author: 'Forecaster',
+    expires_time: null,
     updated_at: '2026-01-10T02:30:00+00:00',
     forecast_zone: [{ id: 1 }],
     ...partial,
