@@ -408,7 +408,7 @@ sig = "bc09f4e9ef0b2a29"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/datedForecast.ts"
-sig = "adbdf7d16d8b7b04"
+sig = "21def7236a5e5d8a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
