@@ -6,9 +6,8 @@
 import { buildZoneArchiveDates, parseArchiveWindowQuery } from '@/services/nac/archiveDates'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
-import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
-import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
+import { NO_STORE } from '@/utilities/apiResponses'
+import { nativeProductGate } from '@/utilities/nativeProductGate'
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
@@ -22,8 +21,8 @@ export async function GET(
   { params }: { params: Promise<{ center: string }> },
 ) {
   const { center } = await params
-  if (!isValidTenantSlug(center)) return unknownCenterResponse()
-  if (!(await getNativeProductFlag(center, 'forecast'))) return productDisabledResponse()
+  const blocked = await nativeProductGate(center, 'forecast')
+  if (blocked) return blocked
 
   const searchParams = request.nextUrl.searchParams
   const query = parseArchiveWindowQuery(

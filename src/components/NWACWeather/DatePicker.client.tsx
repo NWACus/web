@@ -8,7 +8,7 @@
  * dated page never ships the whole list. Today lives at `/weather/forecast`; any other date at
  * `/weather/forecast/<date>`.
  */
-import { endOfMonth, format, parseISO, startOfMonth } from 'date-fns'
+import { parseISO, startOfMonth } from 'date-fns'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useEffect, useMemo, useState, type ComponentProps } from 'react'
@@ -19,13 +19,12 @@ import {
   DatePickerBar,
   DatePickerPopover,
   MutedDay,
+  useMonthLoader,
 } from '@/components/forecast/DatePickerParts.client'
 import {
   adjacentForecastHrefs,
   dayKey,
   forecastHref,
-  monthKey,
-  monthsBetween,
   triggerLabel,
 } from '@/components/forecast/datePickerNavigation'
 import { Calendar } from '@/components/ui/calendar'
@@ -53,26 +52,9 @@ async function fetchMonth(from: string, to: string): Promise<string[] | null> {
 /** The published dates loaded so far, growing as the calendar pages into unloaded months. */
 function usePublishedDates(initialDates: string[], initialRange: { from: string; to: string }) {
   const [published, setPublished] = useState(() => new Set(initialDates))
-  const [loadedMonths, setLoadedMonths] = useState(
-    () => new Set(monthsBetween(initialRange.from, initialRange.to)),
+  const { loading, loadMonth } = useMonthLoader(initialRange, fetchMonth, (fetched) =>
+    setPublished((prev) => new Set([...prev, ...fetched])),
   )
-  const [loading, setLoading] = useState(false)
-
-  const loadMonth = async (target: Date) => {
-    const month = monthKey(target)
-    if (loadedMonths.has(month)) return
-
-    setLoading(true)
-    const fetched = await fetchMonth(
-      format(startOfMonth(target), 'yyyy-MM-dd'),
-      format(endOfMonth(target), 'yyyy-MM-dd'),
-    )
-    if (fetched) {
-      setPublished((prev) => new Set([...prev, ...fetched]))
-      setLoadedMonths((prev) => new Set(prev).add(month))
-    }
-    setLoading(false)
-  }
 
   return { published, loading, loadMonth }
 }

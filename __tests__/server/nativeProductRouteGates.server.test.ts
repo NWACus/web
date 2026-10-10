@@ -8,6 +8,7 @@ const mockUpstream = jest.fn()
 jest.mock('../../src/services/nac/nac', () => ({
   getAvalancheCenterMetadata: (...a: unknown[]) => mockUpstream('metadata', ...a),
   fetchProductArchive: (...a: unknown[]) => mockUpstream('archive', ...a),
+  fetchProductArchiveOrThrow: (...a: unknown[]) => mockUpstream('archive', ...a),
 }))
 jest.mock('../../src/services/nac/resolveZone', () => ({
   resolveZoneFromSlug: (...a: unknown[]) => mockUpstream('zone', ...a),
@@ -28,6 +29,7 @@ jest.mock('../../src/services/stations/getStationPages', () => ({
 }))
 
 import { GET as dangerMap } from '@/app/api/[center]/danger-map/route'
+import { GET as forecastArchiveAdjacent } from '@/app/api/[center]/forecast-archive/adjacent/route'
 import { GET as forecastArchive } from '@/app/api/[center]/forecast-archive/route'
 import { GET as stationMap } from '@/app/api/[center]/station-map/route'
 import { NextRequest } from 'next/server'
@@ -56,6 +58,17 @@ describe.each([
     () =>
       forecastArchive(
         new NextRequest('http://x/api/nwac/forecast-archive?zone=z&from=2026-01-01&to=2026-01-31'),
+        { params },
+      ),
+  ],
+  [
+    'forecast-archive/adjacent',
+    'forecast',
+    () =>
+      forecastArchiveAdjacent(
+        new NextRequest(
+          'http://x/api/nwac/forecast-archive/adjacent?zone=z&date=2026-01-01&dir=older',
+        ),
         { params },
       ),
   ],

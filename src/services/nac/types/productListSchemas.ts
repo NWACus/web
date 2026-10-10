@@ -12,6 +12,13 @@
  */
 import { z } from 'zod'
 
+const dangerEntrySchema = z.object({
+  lower: z.number().nullable().optional(),
+  middle: z.number().nullable().optional(),
+  upper: z.number().nullable().optional(),
+  valid_day: z.string().nullable().optional(),
+})
+
 export const productListItemSchema = z
   .object({
     id: z.number(),
@@ -19,6 +26,11 @@ export const productListItemSchema = z
     published_time: z.string(),
     // Top-level overall danger rating (0-5; -1 = general info). Used to color the date picker.
     danger_rating: z.number().nullable().optional(),
+    // The overall rating in words ("moderate", "no rating"), and the per-elevation danger by day.
+    // Both feed the date picker's day preview only, so a malformed value costs that preview
+    // rather than failing the whole archive.
+    danger_level_text: z.string().nullable().optional().catch(null),
+    danger: z.array(dangerEntrySchema).nullable().optional().catch(null),
     author: z.string().nullable().optional(),
     // Null on stub forecasts (NWAC 2019–2020, SAC 2019–2021), which every legacy view hides.
     // Kept so the native pages can apply the same rule.
@@ -33,6 +45,6 @@ export const productListItemSchema = z
         .passthrough(),
     ),
   })
-  // Tolerate the many archive columns we don't consume (danger, bottom_line, ...).
+  // Tolerate the many archive columns we don't consume (bottom_line, json_data, ...).
   .passthrough()
 export const productListSchema = z.array(productListItemSchema)

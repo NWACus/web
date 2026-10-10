@@ -6,6 +6,7 @@
  */
 import {
   buildZoneArchiveDates,
+  forecastPickerSettings,
   initialArchiveWindow,
   validDateForProduct,
 } from '@/services/nac/archiveDates'
@@ -92,6 +93,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
           currentDate={currentDate}
           selectedDate={null}
           basePath={`/forecasts/avalanche/${zoneSlug}`}
+          pickerSettings={forecastPickerSettings(metadata)}
           centerType={metadata.type}
           weather={weather}
         />

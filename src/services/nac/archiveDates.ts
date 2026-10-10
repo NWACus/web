@@ -23,7 +23,7 @@ const RENDERABLE_PRODUCT_TYPES = new Set(['forecast', 'summary'])
 /**
  * The minimal slice of an archive product this module and the archive browser need. The full
  * archive is ~10MB for NWAC — too large for Next's 2MB data cache — so callers cache only these
- * fields (~1.5MB for the whole NWAC archive; every caller narrows by date window, so no cache
+ * fields (~2MB for the whole NWAC archive; every caller narrows by date window, so no cache
  * entry actually holds all of it).
  */
 export interface ArchiveProductSummary {
@@ -32,6 +32,10 @@ export interface ArchiveProductSummary {
   published_time: string
   /** Overall danger rating (0-5; -1 = general info). Used to color the picker. */
   danger_rating: number
+  /** The overall rating in words ("moderate"), for the picker's day preview. */
+  danger_level_text: string | null
+  /** The current day's per-elevation danger, for the picker's day preview. */
+  current_danger: ElevationDanger | null
   /** Forecaster name, for the archive browser's rows. Null on bulk-imported history. */
   author: string | null
   /**
@@ -40,6 +44,38 @@ export interface ArchiveProductSummary {
    */
   updated_at: string | null
   forecast_zone: { id: number }[]
+}
+
+/** One day's danger by elevation band (-1..5), null where the product leaves a band unrated. */
+export interface ElevationDanger {
+  upper: number | null
+  middle: number | null
+  lower: number | null
+}
+
+/**
+ * The `current` entry of a list product's `danger` — the day the product is valid for, which the
+ * picker previews. Null when the product carries none.
+ */
+export function currentElevationDanger(
+  danger:
+    | {
+        upper?: number | null
+        middle?: number | null
+        lower?: number | null
+        valid_day?: string | null
+      }[]
+    | null
+    | undefined,
+): ElevationDanger | null {
+  const current = danger?.find((entry) => entry.valid_day === 'current')
+  if (!current) return null
+
+  return {
+    upper: current.upper ?? null,
+    middle: current.middle ?? null,
+    lower: current.lower ?? null,
+  }
 }
 
 export interface ZoneArchiveDate {
@@ -51,6 +87,10 @@ export interface ZoneArchiveDate {
   productType: string
   /** Overall danger rating (0-5; -1 = general info) for coloring the calendar day. */
   dangerRating: number
+  /** The overall rating in words, shown when the reader hovers or focuses the day. */
+  dangerLevelText: string | null
+  /** The day's danger by elevation, drawn as the preview's triangle. */
+  danger: ElevationDanger | null
 }
 
 /**
@@ -114,10 +154,7 @@ export function buildZoneArchiveDates(
   zoneId: number,
   timezone: string | null | undefined,
 ): ZoneArchiveDate[] {
-  const byDate = new Map<
-    string,
-    { productId: number; productType: string; publishedTime: string; dangerRating: number }
-  >()
+  const byDate = new Map<string, ArchiveProductSummary>()
 
   for (const item of items) {
     if (!RENDERABLE_PRODUCT_TYPES.has(item.product_type) || item.updated_at === null) continue
@@ -128,22 +165,17 @@ export function buildZoneArchiveDates(
 
     const existing = byDate.get(date)
     // ISO-8601 timestamps compare correctly as strings; keep the latest publication.
-    if (!existing || item.published_time > existing.publishedTime) {
-      byDate.set(date, {
-        productId: item.id,
-        productType: item.product_type,
-        publishedTime: item.published_time,
-        dangerRating: item.danger_rating,
-      })
-    }
+    if (!existing || item.published_time > existing.published_time) byDate.set(date, item)
   }
 
   return Array.from(byDate.entries())
-    .map(([date, value]) => ({
+    .map(([date, item]) => ({
       date,
-      productId: value.productId,
-      productType: value.productType,
-      dangerRating: value.dangerRating,
+      productId: item.id,
+      productType: item.product_type,
+      dangerRating: item.danger_rating,
+      dangerLevelText: item.danger_level_text,
+      danger: item.current_danger,
     }))
     .sort((a, b) => b.date.localeCompare(a.date))
 }
@@ -163,6 +195,38 @@ export function initialArchiveWindow(anchor: string | null): { from: string; to:
   return {
     from: format(startOfMonth(subMonths(date, 1)), 'yyyy-MM-dd'),
     to: format(endOfMonth(date), 'yyyy-MM-dd'),
+  }
+}
+
+/** The season the legacy widget's calendar opens on when a center sets no `start_year`. */
+const DEFAULT_CALENDAR_START_YEAR = 2019
+
+/**
+ * The first day the date picker offers, as `YYYY-MM-DD`: September 1 of the year before the
+ * center's `start_year` (a season's ending year), or September 1, 2019 when that is unset.
+ * Returned as a plain calendar day so the client builds it as a *local* date — the widget's
+ * `new Date('YYYY-09-01')` parses as UTC midnight, which is still August 31 in US timezones.
+ */
+export function forecastCalendarStart(startYear: number | undefined): string {
+  const year = startYear ? startYear - 1 : DEFAULT_CALENDAR_START_YEAR
+  return `${year}-09-01`
+}
+
+/** What the forecast date picker needs from the center's own configuration. */
+export interface ForecastPickerSettings {
+  /** First day the calendar offers, `YYYY-MM-DD` (see `forecastCalendarStart`). */
+  calendarStart: string
+  /** The widget names the zone in the dropdown only when the center has more than one. */
+  showZoneName: boolean
+}
+
+export function forecastPickerSettings(center: {
+  widget_config: { forecast?: { start_year?: number } }
+  zones: { status: string }[]
+}): ForecastPickerSettings {
+  return {
+    calendarStart: forecastCalendarStart(center.widget_config.forecast?.start_year),
+    showZoneName: center.zones.filter((zone) => zone.status === 'active').length > 1,
   }
 }
 

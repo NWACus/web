@@ -10,7 +10,7 @@
  */
 import type { ReactNode } from 'react'
 
-import type { ZoneArchiveDate } from '@/services/nac/archiveDates'
+import type { ForecastPickerSettings, ZoneArchiveDate } from '@/services/nac/archiveDates'
 import {
   ProductType,
   type AvalancheProblem,
@@ -65,6 +65,8 @@ interface NativeForecastViewProps {
   selectedDate: string | null
   /** Tenant-relative zone base path, e.g. `/forecasts/avalanche/west-slopes-north`. */
   basePath: string
+  /** The picker's calendar range and zone heading, from the center's configuration. */
+  pickerSettings: ForecastPickerSettings
   /** Avalanche center type, for the scope disclaimer's provider wording (USFS vs center name). */
   centerType: AvalancheCenterType
   /** The separately-issued weather product, when one is available (live page only). */
@@ -82,6 +84,7 @@ export function NativeForecastView({
   currentDate,
   selectedDate,
   basePath,
+  pickerSettings,
   centerType,
   weather,
 }: NativeForecastViewProps) {
@@ -90,22 +93,16 @@ export function NativeForecastView({
     // rhythm costs about three quarters of an inch before the bottom line — enough to decide
     // whether the danger card clears the first page boundary. See print.css.
     <div className="container space-y-6 py-6 print:space-y-4 print:py-0">
-      {/* Date picker — browse this zone's published forecast history, colored by danger.
-          Screen-only: an interactive calendar is noise on paper. */}
-      <ForecastErrorBoundary fallbackMessage="Unable to display the date picker">
-        <div data-print-hide>
-          <ForecastDatePicker
-            center={center}
-            zoneSlug={zone.slug}
-            zoneName={zone.zone.name}
-            basePath={basePath}
-            selectedDate={selectedDate}
-            currentDate={currentDate}
-            initialDates={initialDates.map((d) => ({ date: d.date, dangerRating: d.dangerRating }))}
-            initialRange={initialRange}
-          />
-        </div>
-      </ForecastErrorBoundary>
+      <DatePickerSection
+        center={center}
+        zone={zone}
+        initialDates={initialDates}
+        initialRange={initialRange}
+        currentDate={currentDate}
+        selectedDate={selectedDate}
+        basePath={basePath}
+        pickerSettings={pickerSettings}
+      />
 
       <ForecastTitleRow
         center={center}
@@ -151,6 +148,56 @@ export function NativeForecastView({
         centerName={forecastResult.avalanche_center.name}
       />
     </div>
+  )
+}
+
+/**
+ * The date picker — browse this zone's published forecast history, colored by danger.
+ * Screen-only: an interactive calendar is noise on paper. Each day ships only what the calendar
+ * draws, not the product id it resolves to server-side.
+ */
+function DatePickerSection({
+  center,
+  zone,
+  initialDates,
+  initialRange,
+  currentDate,
+  selectedDate,
+  basePath,
+  pickerSettings,
+}: Pick<
+  NativeForecastViewProps,
+  | 'center'
+  | 'zone'
+  | 'initialDates'
+  | 'initialRange'
+  | 'currentDate'
+  | 'selectedDate'
+  | 'basePath'
+  | 'pickerSettings'
+>) {
+  return (
+    <ForecastErrorBoundary fallbackMessage="Unable to display the date picker">
+      <div data-print-hide>
+        <ForecastDatePicker
+          center={center}
+          zoneSlug={zone.slug}
+          zoneName={zone.zone.name}
+          basePath={basePath}
+          selectedDate={selectedDate}
+          currentDate={currentDate}
+          initialDates={initialDates.map(({ date, dangerRating, dangerLevelText, danger }) => ({
+            date,
+            dangerRating,
+            dangerLevelText,
+            danger,
+          }))}
+          initialRange={initialRange}
+          calendarStart={pickerSettings.calendarStart}
+          showZoneName={pickerSettings.showZoneName}
+        />
+      </div>
+    </ForecastErrorBoundary>
   )
 }
 
