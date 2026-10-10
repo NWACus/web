@@ -1459,7 +1459,7 @@ export interface BuiltInPage {
   createdAt: string;
 }
 /**
- * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.
+ * A public weather page for a group of SnowObs stations as a table, graphs and CSV download.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "stationPages".
@@ -1496,6 +1496,14 @@ export interface StationPage {
         | 'equip_temperature'
       )[]
     | null;
+  /**
+   * Which views the page shows. An archived page shows only Download.
+   */
+  tabs?: {
+    table?: boolean | null;
+    graphs?: boolean | null;
+    csv?: boolean | null;
+  };
   /**
    * The hardware is gone but the history is still queryable, so the page stays up for downloads.
    */
@@ -4267,6 +4275,13 @@ export interface StationPagesSelect<T extends boolean = true> {
   slug?: T;
   stations?: T;
   columns?: T;
+  tabs?:
+    | T
+    | {
+        table?: T;
+        graphs?: T;
+        csv?: T;
+      };
   archived?: T;
   contentHash?: T;
   updatedAt?: T;

@@ -9,6 +9,7 @@ import {
   revalidateStationPagesDelete,
 } from '@/services/stations/revalidate'
 import { STATION_COLUMNS } from '@/services/stations/stationColumns'
+import { stationTabFields } from '@/services/stations/stationTabs'
 import { CollectionConfig } from 'payload'
 import { trackedStations } from './endpoints/trackedStations'
 
@@ -34,8 +35,15 @@ export const StationPages: CollectionConfig<'stationPages'> = {
     group: 'Content',
     defaultColumns: ['displayName', 'slug', 'archived'],
     useAsTitle: 'displayName',
+    components: {
+      edit: {
+        beforeDocumentControls: [
+          '@/collections/StationPages/components/ViewStationPageButton#ViewStationPageButton',
+        ],
+      },
+    },
     description:
-      'The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.',
+      'A public weather page for a group of SnowObs stations as a table, graphs and CSV download.',
   },
   defaultSort: 'displayName',
   endpoints: [{ path: '/tracked-stations', method: 'get', handler: trackedStations }],
@@ -50,6 +58,8 @@ export const StationPages: CollectionConfig<'stationPages'> = {
     stationsField({
       name: 'stations',
       label: 'Stations',
+      description:
+        'The SnowObs stations this page shows, in this order, on its table, graphs and download. Drag to reorder, or search below to add one.',
     }),
     {
       name: 'columns',
@@ -61,6 +71,16 @@ export const StationPages: CollectionConfig<'stationPages'> = {
         description:
           'Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.',
       },
+    },
+    {
+      name: 'tabs',
+      type: 'group',
+      label: 'Tabs',
+      admin: {
+        position: 'sidebar',
+        description: 'Which views the page shows. An archived page shows only Download.',
+      },
+      fields: stationTabFields,
     },
     {
       name: 'archived',

@@ -137,3 +137,73 @@ describe('buildStationTable', () => {
     expect(mountain.latestObservation).toBe(table.latestObservation)
   })
 })
+
+describe('buildStationTable with stations on different schedules', () => {
+  // A logger on the hour beside an airport reporting every few minutes, with a
+  // rolling one-hour precip total.
+  const mixed: SnowObsTimeseriesResponse = {
+    UNITS: { air_temp: 'Fahrenheit', precip_accum_one_hour: 'Inches' },
+    VARIABLES: [
+      { variable: 'air_temp', long_name: 'Air Temperature' },
+      { variable: 'precip_accum_one_hour', long_name: 'Precipitation (1 hr)' },
+    ],
+    STATION: [
+      {
+        id: '1',
+        stid: '1',
+        source: 'nwac',
+        name: 'Logger',
+        observations: {
+          date_time: ['2026-07-07T01:00:00Z', '2026-07-07T02:00:00Z'],
+          air_temp: [40, 41],
+        },
+      },
+      {
+        id: 'KSEA',
+        stid: 'KSEA',
+        source: 'mesowest',
+        name: 'Airport',
+        observations: {
+          date_time: [
+            '2026-07-07T00:55:00Z',
+            '2026-07-07T01:45:00Z',
+            '2026-07-07T01:53:00Z',
+            '2026-07-07T01:58:00Z',
+            '2026-07-07T02:10:00Z',
+          ],
+          air_temp: [60, 61, 62, null, 63],
+          precip_accum_one_hour: [0.1, 0.2, 0.2, 0.2, 0.3],
+        },
+      },
+    ],
+  }
+  const columns = [
+    { station: { stid: '1', source: 'nwac' }, variable: 'air_temp' },
+    { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'air_temp' },
+    { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'precip_accum_one_hour' },
+  ]
+  // 02:20Z: the 02:10 reading belongs to the 03:00 row, which hasn't come yet.
+  const now = Date.parse('2026-07-07T02:20:00Z')
+  const table = buildStationTable('nwac', mixed, columns, now)
+
+  it('gives one row per hour, dropping the hour still in progress', () => {
+    expect(table.rows.map((r) => r.display)).toEqual(['07/06 19:00', '07/06 18:00'])
+  })
+
+  it("shows each station's latest non-null reading up to the row's hour", () => {
+    const [two, one] = table.rows
+    expect(two.values).toMatchObject({ 'nwac:1_air_temp': 41, 'mesowest:KSEA_air_temp': 62 })
+    expect(one.values).toMatchObject({ 'nwac:1_air_temp': 40, 'mesowest:KSEA_air_temp': 60 })
+  })
+
+  it('totals precip over the hourly values, not every reading', () => {
+    const [two, one] = table.rows
+    expect(one.values['mesowest:KSEA_precip_cumsum']).toBe(0.1)
+    expect(two.values['mesowest:KSEA_precip_cumsum']).toBe(0.3)
+  })
+
+  it('reports the newest reading at its own time', () => {
+    expect(table.latestObservation).toBe(Date.parse('2026-07-07T02:10:00Z'))
+    expect(table.latestDisplay).toBe('07/06 19:10')
+  })
+})

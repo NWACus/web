@@ -36,7 +36,9 @@ export type StationTable = {
   columns: TableColumn[]
   rows: TableRow[]
   timezoneLabel: string
+  /** The newest reading's own time, which may fall inside the hour after the top row. */
   latestObservation: number | null
+  latestDisplay: string | null
 }
 
 // Running cumulative precip; nulls pass through and don't advance the total.
@@ -84,6 +86,25 @@ export type StationNote = {
   startDate: string | null
 }
 
+export type StationSummary = { key: string; name: string; elevation: number | null }
+
+// A page's stations in its own order, named from the response; a station
+// SnowObs didn't return falls back to its stid.
+export function stationSummaries(
+  refs: StationRef[],
+  stations: ResponseStation[],
+): StationSummary[] {
+  const byKey = new Map(stations.map((s) => [stationKey(s), s]))
+  return refs.map((ref) => {
+    const found = byKey.get(stationKey(ref))
+    return {
+      key: stationKey(ref),
+      name: found?.name ?? ref.stid,
+      elevation: found?.elevation ?? null,
+    }
+  })
+}
+
 // Active notes first, then newest first; undated notes keep their SnowObs order.
 // A note whose end date has passed is over, whatever its status says.
 export function stationNotes(stations: ResponseStation[], now = new Date()): StationNote[] {
@@ -122,19 +143,6 @@ function hasEnded(endDate: string | null | undefined, now: Date): boolean {
 function raisedAt(note: StationNote): number {
   const ms = note.startDate ? Date.parse(note.startDate) : Number.NaN
   return Number.isNaN(ms) ? -Infinity : ms
-}
-
-// Numeric series for a config column; computes cumulative precip on the fly.
-function columnSeries(
-  station: ResponseStation | undefined,
-  variable: string,
-): (number | null)[] | undefined {
-  if (!station) return undefined
-  if (variable === PRECIP_CUMSUM) {
-    const hourly = numericSeries(station.observations, PRECIP_HOURLY)
-    return hourly ? computePrecipCumsum(hourly) : undefined
-  }
-  return numericSeries(station.observations, variable)
 }
 
 // Header metadata for a config column.
@@ -283,21 +291,91 @@ export function buildPrecipAccumulationTable(
   }
 }
 
-// Builds a render-ready table: newest-first rows, full-outer-joined across the
-// group's stations, with a cumulative-precip column after each hourly-precip one.
+const HOUR_MS = 60 * 60 * 1000
+
+// The hour a reading belongs to: the top of the hour at or after it, so the
+// 14:00 row shows each station "as of 14:00" (KSEA's 13:53, KMHS's 13:56).
+function rowHour(t: number): number {
+  return Math.ceil(t / HOUR_MS) * HOUR_MS
+}
+
+// One value per hour: the station's latest non-null reading in that hour.
+function hourlyValues(
+  times: string[],
+  values: (number | null)[],
+  now: number,
+): Map<number, number | null> {
+  const byHour = new Map<number, { t: number; v: number | null }>()
+  times.forEach((iso, i) => {
+    const t = new Date(iso).getTime()
+    const hour = rowHour(t)
+    // The hour still in progress would be labelled with a time yet to come.
+    if (!Number.isFinite(t) || hour > now) return
+    const v = values[i] ?? null
+    const kept = byHour.get(hour)
+    if (!kept || (v !== null && (kept.v === null || t > kept.t))) byHour.set(hour, { t, v })
+  })
+  return new Map(Array.from(byHour, ([hour, { v }]) => [hour, v]))
+}
+
+// The running total over the hourly values, oldest first, so a station that
+// reports a rolling hour every five minutes isn't counted twelve times.
+function hourlyCumsum(hourly: Map<number, number | null>): Map<number, number | null> {
+  const hours = Array.from(hourly.keys()).sort((a, b) => a - b)
+  const sums = computePrecipCumsum(hours.map((h) => hourly.get(h) ?? null))
+  return new Map(hours.map((h, i) => [h, sums[i]]))
+}
+
+// The series a column reads; cumulative precip is built from hourly precip.
+function columnSeries(
+  station: ResponseStation | undefined,
+  variable: string,
+): (number | null)[] | undefined {
+  if (!station) return undefined
+  return numericSeries(station.observations, variable === PRECIP_CUMSUM ? PRECIP_HOURLY : variable)
+}
+
+// A column's value per row hour; cumulative precip runs over the hourly values.
+function columnHours(
+  station: ResponseStation | undefined,
+  variable: string,
+  series: (number | null)[] | undefined,
+  now: number,
+): Map<number, number | null> {
+  if (!station || !series) return new Map()
+  const hourly = hourlyValues(timeSeries(station.observations), series, now)
+  return variable === PRECIP_CUMSUM ? hourlyCumsum(hourly) : hourly
+}
+
+function latestReading(response: SnowObsTimeseriesResponse): number | null {
+  let latest: number | null = null
+  for (const station of response.STATION) {
+    for (const iso of timeSeries(station.observations)) {
+      const t = new Date(iso).getTime()
+      if (Number.isFinite(t) && (latest === null || t > latest)) latest = t
+    }
+  }
+  return latest
+}
+
+// Builds a render-ready table: one newest-first row per hour, full-outer-joined
+// across the group's stations, with a cumulative-precip column after each
+// hourly-precip one. Hourly because stations report on different schedules
+// (loggers on the hour, airports every few minutes); see ADR 021.
 export function buildStationTable(
   center: string,
   response: SnowObsTimeseriesResponse,
   columnConfig: StationColumnConfig[],
+  now = Date.now(),
 ): StationTable {
   const timeZone = centerTimezone(center)
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
   const longNameByVariable = new Map(response.VARIABLES.map((v) => [v.variable, v.long_name]))
 
   const columns: TableColumn[] = []
-  // Per-column lookup from ISO timestamp -> value, plus the union of all timestamps.
-  const valueByColumn = new Map<string, Map<string, number | null>>()
-  const allTimes = new Set<string>()
+  // Per-column lookup from row hour -> value, plus the union of all row hours.
+  const valueByColumn = new Map<string, Map<number, number | null>>()
+  const allHours = new Set<number>()
 
   const addColumn = (ref: StationRef, variable: string) => {
     const key = `${stationKey(ref)}_${variable}`
@@ -311,15 +389,8 @@ export function buildStationTable(
     if (!series && !longNameByVariable.has(variable) && variable !== PRECIP_CUMSUM) return
 
     columns.push(columnMeta(ref, variable, station, longNameByVariable, response.UNITS))
-
-    const lookup = new Map<string, number | null>()
-    if (station && series) {
-      const times = timeSeries(station.observations)
-      times.forEach((t, i) => {
-        lookup.set(t, series[i] ?? null)
-        allTimes.add(t)
-      })
-    }
+    const lookup = columnHours(station, variable, series, now)
+    for (const hour of lookup.keys()) allHours.add(hour)
     valueByColumn.set(key, lookup)
   }
 
@@ -329,23 +400,28 @@ export function buildStationTable(
     if (variable === PRECIP_HOURLY) addColumn(station, PRECIP_CUMSUM)
   }
 
-  // Newest-first rows across the union of all observed timestamps.
-  const sortedTimes = Array.from(allTimes).sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime(),
-  )
-
-  const rows: TableRow[] = sortedTimes.map((iso) => {
+  const sortedHours = Array.from(allHours).sort((a, b) => b - a)
+  const rows: TableRow[] = sortedHours.map((hour) => {
     const values: Record<string, number | null> = {}
     for (const column of columns) {
-      values[column.key] = valueByColumn.get(column.key)?.get(iso) ?? null
+      values[column.key] = valueByColumn.get(column.key)?.get(hour) ?? null
     }
-    return { timestamp: new Date(iso).getTime(), display: formatDisplay(iso, timeZone), values }
+    return {
+      timestamp: hour,
+      display: formatDisplay(new Date(hour).toISOString(), timeZone),
+      values,
+    }
   })
 
+  const latest = latestReading(response)
   return {
     columns,
     rows,
-    timezoneLabel: sortedTimes.length > 0 ? timezoneLabelFor(sortedTimes[0], timeZone) : '',
-    latestObservation: rows.length > 0 ? rows[0].timestamp : null,
+    timezoneLabel:
+      sortedHours.length > 0
+        ? timezoneLabelFor(new Date(sortedHours[0]).toISOString(), timeZone)
+        : '',
+    latestObservation: latest,
+    latestDisplay: latest !== null ? formatDisplay(new Date(latest).toISOString(), timeZone) : null,
   }
 }

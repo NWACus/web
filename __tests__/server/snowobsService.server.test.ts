@@ -124,7 +124,7 @@ describe('fetchStationTimeseries', () => {
     expect(result.STATION[0].name).toBe('Test Station')
     // Rounding the whole request is a silent loss of precision without this.
     expect(warnMock).toHaveBeenCalledWith(
-      { err: null, stids: ['4'] },
+      expect.objectContaining({ stids: ['4'] }),
       expect.stringContaining('raw_data'),
     )
   })
@@ -157,6 +157,85 @@ describe('fetchStationTimeseries', () => {
     server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
     await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(SnowObsError)
     await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(/status 500/)
+  })
+
+  describe('when a request fails', () => {
+    const stationResponse = (stid: string): SnowObsTimeseriesResponse => ({
+      ...validResponse,
+      STATION: [{ ...validResponse.STATION[0], id: stid, stid }],
+    })
+
+    // SnowObs 500s any request that includes `bad`, alone or batched; with
+    // `rawOnly`, only when raw_data is set, as it does for KMHS.
+    function failOnStation(bad: string, rawOnly = false): string[] {
+      const requested: string[] = []
+      server.use(
+        http.get(TIMESERIES_URL, ({ request }) => {
+          const params = new URL(request.url).searchParams
+          const stid = params.get('stid') ?? ''
+          const raw = params.get('raw_data') === 'true'
+          requested.push(raw ? stid : `${stid} (rounded)`)
+          const fails = stid.split(',').includes(bad) && (raw || !rawOnly)
+          return fails
+            ? new HttpResponse(null, { status: 500 })
+            : HttpResponse.json(stationResponse(stid))
+        }),
+      )
+      return requested
+    }
+
+    it('retries each station and drops one that fails rounded too', async () => {
+      const requested = failOnStation('2')
+      const result = await fetchStationTimeseries('nwac', [ref('1'), ref('2'), ref('3')], {
+        rawData: true,
+      })
+      expect(requested.sort()).toEqual(['1', '1,2,3', '2', '2 (rounded)', '3'])
+      expect(result.STATION.map((s) => s.stid)).toEqual(['1', '3'])
+      expect(result.VARIABLES).toEqual(validResponse.VARIABLES)
+    })
+
+    it('keeps a station that only fails under raw_data, rounded', async () => {
+      const requested = failOnStation('2', true)
+      const result = await fetchStationTimeseries('nwac', [ref('1'), ref('2'), ref('3')], {
+        rawData: true,
+      })
+      expect(requested).toContain('2 (rounded)')
+      expect(result.STATION.map((s) => s.stid)).toEqual(['1', '2', '3'])
+    })
+
+    it('retries a single station rounded', async () => {
+      const requested = failOnStation('4', true)
+      const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
+      expect(requested).toEqual(['4', '4 (rounded)'])
+      expect(result.STATION[0].stid).toBe('4')
+    })
+
+    it('does not retry a single rounded request', async () => {
+      const requested = failOnStation('4')
+      await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(/status 500/)
+      expect(requested).toEqual(['4 (rounded)'])
+    })
+
+    it('does not fan out a batch that fails with anything but a 500', async () => {
+      const requested: string[] = []
+      server.use(
+        http.get(TIMESERIES_URL, ({ request }) => {
+          requested.push(new URL(request.url).searchParams.get('stid') ?? '')
+          return new HttpResponse(null, { status: 403 })
+        }),
+      )
+      await expect(
+        fetchStationTimeseries('nwac', [ref('1'), ref('2')], { rawData: true }),
+      ).rejects.toThrow(/status 403/)
+      expect(requested).toEqual(['1,2'])
+    })
+
+    it('throws when every station fails on its own too', async () => {
+      server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
+      await expect(
+        fetchStationTimeseries('nwac', [ref('1'), ref('2')], { rawData: true }),
+      ).rejects.toThrow(/status 500/)
+    })
   })
 
   it('wraps network failures in a SnowObsError', async () => {

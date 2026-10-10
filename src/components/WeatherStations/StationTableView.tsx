@@ -4,6 +4,7 @@ import type { StationTable } from '@/services/snowobs/tableHelpers'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
 import { ChipGroup } from './ChipGroup'
+import { StationLatestObservation } from './StationLatestObservation'
 import { StationNowTable } from './StationNowTable'
 import { TABLE_PERIODS } from './stationPeriods'
 import { convertStationTable } from './stationTableUnits'
@@ -34,7 +35,10 @@ export function StationTableView({
         {tabs}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <ChipGroup chips={TABLE_PERIOD_CHIPS} activeKey={activePeriodKey} />
-          <UnitToggle unit={unitSystem} onChange={changeUnitSystem} />
+          <div className="flex flex-wrap items-center gap-3">
+            <StationLatestObservation table={table} />
+            <UnitToggle unit={unitSystem} onChange={changeUnitSystem} />
+          </div>
         </div>
       </StationViewBar>
       <StationNowTable
