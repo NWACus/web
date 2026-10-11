@@ -16,12 +16,7 @@
 import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns/format'
 
-import {
-  NO_RATING_ADVICE,
-  dangerLevelFromRating,
-  dangerLevelLabel,
-  dangerScaleRows,
-} from '../dangerScale'
+import { dangerLevelFromRating, dangerLevelLabel, travelAdvice } from '../dangerScale'
 import type { ZoneFeature, ZoneProperties } from '../model/mapLayer'
 import { DangerLevel } from '../types/forecastSchemas'
 import { nativeZonePath } from '../zoneSlug'
@@ -95,11 +90,6 @@ export function popupDangerLevel(properties: ZoneProperties): DangerLevel {
   const { danger_level: level, end_date: endDate } = properties
   if (level == null || level < 0 || endDate == null) return DangerLevel.None
   return dangerLevelFromRating(level)
-}
-
-/** The danger scale's travel advice for a level — what the widget shows, keyed by rating. */
-function adviceForLevel(level: DangerLevel): string {
-  return dangerScaleRows.find((row) => row.level === level)?.advice ?? NO_RATING_ADVICE
 }
 
 /**
@@ -193,7 +183,7 @@ export function zonePopup(properties: ZoneProperties, settings: ZonePopupSetting
     // rather than shown stale — the same call the widget makes.
     publishedText: offSeason ? null : formatValidity(properties.start_date, properties.timezone),
     expiresText: offSeason ? null : formatValidity(properties.end_date, properties.timezone),
-    advice: offSeason || !settings.advice ? null : adviceForLevel(dangerLevel),
+    advice: offSeason || !settings.advice ? null : travelAdvice(dangerLevel),
     ...resolveHref(properties, settings.centerId),
   }
 }

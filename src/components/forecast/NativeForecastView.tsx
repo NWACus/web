@@ -19,11 +19,12 @@ import {
   type WarningProduct,
   type Weather,
 } from '@/services/nac/model/forecast'
+import { productTypeTitle } from '@/services/nac/productTypeTitle'
 import type { ForecastZoneFacts } from '@/services/nac/resolveZone'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
+import { MapPin } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/utilities/ui'
 
 import { AvalancheProblemCard } from './AvalancheProblemCard'
 import { BottomLine } from './BottomLine'
@@ -34,6 +35,7 @@ import { ForecastDiscussion } from './ForecastDiscussion'
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ForecastHeader } from './ForecastHeader'
 import { sectionHeading } from './forecastHeadings'
+import { AVALANCHE_PROBLEMS_HELP } from './forecastHelp'
 import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
 import { ForecastPrint } from './ForecastPrint.client'
 import {
@@ -41,6 +43,7 @@ import {
   forecastPrintFilename,
   type PrintSection,
 } from './forecastPrintSections'
+import { HelpHeading } from './HelpHeading'
 import { toLightboxMediaList } from './lightboxMedia'
 import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
@@ -68,10 +71,18 @@ interface NativeForecastViewProps {
   basePath: string
   /** The picker's calendar range and zone heading, from the center's configuration. */
   pickerSettings: ForecastPickerSettings
-  /** Avalanche center type, for the scope disclaimer's provider wording (USFS vs center name). */
-  centerType: AvalancheCenterType
+  /** What the view needs from the center's metadata. */
+  centerDetails: ForecastCenterDetails
   /** The separately-issued weather product, when one is available (live page only). */
   weather?: Weather | null
+}
+
+/** One prop, so the view's signature doesn't grow with each setting it reads from the center. */
+interface ForecastCenterDetails {
+  /** Avalanche center type, for the scope disclaimer's provider wording (USFS vs center name). */
+  type: AvalancheCenterType
+  /** The center's elevation-band explainer page, or null when it has none. */
+  elevationBandsUrl: string | null
 }
 
 export function NativeForecastView({
@@ -86,7 +97,7 @@ export function NativeForecastView({
   selectedDate,
   basePath,
   pickerSettings,
-  centerType,
+  centerDetails,
   weather,
 }: NativeForecastViewProps) {
   return (
@@ -105,6 +116,13 @@ export function NativeForecastView({
         pickerSettings={pickerSettings}
       />
 
+      <ForecastValidityNotice
+        forecastResult={forecastResult}
+        selectedDate={selectedDate}
+        basePath={basePath}
+        hasLivePage={zone.active !== false}
+      />
+
       <ForecastTitleRow
         center={center}
         zone={zone}
@@ -114,14 +132,7 @@ export function NativeForecastView({
         selectedDate={selectedDate}
       />
 
-      <ForecastMasthead
-        timezone={timezone}
-        forecastResult={forecastResult}
-        warning={warning}
-        selectedDate={selectedDate}
-        basePath={basePath}
-        hasLivePage={zone.active !== false}
-      />
+      <ForecastMasthead timezone={timezone} forecastResult={forecastResult} warning={warning} />
 
       {/* `data-print-section` marks what the print dialog's checkboxes toggle; the print
           stylesheet in print.css hides any section the reader left unchecked. */}
@@ -142,11 +153,12 @@ export function NativeForecastView({
         elevationBandNames={zone.zone.config.elevation_band_names}
         zoneId={zone.zone.zone_id}
         timezone={timezone}
+        elevationBandsUrl={centerDetails.elevationBandsUrl}
       />
 
       {/* Scope disclaimer — safety/scope language shown under every afp product */}
       <ForecastDisclaimer
-        centerType={centerType}
+        centerType={centerDetails.type}
         centerName={forecastResult.avalanche_center.name}
       />
     </div>
@@ -204,8 +216,33 @@ function DatePickerSection({
 }
 
 /**
- * The product's title row: zone name on the left, the print control on the right — the same
- * arrangement the legacy afp widget used.
+ * The validity-date banner: archived on a dated view, expired on the live view. Above the title,
+ * as the widget had it; unlike the date picker, it prints.
+ */
+function ForecastValidityNotice({
+  forecastResult,
+  selectedDate,
+  basePath,
+  hasLivePage,
+}: Pick<NativeForecastViewProps, 'forecastResult' | 'selectedDate' | 'basePath'> & {
+  hasLivePage: boolean
+}) {
+  return (
+    <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
+      <ValidityBanner
+        forecast={forecastResult}
+        selectedDate={selectedDate}
+        basePath={basePath}
+        hasLivePage={hasLivePage}
+      />
+    </ForecastErrorBoundary>
+  )
+}
+
+/**
+ * The product's title row: the product-type title over the zone name on the left, the print
+ * control on the right — the same arrangement the legacy afp widget used. Both lines sit in the
+ * one `<h1>`, so the page's heading names the zone as well as the product.
  *
  * A div rather than a `<header>`: the print stylesheet hides the site's `<header>`/`<footer>`/
  * `<nav>` chrome wholesale, and this row has to survive that.
@@ -223,8 +260,15 @@ function ForecastTitleRow({
 >) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl printWide:text-3xl">
-        {zone.zone.name}
+      <h1 className="space-y-1">
+        <span className="block text-2xl font-bold tracking-tight sm:text-3xl printWide:text-3xl">
+          {productTypeTitle(forecastResult.product_type)}
+        </span>{' '}
+        <span className="flex items-center gap-1.5 text-lg font-semibold tracking-tight text-muted-foreground sm:text-xl printWide:text-xl">
+          {/* The widget's map marker; its printout drops it. */}
+          <MapPin aria-hidden className="size-5 shrink-0 print:hidden" />
+          {zone.zone.name}
+        </span>
       </h1>
 
       <ForecastErrorBoundary fallbackMessage="Unable to display the print control">
@@ -245,36 +289,20 @@ function ForecastTitleRow({
 }
 
 /**
- * Everything between the page heading and the bottom line: any active warning, the validity
- * banner, and the product's metadata. Each is independently boundaried so one malformed field
+ * Everything between the page heading and the bottom line: any active warning and the product's
+ * metadata, in the widget's order. Each is independently boundaried so one malformed field
  * degrades that strip only.
  */
 function ForecastMasthead({
   timezone,
   forecastResult,
   warning,
-  selectedDate,
-  basePath,
-  hasLivePage,
-}: Pick<
-  NativeForecastViewProps,
-  'timezone' | 'forecastResult' | 'warning' | 'selectedDate' | 'basePath'
-> & { hasLivePage: boolean }) {
+}: Pick<NativeForecastViewProps, 'timezone' | 'forecastResult' | 'warning'>) {
   return (
     <>
       {/* Warning banner */}
       <ForecastErrorBoundary fallbackMessage="Unable to display warning information">
         <WarningBanner warning={warning} timezone={timezone} />
-      </ForecastErrorBoundary>
-
-      {/* Validity-date banner: archived on a dated view, expired on the live view */}
-      <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
-        <ValidityBanner
-          forecast={forecastResult}
-          selectedDate={selectedDate}
-          basePath={basePath}
-          hasLivePage={hasLivePage}
-        />
       </ForecastErrorBoundary>
 
       {/* Header: issued, expires, author */}
@@ -292,6 +320,7 @@ interface ForecastPanelProps {
   /** The zone's short `zone_id` string, which picks its Mountain Weather table. */
   zoneId: string
   timezone: string | null | undefined
+  elevationBandsUrl: string | null
 }
 
 /**
@@ -329,7 +358,12 @@ function hasMedia(forecastResult: ForecastResult): boolean {
 }
 
 /** Printed under "Bottom Line & Danger", which the widget gated on a single checkbox. */
-function DangerPanelSection({ forecastResult, elevationBandNames, timezone }: ForecastPanelProps) {
+function DangerPanelSection({
+  forecastResult,
+  elevationBandNames,
+  timezone,
+  elevationBandsUrl,
+}: ForecastPanelProps) {
   if (forecastResult.product_type !== ProductType.Forecast) return null
 
   return (
@@ -340,6 +374,7 @@ function DangerPanelSection({ forecastResult, elevationBandNames, timezone }: Fo
           elevationBandNames={elevationBandNames}
           publishedTime={forecastResult.published_time}
           timezone={timezone}
+          elevationBandsUrl={elevationBandsUrl}
         />
       </ForecastErrorBoundary>
     </PanelSection>
@@ -434,7 +469,12 @@ function AvalancheProblems({
 }) {
   return (
     <section>
-      <h2 className={cn(sectionHeading, 'mb-8')}>Avalanche Problems ({problems.length})</h2>
+      <HelpHeading
+        title={`Avalanche Problems (${problems.length})`}
+        help={AVALANCHE_PROBLEMS_HELP}
+        helpLabel="About Avalanche Problems"
+        className="mb-8"
+      />
       {problems.map((problem) => (
         <ForecastErrorBoundary
           key={problem.id}

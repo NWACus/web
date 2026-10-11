@@ -128,6 +128,24 @@ describe('forecastResultSchema with values upstream may add', () => {
   })
 })
 
+describe('forecastResultSchema problem order', () => {
+  // Forecast-78: the API's order is not the rank order, and the page renders in array order.
+  it('sorts avalanche problems by ascending rank', () => {
+    const [first, second] = nwacForecastActive.forecast_avalanche_problems
+    const result = forecastResultSchema.parse({
+      ...nwacForecastActive,
+      forecast_avalanche_problems: [
+        { ...second, rank: 3 },
+        { ...first, rank: 1 },
+        { ...second, id: second.id + 1, rank: 2 },
+      ],
+    })
+    if (result.product_type !== ProductType.Forecast) throw new Error('expected a forecast')
+
+    expect(result.forecast_avalanche_problems.map((p) => p.rank)).toEqual([1, 2, 3])
+  })
+})
+
 describe('nullForecastSchema', () => {
   // v2's answer for a real zone with nothing published, as api.avalanche.org gave it for NWAC zone
   // 3025 on 2026-10-07.

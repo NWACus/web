@@ -23,7 +23,9 @@ import {
   currentForecastDateEndpoint,
   mayBeCurrentProductDate,
 } from '@/services/nac/currentForecastDate'
+import { elevationBandsUrl } from '@/services/nac/dangerScale'
 import { findDatedForecast } from '@/services/nac/datedForecast'
+import type { ForecastResult } from '@/services/nac/model/forecast'
 import {
   fetchProductArchive,
   fetchProductArchiveOrThrow,
@@ -31,6 +33,7 @@ import {
   getAvalancheCenterMetadata,
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
+import { productTabLabel } from '@/services/nac/productTypeTitle'
 import { resolveDatedZoneFromSlug, type DatedForecastZone } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
 import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
@@ -244,7 +247,7 @@ export default async function Page({ params }: Args) {
           selectedDate={date}
           basePath={`/forecasts/avalanche/${zone}`}
           pickerSettings={forecastPickerSettings(metadata)}
-          centerType={metadata.type}
+          centerDetails={{ type: metadata.type, elevationBandsUrl: elevationBandsUrl(metadata) }}
           weather={weather}
         />
       </ForecastGlossary>
@@ -259,19 +262,24 @@ export default async function Page({ params }: Args) {
   )
 }
 
-/** The archived product's bottom line as plain text, or undefined where there's no product. */
-async function datedPreviewDescription(
+/** The archived native product, for its title and description; null where there's none. */
+async function datedMetadataForecast(
   center: string,
   zone: string,
   date: string,
-): Promise<string | undefined> {
+): Promise<ForecastResult | null> {
   if (!DATE_PATTERN.test(date) || !(await getNativeProductFlag(center, 'forecast'))) {
-    return undefined
+    return null
   }
 
-  // A description is optional; failing to find one must not fail the page.
-  const forecast = await findDatedForecast(center, zone, date).catch(() => null)
-  return htmlToDescription(forecast?.bottom_line)
+  // Metadata is optional; failing to find the product must not fail the page.
+  return findDatedForecast(center, zone, date).catch(() => null)
+}
+
+/** `<title>` and `og:title` alike: a shared archived forecast must not read as today's. */
+function datedTitle(zone: string, date: string, forecast: ForecastResult | null): string {
+  const dateLabel = DATE_PATTERN.test(date) ? format(parseISO(date), 'MMMM d, yyyy') : date
+  return `${formatZoneName(zone)} - Archived ${productTabLabel(forecast?.product_type)} for ${dateLabel}`
 }
 
 export async function generateMetadata(
@@ -281,16 +289,14 @@ export async function generateMetadata(
   const { center, zone: zoneParam, date } = await params
   const zone = zoneSlugFromParam(zoneParam)
 
-  const zoneName = formatZoneName(zone)
-  const dateLabel = DATE_PATTERN.test(date) ? format(parseISO(date), 'MMMM d, yyyy') : date
-  // `<title>` and `og:title` alike: a shared archived forecast must not read as today's.
-  const title = `${zoneName} - Archived Avalanche Forecast for ${dateLabel}`
-  const url = `/forecasts/avalanche/${zone}/${date}`
-
-  const [parentMeta, description] = await Promise.all([
+  const [parentMeta, forecast] = await Promise.all([
     parent,
-    datedPreviewDescription(center, zone, date),
+    datedMetadataForecast(center, zone, date),
   ])
+
+  const title = datedTitle(zone, date, forecast)
+  const url = `/forecasts/avalanche/${zone}/${date}`
+  const description = htmlToDescription(forecast?.bottom_line)
 
   return {
     title,

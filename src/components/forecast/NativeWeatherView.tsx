@@ -43,14 +43,15 @@ export function NativeWeatherView({
 }: NativeWeatherViewProps) {
   return (
     <div className="container space-y-6 py-6">
-      <WeatherTitleRow />
-
+      {/* Above the title, in the forecast page's (and the widget's) order. */}
       {archived && (
         <ArchivedProductNotice
           current={{ href: '/weather/forecast', label: 'current Mountain Weather' }}
           archive={{ href: ARCHIVE_WEATHER_PATH, label: 'all archived Mountain Weather' }}
         />
       )}
+
+      <WeatherTitleRow />
 
       <ForecastErrorBoundary fallbackMessage="Unable to display weather metadata">
         <ForecastHeader

@@ -8,8 +8,13 @@ test.describe('Native single-zone forecast', () => {
   test('renders the forecast product', async ({ page }) => {
     const errors = await loadPage(page, FORECAST_URL)
 
+    // The product-type title heads the page, with the zone name below it (Forecast-6).
     await expect(
-      page.getByRole('heading', { level: 1, name: 'Soldier & Wood River Valley Mtns' }),
+      page.getByRole('heading', {
+        level: 1,
+        name: 'Backcountry Avalanche Forecast Soldier & Wood River Valley Mtns',
+        exact: true,
+      }),
     ).toBeVisible()
     await expect(page.getByText('Test Forecaster A', { exact: true })).toBeVisible()
     await expect(page.getByText('Sunday, April 5, 2026 - 6:19AM', { exact: true })).toBeVisible()
@@ -40,7 +45,8 @@ test.describe('Native single-zone forecast', () => {
 
     // Every danger value in the corpus is null, which the wire schema maps to "no rating" — three
     // bands across two days. A fixture with real ratings is an upstream capture we are waiting on.
-    await expect(page.getByText('0 - No Rating')).toHaveCount(6)
+    // Visible only: the phone's collapsed outlook carries its own hidden copy of tomorrow's three.
+    await expect(page.getByText('0 - No Rating').filter({ visible: true })).toHaveCount(6)
     await expect(
       page.getByText(
         'Insufficient data for issuing of danger ratings, but a summary of avalanche conditions exists. Read the summary for more information.',

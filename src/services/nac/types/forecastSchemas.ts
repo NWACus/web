@@ -298,6 +298,14 @@ export const avalancheProblemSchema = z.object({
 })
 export type AvalancheProblem = z.infer<typeof avalancheProblemSchema>
 
+/**
+ * Problems in ascending rank, as the widget shows them; the API sends them in no promised order.
+ * Done at parse so every reader of the product (page, print, dated view) gets the same order.
+ */
+const rankedProblemsSchema = z
+  .array(avalancheProblemSchema)
+  .transform((problems) => [...problems].sort((a, b) => a.rank - b.rank))
+
 // ─── Forecast schemas ───────────────────────────────────────────────────────
 
 export const forecastSchema = z.object({
@@ -311,7 +319,7 @@ export const forecastSchema = z.object({
   updated_at: z.string().nullable(),
   announcement: z.string().optional().nullable(),
   bottom_line: z.string().nullable(),
-  forecast_avalanche_problems: z.array(avalancheProblemSchema),
+  forecast_avalanche_problems: rankedProblemsSchema,
   hazard_discussion: z.string().nullable(),
   danger: z.array(avalancheDangerForecastSchema),
   danger_level_text: z.string().optional().nullable(),
