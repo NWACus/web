@@ -18,6 +18,6 @@ Model per-tenant singletons as **ordinary collections constrained to one documen
 
 ## Consequences
 
-- "Tenant-scoped global" is a real concept in this codebase (see `DOMAIN_CONTEXT.md`): one document per tenant that behaves like a singleton for that center. True Payload Globals (e.g. `A3Management`, `NACWidgetsConfig`, `Diagnostics`) remain app-wide singletons and are a different thing.
+- "Tenant-scoped global" is a real concept in this codebase (see `GLOSSARY.md`): one document per tenant that behaves like a singleton for that center. True Payload Globals (e.g. `A3Management`, `NACWidgetsConfig`, `Diagnostics`) remain app-wide singletons and are a different thing.
 - Don't reach for Payload Globals when the config is per-center — they can't express it. Don't drop the `unique: true` on the tenant field, or the per-tenant singleton invariant breaks.
 - If Payload's native per-tenant globals become viable later (the upstream bug behind #51 is resolved and the plugin fits our RBAC), this pattern could be revisited — but migrating away is a non-trivial data/access change.

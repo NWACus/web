@@ -83,7 +83,7 @@ sig = "f60abc23a97b2ece"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/shared-content.md"
-sig = "11f429ee21615e37"
+sig = "12d70c1786c60f5f"
 
 [[bindings]]
 doc = "CLAUDE.md"

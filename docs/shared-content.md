@@ -1,6 +1,6 @@
 # Adding a Shared Content collection
 
-Shared Content is content no Tenant owns — managed once and usable by every avalanche center. The decisions and the reasons behind them are in [`docs/decisions/022-shared-content.md`](decisions/022-shared-content.md); the domain terms are in [`DOMAIN_CONTEXT.md`](../DOMAIN_CONTEXT.md). This file is the checklist for building one.
+Shared Content is content no Tenant owns — managed once and usable by every avalanche center. The decisions and the reasons behind them are in [`docs/decisions/022-shared-content.md`](decisions/022-shared-content.md); the domain terms are in [`GLOSSARY.md`](../GLOSSARY.md). This file is the checklist for building one.
 
 `SharedMedia` (`src/collections/SharedMedia/`) is the worked example. Read it alongside this list.
 
