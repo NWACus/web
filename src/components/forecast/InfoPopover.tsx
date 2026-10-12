@@ -16,6 +16,7 @@ import { Info } from 'lucide-react'
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { cn } from '@/utilities/ui'
 
 /** Long enough to cross the gap between the trigger and the panel without the panel vanishing. */
 const CLOSE_DELAY_MS = 150
@@ -29,9 +30,11 @@ interface InfoPopoverProps {
   children?: ReactNode
   /** Shown over a custom trigger on hover or focus, e.g. "Click to learn more". */
   hint?: string
+  /** Merged over the trigger's classes, e.g. to re-align the ⓘ beside a heading. */
+  className?: string
 }
 
-export function InfoPopover({ html, label, children, hint }: InfoPopoverProps) {
+export function InfoPopover({ html, label, children, hint, className }: InfoPopoverProps) {
   const custom = children != null
   const { open, onOpenChange, hoverHandlers, onOpenAutoFocus } = useHoverPopover(!custom)
 
@@ -39,7 +42,7 @@ export function InfoPopover({ html, label, children, hint }: InfoPopoverProps) {
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger
         aria-label={label}
-        className={custom ? customTriggerClass : infoTriggerClass}
+        className={cn(custom ? customTriggerClass : infoTriggerClass, className)}
         {...hoverHandlers}
       >
         {custom ? children : <Info aria-hidden className="size-4" />}
