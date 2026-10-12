@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 const TITLE_ACTIONS = '.list-header__title-actions'
+// The header renders with the list; stop watching if it never shows (e.g. no Create permission)
+const GIVE_UP_AFTER_MS = 10_000
 
 // Payload has no slot beside "Create New", so this portals into the list header, waiting for it
 // to mount.
@@ -21,7 +23,11 @@ export function ImportCoursesButton({ url }: { url: string }) {
       observer.disconnect()
     })
     observer.observe(document.body, { childList: true, subtree: true })
-    return () => observer.disconnect()
+    const giveUp = setTimeout(() => observer.disconnect(), GIVE_UP_AFTER_MS)
+    return () => {
+      clearTimeout(giveUp)
+      observer.disconnect()
+    }
   }, [])
 
   if (!container) return null
