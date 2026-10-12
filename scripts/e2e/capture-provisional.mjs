@@ -59,12 +59,12 @@ const TARGETS = [
   },
   {
     file: 'v2_public_product_forecast_no_outlook.json',
-    // Published on staging for this zone with only a `current` danger entry. Once captured, map it
-    // in scenarios.json — { "center": "NWAC", "zone": 1653, "zoneSlug": "snoqualmie-pass",
-    // "type": "forecast", "fixture": "v2_public_product_forecast_no_outlook.json" } — and drop
-    // `awaitingCapture`.
+    // Published on staging at Snoqualmie Pass (staging's zone 2168; production's, which the suite
+    // serves, is 1653) with only a `current` danger entry. Once captured, map it in scenarios.json
+    // — { "center": "NWAC", "zone": 1653, "zoneSlug": "snoqualmie-pass", "type": "forecast",
+    // "fixture": "v2_public_product_forecast_no_outlook.json" } — and drop `awaitingCapture`.
     host: STAGING_NAC_HOST,
-    path: '/v2/public/product?type=forecast&center_id=NWAC&zone_id=1653',
+    path: '/v2/public/product?type=forecast&center_id=NWAC&zone_id=2168',
     upstreamCase: 'not yet filed',
     awaitingCapture: true,
     // A blank outlook still arrives as a `tomorrow` entry, which the page shows as one.
