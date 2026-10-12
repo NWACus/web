@@ -342,9 +342,11 @@ function DangerRow({
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(label) }}
         />
       )}
+      {/* On paper the row is narrow enough for a long rating to run under the icon, so it stops
+          short of the icon's overlap. */}
       <span
         className={cn(
-          'absolute right-0 top-1/2 z-[1] w-[150px] -translate-y-1/2 text-base font-bold md:w-[30%] sm:text-lg printWide:text-lg',
+          'absolute right-0 top-1/2 z-[1] w-[150px] -translate-y-1/2 text-base font-bold md:w-[30%] sm:text-lg printWide:right-[25px] printWide:text-lg',
           outlook &&
             'lg:left-[30px] lg:right-auto lg:w-auto printWide:left-[30px] printWide:right-auto printWide:w-auto',
         )}
