@@ -830,8 +830,7 @@ export interface Event {
     | 'America/Los_Angeles'
     | 'America/Phoenix'
     | 'America/Anchorage'
-    | 'Pacific/Honolulu'
-    | 'Asia/Tokyo';
+    | 'Pacific/Honolulu';
   /**
    * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
    */
@@ -842,8 +841,7 @@ export interface Event {
     | 'America/Los_Angeles'
     | 'America/Phoenix'
     | 'America/Anchorage'
-    | 'Pacific/Honolulu'
-    | 'Asia/Tokyo';
+    | 'Pacific/Honolulu';
   location?: {
     /**
      * Check if this is a virtual event
@@ -946,7 +944,6 @@ export interface Event {
         | 'America/Phoenix'
         | 'America/Anchorage'
         | 'Pacific/Honolulu'
-        | 'Asia/Tokyo'
       )
     | null;
   /**

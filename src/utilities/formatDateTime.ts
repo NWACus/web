@@ -2,6 +2,9 @@ import { TZDate, tz, tzName } from '@date-fns/tz'
 import { isSameDay, isSameYear } from 'date-fns'
 import { format } from 'date-fns/format'
 
+// Zones the en-US locale only names as a GMT offset ("GMT+9")
+const ABBREVIATIONS: Record<string, string> = { 'Asia/Tokyo': 'JST' }
+
 export const formatDateTime = (
   dateString: string,
   tz: string | null | undefined,
@@ -11,7 +14,7 @@ export const formatDateTime = (
 
   return tz && formatStr.includes('zzz')
     ? // date-fns renders zzz as a GMT offset, so swap it for the zone's abbreviation (PST, MDT).
-      `${format(date, formatStr.replace(/zzz/g, '')).trimEnd()} ${tzName(tz, date, 'short')}`
+      `${format(date, formatStr.replace(/zzz/g, '')).trimEnd()} ${ABBREVIATIONS[tz] ?? tzName(tz, date, 'short')}`
     : format(date, formatStr)
 }
 

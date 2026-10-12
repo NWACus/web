@@ -5,7 +5,7 @@ import { affinityGroupOptions } from '@/fields/affinityGroupField'
 import { stateOptionsWIntl } from '@/fields/location/states'
 import { modeOfTravelOptions } from '@/fields/modeOfTravelField'
 import type { Course } from '@/payload-types'
-import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
+import { COURSE_TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { isValidFullUrl } from '@/utilities/validateUrl'
 import { zipCodeSchema } from '@/utilities/validateZipCode'
 
@@ -87,7 +87,7 @@ function labelLookup<T extends string>(options: { label: string; value: string }
 const courseTypeByLabel = new Map(courseTypesData.map((type) => [type.label, type]))
 const courseTypeValueByLabel = labelLookup<CourseTypeValue>(courseTypesData)
 const stateByLabel = labelLookup<CourseState>(stateOptionsWIntl)
-const timezoneByLabel = labelLookup<CourseTimeZone>(TIMEZONE_OPTIONS)
+const timezoneByLabel = labelLookup<CourseTimeZone>(COURSE_TIMEZONE_OPTIONS)
 const modeByLabel = labelLookup<CourseMode>(modeOfTravelOptions)
 const affinityByLabel = labelLookup<CourseAffinityGroup>(affinityGroupOptions)
 

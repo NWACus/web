@@ -19,7 +19,11 @@ export const TIMEZONE_OPTIONS = [
   { label: 'Arizona Time (MST)', value: US_TIMEZONES.ARIZONA },
   { label: 'Alaska Time (AKT)', value: US_TIMEZONES.ALASKA },
   { label: 'Island Time (HT)', value: US_TIMEZONES.HAWAII },
-  // For A3 Courses held abroad (e.g. Otaru). Not a center timezone, so not in US_TIMEZONES.
+]
+
+// A3 Courses can be held abroad (e.g. Otaru); centers and their Events never are
+export const COURSE_TIMEZONE_OPTIONS = [
+  ...TIMEZONE_OPTIONS,
   { label: 'Japan Time (JST)', value: 'Asia/Tokyo' },
 ]
 
