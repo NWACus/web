@@ -318,6 +318,22 @@ test.describe('Printing a forecast', () => {
     await expect(danger).toHaveCSS('padding-bottom', '0px')
   })
 
+  test("keeps the bottom line's icon inside the card on paper, where the margin would clip it", async ({
+    page,
+  }) => {
+    await loadPage(page, FORECAST_URL)
+
+    const content = page.locator('[data-print-section="bottomLine"] [data-slot="card-content"]')
+    const card = content.first().locator('xpath=..')
+    const icon = card.locator('> img')
+
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+
+    const [iconBox, cardBox] = [await icon.boundingBox(), await card.boundingBox()]
+    expect(iconBox?.x).toBeGreaterThanOrEqual(cardBox?.x ?? Infinity)
+  })
+
   test('lays the printed page out the same from a phone and from a desktop', async ({
     page,
     headless,
