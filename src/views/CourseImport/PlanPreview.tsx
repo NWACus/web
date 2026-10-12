@@ -158,7 +158,7 @@ export function PlanPreview(props: {
         title="Likely duplicates"
         count={plan.likelyDuplicates.length}
         tone="warning"
-        intro="Match a Course already in the catalog, or an earlier row, on every field. Skipped unless ticked."
+        intro="Same Provider, Course Type, start, end and place as a Course already in the catalog, or an earlier row. Skipped unless ticked."
       >
         {plan.likelyDuplicates.map((duplicate) => (
           <RowItem key={duplicate.row}>

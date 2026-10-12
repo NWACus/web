@@ -338,27 +338,18 @@ function checkRow(
   }
 }
 
-/** Every imported field, in a form where two equal Courses produce the same string. */
+/**
+ * What makes two Courses the same class: Provider, Course Type, start, end and place. Titles,
+ * descriptions and URLs are left out, so a reworded row still matches the Course it came from.
+ */
 export function duplicateKey(course: CourseImportData): string {
-  const instant = (iso: string | null) => (iso ? new Date(iso).toISOString() : '')
+  const instant = (iso: string) => (iso ? new Date(iso).toISOString() : '')
   return JSON.stringify([
-    course.title,
-    course.subtitle,
-    course.description,
     course.provider,
     course.courseType,
     instant(course.startDate),
-    course.startDate_tz,
     instant(course.endDate),
-    instant(course.registrationDeadline),
     course.location.placeName,
-    course.location.address,
-    course.location.city,
-    course.location.state,
-    course.location.zip,
-    course.courseUrl,
-    [...course.modeOfTravel].sort(),
-    [...course.affinityGroups].sort(),
   ])
 }
 

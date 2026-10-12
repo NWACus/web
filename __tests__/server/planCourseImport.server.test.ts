@@ -49,8 +49,8 @@ describe('planCourseImport', () => {
   it('sorts every row into exactly one group', () => {
     const plan = planFixture()
     expect(plan.fileErrors).toEqual([])
-    expect(plan.ready.map((r) => r.row)).toEqual([2, 3, 4, 7, 9, 18])
-    expect(plan.likelyDuplicates.map((r) => r.row)).toEqual([15, 16])
+    expect(plan.ready.map((r) => r.row)).toEqual([2, 4, 7, 9, 18])
+    expect(plan.likelyDuplicates.map((r) => r.row)).toEqual([3, 15, 16])
     expect(plan.blocked.map((r) => r.row)).toEqual([5, 6, 8, 10, 11, 12, 13, 14, 17])
   })
 
@@ -166,13 +166,22 @@ describe('planCourseImport', () => {
     expect(blockedReasons(14)).toEqual(['Registration Deadline must be before Start.'])
   })
 
-  it('flags a row matching an existing Course on every field as a likely duplicate', () => {
-    expect(planFixture().likelyDuplicates[0].data.provider).toBe(6)
+  it('flags a row matching an existing Course even when its title and description differ', () => {
+    const { headers, rows } = parseCourseCsv(csv)
+    const reworded = {
+      ...existingKafRescue,
+      title: 'AIARE Avalanche Rescue',
+      description: 'Older wording.',
+      courseUrl: 'https://example.org/old',
+    }
+    const plan = planCourseImport({ headers, rows, providers, existingCourses: [reworded] })
+    expect(plan.likelyDuplicates.map((r) => r.row)).toContain(15)
   })
 
-  it('flags a repeat of an earlier row in the same file', () => {
+  it('flags a later row with the same Provider, Course Type, times and place as an earlier one', () => {
     const plan = planFixture()
-    expect(plan.likelyDuplicates[1].data).toEqual(plan.ready[1].data)
+    const row3 = plan.likelyDuplicates.find((r) => r.row === 3)
+    expect(row3?.data.subtitle).not.toBe(plan.ready[0].data.subtitle)
   })
 
   it('lists every problem with a row at once', () => {
