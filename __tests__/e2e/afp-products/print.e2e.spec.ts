@@ -302,6 +302,22 @@ test.describe('Printing a forecast', () => {
     await expect(cardContent.first()).toHaveCSS('padding-bottom', '16px')
   })
 
+  test('pads the panel on paper only where a printed section needs it', async ({ page }) => {
+    await loadPage(page, FORECAST_URL)
+
+    const panel = page.locator('[data-print-panel]')
+    const danger = panel.locator('> [data-print-section="bottomLine"]')
+
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+
+    // The panel has no card header for its content to tuck under, so the heading needs the
+    // padding; and the sections left out still follow the danger section in the DOM, so
+    // `last:pb-0` alone left 48px of blank card under it.
+    await expect(panel).toHaveCSS('padding-top', '16px')
+    await expect(danger).toHaveCSS('padding-bottom', '0px')
+  })
+
   test('lays the printed page out the same from a phone and from a desktop', async ({
     page,
     headless,

@@ -333,7 +333,7 @@ function ForecastPanel(props: ForecastPanelProps) {
 
   return (
     <Card>
-      <CardContent className="divide-y-[1.5px] px-4 py-8 sm:px-6">
+      <CardContent data-print-panel className="divide-y-[1.5px] px-4 py-8 sm:px-6">
         <DangerPanelSection {...props} />
         <ProblemsPanelSection {...props} />
         <DiscussionPanelSection {...props} />
