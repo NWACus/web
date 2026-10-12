@@ -58,7 +58,7 @@ sig = "a7f6555ce616e30f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "2295e66f372fcd8e"
+sig = "345f45a1512cbb98"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1444,6 +1444,16 @@ sig = "c24590dc084b4c92"
 doc = "docs/events-and-courses.md"
 target = "src/utilities/formatDateTime.ts"
 sig = "283ec8147a8ffaa4"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/utilities/geo/area.ts"
+sig = "8135fbd63e5c39e6"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/utilities/geo/findWithin.ts"
+sig = "85fe44a775438e5a"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

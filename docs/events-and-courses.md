@@ -13,7 +13,7 @@ Slug: `events`
 
 Main collection for all events. Tenant-scoped with draft/publish workflow.
 
-**Location coordinates.** In-person events store `location.coordinates.latitude` / `longitude` as two indexed number columns, not Payload's `point` field: the SQLite adapter can't query `point`, but it can range-query numbers (see `src/utilities/geo/findNear.ts`). `geocodeStatus` records where the point came from: `geocoded`, `approximate` (street, city or ZIP centroid), `manual` or `failed`.
+**Location coordinates.** In-person events store `location.coordinates.latitude` / `longitude` as two indexed number columns, not Payload's `point` field: the SQLite adapter can't query `point`, but it can range-query numbers (see `src/utilities/geo/`). Three searches build on them: `findNear` (radius, nearest first), `findWithinBox` (a lat/lng box, e.g. the map's view; pure database query, so it paginates) and `findWithinArea` (a GeoJSON polygon or multipolygon: the database narrows to its bounding box, then Turf's point-in-polygon test runs in JS). `geocodeStatus` records where the point came from: `geocoded`, `approximate` (street, city or ZIP centroid), `manual` or `failed`.
 
 - On save, the `location` group's `beforeChange` hook (`src/fields/location/hooks/geocodeLocation.ts`) geocodes the address with Geocodio (`GEOCODIO_API_KEY`) when the address changes, or when an event has never been placed. Coordinates the editor changed win over the address. A `manual` pin is only re-geocoded when the address changes. If the key is unset or Geocodio is down, the save goes through without a point.
 - Geocodio results may be stored; Mapbox's default (temporary) geocoding and Search Box results may not, which is why Mapbox is only the map here.
