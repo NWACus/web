@@ -1,3 +1,4 @@
+import { importBatches } from '@/services/courseImport/importBatches'
 import type { CourseImportPlan, PlannedCourse } from '@/services/courseImport/planCourseImport'
 import {
   coursesToCreate,
@@ -23,7 +24,7 @@ describe('coursesToCreate', () => {
   }
 
   it('takes the ready rows plus only the ticked duplicates, in sheet order', () => {
-    expect(coursesToCreate(plan, [4]).map((c) => c.row)).toEqual([2, 4, 5])
+    expect(coursesToCreate(plan, [4], [2, 4, 5]).map((c) => c.row)).toEqual([2, 4, 5])
   })
 })
 
@@ -61,5 +62,19 @@ describe('planFromCsvText', () => {
     expect(result.ok && result.plan.fileErrors).toEqual([
       'This looks like an Excel file. Export it as CSV and upload that instead.',
     ])
+  })
+})
+
+describe('importBatches', () => {
+  it('splits ready rows and ticked duplicates into sheet-order batches of 50', () => {
+    const plan: CourseImportPlan = {
+      fileErrors: [],
+      ready: Array.from({ length: 60 }, (_, i) => planned(i + 2)),
+      blocked: [],
+      likelyDuplicates: [planned(70), planned(71)],
+    }
+    const batches = importBatches(plan, [71])
+    expect(batches.map((b) => b.length)).toEqual([50, 11])
+    expect(batches[1].at(-1)).toBe(71)
   })
 })

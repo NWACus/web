@@ -199,7 +199,9 @@ A file that can't be read at all (broken quoting, rows with the wrong number of 
 
 To test an import locally against real Provider names, copy prod's published Providers with `sync-providers-from-prod` in [NWACus/avy-scripts](https://github.com/NWACus/avy-scripts).
 
-Confirming re-checks access and re-plans against the current catalog. Afterwards the same three boxes show what happened to every row: imported (green), not imported (red, with reasons), and skipped duplicates. The database runs without transactions, so if a save fails part-way the Courses already created by that import are deleted.
+Confirming sends the rows in batches of 50, so each call stays inside the server's time limit; each batch re-checks access and re-plans against the current catalog. Afterwards the same three boxes show what happened to every row: imported (green), not imported (red, with reasons), and skipped duplicates. The database runs without transactions, so a failed save removes the rest of its batch. Earlier batches stay imported; uploading the sheet again finishes the job, since those rows then show as likely duplicates. Files are limited to 3 MB (the server-action body limit is 4 MB in `next.config.js`).
+
+Courses can also use Japan Time (JST) for A3 courses held abroad; Events keep the US-only list.
 
 ### Frontend Display
 

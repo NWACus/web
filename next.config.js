@@ -51,6 +51,14 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    // The Course Import sends A3's whole season sheet to a server action (limit in importBatches.ts)
+    serverActions: { bodySizeLimit: '4mb' },
+    ...(process.env.LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS === 'true' && {
+      // to solve https://github.com/WiseLibs/better-sqlite3/issues/1155
+      workerThreads: false,
+    }),
+  },
   reactStrictMode: true,
   redirects,
   async rewrites() {
@@ -85,12 +93,6 @@ const nextConfig = {
       fetches: {
         fullUrl: true,
       },
-    },
-  }),
-  ...(process.env.LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS === 'true' && {
-    experimental: {
-      // to solve https://github.com/WiseLibs/better-sqlite3/issues/1155
-      workerThreads: false,
     },
   }),
 }

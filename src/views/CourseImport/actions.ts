@@ -7,9 +7,8 @@ import {
   courseToImportData,
   createAllOrNone,
   importablePlan,
-  importSummary,
   planFromCsvText,
-  type ImportResult,
+  type BatchResult,
   type PreviewResult,
 } from '@/services/courseImport/runCourseImport'
 import { getUser } from '@/utilities/isUser'
@@ -71,10 +70,12 @@ export async function previewCourseImport(text: string): Promise<PreviewResult> 
   return planAgainstCatalog(auth.payload, text)
 }
 
+/** Creates one batch of the sheet's rows; the client sends the rows in several batches. */
 export async function runCourseImport(
   text: string,
   includeDuplicateRows: number[],
-): Promise<ImportResult> {
+  batchRows: number[],
+): Promise<BatchResult> {
   const auth = await authorize()
   if (!auth) return { ok: false, error: NOT_ALLOWED }
   const { payload, user } = auth
@@ -83,15 +84,18 @@ export async function runCourseImport(
   if (!preview.ok) return preview
   const { plan } = preview
 
-  const courses = coursesToCreate(plan, includeDuplicateRows)
+  const courses = coursesToCreate(plan, includeDuplicateRows, batchRows)
   const outcome = await createAllOrNone({ courses, ...courseWriter(payload, user) })
   if (!outcome.ok) {
     payload.logger.error(`Course Import failed on row ${outcome.row}: ${outcome.message}`)
     return {
       ok: false,
-      error: `Row ${outcome.row} couldn't be saved, so nothing was imported. ${outcome.message}`,
+      error: `Row ${outcome.row} couldn't be saved, so its batch wasn't imported. ${outcome.message}`,
     }
   }
 
-  return { ok: true, ...importSummary(plan, courses) }
+  return {
+    ok: true,
+    created: courses.map(({ row, provider, title, start }) => ({ row, provider, title, start })),
+  }
 }

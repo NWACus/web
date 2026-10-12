@@ -1,11 +1,11 @@
 'use client'
 
+import type { ImportSummary } from '@/services/courseImport/importBatches'
 import type {
   BlockedRow,
   CourseImportPlan,
   RowSummary,
 } from '@/services/courseImport/planCourseImport'
-import type { ImportSummary } from '@/services/courseImport/runCourseImport'
 import { Button, toast } from '@payloadcms/ui'
 import type { ReactNode } from 'react'
 

@@ -1,8 +1,8 @@
 import type { Course } from '@/payload-types'
+import { MAX_FILE_BYTES } from './importBatches'
 import { parseCourseCsv } from './parseCourseCsv'
 import {
   planCourseImport,
-  type BlockedRow,
   type CatalogProvider,
   type CourseImportData,
   type CourseImportPlan,
@@ -10,12 +10,10 @@ import {
   type RowSummary,
 } from './planCourseImport'
 
-const MAX_FILE_CHARACTERS = 5_000_000
 const MAX_ROWS = 2_000
 
 export type PreviewResult = { ok: true; plan: CourseImportPlan } | { ok: false; error: string }
-export type ImportSummary = { created: RowSummary[]; skipped: RowSummary[]; blocked: BlockedRow[] }
-export type ImportResult = ({ ok: true } & ImportSummary) | { ok: false; error: string }
+export type BatchResult = { ok: true; created: RowSummary[] } | { ok: false; error: string }
 
 // .xlsx files are zip archives, which start with "PK\x03\x04"
 const ZIP_SIGNATURE = 'PK\u0003\u0004'
@@ -72,7 +70,8 @@ export function planFromCsvText({
   existingCourses: CourseImportData[]
 }): PreviewResult {
   if (typeof text !== 'string' || !text.trim()) return { ok: false, error: 'Choose a CSV file.' }
-  if (text.length > MAX_FILE_CHARACTERS) return { ok: false, error: 'That file is too large.' }
+  if (new TextEncoder().encode(text).length > MAX_FILE_BYTES)
+    return { ok: false, error: 'That file is too large.' }
 
   if (text.startsWith(ZIP_SIGNATURE)) return fileProblems([EXCEL_FILE])
 
@@ -91,28 +90,22 @@ export function importablePlan(preview: PreviewResult): PreviewResult {
   return preview
 }
 
-export function coursesToCreate(plan: CourseImportPlan, includeDuplicateRows: unknown) {
-  const included = new Set(Array.isArray(includeDuplicateRows) ? includeDuplicateRows : [])
+// Server-action arguments arrive untyped, whatever the signature says
+const rowSet = (rows: unknown) => new Set(Array.isArray(rows) ? rows : [])
+
+export function coursesToCreate(
+  plan: CourseImportPlan,
+  includeDuplicateRows: unknown,
+  batchRows: unknown,
+) {
+  const included = rowSet(includeDuplicateRows)
+  const batch = rowSet(batchRows)
   return [
     ...plan.ready,
     ...plan.likelyDuplicates.filter((duplicate) => included.has(duplicate.row)),
-  ].sort((a, b) => a.row - b.row)
-}
-
-const summary = ({ row, provider, title, start }: RowSummary): RowSummary => ({
-  row,
-  provider,
-  title,
-  start,
-})
-
-export function importSummary(plan: CourseImportPlan, created: PlannedCourse[]): ImportSummary {
-  const createdRows = new Set(created.map((course) => course.row))
-  return {
-    created: created.map(summary),
-    skipped: plan.likelyDuplicates.filter((d) => !createdRows.has(d.row)).map(summary),
-    blocked: plan.blocked,
-  }
+  ]
+    .filter((course) => batch.has(course.row))
+    .sort((a, b) => a.row - b.row)
 }
 
 // The database runs without transactions, so a failure removes what this import already created

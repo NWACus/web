@@ -58,7 +58,7 @@ sig = "ff5d3fe541e1dfad"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "c75fe82b5a962822"
+sig = "2ba6b8b1071ed168"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -653,7 +653,7 @@ sig = "c995ef0ec2eae6b4"
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/collections/Courses/index.ts"
-sig = "fdce644046330424"
+sig = "c20d5ddb176a3e63"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
@@ -698,7 +698,7 @@ sig = "2b85786965cc0125"
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
 target = "src/collections/Courses/index.ts"
-sig = "fdce644046330424"
+sig = "c20d5ddb176a3e63"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -818,12 +818,12 @@ sig = "f036d904dc823975"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/fields/startAndEndDateField/components/InitialTimezoneSetter.tsx"
-sig = "cfd1e1c11f46932b"
+sig = "0caf2dc48b07ffdf"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/fields/startAndEndDateField/index.ts"
-sig = "2692f90f08a4a4d1"
+sig = "ffd3cff1983e1b99"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
@@ -838,7 +838,7 @@ sig = "0108c3f6f50473e7"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/timezones.ts"
-sig = "d4864e84ae4fa798"
+sig = "25da4211f2d979fe"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1018,7 +1018,7 @@ sig = "1109f2020067761a"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "next.config.js"
-sig = "4d750bcc62ef50a1"
+sig = "0ccba63e04ff7d64"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1078,12 +1078,12 @@ sig = "92523247734c377d"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Courses/hooks/requireApprovedCourseType.ts"
-sig = "23c7899d0ae956c8"
+sig = "cdf782984c123a33"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Courses/index.ts"
-sig = "fdce644046330424"
+sig = "c20d5ddb176a3e63"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1108,7 +1108,7 @@ sig = "ef162015be100d91"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/StartAndEndDateDisplay.tsx"
-sig = "f6c945859ec97179"
+sig = "fdaa1e280e240e83"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1122,13 +1122,18 @@ sig = "cb2e76810074aec2"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/services/courseImport/importBatches.ts"
+sig = "f2133576849e1925"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/services/courseImport/planCourseImport.ts"
-sig = "cdc44e3adac3f20c"
+sig = "affdf36594696642"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/services/courseImport/runCourseImport.ts"
-sig = "76b812bc5d597a1d"
+sig = "87ec2fa3c9cb8e81"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1143,7 +1148,7 @@ sig = "cdbcb90cb1c106cf"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/views/CourseImport/actions.ts"
-sig = "2fe3c00b2cbb16b8"
+sig = "10a75af343f939e2"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1183,7 +1188,7 @@ sig = "a4824faf89f4051e"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "next.config.js"
-sig = "4d750bcc62ef50a1"
+sig = "0ccba63e04ff7d64"
 
 [[bindings]]
 doc = "docs/onboarding.md"
