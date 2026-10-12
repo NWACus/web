@@ -26,6 +26,8 @@ const provisionalDir = join(repoRoot, '__tests__/e2e/mocks/provisional')
 const manifestPath = join(provisionalDir, 'PROVENANCE.json')
 
 const NAC_HOST = 'https://api.avalanche.org'
+/** For a shape production never publishes, set up by hand on staging and captured from there. */
+const STAGING_NAC_HOST = 'https://staging-api.avalanche.org'
 
 /**
  * Every provisional capture, with the upstream Case that retires it. Keep this list short and
@@ -54,6 +56,25 @@ const TARGETS = [
     upstreamCase: 'not yet filed',
     blocks:
       "The live zone page's \"The requested product doesn't exist\" state (Forecast-176). The corpus's forecast nomatch is the error page v2 sends for an unknown zone id, which reads as a failed read.",
+  },
+  {
+    file: 'v2_public_product_forecast_no_outlook.json',
+    // Published on staging for this zone with only a `current` danger entry. Once captured, map it
+    // in scenarios.json — { "center": "NWAC", "zone": 1653, "zoneSlug": "snoqualmie-pass",
+    // "type": "forecast", "fixture": "v2_public_product_forecast_no_outlook.json" } — and drop
+    // `awaitingCapture`.
+    host: STAGING_NAC_HOST,
+    path: '/v2/public/product?type=forecast&center_id=NWAC&zone_id=1653',
+    upstreamCase: 'not yet filed',
+    awaitingCapture: true,
+    // A blank outlook still arrives as a `tomorrow` entry, which the page shows as one.
+    expect: (body) =>
+      Array.isArray(body.danger) &&
+      body.danger.length > 0 &&
+      body.danger.every((entry) => entry.valid_day !== 'tomorrow'),
+    expectation: 'a published forecast whose danger has no tomorrow entry',
+    blocks:
+      'The desktop travel-advice column that stands in for a missing outlook (Forecast-67). Every SNFAC, SAC and NWAC forecast carries a tomorrow entry, even a blank one, so the shape is set up on staging.',
   },
 ]
 
@@ -121,18 +142,28 @@ async function capture() {
   )
 
   for (const target of targets) {
-    const url = `${NAC_HOST}${target.path}`
+    const url = `${target.host ?? NAC_HOST}${target.path}`
     const res = await fetch(url)
     if (!res.ok) throw new Error(`GET ${url} -> ${res.status}`)
 
-    const scrubbed = scrub(await res.json())
+    const body = await res.json()
+    if (target.expect && !target.expect(body)) {
+      throw new Error(`Refusing to write ${target.file} — ${url} is not ${target.expectation}`)
+    }
+    const scrubbed = scrub(body)
     const remaining = leaks(scrubbed)
     if (remaining.length > 0) {
       throw new Error(`Refusing to write ${target.file} — unscrubbed:\n  ${remaining.join('\n  ')}`)
     }
 
     writeFileSync(join(provisionalDir, target.file), `${JSON.stringify(scrubbed, null, 2)}\n`)
-    files.push({ ...target, url, capturedAt: new Date().toISOString().slice(0, 10) })
+    const {
+      expect: _expect,
+      expectation: _expectation,
+      awaitingCapture: _awaiting,
+      ...record
+    } = target
+    files.push({ ...record, url, capturedAt: new Date().toISOString().slice(0, 10) })
     console.log(`Captured ${target.file}`)
   }
 
@@ -161,6 +192,10 @@ function verify() {
   for (const target of TARGETS) {
     const path = join(provisionalDir, target.file)
     if (!existsSync(path)) {
+      if (target.awaitingCapture) {
+        console.log(`${target.file}: awaiting its first capture`)
+        continue
+      }
       problems.push(`${target.file}: registered but not committed`)
       continue
     }

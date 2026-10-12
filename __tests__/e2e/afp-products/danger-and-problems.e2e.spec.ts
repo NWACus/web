@@ -3,6 +3,8 @@ import { expect, test } from './fixture'
 import { ZONE, hasFixture, loadPage, tenant, zoneSlug } from './helpers'
 
 const FORECAST_URL = `${tenant('snfac')}/forecasts/avalanche/${zoneSlug(ZONE.forecast)}`
+/** Where scenarios.json serves the no-outlook capture, a forecast set up on staging. */
+const NO_OUTLOOK_URL = `${tenant('nwac')}/forecasts/avalanche/snoqualmie-pass`
 
 const PHONE = { width: 375, height: 812 }
 const DESKTOP = { width: 1280, height: 800 }
@@ -116,12 +118,11 @@ test.describe('Danger and problems sections', () => {
   }) => {
     test.skip(
       !hasFixture('v2_public_product_forecast_no_outlook.json'),
-      'Blocked on a capture not yet filed upstream — every golden and every SNFAC/SAC/NWAC forecast from Jan–Mar 2026 carries a tomorrow entry; GNFAC (never issues an outlook) is not a seeded tenant.',
+      'Blocked on a staging capture (capture-provisional.mjs target v2_public_product_forecast_no_outlook.json) — every golden and every SNFAC/SAC/NWAC forecast carries a tomorrow entry, and GNFAC, which never issues an outlook, is not a seeded tenant.',
     )
 
-    // Repoint at the zone the capture is served at when it lands; this zone has an outlook.
     await page.setViewportSize(DESKTOP)
-    await loadPage(page, FORECAST_URL)
+    await loadPage(page, NO_OUTLOOK_URL)
 
     const advice = page.getByRole('list', { name: 'Travel advice' })
     await expect(advice).toBeVisible()
