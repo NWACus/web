@@ -60,7 +60,7 @@ export function InfoPopover({ html, label, children, hint }: InfoPopoverProps) {
 /* `align-middle` centres on the x-height midpoint, ~0.11em below the centre of the cap band the eye
    reads a label by, so the marker sits visibly low. Lift it back. */
 const infoTriggerClass =
-  'ml-1 inline-flex -translate-y-[0.11em] align-middle text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 print:hidden'
+  'ml-1 inline-flex -translate-y-[0.11em] cursor-help align-middle text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 print:hidden'
 
 const customTriggerClass =
   'group relative inline-block cursor-help rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
