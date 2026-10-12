@@ -299,13 +299,26 @@ function rowHour(t: number): number {
   return Math.ceil(t / HOUR_MS) * HOUR_MS
 }
 
-// One value per hour: the station's latest non-null reading in that hour.
+type Reading = { t: number; v: number | null }
+
+// Whether a reading replaces the one kept for its hour; a null never does.
+function replaces(kept: Reading, next: Reading, max: boolean): boolean {
+  if (next.v === null) return false
+  if (kept.v === null) return true
+  return max ? next.v > kept.v : next.t > kept.t
+}
+
+// One value per hour: the station's latest non-null reading in that hour, or
+// with `max` its highest. Airports' hourly precip accumulates from the routine
+// :53 report and resets after it, so the latest reading can be a few minutes'
+// worth; the hour's maximum is the full hour.
 function hourlyValues(
   times: string[],
   values: (number | null)[],
   now: number,
+  max = false,
 ): Map<number, number | null> {
-  const byHour = new Map<number, { t: number; v: number | null }>()
+  const byHour = new Map<number, Reading>()
   times.forEach((iso, i) => {
     const t = new Date(iso).getTime()
     const hour = rowHour(t)
@@ -313,7 +326,7 @@ function hourlyValues(
     if (!Number.isFinite(t) || hour > now) return
     const v = values[i] ?? null
     const kept = byHour.get(hour)
-    if (!kept || (v !== null && (kept.v === null || t > kept.t))) byHour.set(hour, { t, v })
+    if (!kept || replaces(kept, { t, v }, max)) byHour.set(hour, { t, v })
   })
   return new Map(Array.from(byHour, ([hour, { v }]) => [hour, v]))
 }
@@ -343,7 +356,8 @@ function columnHours(
   now: number,
 ): Map<number, number | null> {
   if (!station || !series) return new Map()
-  const hourly = hourlyValues(timeSeries(station.observations), series, now)
+  const precip = variable === PRECIP_HOURLY || variable === PRECIP_CUMSUM
+  const hourly = hourlyValues(timeSeries(station.observations), series, now, precip)
   return variable === PRECIP_CUMSUM ? hourlyCumsum(hourly) : hourly
 }
 

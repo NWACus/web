@@ -202,6 +202,36 @@ describe('buildStationTable with stations on different schedules', () => {
     expect(two.values['mesowest:KSEA_precip_cumsum']).toBe(0.3)
   })
 
+  it("keeps an airport's full hour of precip across its reset after the :53 report", () => {
+    // KSEA-style: precip accumulates from the last routine :53 report, then restarts.
+    const resetting: SnowObsTimeseriesResponse = {
+      ...mixed,
+      STATION: [
+        {
+          id: 'KSEA',
+          stid: 'KSEA',
+          source: 'mesowest',
+          name: 'Airport',
+          observations: {
+            date_time: [
+              '2026-07-07T01:05:00Z',
+              '2026-07-07T01:30:00Z',
+              '2026-07-07T01:53:00Z',
+              '2026-07-07T01:58:00Z',
+              '2026-07-07T02:00:00Z',
+            ],
+            precip_accum_one_hour: [0.01, 0.05, 0.08, 0.01, 0.02],
+          },
+        },
+      ],
+    }
+    const precipOnly = [
+      { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'precip_accum_one_hour' },
+    ]
+    const [hour] = buildStationTable('nwac', resetting, precipOnly, now).rows
+    expect(hour.values['mesowest:KSEA_precip_accum_one_hour']).toBe(0.08)
+  })
+
   it('reports the newest reading at its own time', () => {
     expect(table.latestObservation).toBe(Date.parse('2026-07-07T02:10:00Z'))
     expect(table.latestDisplay).toBe('07/06 19:10')
