@@ -23,8 +23,8 @@ export function TravelAdviceColumn({
 
   return (
     <div className={className}>
-      {/* The height of a day column's `h4` (text-sm line plus mb-3). */}
-      {alignWithHeading && <div aria-hidden className="mb-3 h-5" />}
+      {/* The height of a day column's `h4` (text-base line plus mb-3). */}
+      {alignWithHeading && <div aria-hidden className="mb-3 h-6" />}
       <ul aria-label="Travel advice">
         {levels.map((level, i) => (
           <li
