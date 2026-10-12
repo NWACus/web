@@ -21,6 +21,12 @@ export const TIMEZONE_OPTIONS = [
   { label: 'Island Time (HT)', value: US_TIMEZONES.HAWAII },
 ]
 
+// A3 Courses can be held abroad (e.g. Otaru); centers and their Events never are
+export const COURSE_TIMEZONE_OPTIONS = [
+  ...TIMEZONE_OPTIONS,
+  { label: 'Japan Time (JST)', value: 'Asia/Tokyo' },
+]
+
 /**
  * Whether two IANA zones put a given instant at the same wall clock time.
  *
