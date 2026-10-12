@@ -10,9 +10,9 @@ interface ProductNoticeProps extends Pick<ComponentPropsWithoutRef<'div'>, 'role
   children: ReactNode
 }
 
-/** The widget's notice links: white and underlined, fading on hover. */
+/** White like the widget's links, dropping the underline on hover as the site's forecast links do. */
 export const PRODUCT_NOTICE_LINK_CLASS =
-  'text-white underline underline-offset-2 hover:text-[rgba(255,255,255,0.7)]'
+  'text-white underline underline-offset-2 hover:no-underline'
 
 export function ProductNotice({ icon: Icon, role, children }: ProductNoticeProps) {
   // Exact color even on a plain Cmd+P print, which would otherwise drop the grey and leave white text.
