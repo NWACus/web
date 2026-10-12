@@ -1,6 +1,6 @@
 'use client'
 
-import { disableRotation, MAP_STYLE } from '@/components/map/mapbox'
+import { createProductMap } from '@/components/map/mapbox'
 import { MapMarker } from '@/components/stationMap/MapMarker'
 import { useMapBackgroundClick } from '@/components/stationMap/useStationMap'
 import { formatDateTime } from '@/utilities/formatDateTime'
@@ -33,24 +33,14 @@ function useEventsMapInstance(containerRef: RefObject<HTMLDivElement | null>) {
     const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
     const wrapper = containerRef.current
     if (!wrapper || !token) return
-    mapboxgl.accessToken = token
-    // A fresh element per map: dev's double-mounted effect would otherwise hand Mapbox a used one.
-    const container = wrapper.appendChild(document.createElement('div'))
-    container.className = 'h-full w-full'
-    const instance = new mapboxgl.Map({
-      container,
-      style: MAP_STYLE,
+    const { map: instance, remove } = createProductMap(wrapper, token, {
       center: [-114, 44],
       zoom: 3.5,
-      cooperativeGestures: true,
     })
-    disableRotation(instance)
-    instance.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
     setMap(instance)
     return () => {
       setMap(null)
-      instance.remove()
-      container.remove()
+      remove()
     }
   }, [containerRef])
 

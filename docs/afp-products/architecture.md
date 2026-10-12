@@ -139,7 +139,7 @@ The browser reads that list through `fetchProductArchiveOrThrow` rather than `fe
 
 Server rendering is the default and the client bundle is deliberately small. The exceptions are genuinely interactive: the two Mapbox maps (danger and weather stations); the archive calendar, which lazily fetches per-month danger colors from a route handler rather than shipping the full product archive; and the forecast glossary, which marks terms in the already-rendered prose from a term list it fetches from `GET /api/glossary`, so a term edit never touches a forecast page's cache (ADR 018).
 
-**One map library.** Both native maps build on the same Mapbox setup — `src/components/map/mapbox.ts` holds the base style, the control adapter and the gesture lockdown, and `NEXT_PUBLIC_MAPBOX_TOKEN` is the one token. The station map (inventory row S1) is the surface that retired Google Maps: the legacy stations widget was the last consumer of it, and the repo now carries exactly one map stack.
+**One map library.** Both native maps build on the same Mapbox setup — `src/components/map/mapbox.ts` holds the base style, the control adapter and the gesture lockdown (plus `createProductMap`, which the events map and the admin event pin picker build on), and `NEXT_PUBLIC_MAPBOX_TOKEN` is the one token. The station map (inventory row S1) is the surface that retired Google Maps: the legacy stations widget was the last consumer of it, and the repo now carries exactly one map stack.
 
 ### The station map is not an AFP product
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { disableRotation, MAP_STYLE } from '@/components/map/mapbox'
+import { createProductMap } from '@/components/map/mapbox'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useEffect, useRef } from 'react'
@@ -34,20 +34,13 @@ export function PickerMap({ point, onPick }: PickerMapProps) {
     const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
     const wrapper = containerRef.current
     if (!wrapper || !token) return
-    mapboxgl.accessToken = token
-    // A fresh element per map: dev's double-mounted effect would otherwise hand Mapbox a used one.
-    const container = wrapper.appendChild(document.createElement('div'))
-    container.className = 'h-full w-full'
 
     const start = initialPoint.current
-    const map = new mapboxgl.Map({
-      container,
-      style: MAP_STYLE,
-      ...(start ? { center: [start.longitude, start.latitude], zoom: POINT_ZOOM } : UNSET_VIEW),
-      cooperativeGestures: true,
-    })
-    disableRotation(map)
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
+    const { map, remove } = createProductMap(
+      wrapper,
+      token,
+      start ? { center: [start.longitude, start.latitude], zoom: POINT_ZOOM } : UNSET_VIEW,
+    )
     map.getCanvas().style.cursor = 'crosshair'
     map.on('click', (event) => {
       onPickRef.current({ latitude: event.lngLat.lat, longitude: event.lngLat.lng })
@@ -64,8 +57,7 @@ export function PickerMap({ point, onPick }: PickerMapProps) {
     return () => {
       markerRef.current = null
       mapRef.current = null
-      map.remove()
-      container.remove()
+      remove()
     }
   }, [])
 
