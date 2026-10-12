@@ -84,16 +84,6 @@ export const locationField = (): GroupField => ({
     ...coreLocationFields,
     coordinatesField({ condition: (_data, siblingData) => !siblingData?.isVirtual }),
     {
-      name: 'coordinatesPicker',
-      type: 'ui',
-      admin: {
-        condition: (_data, siblingData) => !siblingData?.isVirtual,
-        components: {
-          Field: '@/fields/location/components/CoordinatesPicker#CoordinatesPicker',
-        },
-      },
-    },
-    {
       name: 'virtualUrl',
       type: 'text',
       label: 'Virtual Event URL',

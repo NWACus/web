@@ -1338,7 +1338,7 @@ sig = "eb2718b09a4b6ff6"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/fields/location/components/CoordinatesPicker.tsx"
-sig = "eb4ba3eb7ee90c22"
+sig = "f6c368d65ca30f92"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

@@ -1,7 +1,7 @@
 'use client'
 
 import type { AddressParts, GeocodeResult } from '@/services/geocodio'
-import { Button, FieldLabel, useField } from '@payloadcms/ui'
+import { Button, FieldDescription, FieldLabel, toast, useField } from '@payloadcms/ui'
 import dynamic from 'next/dynamic'
 import type { UIFieldClientComponent } from 'payload'
 import { useMemo, useState } from 'react'
@@ -10,7 +10,9 @@ import type { GeocodeStatus } from '../coordinatesField'
 // mapbox-gl touches `window` when imported, so the map only loads in the browser.
 const PickerMap = dynamic(() => import('./PickerMap.client').then((mod) => mod.PickerMap), {
   ssr: false,
-  loading: () => <div className="h-72 w-full rounded bg-[var(--theme-elevation-50)]" />,
+  loading: () => (
+    <div className="h-72 w-full rounded-[var(--style-radius-s)] bg-[var(--theme-elevation-50)]" />
+  ),
 })
 
 const STATUS_TEXT: Record<GeocodeStatus, string> = {
@@ -22,9 +24,19 @@ const STATUS_TEXT: Record<GeocodeStatus, string> = {
 }
 
 const LOOKUP_FAILURE: Record<'no-match' | 'unavailable', string> = {
-  'no-match': 'No match. Add a city and state or ZIP, or click the map.',
+  'no-match': 'No match for that address. Add a city and state or a ZIP, or click the map.',
   unavailable: 'Address lookup is unavailable right now. Click the map to place the pin.',
 }
+
+function announce(result: GeocodeResult) {
+  if (result.status !== 'found') return toast.error(LOOKUP_FAILURE[result.status])
+  if (result.precision === 'exact') return toast.success('Placed the pin at the address.')
+  toast.warning('Only an approximate match (street, city or ZIP). Drag the pin to the exact spot.')
+}
+
+/** `a.b.c` → `a.b`; a top-level path has no parent. */
+const parentOf = (path: string) => path.slice(0, Math.max(path.lastIndexOf('.'), 0))
+const join = (parent: string, name: string) => (parent ? `${parent}.${name}` : name)
 
 // Six decimals is about 10 cm, more than enough for a meeting spot.
 const round = (value: number) => Math.round(value * 1e6) / 1e6
@@ -47,8 +59,7 @@ async function requestGeocode(parts: AddressParts): Promise<GeocodeResult> {
   }
 }
 
-function describeStatus(lookupError: string | null, status: GeocodeStatus | null, placed: boolean) {
-  if (lookupError) return lookupError
+function describeStatus(status: GeocodeStatus | null, placed: boolean) {
   if (status) return STATUS_TEXT[status]
   return placed
     ? 'Drag the pin or click the map to adjust.'
@@ -56,20 +67,19 @@ function describeStatus(lookupError: string | null, status: GeocodeStatus | null
 }
 
 export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
-  // The picker sits beside `coordinates` in the location group: drop its own trailing name.
-  const group = path.replace(/\.?coordinatesPicker$/, '')
-  const prefix = group ? `${group}.` : ''
+  // The picker lives in the `coordinates` group, which sits in the location group with the address.
+  const coordinates = parentOf(path)
+  const location = parentOf(coordinates)
 
-  const latitude = useField<number | null>({ path: `${prefix}coordinates.latitude` })
-  const longitude = useField<number | null>({ path: `${prefix}coordinates.longitude` })
-  const status = useField<GeocodeStatus | null>({ path: `${prefix}coordinates.geocodeStatus` })
-  const address = useField<string>({ path: `${prefix}address` })
-  const city = useField<string>({ path: `${prefix}city` })
-  const state = useField<string>({ path: `${prefix}state` })
-  const zip = useField<string>({ path: `${prefix}zip` })
+  const latitude = useField<number | null>({ path: join(coordinates, 'latitude') })
+  const longitude = useField<number | null>({ path: join(coordinates, 'longitude') })
+  const status = useField<GeocodeStatus | null>({ path: join(coordinates, 'geocodeStatus') })
+  const address = useField<string>({ path: join(location, 'address') })
+  const city = useField<string>({ path: join(location, 'city') })
+  const state = useField<string>({ path: join(location, 'state') })
+  const zip = useField<string>({ path: join(location, 'zip') })
 
   const [finding, setFinding] = useState(false)
-  const [lookupError, setLookupError] = useState<string | null>(null)
 
   const point = useMemo(
     () => pointFrom(latitude.value, longitude.value),
@@ -80,7 +90,6 @@ export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
     latitude.setValue(round(next.latitude))
     longitude.setValue(round(next.longitude))
     status.setValue(nextStatus)
-    setLookupError(null)
   }
 
   const findFromAddress = async () => {
@@ -92,12 +101,14 @@ export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
       zip: zip.value,
     })
     setFinding(false)
-    if (result.status !== 'found') return setLookupError(LOOKUP_FAILURE[result.status])
-    setPoint(result, result.precision === 'exact' ? 'geocoded' : 'approximate')
+    announce(result)
+    if (result.status === 'found') {
+      setPoint(result, result.precision === 'exact' ? 'geocoded' : 'approximate')
+    }
   }
 
   return (
-    <div className="field-type mb-6 flex flex-col gap-2">
+    <div className="field-type flex flex-col gap-2">
       <div className="flex items-center justify-between gap-4">
         <FieldLabel label="Map location" />
         <Button
@@ -111,9 +122,7 @@ export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
         </Button>
       </div>
       <PickerMap point={point} onPick={(next) => setPoint(next, 'manual')} />
-      <p className="text-sm text-[var(--theme-elevation-600)]">
-        {describeStatus(lookupError, status.value, point !== null)}
-      </p>
+      <FieldDescription path={path} description={describeStatus(status.value, point !== null)} />
     </div>
   )
 }
