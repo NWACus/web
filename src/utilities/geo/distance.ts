@@ -44,6 +44,13 @@ export function boundingBox(center: LatLng, radiusKm: number): BoundingBox {
   }
 }
 
+/** Stored coordinates as a point, or null when either half is missing. */
+export function toLatLng(coordinates: StoredCoordinates | null | undefined): LatLng | null {
+  const { latitude, longitude } = coordinates ?? {}
+  if (typeof latitude !== 'number' || typeof longitude !== 'number') return null
+  return { latitude, longitude }
+}
+
 /**
  * Keeps the docs inside the radius, nearest first, each tagged with its distance.
  * Docs without coordinates are dropped.
@@ -56,14 +63,9 @@ export function rankByDistance<T>(
 ): Array<{ doc: T; distanceKm: number }> {
   return docs
     .flatMap((doc) => {
-      const coordinates = getCoordinates(doc)
-      if (typeof coordinates?.latitude !== 'number' || typeof coordinates.longitude !== 'number') {
-        return []
-      }
-      const distanceKm = haversineKm(center, {
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
-      })
+      const point = toLatLng(getCoordinates(doc))
+      if (!point) return []
+      const distanceKm = haversineKm(center, point)
       return distanceKm <= radiusKm ? [{ doc, distanceKm }] : []
     })
     .sort((a, b) => a.distanceKm - b.distanceKm)
