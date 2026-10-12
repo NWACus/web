@@ -918,9 +918,6 @@ export interface Event {
       | null;
     zip?: string | null;
     country?: 'US' | null;
-    /**
-     * Decimal degrees (e.g. 47.6062, -122.3321). Used for distance search.
-     */
     coordinates?: {
       latitude?: number | null;
       longitude?: number | null;

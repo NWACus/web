@@ -3,7 +3,11 @@ import type { GroupField, NumberField, SelectField } from 'payload'
 
 const BOTH_OR_NEITHER = 'Enter both latitude and longitude, or leave both blank.'
 
-const coordinate = (name: 'latitude' | 'longitude', limit: number): NumberField => {
+const coordinate = (
+  name: 'latitude' | 'longitude',
+  limit: number,
+  placeholder: string,
+): NumberField => {
   const other = name === 'latitude' ? 'longitude' : 'latitude'
   return {
     name,
@@ -11,7 +15,7 @@ const coordinate = (name: 'latitude' | 'longitude', limit: number): NumberField 
     min: -limit,
     max: limit,
     index: true,
-    admin: { step: 0.000001 },
+    admin: { step: 0.000001, placeholder },
     validate: (value, { siblingData }) => {
       const otherValue = isRecord(siblingData) ? siblingData[other] : null
       const hasValue = typeof value === 'number'
@@ -47,14 +51,25 @@ export const coordinatesField = ({
 }: { condition?: NonNullable<GroupField['admin']>['condition'] } = {}): GroupField => ({
   name: 'coordinates',
   type: 'group',
-  admin: {
-    description: 'Decimal degrees (e.g. 47.6062, -122.3321). Used for distance search.',
-    condition,
-  },
+  // No heading or nested-group gutter: the map picker labels this block.
+  label: false,
+  admin: { hideGutter: true, condition },
   fields: [
     {
+      name: 'picker',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/fields/location/components/CoordinatesPicker#CoordinatesPicker',
+        },
+      },
+    },
+    {
       type: 'row',
-      fields: [coordinate('latitude', 90), coordinate('longitude', 180)],
+      fields: [
+        coordinate('latitude', 90, 'e.g. 47.6062'),
+        coordinate('longitude', 180, 'e.g. -122.3321'),
+      ],
     },
     geocodeStatusField,
   ],

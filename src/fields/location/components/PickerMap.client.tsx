@@ -77,5 +77,10 @@ export function PickerMap({ point, onPick }: PickerMapProps) {
   if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
     return <p className="text-sm">The map needs NEXT_PUBLIC_MAPBOX_TOKEN.</p>
   }
-  return <div ref={containerRef} className="h-72 w-full rounded overflow-hidden" />
+  return (
+    <div
+      ref={containerRef}
+      className="h-72 w-full overflow-hidden rounded-[var(--style-radius-s)] border border-[var(--theme-elevation-150)]"
+    />
+  )
 }
