@@ -61,7 +61,8 @@ export function DangerRating({
 
   return (
     <section className="space-y-4">
-      {/* The ⓘ belongs to the zone page's section; the all-zones card keeps its plain heading. */}
+      {/* The (?) belongs to the zone page's section; the all-zones card keeps its plain
+          heading. */}
       {headings.dated ? (
         <HelpHeading
           title="Avalanche Danger"
@@ -343,8 +344,8 @@ function DangerRow({
         />
       )}
       {/* The icon covers the row's last 25px, which a 150px rating reaches from sm until md's 30%
-          box. Letter and A4 paper are too narrow for a one-line rating beside the triangle, so there
-          the triangle moves in and the rating wraps in a box between it and the icon. */}
+          box. Letter and A4 paper are too narrow for a one-line rating beside the triangle, so
+          there the triangle moves in and the rating wraps in a box between it and the icon. */}
       <span
         className={cn(
           'absolute right-0 top-1/2 z-[1] w-[150px] -translate-y-1/2 text-base font-bold sm:right-[25px] sm:text-lg md:right-0 md:w-[30%] printWide:right-[30px] printWide:w-[90px] printWide:text-[15px]',

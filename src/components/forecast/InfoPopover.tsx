@@ -1,11 +1,11 @@
 'use client'
 
 /**
- * The forecast's help popover — the native equivalent of the legacy widget's ⓘ popovers, its
+ * The forecast's help popover — the native equivalent of the legacy widget's (?) popovers, its
  * "Click to learn more" problem-type icon, and the weather table's "?" bubble. A real button, so it
  * opens on click, Enter and Space, closes on Escape and hands focus back to the trigger.
  *
- * The plain ⓘ also opens on hover, because it is read on both desktop and touch and a `title`
+ * The plain (?) also opens on hover, because it is read on both desktop and touch and a `title`
  * attribute reaches neither reliably, and a click pins the hover-opened panel rather than closing
  * it; it is screen furniture, so it does not print. A custom trigger (a problem-type icon) prints,
  * and opens on click only: hovering it shows its hint.
@@ -13,7 +13,7 @@
  * This is deliberately NOT the glossary tooltip system (issue 06) — it shows hardcoded/structural
  * help, or API text, whose HTML the server has already sanitized.
  */
-import { Info } from 'lucide-react'
+import { CircleQuestionMark } from 'lucide-react'
 import { type MouseEvent, type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -27,11 +27,11 @@ interface InfoPopoverProps {
   html: string
   /** The trigger's accessible name, e.g. `What "Ridgeline Wind Speed" means`. */
   label: string
-  /** Trigger content in place of the ⓘ, e.g. a problem-type icon. */
+  /** Trigger content in place of the (?), e.g. a problem-type icon. */
   children?: ReactNode
   /** Shown over a custom trigger on hover or focus, e.g. "Click to learn more". */
   hint?: string
-  /** Merged over the trigger's classes, e.g. to re-align the ⓘ beside a heading. */
+  /** Merged over the trigger's classes, e.g. to re-align the (?) beside a heading. */
   className?: string
 }
 
@@ -48,7 +48,7 @@ export function InfoPopover({ html, label, children, hint, className }: InfoPopo
         onClick={onTriggerClick}
         {...hoverHandlers}
       >
-        {custom ? children : <Info aria-hidden className="size-4" />}
+        {custom ? children : <CircleQuestionMark aria-hidden className="size-4" />}
         {hint && <TriggerHint text={hint} />}
       </PopoverTrigger>
       <PopoverContent
@@ -86,8 +86,8 @@ function TriggerHint({ text }: { text: string }) {
 
 /**
  * Open/close state for a popover that may also open on hover. Hovering peeks: the panel closes when
- * the pointer leaves and never moves focus. A click, Enter or Space pins it: it stays until dismissed,
- * takes focus, and hands it back to the trigger on closing.
+ * the pointer leaves and never moves focus. A click, Enter or Space pins it: it stays until
+ * dismissed, takes focus, and hands it back to the trigger on closing.
  */
 function useHoverPopover(opensOnHover: boolean) {
   const [mode, setMode] = useState<'closed' | 'peek' | 'pinned'>('closed')

@@ -7,13 +7,13 @@ interface HelpHeadingProps {
   title: string
   /** Trusted help HTML (see `forecastHelp.ts`). */
   help: string
-  /** The ⓘ's accessible name. */
+  /** The (?)'s accessible name. */
   helpLabel: string
   className?: string
 }
 
 /**
- * A panel section's heading with the widget's ⓘ beside it. The ⓘ sits outside the `h2` so the
+ * A panel section's heading with the widget's (?) beside it. The (?) sits outside the `h2` so the
  * heading's accessible name stays its title, and is centred on the heading's line box: the
  * inline lift tuned for body text leaves it low beside a 24px heading.
  */

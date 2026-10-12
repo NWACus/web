@@ -21,7 +21,7 @@ describe('InfoPopover', () => {
     expect(screen.queryByText(/is a tool/)).not.toBeInTheDocument()
   })
 
-  it('keeps the ⓘ off paper', () => {
+  it('keeps the (?) off paper', () => {
     render(<InfoPopover html={HELP} label="About Avalanche Danger" />)
 
     expect(screen.getByRole('button', { name: 'About Avalanche Danger' })).toHaveClass(
@@ -29,7 +29,7 @@ describe('InfoPopover', () => {
     )
   })
 
-  it('opens the ⓘ on hover', () => {
+  it('opens the (?) on hover', () => {
     render(<InfoPopover html={HELP} label="About Avalanche Danger" />)
 
     fireEvent.mouseEnter(screen.getByRole('button', { name: 'About Avalanche Danger' }))
@@ -38,7 +38,7 @@ describe('InfoPopover', () => {
   })
 
   // Radix toggles on click, so without the pin a hover-then-click would close the panel.
-  it('keeps a hover-opened ⓘ open when it is clicked, and after the pointer leaves', () => {
+  it('keeps a hover-opened (?) open when it is clicked, and after the pointer leaves', () => {
     jest.useFakeTimers()
     render(<InfoPopover html={HELP} label="About Avalanche Danger" />)
     const trigger = screen.getByRole('button', { name: 'About Avalanche Danger' })
@@ -51,7 +51,7 @@ describe('InfoPopover', () => {
     expect(screen.getByText(/is a tool/)).toBeInTheDocument()
   })
 
-  it('leaves focus where it was when a hover-opened ⓘ closes', () => {
+  it('leaves focus where it was when a hover-opened (?) closes', () => {
     jest.useFakeTimers()
     render(
       <>
