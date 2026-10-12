@@ -58,7 +58,7 @@ sig = "ff5d3fe541e1dfad"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "81f5116bf33918a4"
+sig = "2295e66f372fcd8e"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1268,7 +1268,7 @@ sig = "e3dde955e6e1147b"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/app/(frontend)/[center]/events/page.tsx"
-sig = "43282c6a80a9303a"
+sig = "baed4a5d7c4da632"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1302,13 +1302,28 @@ sig = "9a76604864fb2062"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/collections/Events/endpoints/geocode.ts"
+sig = "5806eb57c778c115"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/collections/Events/index.ts"
-sig = "f8b42ae102ff2db7"
+sig = "dda71b89808862b1"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Providers/index.ts"
 sig = "ef162015be100d91"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/EventsMapView.tsx"
+sig = "972ac6dd09769c15"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/EventsResults.tsx"
+sig = "bbcbec17a20383b3"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1322,8 +1337,23 @@ sig = "eb2718b09a4b6ff6"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/fields/location/components/CoordinatesPicker.tsx"
+sig = "eb4ba3eb7ee90c22"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/fields/location/hooks/geocodeLocation.ts"
+sig = "233e8c9430ee1ea2"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/fields/slug/ensureUniqueSlug.ts"
 sig = "cb2e76810074aec2"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/services/geocodio.ts"
+sig = "c24590dc084b4c92"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1623,7 +1653,7 @@ sig = "4fc2ad0bd4509765"
 [[bindings]]
 doc = "docs/testing.md"
 target = ".env.example"
-sig = "098d52fd2070a0ad"
+sig = "f44565a1b5ca188d"
 
 [[bindings]]
 doc = "docs/testing.md"
