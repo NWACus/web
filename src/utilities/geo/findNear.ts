@@ -6,16 +6,11 @@ import type {
   Where,
 } from 'payload'
 import { boundingBox, rankByDistance, type LatLng, type StoredCoordinates } from './distance'
+import { andWhere, withinBoxWhere } from './where'
 
 /** A Payload `where` matching docs whose `<path>.latitude`/`.longitude` fall in the radius's bounding box. */
 export function nearWhere(path: string, center: LatLng, radiusKm: number): Where {
-  const { south, north, west, east } = boundingBox(center, radiusKm)
-  return {
-    and: [
-      { [`${path}.latitude`]: { greater_than_equal: south, less_than_equal: north } },
-      { [`${path}.longitude`]: { greater_than_equal: west, less_than_equal: east } },
-    ],
-  }
+  return withinBoxWhere(path, boundingBox(center, radiusKm))
 }
 
 type FindNearArgs<TSlug extends CollectionSlug> = {
@@ -48,10 +43,9 @@ export async function findNear<TSlug extends CollectionSlug>({
   depth,
   req,
 }: FindNearArgs<TSlug>) {
-  const near = nearWhere(path, center, radiusKm)
   const { docs } = await payload.find({
     collection,
-    where: where ? { and: [where, near] } : near,
+    where: andWhere(where, nearWhere(path, center, radiusKm)),
     pagination: false,
     depth,
     req,
