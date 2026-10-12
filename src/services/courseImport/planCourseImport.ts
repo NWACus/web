@@ -77,8 +77,7 @@ export type CourseImportPlan = {
 }
 
 /** How a sheet's Provider name is compared: case and runs of whitespace don't matter. */
-export const normalizeProviderName = (name: string) =>
-  name.trim().replace(/\s+/g, ' ').toLowerCase() // collapse runs of whitespace
+const normalizeProviderName = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase() // collapse runs of whitespace
 
 /**
  * Label → value for a select field's options. The guard narrows each value to the field's

@@ -195,7 +195,7 @@ Provider Managers and Super Admins can load A3's season spreadsheet at `/admin/c
 - **Blocked**: every reason is listed. Values must exactly match the catalog (Provider name, Course Type and the Provider's Approved Course Types, the title's Course Type full name (a Rec 1 or Rec 2 title may also add "& Avalanche Rescue"), modes, Affinity Groups, state, time zone), and real start and end times are required. Nothing is corrected or guessed.
 - **Likely duplicates**: match an existing Course, or an earlier row, on every field. Skipped unless ticked.
 
-To test an import locally against real Provider names, `pnpm sync-providers` copies published Providers from a source database (`SOURCE_DATABASE_URI`, `SOURCE_DATABASE_AUTH_TOKEN`) into the local `file:` database, and with `SHEET=path/to/sheet.csv` lists the sheet's Provider names that have no published match. Any source value the app doesn't know (a Course Type or state) is printed rather than silently left out.
+To test an import locally against real Provider names, copy prod's published Providers with `sync-providers-from-prod` in [NWACus/avy-scripts](https://github.com/NWACus/avy-scripts).
 
 Confirming re-checks access and re-plans against the current catalog. Afterwards the same three boxes show what happened to every row: imported (green), not imported (red, with reasons), and skipped duplicates. The database runs without transactions, so if a save fails part-way the Courses already created by that import are deleted.
 
