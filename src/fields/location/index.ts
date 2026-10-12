@@ -1,6 +1,7 @@
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { Field, GroupField } from 'payload'
 import { coordinatesField } from './coordinatesField'
+import { geocodeLocation } from './hooks/geocodeLocation'
 import { stateOptions } from './states'
 
 export const coreLocationFields: Field[] = [
@@ -59,6 +60,7 @@ export const coreLocationFields: Field[] = [
 export const locationField = (): GroupField => ({
   name: 'location',
   type: 'group',
+  hooks: { beforeChange: [geocodeLocation] },
   fields: [
     {
       name: 'isVirtual',
@@ -81,6 +83,16 @@ export const locationField = (): GroupField => ({
     },
     ...coreLocationFields,
     coordinatesField({ condition: (_data, siblingData) => !siblingData?.isVirtual }),
+    {
+      name: 'coordinatesPicker',
+      type: 'ui',
+      admin: {
+        condition: (_data, siblingData) => !siblingData?.isVirtual,
+        components: {
+          Field: '@/fields/location/components/CoordinatesPicker#CoordinatesPicker',
+        },
+      },
+    },
     {
       name: 'virtualUrl',
       type: 'text',
