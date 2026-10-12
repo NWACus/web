@@ -22,7 +22,7 @@ export function CollapsibleOutlook({ heading, children, className }: Collapsible
 
   return (
     <div className={cn('border-y-[5px] border-muted py-4', className)}>
-      <h4 className="text-sm font-semibold">
+      <h4 className="text-base font-semibold">
         <button
           type="button"
           aria-expanded={open}

@@ -298,7 +298,7 @@ function DangerDay({ heading, forecast, elevationBandNames, variant }: DangerDay
 
   return (
     <div>
-      <h4 className="mb-3 text-sm font-semibold">{heading}</h4>
+      <h4 className="mb-3 text-base font-semibold">{heading}</h4>
       {/* Rows, then the triangle over their backgrounds, then the row content over the triangle
           (it is raised with z-[1]) — the widget's stacking. */}
       <div className="relative">
