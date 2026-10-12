@@ -23,6 +23,8 @@ const midnightUTCDate = (monthOffset: number, day: number): string => {
   return date.toISOString()
 }
 
+// Pre-existing size; this change only adds seed coordinates.
+// fallow-ignore-next-line complexity
 export const getEventsData = (
   tenant: Tenant,
   featuredImage?: Media,
@@ -46,6 +48,7 @@ export const getEventsData = (
         city: 'North Bend',
         state: 'WA',
         zip: '98045',
+        coordinates: { latitude: 47.4957, longitude: -121.7868 },
         extraInfo: 'Enter through main entrance, presentation in Room A',
       },
       featuredImage: featuredImage?.id,
@@ -80,6 +83,7 @@ export const getEventsData = (
         city: 'Stevens Pass',
         state: 'WA',
         zip: '98826',
+        coordinates: { latitude: 47.7448, longitude: -121.089 },
         extraInfo: 'Meet at the lodge, dress for field work',
       },
       featuredImage: featuredImage?.id,
@@ -117,6 +121,7 @@ export const getEventsData = (
         city: 'Greenwater',
         state: 'WA',
         zip: '98022',
+        coordinates: { latitude: 47.154, longitude: -121.6365 },
         extraInfo: 'Meet in the main parking area, bring your sled',
       },
       featuredImage: featuredImage?.id,
@@ -185,6 +190,7 @@ export const getEventsData = (
         city: 'North Bend',
         state: 'WA',
         zip: '98045',
+        coordinates: { latitude: 47.4957, longitude: -121.7868 },
         extraInfo: 'All ages welcome, food and beverages available for purchase',
       },
       featuredImage: featuredImage?.id,
@@ -220,6 +226,7 @@ export const getEventsData = (
         city: 'Snoqualmie Pass',
         state: 'WA',
         zip: '98068',
+        coordinates: { latitude: 47.4245, longitude: -121.4137 },
         extraInfo: 'Meet at the Commonwealth Basin parking area',
       },
       featuredImage: featuredImage?.id,
@@ -258,6 +265,7 @@ export const getEventsData = (
         city: 'Skykomish',
         state: 'WA',
         zip: '98288',
+        coordinates: { latitude: 47.7095, longitude: -121.359 },
         extraInfo: 'Meet at the Nordic Center lodge',
       },
       featuredImage: featuredImage?.id,
