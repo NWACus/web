@@ -32,6 +32,7 @@ export const UNIT_LABELS: Record<string, string> = {
   '%': '%',
   'W/m**2': 'W/m²',
   volt: 'V',
+  inch_Hg: 'inHg',
 }
 
 export function displayUnit(rawUnit: string | undefined): string {

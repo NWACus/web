@@ -115,11 +115,11 @@ export function CompareSelect({
       onValueChange={(slug) => onCompareChange([...compareSlugs, slug])}
     >
       <SelectTrigger
-        aria-label="Compare with"
+        aria-label="Add stations"
         className={cn(stationSelectTriggerClass, 'py-1.5', className)}
       >
         <SelectValue
-          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
+          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add stations…'}
         />
       </SelectTrigger>
       <SelectContent position="item-aligned">

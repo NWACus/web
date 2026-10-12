@@ -13,8 +13,7 @@ import {
   Select,
   useField,
 } from '@payloadcms/ui'
-import type { JSONFieldClientProps, StaticDescription } from 'payload'
-import { useState } from 'react'
+import type { JSONFieldClientProps } from 'payload'
 import type { RequiredVariable, StationsInputClientProps } from './index'
 import { toStationRefs } from './index'
 import type { StationStatus } from './status'
@@ -231,8 +230,8 @@ function StationsTable({
   )
 }
 
-// A searchable select over the stations not yet listed; pick one or several,
-// and Add appends them in the order picked.
+// A searchable select over the stations not yet listed; picking one appends
+// it straight away.
 function AddStation({
   path,
   options,
@@ -242,54 +241,41 @@ function AddStation({
   options: Option[]
   onAdd: (refs: StationRef[]) => void
 }) {
-  const [chosen, setChosen] = useState<Option[]>([])
-  const add = () => {
-    if (chosen.length === 0) return
-    onAdd(chosen.map((o) => ({ stid: o.stid, source: o.source })))
-    setChosen([])
-  }
+  // Held empty, so each pick arrives alone and the field stays clear for the next.
   const pick = (picked: unknown) => {
     const values = new Set((Array.isArray(picked) ? picked : []).map((p) => String(p?.value)))
-    setChosen(options.filter((o) => values.has(o.value)))
+    const added = options.filter((o) => values.has(o.value))
+    if (added.length > 0) onAdd(added.map((o) => ({ stid: o.stid, source: o.source })))
   }
   return (
     <div className="stations-table__add">
       <label className="field-label" htmlFor={`${path}-add`}>
         Add station
       </label>
-      <div className="stations-table__add-row">
-        <Select
-          inputId={`${path}-add`}
-          isMulti
-          isSearchable
-          isClearable
-          placeholder="Search by name, id or source…"
-          options={options}
-          value={chosen}
-          onChange={pick}
-          components={{ Option: StatusOption }}
-        />
-        <Button buttonStyle="secondary" disabled={chosen.length === 0} onClick={add}>
-          {chosen.length > 1 ? `Add ${chosen.length}` : 'Add'}
-        </Button>
-      </div>
+      <Select
+        inputId={`${path}-add`}
+        isMulti
+        isSearchable
+        placeholder="Search by name, id or source…"
+        options={options}
+        value={[]}
+        onChange={pick}
+        components={{ Option: StatusOption }}
+      />
     </div>
   )
 }
 
-// Below the table: the add control and the field's own description, or the
-// reason neither is available.
+// Below the table: the add control, or the reason it is unavailable.
 function Footer({
   path,
   tracked,
   options,
-  description,
   onAdd,
 }: {
   path: string
   tracked: TrackedStations
   options: Option[]
-  description?: StaticDescription
   onAdd: (refs: StationRef[]) => void
 }) {
   if (tracked.status === 'error') {
@@ -300,12 +286,7 @@ function Footer({
       />
     )
   }
-  return (
-    <>
-      <AddStation path={path} options={options} onAdd={onAdd} />
-      {description && <FieldDescription path={path} description={description} />}
-    </>
-  )
+  return <AddStation path={path} options={options} onAdd={onAdd} />
 }
 
 // The page's stations as a table, in table order: drag to reorder, remove
@@ -329,6 +310,9 @@ export function StationsInput({
   return (
     <div className="field-type json stations-input mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
+      {field.admin?.description && (
+        <FieldDescription path={path} description={field.admin.description} />
+      )}
       {refs.length > 0 && (
         <StationsTable
           refs={refs}
@@ -341,7 +325,6 @@ export function StationsInput({
         path={path}
         tracked={tracked}
         options={options}
-        description={field.admin?.description}
         onAdd={(added) => setValue([...refs, ...added])}
       />
       <FieldError path={path} message={errorMessage} showError={showError} />

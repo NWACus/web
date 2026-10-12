@@ -4,7 +4,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import { StationAreaLinks } from '@/components/WeatherStations/StationAreaLinks'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import type { StationViewSubject } from '@/components/WeatherStations/stationTabViews'
-import { loadStationNotes, resolveTabView } from '@/components/WeatherStations/stationTabViews'
+import { loadStationMeta, resolveTabView } from '@/components/WeatherStations/stationTabViews'
 import { TrackedStationDetails } from '@/components/WeatherStations/TrackedStationDetails'
 import { stationDetailPath } from '@/services/snowobs/stationKey'
 import type { TrackedStation } from '@/services/snowobs/stationTracking'
@@ -15,6 +15,7 @@ import {
   stationPagePath,
   toPageSummaries,
 } from '@/services/stations/getStationPages'
+import { toStationTabs } from '@/services/stations/stationTabs'
 import { centerRouteMetadata } from '@/utilities/centerRoutePage'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
@@ -52,12 +53,18 @@ export default async function Page({ params, searchParams }: Args) {
 
   const pages = toPageSummaries(await getStationPages(center))
   const area = areaPageFor(pages, ref)
-  const subject: StationViewSubject = { slug: null, archived: false, stations: [ref], columns: [] }
+  const subject: StationViewSubject = {
+    slug: null,
+    archived: false,
+    stations: [ref],
+    columns: [],
+    tabs: toStationTabs(undefined),
+  }
   const timeZone = centerTimezone(center)
   const csv = { action: `${path}/csv`, filePrefix: station.source }
-  const [view, notes] = await Promise.all([
+  const [view, { notes }] = await Promise.all([
     resolveTabView({ center, subject, pages, timeZone, csv }, rangeParam, periodParam),
-    loadStationNotes(center, subject.stations),
+    loadStationMeta(center, subject.stations),
   ])
 
   return (
@@ -72,7 +79,6 @@ export default async function Page({ params, searchParams }: Args) {
       <StationPageView
         page={{ slug: null, displayName: displayName(station), archived: false }}
         pages={pages}
-        table={view.table}
         notes={notes}
         timeZone={timeZone}
         details={
