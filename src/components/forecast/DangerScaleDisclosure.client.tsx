@@ -28,7 +28,7 @@ export function DangerScaleDisclosure({ trigger, action, children }: DangerScale
           </div>
         </AccordionPrimitive.Header>
         <div className="absolute right-0 top-0">{action}</div>
-        <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down motion-reduce:animate-none">
+        <AccordionPrimitive.Content className="overflow-hidden motion-safe:data-[state=closed]:animate-accordion-up motion-safe:data-[state=open]:animate-accordion-down">
           {children}
         </AccordionPrimitive.Content>
       </AccordionPrimitive.Item>
