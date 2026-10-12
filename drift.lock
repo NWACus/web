@@ -428,7 +428,7 @@ sig = "9a46386ccf33f485"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/map/mapbox.ts"
-sig = "8bbb9716a0bcfcf3"
+sig = "997eaa8819164df8"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
