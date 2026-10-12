@@ -29,7 +29,8 @@ export function TravelAdviceColumn({
         {levels.map((level, i) => (
           <li
             key={i}
-            className="mb-[3px] flex h-[60px] items-center bg-muted px-4 text-sm leading-snug sm:mb-[5px] sm:h-[90px]"
+            // Smaller on Letter and A4 paper, where the column is too narrow for the advice to fit.
+            className="mb-[3px] flex h-[60px] items-center bg-muted px-4 text-sm leading-snug sm:mb-[5px] sm:h-[90px] printWide:px-3 printWide:text-xs"
           >
             {/* The advice is the danger scale's own constant HTML (a <strong> lead), not upstream text. */}
             <span dangerouslySetInnerHTML={{ __html: travelAdvice(level) }} />

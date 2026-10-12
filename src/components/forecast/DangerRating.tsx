@@ -310,7 +310,7 @@ function DangerDay({ heading, forecast, elevationBandNames, variant }: DangerDay
             upper={forecast.upper}
             middle={forecast.middle}
             lower={forecast.lower}
-            className="pointer-events-none absolute bottom-0 right-1/2 top-0 h-full w-auto sm:left-[70px] sm:right-auto md:left-[20%]"
+            className="pointer-events-none absolute bottom-0 right-1/2 top-0 h-full w-auto sm:left-[70px] sm:right-auto md:left-[20%] printWide:left-[30px]"
           />
         )}
       </div>
@@ -342,13 +342,14 @@ function DangerRow({
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(label) }}
         />
       )}
-      {/* On paper the row is narrow enough for a long rating to run under the icon, so it stops
-          short of the icon's overlap. */}
+      {/* The icon covers the row's last 25px, which a 150px rating reaches from sm until md's 30%
+          box. Letter and A4 paper are too narrow for a one-line rating beside the triangle, so there
+          the triangle moves in and the rating wraps in a box between it and the icon. */}
       <span
         className={cn(
-          'absolute right-0 top-1/2 z-[1] w-[150px] -translate-y-1/2 text-base font-bold md:w-[30%] sm:text-lg printWide:right-[25px] printWide:text-lg',
+          'absolute right-0 top-1/2 z-[1] w-[150px] -translate-y-1/2 text-base font-bold sm:right-[25px] sm:text-lg md:right-0 md:w-[30%] printWide:right-[30px] printWide:w-[90px] printWide:text-[15px]',
           outlook &&
-            'lg:left-[30px] lg:right-auto lg:w-auto printWide:left-[30px] printWide:right-auto printWide:w-auto',
+            'lg:left-[30px] lg:right-auto lg:w-auto printWide:left-[15px] printWide:w-auto',
         )}
       >
         {dangerLevelLabel(level)}
