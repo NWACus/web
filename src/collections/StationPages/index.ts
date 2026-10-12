@@ -37,6 +37,8 @@ export const StationPages: CollectionConfig<'stationPages'> = {
     useAsTitle: 'displayName',
     components: {
       edit: {
+        SaveButton:
+          '@/collections/StationPages/components/PublishChangesButton#PublishChangesButton',
         beforeDocumentControls: [
           '@/collections/StationPages/components/ViewStationPageButton#ViewStationPageButton',
         ],
