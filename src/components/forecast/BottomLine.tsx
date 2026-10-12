@@ -22,7 +22,7 @@ export function BottomLine({ html, dangerLevel }: BottomLineProps) {
   return (
     // Padding, not margin, for the room the overhanging icon needs: a parent's `space-y-*`
     // overrides a child's top margin.
-    <div className="pt-8">
+    <div className="pt-5">
       <Card className="relative">
         {/* The widget's 60px box with 0.3rem padding: a 50px-tall icon, auto width preserving the
           diamond's aspect ratio (icons 3–5 are wider). */}
