@@ -193,7 +193,7 @@ Provider Managers and Super Admins can load A3's season spreadsheet at `/admin/c
 
 - **Ready**: created as published Courses.
 - **Blocked**: every reason is listed. Values must exactly match the catalog (Provider name, Course Type and the Provider's Approved Course Types, the title's Course Type full name (a Rec 1 or Rec 2 title may also add "& Avalanche Rescue"), modes, Affinity Groups, state, time zone), and real start and end times are required. Nothing is corrected or guessed.
-- **Likely duplicates**: same Provider, Course Type, start, end and Place Name as an existing Course or an earlier row, even if the title or description differs. Skipped unless ticked.
+- **Likely duplicates**: same Provider, Course Type, start, end and Place Name as an existing Course or an earlier row, even if the title or description differs. Each one says what it matched: a link to the existing Course, or the earlier row number. Skipped unless ticked.
 
 A file that can't be read at all (broken quoting, rows with the wrong number of columns, missing or unexpected column headers, or an Excel file instead of CSV) is refused before any row is checked, with every problem listed at once.
 

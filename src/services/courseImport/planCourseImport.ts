@@ -63,6 +63,12 @@ export type CourseImportData = {
 
 export type RowSummary = { row: number; provider: string; title: string; start: string }
 export type PlannedCourse = RowSummary & { data: CourseImportData }
+export type ExistingCourse = CourseImportData & { id: number }
+/** What a likely duplicate collided with: a Course already in the catalog, or an earlier row. */
+export type DuplicateMatch =
+  | { kind: 'course'; id: number; title: string; startDate: string; timeZone: string }
+  | { kind: 'row'; row: number }
+export type LikelyDuplicate = PlannedCourse & { matches: DuplicateMatch }
 export type BlockedRow = RowSummary & { reasons: string[] }
 
 export type CourseImportPlan = {
@@ -70,7 +76,7 @@ export type CourseImportPlan = {
   fileErrors: string[]
   ready: PlannedCourse[]
   blocked: BlockedRow[]
-  likelyDuplicates: PlannedCourse[]
+  likelyDuplicates: LikelyDuplicate[]
 }
 
 const normalizeProviderName = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase() // collapse runs of whitespace
@@ -351,7 +357,7 @@ export function planCourseImport({
   headers: string[]
   rows: CourseImportRow[]
   providers: CatalogProvider[]
-  existingCourses: CourseImportData[]
+  existingCourses: ExistingCourse[]
 }): CourseImportPlan {
   const plan: CourseImportPlan = { fileErrors: [], ready: [], blocked: [], likelyDuplicates: [] }
 
@@ -369,7 +375,18 @@ export function planCourseImport({
     providersByName.set(key, [...(providersByName.get(key) ?? []), provider])
   }
 
-  const seen = new Set(existingCourses.map(duplicateKey))
+  const seen = new Map<string, DuplicateMatch>(
+    existingCourses.map((course) => [
+      duplicateKey(course),
+      {
+        kind: 'course',
+        id: course.id,
+        title: course.title,
+        startDate: course.startDate,
+        timeZone: course.startDate_tz,
+      },
+    ]),
+  )
   rows.forEach((row, index) => {
     const summary: RowSummary = {
       // Row 1 of the sheet is the header
@@ -384,9 +401,13 @@ export function planCourseImport({
       return
     }
     const key = duplicateKey(result.data)
-    if (seen.has(key)) plan.likelyDuplicates.push({ ...summary, data: result.data })
-    else plan.ready.push({ ...summary, data: result.data })
-    seen.add(key)
+    const match = seen.get(key)
+    if (match) {
+      plan.likelyDuplicates.push({ ...summary, data: result.data, matches: match })
+      return
+    }
+    plan.ready.push({ ...summary, data: result.data })
+    seen.set(key, { kind: 'row', row: summary.row })
   })
 
   return plan

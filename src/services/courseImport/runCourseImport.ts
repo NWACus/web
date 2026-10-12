@@ -6,6 +6,7 @@ import {
   type CatalogProvider,
   type CourseImportData,
   type CourseImportPlan,
+  type ExistingCourse,
   type PlannedCourse,
   type RowSummary,
 } from './planCourseImport'
@@ -33,9 +34,10 @@ const fileProblems = (fileErrors: string[]): PreviewResult => ({
 
 const orEmpty = (value: string | null | undefined) => value ?? ''
 
-export function courseToImportData(course: Course): CourseImportData {
+export function courseToImportData(course: Course): ExistingCourse {
   const { location } = course
   return {
+    id: course.id,
     title: course.title,
     subtitle: orEmpty(course.subtitle),
     description: orEmpty(course.description),
@@ -67,7 +69,7 @@ export function planFromCsvText({
 }: {
   text: unknown
   providers: CatalogProvider[]
-  existingCourses: CourseImportData[]
+  existingCourses: ExistingCourse[]
 }): PreviewResult {
   if (typeof text !== 'string' || !text.trim()) return { ok: false, error: 'Choose a CSV file.' }
   if (new TextEncoder().encode(text).length > MAX_FILE_BYTES)

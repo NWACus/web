@@ -1,5 +1,9 @@
 import { importBatches } from '@/services/courseImport/importBatches'
-import type { CourseImportPlan, PlannedCourse } from '@/services/courseImport/planCourseImport'
+import type {
+  CourseImportPlan,
+  LikelyDuplicate,
+  PlannedCourse,
+} from '@/services/courseImport/planCourseImport'
 import {
   coursesToCreate,
   createAllOrNone,
@@ -15,12 +19,17 @@ const planned = (row: number): PlannedCourse => ({
   data: { title: `Course ${row}` },
 })
 
+const duplicate = (row: number): LikelyDuplicate => ({
+  ...planned(row),
+  matches: { kind: 'row', row: 2 },
+})
+
 describe('coursesToCreate', () => {
   const plan: CourseImportPlan = {
     fileErrors: [],
     ready: [planned(2), planned(5)],
     blocked: [],
-    likelyDuplicates: [planned(3), planned(4)],
+    likelyDuplicates: [duplicate(3), duplicate(4)],
   }
 
   it('takes the ready rows plus only the ticked duplicates, in sheet order', () => {
@@ -71,7 +80,7 @@ describe('importBatches', () => {
       fileErrors: [],
       ready: Array.from({ length: 60 }, (_, i) => planned(i + 2)),
       blocked: [],
-      likelyDuplicates: [planned(70), planned(71)],
+      likelyDuplicates: [duplicate(70), duplicate(71)],
     }
     const batches = importBatches(plan, [71])
     expect(batches.map((b) => b.length)).toEqual([50, 11])

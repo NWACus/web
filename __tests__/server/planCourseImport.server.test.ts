@@ -5,7 +5,7 @@ import { parseCourseCsv } from '@/services/courseImport/parseCourseCsv'
 import {
   COURSE_IMPORT_COLUMNS,
   type CatalogProvider,
-  type CourseImportData,
+  type ExistingCourse,
   planCourseImport,
 } from '@/services/courseImport/planCourseImport'
 
@@ -18,7 +18,8 @@ const providers: CatalogProvider[] = [
   { id: 6, name: 'Kaf Adventures', courseTypes: ['rec-1', 'rescue'] },
 ]
 
-const existingKafRescue: CourseImportData = {
+const existingKafRescue: ExistingCourse = {
+  id: 99,
   title: 'Avalanche Rescue – Ski/Splitboard/Snowshoe',
   subtitle: 'Lift Access Course Taught with AIARE Curriculum – Hybrid (remote classwork)',
   description: '',
@@ -175,13 +176,20 @@ describe('planCourseImport', () => {
       courseUrl: 'https://example.org/old',
     }
     const plan = planCourseImport({ headers, rows, providers, existingCourses: [reworded] })
-    expect(plan.likelyDuplicates.map((r) => r.row)).toContain(15)
+    expect(plan.likelyDuplicates.find((r) => r.row === 15)?.matches).toEqual({
+      kind: 'course',
+      id: 99,
+      title: 'AIARE Avalanche Rescue',
+      startDate: existingKafRescue.startDate,
+      timeZone: 'America/Los_Angeles',
+    })
   })
 
   it('flags a later row with the same Provider, Course Type, times and place as an earlier one', () => {
     const plan = planFixture()
     const row3 = plan.likelyDuplicates.find((r) => r.row === 3)
     expect(row3?.data.subtitle).not.toBe(plan.ready[0].data.subtitle)
+    expect(row3?.matches).toEqual({ kind: 'row', row: 2 })
   })
 
   it('lists every problem with a row at once', () => {

@@ -4,8 +4,10 @@ import type { ImportSummary } from '@/services/courseImport/importBatches'
 import type {
   BlockedRow,
   CourseImportPlan,
+  DuplicateMatch,
   RowSummary,
 } from '@/services/courseImport/planCourseImport'
+import { formatDateTime } from '@/utilities/formatDateTime'
 import { Button, toast } from '@payloadcms/ui'
 import type { ReactNode } from 'react'
 
@@ -79,6 +81,26 @@ function RowItem({ children }: { children: ReactNode }) {
     <li className="border-b border-[var(--theme-elevation-100)] px-4 py-2 last:border-b-0">
       {children}
     </li>
+  )
+}
+
+function MatchLine({ match }: { match: DuplicateMatch }) {
+  if (match.kind === 'row') {
+    return <div className="text-sm text-amber-800 dark:text-amber-300">Matches row {match.row}</div>
+  }
+  return (
+    <div className="text-sm text-amber-800 dark:text-amber-300">
+      Matches{' '}
+      <a
+        href={`/admin/collections/courses/${match.id}`}
+        target="_blank"
+        rel="noreferrer"
+        className="underline"
+      >
+        {match.title}
+      </a>{' '}
+      · {formatDateTime(match.startDate, match.timeZone, 'MMM d, yyyy, h:mm a zzz')}
+    </div>
   )
 }
 
@@ -172,6 +194,9 @@ export function PlanPreview(props: {
                 <RowLabel {...duplicate} />
               </span>
             </label>
+            <div className="pl-6">
+              <MatchLine match={duplicate.matches} />
+            </div>
           </RowItem>
         ))}
       </RowBox>
@@ -201,6 +226,7 @@ export function ImportSummaryBoxes({ summary }: { summary: ImportSummary }) {
         {summary.skipped.map((course) => (
           <RowItem key={course.row}>
             <RowLabel {...course} />
+            <MatchLine match={course.matches} />
           </RowItem>
         ))}
       </RowBox>
