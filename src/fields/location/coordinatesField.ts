@@ -1,5 +1,5 @@
 import { isRecord } from '@/utilities/isRecord'
-import type { GroupField, NumberField } from 'payload'
+import type { GroupField, NumberField, SelectField } from 'payload'
 
 const BOTH_OR_NEITHER = 'Enter both latitude and longitude, or leave both blank.'
 
@@ -23,6 +23,21 @@ const coordinate = (name: 'latitude' | 'longitude', limit: number): NumberField 
   }
 }
 
+export type GeocodeStatus = 'geocoded' | 'approximate' | 'manual' | 'failed'
+
+/** Where the point came from. `manual` points are never overwritten by the geocoder. */
+const geocodeStatusField: SelectField = {
+  name: 'geocodeStatus',
+  type: 'select',
+  options: [
+    { label: 'Matched to the address', value: 'geocoded' },
+    { label: 'Approximate (street, city or ZIP center)', value: 'approximate' },
+    { label: 'Placed by hand', value: 'manual' },
+    { label: 'No match for the address', value: 'failed' },
+  ],
+  admin: { hidden: true },
+}
+
 /**
  * Latitude/longitude as two indexed number columns rather than Payload's `point` field, so the
  * SQLite adapter can range-query them. See `src/utilities/geo/findNear.ts`.
@@ -41,5 +56,6 @@ export const coordinatesField = ({
       type: 'row',
       fields: [coordinate('latitude', 90), coordinate('longitude', 180)],
     },
+    geocodeStatusField,
   ],
 })
