@@ -87,6 +87,9 @@ async function parseTimeseriesResponse(
     return { UNITS: {}, VARIABLES: [], STATION: [] }
   }
   if (!res.ok) {
+    // Unread, the body would hold its connection until garbage collection. Not
+    // awaited: freeing it shouldn't hold up the retry.
+    void res.body?.cancel().catch(() => undefined)
     throw new SnowObsError(`SnowObs request failed with status ${res.status}`, null, {
       stids,
       status: res.status,

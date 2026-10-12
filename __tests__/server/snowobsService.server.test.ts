@@ -129,6 +129,18 @@ describe('fetchStationTimeseries', () => {
     )
   })
 
+  it('discards a 500 traceback body before retrying rounded', async () => {
+    server.use(
+      http.get(TIMESERIES_URL, ({ request }) =>
+        new URL(request.url).searchParams.get('raw_data')
+          ? new HttpResponse('Traceback (most recent call last): …', { status: 500 })
+          : HttpResponse.json(validResponse),
+      ),
+    )
+    const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
+    expect(result.STATION[0].stid).toBe('4')
+  })
+
   it.each([400, 503])('does not retry a %i, which rounding would not fix', async (status) => {
     let calls = 0
     server.use(
