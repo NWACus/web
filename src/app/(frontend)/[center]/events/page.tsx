@@ -3,7 +3,7 @@ import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload } from 'payload'
 
-import { EventsList } from '@/components/EventsList'
+import { EventsResults } from '@/components/EventsMap/EventsResults'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { centerRouteMetadata } from '@/utilities/centerRoutePage'
 import { getEventGroups } from '@/utilities/queries/getEventGroups'
@@ -89,8 +89,8 @@ export default async function Page({ params, searchParams }: Args) {
             />
           </div>
 
-          <div className="grow order-2 md:order-1">
-            <EventsList
+          <div className="grow min-w-0 order-2 md:order-1">
+            <EventsResults
               initialEvents={events}
               initialHasMore={hasMore}
               initialError={error}
