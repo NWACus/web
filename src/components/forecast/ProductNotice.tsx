@@ -16,10 +16,11 @@ export const PRODUCT_NOTICE_LINK_CLASS =
 
 export function ProductNotice({ icon: Icon, role, children }: ProductNoticeProps) {
   // Exact color even on a plain Cmd+P print, which would otherwise drop the grey and leave white text.
+  // `antialiased`: macOS smoothing thickens light text on a dark ground until it reads as bold.
   return (
     <div
       role={role}
-      className="flex items-center gap-2 rounded border-2 border-[#797d80] bg-[#797d80] p-2 text-[1.2rem] leading-normal text-white [-webkit-print-color-adjust:exact] [print-color-adjust:exact]"
+      className="flex items-center gap-2 rounded border-2 border-[#797d80] bg-[#797d80] p-2 text-[1.2rem] leading-normal text-white antialiased [-webkit-print-color-adjust:exact] [print-color-adjust:exact]"
     >
       <Icon className="h-12 w-12 shrink-0" aria-hidden="true" />
       <span>{children}</span>
