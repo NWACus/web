@@ -51,9 +51,9 @@ export const coordinatesField = ({
 }: { condition?: NonNullable<GroupField['admin']>['condition'] } = {}): GroupField => ({
   name: 'coordinates',
   type: 'group',
-  // No heading or nested-group gutter: the map picker labels this block.
+  // No heading (the map picker labels this block); the gutter groups the map with its numbers.
   label: false,
-  admin: { hideGutter: true, condition },
+  admin: { condition },
   fields: [
     {
       name: 'picker',
