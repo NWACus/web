@@ -13,6 +13,12 @@ Slug: `events`
 
 Main collection for all events. Tenant-scoped with draft/publish workflow.
 
+**Location coordinates.** In-person events store `location.coordinates.latitude` / `longitude` as two indexed number columns, not Payload's `point` field: the SQLite adapter can't query `point`, but it can range-query numbers (see `src/utilities/geo/findNear.ts`). `geocodeStatus` records where the point came from: `geocoded`, `approximate` (street, city or ZIP centroid), `manual` or `failed`.
+
+- On save, the `location` group's `beforeChange` hook (`src/fields/location/hooks/geocodeLocation.ts`) geocodes the address with Geocodio (`GEOCODIO_API_KEY`) when the address changes, or when an event has never been placed. Coordinates the editor changed win over the address. A `manual` pin is only re-geocoded when the address changes. If the key is unset or Geocodio is down, the save goes through without a point.
+- Geocodio results may be stored; Mapbox's default (temporary) geocoding and Search Box results may not, which is why Mapbox is only the map here.
+- The admin's "Map location" picker (`src/fields/location/components/CoordinatesPicker.tsx`) shows the point on a map. Clicking or dragging the pin sets it as `manual`. "Find from address" calls `GET /api/events/geocode`, a signed-in-only proxy that keeps the key on the server. Trailheads and ski areas often have no street address, so the pin is the way to place them.
+
 #### Event Groups
 **Slug:** `eventGroups`
 
@@ -33,6 +39,7 @@ Main events listing page with:
 - Quick date filters (this week, next week, this month, etc.)
 - Sorting by start date or registration deadline
 - Pagination support
+- A List/Map toggle (`?view=map`). The map view fetches every event matching the filters (up to 200) and shows them in a compact list beside a map. Events at the same point share one pin. Clicking a pin highlights its events in the list; "Show on map" flies to the pin. Virtual and unplaced events are listed under "Not on the map". Components live in `src/components/EventsMap/`.
 - Respects `navigation.events.enabled` setting
 
 ### Event Detail
