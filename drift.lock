@@ -203,7 +203,7 @@ sig = "c628bb378822105e"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/print.css"
-sig = "4501c88c58e42752"
+sig = "fb89b339c75f9b69"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

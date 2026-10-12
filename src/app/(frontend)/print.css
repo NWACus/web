@@ -56,6 +56,11 @@
   html[data-print-sections] [data-slot='card-footer'] {
     padding-top: 0;
   }
+  /* The bottom line's danger icon overhangs the card's top-left corner by 35px; keep its heading
+     clear of it. */
+  html[data-print-sections] [data-print-section='bottomLine'] [data-slot='card-content'] {
+    padding-top: 2.25rem;
+  }
 
   /* The container's responsive gutters are dead weight next to a physical page margin, and the
      full-viewport minimum heights the screen layout uses would each claim a whole sheet. */
