@@ -54,7 +54,13 @@ function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token
     start_date: formatSnowObsDate(start),
     end_date: formatSnowObsDate(end),
   })
-  if (options.rawData) params.set('raw_data', 'true')
+  // raw_data also skips unit conversion, so stations come back in their native
+  // units (KSEA's pressure in inHg beside a logger's millibar); English keeps one
+  // system, as SnowObs suggested.
+  if (options.rawData) {
+    params.set('raw_data', 'true')
+    params.set('units', 'english')
+  }
   return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
 }
 

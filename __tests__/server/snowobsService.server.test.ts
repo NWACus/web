@@ -97,17 +97,40 @@ describe('fetchStationTimeseries', () => {
     expect(result.STATION[0].observations.air_temp).toEqual([30])
   })
 
-  it('requests unrounded values only when rawData is set', async () => {
-    const seenParams: (string | null)[] = []
+  it('requests unrounded values, in English units, only when rawData is set', async () => {
+    const seenParams: [string | null, string | null][] = []
     server.use(
       http.get(TIMESERIES_URL, ({ request }) => {
-        seenParams.push(new URL(request.url).searchParams.get('raw_data'))
+        const params = new URL(request.url).searchParams
+        seenParams.push([params.get('raw_data'), params.get('units')])
         return HttpResponse.json(validResponse)
       }),
     )
     await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
     await fetchStationTimeseries('nwac', [ref('4')])
-    expect(seenParams).toEqual(['true', null])
+    expect(seenParams).toEqual([
+      ['true', 'english'],
+      [null, null],
+    ])
+  })
+
+  it('reads a unit its stations disagree on as unknown', async () => {
+    server.use(
+      http.get(TIMESERIES_URL, () =>
+        HttpResponse.json({
+          ...validResponse,
+          UNITS: {
+            ...validResponse.UNITS,
+            pressure: [
+              { stid: null, unit: 'millibar' },
+              { stid: null, unit: 'inch_Hg' },
+            ],
+          },
+        }),
+      ),
+    )
+    const result = await fetchStationTimeseries('nwac', [ref('4')])
+    expect(result.UNITS).toEqual({ air_temp: 'fahrenheit', pressure: '' })
   })
 
   it('falls back to rounded values when SnowObs fails the unrounded request', async () => {
@@ -153,6 +176,29 @@ describe('fetchStationTimeseries', () => {
       `status ${status}`,
     )
     expect(calls).toBe(1)
+  })
+
+  it('reads object-valued readings, like raw cloud layers, as null', async () => {
+    const station = validResponse.STATION[0]
+    server.use(
+      http.get(TIMESERIES_URL, () =>
+        HttpResponse.json({
+          ...validResponse,
+          STATION: [
+            {
+              ...station,
+              observations: {
+                ...station.observations,
+                cloud_layer_1: [{ sky_condition: 'clear', height_agl: null }],
+              },
+            },
+          ],
+        }),
+      ),
+    )
+    const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
+    expect(result.STATION[0].observations.cloud_layer_1).toEqual([null])
+    expect(result.STATION[0].observations.air_temp).toEqual([30])
   })
 
   it('treats a 404 (no station left) as an empty timeseries', async () => {
