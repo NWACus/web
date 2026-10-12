@@ -27,7 +27,6 @@ async function authorize() {
   return { payload, user }
 }
 
-/** Always re-read: the preview and the import each plan against the current catalog. */
 async function planAgainstCatalog(payload: Payload, text: unknown): Promise<PreviewResult> {
   const [{ docs: providerDocs }, { docs: courseDocs }] = await Promise.all([
     // Only published Providers count: an unpublished Provider hasn't been approved by A3
@@ -48,7 +47,6 @@ async function planAgainstCatalog(payload: Payload, text: unknown): Promise<Prev
   return planFromCsvText({ text, providers, existingCourses: courseDocs.map(courseToImportData) })
 }
 
-/** Creates as the acting user, so collection access and validation still apply. */
 function courseWriter(payload: Payload, user: User) {
   return {
     create: async (data: CourseImportData) => {

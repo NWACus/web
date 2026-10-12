@@ -14,7 +14,6 @@ const MAX_FILE_CHARACTERS = 5_000_000
 const MAX_ROWS = 2_000
 
 export type PreviewResult = { ok: true; plan: CourseImportPlan } | { ok: false; error: string }
-/** What an import did, row by row, for the summary screen. */
 export type ImportSummary = { created: RowSummary[]; skipped: RowSummary[]; blocked: BlockedRow[] }
 export type ImportResult = ({ ok: true } & ImportSummary) | { ok: false; error: string }
 
@@ -23,7 +22,6 @@ const ZIP_SIGNATURE = 'PK\u0003\u0004'
 const EXCEL_FILE = 'This looks like an Excel file. Export it as CSV and upload that instead.'
 const MAX_LISTED_PROBLEMS = 20
 
-/** Every problem up to a limit, so a sheet with many broken rows can be fixed in one pass. */
 function listedProblems(problems: string[]): string[] {
   if (problems.length <= MAX_LISTED_PROBLEMS) return problems
   const more = problems.length - MAX_LISTED_PROBLEMS
@@ -37,7 +35,6 @@ const fileProblems = (fileErrors: string[]): PreviewResult => ({
 
 const orEmpty = (value: string | null | undefined) => value ?? ''
 
-/** An existing Course in the shape the duplicate check compares rows against. */
 export function courseToImportData(course: Course): CourseImportData {
   const { location } = course
   return {
@@ -65,7 +62,6 @@ export function courseToImportData(course: Course): CourseImportData {
   }
 }
 
-/** Parses the uploaded text and plans it against the catalog, refusing unreadable or huge files. */
 export function planFromCsvText({
   text,
   providers,
@@ -88,7 +84,6 @@ export function planFromCsvText({
   return { ok: true, plan: planCourseImport({ headers, rows, providers, existingCourses }) }
 }
 
-/** A plan the import can act on: problems with the file itself stop the whole import. */
 export function importablePlan(preview: PreviewResult): PreviewResult {
   if (preview.ok && preview.plan.fileErrors.length) {
     return { ok: false, error: preview.plan.fileErrors.join(' ') }
@@ -96,7 +91,6 @@ export function importablePlan(preview: PreviewResult): PreviewResult {
   return preview
 }
 
-/** The ready rows plus the likely duplicates the Provider Manager ticked, in sheet order. */
 export function coursesToCreate(plan: CourseImportPlan, includeDuplicateRows: unknown) {
   const included = new Set(Array.isArray(includeDuplicateRows) ? includeDuplicateRows : [])
   return [
@@ -112,7 +106,6 @@ const summary = ({ row, provider, title, start }: RowSummary): RowSummary => ({
   start,
 })
 
-/** The rows an import created, the likely duplicates it skipped, and the rows it couldn't take. */
 export function importSummary(plan: CourseImportPlan, created: PlannedCourse[]): ImportSummary {
   const createdRows = new Set(created.map((course) => course.row))
   return {
@@ -122,11 +115,7 @@ export function importSummary(plan: CourseImportPlan, created: PlannedCourse[]):
   }
 }
 
-/**
- * Creates each Course in order. The database adapter runs without transactions, so if one fails
- * the Courses already created by this import are removed instead of leaving the catalog
- * half-imported.
- */
+// The database runs without transactions, so a failure removes what this import already created
 export async function createAllOrNone({
   courses,
   create,

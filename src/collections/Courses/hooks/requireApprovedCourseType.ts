@@ -9,9 +9,6 @@ function relationshipId(value: Course['provider'] | null | undefined): number | 
   return value?.id
 }
 
-/**
- * The error for a Course Type its Provider isn't approved to offer, or null when it is approved.
- */
 export function unapprovedCourseTypeError(
   courseType: string,
   provider: { name: string; courseTypes?: string[] | null },
@@ -21,11 +18,8 @@ export function unapprovedCourseTypeError(
   return `${provider.name} is not approved to offer ${label} courses.`
 }
 
-/**
- * Enforces Approved Course Types on every write path, not just the admin dropdown. Only checked
- * when the Course is created or its Course Type or Provider changes, so Courses that predate the
- * rule stay editable.
- */
+// Only checked on create or when Course Type or Provider changes, so Courses that predate the
+// rule stay editable.
 export const requireApprovedCourseType: CollectionBeforeValidateHook<Course> = async ({
   data,
   originalDoc,

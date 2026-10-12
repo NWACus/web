@@ -38,7 +38,6 @@ function RowLabel({ row, provider, title, start }: RowSummary) {
   )
 }
 
-/** One group of rows: a colored header, then a list that scrolls inside the box. */
 function RowBox(props: {
   title: string
   count: number
@@ -137,7 +136,6 @@ export function FileErrors({ errors }: { errors: string[] }) {
   )
 }
 
-/** Before importing: what will be created, what can't be, and duplicates to opt into. */
 export function PlanPreview(props: {
   plan: CourseImportPlan
   included: number[]
@@ -181,7 +179,6 @@ export function PlanPreview(props: {
   )
 }
 
-/** After importing: every row and what happened to it. */
 export function ImportSummaryBoxes({ summary }: { summary: ImportSummary }) {
   return (
     <div className={GRID}>

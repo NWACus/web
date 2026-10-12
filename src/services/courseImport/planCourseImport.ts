@@ -9,7 +9,6 @@ import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { isValidFullUrl } from '@/utilities/validateUrl'
 import { zipCodeSchema } from '@/utilities/validateZipCode'
 
-/** The columns of A3's catalog sheet, exactly as exported. */
 export const COURSE_IMPORT_COLUMNS = [
   'Title',
   'Subtitle',
@@ -44,7 +43,6 @@ type CourseState = Course['location']['state']
 type CourseMode = NonNullable<Course['modeOfTravel']>[number]
 type CourseAffinityGroup = NonNullable<Course['affinityGroups']>[number]
 
-/** The Course fields an import writes. Existing Courses are compared in this same shape. */
 export type CourseImportData = {
   title: string
   subtitle: string
@@ -63,7 +61,6 @@ export type CourseImportData = {
   affinityGroups: CourseAffinityGroup[]
 }
 
-/** How a sheet row is identified on screen. */
 export type RowSummary = { row: number; provider: string; title: string; start: string }
 export type PlannedCourse = RowSummary & { data: CourseImportData }
 export type BlockedRow = RowSummary & { reasons: string[] }
@@ -76,13 +73,9 @@ export type CourseImportPlan = {
   likelyDuplicates: PlannedCourse[]
 }
 
-/** How a sheet's Provider name is compared: case and runs of whitespace don't matter. */
 const normalizeProviderName = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase() // collapse runs of whitespace
 
-/**
- * Label → value for a select field's options. The guard narrows each value to the field's
- * generated type, which is built from these same option lists.
- */
+// The guard narrows values to the field's generated type, which is built from these same options
 function labelLookup<T extends string>(options: { label: string; value: string }[]) {
   const values = new Set(options.map((option) => option.value))
   const isValue = (value: string): value is T => values.has(value)
@@ -103,7 +96,6 @@ const DATE_PATTERN = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
 // h:mm AM/PM, as A3's spreadsheet exports times
 const TIME_PATTERN = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i
 
-/** Wall-clock date and time in an IANA zone as a UTC ISO string, or an error message. */
 function zonedInstant(
   label: string,
   date: string,
@@ -131,7 +123,6 @@ function zonedInstant(
   return { iso: new Date(zoned.getTime()).toISOString() }
 }
 
-/** Splits a comma-separated cell into catalog values, collecting any label the catalog lacks. */
 function listValues<T extends string>(
   cell: string,
   lookup: Map<string, T>,
@@ -338,10 +329,7 @@ function checkRow(
   }
 }
 
-/**
- * What makes two Courses the same class: Provider, Course Type, start, end and place. Titles,
- * descriptions and URLs are left out, so a reworded row still matches the Course it came from.
- */
+// Titles, descriptions and URLs are left out, so a reworded row still matches its Course
 export function duplicateKey(course: CourseImportData): string {
   const instant = (iso: string) => (iso ? new Date(iso).toISOString() : '')
   return JSON.stringify([
@@ -353,11 +341,7 @@ export function duplicateKey(course: CourseImportData): string {
   ])
 }
 
-/**
- * Sorts every sheet row into ready, blocked (with every reason) or likely duplicate, without
- * touching the database. Never corrects or guesses a value: anything that doesn't exactly match
- * the catalog blocks the row.
- */
+// Never corrects or guesses a value: anything that doesn't exactly match the catalog blocks the row
 export function planCourseImport({
   headers,
   rows,

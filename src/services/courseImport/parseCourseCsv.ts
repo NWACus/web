@@ -4,10 +4,7 @@ import type { CourseImportRow } from './planCourseImport'
 
 const BYTE_ORDER_MARK = String.fromCharCode(0xfeff)
 
-/**
- * Rows keyed by header. Multi-line quoted cells (long descriptions) stay one row, and the
- * delimiter is detected, so a tab-separated copy of the sheet parses the same as a CSV export.
- */
+// The delimiter is detected, so a tab-separated copy of the sheet parses like a CSV export
 export function parseCourseCsv(text: string): {
   headers: string[]
   rows: CourseImportRow[]

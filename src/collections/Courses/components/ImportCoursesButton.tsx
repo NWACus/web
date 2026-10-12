@@ -6,11 +6,8 @@ import { createPortal } from 'react-dom'
 
 const TITLE_ACTIONS = '.list-header__title-actions'
 
-/**
- * Payload has no slot beside "Create New" in the list header, so this portals into that
- * container and copies its button style. The header can mount after this component, so it
- * watches the page until the container appears.
- */
+// Payload has no slot beside "Create New", so this portals into the list header, waiting for it
+// to mount.
 export function ImportCoursesButton({ url }: { url: string }) {
   const [container, setContainer] = useState<Element | null>(null)
 
