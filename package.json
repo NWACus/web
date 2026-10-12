@@ -27,6 +27,7 @@
     "lint-staged": "lint-staged",
     "seed": "./seed.sh",
     "seed:standalone": "payload run ./src/scripts/standalone-seed.ts",
+    "geo:near-poc": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/geo-near-poc.ts",
     "reseed": "./reseed.sh",
     "bootstrap": "./bootstrap.sh",
     "sanitize": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/sanitize-db.ts",
