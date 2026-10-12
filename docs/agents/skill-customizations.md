@@ -1,6 +1,24 @@
 # Skill customizations
 
-The engineering skills under `.agents/skills/` (with `.claude/skills/` symlinks) are vendored from [mattpocock/skills](https://github.com/mattpocock/skills) and tracked in `skills-lock.json`. A few vendored files are patched to match this repo's conventions. `npx skills update` (or re-adding a skill) overwrites those patches, so re-apply the steps below afterwards and commit the result.
+A small set of engineering skills under `.agents/skills/` (with `.claude/skills/` symlinks) are vendored from [mattpocock/skills](https://github.com/mattpocock/skills) and tracked in `skills-lock.json`. A few vendored files are patched to match this repo's conventions. `npx skills update` (or re-adding a skill) overwrites those patches, so re-apply the steps below afterwards and commit the result.
+
+## Vendored set
+
+The repo vendors only the issue-tracking, grilling and prototype skills from mattpocock/skills (plus the skills they reference):
+
+- `setup-matt-pocock-skills`, `triage`, `to-spec`, `to-tickets` (issue tracking)
+- `grilling`, `grill-me`, `grill-with-docs`, `domain-modeling` (grilling and the glossary/ADR producer they hand off to)
+- `prototype`
+
+The rest of the mattpocock/skills set (`tdd`, `diagnosing-bugs`, `code-review`, `improve-codebase-architecture`, `pr`, `research`, etc.) is installed globally by the owner (`~/.agents/skills`) and is intentionally not vendored here. Non-mattpocock skills (`payload` from payloadcms/skills, and the repo-local `draft-release-notes`) are unaffected by this split.
+
+To re-install or update the vendored set, from the repo root:
+
+```sh
+npx skills@latest add mattpocock/skills -s setup-matt-pocock-skills triage to-spec to-tickets grilling grill-me grill-with-docs domain-modeling prototype -a claude-code codex -y
+```
+
+Then re-apply the patches below.
 
 The domain glossary rename is no longer a patch: upstream already uses `GLOSSARY.md` (and `GLOSSARY-MAP.md`), which is what this repo uses.
 
@@ -9,7 +27,7 @@ The domain glossary rename is no longer a patch: upstream already uses `GLOSSARY
 Upstream puts ADRs in `docs/adr/`; this repo keeps them in `docs/decisions/`. From the repo root:
 
 ```sh
-cd .agents/skills && sed -i '' -E 's#(docs/)?adr/( {6})( *←)#\1decisions/\3#; s#docs/adr/#docs/decisions/#g; s#└── adr/$#└── decisions/#' domain-modeling/SKILL.md domain-modeling/ADR-FORMAT.md improve-codebase-architecture/SKILL.md setup-matt-pocock-skills/SKILL.md setup-matt-pocock-skills/domain.md
+cd .agents/skills && sed -i '' -E 's#(docs/)?adr/( {6})( *←)#\1decisions/\3#; s#docs/adr/#docs/decisions/#g; s#└── adr/$#└── decisions/#' domain-modeling/SKILL.md domain-modeling/ADR-FORMAT.md setup-matt-pocock-skills/SKILL.md setup-matt-pocock-skills/domain.md
 ```
 
 The first expression keeps the `←` comment column aligned in tree diagrams (`decisions/` is six characters longer than `adr/`). On Linux, drop the `''` after `-i`.
@@ -27,7 +45,7 @@ Keep upstream's wording everywhere else in the file (for example the "When to of
 ## Verify
 
 ```sh
-grep -rn -E 'docs/adr|── adr/' .agents/skills/{domain-modeling,setup-matt-pocock-skills,improve-codebase-architecture}
+grep -rn -E 'docs/adr|── adr/' .agents/skills/{domain-modeling,setup-matt-pocock-skills}
 grep -n -E '3-digit|house style|007-' .agents/skills/domain-modeling/ADR-FORMAT.md
 ```
 
