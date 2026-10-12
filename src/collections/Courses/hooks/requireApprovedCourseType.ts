@@ -42,7 +42,8 @@ export const requireApprovedCourseType: CollectionBeforeValidateHook<Course> = a
     collection: 'providers',
     id: providerId,
     depth: 0,
-    draft: true,
+    // The published Provider, matching the approvals the Course Import checks against
+    draft: false,
     select: { name: true, courseTypes: true },
     req,
   })
