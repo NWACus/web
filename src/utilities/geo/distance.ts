@@ -1,3 +1,5 @@
+import { distance } from '@turf/distance'
+
 export type LatLng = { latitude: number; longitude: number }
 
 /** Coordinates as Payload returns them: either may be unset. */
@@ -5,20 +7,15 @@ export type StoredCoordinates = { latitude?: number | null; longitude?: number |
 
 export type BoundingBox = { south: number; north: number; west: number; east: number }
 
+// Turf's mean Earth radius, so the box below and Turf's distance check agree on the circle.
 const EARTH_RADIUS_KM = 6371.0088
 
 const toRadians = (degrees: number) => (degrees * Math.PI) / 180
 const toDegrees = (radians: number) => (radians * 180) / Math.PI
 
-/** Great-circle distance between two points. */
-export function haversineKm(a: LatLng, b: LatLng): number {
-  const dLat = toRadians(b.latitude - a.latitude)
-  const dLng = toRadians(b.longitude - a.longitude)
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRadians(a.latitude)) * Math.cos(toRadians(b.latitude)) * Math.sin(dLng / 2) ** 2
-  return 2 * EARTH_RADIUS_KM * Math.asin(Math.min(1, Math.sqrt(h)))
-}
+/** Great-circle distance; Turf takes points as [longitude, latitude]. */
+const distanceKm = (a: LatLng, b: LatLng) =>
+  distance([a.longitude, a.latitude], [b.longitude, b.latitude], { units: 'kilometers' })
 
 /**
  * The smallest lat/lng box that contains every point within `radiusKm` of `center`, so a database
@@ -65,8 +62,8 @@ export function rankByDistance<T>(
     .flatMap((doc) => {
       const point = toLatLng(getCoordinates(doc))
       if (!point) return []
-      const distanceKm = haversineKm(center, point)
-      return distanceKm <= radiusKm ? [{ doc, distanceKm }] : []
+      const km = distanceKm(center, point)
+      return km <= radiusKm ? [{ doc, distanceKm: km }] : []
     })
     .sort((a, b) => a.distanceKm - b.distanceKm)
 }

@@ -1,7 +1,6 @@
-import { boundingBox, haversineKm, rankByDistance, type LatLng } from '@/utilities/geo/distance'
+import { boundingBox, rankByDistance, type LatLng } from '@/utilities/geo/distance'
 import { nearWhere } from '@/utilities/geo/findNear'
 
-const KM_PER_DEGREE = 111.195
 const seattle: LatLng = { latitude: 47.6062, longitude: -122.3321 }
 
 // Point `distanceKm` from `start` along `bearingDegrees` on a sphere.
@@ -22,24 +21,6 @@ function destination(start: LatLng, bearingDegrees: number, distanceKm: number):
     )
   return { latitude: (lat2 * 180) / Math.PI, longitude: (lng2 * 180) / Math.PI }
 }
-
-describe('haversineKm', () => {
-  it('measures one degree of latitude', () => {
-    expect(haversineKm({ latitude: 0, longitude: 0 }, { latitude: 1, longitude: 0 })).toBeCloseTo(
-      KM_PER_DEGREE,
-      2,
-    )
-  })
-
-  it('shrinks a degree of longitude with latitude', () => {
-    const atSixty = haversineKm({ latitude: 60, longitude: 0 }, { latitude: 60, longitude: 1 })
-    expect(atSixty).toBeCloseTo(KM_PER_DEGREE / 2, 0)
-  })
-
-  it('is zero for the same point', () => {
-    expect(haversineKm(seattle, seattle)).toBe(0)
-  })
-})
 
 describe('boundingBox', () => {
   it('contains every point on the circle', () => {
