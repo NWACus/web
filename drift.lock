@@ -58,7 +58,7 @@ sig = "ff5d3fe541e1dfad"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "5bd2abf52821ac2e"
+sig = "1fb1fe0118bb90d4"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1128,7 +1128,7 @@ sig = "bc62b0a28e5d5dec"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/services/courseImport/runCourseImport.ts"
-sig = "487ee925d56ddc46"
+sig = "d6960460be10b306"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

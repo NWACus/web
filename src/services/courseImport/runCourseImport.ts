@@ -18,6 +18,23 @@ export type PreviewResult = { ok: true; plan: CourseImportPlan } | { ok: false; 
 export type ImportSummary = { created: RowSummary[]; skipped: RowSummary[]; blocked: BlockedRow[] }
 export type ImportResult = ({ ok: true } & ImportSummary) | { ok: false; error: string }
 
+// .xlsx files are zip archives, which start with "PK\x03\x04"
+const ZIP_SIGNATURE = 'PK\u0003\u0004'
+const EXCEL_FILE = 'This looks like an Excel file. Export it as CSV and upload that instead.'
+const MAX_LISTED_PROBLEMS = 20
+
+/** Every problem up to a limit, so a sheet with many broken rows can be fixed in one pass. */
+function listedProblems(problems: string[]): string[] {
+  if (problems.length <= MAX_LISTED_PROBLEMS) return problems
+  const more = problems.length - MAX_LISTED_PROBLEMS
+  return [...problems.slice(0, MAX_LISTED_PROBLEMS), `…and ${more} more.`]
+}
+
+const fileProblems = (fileErrors: string[]): PreviewResult => ({
+  ok: true,
+  plan: { fileErrors, ready: [], blocked: [], likelyDuplicates: [] },
+})
+
 const orEmpty = (value: string | null | undefined) => value ?? ''
 
 /** An existing Course in the shape the duplicate check compares rows against. */
@@ -61,8 +78,10 @@ export function planFromCsvText({
   if (typeof text !== 'string' || !text.trim()) return { ok: false, error: 'Choose a CSV file.' }
   if (text.length > MAX_FILE_CHARACTERS) return { ok: false, error: 'That file is too large.' }
 
+  if (text.startsWith(ZIP_SIGNATURE)) return fileProblems([EXCEL_FILE])
+
   const { headers, rows, errors } = parseCourseCsv(text)
-  if (errors.length) return { ok: false, error: `The file couldn't be read. ${errors[0]}` }
+  if (errors.length) return fileProblems(listedProblems(errors))
   if (rows.length > MAX_ROWS) {
     return { ok: false, error: `A Course Import takes at most ${MAX_ROWS} rows.` }
   }

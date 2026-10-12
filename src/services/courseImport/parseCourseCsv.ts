@@ -26,6 +26,7 @@ export function parseCourseCsv(text: string): {
     // A one-column file has no delimiter to detect; that warning isn't a read failure
     errors: result.errors
       .filter((error) => error.code !== 'UndetectableDelimiter')
+      .sort((a, b) => (a.row ?? -1) - (b.row ?? -1))
       .map((error) =>
         error.row === undefined ? error.message : `Row ${error.row + 2}: ${error.message}`,
       ),

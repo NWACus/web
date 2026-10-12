@@ -1,5 +1,9 @@
 import type { CourseImportPlan, PlannedCourse } from '@/services/courseImport/planCourseImport'
-import { coursesToCreate, createAllOrNone } from '@/services/courseImport/runCourseImport'
+import {
+  coursesToCreate,
+  createAllOrNone,
+  planFromCsvText,
+} from '@/services/courseImport/runCourseImport'
 
 const planned = (row: number): PlannedCourse => ({
   row,
@@ -38,5 +42,24 @@ describe('createAllOrNone', () => {
     expect(result).toEqual({ ok: false, row: 3, message: 'Slug already taken' })
     expect(remove).toHaveBeenCalledWith([10])
     expect(create).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('planFromCsvText', () => {
+  const plan = (text: string) => planFromCsvText({ text, providers: [], existingCourses: [] })
+
+  it('lists every unreadable row at once, in sheet order', () => {
+    const result = plan('Title,Provider\nA,B,extra\nC\nD,E')
+    expect(result.ok && result.plan.fileErrors).toEqual([
+      'Row 2: Too many fields: expected 2 fields but parsed 3',
+      'Row 3: Too few fields: expected 2 fields but parsed 1',
+    ])
+  })
+
+  it('tells an Excel upload to export as CSV', () => {
+    const result = plan('PK\u0003\u0004binary')
+    expect(result.ok && result.plan.fileErrors).toEqual([
+      'This looks like an Excel file. Export it as CSV and upload that instead.',
+    ])
   })
 })
