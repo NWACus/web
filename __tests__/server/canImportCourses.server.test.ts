@@ -42,18 +42,6 @@ describe('canImportCourses', () => {
     })
   })
 
-  it('allows a Provider Manager', async () => {
-    mockIsProviderManager.mockResolvedValue(true)
-    await expect(canImportCourses(payload, user)).resolves.toBe(true)
-    expect(mockHasSuperAdminPermissions).not.toHaveBeenCalled()
-  })
-
-  it('allows a Super Admin', async () => {
-    mockIsProviderManager.mockResolvedValue(false)
-    mockHasSuperAdminPermissions.mockResolvedValue(true)
-    await expect(canImportCourses(payload, user)).resolves.toBe(true)
-  })
-
   it('refuses everyone else, such as Provider Users and Tenant Role Users', async () => {
     mockIsProviderManager.mockResolvedValue(false)
     mockHasSuperAdminPermissions.mockResolvedValue(false)

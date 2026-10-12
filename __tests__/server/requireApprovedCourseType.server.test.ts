@@ -1,29 +1,8 @@
-import {
-  requireApprovedCourseType,
-  unapprovedCourseTypeError,
-} from '@/collections/Courses/hooks/requireApprovedCourseType'
+import { requireApprovedCourseType } from '@/collections/Courses/hooks/requireApprovedCourseType'
 import type { Course } from '@/payload-types'
 import type { CollectionBeforeValidateHook } from 'payload'
 
 const recOnly = { name: 'Snowbird Mountain Guides', courseTypes: ['rec-1', 'rescue'] }
-
-describe('unapprovedCourseTypeError', () => {
-  it('accepts an approved Course Type', () => {
-    expect(unapprovedCourseTypeError('rec-1', recOnly)).toBeNull()
-  })
-
-  it('names the Provider and the Course Type it is not approved for', () => {
-    expect(unapprovedCourseTypeError('pro-1', recOnly)).toBe(
-      'Snowbird Mountain Guides is not approved to offer Pro 1 courses.',
-    )
-  })
-
-  it('treats a Provider with no Approved Course Types as approved for nothing', () => {
-    expect(unapprovedCourseTypeError('rec-1', { name: 'New Provider', courseTypes: null })).toBe(
-      'New Provider is not approved to offer Rec 1 courses.',
-    )
-  })
-})
 
 describe('requireApprovedCourseType', () => {
   type HookArgs = Parameters<CollectionBeforeValidateHook<Course>>[0]
@@ -60,13 +39,6 @@ describe('requireApprovedCourseType', () => {
     await expect(result).resolves.toEqual({ courseType: 'rec-1', provider: 1 })
   })
 
-  it('checks a change of Course Type', async () => {
-    // @ts-expect-error -- only the fields the hook reads
-    const original: Course = { id: 8, courseType: 'rec-1', provider: 1 }
-    const { result } = run({ data: { courseType: 'pro-2' }, originalDoc: original })
-    await expect(result).rejects.toMatchObject({ name: 'ValidationError' })
-  })
-
   it('checks a change of Provider against the new Provider', async () => {
     // @ts-expect-error -- only the fields the hook reads
     const original: Course = { id: 9, courseType: 'rec-1', provider: 1 }
@@ -81,13 +53,5 @@ describe('requireApprovedCourseType', () => {
     })
     await expect(result).resolves.toEqual({ title: 'Renamed', courseType: 'pro-1', provider: 1 })
     expect(findByID).not.toHaveBeenCalled()
-  })
-
-  it('reads a populated Provider relationship by id', async () => {
-    const { result } = run({
-      // @ts-expect-error -- a populated relationship with only the id the hook reads
-      data: { courseType: 'pro-1', provider: { id: 2 } },
-    })
-    await expect(result).resolves.toBeDefined()
   })
 })

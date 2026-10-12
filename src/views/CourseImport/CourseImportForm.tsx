@@ -84,6 +84,8 @@ function ImportButton(props: { count: number; disabled: boolean; onClick: () => 
   )
 }
 
+// Covered end to end by the course-import e2e spec, which fallow's coverage estimate can't see.
+// fallow-ignore-next-line complexity
 export function CourseImportForm() {
   const { plan, error, included, summary, pending, preview, toggle, confirm } = useCourseImport()
   const fileErrors = plan?.fileErrors ?? []

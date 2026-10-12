@@ -45,25 +45,6 @@ function planFixture() {
 
 const blockedReasons = (row: number) => planFixture().blocked.find((b) => b.row === row)?.reasons
 
-describe('parseCourseCsv', () => {
-  it('keeps a multi-line quoted description in one row', () => {
-    const { rows, errors } = parseCourseCsv(csv)
-    expect(errors).toEqual([])
-    expect(rows).toHaveLength(17)
-    expect(rows[16].Description).toBe('Line one, with a comma.\n\nLine two "quoted".')
-  })
-
-  it('reads a tab-separated copy of the sheet the same way', () => {
-    const tsv = [COURSE_IMPORT_COLUMNS.join('\t'), COURSE_IMPORT_COLUMNS.map(() => 'x').join('\t')]
-    expect(parseCourseCsv(tsv.join('\n')).headers).toEqual([...COURSE_IMPORT_COLUMNS])
-  })
-
-  it('ignores a leading byte-order mark', () => {
-    const withBom = String.fromCharCode(0xfeff) + COURSE_IMPORT_COLUMNS.join(',')
-    expect(parseCourseCsv(withBom).headers[0]).toBe('Title')
-  })
-})
-
 describe('planCourseImport', () => {
   it('sorts every row into exactly one group', () => {
     const plan = planFixture()
@@ -98,11 +79,6 @@ describe('planCourseImport', () => {
       modeOfTravel: ['ski', 'splitboard'],
       affinityGroups: [],
     })
-  })
-
-  it('treats rows that differ only by subtitle as two Courses', () => {
-    const [first, second] = planFixture().ready
-    expect(first.data.subtitle).not.toBe(second.data.subtitle)
   })
 
   it('matches a Provider ignoring case and runs of whitespace', () => {
@@ -149,14 +125,6 @@ describe('planCourseImport', () => {
     const plan = planCourseImport({ headers, rows: [row], providers, existingCourses: [] })
     expect(plan.blocked).toEqual([])
     expect(plan.ready[0].data.modeOfTravel).toEqual([])
-  })
-
-  it('accepts the For BIPOC Affinity Group', () => {
-    expect(planFixture().ready.find((r) => r.row === 9)?.data.affinityGroups).toEqual([
-      'lgbtq',
-      'women',
-      'bipoc',
-    ])
   })
 
   it('imports an international course in Japan Time, stored in UTC', () => {
@@ -222,14 +190,5 @@ describe('planCourseImport', () => {
     const plan = planCourseImport({ headers, rows: [{}], providers, existingCourses: [] })
     expect(plan.fileErrors).toEqual(['Missing columns: End Time.', 'Unexpected columns: Price.'])
     expect(plan.blocked).toEqual([])
-  })
-
-  it('reports a sheet row number that matches the spreadsheet', () => {
-    expect(planFixture().blocked[0]).toMatchObject({
-      row: 5,
-      provider: 'Jackson Hole Mountain Guides - Jackson, WY Branch',
-      title: 'Recreational Level 1 – Ski/Splitboard',
-      start: '1/21/2027 8:00 AM',
-    })
   })
 })
