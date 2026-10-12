@@ -3,7 +3,6 @@
 import { FieldError, useField, useFormFields } from '@payloadcms/ui'
 import * as SwitchPrimitives from '@radix-ui/react-switch'
 import type { CheckboxFieldClientProps } from 'payload'
-import { useEffect } from 'react'
 
 type LockedBy = { field: string; value: boolean }
 
@@ -12,21 +11,14 @@ export type ToggleFieldClientProps = {
   lockedBy?: LockedBy
 }
 
-// The lock's value while its field is on, else null. Written through, so what
-// saves matches what the toggle shows.
-function useLockedValue(
-  lockedBy: LockedBy | undefined,
-  value: boolean | null | undefined,
-  setValue: (value: boolean) => void,
-): boolean | null {
+// The lock's value while its field is on, else null. Shown, not written: the
+// stored value stays the admin's, so turning the lock off restores it, and
+// opening a locked document doesn't mark it modified.
+function useLockedValue(lockedBy: LockedBy | undefined): boolean | null {
   const locked = useFormFields(([fields]) =>
     lockedBy ? fields[lockedBy.field]?.value === true : false,
   )
-  const lockedValue = locked && lockedBy ? lockedBy.value : null
-  useEffect(() => {
-    if (lockedValue !== null && value !== lockedValue) setValue(lockedValue)
-  }, [lockedValue, value, setValue])
-  return lockedValue
+  return locked && lockedBy ? lockedBy.value : null
 }
 
 // Position and color are inline styles: Payload's button CSS overrides
@@ -72,7 +64,7 @@ export const ToggleField = ({
   lockedBy,
 }: CheckboxFieldClientProps & ToggleFieldClientProps) => {
   const { value, setValue, showError, errorMessage } = useField<boolean>({ path })
-  const lockedValue = useLockedValue(lockedBy, value, setValue)
+  const lockedValue = useLockedValue(lockedBy)
   const id = `field-${path.replace(/\./g, '__')}`
   const disabled = Boolean(readOnly) || lockedValue !== null
 

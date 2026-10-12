@@ -49,11 +49,11 @@ describe('ToggleField', () => {
     expect(setValue).not.toHaveBeenCalled()
   })
 
-  it('holds the locked value, read-only, and writes it through', () => {
+  it('shows the locked value, read-only, without writing it to the form', () => {
     form.archived = true
     const toggle = renderToggle({ field: 'archived', value: false })
     expect(toggle).toHaveAttribute('aria-checked', 'false')
     expect(toggle).toBeDisabled()
-    expect(setValue).toHaveBeenCalledWith(false)
+    expect(setValue).not.toHaveBeenCalled()
   })
 })
