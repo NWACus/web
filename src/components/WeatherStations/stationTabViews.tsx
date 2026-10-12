@@ -23,6 +23,9 @@ import type { ReactNode } from 'react'
 
 // Station pages render per request (they read searchParams); only metadata is cached.
 const METADATA_REVALIDATE = 600
+// SnowObs caches each response for 60s, so holding the table's for as long
+// costs no freshness and spares a function waiting on it per view.
+const TABLE_REVALIDATE = 60
 
 /** What the views show: a station page, or one tracked station assembled on the fly. */
 export type StationViewSubject = {
@@ -132,6 +135,7 @@ async function tableTabView(
   const response = await fetchStationTimeseries(center, subject.stations, {
     windowHours: period.hoursBack(new Date(), timeZone),
     rawData: true,
+    revalidate: TABLE_REVALIDATE,
   })
   const table = buildStationTable(center, response, resolveColumns(response, subject))
   return {
