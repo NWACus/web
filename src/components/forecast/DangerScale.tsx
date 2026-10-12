@@ -132,11 +132,14 @@ function LevelHeaderCell({ level, rating }: { level: DangerLevel; rating: string
 
   return (
     <th className="p-1 text-center align-bottom font-semibold">
+      {/* Eager: the printed copy of the table is hidden on screen, so a lazy icon never loads
+          before the page prints. */}
       <Image
         src={dangerIconUrl(level)}
         alt={dangerName(level)}
         width={size.width}
         height={size.height}
+        loading="eager"
         className="mx-auto h-9 w-auto"
       />
       <div className="pt-1">

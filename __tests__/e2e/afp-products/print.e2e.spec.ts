@@ -334,6 +334,27 @@ test.describe('Printing a forecast', () => {
     expect(iconBox?.x).toBeGreaterThanOrEqual(cardBox?.x ?? Infinity)
   })
 
+  test("prints the danger scale's definitions whether or not the reader opened them", async ({
+    page,
+  }) => {
+    await loadPage(page, FORECAST_URL)
+
+    const definitions = page.getByText('Likelihood of Avalanches').filter({ visible: true })
+    await expect(definitions).toHaveCount(0)
+
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+    await expect(definitions).toHaveCount(1)
+
+    // Opened on screen, the table must still print once, not once per copy.
+    await page.emulateMedia({ media: 'screen' })
+    await page.getByRole('button', { name: /Avalanche Danger Scale/ }).click()
+    await expect(definitions).toHaveCount(1)
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+    await expect(definitions).toHaveCount(1)
+  })
+
   test('lays the printed page out the same from a phone and from a desktop', async ({
     page,
     headless,

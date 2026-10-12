@@ -312,6 +312,11 @@ sig = "bc63628cae2e371d"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/DangerScaleDisclosure.client.tsx"
+sig = "cbec3ca8f00a3bad"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/ExpiryNotice.client.tsx"
 sig = "2c863c26a0866d98"
 

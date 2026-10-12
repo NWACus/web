@@ -3,7 +3,7 @@
 /**
  * The danger scale's open/close, animated: a native `<details>` can't animate its closing, so this
  * is a one-item Radix accordion. `action` sits over the trigger's row rather than inside the button,
- * so following it never toggles the table.
+ * so following it never toggles the table. On paper the table is always open.
  */
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import type { KeyboardEvent, ReactNode } from 'react'
@@ -46,9 +46,11 @@ export function DangerScaleDisclosure({ trigger, action, children }: DangerScale
           </div>
         </AccordionPrimitive.Header>
         <div className="absolute right-0 top-0">{action}</div>
-        <AccordionPrimitive.Content className="overflow-hidden motion-safe:data-[state=closed]:animate-accordion-up motion-safe:data-[state=open]:animate-accordion-down">
+        <AccordionPrimitive.Content className="overflow-hidden motion-safe:data-[state=closed]:animate-accordion-up motion-safe:data-[state=open]:animate-accordion-down print:hidden">
           {children}
         </AccordionPrimitive.Content>
+        {/* Radix unmounts closed content, so paper gets a copy of its own. */}
+        <div className="hidden print:block">{children}</div>
       </AccordionPrimitive.Item>
     </AccordionPrimitive.Root>
   )
