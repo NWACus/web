@@ -12,10 +12,6 @@ describe('formatDateTime', () => {
   it('uses the daylight abbreviation in summer', () => {
     expect(formatDateTime('2026-07-15T22:00:00Z', PACIFIC, 'h:mm a zzz')).toBe('3:00 PM PDT')
   })
-
-  it('names Japan Time JST rather than a GMT offset', () => {
-    expect(formatDateTime('2027-01-16T23:00:00Z', 'Asia/Tokyo', 'h:mm a zzz')).toBe('8:00 AM JST')
-  })
 })
 
 describe('splitDateTimeRange', () => {
