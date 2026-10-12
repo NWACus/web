@@ -6,6 +6,8 @@
 import { History } from 'lucide-react'
 import Link from 'next/link'
 
+import { PRODUCT_NOTICE_LINK_CLASS, ProductNotice } from './ProductNotice'
+
 interface NoticeLink {
   href: string
   label: string
@@ -17,28 +19,23 @@ interface ArchivedProductNoticeProps {
   archive: NoticeLink
 }
 
-const LINK_CLASS = 'font-medium underline underline-offset-2 hover:no-underline'
-
 export function ArchivedProductNotice({ current, archive }: ArchivedProductNoticeProps) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100">
-      <History className="h-5 w-5 shrink-0" aria-hidden="true" />
-      <span>
-        This is an archived product. View{' '}
-        {current && (
-          <>
-            the{' '}
-            <Link href={current.href} className={LINK_CLASS}>
-              {current.label}
-            </Link>{' '}
-            or{' '}
-          </>
-        )}
-        <Link href={archive.href} className={LINK_CLASS}>
-          {archive.label}
-        </Link>
-        .
-      </span>
-    </div>
+    <ProductNotice icon={History}>
+      This is an archived product. View{' '}
+      {current && (
+        <>
+          the{' '}
+          <Link href={current.href} className={PRODUCT_NOTICE_LINK_CLASS}>
+            {current.label}
+          </Link>{' '}
+          or{' '}
+        </>
+      )}
+      <Link href={archive.href} className={PRODUCT_NOTICE_LINK_CLASS}>
+        {archive.label}
+      </Link>
+      .
+    </ProductNotice>
   )
 }

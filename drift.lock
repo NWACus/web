@@ -313,7 +313,7 @@ sig = "bc63628cae2e371d"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/ExpiryNotice.client.tsx"
-sig = "eabf95d9301e0ca5"
+sig = "2c863c26a0866d98"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
