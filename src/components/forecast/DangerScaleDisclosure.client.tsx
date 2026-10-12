@@ -6,7 +6,22 @@
  * so following it never toggles the table.
  */
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
-import type { ReactNode } from 'react'
+import type { KeyboardEvent, ReactNode } from 'react'
+
+// Radix cancels these to move focus between accordion items; with one item that only stops the page
+// scrolling, so they go no further than the trigger.
+const ITEM_NAVIGATION_KEYS = new Set([
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'Home',
+  'End',
+])
+
+function keepPageScrollKeys(event: KeyboardEvent) {
+  if (ITEM_NAVIGATION_KEYS.has(event.key)) event.stopPropagation()
+}
 
 interface DangerScaleDisclosureProps {
   /** Always visible; clicking it opens and closes `children`. */
@@ -22,7 +37,10 @@ export function DangerScaleDisclosure({ trigger, action, children }: DangerScale
       <AccordionPrimitive.Item value="definitions" className="group relative">
         <AccordionPrimitive.Header asChild>
           <div>
-            <AccordionPrimitive.Trigger className="w-full cursor-pointer select-none space-y-2 rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <AccordionPrimitive.Trigger
+              onKeyDown={keepPageScrollKeys}
+              className="w-full cursor-pointer select-none space-y-2 rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
               {trigger}
             </AccordionPrimitive.Trigger>
           </div>
