@@ -12,6 +12,9 @@ function renderInWidget() {
   return render(
     <>
       <div id="nac-additional-content" />
+      <div className="nac-tabPane">
+        <div id="nac-weather-forecast">The content could not be loaded.</div>
+      </div>
       <WidgetZoneWeather center="nwac" timezone="America/Los_Angeles" />
     </>,
   )
@@ -23,12 +26,17 @@ function fireNacLoaded(detail: Record<string, unknown>) {
   })
 }
 
-/** The section's mount point inside the slot's shadow root. */
-function shadowMount(container: HTMLElement): HTMLElement | null {
-  const root = container.querySelector('#nac-additional-content > div')?.shadowRoot
+/** The section's mount point inside a shadow root the component placed at `hostSelector`. */
+function shadowMount(
+  container: HTMLElement,
+  hostSelector = '#nac-additional-content > div',
+): HTMLElement | null {
+  const root = container.querySelector(hostSelector)?.shadowRoot
   const mount = root?.lastElementChild
   return mount instanceof HTMLElement ? mount : null
 }
+
+const TAB_HOST = '#nac-weather-forecast + div'
 
 describe('WidgetZoneWeather', () => {
   const fetchMock = jest.fn()
@@ -55,6 +63,19 @@ describe('WidgetZoneWeather', () => {
     expect(within(mount).getByRole('radio', { name: /Morning/ })).toBeInTheDocument()
   })
 
+  it("takes over the Weather Forecast tab: the widget's own content hidden, the same section shown", async () => {
+    const { container } = renderInWidget()
+    fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+
+    const tab = await waitFor(() => {
+      const found = shadowMount(container, TAB_HOST)
+      if (!found) throw new Error('no section in the tab yet')
+      return found
+    })
+    expect(within(tab).getByText('Mountain Weather')).toBeInTheDocument()
+    expect(container.querySelector('#nac-weather-forecast')).not.toBeVisible()
+  })
+
   it('shows nothing for an event without a zone or a published time', () => {
     const { container } = renderInWidget()
     fireNacLoaded({ zone_name: 'Olympics' })
@@ -63,12 +84,17 @@ describe('WidgetZoneWeather', () => {
     expect(shadowMount(container)).toBeNull()
   })
 
-  it('shows nothing when the zone has no weather that day', async () => {
+  it('says so in the tab, and adds nothing to the forecast, when the zone has no weather that day', async () => {
     fetchMock.mockResolvedValue({ ok: true, json: async () => ({ day: null }) })
     const { container } = renderInWidget()
     fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    const tab = await waitFor(() => {
+      const found = shadowMount(container, TAB_HOST)
+      if (!found) throw new Error('no message in the tab yet')
+      return found
+    })
     expect(shadowMount(container)).toBeNull()
+    expect(within(tab).getByText(/No Mountain Weather Forecast was issued/)).toBeInTheDocument()
   })
 })
