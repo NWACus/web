@@ -10,7 +10,7 @@ import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { validateEventDates } from '@/hooks/validateEventDates'
 import { Course } from '@/payload-types'
 import { isUser } from '@/utilities/isUser'
-import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
+import { COURSE_TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig, DateField, ValidateOptions } from 'payload'
@@ -41,7 +41,7 @@ export const Courses: CollectionConfig = {
         description: 'Short description/summary for event previews',
       },
     },
-    startAndEndDateField(),
+    startAndEndDateField({ timezones: COURSE_TIMEZONE_OPTIONS }),
     {
       name: 'location',
       type: 'group',
@@ -104,7 +104,7 @@ export const Courses: CollectionConfig = {
       name: 'registrationDeadline',
       type: 'date',
       timezone: {
-        supportedTimezones: TIMEZONE_OPTIONS,
+        supportedTimezones: COURSE_TIMEZONE_OPTIONS,
         required: true,
       },
       admin: {
