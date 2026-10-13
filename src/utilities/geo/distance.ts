@@ -14,7 +14,7 @@ const toRadians = (degrees: number) => (degrees * Math.PI) / 180
 const toDegrees = (radians: number) => (radians * 180) / Math.PI
 
 /** Great-circle distance; Turf takes points as [longitude, latitude]. */
-const distanceKm = (a: LatLng, b: LatLng) =>
+export const distanceKm = (a: LatLng, b: LatLng) =>
   distance([a.longitude, a.latitude], [b.longitude, b.latitude], { units: 'kilometers' })
 
 /**
@@ -66,4 +66,18 @@ export function rankByDistance<T>(
       return km <= radiusKm ? [{ doc, distanceKm: km }] : []
     })
     .sort((a, b) => a.distanceKm - b.distanceKm)
+}
+
+/**
+ * Every doc, nearest first. Docs without a point follow in their original order, so a list
+ * sorted by distance still shows virtual and unplaced items, after the placed ones.
+ */
+export function nearestFirst<T>(
+  docs: T[],
+  center: LatLng,
+  getCoordinates: (doc: T) => StoredCoordinates | null | undefined,
+): T[] {
+  const placed = rankByDistance(docs, center, Infinity, getCoordinates).map(({ doc }) => doc)
+  const unplaced = docs.filter((doc) => !toLatLng(getCoordinates(doc)))
+  return [...placed, ...unplaced]
 }

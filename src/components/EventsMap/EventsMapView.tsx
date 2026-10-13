@@ -16,7 +16,14 @@ import { useSearchParams } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { FocusRequest } from './EventsMap.client'
-import { describeWhere, groupEventsByPlace, placeKeyFor, pointOf } from './eventPlaces'
+import {
+  describeWhere,
+  distanceLabel,
+  groupEventsByPlace,
+  placeKeyFor,
+  pointOf,
+} from './eventPlaces'
+import { useNearOrigin, type NearOrigin } from './useNearOrigin'
 
 // mapbox-gl touches `window` when imported, so the map only loads in the browser.
 const EventsMap = dynamic(() => import('./EventsMap.client').then((mod) => mod.EventsMap), {
@@ -51,14 +58,15 @@ async function loadEvents(url: string, signal: AbortSignal): Promise<Loaded | nu
   }
 }
 
-/** Every event matching the page's filters, unpaginated. */
-function useAllFilteredEvents(center: string): EventsState {
+/** Every event matching the page's filters, unpaginated, nearest first when sorted by distance. */
+function useAllFilteredEvents(center: string, origin: NearOrigin | null): EventsState {
   const searchParams = useSearchParams()
   const query = new URLSearchParams()
   for (const key of FILTER_KEYS) {
     const value = searchParams.get(key)
     if (value) query.set(key, value)
   }
+  if (origin) query.set('near', origin.query)
   query.set('limit', String(MAP_EVENTS_LIMIT))
   const queryString = query.toString()
 
@@ -119,10 +127,11 @@ function useSelection(
   }
 }
 
-function eventMeta(event: Event): string {
+function eventMeta(event: Event, origin: NearOrigin | null): string {
   const typeLabel = eventTypesData.find((type) => type.value === event.type)?.label
   const when = formatDateTime(event.startDate, event.startDate_tz, 'EEE, MMM d · h:mm a')
-  return [typeLabel, when].filter(Boolean).join(' · ')
+  const distance = distanceLabel(event, origin?.point ?? null)
+  return [typeLabel, when, distance].filter(Boolean).join(' · ')
 }
 
 function ShowOnMapButton({
@@ -161,6 +170,7 @@ function EventThumbnail({ event }: { event: Event }) {
 
 function EventMapCard({ event, selection }: { event: Event; selection: Selection }) {
   const key = placeKeyFor(event)
+  const origin = useNearOrigin()
 
   return (
     <li
@@ -176,7 +186,7 @@ function EventMapCard({ event, selection }: { event: Event; selection: Selection
     >
       <EventThumbnail event={event} />
       <div className="min-w-0 flex-1">
-        <div className="text-xs text-muted-foreground">{eventMeta(event)}</div>
+        <div className="text-xs text-muted-foreground">{eventMeta(event, origin)}</div>
         <Link
           href={`/events/${event.slug}`}
           className="font-semibold leading-tight hover:underline"
@@ -319,7 +329,8 @@ export function EventsMapView({
   center: string
   revealOnMount: boolean
 }) {
-  const state = useAllFilteredEvents(center)
+  const origin = useNearOrigin()
+  const state = useAllFilteredEvents(center, origin)
   const events = state.events ?? NO_EVENTS
   const { places } = useMemo(() => groupEventsByPlace(events), [events])
   const [bboxParam, setBboxParam] = useQueryState('bbox', parseAsString)
@@ -343,6 +354,7 @@ export function EventsMapView({
           hoveredKey={selection.hoveredKey}
           focus={selection.focus}
           searchedBox={searchedBox}
+          origin={origin}
           onSelect={selection.selectFromMap}
           onClear={selection.clear}
           onSearchArea={(box: BoundingBox) => setBboxParam(formatBoxParam(box))}
