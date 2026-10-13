@@ -2,7 +2,9 @@ import { z } from 'zod'
 
 // A single sensor series or the date_time series. date_time values are ISO-UTC
 // strings (e.g. "2026-07-07T00:00:00Z"); sensor series are numbers or null.
-const observationSeriesSchema = z.array(z.union([z.number(), z.string(), z.null()]))
+// Anything else reads as null: raw airport data carries cloud layers as objects
+// ({ sky_condition, height_agl }), which no table or graph column shows.
+const observationSeriesSchema = z.array(z.union([z.number(), z.string(), z.null()]).catch(null))
 
 export const snowObsObservationsSchema = z.record(z.string(), observationSeriesSchema)
 export type SnowObsObservations = z.infer<typeof snowObsObservationsSchema>
@@ -39,7 +41,8 @@ export const snowObsVariableSchema = z.object({
 })
 
 export const snowObsTimeseriesResponseSchema = z.object({
-  UNITS: z.record(z.string(), z.string()),
+  // A unit whose stations disagree comes back as a list; read it as unknown.
+  UNITS: z.record(z.string(), z.string().catch('')),
   VARIABLES: z.array(snowObsVariableSchema),
   STATION: z.array(snowObsStationSchema),
 })

@@ -2,7 +2,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
-import { loadStationNotes, resolveTabView } from '@/components/WeatherStations/stationTabViews'
+import { loadStationMeta, resolveTabView } from '@/components/WeatherStations/stationTabViews'
+import { fetchLastReported } from '@/services/snowobs/lastReported'
 import {
   allStationPageParams,
   getStationPages,
@@ -33,13 +34,14 @@ export default async function Page({ params, searchParams }: Args) {
 
   const timeZone = centerTimezone(center)
   const csv = { action: `${stationPagePath(page.slug)}/csv`, filePrefix: page.slug }
-  const [view, notes] = await Promise.all([
+  const [view, { notes, stations }, lastReported] = await Promise.all([
     resolveTabView(
       { center, subject: page, pages: toPageSummaries(pages), timeZone, csv },
       rangeParam,
       periodParam,
     ),
-    loadStationNotes(center, page.stations),
+    loadStationMeta(center, page.stations),
+    page.archived ? fetchLastReported(center, page.stations) : null,
   ])
 
   return (
@@ -53,8 +55,9 @@ export default async function Page({ params, searchParams }: Args) {
       <StationPageView
         page={page}
         pages={toPageSummaries(pages)}
-        table={view.table}
         notes={notes}
+        stations={stations}
+        lastReported={lastReported}
         timeZone={timeZone}
         tabContent={view.tabContent}
       />

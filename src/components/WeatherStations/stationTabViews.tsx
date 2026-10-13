@@ -10,10 +10,12 @@ import { resolveColumns } from '@/services/snowobs/deriveColumns'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
-import type { StationTable } from '@/services/snowobs/tableHelpers'
-import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
+import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
+import { buildStationTable, stationNotes, stationSummaries } from '@/services/snowobs/tableHelpers'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import type { StationColumn } from '@/services/stations/stationColumns'
+import type { StationTabKey } from '@/services/stations/stationTabs'
+import { resolveStationTab } from '@/services/stations/stationTabs'
 import type { ReactNode } from 'react'
 
 // The Table, Graphs and Download views, shared by a station page and a single
@@ -21,6 +23,9 @@ import type { ReactNode } from 'react'
 
 // Station pages render per request (they read searchParams); only metadata is cached.
 const METADATA_REVALIDATE = 600
+// SnowObs caches each response for 60s, so holding the table's for as long
+// costs no freshness and spares a function waiting on it per view.
+const TABLE_REVALIDATE = 60
 
 /** What the views show: a station page, or one tracked station assembled on the fly. */
 export type StationViewSubject = {
@@ -30,6 +35,8 @@ export type StationViewSubject = {
   stations: StationRef[]
   /** The readings the table shows; empty means all reported. */
   columns: StationColumn[]
+  /** The tabs it shows, in order. */
+  tabs: StationTabKey[]
 }
 
 /** Where the Download view's form fetches from, and how the saved file is named. */
@@ -44,17 +51,23 @@ export type StationTabContext = {
 }
 
 export type StationTabView = {
-  table: StationTable | null
   tabContent?: ReactNode
 }
 
-// Notes ride with the station metadata, so a 1-hour window is enough.
-export async function loadStationNotes(center: string, stations: StationRef[]) {
+// Notes and the header's station list ride with the station metadata, so a
+// 1-hour window is enough.
+export async function loadStationMeta(
+  center: string,
+  stations: StationRef[],
+): Promise<{ notes: StationNote[]; stations: StationSummary[] }> {
   const meta = await fetchStationTimeseries(center, stations, {
     revalidate: METADATA_REVALIDATE,
     windowHours: 1,
   })
-  return stationNotes(meta.STATION)
+  return {
+    notes: stationNotes(meta.STATION),
+    stations: stationSummaries(stations, meta.STATION),
+  }
 }
 
 // A 1-hour window: only the station metadata is needed.
@@ -83,11 +96,10 @@ function csvYears(): number[] {
 
 async function csvTabView({ center, subject, csv }: StationTabContext): Promise<StationTabView> {
   return {
-    table: null,
     tabContent: (
       <>
         <StationViewBar>
-          <StationRangeTabs activeKey="csv" />
+          <StationRangeTabs activeKey="csv" tabs={subject.tabs} />
         </StationViewBar>
         <StationCsvForm
           action={csv.action}
@@ -102,7 +114,6 @@ async function csvTabView({ center, subject, csv }: StationTabContext): Promise<
 
 function graphsTabView({ subject, pages, timeZone }: StationTabContext): StationTabView {
   return {
-    table: null,
     tabContent: (
       <StationGraphs
         stations={subject.stations}
@@ -110,7 +121,7 @@ function graphsTabView({ subject, pages, timeZone }: StationTabContext): Station
         currentSlug={subject.slug}
         pages={pages}
         timeZone={timeZone}
-        tabs={<StationRangeTabs activeKey="graphs" />}
+        tabs={<StationRangeTabs activeKey="graphs" tabs={subject.tabs} />}
       />
     ),
   }
@@ -124,40 +135,28 @@ async function tableTabView(
   const response = await fetchStationTimeseries(center, subject.stations, {
     windowHours: period.hoursBack(new Date(), timeZone),
     rawData: true,
+    revalidate: TABLE_REVALIDATE,
   })
   const table = buildStationTable(center, response, resolveColumns(response, subject))
   return {
-    table,
     tabContent: (
       <StationTableView
         table={table}
         activePeriodKey={period.key}
-        tabs={<StationRangeTabs activeKey="table" />}
+        tabs={<StationRangeTabs activeKey="table" tabs={subject.tabs} />}
       />
     ),
   }
 }
-
-// An archived station's table and graphs are empty, so downloads lead.
-function defaultTabKey(subject: StationViewSubject): string {
-  return subject.archived ? 'csv' : 'table'
-}
-
-// A Map, not an object: the key is raw user input (`?range=__proto__`).
-const TAB_VIEWS = new Map<
-  string,
-  (context: StationTabContext) => StationTabView | Promise<StationTabView>
->([
-  ['csv', csvTabView],
-  ['graphs', graphsTabView],
-])
 
 export async function resolveTabView(
   context: StationTabContext,
   rangeParam?: string,
   periodParam?: string,
 ): Promise<StationTabView> {
-  const build = TAB_VIEWS.get(rangeParam ?? defaultTabKey(context.subject))
-  // Anything else is the table, including legacy `?range=24h` links.
-  return build ? build(context) : tableTabView(context, periodParam ?? rangeParam)
+  const { subject } = context
+  const { tab, period } = resolveStationTab(subject.tabs, subject.archived, rangeParam)
+  if (tab === 'csv') return csvTabView(context)
+  if (tab === 'graphs') return graphsTabView(context)
+  return tableTabView(context, periodParam ?? period)
 }

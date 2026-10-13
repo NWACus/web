@@ -1,12 +1,51 @@
+'use client'
+
 import { TableHeader } from '@/components/ui/table'
 import { cn } from '@/utilities/ui'
-import type { ComponentProps, ReactNode } from 'react'
+import type { ComponentProps, ReactNode, RefObject } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-// A sticky header sticks to the nearest scroll container. Below xl that's this
-// wrapper, capped at the viewport so it scrolls vertically too; from xl every
-// station table fits its container (the widest is ~1140px in 1216px), so the
-// wrapper stops scrolling and the header sticks to the page. The region makes
-// the box reachable by keyboard.
+type ScrollEdges = { left: boolean; right: boolean; pinnedWidth: number }
+
+// Which sides have columns out of view, and how wide the pinned first column
+// is, so the left shadow starts where the columns slide under it.
+function useScrollEdges(ref: RefObject<HTMLDivElement | null>): ScrollEdges {
+  const [edges, setEdges] = useState<ScrollEdges>({ left: false, right: false, pinnedWidth: 0 })
+  useEffect(() => {
+    const box = ref.current
+    if (!box) return
+    const update = () => {
+      const pinned = box.querySelector('th:first-child')
+      setEdges({
+        left: box.scrollLeft > 0,
+        right: box.scrollLeft + box.clientWidth < box.scrollWidth - 1,
+        pinnedWidth: pinned instanceof HTMLElement ? pinned.offsetWidth : 0,
+      })
+    }
+    update()
+    box.addEventListener('scroll', update, { passive: true })
+    const observer = new ResizeObserver(update)
+    observer.observe(box)
+    if (box.firstElementChild) observer.observe(box.firstElementChild)
+    return () => {
+      box.removeEventListener('scroll', update)
+      observer.disconnect()
+    }
+  }, [ref])
+  return edges
+}
+
+const shadowClass = 'pointer-events-none absolute bottom-0 top-0 z-40 w-6 transition-opacity'
+
+// Theme colors are bare CSS variables, so Tailwind can't fade them; mix one inline.
+function shadow(direction: 'right' | 'left'): string {
+  return `linear-gradient(to ${direction}, color-mix(in srgb, var(--foreground) 15%, transparent), transparent)`
+}
+
+// A sticky header sticks to the nearest scroll container, so at every width
+// this wrapper scrolls both ways, capped at the viewport: a page can add
+// stations until the table outgrows any container. Soft shadows mark the sides
+// with columns out of view. The region makes the box reachable by keyboard.
 export function StationTableFrame({
   label,
   className,
@@ -16,14 +55,29 @@ export function StationTableFrame({
   className?: string
   children: ReactNode
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const { left, right, pinnedWidth } = useScrollEdges(ref)
   return (
-    <div
-      role="region"
-      aria-label={label}
-      tabIndex={0}
-      className="relative w-full max-h-[calc(100dvh-5rem)] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:max-h-[calc(100dvh-2rem)] xl:max-h-none xl:overflow-visible"
-    >
-      <table className={cn('w-full caption-bottom text-sm', className)}>{children}</table>
+    <div className="relative w-full">
+      <div
+        ref={ref}
+        role="region"
+        aria-label={label}
+        tabIndex={0}
+        className="relative w-full max-h-[calc(100dvh-5rem)] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:max-h-[calc(100dvh-2rem)]"
+      >
+        <table className={cn('w-full caption-bottom text-sm', className)}>{children}</table>
+      </div>
+      <div
+        aria-hidden
+        className={cn(shadowClass, left ? 'opacity-100' : 'opacity-0')}
+        style={{ left: pinnedWidth, background: shadow('right') }}
+      />
+      <div
+        aria-hidden
+        className={cn(shadowClass, 'right-0', right ? 'opacity-100' : 'opacity-0')}
+        style={{ background: shadow('left') }}
+      />
     </div>
   )
 }
