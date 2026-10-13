@@ -5,11 +5,17 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { Event } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 import { List, Map as MapIcon } from 'lucide-react'
-import { parseAsStringLiteral, useQueryState } from 'nuqs'
+import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
 import { useState } from 'react'
 import { EventsMapView } from './EventsMapView'
 
 export const viewParam = parseAsStringLiteral(['list', 'map']).withDefault('list')
+
+const resultsParams = {
+  view: viewParam,
+  // A searched map area only narrows the map view.
+  bbox: parseAsString,
+}
 
 interface EventsResultsProps {
   initialEvents: Event[]
@@ -53,7 +59,7 @@ function ViewToggle({ view, onChange }: { view: View; onChange: (view: View) => 
 
 /** The events list, or the same events on a map. */
 export function EventsResults({ center, ...listProps }: EventsResultsProps) {
-  const [view, setView] = useQueryState('view', viewParam)
+  const [{ view }, setParams] = useQueryStates(resultsParams)
   // Only a click on Map scrolls the map into view; a page opened on the map view stays put.
   const [revealMap, setRevealMap] = useState(false)
 
@@ -63,7 +69,7 @@ export function EventsResults({ center, ...listProps }: EventsResultsProps) {
         view={view}
         onChange={(next) => {
           setRevealMap(next === 'map')
-          setView(next === 'list' ? null : next)
+          setParams(next === 'map' ? { view: 'map' } : { view: null, bbox: null })
         }}
       />
 

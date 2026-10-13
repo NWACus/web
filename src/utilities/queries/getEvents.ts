@@ -1,6 +1,8 @@
 import { EVENTS_LIMIT } from '@/constants/defaults'
 import type { Event } from '@/payload-types'
 import config from '@/payload.config'
+import type { BoundingBox } from '@/utilities/geo/distance'
+import { withinBoxWhere } from '@/utilities/geo/where'
 import * as Sentry from '@sentry/nextjs'
 import { format } from 'date-fns'
 import type { Where } from 'payload'
@@ -15,6 +17,8 @@ export interface GetEventsParams {
   groups?: string[] | null
   tags?: string[] | null
   modesOfTravel?: string[] | null
+  /** Only events held inside this box, e.g. the map area a reader searched. */
+  box?: BoundingBox | null
   center: string
 }
 
@@ -29,7 +33,7 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
   const payload = await getPayload({ config })
 
   try {
-    const { types, startDate, endDate, groups, tags, modesOfTravel, center } = params
+    const { types, startDate, endDate, groups, tags, modesOfTravel, box, center } = params
 
     const offset = params.offset || 0
     const limit = Math.floor(Number(params.limit)) || EVENTS_LIMIT
@@ -105,6 +109,8 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
         },
       })
     }
+
+    if (box) conditions.push(withinBoxWhere('location.coordinates', box))
 
     const where: Where = conditions.length > 0 ? { and: conditions } : {}
 
