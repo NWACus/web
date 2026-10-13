@@ -1,9 +1,9 @@
 import { Field } from 'payload'
 
 export const affinityGroupOptions = [
+  { label: 'For BIPOC', value: 'bipoc' },
   { label: 'For LGBTQ+', value: 'lgbtq' },
   { label: 'For Women', value: 'women' },
-  { label: 'For BIPOC', value: 'bipoc' },
   { label: 'For Youth', value: 'youth' },
 ]
 

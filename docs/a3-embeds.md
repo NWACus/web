@@ -120,9 +120,9 @@ Displays a paginated, filterable list of upcoming avalanche courses with infinit
 
 | Value | Label |
 |-------|-------|
+| `bipoc` | For BIPOC |
 | `lgbtq` | For LGBTQ+ |
 | `women` | For Women |
-| `bipoc` | For BIPOC |
 | `youth` | For Youth |
 
 #### Modes of Travel (`modesOfTravel`)
