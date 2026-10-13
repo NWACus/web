@@ -144,9 +144,43 @@ function SearchAreaButton({
   )
 }
 
-function PlacePopup({ place }: { place: EventPlace }) {
+// How far a popup stays from the map's edges.
+const POPUP_MARGIN = 12
+
+/** How far `[start, end]` sticks out past `[min, max]`: negative before it, positive after. */
+const overshoot = (start: number, end: number, min: number, max: number) =>
+  Math.min(0, start - min) || Math.max(0, end - max)
+
+/** Pans the map just enough to show the whole popup when it opens hanging off an edge. */
+function usePanIntoView(map: mapboxgl.Map, popupRef: RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const popup = popupRef.current?.getBoundingClientRect()
+    if (!popup) return
+    const frame = map.getContainer().getBoundingClientRect()
+    const dx = overshoot(
+      popup.left,
+      popup.right,
+      frame.left + POPUP_MARGIN,
+      frame.right - POPUP_MARGIN,
+    )
+    const dy = overshoot(
+      popup.top,
+      popup.bottom,
+      frame.top + POPUP_MARGIN,
+      frame.bottom - POPUP_MARGIN,
+    )
+    if (dx || dy) map.panBy([dx, dy])
+  }, [map, popupRef])
+}
+
+function PlacePopup({ map, place }: { map: mapboxgl.Map; place: EventPlace }) {
+  const popupRef = useRef<HTMLDivElement>(null)
+  usePanIntoView(map, popupRef)
   return (
-    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 rounded-md border bg-card text-card-foreground p-3 shadow-lg text-left">
+    <div
+      ref={popupRef}
+      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 rounded-md border bg-card text-card-foreground p-3 shadow-lg text-left"
+    >
       <ul className="flex flex-col gap-2">
         {place.events.map((event) => (
           <li key={event.id}>
@@ -206,7 +240,7 @@ function EventPin({ map, place, selected, active, onSelect }: EventPinProps) {
         >
           {place.events.length > 1 ? place.events.length : <MapPin className="h-4 w-4" />}
         </div>
-        {selected && <PlacePopup place={place} />}
+        {selected && <PlacePopup map={map} place={place} />}
       </div>
     </MapMarker>
   )
