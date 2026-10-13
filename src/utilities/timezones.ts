@@ -22,9 +22,10 @@ export const TIMEZONE_OPTIONS = [
 ]
 
 // A3 Courses can be held abroad (e.g. Otaru); centers and their Events never are
-export const COURSE_TIMEZONE_OPTIONS = [
+export const COURSE_TIMEZONE_OPTIONS: { label: string; value: string; abbreviation?: string }[] = [
   ...TIMEZONE_OPTIONS,
-  { label: 'Japan Time (JST)', value: 'Asia/Tokyo' },
+  // en-US has no short name for Tokyo, so it would otherwise show as "GMT+9"
+  { label: 'Japan Time (JST)', value: 'Asia/Tokyo', abbreviation: 'JST' },
 ]
 
 /**

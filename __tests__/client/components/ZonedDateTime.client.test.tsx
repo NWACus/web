@@ -120,7 +120,7 @@ describe('ZonedDateTime', () => {
       const container = renderRange('Asia/Tokyo', '2026-01-16T01:00:00Z', '2026-01-16T21:00:00Z')
 
       expect(container).toHaveTextContent(
-        'Jan 15, 5:00 PM (your time: Jan 16, 10:00 AM GMT+9) - Jan 16, 2026, 1:00 PM PST (your time: Jan 17, 6:00 AM GMT+9)',
+        'Jan 15, 5:00 PM (your time: Jan 16, 10:00 AM JST) - Jan 16, 2026, 1:00 PM PST (your time: Jan 17, 6:00 AM JST)',
       )
     })
   })

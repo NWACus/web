@@ -923,7 +923,7 @@ sig = "0108c3f6f50473e7"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/timezones.ts"
-sig = "25da4211f2d979fe"
+sig = "c94bfa851620c830"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
