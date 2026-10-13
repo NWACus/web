@@ -10,7 +10,7 @@
  *
  * Scrubbing mirrors products-api's SCRUB_POLICY.md, verified field-by-field against the shape of
  * the committed `v2_public_center_SNFAC.json`: personal/contact emails become test@example.com,
- * widget_config API tokens become test_token_scrubbed. A center's published phone number stays —
+ * a personal author becomes Test Author A, widget_config API tokens become test_token_scrubbed. A center's published phone number stays —
  * the corpus keeps SNFAC's — as do organisational names, zone geometry and ids.
  *
  *   node scripts/e2e/capture-provisional.mjs                # re-capture every registered target
@@ -59,14 +59,13 @@ const TARGETS = [
   },
   {
     file: 'v2_public_product_forecast_no_outlook.json',
-    // Published on staging at Snoqualmie Pass (staging's zone 2168; production's, which the suite
-    // serves, is 1653) with only a `current` danger entry. Once captured, map it in scenarios.json
-    // — { "center": "NWAC", "zone": 1653, "zoneSlug": "snoqualmie-pass", "type": "forecast",
-    // "fixture": "v2_public_product_forecast_no_outlook.json" } — and drop `awaitingCapture`.
+    // Published on staging at Snoqualmie Pass (staging's zone 2168) with only a `current` danger
+    // entry, and fetched by id because a later test forecast is that zone's latest. The suite
+    // serves it at production's Snoqualmie Pass, 1653. By id, v2 omits the live answer's
+    // `json_data`, which is null there and which the page doesn't read.
     host: STAGING_NAC_HOST,
-    path: '/v2/public/product?type=forecast&center_id=NWAC&zone_id=2168',
+    path: '/v2/public/product/165008',
     upstreamCase: 'not yet filed',
-    awaitingCapture: true,
     // A blank outlook still arrives as a `tomorrow` entry, which the page shows as one.
     expect: (body) =>
       Array.isArray(body.danger) &&
@@ -79,6 +78,9 @@ const TARGETS = [
 ]
 
 const EMAIL = /[\w.+-]+@[\w-]+\.[\w.-]+/g
+/** The policy's sentinel for a personal `author` / `created_by`. */
+const AUTHOR = 'Test Author A'
+const PERSONAL_NAME_KEYS = new Set(['author', 'created_by'])
 /** A widget API token: lowercase hex, 32+ chars, under a widget_config ancestor. */
 const HEX_TOKEN = /^[a-f0-9]{32,}$/
 
@@ -94,6 +96,7 @@ function scrub(value, path = []) {
   if (typeof value !== 'string') return value
 
   const key = path[path.length - 1]
+  if (PERSONAL_NAME_KEYS.has(key) && value !== '') return AUTHOR
   if (key === 'token' && path.includes('widget_config') && HEX_TOKEN.test(value)) {
     return 'test_token_scrubbed'
   }
@@ -110,6 +113,9 @@ function leaks(value, path = []) {
   if (typeof value !== 'string') return found
 
   const where = path.join('.')
+  const key = path[path.length - 1]
+  if (PERSONAL_NAME_KEYS.has(key) && value !== '' && value !== AUTHOR)
+    found.push(`${where}: ${value}`)
   if (EMAIL.test(value) && !value.includes('test@example.com')) found.push(`${where}: ${value}`)
   EMAIL.lastIndex = 0
   if (HEX_TOKEN.test(value) && value !== 'test_token_scrubbed') found.push(`${where}: <hex token>`)
@@ -157,12 +163,7 @@ async function capture() {
     }
 
     writeFileSync(join(provisionalDir, target.file), `${JSON.stringify(scrubbed, null, 2)}\n`)
-    const {
-      expect: _expect,
-      expectation: _expectation,
-      awaitingCapture: _awaiting,
-      ...record
-    } = target
+    const { expect: _expect, expectation: _expectation, ...record } = target
     files.push({ ...record, url, capturedAt: new Date().toISOString().slice(0, 10) })
     console.log(`Captured ${target.file}`)
   }
@@ -192,10 +193,6 @@ function verify() {
   for (const target of TARGETS) {
     const path = join(provisionalDir, target.file)
     if (!existsSync(path)) {
-      if (target.awaitingCapture) {
-        console.log(`${target.file}: awaiting its first capture`)
-        continue
-      }
       problems.push(`${target.file}: registered but not committed`)
       continue
     }

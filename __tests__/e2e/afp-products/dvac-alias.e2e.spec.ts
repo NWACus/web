@@ -26,7 +26,8 @@ test.describe('DVAC → NWAC alias', () => {
   })
 
   /**
-   * The corpus has no NWAC product goldens, so every NWAC zone gets v2's real not-found answer.
+   * The corpus has no NWAC product goldens, so every NWAC zone scenarios.json doesn't map gets v2's
+   * real not-found answer — Olympics among them.
    * That makes this the suite's check on the rule that matters most: a product we cannot load is
    * visible copy, never a blank page or a silently missing section.
    */
