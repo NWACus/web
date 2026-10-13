@@ -112,8 +112,11 @@ export function ZoneSummary({ day, avalancheZoneId, timezone }: ZoneSummaryProps
   if (issuances.length === 0) return null
 
   return (
-    <Card id="mountain-weather" className="scroll-mt-24">
-      <CardContent className="space-y-6 pt-6">
+    <Card
+      id="mountain-weather"
+      className="scroll-mt-24 rounded-none border-0 bg-transparent shadow-none"
+    >
+      <CardContent className="space-y-6 p-0">
         <IssuanceSwitch
           heading={<CardTitle>Mountain Weather</CardTitle>}
           panels={issuances.map((issuance) => ({
