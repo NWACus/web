@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatNearParam } from '@/utilities/geo/nearParam'
 import { cn } from '@/utilities/ui'
-import { ArrowUpDown, Check, Loader2, LocateFixed, X } from 'lucide-react'
+import { ArrowUpDown, Calendar, Check, Loader2, LocateFixed, X } from 'lucide-react'
 import { useQueryStates } from 'nuqs'
 import { useId, useRef, useState, type RefObject } from 'react'
 import { requestDeviceLocation, saveDeviceLocation } from './deviceLocation'
@@ -35,6 +35,12 @@ function useLocateMe(onLocated: () => void, onFailed: () => void) {
   return { ...state, locate }
 }
 
+/** Marks the sort in effect, at the end of its row. */
+function CurrentSortCheck({ shown }: { shown: boolean }) {
+  if (!shown) return null
+  return <Check aria-hidden className="ml-auto size-4 text-foreground" />
+}
+
 function SortOption({
   checked,
   onClick,
@@ -49,10 +55,14 @@ function SortOption({
       type="button"
       aria-pressed={checked}
       onClick={onClick}
-      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-accent"
+      className={cn(
+        'flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-accent',
+        ICON_SIZE,
+      )}
     >
-      <Check className={cn('h-4 w-4', !checked && 'invisible')} />
+      <Calendar />
       {children}
+      <CurrentSortCheck shown={checked} />
     </button>
   )
 }
@@ -106,17 +116,23 @@ function SortTrigger({ origin }: { origin: NearOrigin | null }) {
 }
 
 function NearestOptions({
+  active,
   placeInputRef,
   onPickPlace,
   locating,
 }: {
+  active: boolean
   placeInputRef: RefObject<HTMLInputElement | null>
   onPickPlace: (place: PickedPlace) => void
   locating: ReturnType<typeof useLocateMe>
 }) {
   return (
     <>
-      <div className="px-2 pt-3 pb-1 text-sm text-muted-foreground">Nearest to…</div>
+      <div className="flex items-center gap-2 px-2 pt-3 pb-1 text-sm text-muted-foreground">
+        Nearest to…
+        {active && <span className="sr-only">(current sort)</span>}
+        <CurrentSortCheck shown={active} />
+      </div>
       <div className="flex flex-col gap-2 px-2 pb-1">
         <PlaceSearch inputRef={placeInputRef} onPick={onPickPlace} />
         <UseMyLocationButton locating={locating} />
@@ -155,6 +171,7 @@ export function EventsSort() {
             Soonest first
           </SortOption>
           <NearestOptions
+            active={origin !== null}
             placeInputRef={placeInputRef}
             onPickPlace={sortNearPlace}
             locating={locating}
