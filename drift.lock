@@ -648,7 +648,7 @@ sig = "e4dc2b4ccd50dcc4"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/components/RichText/index.tsx"
-sig = "88ef4fa70130ce8c"
+sig = "bdee95c6ea9c78b7"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -1243,7 +1243,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "b810593f395815fd"
+sig = "7c929abb06d0d630"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
