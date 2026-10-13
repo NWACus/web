@@ -3,7 +3,6 @@
  * periods or blocks across), then the extended outlook.
  */
 import { DiscussionBody } from '@/components/forecast/DiscussionBody'
-import { sanitizeHtml } from '@/components/forecast/sanitizeHtml'
 import Link from 'next/link'
 import { Fragment, type ReactNode } from 'react'
 
@@ -101,7 +100,7 @@ const periodColumn = (p: NWACWeatherPeriod): Column => ({
   dayNightOnSub: true,
 })
 
-/** Forecaster-authored HTML, or null when blank. */
+/** Forecaster-authored HTML, or null when blank. Already sanitized: see `sanitizeIssuance`. */
 function authoredOrNull(html: string | null | undefined): string | null {
   return html?.trim() ? html : null
 }
@@ -567,7 +566,7 @@ function SynopsisRow({
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
         Weather Synopsis
       </h3>
-      <DiscussionBody html={sanitizeHtml(synopsis)} />
+      <DiscussionBody html={synopsis} />
     </section>
   )
   // Without zone links the synopsis takes the full width.
@@ -602,7 +601,7 @@ function ExtendedSection({
         {extended && (
           <section className="space-y-2">
             <h4 className="text-base font-semibold">Outlook</h4>
-            <DiscussionBody html={sanitizeHtml(extended)} />
+            <DiscussionBody html={extended} />
           </section>
         )}
         {showTable && <GridTable table={table} anchor={anchor} headingLevel="h4" />}

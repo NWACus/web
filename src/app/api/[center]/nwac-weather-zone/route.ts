@@ -1,6 +1,6 @@
 // The same false positive the sibling `api/[center]` routes waive; see `forecast-archive`.
 // fallow-ignore-file dynamic-segment-name-conflicts
-import { sanitizeHtml } from '@/components/forecast/sanitizeHtml'
+import { sanitizeIssuance } from '@/components/NWACWeather/sanitizeIssuance'
 import { validDateForProduct } from '@/services/nac/archiveDates'
 import { todayInTimezone } from '@/services/nac/forecastArchive'
 import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
@@ -55,12 +55,6 @@ function parseQuery(query: URLSearchParams, timezone: string | null | undefined)
 
 /** The day's issuances that cover the zone, with their authored HTML sanitized; null when none. */
 function forZone(day: NWACWeatherForecastDay, zone: number): NWACWeatherForecastDay | null {
-  const issuances = day.issuances
-    .filter((i) => zonesFor(i, zone).length > 0)
-    .map((i) => ({
-      ...i,
-      synopsis: i.synopsis && sanitizeHtml(i.synopsis),
-      extendedOutlook: i.extendedOutlook && sanitizeHtml(i.extendedOutlook),
-    }))
+  const issuances = day.issuances.filter((i) => zonesFor(i, zone).length > 0).map(sanitizeIssuance)
   return issuances.length ? { ...day, issuances } : null
 }
