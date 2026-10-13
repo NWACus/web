@@ -146,40 +146,18 @@ function SensibleCards({
   )
 }
 
-const periodSpan = (p: PeriodView) => Math.max(1, p.blocks.length)
-
 function PeriodHead({ periods }: { periods: PeriodView[] }) {
   return (
     <thead className="bg-muted">
       <tr>
-        <td className="border-r" />
+        <td className="border-b border-r" />
         {periods.map((p) => (
-          <th key={p.period.key} scope="colgroup" colSpan={periodSpan(p)} className={HEAD}>
+          <th key={p.period.key} scope="col" className={cn(HEAD, 'border-b')}>
             <DayNightDate date={p.label} night={p.night} />
           </th>
         ))}
       </tr>
-      <tr>
-        <td className="border-b border-r" />
-        {periods.flatMap((p) =>
-          p.blocks.map((b, i) => <PartHead key={b.block.key} b={b} first={i === 0} />),
-        )}
-      </tr>
     </thead>
-  )
-}
-
-function PartHead({ b, first }: { b: BlockView; first: boolean }) {
-  return (
-    <th
-      scope="col"
-      className={cn(
-        'border-b px-1 py-1.5 text-center text-sm font-normal text-muted-foreground',
-        first && 'border-l',
-      )}
-    >
-      {b.block.part}
-    </th>
   )
 }
 
@@ -199,7 +177,7 @@ function coveredCount<T>(items: T[], has: (item: T) => boolean): number {
 const HATCH =
   'bg-[repeating-linear-gradient(135deg,transparent_0,transparent_6px,var(--border)_6px,var(--border)_8px)]'
 
-/** How far temps (in periods) and wind (in blocks) run before they are past the forecast. */
+/** How far temps (in periods) and wind (in blocks, and in the periods holding them) run. */
 function coverage(issuance: NWACWeatherIssuance, periods: PeriodView[]) {
   const temps = new Set(tempPeriods(issuance).map((p) => p.key))
   const winds = new Set(windBlocks(issuance).map((b) => b.key))
@@ -207,6 +185,7 @@ function coverage(issuance: NWACWeatherIssuance, periods: PeriodView[]) {
   return {
     temps: coveredCount(periods, (p) => temps.has(p.period.key)),
     winds: coveredCount(blocks, (b) => winds.has(b.block.key)),
+    windPeriods: coveredCount(periods, (p) => p.blocks.some((b) => winds.has(b.block.key))),
   }
 }
 
@@ -229,7 +208,7 @@ function NotCovered({ colSpan }: { colSpan: number }) {
   )
 }
 
-/** One cell per 12h period, spanning that period's blocks; `covered` periods, then NotCovered. */
+/** One cell per 12h period; `covered` periods, then NotCovered. */
 function PeriodRow({
   label,
   unit,
@@ -246,7 +225,6 @@ function PeriodRow({
   /** A point under the zone's row: indented, lighter and not bold. */
   sub?: boolean
 }) {
-  const past = periods.slice(covered).reduce((n, p) => n + periodSpan(p), 0)
   return (
     <tr className={cn(sub && 'text-muted-foreground')}>
       <th scope="row" className={cn(ROW_LABEL, sub && 'pl-6 font-normal')}>
@@ -254,55 +232,48 @@ function PeriodRow({
         {unit && <Unit>{unit}</Unit>}
       </th>
       {periods.slice(0, covered).map((p) => (
-        <td
-          key={p.period.key}
-          colSpan={periodSpan(p)}
-          className={'border-l border-t p-2 text-center'}
-        >
+        <td key={p.period.key} className="border-l border-t p-2 text-center">
           {cell(p)}
         </td>
       ))}
-      <NotCovered colSpan={past} />
+      <NotCovered colSpan={periods.length - covered} />
     </tr>
   )
 }
 
-/** One cell per 6h block; `covered` blocks, then NotCovered. */
-function BlockRow({
-  label,
-  unit,
-  blocks,
-  cellClassName,
-  cell,
-  covered = blocks.length,
-}: {
-  label: string
-  unit: string
-  blocks: BlockView[]
-  cellClassName: string
-  cell: (b: BlockView) => ReactNode
-  covered?: number
-}) {
+const PART_SHORT: Record<string, string> = {
+  Evening: 'Eve',
+  Night: 'Night',
+  Morning: 'AM',
+  Afternoon: 'PM',
+}
+
+/**
+ * A 12h cell's two 6h values, one per line with its part of day: how snow level and wind sit in
+ * a table whose columns are all 12h periods, so no part-of-day header is needed.
+ */
+function BlockPair({ blocks, value }: { blocks: BlockView[]; value: (b: BlockView) => ReactNode }) {
   return (
-    <tr>
-      <th scope="row" className={ROW_LABEL}>
-        {label}
-        <Unit>{unit}</Unit>
-      </th>
-      {blocks.slice(0, covered).map((b) => (
-        <td key={b.block.key} className={cellClassName}>
-          {cell(b)}
-        </td>
+    <div className="space-y-1">
+      {blocks.map((b) => (
+        <div key={b.block.key} className="grid grid-cols-[2.75rem_1fr] items-center gap-2">
+          <span className="text-right text-xs text-muted-foreground">
+            {PART_SHORT[b.block.part] ?? b.block.part}
+          </span>
+          {/* Every line the height of a snow-level pill, so wind lines space the same; a grid cell
+              stretches its value, which centres it as the pills' text is. */}
+          <div className="grid min-h-7 items-center">{value(b)}</div>
+        </div>
       ))}
-      <NotCovered colSpan={blocks.length - covered} />
-    </tr>
+    </div>
   )
 }
 
 /**
- * The zone's numbers from `md` up and on paper, in one table under one date / part-of-day header:
- * snow (the zone's, then each point's when several), snow level, temps and ridgeline wind. Temps
- * and wind stop sooner than the snow level does; past that they read as not forecast.
+ * The zone's numbers from `md` up and on paper, one column per 12h period: snow (the zone's,
+ * then each point's when several), snow level, temps and ridgeline wind. Snow level and wind are
+ * 6h values, so their cells hold both halves of the period. Temps and wind stop sooner than the
+ * snow level does; past that they read as not forecast.
  */
 function PeriodTable({
   issuance,
@@ -313,15 +284,20 @@ function PeriodTable({
   zone: NWACWeatherZone
   periods: PeriodView[]
 }) {
-  const blocks = periods.flatMap((p) => p.blocks)
   const covered = coverage(issuance, periods)
+  const windOut = new Set(
+    periods
+      .flatMap((p) => p.blocks)
+      .slice(covered.winds)
+      .map((b) => b.block.key),
+  )
   return (
     <div className="hidden overflow-hidden rounded-md border md:block print:block">
       <table className="w-full table-fixed border-collapse text-sm">
         <colgroup>
           <col className="w-48" />
-          {blocks.map((b) => (
-            <col key={b.block.key} />
+          {periods.map((p) => (
+            <col key={p.period.key} />
           ))}
         </colgroup>
         <PeriodHead periods={periods} />
@@ -341,12 +317,16 @@ function PeriodTable({
               cell={(p) => <PointSnow issuance={issuance} point={point} period={p.period} />}
             />
           ))}
-          <BlockRow
+          <PeriodRow
             label="Snow level"
             unit="ft"
-            blocks={blocks}
-            cellClassName="border-t p-0.5"
-            cell={(b) => <LevelValue level={b.level} tone={b.tone} />}
+            periods={periods}
+            cell={(p) => (
+              <BlockPair
+                blocks={p.blocks}
+                value={(b) => <LevelValue level={b.level} tone={b.tone} />}
+              />
+            )}
           />
           <PeriodRow
             label="5000' Temperatures"
@@ -355,13 +335,17 @@ function PeriodTable({
             covered={covered.temps}
             cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />}
           />
-          <BlockRow
+          <PeriodRow
             label="Ridge wind"
             unit="mph"
-            blocks={blocks}
-            covered={covered.winds}
-            cellClassName="border-t p-2 text-center"
-            cell={(b) => <WindValue cell={b.wind} />}
+            periods={periods}
+            covered={covered.windPeriods}
+            cell={(p) => (
+              <BlockPair
+                blocks={p.blocks}
+                value={(b) => (windOut.has(b.block.key) ? null : <WindValue cell={b.wind} />)}
+              />
+            )}
           />
         </tbody>
       </table>
