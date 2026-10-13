@@ -1,11 +1,11 @@
 import { Field, TextFieldSingleValidation } from 'payload'
 
-const brandShades = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+export const BRAND_SHADES = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
 export const BACKGROUND_COLOR_OPTIONS = [
   'transparent',
   'white',
-  ...brandShades.map((n) => `brand-${n}`),
+  ...BRAND_SHADES.map((n) => `brand-${n}`),
 ]
 
 export const isPaletteColor = (value: unknown): value is string =>
@@ -20,7 +20,7 @@ export const validateBackgroundColor = (value: unknown, previousValue?: unknown)
 const validate: TextFieldSingleValidation = (value, { previousValue }) =>
   validateBackgroundColor(value, previousValue)
 
-const colorPickerField: (label: string) => Field = (label) => ({
+const colorPickerField: (label: string, width?: string) => Field = (label, width) => ({
   name: 'backgroundColor',
   type: 'text',
   label,
@@ -28,6 +28,7 @@ const colorPickerField: (label: string) => Field = (label) => ({
   defaultValue: 'transparent',
   validate,
   admin: {
+    width,
     components: {
       Field: '@/components/ColorPicker#ColorPicker',
     },
