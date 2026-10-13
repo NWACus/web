@@ -382,8 +382,10 @@ export async function provision(payload: Payload, tenant: Tenant) {
   }
 
   // 2. Query AFP for forecast zones and resolve built-in pages
-  const { forecastPages, archivePages, nonForecastPages, infoExchange } =
-    await resolveBuiltInPages(tenant.slug, log)
+  const { forecastPages, archivePages, nonForecastPages, infoExchange } = await resolveBuiltInPages(
+    tenant.slug,
+    log,
+  )
   const builtInPagesToCreate = [...forecastPages, ...archivePages, ...nonForecastPages]
   log.info(`[${tenant.slug}] Creating ${builtInPagesToCreate.length} built-in pages...`)
   const existingBuiltInPages = await payload.find({

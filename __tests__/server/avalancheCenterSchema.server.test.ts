@@ -74,7 +74,7 @@ describe('avalancheCenterSchema', () => {
     })
 
     expect(parsed.success).toBe(true)
-    expect(parsed.data?.config?.weather_table[0].forecast_point).toEqual({ lat: null, lng: null })
+    expect(parsed.data?.config?.weather_table?.[0].forecast_point).toEqual({ lat: null, lng: null })
     expect(parsed.data?.widget_config.forecast?.start_year).toBeUndefined()
     expect(parsed.data?.widget_config.danger_map?.allCenters).toBeUndefined()
     expect(parsed.data?.widget_config.danger_map?.center).toEqual({ lat: null, lng: 1 })
