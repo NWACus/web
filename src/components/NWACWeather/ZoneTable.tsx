@@ -1,13 +1,14 @@
 /**
  * One zone's forecast the way a zone page reads it: the sensible-weather text first, then the
  * numbers by period — snow and temps on the 12h periods, snow level and wind on the 6h blocks
- * beneath. A table from `md` up and on paper; one card per period on a phone.
+ * beneath. A zone forecast from several points shows each point's snow under the zone's. A table from `md` up and on paper; one card per period on a phone.
  */
 import type {
   NWACWeatherBlock,
   NWACWeatherExtendedBlock,
   NWACWeatherIssuance,
   NWACWeatherPeriod,
+  NWACWeatherPoint,
   NWACWeatherWindCell,
   NWACWeatherZone,
 } from '@/services/nac/model/nwacWeather'
@@ -15,9 +16,12 @@ import {
   SENSIBLE_SLOTS,
   deriveSnowLevel,
   fmtCalendarDate,
+  fmtSnowAmount,
   periodDateGroups,
+  pointSnow,
   rangeBucket,
   snowLevelTones,
+  zonePoints,
   zoneSnow,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
@@ -76,6 +80,28 @@ function ZoneSnow({
 }) {
   const snow = zoneSnow(issuance, zone.id, period.key)
   return <SnowValue text={rangeBucket(snow)} some={snow != null && snow > 0} />
+}
+
+function PointSnow({
+  issuance,
+  point,
+  period,
+}: {
+  issuance: NWACWeatherIssuance
+  point: NWACWeatherPoint
+  period: NWACWeatherPeriod
+}) {
+  const snow = pointSnow(issuance, point.code, period.key)
+  return <SnowValue text={fmtSnowAmount(snow)} some={snow != null && snow >= 0.5} />
+}
+
+/**
+ * The points behind a zone's snow, when there is more than one: the zone row is their mean in a
+ * 2-inch band, so each point's own amount sits beneath it.
+ */
+function snowPoints(issuance: NWACWeatherIssuance, zone: NWACWeatherZone) {
+  const points = zonePoints(issuance, zone.id)
+  return points.length > 1 ? points : []
 }
 
 /** Today / Tonight under the first date, Tomorrow under the second. */
@@ -154,23 +180,26 @@ function PeriodRow({
   unit,
   periods,
   cell,
+  sub = false,
 }: {
   label: string
-  unit: string
+  unit?: string
   periods: PeriodView[]
   cell: (p: PeriodView) => ReactNode
+  /** A point under the zone's row: indented, and lighter. */
+  sub?: boolean
 }) {
   return (
-    <tr>
-      <th scope="row" className={ROW_LABEL}>
+    <tr className={cn(sub && 'text-muted-foreground')}>
+      <th scope="row" className={cn(ROW_LABEL, sub && 'border-t-0 py-1 pl-6 text-xs font-normal')}>
         {label}
-        <Unit>{unit}</Unit>
+        {unit && <Unit>{unit}</Unit>}
       </th>
       {periods.map((p) => (
         <td
           key={p.period.key}
           colSpan={periodSpan(p)}
-          className="border-l border-t p-2 text-center"
+          className={cn('border-l border-t p-2 text-center', sub && 'border-t-0 py-1 text-xs')}
         >
           {cell(p)}
         </td>
@@ -235,6 +264,15 @@ function PeriodTable({
             periods={periods}
             cell={(p) => <ZoneSnow issuance={issuance} zone={zone} period={p.period} />}
           />
+          {snowPoints(issuance, zone).map((point) => (
+            <PeriodRow
+              key={point.code}
+              label={point.name}
+              periods={periods}
+              sub
+              cell={(p) => <PointSnow issuance={issuance} point={point} period={p.period} />}
+            />
+          ))}
           <BlockRow
             label="Snow level"
             unit="ft"
@@ -289,6 +327,32 @@ function PeriodCardHeader({
   )
 }
 
+/** On a phone, each point's snow under the period's header. */
+function CardPointSnow({
+  issuance,
+  zone,
+  p,
+}: {
+  issuance: NWACWeatherIssuance
+  zone: NWACWeatherZone
+  p: PeriodView
+}) {
+  const points = snowPoints(issuance, zone)
+  if (points.length === 0) return null
+  return (
+    <dl className="space-y-0.5 border-b px-3 py-1.5 text-xs text-muted-foreground">
+      {points.map((point) => (
+        <div key={point.code} className="flex justify-between gap-2">
+          <dt>{point.name}</dt>
+          <dd>
+            <PointSnow issuance={issuance} point={point} period={p.period} />
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 function BlockLine({ b }: { b: BlockView }) {
   return (
     <div className="grid grid-cols-[5rem_5.5rem_1fr] items-center gap-2">
@@ -315,6 +379,7 @@ function PeriodCard({
   return (
     <section className="overflow-hidden rounded-lg border">
       <PeriodCardHeader issuance={issuance} zone={zone} p={p} />
+      <CardPointSnow issuance={issuance} zone={zone} p={p} />
       <dl className="space-y-1.5 px-3 py-2 text-sm">
         {p.blocks.map((b) => (
           <BlockLine key={b.block.key} b={b} />

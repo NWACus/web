@@ -160,17 +160,28 @@ export function rangeBucket(value: number | null, step = 2): string {
   return `${lo}–${lo + step}"`
 }
 
+/** One point's snow for one period, from its water amount and density. */
+export function pointSnow(
+  issuance: NWACWeatherIssuance,
+  pointCode: string,
+  periodKey: string,
+): number | null {
+  const cell = issuance.precip[pointCode]?.[periodKey]
+  return deriveSnow(cell?.qpf, cell?.density)
+}
+
+/** The points that forecast a zone's snow, in the issuance's order. */
+export function zonePoints(issuance: NWACWeatherIssuance, zoneId: string) {
+  return issuance.points.filter((p) => p.zoneId === zoneId)
+}
+
 export function zoneSnow(
   issuance: NWACWeatherIssuance,
   zoneId: string,
   periodKey: string,
 ): number | null {
-  const snows = issuance.points
-    .filter((p) => p.zoneId === zoneId)
-    .map((p) => {
-      const cell = issuance.precip[p.code]?.[periodKey]
-      return deriveSnow(cell?.qpf, cell?.density)
-    })
+  const snows = zonePoints(issuance, zoneId)
+    .map((p) => pointSnow(issuance, p.code, periodKey))
     .filter((s): s is number => s != null)
   if (snows.length === 0) return null
   return Math.round((snows.reduce((a, b) => a + b, 0) / snows.length) * 10) / 10
