@@ -7,8 +7,10 @@ import {
   fmtWind,
   periodDateGroups,
   precipPeriods,
+  sectionFor,
   snowLevelBlocks,
   snowLevelTones,
+  tempPeriods,
   windBearing,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
@@ -22,6 +24,8 @@ import {
   nwacWeatherForecastsResponseSchema,
 } from '@/services/nac/types/nwacWeatherSchemas'
 import fixture from './fixtures/nwac-weather-forecasts.json'
+import exampleAfternoon from './fixtures/nwac-weather-formats/dashboardv2_09-2026.afternoon.public.json'
+import exampleMorning from './fixtures/nwac-weather-formats/dashboardv2_09-2026.morning.public.json'
 
 const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
 if (!day) throw new Error('fixture should map to a forecast day')
@@ -35,11 +39,53 @@ describe('mapV3NWACWeatherForecastDay', () => {
     expect(afternoon.author).toBe('Forecaster')
   })
 
-  it('re-keys the flat rows into zone/point grids', () => {
-    expect(afternoon.temp.olympics.n1).toEqual({ high: 53, low: 47 })
-    expect(afternoon.wind.olympics.ev1).toEqual({ dir: 'W', speed: 15 })
-    expect(afternoon.precip.HUR53.n1).toEqual({ qpf: 0.24, density: 11 })
-    expect(afternoon.sensible.olympics.morning).toMatch(/cloudy/i)
+  it('re-keys the flat rows into grids by zone id and point id', () => {
+    // Olympics is zone "1"; Hurricane Ridge is point "1".
+    expect(afternoon.temp['1'].n1).toEqual({ high: 53, low: 47 })
+    expect(afternoon.wind['1'].ev1).toEqual({ dir: 'W', speed: 15 })
+    expect(afternoon.precip['1'].n1).toEqual({ qpf: 0.24, density: 11 })
+    expect(afternoon.sensible['1'].morning).toMatch(/cloudy/i)
+  })
+
+  it('carries the format, its template sections and the rows it froze', () => {
+    expect(afternoon.format).toEqual({
+      id: 1,
+      name: 'Season 2026-27',
+      template: 'dashboardv2_09-2026',
+      startsAt: '2026-09-01T07:00:00+00:00',
+    })
+    expect(afternoon.sections.map((s) => s.grid)).toEqual([
+      'sensible',
+      'precip',
+      'snowLevel',
+      'temp',
+      'wind',
+      'extendedSnowLevel',
+    ])
+    expect(afternoon.zones[0]).toEqual({
+      id: '1',
+      slug: 'olympics',
+      name: 'Olympics',
+      avalancheZoneId: 1645,
+      extendedSnowLevel: true,
+    })
+    expect(afternoon.points[0]).toEqual({
+      id: '1',
+      code: 'HUR53',
+      name: 'Hurricane Ridge',
+      zoneId: '1',
+      avalancheZoneId: 1645,
+    })
+    expect(afternoon.extendedZones).toEqual(['1', '4', '2'])
+  })
+
+  it('carries each issuance’s axes and its sensible-weather slots with their dates', () => {
+    expect(afternoon.axes.windBlocks).toEqual(['ev1', 'nt1', 'am2', 'pm2'])
+    expect(afternoon.sensibleSlots).toEqual([
+      { key: 'morning', label: 'Tonight', date: '2026-09-14' },
+      { key: 'afternoon', label: 'Tomorrow', date: '2026-09-15' },
+    ])
+    expect(morning.sensibleSlots.map((s) => s.label)).toEqual(['Today', 'Tonight'])
   })
 
   it('splits the extended outlook levels off the main snow-level grid by block key', () => {
@@ -57,16 +103,10 @@ describe('mapV3NWACWeatherForecastDay', () => {
     expect(Object.keys(morning.extendedSnowLevel)).toEqual([])
   })
 
-  it('carries the resolved calendar dates and the precip flag on each period', () => {
-    expect(afternoon.periods[0]).toMatchObject({
-      key: 'n1',
-      kind: 'night',
-      date: '2026-09-14',
-      precip: true,
-    })
-    // NWAC's morning issuance runs three periods; precip covers all of them.
+  it('carries the resolved calendar date on each period', () => {
+    expect(afternoon.periods[0]).toMatchObject({ key: 'n1', kind: 'night', date: '2026-09-14' })
+    // The recorded format runs the morning issuance over three periods.
     expect(morning.periods.map((p) => p.key)).toEqual(['d1', 'n1', 'd2'])
-    expect(morning.periods.map((p) => p.precip)).toEqual([true, true, true])
   })
 
   it('returns null for the empty answer', () => {
@@ -119,16 +159,19 @@ describe('nwacWeatherFormat', () => {
     expect(snowLevelTones([null])).toEqual([null])
   })
 
-  it('lets the data decide which blocks a 6h table shows', () => {
-    // The fixture predates the four-block wind axis, so every block carries wind.
-    expect(windBlocks(afternoon).map((b) => b.key)).toEqual(afternoon.blocks.map((b) => b.key))
-    const trimmed = {
-      ...afternoon,
-      wind: { olympics: { ev1: { dir: 'W', speed: 10 }, nt1: { dir: 'W', speed: 12 } } },
-    }
-    expect(windBlocks(trimmed).map((b) => b.key)).toEqual(['ev1', 'nt1'])
-    expect(windBlocks({ ...afternoon, wind: {} }).length).toBe(afternoon.blocks.length)
+  it('takes each table’s columns from the forecast’s axes, not from which cells are full', () => {
+    expect(windBlocks(afternoon).map((b) => b.key)).toEqual(['ev1', 'nt1', 'am2', 'pm2'])
+    expect(tempPeriods(afternoon).map((p) => p.key)).toEqual(['n1', 'd2'])
     expect(snowLevelBlocks(morning).length).toBe(6)
+    // An empty grid keeps its columns; a key the issuance doesn't define draws nothing.
+    expect(windBlocks({ ...afternoon, wind: {} }).length).toBe(4)
+    const narrowed = { ...afternoon, axes: { ...afternoon.axes, windBlocks: ['ev1', 'nope'] } }
+    expect(windBlocks(narrowed).map((b) => b.key)).toEqual(['ev1'])
+  })
+
+  it('reads a dry period as 0 snow without a density', () => {
+    expect(deriveSnow(0, null)).toBe(0)
+    expect(deriveSnow(0.3, null)).toBeNull()
   })
 
   it('groups periods by date and finds a block’s date through its period', () => {
@@ -138,5 +181,40 @@ describe('nwacWeatherFormat', () => {
       { date: '2026-09-15', span: 1 },
     ])
     expect(blockDate(afternoon, afternoon.blocks[0])).toBe('2026-09-14')
+  })
+})
+
+/**
+ * One published forecast per issuance, as the public read returns it. Copied from products-api
+ * (api/tests/fixtures/nwac_weather_formats), where a test pins them to the template registry: a
+ * payload change shows up here as a fixture diff.
+ */
+describe('the shared example payloads', () => {
+  const [exMorning, exAfternoon] = [exampleMorning, exampleAfternoon].map((wire) =>
+    mapV3NWACWeatherIssuance(nwacWeatherForecastSchema.parse(wire)),
+  )
+
+  it('parse and map, with the template naming grids only', () => {
+    expect(exAfternoon.format.template).toBe('dashboardv2_09-2026')
+    expect(sectionFor(exAfternoon, 'precip')).toEqual({ id: 'precip', grid: 'precip' })
+    expect(exMorning.sensibleSlots.map((s) => s.label)).toEqual(['Today', 'Tonight'])
+    expect(exMorning.extendedBlocks).toEqual([])
+  })
+
+  it('list every row of the format, points by id under their zone', () => {
+    const { zones, points, extendedZones } = exAfternoon
+    expect(zones.map((z) => [z.id, z.name])).toEqual([
+      ['2', 'Stevens Pass'],
+      ['3', 'Snoqualmie Pass'],
+      ['10', 'Mt Hood'],
+    ])
+    expect(points.map((p) => [p.id, p.code, p.zoneId])).toEqual([
+      ['1', 'STS40', '2'],
+      ['2', 'SNO30', '3'],
+      ['3', 'ALP31', '3'],
+      ['4', 'MHM54', '10'],
+    ])
+    expect(extendedZones).toEqual(['2', '10'])
+    expect(exAfternoon.precip['3'].n1).toBeDefined()
   })
 })
