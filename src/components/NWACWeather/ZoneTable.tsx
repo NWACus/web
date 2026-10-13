@@ -34,9 +34,11 @@ import { DayTabs } from './DayTabs.client'
 import { DayNightDate, LevelValue, SnowValue, TempValue, WindValue } from './Values'
 
 const HEAD = 'border-b border-l p-2 text-center font-semibold'
-const ROW_LABEL = 'border-t p-2 pl-3 text-left align-middle font-semibold'
+// The right border is the line between the labels and the cells, whatever the cells draw.
+const ROW_LABEL = 'border-r border-t p-2 pl-3 text-left align-middle font-semibold'
+/** A row's unit, always in parentheses: "Snow (in)", "5000' Temperatures (°F)". */
 const Unit = ({ children }: { children: string }) => (
-  <span className="font-normal text-muted-foreground"> {children}</span>
+  <span className="font-normal text-muted-foreground"> ({children})</span>
 )
 
 interface PeriodView {
@@ -150,7 +152,7 @@ function PeriodHead({ periods }: { periods: PeriodView[] }) {
   return (
     <thead className="bg-muted">
       <tr>
-        <td />
+        <td className="border-r" />
         {periods.map((p) => (
           <th key={p.period.key} scope="colgroup" colSpan={periodSpan(p)} className={HEAD}>
             <DayNightDate date={p.label} night={p.night} />
@@ -158,7 +160,7 @@ function PeriodHead({ periods }: { periods: PeriodView[] }) {
         ))}
       </tr>
       <tr>
-        <td className="border-b" />
+        <td className="border-b border-r" />
         {periods.flatMap((p) =>
           p.blocks.map((b, i) => <PartHead key={b.block.key} b={b} first={i === 0} />),
         )}
@@ -222,7 +224,7 @@ function NotCovered({ colSpan }: { colSpan: number }) {
         HATCH,
       )}
     >
-      No forecast this far out
+      No forecast
     </td>
   )
 }
@@ -317,7 +319,7 @@ function PeriodTable({
     <div className="hidden overflow-hidden rounded-md border md:block print:block">
       <table className="w-full table-fixed border-collapse text-sm">
         <colgroup>
-          <col className="w-36" />
+          <col className="w-48" />
           {blocks.map((b) => (
             <col key={b.block.key} />
           ))}
@@ -347,8 +349,8 @@ function PeriodTable({
             cell={(b) => <LevelValue level={b.level} tone={b.tone} />}
           />
           <PeriodRow
-            label="Temp"
-            unit="5000' °F"
+            label="5000' Temperatures"
+            unit="°F"
             periods={periods}
             covered={covered.temps}
             cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />}
@@ -436,7 +438,7 @@ function CardSummary({
           <PointSnow issuance={issuance} point={point} period={p.period} />
         </CardLine>
       ))}
-      <CardLine label="Temp" unit="5000' °F">
+      <CardLine label="5000' Temperatures" unit="°F">
         {temp}
       </CardLine>
     </dl>
@@ -449,13 +451,13 @@ function CardBlocksHead({ showWind }: { showWind: boolean }) {
   return (
     <thead className="bg-muted/50 text-xs text-muted-foreground">
       <tr>
-        <td />
+        <td className="border-r" />
         <th scope="col" className={CARD_HEAD}>
-          Snow level <span>ft</span>
+          Snow level <Unit>ft</Unit>
         </th>
         {showWind ? (
           <th scope="col" className={CARD_HEAD}>
-            Ridge wind <span>mph</span>
+            Ridge wind <Unit>mph</Unit>
           </th>
         ) : (
           <td />
@@ -468,7 +470,7 @@ function CardBlocksHead({ showWind }: { showWind: boolean }) {
 function CardBlockRow({ b, wind }: { b: BlockView; wind: boolean }) {
   return (
     <tr className="border-t">
-      <th scope="row" className="px-3 py-2 text-left font-normal text-muted-foreground">
+      <th scope="row" className="border-r px-3 py-2 text-left font-normal text-muted-foreground">
         {b.block.part}
       </th>
       <td className="px-3 py-1.5">
