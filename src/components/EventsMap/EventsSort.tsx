@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatNearParam } from '@/utilities/geo/nearParam'
 import { cn } from '@/utilities/ui'
-import { ArrowUpDown, Calendar, Check, Loader2, LocateFixed, X } from 'lucide-react'
+import { ArrowUpDown, Calendar, Check, Loader2, LocateFixed, MapPin, X } from 'lucide-react'
 import { useQueryStates } from 'nuqs'
 import { useId, useRef, useState, type RefObject } from 'react'
 import { requestDeviceLocation, saveDeviceLocation } from './deviceLocation'
@@ -128,12 +128,14 @@ function NearestOptions({
 }) {
   return (
     <>
-      <div className="flex items-center gap-2 px-2 pt-3 pb-1 text-sm text-muted-foreground">
-        Nearest to…
+      <div className={cn('flex items-center gap-2 px-2 pt-2 pb-1.5 text-sm', ICON_SIZE)}>
+        <MapPin />
+        Nearest first
         {active && <span className="sr-only">(current sort)</span>}
         <CurrentSortCheck shown={active} />
       </div>
-      <div className="flex flex-col gap-2 px-2 pb-1">
+      {/* Indented to the option text, so both controls read as part of "Nearest first". */}
+      <div className="flex flex-col gap-2 pr-2 pb-1 pl-8">
         <PlaceSearch inputRef={placeInputRef} onPick={onPickPlace} />
         <UseMyLocationButton locating={locating} />
       </div>
