@@ -114,11 +114,12 @@ export function ZoneSummary({ day, avalancheZoneId, timezone }: ZoneSummaryProps
   return (
     <Card
       id="mountain-weather"
-      className="scroll-mt-24 rounded-none border-0 bg-transparent shadow-none"
+      className="scroll-mt-24 rounded-none border-0 bg-transparent pb-8 shadow-none"
     >
       <CardContent className="space-y-6 p-0">
         <IssuanceSwitch
           heading={<CardTitle>Mountain Weather</CardTitle>}
+          headerClassName="sm:items-center"
           panels={issuances.map((issuance) => ({
             key: String(issuance.id),
             label: issuanceShortLabel(issuance.type),
@@ -127,13 +128,15 @@ export function ZoneSummary({ day, avalancheZoneId, timezone }: ZoneSummaryProps
             content: <IssuancePanel issuance={issuance} avalancheZoneId={avalancheZoneId} />,
           }))}
         />
-        <Link
-          href="/weather/forecast"
-          className="inline-flex items-center gap-1 text-sm font-medium text-secondary underline print:hidden"
-        >
-          Full Mountain Weather Forecast
-          <ChevronRight aria-hidden="true" className="size-4" />
-        </Link>
+        <div className="flex justify-end print:hidden">
+          <Link
+            href="/weather/forecast"
+            className="inline-flex items-center gap-1 font-medium text-secondary underline"
+          >
+            Full Mountain Weather Forecast
+            <ChevronRight aria-hidden="true" className="size-4" />
+          </Link>
+        </div>
       </CardContent>
     </Card>
   )

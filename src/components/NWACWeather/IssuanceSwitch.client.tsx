@@ -7,6 +7,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { cn } from '@/utilities/ui'
 
 export interface IssuancePanel {
   key: string
@@ -86,9 +87,12 @@ function useAnchoredPanel(panels: IssuancePanel[], setActive: (key: string) => v
 export function IssuanceSwitch({
   panels,
   heading,
+  headerClassName,
 }: {
   panels: IssuancePanel[]
   heading: ReactNode
+  /** Overrides for the heading row, e.g. centring the switch on a heading shorter than it. */
+  headerClassName?: string
 }) {
   const [active, setActive] = useState(panels[0]?.key)
   const shown = (p: IssuancePanel) => p.key === active
@@ -96,7 +100,12 @@ export function IssuanceSwitch({
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+      <header
+        className={cn(
+          'flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between',
+          headerClassName,
+        )}
+      >
         {heading}
         <Switch panels={panels} active={active} onPick={setActive} />
       </header>
