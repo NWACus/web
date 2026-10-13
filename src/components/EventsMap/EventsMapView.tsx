@@ -170,7 +170,8 @@ function EventMapCard({ event, selection }: { event: Event; selection: Selection
       className={cn(
         // Scrolled into view from the map, a card stops clear of the sticky List/Map bar.
         'flex gap-3 rounded-lg border bg-card text-card-foreground p-3 transition-colors scroll-mb-4 xl:scroll-mt-[calc(var(--view-bar)+0.5rem)]',
-        selection.isSelected(key) && 'border-primary ring-2 ring-primary',
+        // Drawn inside the border: a ring outside it hides under the sticky List/Map bar.
+        selection.isSelected(key) && 'border-primary shadow-[inset_0_0_0_1px_var(--primary)]',
       )}
     >
       <EventThumbnail event={event} />

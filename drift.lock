@@ -1323,12 +1323,12 @@ sig = "ef162015be100d91"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMap.client.tsx"
-sig = "d1ed5b0e130cdfa9"
+sig = "6def8a76eb0b77db"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMapView.tsx"
-sig = "e1d42f27f7541b53"
+sig = "845097caae3d3844"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
