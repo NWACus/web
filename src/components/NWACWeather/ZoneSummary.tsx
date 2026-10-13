@@ -7,7 +7,6 @@
  */
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import type { ReactNode } from 'react'
 
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import type {
@@ -27,8 +26,6 @@ interface ZoneSummaryProps {
   day: NWACWeatherForecastDay
   avalancheZoneId: number
   timezone: string | null | undefined
-  /** Shown above each issuance's zone section, under the same switch (the widget's weather tab). */
-  lead?: (issuance: NWACWeatherIssuance) => ReactNode
 }
 
 function textOrNull(html: string | null | undefined): string | null {
@@ -110,7 +107,7 @@ function IssuancePanel({
   )
 }
 
-export function ZoneSummary({ day, avalancheZoneId, timezone, lead }: ZoneSummaryProps) {
+export function ZoneSummary({ day, avalancheZoneId, timezone }: ZoneSummaryProps) {
   const issuances = day.issuances.filter((i) => zonesFor(i, avalancheZoneId).length > 0)
   if (issuances.length === 0) return null
 
@@ -127,12 +124,7 @@ export function ZoneSummary({ day, avalancheZoneId, timezone, lead }: ZoneSummar
             label: issuanceShortLabel(issuance.type),
             time: formatIssued(issuance.issuedAt, timezone, 'h:mm a'),
             meta: <IssuedMeta issuance={issuance} timezone={timezone} />,
-            content: (
-              <>
-                {lead?.(issuance)}
-                <IssuancePanel issuance={issuance} avalancheZoneId={avalancheZoneId} />
-              </>
-            ),
+            content: <IssuancePanel issuance={issuance} avalancheZoneId={avalancheZoneId} />,
           }))}
         />
         <Link

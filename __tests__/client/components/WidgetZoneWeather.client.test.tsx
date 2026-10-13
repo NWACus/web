@@ -63,7 +63,7 @@ describe('WidgetZoneWeather', () => {
     expect(within(mount).getByRole('radio', { name: /Morning/ })).toBeInTheDocument()
   })
 
-  it("takes over the Weather Forecast tab: the widget's own content hidden, the legacy layout then the zone section", async () => {
+  it("takes over the Weather Forecast tab: the widget's own content hidden, the same section shown", async () => {
     const { container } = renderInWidget()
     fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
 
@@ -74,16 +74,6 @@ describe('WidgetZoneWeather', () => {
     })
     expect(within(tab).getByText('Mountain Weather')).toBeInTheDocument()
     expect(container.querySelector('#nac-weather-forecast')).not.toBeVisible()
-    // The legacy tab's layout leads, the zone section follows it.
-    const headings = within(tab)
-      .getAllByRole('heading', { hidden: true })
-      .map((h) => h.textContent)
-    expect(headings.indexOf('Weather Synopsis')).toBeLessThan(headings.indexOf('Weather Forecast'))
-    expect(headings.indexOf('Weather Forecast')).toBeLessThan(headings.indexOf('Snow (in)'))
-    // One per issuance; the shown one opens on the page's zone.
-    for (const select of within(tab).getAllByLabelText('Use dropdown to select your zone')) {
-      expect(select).toHaveDisplayValue('Olympics')
-    }
   })
 
   it("replaces the last forecast's tab content when the widget renders another", async () => {

@@ -10,8 +10,7 @@
  * It also takes over NWAC's "Weather Forecast" tab. The widget builds that tab from the center's
  * config (`widget_config.forecast.tabs`) and owns its button and `#/<zone>/weather-forecast` route,
  * but fills it by fetching a URL that pointed at nwac.us, which no longer answers. So the page hides
- * what the widget loaded there and renders, in its place, the legacy tab's layout (synopsis, zone
- * dropdown, region-wide tables; WeatherTabLead) with the zone section below it, or says the day has
+ * what the widget loaded there and renders the same zone section in its place, or says the day has
  * no forecast.
  *
  * The section renders inside a shadow root. The widget's stylesheet reverts every table, heading,
@@ -24,9 +23,8 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { z } from 'zod'
 
-import type { NWACWeatherForecastDay, NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
+import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 
-import { WeatherTabLead } from './WeatherTabLead'
 import { ZoneSummary } from './ZoneSummary'
 
 /** The part of the widget's `ForecastProduct` event detail this needs. */
@@ -147,9 +145,6 @@ export function WidgetZoneWeather({
 
   if (!slots) return null
   const { day, zoneId } = slots
-  const tabLead = (issuance: NWACWeatherIssuance) => (
-    <WeatherTabLead issuance={issuance} avalancheZoneId={zoneId} />
-  )
   return (
     <>
       {slots.forecast &&
@@ -161,7 +156,7 @@ export function WidgetZoneWeather({
       {slots.tab &&
         createPortal(
           day ? (
-            <ZoneSummary day={day} avalancheZoneId={zoneId} timezone={timezone} lead={tabLead} />
+            <ZoneSummary day={day} avalancheZoneId={zoneId} timezone={timezone} />
           ) : (
             <NoWeather />
           ),
