@@ -23,8 +23,12 @@ export function IssuedMeta({
           Issued <span className="font-semibold text-foreground">{issued}</span>
         </>
       )}
-      {issued && issuance.author && ' · '}
-      {issuance.author}
+      {issuance.author && (
+        <>
+          {issued ? ' by ' : 'By '}
+          {issuance.author}
+        </>
+      )}
     </p>
   )
 }
