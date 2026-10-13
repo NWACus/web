@@ -1,5 +1,7 @@
 'use client'
 
+import { EventInfo } from '@/components/EventInfo'
+import { EventActions } from '@/components/EventPreview/EventActions'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { eventTypesData } from '@/constants/eventTypes'
 import type { Event } from '@/payload-types'
@@ -9,12 +11,12 @@ import type { BoundingBox } from '@/utilities/geo/distance'
 import type { GetEventsResult } from '@/utilities/queries/getEvents'
 import { isValidRelationship } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
-import { Loader2, MapPin, X } from 'lucide-react'
+import { ChevronDown, Loader2, MapPin, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type RefObject } from 'react'
 import type { FocusRequest } from './EventsMap.client'
 import {
   describeWhere,
@@ -146,7 +148,7 @@ function ShowOnMapButton({
     <button
       type="button"
       onClick={() => selection.showOnMap(placeKey)}
-      className="mt-1 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
     >
       <MapPin className="h-3.5 w-3.5" /> Show on map
     </button>
@@ -168,9 +170,53 @@ function EventThumbnail({ event }: { event: Event }) {
   )
 }
 
+/** The rest of what the list view shows: subtitle, description, full dates and skill level. */
+function EventDetails({ event, id }: { event: Event; id: string }) {
+  return (
+    <div id={id} className="mt-2 flex flex-col gap-2 text-sm">
+      {event.subtitle && <p className="font-medium">{event.subtitle}</p>}
+      {event.description && (
+        <p className="text-muted-foreground line-clamp-4">{event.description}</p>
+      )}
+      <EventInfo
+        startDate={event.startDate}
+        startDate_tz={event.startDate_tz}
+        endDate={event.endDate}
+        skillLevel={event.skillLevel}
+        className="flex flex-col gap-1"
+      />
+    </div>
+  )
+}
+
+function DetailsToggle({
+  expanded,
+  controls,
+  onToggle,
+}: {
+  expanded: boolean
+  controls: string
+  onToggle: () => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-expanded={expanded}
+      aria-controls={controls}
+      onClick={onToggle}
+      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+    >
+      Details
+      <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', expanded && 'rotate-180')} />
+    </button>
+  )
+}
+
 function EventMapCard({ event, selection }: { event: Event; selection: Selection }) {
   const key = placeKeyFor(event)
   const origin = useNearOrigin()
+  const detailsId = useId()
+  const [expanded, setExpanded] = useState(false)
 
   return (
     <li
@@ -194,7 +240,16 @@ function EventMapCard({ event, selection }: { event: Event; selection: Selection
           {event.title}
         </Link>
         <div className="text-sm text-muted-foreground">{describeWhere(event.location)}</div>
-        <ShowOnMapButton placeKey={key} selection={selection} />
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <ShowOnMapButton placeKey={key} selection={selection} />
+          <DetailsToggle
+            expanded={expanded}
+            controls={detailsId}
+            onToggle={() => setExpanded(!expanded)}
+          />
+        </div>
+        {expanded && <EventDetails event={event} id={detailsId} />}
+        <EventActions event={event} size="compact" className="mt-2 flex flex-wrap gap-2" />
       </div>
     </li>
   )
