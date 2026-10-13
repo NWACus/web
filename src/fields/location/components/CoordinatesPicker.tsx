@@ -80,6 +80,7 @@ export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
   const zip = useField<string>({ path: join(location, 'zip') })
 
   const [finding, setFinding] = useState(false)
+  const [focus, setFocus] = useState<Point | null>(null)
 
   const point = useMemo(
     () => pointFrom(latitude.value, longitude.value),
@@ -104,6 +105,7 @@ export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
     announce(result)
     if (result.status === 'found') {
       setPoint(result, result.precision === 'exact' ? 'geocoded' : 'approximate')
+      setFocus({ latitude: result.latitude, longitude: result.longitude })
     }
   }
 
@@ -121,7 +123,7 @@ export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
           {finding ? 'Finding…' : 'Find from address'}
         </Button>
       </div>
-      <PickerMap point={point} onPick={(next) => setPoint(next, 'manual')} />
+      <PickerMap point={point} focus={focus} onPick={(next) => setPoint(next, 'manual')} />
       <FieldDescription path={path} description={describeStatus(status.value, point !== null)} />
     </div>
   )

@@ -9,6 +9,8 @@ type Point = { latitude: number; longitude: number }
 
 interface PickerMapProps {
   point: Point | null
+  /** A new object flies the map to it at the zoom a placed pin opens at. */
+  focus?: Point | null
   onPick: (point: Point) => void
 }
 
@@ -22,7 +24,7 @@ function keepInView(map: mapboxgl.Map, lngLat: [number, number]) {
 }
 
 /** A map you click or drag a pin on. Typed coordinates move the pin; the pin writes them back. */
-export function PickerMap({ point, onPick }: PickerMapProps) {
+export function PickerMap({ point, focus, onPick }: PickerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const markerRef = useRef<mapboxgl.Marker | null>(null)
@@ -73,6 +75,11 @@ export function PickerMap({ point, onPick }: PickerMapProps) {
     marker.setLngLat(lngLat).addTo(map)
     keepInView(map, lngLat)
   }, [point])
+
+  useEffect(() => {
+    if (!focus) return
+    mapRef.current?.flyTo({ center: [focus.longitude, focus.latitude], zoom: POINT_ZOOM })
+  }, [focus])
 
   if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
     return <p className="text-sm">The map needs NEXT_PUBLIC_MAPBOX_TOKEN.</p>
