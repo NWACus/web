@@ -7,6 +7,7 @@ import { EventsResults } from '@/components/EventsMap/EventsResults'
 import { StickyInMapView } from '@/components/EventsMap/StickyInMapView'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { centerRouteMetadata } from '@/utilities/centerRoutePage'
+import { parseNearParam } from '@/utilities/geo/nearParam'
 import { getEventGroups } from '@/utilities/queries/getEventGroups'
 import { getEvents } from '@/utilities/queries/getEvents'
 import { getEventTags } from '@/utilities/queries/getEventTags'
@@ -23,6 +24,8 @@ const eventsSearchParams = {
   groups: parseAsArrayOf(parseAsString),
   tags: parseAsArrayOf(parseAsString),
   modesOfTravel: parseAsArrayOf(parseAsString),
+  // A typed place sorts on the server; `me` (the device location) only sorts in the browser.
+  near: parseAsString,
 }
 
 const loadEventsSearchParams = createLoader(eventsSearchParams)
@@ -36,7 +39,7 @@ type Args = {
 
 export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
-  const { types, startDate, endDate, groups, tags, modesOfTravel } =
+  const { types, startDate, endDate, groups, tags, modesOfTravel, near } =
     await loadEventsSearchParams(searchParams)
 
   const payload = await getPayload({ config: configPromise })
@@ -64,6 +67,7 @@ export default async function Page({ params, searchParams }: Args) {
     groups,
     tags,
     modesOfTravel,
+    near: parseNearParam(near),
     center,
   }
 

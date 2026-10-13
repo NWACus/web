@@ -8,6 +8,7 @@ import { List, Map as MapIcon } from 'lucide-react'
 import { parseAsString, parseAsStringLiteral, useQueryStates } from 'nuqs'
 import { useState } from 'react'
 import { EventsMapView } from './EventsMapView'
+import { EventsSort } from './EventsSort'
 
 export const viewParam = parseAsStringLiteral(['list', 'map']).withDefault('list')
 
@@ -32,10 +33,11 @@ function ViewToggle({ view, onChange }: { view: View; onChange: (view: View) => 
     // In the map view it sticks, with the map pinned below it, while the page scrolls the list.
     <div
       className={cn(
-        'flex items-center justify-end h-[var(--view-bar)] -mt-4',
+        'flex items-center justify-between gap-2 h-[var(--view-bar)] -mt-4',
         view === 'map' && 'xl:sticky xl:top-0 xl:z-10 xl:bg-background',
       )}
     >
+      <EventsSort />
       <ToggleGroup
         type="single"
         variant="outline"

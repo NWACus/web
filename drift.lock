@@ -58,7 +58,7 @@ sig = "ff5d3fe541e1dfad"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "65cbcab0ea229d5f"
+sig = "fdfbc971dfe57c91"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1268,12 +1268,12 @@ sig = "e3dde955e6e1147b"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/app/(frontend)/[center]/events/page.tsx"
-sig = "6829ede0a4c3bddb"
+sig = "07027ffa51659dcc"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/app/api/[center]/events/route.ts"
-sig = "c05c35e269cb09ad"
+sig = "32c805935bca9fe7"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1322,23 +1322,53 @@ sig = "ef162015be100d91"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/components/EventsList.tsx"
+sig = "54ab55de9ad65cb2"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMap.client.tsx"
-sig = "6def8a76eb0b77db"
+sig = "26ccc321ff55e27b"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMapView.tsx"
-sig = "845097caae3d3844"
+sig = "b4a5894c48602327"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsResults.tsx"
-sig = "77621065e77de1e6"
+sig = "97c3c72d1a259254"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/EventsSort.tsx"
+sig = "9fa133c78a221f7c"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/PlaceSearch.tsx"
+sig = "befdbb1006789883"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/StickyInMapView.tsx"
 sig = "c3702f168f037013"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/deviceLocation.ts"
+sig = "f9708784131f0a39"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/mapboxPlaces.ts"
+sig = "b8a528159f001902"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/useNearOrigin.ts"
+sig = "49038408e7b8ddbb"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1392,13 +1422,18 @@ sig = "85fe44a775438e5a"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/utilities/geo/nearParam.ts"
+sig = "9a22ca64fd443e05"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/utilities/queries/getCourses.ts"
 sig = "3ca1fb7994f74406"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/utilities/queries/getEvents.ts"
-sig = "b26cd40178e26f7e"
+sig = "c2f019aca42c844e"
 
 [[bindings]]
 doc = "docs/mcp-server.md"

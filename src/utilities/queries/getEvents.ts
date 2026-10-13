@@ -1,11 +1,11 @@
 import { EVENTS_LIMIT } from '@/constants/defaults'
 import type { Event } from '@/payload-types'
 import config from '@/payload.config'
-import type { BoundingBox } from '@/utilities/geo/distance'
+import { nearestFirst, type BoundingBox, type LatLng } from '@/utilities/geo/distance'
 import { withinBoxWhere } from '@/utilities/geo/where'
 import * as Sentry from '@sentry/nextjs'
 import { format } from 'date-fns'
-import type { Where } from 'payload'
+import type { Payload, Where } from 'payload'
 import { getPayload } from 'payload'
 
 export interface GetEventsParams {
@@ -19,6 +19,8 @@ export interface GetEventsParams {
   modesOfTravel?: string[] | null
   /** Only events held inside this box, e.g. the map area a reader searched. */
   box?: BoundingBox | null
+  /** Sorts the events nearest this point first, with virtual and unplaced events last. */
+  near?: LatLng | null
   center: string
 }
 
@@ -29,11 +31,40 @@ export interface GetEventsResult {
   error?: string
 }
 
+/** Where an event is held, or nothing for a virtual event: it may keep an old in-person point. */
+const placeOf = (event: Event) => (event.location?.isVirtual ? null : event.location?.coordinates)
+
+/**
+ * The database can't sort by distance on SQLite, so this loads every matching event (a season's
+ * worth at most), sorts them here and pages through the sorted list.
+ */
+async function findNearestEvents(
+  payload: Payload,
+  where: Where,
+  near: LatLng,
+  offset: number,
+  limit: number,
+): Promise<GetEventsResult> {
+  const { docs } = await payload.find({
+    collection: 'events',
+    where,
+    pagination: false,
+    sort: 'startDate',
+    depth: 2,
+  })
+  const sorted = nearestFirst(docs, near, placeOf)
+  return {
+    events: sorted.slice(offset, offset + limit),
+    hasMore: offset + limit < sorted.length,
+    total: sorted.length,
+  }
+}
+
 export async function getEvents(params: GetEventsParams): Promise<GetEventsResult> {
   const payload = await getPayload({ config })
 
   try {
-    const { types, startDate, endDate, groups, tags, modesOfTravel, box, center } = params
+    const { types, startDate, endDate, groups, tags, modesOfTravel, box, near, center } = params
 
     const offset = params.offset || 0
     const limit = Math.floor(Number(params.limit)) || EVENTS_LIMIT
@@ -113,6 +144,8 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
     if (box) conditions.push(withinBoxWhere('location.coordinates', box))
 
     const where: Where = conditions.length > 0 ? { and: conditions } : {}
+
+    if (near) return await findNearestEvents(payload, where, near, offset, limit)
 
     const result = await payload.find({
       collection: 'events',

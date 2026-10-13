@@ -1,4 +1,5 @@
 import type { Event } from '@/payload-types'
+import { distanceKm, type LatLng } from '@/utilities/geo/distance'
 
 /** One pin: every listed event held at the same point. */
 export type EventPlace = {
@@ -54,4 +55,14 @@ export function describeWhere(location: Event['location']): string {
   if (location.isVirtual) return 'Virtual event'
   const town = [location.city, location.state].filter(Boolean).join(', ')
   return [location.placeName, town].filter(Boolean).join(' · ')
+}
+
+const KM_PER_MILE = 1.609344
+
+/** "~35 mi away" from the sort's origin, straight-line, or null when either point is missing. */
+export function distanceLabel(event: Event, from: LatLng | null): string | null {
+  const point = pointOf(event)
+  if (!from || !point) return null
+  const miles = distanceKm(from, point) / KM_PER_MILE
+  return miles < 1 ? 'Under 1 mi away' : `~${Math.round(miles)} mi away`
 }

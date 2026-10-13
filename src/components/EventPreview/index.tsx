@@ -3,7 +3,7 @@ import { cssVariables } from '@/cssVariables'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { cn } from '@/utilities/ui'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Navigation } from 'lucide-react'
 import Link from 'next/link'
 import { ButtonLink } from '../ButtonLink'
 import { EventInfo } from '../EventInfo'
@@ -31,8 +31,10 @@ export const EventPreview = (props: {
   alignItems?: 'center'
   className?: string
   event?: Event
+  /** How far the event is from where the list is sorted from, e.g. "~35 mi away". */
+  distance?: string | null
 }) => {
-  const { className, event } = props
+  const { className, event, distance } = props
 
   if (!event) return null
 
@@ -123,6 +125,12 @@ export const EventPreview = (props: {
               </Badge>
             ) : (
               location && <LocationPopover location={location} />
+            )}
+            {distance && (
+              <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                <Navigation className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                {distance}
+              </div>
             )}
           </div>
         </div>

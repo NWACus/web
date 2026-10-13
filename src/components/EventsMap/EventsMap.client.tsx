@@ -5,7 +5,7 @@ import { MapMarker } from '@/components/stationMap/MapMarker'
 import { useMapBackgroundClick } from '@/components/stationMap/useStationMap'
 import { Button } from '@/components/ui/button'
 import { formatDateTime } from '@/utilities/formatDateTime'
-import type { BoundingBox } from '@/utilities/geo/distance'
+import type { BoundingBox, LatLng } from '@/utilities/geo/distance'
 import { cn } from '@/utilities/ui'
 import { MapPin, Search } from 'lucide-react'
 import mapboxgl from 'mapbox-gl'
@@ -13,6 +13,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { EventPlace } from './eventPlaces'
+import type { NearOrigin } from './useNearOrigin'
 
 export type FocusRequest = { key: string; requestedAt: number }
 
@@ -23,6 +24,8 @@ interface EventsMapProps {
   focus: FocusRequest | null
   /** The map area the reader searched, which the events are already narrowed to. */
   searchedBox: BoundingBox | null
+  /** Where the events are sorted from, marked on the map. */
+  origin: NearOrigin | null
   onSelect: (key: string) => void
   onClear: () => void
   onSearchArea: (box: BoundingBox) => void
@@ -212,6 +215,23 @@ function useFlyToFocus(map: mapboxgl.Map | null, places: EventPlace[], focus: Fo
   }, [map, focus])
 }
 
+/** The point the list is sorted from, drawn like a "you are here" dot so it reads apart from pins. */
+function OriginDot({ map, point }: { map: mapboxgl.Map; point: LatLng }) {
+  const lngLat = useMemo<[number, number]>(
+    () => [point.longitude, point.latitude],
+    [point.longitude, point.latitude],
+  )
+  return (
+    <MapMarker map={map} lngLat={lngLat}>
+      <div className="h-4 w-4 rounded-full border-2 border-white bg-blue-600 shadow-[0_0_0_6px_rgb(37_99_235_/_0.25)]" />
+    </MapMarker>
+  )
+}
+
+function OriginMarker({ map, origin }: { map: mapboxgl.Map | null; origin: NearOrigin | null }) {
+  return map && origin && <OriginDot map={map} point={origin.point} />
+}
+
 interface EventPinProps {
   map: mapboxgl.Map
   place: EventPlace
@@ -252,6 +272,7 @@ export function EventsMap({
   hoveredKey,
   focus,
   searchedBox,
+  origin,
   onSelect,
   onClear,
   onSearchArea,
@@ -286,6 +307,7 @@ export function EventsMap({
               onSelect={onSelect}
             />
           ))}
+        <OriginMarker map={map} origin={origin} />
       </div>
       <SearchAreaButton
         map={map}

@@ -1,4 +1,4 @@
-import { boundingBox, rankByDistance, type LatLng } from '@/utilities/geo/distance'
+import { boundingBox, nearestFirst, rankByDistance, type LatLng } from '@/utilities/geo/distance'
 import { nearWhere } from '@/utilities/geo/findNear'
 
 const seattle: LatLng = { latitude: 47.6062, longitude: -122.3321 }
@@ -74,6 +74,23 @@ describe('rankByDistance', () => {
     const box = boundingBox(seattle, 100)
     const corner = { id: 'corner', coords: { latitude: box.north, longitude: box.east } }
     expect(rankByDistance([corner], seattle, 100, (doc) => doc.coords)).toEqual([])
+  })
+})
+
+describe('nearestFirst', () => {
+  it('orders placed docs by distance, however far, then keeps unplaced docs in their order', () => {
+    const docs = [
+      { id: 'online', coords: null },
+      { id: 'far', coords: destination(seattle, 90, 900) },
+      { id: 'unplaced', coords: { latitude: 47.1, longitude: null } },
+      { id: 'near', coords: destination(seattle, 0, 10) },
+    ]
+    expect(nearestFirst(docs, seattle, (doc) => doc.coords).map((doc) => doc.id)).toEqual([
+      'near',
+      'far',
+      'online',
+      'unplaced',
+    ])
   })
 })
 
