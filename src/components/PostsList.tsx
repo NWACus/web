@@ -74,7 +74,7 @@ export const PostsList = ({
             sort: stableFilters.sort || undefined,
           })
 
-          const result: GetPostsResult = await fetch(`/api/${center}/posts?${queryString}`).then(
+          const result: GetPostsResult = await fetch(`/api/${center}/posts${queryString}`).then(
             (res) => res.json(),
           )
 
@@ -111,7 +111,7 @@ export const PostsList = ({
             sort: stableFilters.sort || undefined,
           })
 
-          const result: GetPostsResult = await fetch(`/api/${center}/posts?${queryString}`).then(
+          const result: GetPostsResult = await fetch(`/api/${center}/posts${queryString}`).then(
             (res) => res.json(),
           )
 

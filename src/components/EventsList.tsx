@@ -89,7 +89,7 @@ export const EventsList = ({
             modesOfTravel: stableFilters.modesOfTravel || undefined,
           })
 
-          const result: GetEventsResult = await fetch(`/api/${center}/events?${queryString}`).then(
+          const result: GetEventsResult = await fetch(`/api/${center}/events${queryString}`).then(
             (res) => res.json(),
           )
 
@@ -130,7 +130,7 @@ export const EventsList = ({
             modesOfTravel: stableFilters.modesOfTravel || undefined,
           })
 
-          const result: GetEventsResult = await fetch(`/api/${center}/events?${queryString}`).then(
+          const result: GetEventsResult = await fetch(`/api/${center}/events${queryString}`).then(
             (res) => res.json(),
           )
 
