@@ -7,7 +7,7 @@
 import { AvalancheCenterType } from '@/services/nac/types/schemas'
 
 interface ForecastDisclaimerProps {
-  centerType: AvalancheCenterType
+  centerType: AvalancheCenterType | null
   centerName: string
 }
 

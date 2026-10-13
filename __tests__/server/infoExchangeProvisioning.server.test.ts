@@ -25,6 +25,7 @@ const platforms = {
   stations: false,
   obs: false,
   weather: false,
+  nwac_weather: false,
 }
 
 describe('isInfoExchange', () => {

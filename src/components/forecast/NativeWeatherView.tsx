@@ -29,7 +29,7 @@ interface NativeWeatherViewProps {
   zones: WeatherTableZone[]
   timezone: string | null | undefined
   /** Avalanche center type, for the scope disclaimer's provider wording (USFS vs center name). */
-  centerType: AvalancheCenterType
+  centerType: AvalancheCenterType | null
   /** An archived product rather than the current one, so it says so and links to both. */
   archived?: boolean
 }
