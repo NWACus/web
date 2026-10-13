@@ -14,6 +14,8 @@ export const nearParams = { near: parseAsString, nearLabel: parseAsString }
 export const DEVICE_NEAR = 'me'
 
 export type NearOrigin = {
+  /** The device location, or a place the reader typed. */
+  source: 'device' | 'place'
   point: LatLng
   /** How the sort reads: "Nearest to Leavenworth" or "Nearest to you". */
   label: string
@@ -22,12 +24,21 @@ export type NearOrigin = {
 }
 
 function deviceOrigin(device: LatLng | null): NearOrigin | null {
-  return device && { point: device, label: 'you', query: formatNearParam(device, 2) }
+  return (
+    device && { source: 'device', point: device, label: 'you', query: formatNearParam(device, 2) }
+  )
 }
 
 function placeOrigin(near: string | null, label: string | null): NearOrigin | null {
   const point = parseNearParam(near)
-  return point && { point, label: label || 'the chosen place', query: formatNearParam(point) }
+  return (
+    point && {
+      source: 'place',
+      point,
+      label: label || 'the chosen place',
+      query: formatNearParam(point),
+    }
+  )
 }
 
 /** Where events are sorted from, or null when they're sorted soonest first. */

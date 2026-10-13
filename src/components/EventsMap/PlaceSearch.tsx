@@ -38,6 +38,24 @@ function usePlaceSuggestions(query: string, sessionToken: string) {
   return { suggestions, failed }
 }
 
+/** The box's text. A prefilled place isn't a search, so it opens no suggestions or billed session. */
+function usePlaceQuery(currentPlace: string) {
+  const [query, setQuery] = useState(currentPlace)
+  const [typed, setTyped] = useState(false)
+  return {
+    query,
+    searchText: typed ? query : '',
+    change: (value: string) => {
+      setQuery(value)
+      setTyped(true)
+    },
+    // Selected, so typing replaces the prefilled place.
+    selectPrefilled: (input: HTMLInputElement) => {
+      if (!typed) input.select()
+    },
+  }
+}
+
 function SuggestionList({
   id,
   suggestions,
@@ -76,18 +94,21 @@ function SuggestionList({
 /** A town, trailhead or ZIP box with Mapbox suggestions, for sorting events by distance. */
 export function PlaceSearch({
   inputRef,
+  currentPlace,
   onPick,
 }: {
   inputRef: RefObject<HTMLInputElement | null>
+  /** The place events are sorted from now, shown in the box until the reader types. */
+  currentPlace: string
   onPick: (place: PickedPlace) => void
 }) {
   const listId = useId()
   // One Mapbox billing session per time the sort menu opens.
   const [sessionToken] = useState(() => crypto.randomUUID())
-  const [query, setQuery] = useState('')
+  const placeQuery = usePlaceQuery(currentPlace)
   const [active, setActive] = useState(-1)
   const [lookupFailed, setLookupFailed] = useState(false)
-  const { suggestions, failed } = usePlaceSuggestions(query, sessionToken)
+  const { suggestions, failed } = usePlaceSuggestions(placeQuery.searchText, sessionToken)
 
   const pick = (suggestion: PlaceSuggestion) =>
     retrievePlace(suggestion.id, sessionToken)
@@ -118,9 +139,10 @@ export function PlaceSearch({
         aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
         autoComplete="off"
         placeholder="Town, trailhead or ZIP"
-        value={query}
+        value={placeQuery.query}
+        onFocus={(event) => placeQuery.selectPrefilled(event.target)}
         onChange={(event) => {
-          setQuery(event.target.value)
+          placeQuery.change(event.target.value)
           setActive(-1)
           setLookupFailed(false)
         }}

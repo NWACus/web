@@ -38,6 +38,13 @@ test.describe('Events sorted by distance', () => {
     await expect(page).toHaveURL(/[?&]near=me(&|$)/)
     expect(page.url()).not.toContain('47.6')
 
+    await page.getByRole('button', { name: 'Nearest to you' }).click()
+    await expect(page.getByRole('button', { name: 'Using your location' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await page.keyboard.press('Escape')
+
     // Distances show at once; the re-sorted list follows from the server.
     await expect.poll(async () => isAscending(await listedMiles(page))).toBe(true)
   })
@@ -49,6 +56,16 @@ test.describe('Events sorted by distance', () => {
 
     await expect(page.getByRole('button', { name: 'Nearest to Leavenworth' })).toBeVisible()
     expect(isAscending(await listedMiles(page))).toBe(true)
+
+    await page.getByRole('button', { name: 'Nearest to Leavenworth' }).click()
+    await expect(page.getByRole('combobox', { name: 'Town, trailhead or ZIP' })).toHaveValue(
+      'Leavenworth',
+    )
+    await expect(page.getByRole('button', { name: 'Use my location' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+    await page.keyboard.press('Escape')
 
     const onlineHeading = page.getByRole('heading', { name: 'Online & no location' })
     if (await onlineHeading.count()) {

@@ -67,24 +67,51 @@ function SortOption({
   )
 }
 
-function UseMyLocationButton({ locating }: { locating: ReturnType<typeof useLocateMe> }) {
+function locateLabel(busy: boolean, inUse: boolean): string {
+  if (busy) return 'Finding your location…'
+  return inUse ? 'Using your location' : 'Use my location'
+}
+
+function LocateIcon({ busy }: { busy: boolean }) {
+  return busy ? <Loader2 className="animate-spin" /> : <LocateFixed />
+}
+
+function LocateError({ error }: { error: string | null }) {
+  if (!error) return null
+  return (
+    <p role="alert" className="text-sm text-destructive">
+      {error}
+    </p>
+  )
+}
+
+function UseMyLocationButton({
+  locating,
+  inUse,
+}: {
+  locating: ReturnType<typeof useLocateMe>
+  inUse: boolean
+}) {
   return (
     <>
+      {/* Clicking again while in use re-reads the location, e.g. after driving somewhere. */}
       <Button
         variant="link"
         size="clear"
-        className={cn('items-center gap-2 py-1', ICON_SIZE)}
+        aria-pressed={inUse}
+        className={cn(
+          'items-center gap-2 py-1',
+          ICON_SIZE,
+          inUse && 'font-medium text-foreground hover:no-underline',
+        )}
         disabled={locating.busy}
         onClick={locating.locate}
       >
-        {locating.busy ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-        {locating.busy ? 'Finding your location…' : 'Use my location'}
+        <LocateIcon busy={locating.busy} />
+        {locateLabel(locating.busy, inUse)}
+        <CurrentSortCheck shown={inUse && !locating.busy} />
       </Button>
-      {locating.error && (
-        <p role="alert" className="text-sm text-destructive">
-          {locating.error}
-        </p>
-      )}
+      <LocateError error={locating.error} />
     </>
   )
 }
@@ -104,28 +131,41 @@ function ClearSortButton({ shown, onClick }: { shown: boolean; onClick: () => vo
   )
 }
 
+const TRIGGER_ICONS = { device: LocateFixed, place: MapPin }
+
 function SortTrigger({ origin }: { origin: NearOrigin | null }) {
+  const Icon = origin ? TRIGGER_ICONS[origin.source] : ArrowUpDown
   return (
     <PopoverTrigger asChild>
       <Button variant="outline" size="sm" className={cn('min-w-0 gap-2', ICON_SIZE)}>
-        <ArrowUpDown />
+        <Icon />
         <span className="truncate">{origin ? `Nearest to ${origin.label}` : 'Soonest first'}</span>
       </Button>
     </PopoverTrigger>
   )
 }
 
+/** What each "Nearest first" control shows as in use. */
+function originInUse(origin: NearOrigin | null) {
+  return {
+    place: origin?.source === 'place' ? origin.label : '',
+    device: origin?.source === 'device',
+  }
+}
+
 function NearestOptions({
-  active,
+  origin,
   placeInputRef,
   onPickPlace,
   locating,
 }: {
-  active: boolean
+  origin: NearOrigin | null
   placeInputRef: RefObject<HTMLInputElement | null>
   onPickPlace: (place: PickedPlace) => void
   locating: ReturnType<typeof useLocateMe>
 }) {
+  const active = origin !== null
+  const inUse = originInUse(origin)
   return (
     <>
       <div className={cn('flex items-center gap-2 px-2 pt-2 pb-1.5 text-sm', ICON_SIZE)}>
@@ -136,8 +176,8 @@ function NearestOptions({
       </div>
       {/* Indented to the option text, so both controls read as part of "Nearest first". */}
       <div className="flex flex-col gap-2 pr-2 pb-1 pl-8">
-        <PlaceSearch inputRef={placeInputRef} onPick={onPickPlace} />
-        <UseMyLocationButton locating={locating} />
+        <PlaceSearch inputRef={placeInputRef} currentPlace={inUse.place} onPick={onPickPlace} />
+        <UseMyLocationButton locating={locating} inUse={inUse.device} />
       </div>
     </>
   )
@@ -173,7 +213,7 @@ export function EventsSort() {
             Soonest first
           </SortOption>
           <NearestOptions
-            active={origin !== null}
+            origin={origin}
             placeInputRef={placeInputRef}
             onPickPlace={sortNearPlace}
             locating={locating}

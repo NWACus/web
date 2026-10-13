@@ -58,7 +58,7 @@ sig = "a7f6555ce616e30f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "aaed637037231b6b"
+sig = "74cd3e84bf5bc5c6"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1433,12 +1433,12 @@ sig = "97c3c72d1a259254"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsSort.tsx"
-sig = "108bac45eabd578d"
+sig = "796aa707b2215f58"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/PlaceSearch.tsx"
-sig = "befdbb1006789883"
+sig = "8e5eb39399387340"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1453,7 +1453,7 @@ sig = "b8a528159f001902"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/useNearOrigin.ts"
-sig = "49038408e7b8ddbb"
+sig = "1050553e2f6e7f9b"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
