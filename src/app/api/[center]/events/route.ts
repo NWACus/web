@@ -1,3 +1,4 @@
+import { parseBoxParam } from '@/utilities/geo/boxParam'
 import { getEvents } from '@/utilities/queries/getEvents'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -23,6 +24,7 @@ export async function GET(
     groups: parseArrayParam(searchParams.get('groups')),
     tags: parseArrayParam(searchParams.get('tags')),
     modesOfTravel: parseArrayParam(searchParams.get('modesOfTravel')),
+    box: parseBoxParam(searchParams.get('bbox')),
     center,
   }
 

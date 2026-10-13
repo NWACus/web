@@ -3,9 +3,11 @@
 import { createProductMap } from '@/components/map/mapbox'
 import { MapMarker } from '@/components/stationMap/MapMarker'
 import { useMapBackgroundClick } from '@/components/stationMap/useStationMap'
+import { Button } from '@/components/ui/button'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import type { BoundingBox } from '@/utilities/geo/distance'
 import { cn } from '@/utilities/ui'
-import { MapPin } from 'lucide-react'
+import { MapPin, Search } from 'lucide-react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import Link from 'next/link'
@@ -19,8 +21,11 @@ interface EventsMapProps {
   selectedKey: string | null
   hoveredKey: string | null
   focus: FocusRequest | null
+  /** The map area the reader searched, which the events are already narrowed to. */
+  searchedBox: BoundingBox | null
   onSelect: (key: string) => void
   onClear: () => void
+  onSearchArea: (box: BoundingBox) => void
 }
 
 const FIT_PADDING = 48
@@ -47,19 +52,96 @@ function useEventsMapInstance(containerRef: RefObject<HTMLDivElement | null>) {
   return map
 }
 
-/** Frames every pin whenever the set of pins changes, i.e. when the filters change. */
-function useFitToPlaces(map: mapboxgl.Map | null, places: EventPlace[]) {
+/**
+ * Frames every pin whenever the set of pins changes, i.e. when the filters change. Not while an
+ * area search is on: the reader chose that view, so it stays put as the results come in.
+ */
+function useFitToPlaces(map: mapboxgl.Map | null, places: EventPlace[], searching: boolean) {
   const placesKey = places.map((place) => place.key).join('|')
   const placesRef = useRef(places)
   placesRef.current = places
 
   useEffect(() => {
-    const current = placesRef.current
-    if (!map || current.length === 0) return
-    const bounds = new mapboxgl.LngLatBounds()
-    for (const place of current) bounds.extend([place.longitude, place.latitude])
+    const bounds = boundsOf(placesRef.current)
+    if (!map || searching || !bounds) return
     map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: FOCUS_ZOOM, duration: 0 })
-  }, [map, placesKey])
+  }, [map, placesKey, searching])
+}
+
+function boundsOf(places: EventPlace[]): mapboxgl.LngLatBounds | null {
+  if (places.length === 0) return null
+  const bounds = new mapboxgl.LngLatBounds()
+  for (const place of places) bounds.extend([place.longitude, place.latitude])
+  return bounds
+}
+
+/** A link to a searched area opens on that area. */
+function useOpenOnSearchedBox(map: mapboxgl.Map | null, searchedBox: BoundingBox | null) {
+  const initialBox = useRef(searchedBox)
+  useEffect(() => {
+    const box = initialBox.current
+    if (!map || !box) return
+    map.fitBounds(
+      [
+        [box.west, box.south],
+        [box.east, box.north],
+      ],
+      { duration: 0 },
+    )
+  }, [map])
+}
+
+/** Whether the reader panned or zoomed last; the map's own moves (fitting, flying) reset it. */
+function useMovedByReader(map: mapboxgl.Map | null) {
+  const [moved, setMoved] = useState(false)
+  useEffect(() => {
+    if (!map) return
+    const onMoveEnd = (event: { originalEvent?: unknown }) => setMoved(Boolean(event.originalEvent))
+    map.on('moveend', onMoveEnd)
+    return () => {
+      map.off('moveend', onMoveEnd)
+    }
+  }, [map])
+  return { moved, reset: () => setMoved(false) }
+}
+
+/**
+ * Everything the reader can see, as a box. Read from the container's corners: `getBounds()` leaves
+ * out the camera padding `fitBounds` keeps, and the pins framed into that padding with it.
+ */
+function viewBox(map: mapboxgl.Map): BoundingBox {
+  const { clientWidth, clientHeight } = map.getContainer()
+  const southWest = map.unproject([0, clientHeight])
+  const northEast = map.unproject([clientWidth, 0])
+  // Zoomed far out, Mapbox reports longitudes past ±180 for the repeated copies of the world.
+  return {
+    west: Math.max(southWest.lng, -180),
+    south: southWest.lat,
+    east: Math.min(northEast.lng, 180),
+    north: northEast.lat,
+  }
+}
+
+function SearchAreaButton({
+  map,
+  shown,
+  onSearch,
+}: {
+  map: mapboxgl.Map | null
+  shown: boolean
+  onSearch: (box: BoundingBox) => void
+}) {
+  if (!map || !shown) return null
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      onClick={() => onSearch(viewBox(map))}
+      className="absolute top-3 left-1/2 -translate-x-1/2 z-10 rounded-full shadow-md"
+    >
+      <Search /> Search this area
+    </Button>
+  )
 }
 
 function PlacePopup({ place }: { place: EventPlace }) {
@@ -135,14 +217,18 @@ export function EventsMap({
   selectedKey,
   hoveredKey,
   focus,
+  searchedBox,
   onSelect,
   onClear,
+  onSearchArea,
 }: EventsMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const map = useEventsMapInstance(containerRef)
-  useFitToPlaces(map, places)
+  useFitToPlaces(map, places, searchedBox !== null)
+  useOpenOnSearchedBox(map, searchedBox)
   useMapBackgroundClick(map, onClear)
   useFlyToFocus(map, places, focus)
+  const movedByReader = useMovedByReader(map)
 
   if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
     return (
@@ -153,18 +239,28 @@ export function EventsMap({
   }
 
   return (
-    <div ref={containerRef} className="h-full w-full">
-      {map &&
-        places.map((place) => (
-          <EventPin
-            key={place.key}
-            map={map}
-            place={place}
-            selected={place.key === selectedKey}
-            active={place.key === selectedKey || place.key === hoveredKey}
-            onSelect={onSelect}
-          />
-        ))}
+    <div className="relative h-full w-full">
+      <div ref={containerRef} className="h-full w-full">
+        {map &&
+          places.map((place) => (
+            <EventPin
+              key={place.key}
+              map={map}
+              place={place}
+              selected={place.key === selectedKey}
+              active={place.key === selectedKey || place.key === hoveredKey}
+              onSelect={onSelect}
+            />
+          ))}
+      </div>
+      <SearchAreaButton
+        map={map}
+        shown={movedByReader.moved}
+        onSearch={(box) => {
+          movedByReader.reset()
+          onSearchArea(box)
+        }}
+      />
     </div>
   )
 }

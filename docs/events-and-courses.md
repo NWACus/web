@@ -39,7 +39,7 @@ Main events listing page with:
 - Quick date filters (this week, next week, this month, etc.)
 - Sorting by start date or registration deadline
 - Pagination support
-- A List/Map toggle (`?view=map`). The map view fetches every event matching the filters (up to 200) and shows them in a compact list beside a map. On wide screens the page scrolls the list while the List/Map buttons, the map and the filters stay pinned (`StickyInMapView` wraps the filters). Events at the same point share one pin. Clicking a pin highlights its events in the list; "Show on map" flies to the pin. Virtual and unplaced events are listed under "Not on the map". Components live in `src/components/EventsMap/`.
+- A List/Map toggle (`?view=map`). The map view fetches every event matching the filters (up to 200) and shows them in a compact list beside a map. On wide screens the page scrolls the list while the List/Map buttons, the map and the filters stay pinned (`StickyInMapView` wraps the filters). Events at the same point share one pin. Clicking a pin highlights its events in the list; "Show on map" flies to the pin. Virtual and unplaced events are listed under "Not on the map". Panning or zooming the map offers "Search this area", which narrows the events to the visible area via a `bbox=west,south,east,north` param (`src/utilities/geo/boxParam.ts`) that the events API passes to `getEvents` as a box filter; the map holds that view instead of refitting to the results, and switching back to the list clears it. Components live in `src/components/EventsMap/`.
 - Respects `navigation.events.enabled` setting
 
 ### Event Detail

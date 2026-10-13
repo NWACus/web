@@ -4,13 +4,16 @@ import { ImageMedia } from '@/components/Media/ImageMedia'
 import { eventTypesData } from '@/constants/eventTypes'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { formatBoxParam, parseBoxParam } from '@/utilities/geo/boxParam'
+import type { BoundingBox } from '@/utilities/geo/distance'
 import type { GetEventsResult } from '@/utilities/queries/getEvents'
 import { isValidRelationship } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
-import { Loader2, MapPin } from 'lucide-react'
+import { Loader2, MapPin, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { FocusRequest } from './EventsMap.client'
 import { describeWhere, groupEventsByPlace, placeKeyFor, pointOf } from './eventPlaces'
@@ -25,7 +28,7 @@ const EventsMap = dynamic(() => import('./EventsMap.client').then((mod) => mod.E
 const MAP_EVENTS_LIMIT = 200
 
 /** The page's filter params, which the events API reads in the same comma-separated format. */
-const FILTER_KEYS = ['types', 'startDate', 'endDate', 'groups', 'tags', 'modesOfTravel']
+const FILTER_KEYS = ['types', 'startDate', 'endDate', 'groups', 'tags', 'modesOfTravel', 'bbox']
 
 // The list and map sit side by side from Tailwind's `xl` up.
 const SIDE_BY_SIDE = '(min-width: 1280px)'
@@ -208,7 +211,23 @@ function UnplacedEvents({ events, selection }: { events: Event[]; selection: Sel
   )
 }
 
-function EventsMapList({ state, selection }: { state: EventsState; selection: Selection }) {
+function NoEvents({ searchingArea }: { searchingArea: boolean }) {
+  return (
+    <p className="text-muted-foreground py-8 text-center">
+      {searchingArea ? 'No events in this map area.' : 'No events found matching your criteria.'}
+    </p>
+  )
+}
+
+function EventsMapList({
+  state,
+  searchingArea,
+  selection,
+}: {
+  state: EventsState
+  searchingArea: boolean
+  selection: Selection
+}) {
   if (state.error) return <p className="text-destructive">{state.error}</p>
   if (!state.events) {
     return (
@@ -217,19 +236,32 @@ function EventsMapList({ state, selection }: { state: EventsState; selection: Se
       </div>
     )
   }
-  if (state.events.length === 0) {
-    return (
-      <p className="text-muted-foreground py-8 text-center">
-        No events found matching your criteria.
-      </p>
-    )
-  }
+  if (state.events.length === 0) return <NoEvents searchingArea={searchingArea} />
 
   return (
     <>
       <EventCards events={state.events.filter(pointOf)} selection={selection} />
       <UnplacedEvents events={state.events} selection={selection} />
     </>
+  )
+}
+
+/** The searched map area, with a way back to every event the filters match. */
+function SearchedAreaBar({ loading, onClear }: { loading: boolean; onClear: () => void }) {
+  return (
+    <div className="flex items-center justify-between gap-2 pb-2 xl:px-1 text-sm">
+      <span className="flex items-center gap-2 text-muted-foreground">
+        Showing events in the map area
+        {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+      </span>
+      <button
+        type="button"
+        onClick={onClear}
+        className="inline-flex items-center gap-1 text-primary hover:underline"
+      >
+        <X className="h-3.5 w-3.5" /> Clear area
+      </button>
+    </div>
   )
 }
 
@@ -256,18 +288,23 @@ function useRevealOnMount(mapRef: RefObject<HTMLDivElement | null>, reveal: bool
 /** The list column, which scrolls with the page while the map beside it stays put. */
 function ListPane({
   state,
+  searchedBox,
   listRef,
   selection,
+  onClearArea,
 }: {
   state: EventsState
+  searchedBox: BoundingBox | null
   listRef: RefObject<HTMLDivElement | null>
   selection: Selection
+  onClearArea: () => void
 }) {
   return (
     <div ref={listRef} className="xl:order-1 xl:w-[380px] shrink-0">
+      {searchedBox && <SearchedAreaBar loading={state.loading} onClear={onClearArea} />}
       {/* Dimmed while the next set loads; the last set stays up until it arrives. */}
       <div className={cn('transition-opacity', state.loading && 'opacity-60')}>
-        <EventsMapList state={state} selection={selection} />
+        <EventsMapList state={state} searchingArea={searchedBox !== null} selection={selection} />
       </div>
     </div>
   )
@@ -284,6 +321,8 @@ export function EventsMapView({
   const state = useAllFilteredEvents(center)
   const events = state.events ?? NO_EVENTS
   const { places } = useMemo(() => groupEventsByPlace(events), [events])
+  const [bboxParam, setBboxParam] = useQueryState('bbox', parseAsString)
+  const searchedBox = useMemo(() => parseBoxParam(bboxParam), [bboxParam])
   const listRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<HTMLDivElement>(null)
   const selection = useSelection(listRef, mapRef)
@@ -302,11 +341,19 @@ export function EventsMapView({
           selectedKey={selection.selectedKey}
           hoveredKey={selection.hoveredKey}
           focus={selection.focus}
+          searchedBox={searchedBox}
           onSelect={selection.selectFromMap}
           onClear={selection.clear}
+          onSearchArea={(box: BoundingBox) => setBboxParam(formatBoxParam(box))}
         />
       </div>
-      <ListPane state={state} listRef={listRef} selection={selection} />
+      <ListPane
+        state={state}
+        searchedBox={searchedBox}
+        listRef={listRef}
+        selection={selection}
+        onClearArea={() => setBboxParam(null)}
+      />
     </div>
   )
 }
