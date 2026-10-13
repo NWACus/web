@@ -4,7 +4,6 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload } from 'payload'
 
 import { EventsResults } from '@/components/EventsMap/EventsResults'
-import { StickyInMapView } from '@/components/EventsMap/StickyInMapView'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { centerRouteMetadata } from '@/utilities/centerRoutePage'
 import { parseNearParam } from '@/utilities/geo/nearParam'
@@ -104,7 +103,9 @@ export default async function Page({ params, searchParams }: Args) {
           </div>
 
           <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] xl:w-[300px] order-1 md:order-2">
-            <StickyInMapView>
+            {/* Stays in view as the page scrolls; the offsets center the first heading on the List/Map
+                buttons. Filters taller than the window scroll on their own. */}
+            <div className="-mt-1.5 sticky top-2.5 max-h-[calc(100dvh-1.25rem)] overflow-y-auto -mx-1 px-1">
               <EventsFilters
                 startDate={startDate}
                 endDate={endDate}
@@ -112,7 +113,7 @@ export default async function Page({ params, searchParams }: Args) {
                 groups={eventGroups}
                 tags={eventTags}
               />
-            </StickyInMapView>
+            </div>
           </div>
         </div>
       </div>
