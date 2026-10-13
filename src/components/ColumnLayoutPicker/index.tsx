@@ -2,31 +2,28 @@
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { FieldLabel, useField } from '@payloadcms/ui'
-import { Columns2, Columns3, Columns4, Square } from 'lucide-react'
-import { Field, SelectFieldClientProps } from 'payload'
+import { mergeFieldStyles } from '@payloadcms/ui/shared'
+import { SelectFieldClientProps } from 'payload'
 import { useEffect, useMemo, useState } from 'react'
-import { Columns112, Columns12, Columns121, Columns21, Columns211 } from './icons'
+import { ColumnsIcon } from './icons'
 
-type ColumnLayoutPickerProps = {
-  sb: Field
-} & SelectFieldClientProps
+// `parts` are the column widths as rendered on desktop, which is what the label describes.
+// The stored values predate this and don't always read left to right (e.g. 2_12 renders 2:1).
+const layoutOptions = [
+  { value: '1_1', parts: [1] },
+  { value: '2_11', parts: [1, 1] },
+  { value: '2_12', parts: [2, 1] },
+  { value: '2_21', parts: [1, 2] },
+  { value: '3_111', parts: [1, 1, 1] },
+  { value: '3_112', parts: [2, 1, 1] },
+  { value: '3_121', parts: [1, 2, 1] },
+  { value: '3_211', parts: [1, 1, 2] },
+  { value: '4_1111', parts: [1, 1, 1, 1] },
+]
 
-const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
-  const layoutOptions = useMemo(
-    () => [
-      { label: 'full', value: '1_1', icon: Square },
-      { label: '1:1', value: '2_11', icon: Columns2 },
-      { label: '1:2', value: '2_12', icon: Columns12 },
-      { label: '2:1', value: '2_21', icon: Columns21 },
-      { label: '1:1:1', value: '3_111', icon: Columns3 },
-      { label: '1:1:2', value: '3_112', icon: Columns112 },
-      { label: '1:2:1', value: '3_121', icon: Columns121 },
-      { label: '2:1:1', value: '3_211', icon: Columns211 },
-      { label: '1:1:1:1', value: '4_1111', icon: Columns4 },
-    ],
-    [],
-  )
+const columnCount = (layout: string) => parseInt(layout.split('_')[0])
 
+export const ColumnLayoutPicker = (props: SelectFieldClientProps) => {
   const { path, field } = props
   const { value, setValue, showError, errorMessage } = useField<string>({ path })
   const [layoutSelection, setLayoutSelection] = useState(value || '1_1')
@@ -36,46 +33,34 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
 
   const { value: numColumns } = useField<number>({ path: columnsPath })
 
+  const options = useMemo(
+    () => layoutOptions.filter((opt) => columnCount(opt.value) === numColumns),
+    [numColumns],
+  )
+
   useEffect(() => {
     if (value) {
       setLayoutSelection(value)
     }
   }, [value])
 
-  // Auto-select valid layout when columns change
+  // Keep the layout valid for the current column count, including null values from bad seed data
   useEffect(() => {
-    if (numColumns && numColumns > 0) {
-      const currentColCount = parseInt(layoutSelection.split('_')[0])
-      // If current selection doesn't match column count, find the first valid option
-      if (currentColCount !== numColumns) {
-        const validOption = layoutOptions.find(
-          (opt) => parseInt(opt.value.split('_')[0]) === numColumns,
-        )
-        if (validOption) {
-          setValue(validOption.value)
-          setLayoutSelection(validOption.value)
-        }
-      }
-    }
-  }, [numColumns, layoutSelection, setValue, layoutOptions])
+    if (!numColumns || numColumns < 1) return
+    if (value && columnCount(layoutSelection) === numColumns) return
 
-  // When value is null/undefined (e.g., from bad seed data), auto-heal in the UI
-  useEffect(() => {
-    if (!value && numColumns && numColumns > 0) {
-      const validOption = layoutOptions.find(
-        (opt) => parseInt(opt.value.split('_')[0]) === numColumns,
-      )
-      if (validOption) {
-        setValue(validOption.value)
-        setLayoutSelection(validOption.value)
-      }
+    const validOption = layoutOptions.find((opt) => columnCount(opt.value) === numColumns)
+    if (validOption) {
+      setValue(validOption.value)
+      setLayoutSelection(validOption.value)
     }
-  }, [value, numColumns, setValue, layoutOptions])
+  }, [numColumns, layoutSelection, value, setValue])
 
-  if (numColumns === 0) return null
+  // A single column has only one layout, so there's nothing to choose
+  if (!numColumns || numColumns < 2) return null
 
   return (
-    <div className="mb-6">
+    <div className="mb-6" style={mergeFieldStyles(field)}>
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
       <ToggleGroup
         type="single"
@@ -87,29 +72,25 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
           }
         }}
         variant="outline"
-        className="justify-start"
+        size="sm"
+        className="flex-wrap justify-start"
       >
-        {layoutOptions.map((option) => {
-          const Icon = option.icon
-          const colCount = parseInt(option.value.split('_')[0])
-          if (colCount !== numColumns) return null
-
+        {options.map((option) => {
+          const label = option.parts.join(':')
           return (
             <ToggleGroupItem
               key={option.value}
               value={option.value}
-              aria-label={option.label}
-              className="cursor-pointer"
+              aria-label={`${label} column widths`}
+              className="cursor-pointer gap-1.5 px-2 [&_svg]:size-5"
             >
-              <Icon style={{ width: '20px', height: '20px' }} />
+              <ColumnsIcon parts={option.parts} />
+              {label}
             </ToggleGroupItem>
           )
         })}
       </ToggleGroup>
-      <div className="field-description">Options update based on the number of columns.</div>
       {showError && <div className="mt-2 text-sm text-red-500">{errorMessage}</div>}
     </div>
   )
 }
-
-export default ColumnLayoutPicker

@@ -18,7 +18,7 @@ import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997e
 import { SponsorsLayoutDescription as SponsorsLayoutDescription_3bd21b612ee21de8be7622c02de7e892 } from '@/blocks/Sponsors/components/SponsorsLayoutDescription'
 import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { default as default_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
+import { ColumnLayoutPicker as ColumnLayoutPicker_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
 import { DateRangeField as DateRangeField_1d446883378a099477d310d9fe2f0813 } from '@/blocks/ObservationsWidget/DateRangeField'
 import { ZonesField as ZonesField_77b8df4c40d764f3c3941ef759d922e0 } from '@/blocks/ObservationsWidget/ZonesField'
@@ -97,7 +97,7 @@ export const importMap = {
   "@/blocks/Sponsors/components/SponsorsLayoutDescription#SponsorsLayoutDescription": SponsorsLayoutDescription_3bd21b612ee21de8be7622c02de7e892,
   "@payloadcms/richtext-lexical/client#OrderedListFeatureClient": OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UnorderedListFeatureClient": UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@/components/ColumnLayoutPicker#default": default_923dc5ccc0b72de4298251644cbfe39e,
+  "@/components/ColumnLayoutPicker#ColumnLayoutPicker": ColumnLayoutPicker_923dc5ccc0b72de4298251644cbfe39e,
   "@/blocks/Content/components/DefaultColumnAdder#DefaultColumnAdder": DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01,
   "@/blocks/ObservationsWidget/DateRangeField#DateRangeField": DateRangeField_1d446883378a099477d310d9fe2f0813,
   "@/blocks/ObservationsWidget/ZonesField#ZonesField": ZonesField_77b8df4c40d764f3c3941ef759d922e0,
