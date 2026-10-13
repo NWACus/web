@@ -9,7 +9,7 @@ export const affinityGroupOptions = [
 
 export const affinityGroupField = (): Field => ({
   name: 'affinityGroups',
-  label: 'Interest Groups',
+  label: 'Affinity Groups',
   type: 'select',
   options: affinityGroupOptions,
   hasMany: true,
