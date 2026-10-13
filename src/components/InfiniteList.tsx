@@ -3,7 +3,7 @@
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { Dispatch, ReactNode, RefObject, SetStateAction, useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { Card } from './ui/card'
 
@@ -34,10 +34,36 @@ interface InfiniteListProps<T extends ListItem, R extends ListResult>
   className?: string
 }
 
-const fetchPage = <R,>(endpoint: string, filterQuery: string, offset: number): Promise<R> => {
+const fetchPage = <R,>(
+  endpoint: string,
+  filterQuery: string,
+  offset: number,
+  signal: AbortSignal,
+): Promise<R> => {
   const query = new URLSearchParams(filterQuery)
   query.set('offset', String(offset))
-  return fetch(`${endpoint}?${query}`).then((res) => res.json())
+  return fetch(`${endpoint}?${query}`, { signal }).then((res) => res.json())
+}
+
+type RequestRef = RefObject<AbortController | null>
+
+/** Aborts the request in flight, so a page fetched for old filters can't land on the new list. */
+const startRequest = (requestRef: RequestRef, setIsLoading: Dispatch<SetStateAction<boolean>>) => {
+  requestRef.current?.abort()
+  const request = new AbortController()
+  requestRef.current = request
+  setIsLoading(true)
+  return request
+}
+
+const endRequest = (
+  requestRef: RequestRef,
+  request: AbortController,
+  setIsLoading: Dispatch<SetStateAction<boolean>>,
+) => {
+  if (requestRef.current !== request) return
+  requestRef.current = null
+  setIsLoading(false)
 }
 
 /** Items already shown are skipped so an overlapping page can't render duplicate keys. */
@@ -73,8 +99,17 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
   const [error, setError] = useState<string | null>(initialError || null)
   const filterQuery = useFilterQuery(filterKeys, filterDefaults)
   const previousFilterQueryRef = useRef(filterQuery)
+  const requestRef = useRef<AbortController | null>(null)
   const { setTotal } = useFiltersTotalContext()
   const { ref, inView } = useInView({ threshold: 0, triggerOnce: false })
+
+  useEffect(
+    () => () => {
+      requestRef.current?.abort()
+      requestRef.current = null
+    },
+    [],
+  )
 
   // Start over from the first page when the filters change
   useEffect(() => {
@@ -82,10 +117,11 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
     previousFilterQueryRef.current = filterQuery
 
     const resetAndFetch = async () => {
-      setIsLoading(true)
+      const request = startRequest(requestRef, setIsLoading)
       setError(null)
       try {
-        const result = await fetchPage<R>(endpoint, filterQuery, 0)
+        const result = await fetchPage<R>(endpoint, filterQuery, 0, request.signal)
+        if (request.signal.aborted) return
         if (result.error) {
           setError(result.error)
           setItems([])
@@ -99,9 +135,10 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
         setHasMoreData(result.hasMore)
         setTotal(result.total)
       } catch (_error) {
+        if (request.signal.aborted) return
         setError('An unexpected error occurred. Please try again.')
       } finally {
-        setIsLoading(false)
+        endRequest(requestRef, request, setIsLoading)
       }
     }
 
@@ -109,12 +146,14 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
   }, [endpoint, filterQuery, itemsOf, setTotal])
 
   useEffect(() => {
-    if (!inView || !hasMoreData || isLoading) return
+    // The ref catches a reset started earlier in this same commit, before isLoading re-renders
+    if (!inView || !hasMoreData || isLoading || requestRef.current) return
 
     const loadMore = async () => {
-      setIsLoading(true)
+      const request = startRequest(requestRef, setIsLoading)
       try {
-        const result = await fetchPage<R>(endpoint, filterQuery, offset)
+        const result = await fetchPage<R>(endpoint, filterQuery, offset, request.signal)
+        if (request.signal.aborted) return
         if (result.error) {
           setError(result.error)
           setHasMoreData(false)
@@ -125,10 +164,11 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
         setOffset((prevOffset) => prevOffset + page.length)
         setHasMoreData(result.hasMore)
       } catch (_error) {
+        if (request.signal.aborted) return
         setError(`An unexpected error occurred while loading more ${noun}.`)
         setHasMoreData(false)
       } finally {
-        setIsLoading(false)
+        endRequest(requestRef, request, setIsLoading)
       }
     }
 

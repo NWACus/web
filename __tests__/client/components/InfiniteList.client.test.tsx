@@ -106,6 +106,49 @@ describe('InfiniteList', () => {
     expect(fetchedUrl(0).searchParams.get('offset')).toBe('0')
   })
 
+  it('drops a next page still loading when the filters change', async () => {
+    let resolveStale: (body: object) => void = () => {}
+    mockFetch
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveStale = (body) => resolve({ json: () => Promise.resolve(body) })
+          }),
+      )
+      .mockImplementationOnce(() => page({ ...emptyPage, events: [{ id: 2, title: 'Fresh' }] }))
+    const list = () => withTotal(<EventsList initialEvents={[]} initialHasMore center="nwac" />)
+    const { rerender } = render(list())
+    await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1))
+
+    mockSearchParams = new URLSearchParams('types=workshop')
+    rerender(list())
+    expect(await screen.findByText('Fresh')).toBeInTheDocument()
+    resolveStale({ ...emptyPage, events: [{ id: 1, title: 'Stale' }] })
+
+    expect(mockFetch.mock.calls[0][1].signal.aborted).toBe(true)
+    await waitFor(() => expect(screen.queryByText('Stale')).not.toBeInTheDocument())
+    expect(screen.getByText('Fresh')).toBeInTheDocument()
+  })
+
+  it("doesn't load the old filters' next page alongside the reset", async () => {
+    mockInView = false
+    const shown = [
+      { id: 1, title: 'One' },
+      { id: 2, title: 'Two' },
+    ]
+    // @ts-expect-error the stub events carry only what the mocked preview renders
+    const list = () => withTotal(<EventsList initialEvents={shown} initialHasMore center="nwac" />)
+    const { rerender } = render(list())
+
+    mockInView = true
+    mockSearchParams = new URLSearchParams('types=workshop')
+    rerender(list())
+
+    await waitFor(() => expect(mockFetch).toHaveBeenCalled())
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    expect(fetchedUrl(0).searchParams.get('offset')).toBe('0')
+  })
+
   it('skips items already shown when the next page overlaps', async () => {
     mockFetch
       .mockImplementationOnce(() =>
