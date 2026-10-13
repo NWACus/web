@@ -1348,7 +1348,7 @@ sig = "97c3c72d1a259254"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsSort.tsx"
-sig = "02bd95ecc5d40021"
+sig = "108bac45eabd578d"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
