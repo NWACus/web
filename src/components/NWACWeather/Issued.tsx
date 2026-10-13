@@ -17,12 +17,8 @@ export function IssuedMeta({
   const issued = formatIssued(issuance.issuedAt, timezone, "EEE, MMM d 'at' h:mm a zzz")
   if (!issued && !issuance.author) return null
   return (
-    <p className="text-muted-foreground">
-      {issued && (
-        <>
-          Issued <span className="font-semibold text-foreground">{issued}</span>
-        </>
-      )}
+    <p className="text-sm text-muted-foreground">
+      {issued && <>Issued {issued}</>}
       {issuance.author && (
         <>
           {issued ? ' by ' : 'By '}
