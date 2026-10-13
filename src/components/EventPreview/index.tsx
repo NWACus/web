@@ -3,13 +3,12 @@ import { cssVariables } from '@/cssVariables'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { cn } from '@/utilities/ui'
-import { ExternalLink, Navigation } from 'lucide-react'
+import { Navigation } from 'lucide-react'
 import Link from 'next/link'
-import { ButtonLink } from '../ButtonLink'
 import { EventInfo } from '../EventInfo'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
+import { EventActions } from './EventActions'
 import { LocationPopover } from './LocationPopover'
 
 const { breakpoints } = cssVariables
@@ -48,14 +47,11 @@ export const EventPreview = (props: {
     startDate_tz,
     endDate,
     skillLevel,
-    registrationDeadline,
-    registrationUrl,
     type,
     location,
   } = event
 
   const isPastEvent = startDate && new Date(startDate) < new Date()
-  const isRegistrationClosed = registrationDeadline && new Date(registrationDeadline) < new Date()
 
   const eventUrl = `/events/${slug}`
 
@@ -135,38 +131,7 @@ export const EventPreview = (props: {
           </div>
         </div>
 
-        <div className="flex @sm:flex-col @md:flex-row gap-3">
-          {registrationUrl &&
-            (isPastEvent || isRegistrationClosed ? (
-              <Button
-                className="group-hover:opacity-90 transition-opacity"
-                size="sm"
-                variant="default"
-                disabled
-              >
-                Registration Closed
-                <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
-              </Button>
-            ) : (
-              <ButtonLink
-                href={registrationUrl}
-                size="sm"
-                className="group-hover:opacity-90 transition-opacity"
-                newTab
-              >
-                Register
-                <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
-              </ButtonLink>
-            ))}
-          <ButtonLink
-            href={eventUrl}
-            variant="outline"
-            size="sm"
-            className="group-hover:opacity-90 transition-opacity"
-          >
-            Learn More
-          </ButtonLink>
-        </div>
+        <EventActions event={event} className="flex @sm:flex-col @md:flex-row gap-3" />
       </div>
       <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
         <Link
