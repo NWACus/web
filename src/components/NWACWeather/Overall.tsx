@@ -709,3 +709,21 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
     </div>
   )
 }
+
+/**
+ * The region-wide tables alone, in the legacy nwac.us tab's order (snow, snow level, temperatures,
+ * winds, extended), for a layout that shows the synopsis and sensible weather its own way.
+ */
+export function OverallTables({ parts }: { parts: OverallParts }) {
+  const { issuance, extended, snowLevel, temps, wind, snow, ext } = parts
+  const anchor = issuance.type
+  return (
+    <div className="space-y-8">
+      <MaybeTable table={snow} anchor={anchor} />
+      <MaybeTable table={snowLevel} anchor={anchor} />
+      <MaybeTable table={temps} anchor={anchor} />
+      <MaybeTable table={wind} anchor={anchor} />
+      <ExtendedSection anchor={anchor} extended={extended} table={ext} />
+    </div>
+  )
+}

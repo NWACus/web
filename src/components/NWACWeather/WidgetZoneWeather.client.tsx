@@ -10,7 +10,8 @@
  * It also takes over NWAC's "Weather Forecast" tab. The widget builds that tab from the center's
  * config (`widget_config.forecast.tabs`) and owns its button and `#/<zone>/weather-forecast` route,
  * but fills it by fetching a URL that pointed at nwac.us, which no longer answers. So the page hides
- * what the widget loaded there and renders the same zone section in its place, or says the day has
+ * what the widget loaded there and renders, in its place, the legacy tab's layout (synopsis, zone
+ * dropdown, region-wide tables; WeatherTabLead) with the zone section below it, or says the day has
  * no forecast.
  *
  * The section renders inside a shadow root. The widget's stylesheet reverts every table, heading,
@@ -23,8 +24,9 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { z } from 'zod'
 
-import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
+import type { NWACWeatherForecastDay, NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
 
+import { WeatherTabLead } from './WeatherTabLead'
 import { ZoneSummary } from './ZoneSummary'
 
 /** The part of the widget's `ForecastProduct` event detail this needs. */
@@ -43,6 +45,9 @@ const SLOT_ID = 'nac-additional-content'
 
 /** The pane the widget renders for NWAC's custom tab: `nac-` + the tab's id in center config. */
 const TAB_PANE_ID = 'nac-weather-forecast'
+
+/** Marks the host this component put beside the tab's pane, so the next forecast can replace it. */
+const TAB_HOST_ATTR = 'data-nwac-weather-tab'
 
 /**
  * A shadow root inside the widget's slot, carrying the page's same-origin stylesheets. Theme
@@ -79,7 +84,12 @@ function tabMount(): HTMLElement | null {
   const pane = document.getElementById(TAB_PANE_ID)
   if (!pane) return null
   pane.style.display = 'none'
-  return shadowMount((host) => pane.after(host))
+  // The pane survives a forecast switch inside the widget; the last forecast's section goes.
+  pane.parentElement?.querySelectorAll(`[${TAB_HOST_ATTR}]`).forEach((old) => old.remove())
+  return shadowMount((host) => {
+    host.setAttribute(TAB_HOST_ATTR, '')
+    pane.after(host)
+  })
 }
 
 async function fetchZoneDay(
@@ -137,11 +147,26 @@ export function WidgetZoneWeather({
 
   if (!slots) return null
   const { day, zoneId } = slots
-  const section = day && <ZoneSummary day={day} avalancheZoneId={zoneId} timezone={timezone} />
+  const tabLead = (issuance: NWACWeatherIssuance) => (
+    <WeatherTabLead issuance={issuance} avalancheZoneId={zoneId} />
+  )
   return (
     <>
-      {slots.forecast && section && createPortal(section, slots.forecast)}
-      {slots.tab && createPortal(section || <NoWeather />, slots.tab)}
+      {slots.forecast &&
+        day &&
+        createPortal(
+          <ZoneSummary day={day} avalancheZoneId={zoneId} timezone={timezone} />,
+          slots.forecast,
+        )}
+      {slots.tab &&
+        createPortal(
+          day ? (
+            <ZoneSummary day={day} avalancheZoneId={zoneId} timezone={timezone} lead={tabLead} />
+          ) : (
+            <NoWeather />
+          ),
+          slots.tab,
+        )}
     </>
   )
 }
