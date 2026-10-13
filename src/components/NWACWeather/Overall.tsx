@@ -482,6 +482,41 @@ function TableTitle({
   )
 }
 
+/** Label columns, in rem: the group column (a grouped table's zones) and the row labels. */
+const GROUP_REM = 8
+const LABEL_REM = 12
+/** A data column of a grouped table, which is sized to its columns rather than stretched. */
+const GROUPED_COL_REM = 5.5
+/** The narrowest a data column of a stretched table gets before the table scrolls instead. */
+const MIN_COL_REM = 5
+
+function labelRem(t: Table) {
+  return (t.groupColumn ? GROUP_REM : 0) + LABEL_REM
+}
+
+/**
+ * Fixed layout, so every data column of a table is the same width whatever its values: a grouped
+ * table at exactly its columns' width, the others across the page down to a scrolling minimum.
+ */
+function tableWidth(t: Table) {
+  const n = t.columns.length
+  return t.groupColumn
+    ? { width: `${labelRem(t) + n * GROUPED_COL_REM}rem` }
+    : { width: '100%', minWidth: `${labelRem(t) + n * MIN_COL_REM}rem` }
+}
+
+function TableColumns({ table: t }: { table: Table }) {
+  return (
+    <colgroup>
+      {t.groupColumn && <col style={{ width: `${GROUP_REM}rem` }} />}
+      <col style={{ width: `${LABEL_REM}rem` }} />
+      {t.columns.map((c) => (
+        <col key={c.key} />
+      ))}
+    </colgroup>
+  )
+}
+
 function GridTable({
   table: t,
   anchor,
@@ -497,7 +532,8 @@ function GridTable({
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
       {/* A grouped table is only as wide as its columns; stretched, its few periods sprawl. */}
       <div className={cn('overflow-x-auto rounded-md border', t.groupColumn && 'w-fit max-w-full')}>
-        <table className={cn('border-collapse text-sm', !t.groupColumn && 'w-full', 'min-w-max')}>
+        <table className="table-fixed border-collapse text-sm" style={tableWidth(t)}>
+          <TableColumns table={t} />
           <TableHead table={t} />
           <TableBody table={t} />
         </table>
