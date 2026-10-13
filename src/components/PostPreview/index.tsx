@@ -66,7 +66,7 @@ export const PostPreview = (props: {
             <ImageMedia
               imgClassName="w-full h-full object-cover transition-transform duration-300 "
               resource={featuredImage}
-              pictureClassName="w-full h-full"
+              pictureClassName="my-2 w-full h-full"
               sizes={imageSizes}
             />
           )}
