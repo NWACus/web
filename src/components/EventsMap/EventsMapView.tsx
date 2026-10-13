@@ -1,9 +1,11 @@
 'use client'
 
+import { ImageMedia } from '@/components/Media/ImageMedia'
 import { eventTypesData } from '@/constants/eventTypes'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import type { GetEventsResult } from '@/utilities/queries/getEvents'
+import { isValidRelationship } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 import { Loader2, MapPin } from 'lucide-react'
 import dynamic from 'next/dynamic'
@@ -25,24 +27,24 @@ const MAP_EVENTS_LIMIT = 200
 /** The page's filter params, which the events API reads in the same comma-separated format. */
 const FILTER_KEYS = ['types', 'startDate', 'endDate', 'groups', 'tags', 'modesOfTravel']
 
-// The list only scrolls on its own when it sits beside the map (Tailwind's `xl`).
+// The list and map sit side by side from Tailwind's `xl` up.
 const SIDE_BY_SIDE = '(min-width: 1280px)'
 
-type EventsState =
-  | { status: 'loading' }
-  | { status: 'error'; message: string }
-  | { status: 'ready'; events: Event[] }
+type Loaded = { events: Event[]; error: null } | { events: null; error: string }
+
+/** The last events loaded stay up while the next set loads, so pins and cards don't flash away. */
+type EventsState = (Loaded | { events: null; error: null }) & { loading: boolean }
 
 const NO_EVENTS: Event[] = []
 
-async function loadEvents(url: string, signal: AbortSignal): Promise<EventsState | null> {
+async function loadEvents(url: string, signal: AbortSignal): Promise<Loaded | null> {
   try {
     const result: GetEventsResult = await fetch(url, { signal }).then((res) => res.json())
     return result.error
-      ? { status: 'error', message: result.error }
-      : { status: 'ready', events: result.events }
+      ? { events: null, error: result.error }
+      : { events: result.events, error: null }
   } catch {
-    return signal.aborted ? null : { status: 'error', message: 'Failed to load events.' }
+    return signal.aborted ? null : { events: null, error: 'Failed to load events.' }
   }
 }
 
@@ -57,12 +59,12 @@ function useAllFilteredEvents(center: string): EventsState {
   query.set('limit', String(MAP_EVENTS_LIMIT))
   const queryString = query.toString()
 
-  const [state, setState] = useState<EventsState>({ status: 'loading' })
+  const [state, setState] = useState<EventsState>({ events: null, error: null, loading: true })
   useEffect(() => {
     const controller = new AbortController()
-    setState({ status: 'loading' })
+    setState((previous) => ({ ...previous, loading: true }))
     loadEvents(`/api/${center}/events?${queryString}`, controller.signal).then((next) => {
-      if (next) setState(next)
+      if (next) setState({ ...next, loading: false })
     })
     return () => controller.abort()
   }, [center, queryString])
@@ -139,6 +141,21 @@ function ShowOnMapButton({
   )
 }
 
+function EventThumbnail({ event }: { event: Event }) {
+  if (!isValidRelationship(event.thumbnailImage)) return null
+  return (
+    // The title links to the same page, so this one stays out of the tab order.
+    <Link href={`/events/${event.slug}`} tabIndex={-1} aria-hidden className="shrink-0">
+      <ImageMedia
+        resource={event.thumbnailImage}
+        pictureClassName="block h-16 w-16 overflow-hidden rounded"
+        imgClassName="h-full w-full object-cover"
+        sizes="64px"
+      />
+    </Link>
+  )
+}
+
 function EventMapCard({ event, selection }: { event: Event; selection: Selection }) {
   const key = placeKeyFor(event)
 
@@ -148,16 +165,23 @@ function EventMapCard({ event, selection }: { event: Event; selection: Selection
       onMouseEnter={() => selection.hover(key)}
       onMouseLeave={() => selection.hover(null)}
       className={cn(
-        'rounded-lg border bg-card text-card-foreground p-3 transition-colors',
+        // Scrolled into view from the map, a card stops clear of the sticky List/Map bar.
+        'flex gap-3 rounded-lg border bg-card text-card-foreground p-3 transition-colors scroll-mb-4 xl:scroll-mt-[calc(var(--view-bar)+0.5rem)]',
         selection.isSelected(key) && 'border-primary ring-2 ring-primary',
       )}
     >
-      <div className="text-xs text-muted-foreground">{eventMeta(event)}</div>
-      <Link href={`/events/${event.slug}`} className="font-semibold leading-tight hover:underline">
-        {event.title}
-      </Link>
-      <div className="text-sm text-muted-foreground">{describeWhere(event.location)}</div>
-      <ShowOnMapButton placeKey={key} selection={selection} />
+      <EventThumbnail event={event} />
+      <div className="min-w-0 flex-1">
+        <div className="text-xs text-muted-foreground">{eventMeta(event)}</div>
+        <Link
+          href={`/events/${event.slug}`}
+          className="font-semibold leading-tight hover:underline"
+        >
+          {event.title}
+        </Link>
+        <div className="text-sm text-muted-foreground">{describeWhere(event.location)}</div>
+        <ShowOnMapButton placeKey={key} selection={selection} />
+      </div>
     </li>
   )
 }
@@ -185,14 +209,14 @@ function UnplacedEvents({ events, selection }: { events: Event[]; selection: Sel
 }
 
 function EventsMapList({ state, selection }: { state: EventsState; selection: Selection }) {
-  if (state.status === 'loading') {
+  if (state.error) return <p className="text-destructive">{state.error}</p>
+  if (!state.events) {
     return (
       <div className="flex justify-center py-8">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     )
   }
-  if (state.status === 'error') return <p className="text-destructive">{state.message}</p>
   if (state.events.length === 0) {
     return (
       <p className="text-muted-foreground py-8 text-center">
@@ -209,20 +233,69 @@ function EventsMapList({ state, selection }: { state: EventsState; selection: Se
   )
 }
 
+/**
+ * Scrolls the whole map into view. Side by side, that's where it pins under the List/Map bar: its
+ * sticky `top`. Stacked, the map isn't sticky (`top` is `auto`), so just enough to show all of it.
+ */
+function revealMap(map: HTMLElement) {
+  const stickyTop = parseFloat(getComputedStyle(map).top)
+  if (Number.isNaN(stickyTop)) {
+    map.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    return
+  }
+  window.scrollBy({ top: map.getBoundingClientRect().top - stickyTop, behavior: 'smooth' })
+}
+
+function useRevealOnMount(mapRef: RefObject<HTMLDivElement | null>, reveal: boolean) {
+  const revealRef = useRef(reveal)
+  useEffect(() => {
+    if (revealRef.current && mapRef.current) revealMap(mapRef.current)
+  }, [mapRef])
+}
+
+/** The list column, which scrolls with the page while the map beside it stays put. */
+function ListPane({
+  state,
+  listRef,
+  selection,
+}: {
+  state: EventsState
+  listRef: RefObject<HTMLDivElement | null>
+  selection: Selection
+}) {
+  return (
+    <div ref={listRef} className="xl:order-1 xl:w-[380px] shrink-0">
+      {/* Dimmed while the next set loads; the last set stays up until it arrives. */}
+      <div className={cn('transition-opacity', state.loading && 'opacity-60')}>
+        <EventsMapList state={state} selection={selection} />
+      </div>
+    </div>
+  )
+}
+
 /** The events beside a map of the same events: pins and list items select each other. */
-export function EventsMapView({ center }: { center: string }) {
+export function EventsMapView({
+  center,
+  revealOnMount,
+}: {
+  center: string
+  revealOnMount: boolean
+}) {
   const state = useAllFilteredEvents(center)
-  const events = state.status === 'ready' ? state.events : NO_EVENTS
+  const events = state.events ?? NO_EVENTS
   const { places } = useMemo(() => groupEventsByPlace(events), [events])
   const listRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<HTMLDivElement>(null)
   const selection = useSelection(listRef, mapRef)
+  useRevealOnMount(mapRef, revealOnMount)
 
   return (
-    <div className="flex flex-col xl:flex-row gap-4 xl:h-[75vh]">
+    <div className="flex flex-col xl:flex-row xl:items-start gap-4">
+      {/* Side by side, the map pins under the sticky List/Map bar (--view-bar tall, set in
+          EventsResults) and fills the rest of the window while the page scrolls the list. */}
       <div
         ref={mapRef}
-        className="h-[360px] xl:h-auto xl:order-2 grow rounded-lg border overflow-hidden scroll-mt-4"
+        className="h-[360px] xl:sticky xl:top-[var(--view-bar)] xl:h-[calc(100dvh-var(--view-bar)-1rem)] xl:min-h-[400px] xl:order-2 grow rounded-lg border overflow-hidden scroll-mt-4"
       >
         <EventsMap
           places={places}
@@ -233,9 +306,7 @@ export function EventsMapView({ center }: { center: string }) {
           onClear={selection.clear}
         />
       </div>
-      <div ref={listRef} className="xl:order-1 xl:w-[340px] shrink-0 xl:overflow-y-auto xl:pr-1">
-        <EventsMapList state={state} selection={selection} />
-      </div>
+      <ListPane state={state} listRef={listRef} selection={selection} />
     </div>
   )
 }
