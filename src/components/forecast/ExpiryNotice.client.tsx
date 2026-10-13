@@ -27,8 +27,10 @@
  * Expiry is an absolute-instant comparison against `expires_time`; the noon valid-date rule applies
  * to which day a product is *for*, not to when it lapses.
  */
-import { TriangleAlert } from 'lucide-react'
+import { ClockAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
+
+import { ProductNotice } from './ProductNotice'
 
 /** `setTimeout` overflows past a signed 32-bit millisecond delay and fires immediately. */
 const MAX_TIMEOUT_MS = 2 ** 31 - 1
@@ -91,12 +93,8 @@ export function ExpiryNotice({ expiresTime, initiallyExpired }: ExpiryNoticeProp
   if (!expired) return null
 
   return (
-    <div
-      role="status"
-      className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
-    >
-      <TriangleAlert className="h-5 w-5 shrink-0" aria-hidden="true" />
-      <span>This product is expired.</span>
-    </div>
+    <ProductNotice icon={ClockAlert} role="status">
+      This product is expired.
+    </ProductNotice>
   )
 }

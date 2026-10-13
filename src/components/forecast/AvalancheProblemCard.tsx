@@ -6,6 +6,8 @@
  * Not a card of its own: the problems sit in the forecast's one panel under a shared heading, as
  * in the widget.
  */
+import type { ReactNode } from 'react'
+
 import { GlossaryProse } from '@/components/glossary/GlossaryProse.client'
 import {
   AvalancheProblemName,
@@ -17,6 +19,7 @@ import { cn } from '@/utilities/ui'
 
 import { labelHeading, subsectionHeading } from './forecastHeadings'
 import { forecastProse } from './forecastProse'
+import { InfoPopover } from './InfoPopover'
 import { toLightboxMedia, type LightboxMedia } from './lightboxMedia'
 import { LocatorRose } from './LocatorRose'
 import { getPosterUrl } from './mediaItem'
@@ -108,22 +111,11 @@ function ProblemAttributes({
   problem: AvalancheProblem
   elevationBandNames: ElevationBandNames | undefined
 }) {
-  const iconUrl = problemIconUrl(problem.name)
-
   return (
     <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4 printWide:grid-cols-4">
       <div className="mb-8 text-center">
         <h5 className={cn(labelHeading, 'mb-2')}>Problem Type</h5>
-        {iconUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={iconUrl}
-            alt=""
-            className="mx-auto mb-2.5 mt-6 h-[130px] w-[130px] sm:mt-5 sm:h-[170px] sm:w-[170px]"
-            aria-hidden="true"
-          />
-        )}
-        <div className="text-sm font-medium">{problem.name}</div>
+        <ProblemType problem={problem} />
       </div>
       <div className="mb-8 text-center">
         <h5 className={cn(labelHeading, 'mb-4')}>Aspect/Elevation</h5>
@@ -138,6 +130,52 @@ function ProblemAttributes({
         <SizeSlider size={problem.size} />
       </div>
     </div>
+  )
+}
+
+/**
+ * The type's icon over its name, as in the widget. The API's description of the type opens from
+ * the icon, or from the name for a type we have no icon for (Forecast-80). It is sanitized here, on
+ * the server: the popover is a client component that only renders it.
+ */
+function ProblemType({ problem }: { problem: AvalancheProblem }) {
+  const iconUrl = problemIconUrl(problem.name)
+  const description = sanitizeHtml(problem.problem_description).trim()
+  const explained = (trigger: ReactNode) =>
+    description ? (
+      <InfoPopover
+        html={description}
+        label={`What "${problem.name}" means`}
+        hint="Click to learn more"
+      >
+        {trigger}
+      </InfoPopover>
+    ) : (
+      trigger
+    )
+
+  return (
+    <>
+      {iconUrl &&
+        explained(
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={iconUrl}
+            alt=""
+            className="mx-auto mb-2.5 mt-6 block h-[130px] w-[130px] sm:mt-5 sm:h-[170px] sm:w-[170px]"
+            aria-hidden="true"
+          />,
+        )}
+      <div className="text-sm font-medium">
+        {iconUrl
+          ? problem.name
+          : explained(
+              <span className="underline decoration-dotted underline-offset-4">
+                {problem.name}
+              </span>,
+            )}
+      </div>
+    </>
   )
 }
 

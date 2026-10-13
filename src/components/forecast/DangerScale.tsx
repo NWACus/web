@@ -4,9 +4,9 @@
  * table of travel advice / likelihood / size and distribution per level, plus a link out to the
  * full danger-scale explainer.
  *
- * The heading is the disclosure trigger — the widget titles the legend that way, and a separate
- * "Danger scale definitions" toggle underneath was both extra wording the widget doesn't have and
- * a second thing competing for the same job. The table still opens below the color strip.
+ * The heading and color strip are the disclosure trigger — the widget titles the legend that way,
+ * and a separate "Danger scale definitions" toggle underneath was both extra wording the widget
+ * doesn't have and a second thing competing for the same job. The table opens below the strip.
  */
 import { ChevronRight } from 'lucide-react'
 import Image from 'next/image'
@@ -21,39 +21,39 @@ import {
 } from '@/services/nac/dangerScale'
 import { DangerLevel } from '@/services/nac/types/forecastSchemas'
 
+import { DangerScaleDisclosure } from './DangerScaleDisclosure.client'
 import { ExternalLink } from './ExternalLink'
 import { sanitizeHtml } from './sanitizeHtml'
 
 export function DangerScale() {
   return (
-    <details className="group text-xs">
-      {/* The heading and the color strip both live in the summary so the strip stays visible when
-          the definitions are collapsed — inside <details> but outside <summary>, it would not. */}
-      <summary className="cursor-pointer select-none list-none space-y-2 [&::-webkit-details-marker]:hidden">
-        <ScaleHeading />
-        <ColorStrip />
-      </summary>
-
+    <DangerScaleDisclosure
+      trigger={
+        <>
+          <ScaleHeading />
+          <ColorStrip />
+        </>
+      }
+      action={
+        <ExternalLink href={DANGER_SCALE_URL} className="font-normal">
+          Learn more
+        </ExternalLink>
+      }
+    >
       <DefinitionsTable />
-    </details>
+    </DangerScaleDisclosure>
   )
 }
 
 function ScaleHeading() {
   return (
-    <span className="flex items-center justify-between gap-2">
-      <span className="flex items-center gap-1 font-semibold">
-        <ChevronRight
-          // The disclosure affordance means nothing on paper.
-          className="h-4 w-4 shrink-0 transition-transform group-open:rotate-90 print:hidden"
-          aria-hidden="true"
-        />
-        Avalanche Danger Scale
-      </span>
-      {/* Opens in a new tab, so the toggle it also triggers is never seen. */}
-      <ExternalLink href={DANGER_SCALE_URL} className="font-normal">
-        Learn more
-      </ExternalLink>
+    <span className="flex items-center gap-1 font-semibold">
+      <ChevronRight
+        // The disclosure affordance means nothing on paper.
+        className="h-4 w-4 shrink-0 transition-transform group-data-[state=open]:rotate-90 print:hidden"
+        aria-hidden="true"
+      />
+      Avalanche Danger Scale
     </span>
   )
 }
@@ -132,11 +132,14 @@ function LevelHeaderCell({ level, rating }: { level: DangerLevel; rating: string
 
   return (
     <th className="p-1 text-center align-bottom font-semibold">
+      {/* Eager: the printed copy of the table is hidden on screen, so a lazy icon never loads
+          before the page prints. */}
       <Image
         src={dangerIconUrl(level)}
         alt={dangerName(level)}
         width={size.width}
         height={size.height}
+        loading="eager"
         className="mx-auto h-9 w-auto"
       />
       <div className="pt-1">

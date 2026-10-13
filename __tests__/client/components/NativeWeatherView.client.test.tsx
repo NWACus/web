@@ -76,4 +76,20 @@ describe('NativeWeatherView', () => {
     )
     expect(screen.getByRole('heading', { level: 1, name: 'Mountain Weather' })).toBeInTheDocument()
   })
+
+  it("puts an archived product's notice above the title, as the forecast page does", () => {
+    render(
+      <NativeWeatherView
+        weather={sac}
+        zones={[]}
+        timezone="America/Los_Angeles"
+        centerType={AvalancheCenterType.USFS}
+        archived
+      />,
+    )
+
+    const notice = screen.getByRole('link', { name: 'current Mountain Weather' })
+    const title = screen.getByRole('heading', { level: 1, name: 'Mountain Weather' })
+    expect(notice.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
 })

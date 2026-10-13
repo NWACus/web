@@ -73,6 +73,14 @@
       "scenario": "nothing published — v2's 200 all-null placeholder (captured at NWAC zone 3025, identical for every zone with no product); the live page shows \"The requested product doesn't exist\""
     },
     {
+      "center": "NWAC",
+      "zone": 1653,
+      "zoneSlug": "snoqualmie-pass",
+      "type": "forecast",
+      "fixture": "v2_public_product_forecast_no_outlook.json",
+      "scenario": "no outlook — danger has only a current entry, set up on staging (product 165008, staging's Snoqualmie Pass); the desktop column shows today's travel advice (Forecast-67)"
+    },
+    {
       "center": "SNFAC",
       "zone": 2906,
       "type": "warning",

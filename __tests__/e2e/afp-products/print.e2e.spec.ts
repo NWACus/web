@@ -145,7 +145,8 @@ test.describe('Printing a forecast', () => {
 
     const zoneHeading = page.getByRole('heading', {
       level: 1,
-      name: 'Soldier & Wood River Valley Mtns',
+      name: 'Backcountry Avalanche Forecast Soldier & Wood River Valley Mtns',
+      exact: true,
     })
     const header = page.locator('header')
     const footer = page.locator('footer')
@@ -251,9 +252,9 @@ test.describe('Printing a forecast', () => {
     page,
   }) => {
     // 800px is the one window where `printWide:` can be told apart from the breakpoint it shadows:
-    // wide enough for `printWide` (700) and not for `lg` (1024). So the screen stacks the two
-    // danger days and the print must not — which is only true if the `printWide:flex-row` twin on
-    // `DangerDayColumns` is there and sorts after `lg:`.
+    // wide enough for `printWide` (700) and not for `lg` (1024). So the screen folds tomorrow into
+    // a collapsed row under today and the print sets it beside today — which is only true if the
+    // `printWide:` twins on `DangerDayColumns` are there and sort after `lg:`.
     await page.setViewportSize(NARROWER_THAN_LG)
     await loadPage(page, FORECAST_URL)
 
@@ -299,6 +300,59 @@ test.describe('Printing a forecast', () => {
     await page.emulateMedia({ media: 'print' })
 
     await expect(cardContent.first()).toHaveCSS('padding-bottom', '16px')
+  })
+
+  test('pads the panel on paper only where a printed section needs it', async ({ page }) => {
+    await loadPage(page, FORECAST_URL)
+
+    const panel = page.locator('[data-print-panel]')
+    const danger = panel.locator('> [data-print-section="bottomLine"]')
+
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+
+    // The panel has no card header for its content to tuck under, so the heading needs the
+    // padding; and the sections left out still follow the danger section in the DOM, so
+    // `last:pb-0` alone left 48px of blank card under it.
+    await expect(panel).toHaveCSS('padding-top', '16px')
+    await expect(danger).toHaveCSS('padding-bottom', '0px')
+  })
+
+  test("keeps the bottom line's icon inside the card on paper, where the margin would clip it", async ({
+    page,
+  }) => {
+    await loadPage(page, FORECAST_URL)
+
+    const content = page.locator('[data-print-section="bottomLine"] [data-slot="card-content"]')
+    const card = content.first().locator('xpath=..')
+    const icon = card.locator('> img')
+
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+
+    const [iconBox, cardBox] = [await icon.boundingBox(), await card.boundingBox()]
+    expect(iconBox?.x).toBeGreaterThanOrEqual(cardBox?.x ?? Infinity)
+  })
+
+  test("prints the danger scale's definitions whether or not the reader opened them", async ({
+    page,
+  }) => {
+    await loadPage(page, FORECAST_URL)
+
+    const definitions = page.getByText('Likelihood of Avalanches').filter({ visible: true })
+    await expect(definitions).toHaveCount(0)
+
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+    await expect(definitions).toHaveCount(1)
+
+    // Opened on screen, the table must still print once, not once per copy.
+    await page.emulateMedia({ media: 'screen' })
+    await page.getByRole('button', { name: /Avalanche Danger Scale/ }).click()
+    await expect(definitions).toHaveCount(1)
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+    await expect(definitions).toHaveCount(1)
   })
 
   test('lays the printed page out the same from a phone and from a desktop', async ({
