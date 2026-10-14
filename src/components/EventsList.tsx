@@ -29,7 +29,7 @@ export const EventsList = ({
     endpoint={`/api/${center}/events`}
     filterKeys={FILTER_KEYS}
     itemsOf={eventsOf}
-    noun="events"
+    itemsLabel="events"
     className="@container"
     renderItem={(event) => (
       <div className="mb-8" key={event.id}>

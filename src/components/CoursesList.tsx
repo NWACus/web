@@ -31,7 +31,7 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
     endpoint="/api/courses/list"
     filterKeys={FILTER_KEYS}
     itemsOf={coursesOf}
-    noun="courses"
+    itemsLabel="courses"
     className="flex flex-col divide-y"
     renderItem={(course) => (
       <div key={course.id} className="py-4">

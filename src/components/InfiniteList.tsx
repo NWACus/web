@@ -24,8 +24,8 @@ interface InfiniteListOptions<T extends ListItem, R extends ListResult> {
   filterDefaults?: Record<string, string>
   /** Pulls the page's items out of the endpoint's result. Keep it stable: it's an effect dependency. */
   itemsOf: (result: R) => T[]
-  /** Plural noun for the list's messages, e.g. "events". */
-  noun: string
+  /** Plural label for the list's messages, e.g. "events". */
+  itemsLabel: string
 }
 
 interface InfiniteListProps<T extends ListItem, R extends ListResult>
@@ -90,7 +90,7 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
   filterKeys,
   filterDefaults = {},
   itemsOf,
-  noun,
+  itemsLabel,
 }: InfiniteListOptions<T, R>) => {
   const [items, setItems] = useState<T[]>(initialItems)
   const [offset, setOffset] = useState(initialItems.length)
@@ -165,7 +165,7 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
         setHasMoreData(result.hasMore)
       } catch (_error) {
         if (request.signal.aborted) return
-        setError(`An unexpected error occurred while loading more ${noun}.`)
+        setError(`An unexpected error occurred while loading more ${itemsLabel}.`)
         setHasMoreData(false)
       } finally {
         endRequest(requestRef, request, setIsLoading)
@@ -173,17 +173,17 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
     }
 
     loadMore()
-  }, [inView, hasMoreData, isLoading, offset, endpoint, filterQuery, itemsOf, noun])
+  }, [inView, hasMoreData, isLoading, offset, endpoint, filterQuery, itemsOf, itemsLabel])
 
   return { items, hasMoreData, isLoading, error, ref }
 }
 
-const ListError = ({ noun, error }: { noun: string; error: string }) => (
+const ListError = ({ itemsLabel, error }: { itemsLabel: string; error: string }) => (
   <Card className="p-6">
     <div className="flex flex-col items-center justify-center text-center space-y-4">
       <AlertCircle className="h-12 w-12 text-destructive" />
       <div className="space-y-2">
-        <h3 className="font-semibold text-lg capitalize">Error loading {noun}</h3>
+        <h3 className="font-semibold text-lg capitalize">Error loading {itemsLabel}</h3>
         <p className="text-muted-foreground">{error}</p>
       </div>
     </div>
@@ -199,13 +199,15 @@ export const InfiniteList = <T extends ListItem, R extends ListResult>({
   const { items, hasMoreData, isLoading, error, ref } = useInfiniteList(options)
 
   if (error) {
-    return <ListError noun={options.noun} error={error} />
+    return <ListError itemsLabel={options.itemsLabel} error={error} />
   }
 
   if (items.length === 0 && !isLoading) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">No {options.noun} found matching your criteria.</p>
+        <p className="text-muted-foreground">
+          No {options.itemsLabel} found matching your criteria.
+        </p>
       </div>
     )
   }

@@ -31,7 +31,7 @@ export const PostsList = ({
     filterKeys={FILTER_KEYS}
     filterDefaults={{ sort: defaultSort }}
     itemsOf={postsOf}
-    noun="posts"
+    itemsLabel="posts"
     className="@container"
     renderItem={(post) => (
       <div className="mb-8" key={post.id}>
