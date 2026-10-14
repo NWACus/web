@@ -11,6 +11,7 @@ import { useTenant } from '@/providers/TenantProvider'
 import { cn } from '@/utilities/ui'
 import * as Sentry from '@sentry/nextjs'
 import { DEFAULT_OBSERVATIONS_HEADING } from './config'
+import { observationsBlockMapZoom } from './mapZoom'
 import { observationsWidgetPath } from './widgetPath'
 
 type Props = ObservationsWidgetBlockProps & {
@@ -51,6 +52,7 @@ export const ObservationsWidgetBlockComponent = ({
   ...filters
 }: Props) => {
   const center = useObservationsCenter()
+  const { metadata } = useAvalancheCenter()
 
   if (!center) return null
 
@@ -64,9 +66,14 @@ export const ObservationsWidgetBlockComponent = ({
       <div className={cn('flex flex-col gap-4', { container: isLayoutBlock })}>
         {showHeader !== false && <Header heading={heading} />}
         <ObservationsDisclaimer />
-        {/* Keeps rich text typography off the widget's own markup */}
-        <div className="not-prose">
-          <NACWidget center={center} widget="observations" />
+        {/* not-prose keeps rich text typography off the widget's markup. The widget sizes itself
+            to the viewport for /observations; on a page it gets a fixed height instead. */}
+        <div className="not-prose [&_#nac-obs-app-main]:!h-[min(800px,80vh)] [&_#nac-observation-mobile-view]:!h-[min(800px,80vh)]">
+          <NACWidget
+            center={center}
+            widget="observations"
+            observationsMapZoom={observationsBlockMapZoom(metadata?.widget_config)}
+          />
         </div>
       </div>
     </div>

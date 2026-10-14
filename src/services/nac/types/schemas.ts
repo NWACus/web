@@ -128,6 +128,7 @@ export const avalancheCenterObservationViewerWidgetConfigurationSchema = z.objec
   obs_view_url: z.string().nullable().optional(),
   saturation: z.number(),
   require_approval: z.boolean().optional(),
+  map_zoom: z.number().optional().catch(undefined),
 })
 
 export enum Units {
@@ -173,6 +174,9 @@ export const avalancheCenterWidgetConfigurationSchema = z.object({
   observation_viewer: avalancheCenterObservationViewerWidgetConfigurationSchema.optional(),
   stations: avalancheCenterStationsWidgetConfigurationSchema.optional(),
 })
+export type AvalancheCenterWidgetConfiguration = z.infer<
+  typeof avalancheCenterWidgetConfigurationSchema
+>
 
 export const elevationBandNamesSchema = z.object({
   lower: z.string(),
