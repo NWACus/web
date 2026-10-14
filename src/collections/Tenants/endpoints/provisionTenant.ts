@@ -72,9 +72,9 @@ export const PAGES_TO_PROVISION: ReadonlyArray<{ slug: string; title: string }> 
   { slug: 'avalanche-accident-map', title: 'Avalanche Accident Map' },
 ]
 
-/** The PAGES_TO_PROVISION subset for info exchanges, which have no forecasts or classes. */
+/** The PAGES_TO_PROVISION subset for info exchanges, which have no forecasts, classes, or volunteers. */
 export const INFO_EXCHANGE_PAGES_TO_PROVISION = PAGES_TO_PROVISION.filter(({ slug }) =>
-  ['weather-tools', 'about-us', 'donate-membership', 'volunteer'].includes(slug),
+  ['weather-tools', 'learn', 'about-us', 'donate-membership'].includes(slug),
 )
 
 /**

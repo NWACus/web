@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "fda2e5dabd73a3db"
+sig = "011f97de0e209462"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -783,7 +783,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "967ee88679542b87"
+sig = "6032ba50c3ac85a7"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -1118,7 +1118,7 @@ sig = "32c2d60a25e1dced"
 [[bindings]]
 doc = "docs/decisions/023-info-exchange-derived-from-nac-platforms.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "967ee88679542b87"
+sig = "6032ba50c3ac85a7"
 
 [[bindings]]
 doc = "docs/decisions/023-info-exchange-derived-from-nac-platforms.md"
@@ -1283,7 +1283,7 @@ sig = "c62d9aedb3a11293"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "967ee88679542b87"
+sig = "6032ba50c3ac85a7"
 
 [[bindings]]
 doc = "docs/onboarding.md"
