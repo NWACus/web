@@ -49,6 +49,21 @@ Zone slugs come from the last path segment of each AFP zone's `url`, so confirm 
 
 ## Manual steps
 
+### Brand assets
+
+Provisioning fills Website Settings with placeholder images. Ask the center for these three, uploaded through the onboarding checklist link:
+
+| Asset | Shape | Recommended size | Where it shows |
+|-------|-------|------------------|----------------|
+| Logo | Square (1:1) | At least 512×512 px | Footer (up to 144px wide) and the center's card on the root landing page (192px square box) |
+| Icon | Square (1:1) | At least 96×96 px | Browser tab icon (favicon) |
+| Banner Logo | Horizontal, roughly 2:1 to 4:1 | At least 160 px tall; 300 px tall is ideal | Site header (80px tall on desktop, 36px on mobile, next to the USFS logo if set) and social share images (150px tall, 80px on zone pages) |
+
+- Use PNG or WebP with a transparent background. The header and footer sit on the center's theme colors, so a white or colored box around the mark shows.
+- Logo and banner sizes are at least twice the largest display size, so images stay sharp on high-DPI screens. Smaller uploads still work but look soft.
+- Browsers draw the icon at 16–32px, so use a simple mark that stays legible that small rather than the full logo. A non-square icon becomes a squashed or letterboxed favicon.
+- Don't reuse the square logo as the banner. It renders as a small square in the header instead of a wordmark.
+
 ### Theme
 
 Optional — the default theme works but centers will likely want their brand colors.

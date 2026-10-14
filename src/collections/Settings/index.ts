@@ -170,7 +170,7 @@ const brandAssetsFields: Field[] = [
     },
     admin: {
       description:
-        'Recommended: Use square (1:1) aspect ratio images for optimal display. Images with aspect ratios close to square are also acceptable.',
+        'Used in the footer. Recommended: a square (1:1) image, at least 512x512 pixels, with a transparent background.',
     },
     required: true,
   },
@@ -184,7 +184,7 @@ const brandAssetsFields: Field[] = [
     },
     admin: {
       description:
-        'Used as the browser tab icon. Recommended: Use a compressed, 96x96 pixel, square aspect ratio image.',
+        'Used as the browser tab icon. Recommended: a square (1:1) image, at least 96x96 pixels, simple enough to read at 16 pixels.',
     },
     required: true,
   },
@@ -197,7 +197,8 @@ const brandAssetsFields: Field[] = [
       mimeType: { contains: 'image' },
     },
     admin: {
-      description: 'Used in the header of your website next to the USFS logo if added.',
+      description:
+        'Used in the header of your website next to the USFS logo if added, and in link previews. Recommended: a horizontal image, at least 160 pixels tall (300 is ideal), with a transparent background.',
     },
     required: true,
   },
