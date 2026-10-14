@@ -9,18 +9,14 @@ import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
-import type {
-  NWACWeatherForecastDay,
-  NWACWeatherIssuance,
-  NWACWeatherZone,
-} from '@/services/nac/model/nwacWeather'
+import type { NWACWeatherForecastDay, NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
 import { issuanceLabel, issuanceShortLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
 
 import { DiscussionBody } from '@/components/forecast/DiscussionBody'
 import { IssuanceSwitch } from './IssuanceSwitch.client'
 
 import { IssuedMeta, formatIssued } from './Issued'
-import { ZoneExtended, ZoneTable } from './ZoneTable'
+import { ZoneTable } from './ZoneTable'
 
 interface ZoneSummaryProps {
   day: NWACWeatherForecastDay
@@ -32,46 +28,20 @@ function textOrNull(html: string | null | undefined): string | null {
   return html?.trim() ? html : null
 }
 
-function hasOutlook(
-  issuance: NWACWeatherIssuance,
-  zones: NWACWeatherZone[],
-  extended: string | null,
-) {
-  return !!extended || zones.some((z) => issuance.extendedSnowLevel[z.id])
-}
-
-function ExtendedOutlook({
-  issuance,
-  zones,
-  extended,
-}: {
-  issuance: NWACWeatherIssuance
-  zones: NWACWeatherZone[]
-  extended: string | null
-}) {
+function ExtendedOutlook({ extended }: { extended: string }) {
   return (
     <section className="space-y-3">
       <h4 className="text-base font-semibold">Extended Outlook</h4>
-      {extended && <DiscussionBody html={extended} />}
-      {zones.map((zone) => (
-        <ZoneExtended key={zone.id} issuance={issuance} zone={zone} />
-      ))}
+      <DiscussionBody html={extended} />
     </section>
   )
 }
 
 /** The region-wide part: synopsis and extended outlook. Nothing when the issuance has neither. */
-function OverallSection({
-  issuance,
-  zones,
-}: {
-  issuance: NWACWeatherIssuance
-  zones: NWACWeatherZone[]
-}) {
+function OverallSection({ issuance }: { issuance: NWACWeatherIssuance }) {
   const synopsis = textOrNull(issuance.synopsis)
   const extended = textOrNull(issuance.extendedOutlook)
-  const outlook = hasOutlook(issuance, zones, extended)
-  if (!synopsis && !outlook) return null
+  if (!synopsis && !extended) return null
   const headingId = `nwac-weather-overall-${issuance.id}`
   return (
     <section aria-labelledby={headingId} className="space-y-4 border-t pt-6">
@@ -84,7 +54,7 @@ function OverallSection({
           <DiscussionBody html={synopsis} />
         </section>
       )}
-      {outlook && <ExtendedOutlook issuance={issuance} zones={zones} extended={extended} />}
+      {extended && <ExtendedOutlook extended={extended} />}
     </section>
   )
 }
@@ -102,7 +72,7 @@ function IssuancePanel({
       {zones.map((zone) => (
         <ZoneTable key={zone.id} issuance={issuance} zone={zone} heading={zones.length > 1} />
       ))}
-      <OverallSection issuance={issuance} zones={zones} />
+      <OverallSection issuance={issuance} />
     </section>
   )
 }
