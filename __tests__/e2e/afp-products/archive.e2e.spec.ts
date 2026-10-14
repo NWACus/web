@@ -45,7 +45,13 @@ test.describe('Forecast archive', () => {
     const errors = await loadPage(page, `${FORECAST_URL}/2026-04-05`)
 
     // Inventory row X6, archived half.
-    await expect(page.getByText('This is an archived product.')).toBeVisible()
+    const notice = page.getByText('This is an archived product.')
+    await expect(notice).toBeVisible()
+    // The widget's order (Forecast-2): the notice sits above the title, not under it.
+    const noticeBox = await notice.boundingBox()
+    const titleBox = await page.getByRole('heading', { level: 1 }).boundingBox()
+    if (!noticeBox || !titleBox) throw new Error('notice or title has no box')
+    expect(noticeBox.y).toBeLessThan(titleBox.y)
     await expect(page.getByRole('link', { name: 'most recent forecast' })).toHaveAttribute(
       'href',
       `/forecasts/avalanche/${SLUG}`,

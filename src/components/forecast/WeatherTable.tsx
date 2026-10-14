@@ -7,7 +7,7 @@
  */
 import type { RowColumnWeatherData } from '@/services/nac/model/forecast'
 
-import { WeatherInfoHint } from './WeatherInfoHint'
+import { InfoPopover } from './InfoPopover'
 import { sanitizeHtml } from './sanitizeHtml'
 
 /** Coerce the wire colspan (string | number | undefined) to a positive integer. */
@@ -67,7 +67,12 @@ export function WeatherTable({ table }: { table: RowColumnWeatherData }) {
               <td className="whitespace-nowrap border px-3 py-2 text-left align-middle">
                 <span className="font-medium">{row.heading}</span>
                 {/* Sanitizing stays on the server; the hint is a client component that only renders it. */}
-                {row.help && <WeatherInfoHint html={sanitizeHtml(row.help)} field={row.heading} />}
+                {row.help && (
+                  <InfoPopover
+                    html={sanitizeHtml(row.help)}
+                    label={`What "${row.heading}" means`}
+                  />
+                )}
               </td>
               {(data[rowIndex] ?? []).map((cell, colIndex) => {
                 const show = cell.value != null && cell.value !== '' && cell.value !== '-'

@@ -1,4 +1,10 @@
-import { dangerColor, dangerIconUrl, dangerName, dangerTextColor } from '@/services/nac/dangerScale'
+import {
+  dangerColor,
+  dangerIconUrl,
+  dangerName,
+  dangerTextColor,
+  elevationBandsUrl,
+} from '@/services/nac/dangerScale'
 import { DangerLevel } from '@/services/nac/types/forecastSchemas'
 
 describe('dangerName', () => {
@@ -54,5 +60,28 @@ describe('dangerIconUrl', () => {
     [DangerLevel.GeneralInformation, '/images/danger-icons/0.png'],
   ])('returns correct path for level %i', (level, expected) => {
     expect(dangerIconUrl(level)).toBe(expected)
+  })
+})
+
+// Forecast-60: the link follows the center's own setting, and is dropped when there is none.
+describe('elevationBandsUrl', () => {
+  const center = (forecast: { elevInfoUrl: string } | undefined) => ({
+    widget_config: {
+      forecast: forecast && { color: '', glossary: false, tabs: [], ...forecast },
+    },
+  })
+
+  it("returns the center's configured page", () => {
+    expect(elevationBandsUrl(center({ elevInfoUrl: 'https://example.org/bands/' }))).toBe(
+      'https://example.org/bands/',
+    )
+  })
+
+  it.each([
+    ['blank', center({ elevInfoUrl: '' })],
+    ['whitespace', center({ elevInfoUrl: '  ' })],
+    ['no forecast config', center(undefined)],
+  ])('returns null for %s', (_, metadata) => {
+    expect(elevationBandsUrl(metadata)).toBeNull()
   })
 })

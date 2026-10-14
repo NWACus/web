@@ -52,9 +52,43 @@
   html[data-print-sections] [data-slot='card-header'] {
     padding-bottom: 0.5rem;
   }
-  html[data-print-sections] [data-slot='card-content'],
-  html[data-print-sections] [data-slot='card-footer'] {
+  html[data-print-sections] [data-slot='card-header'] + [data-slot='card-content'],
+  html[data-print-sections] [data-slot='card-content'] + [data-slot='card-footer'] {
     padding-top: 0;
+  }
+  /* The bottom line's danger icon overhangs the card's top-left corner by 35px; keep its heading
+     clear of it. */
+  html[data-print-sections] [data-print-section='bottomLine'] [data-slot='card-content'] {
+    padding-top: 2.25rem;
+  }
+
+  /* The forecast panel rules its sections apart with `divide-y` and `py-12 first:pt-0 last:pb-0`,
+     which count the sections the reader left out: printing only the danger section kept its 48px
+     of bottom padding. On paper a section gets the rule and its space only after a printed one. */
+  html[data-print-sections] [data-print-panel] > [data-print-section] {
+    border-top-width: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  html[data-print-sections~='bottomLine']
+    [data-print-panel]
+    > [data-print-section='bottomLine']
+    ~ [data-print-section],
+  html[data-print-sections~='problems']
+    [data-print-panel]
+    > [data-print-section='problems']
+    ~ [data-print-section],
+  html[data-print-sections~='discussion']
+    [data-print-panel]
+    > [data-print-section='discussion']
+    ~ [data-print-section],
+  html[data-print-sections~='weather']
+    [data-print-panel]
+    > [data-print-section='weather']
+    ~ [data-print-section] {
+    border-top-width: 1.5px;
+    margin-top: 3rem;
+    padding-top: 3rem;
   }
 
   /* The container's responsive gutters are dead weight next to a physical page margin, and the

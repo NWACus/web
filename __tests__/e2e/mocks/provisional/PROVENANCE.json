@@ -28,6 +28,15 @@
       "blocks": "The live zone page's \"The requested product doesn't exist\" state (Forecast-176). The corpus's forecast nomatch is the error page v2 sends for an unknown zone id, which reads as a failed read.",
       "url": "https://api.avalanche.org/v2/public/product?type=forecast&center_id=NWAC&zone_id=3025",
       "capturedAt": "2026-10-08"
+    },
+    {
+      "file": "v2_public_product_forecast_no_outlook.json",
+      "host": "https://staging-api.avalanche.org",
+      "path": "/v2/public/product/165008",
+      "upstreamCase": "not yet filed",
+      "blocks": "The desktop travel-advice column that stands in for a missing outlook (Forecast-67). Every SNFAC, SAC and NWAC forecast carries a tomorrow entry, even a blank one, so the shape is set up on staging.",
+      "url": "https://staging-api.avalanche.org/v2/public/product/165008",
+      "capturedAt": "2026-10-12"
     }
   ]
 }

@@ -1,6 +1,14 @@
 import { TZDate, tz, tzName } from '@date-fns/tz'
 import { isSameDay, isSameYear } from 'date-fns'
 import { format } from 'date-fns/format'
+import { COURSE_TIMEZONE_OPTIONS } from './timezones'
+
+const zoneName = (timeZone: string, date: Date) => {
+  const name = tzName(timeZone, date, 'short')
+  return /^GMT[+-]/.test(name)
+    ? (COURSE_TIMEZONE_OPTIONS.find((option) => option.value === timeZone)?.abbreviation ?? name)
+    : name
+}
 
 export const formatDateTime = (
   dateString: string,
@@ -11,7 +19,7 @@ export const formatDateTime = (
 
   return tz && formatStr.includes('zzz')
     ? // date-fns renders zzz as a GMT offset, so swap it for the zone's abbreviation (PST, MDT).
-      `${format(date, formatStr.replace(/zzz/g, '')).trimEnd()} ${tzName(tz, date, 'short')}`
+      `${format(date, formatStr.replace(/zzz/g, '')).trimEnd()} ${zoneName(tz, date)}`
     : format(date, formatStr)
 }
 

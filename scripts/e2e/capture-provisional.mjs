@@ -10,7 +10,7 @@
  *
  * Scrubbing mirrors products-api's SCRUB_POLICY.md, verified field-by-field against the shape of
  * the committed `v2_public_center_SNFAC.json`: personal/contact emails become test@example.com,
- * widget_config API tokens become test_token_scrubbed. A center's published phone number stays —
+ * a personal author becomes Test Author A, widget_config API tokens become test_token_scrubbed. A center's published phone number stays —
  * the corpus keeps SNFAC's — as do organisational names, zone geometry and ids.
  *
  *   node scripts/e2e/capture-provisional.mjs                # re-capture every registered target
@@ -26,6 +26,8 @@ const provisionalDir = join(repoRoot, '__tests__/e2e/mocks/provisional')
 const manifestPath = join(provisionalDir, 'PROVENANCE.json')
 
 const NAC_HOST = 'https://api.avalanche.org'
+/** For a shape production never publishes, set up by hand on staging and captured from there. */
+const STAGING_NAC_HOST = 'https://staging-api.avalanche.org'
 
 /**
  * Every provisional capture, with the upstream Case that retires it. Keep this list short and
@@ -55,9 +57,30 @@ const TARGETS = [
     blocks:
       "The live zone page's \"The requested product doesn't exist\" state (Forecast-176). The corpus's forecast nomatch is the error page v2 sends for an unknown zone id, which reads as a failed read.",
   },
+  {
+    file: 'v2_public_product_forecast_no_outlook.json',
+    // Published on staging at Snoqualmie Pass (staging's zone 2168) with only a `current` danger
+    // entry, and fetched by id because a later test forecast is that zone's latest. The suite
+    // serves it at production's Snoqualmie Pass, 1653. By id, v2 omits the live answer's
+    // `json_data`, which is null there and which the page doesn't read.
+    host: STAGING_NAC_HOST,
+    path: '/v2/public/product/165008',
+    upstreamCase: 'not yet filed',
+    // A blank outlook still arrives as a `tomorrow` entry, which the page shows as one.
+    expect: (body) =>
+      Array.isArray(body.danger) &&
+      body.danger.length > 0 &&
+      body.danger.every((entry) => entry.valid_day !== 'tomorrow'),
+    expectation: 'a published forecast whose danger has no tomorrow entry',
+    blocks:
+      'The desktop travel-advice column that stands in for a missing outlook (Forecast-67). Every SNFAC, SAC and NWAC forecast carries a tomorrow entry, even a blank one, so the shape is set up on staging.',
+  },
 ]
 
 const EMAIL = /[\w.+-]+@[\w-]+\.[\w.-]+/g
+/** The policy's sentinel for a personal `author` / `created_by`. */
+const AUTHOR = 'Test Author A'
+const PERSONAL_NAME_KEYS = new Set(['author', 'created_by'])
 /** A widget API token: lowercase hex, 32+ chars, under a widget_config ancestor. */
 const HEX_TOKEN = /^[a-f0-9]{32,}$/
 
@@ -73,6 +96,7 @@ function scrub(value, path = []) {
   if (typeof value !== 'string') return value
 
   const key = path[path.length - 1]
+  if (PERSONAL_NAME_KEYS.has(key) && value !== '') return AUTHOR
   if (key === 'token' && path.includes('widget_config') && HEX_TOKEN.test(value)) {
     return 'test_token_scrubbed'
   }
@@ -89,6 +113,9 @@ function leaks(value, path = []) {
   if (typeof value !== 'string') return found
 
   const where = path.join('.')
+  const key = path[path.length - 1]
+  if (PERSONAL_NAME_KEYS.has(key) && value !== '' && value !== AUTHOR)
+    found.push(`${where}: ${value}`)
   if (EMAIL.test(value) && !value.includes('test@example.com')) found.push(`${where}: ${value}`)
   EMAIL.lastIndex = 0
   if (HEX_TOKEN.test(value) && value !== 'test_token_scrubbed') found.push(`${where}: <hex token>`)
@@ -121,18 +148,23 @@ async function capture() {
   )
 
   for (const target of targets) {
-    const url = `${NAC_HOST}${target.path}`
+    const url = `${target.host ?? NAC_HOST}${target.path}`
     const res = await fetch(url)
     if (!res.ok) throw new Error(`GET ${url} -> ${res.status}`)
 
-    const scrubbed = scrub(await res.json())
+    const body = await res.json()
+    if (target.expect && !target.expect(body)) {
+      throw new Error(`Refusing to write ${target.file} — ${url} is not ${target.expectation}`)
+    }
+    const scrubbed = scrub(body)
     const remaining = leaks(scrubbed)
     if (remaining.length > 0) {
       throw new Error(`Refusing to write ${target.file} — unscrubbed:\n  ${remaining.join('\n  ')}`)
     }
 
     writeFileSync(join(provisionalDir, target.file), `${JSON.stringify(scrubbed, null, 2)}\n`)
-    files.push({ ...target, url, capturedAt: new Date().toISOString().slice(0, 10) })
+    const { expect: _expect, expectation: _expectation, ...record } = target
+    files.push({ ...record, url, capturedAt: new Date().toISOString().slice(0, 10) })
     console.log(`Captured ${target.file}`)
   }
 
