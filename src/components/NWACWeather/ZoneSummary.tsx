@@ -1,9 +1,9 @@
 /**
  * The zone's Mountain Weather under its avalanche forecast: one issuance at a time (newest first,
  * with a switch to the other), each leading with the zone's sensible weather and table, then an
- * Overall section: the region-wide synopsis and the extended outlook. Rendered in the browser
- * (it goes into the widget, see WidgetZoneWeather), so the synopsis and outlook arrive already
- * sanitized by the route that serves the day.
+ * Overall section: the region-wide synopsis. The extended outlook and its snow levels are left
+ * to the Mountain Weather page. Rendered in the browser (it goes into the widget, see
+ * WidgetZoneWeather), so the synopsis arrives already sanitized by the route that serves the day.
  */
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
@@ -28,33 +28,20 @@ function textOrNull(html: string | null | undefined): string | null {
   return html?.trim() ? html : null
 }
 
-function ExtendedOutlook({ extended }: { extended: string }) {
-  return (
-    <section className="space-y-3">
-      <h4 className="text-base font-semibold">Extended Outlook</h4>
-      <DiscussionBody html={extended} />
-    </section>
-  )
-}
-
-/** The region-wide part: synopsis and extended outlook. Nothing when the issuance has neither. */
+/** The region-wide part: the synopsis. Nothing when the issuance has none. */
 function OverallSection({ issuance }: { issuance: NWACWeatherIssuance }) {
   const synopsis = textOrNull(issuance.synopsis)
-  const extended = textOrNull(issuance.extendedOutlook)
-  if (!synopsis && !extended) return null
+  if (!synopsis) return null
   const headingId = `nwac-weather-overall-${issuance.id}`
   return (
     <section aria-labelledby={headingId} className="space-y-4 border-t pt-6">
       <h3 id={headingId} className="text-lg font-semibold">
         Overall
       </h3>
-      {synopsis && (
-        <section className="space-y-2">
-          <h4 className="text-base font-semibold">Weather Synopsis</h4>
-          <DiscussionBody html={synopsis} />
-        </section>
-      )}
-      {extended && <ExtendedOutlook extended={extended} />}
+      <section className="space-y-2">
+        <h4 className="text-base font-semibold">Weather Synopsis</h4>
+        <DiscussionBody html={synopsis} />
+      </section>
     </section>
   )
 }

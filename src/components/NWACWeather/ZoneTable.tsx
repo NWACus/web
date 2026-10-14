@@ -6,7 +6,6 @@
  */
 import type {
   NWACWeatherBlock,
-  NWACWeatherExtendedBlock,
   NWACWeatherIssuance,
   NWACWeatherPeriod,
   NWACWeatherPoint,
@@ -576,96 +575,7 @@ export function ZoneTable({
       <div className="space-y-2">
         <PeriodTable issuance={issuance} zone={zone} periods={periods} />
         <PeriodCards issuance={issuance} zone={zone} periods={periods} />
-        <ExtendedStrip issuance={issuance} zone={zone} />
       </div>
     </section>
-  )
-}
-
-/** An extended block's header: its date with a sun or moon, and its part of day beneath. */
-function ExtendedHeadCell({ block }: { block: NWACWeatherExtendedBlock }) {
-  return (
-    <th scope="col" className={cn(HEAD, 'border-b')}>
-      <DayNightDate date={fmtCalendarDate(block.date)} night={block.part === 'Night'} />
-      <span className="block text-xs font-normal text-muted-foreground">{block.part}</span>
-    </th>
-  )
-}
-
-function ExtendedStripHead({
-  zone,
-  blocks,
-}: {
-  zone: NWACWeatherZone
-  blocks: NWACWeatherExtendedBlock[]
-}) {
-  return (
-    <thead className="bg-muted">
-      <tr>
-        <th scope="col" className="border-b border-r p-2 pl-3 text-left text-xs font-semibold">
-          Extended · {zone.name}
-        </th>
-        {blocks.map((b) => (
-          <ExtendedHeadCell key={b.key} block={b} />
-        ))}
-      </tr>
-    </thead>
-  )
-}
-
-function ExtendedStripRow({
-  blocks,
-  values,
-}: {
-  blocks: NWACWeatherExtendedBlock[]
-  values: (number | null)[]
-}) {
-  const tones = snowLevelTones(values)
-  return (
-    <tr>
-      <th scope="row" className={ROW_LABEL}>
-        Snow level
-        <Unit>ft</Unit>
-      </th>
-      {blocks.map((b, i) => (
-        <td key={b.key} className="border-l border-t p-1.5">
-          <LevelValue level={values[i]} tone={tones[i]} />
-        </td>
-      ))}
-    </tr>
-  )
-}
-
-/**
- * The zone's extended snow levels (afternoon issuances, a few zones), as a strip right under the
- * main table: the same label column, the outlook's periods as its columns, the zone it is for in
- * its corner. Every width, scrolling sideways on a phone if it has to.
- */
-function ExtendedStrip({
-  issuance,
-  zone,
-}: {
-  issuance: NWACWeatherIssuance
-  zone: NWACWeatherZone
-}) {
-  const levels = issuance.extendedSnowLevel[zone.id]
-  const blocks = issuance.extendedBlocks
-  if (!levels || blocks.length === 0) return null
-  const values = blocks.map((b) => deriveSnowLevel(levels[b.key]?.freezing, levels[b.key]?.drop))
-  return (
-    <div className="overflow-x-auto rounded-md border">
-      <table className="w-full min-w-[28rem] table-fixed border-collapse text-sm">
-        <colgroup>
-          <col className="w-28 md:w-48" />
-          {blocks.map((b) => (
-            <col key={b.key} />
-          ))}
-        </colgroup>
-        <ExtendedStripHead zone={zone} blocks={blocks} />
-        <tbody>
-          <ExtendedStripRow blocks={blocks} values={values} />
-        </tbody>
-      </table>
-    </div>
   )
 }
