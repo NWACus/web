@@ -1,6 +1,7 @@
 import { ButtonBlock } from '@/blocks/Button/config'
 import { CalloutBlock } from '@/blocks/Callout/config'
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
+import { ObservationsWidgetBlock } from '@/blocks/ObservationsWidget/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import { isSharedContentCollection } from '@/constants/sharedContent'
 import type { Page } from '@/payload-types'
@@ -10,7 +11,9 @@ type DataObject = Record<string, unknown>
 
 // Includes both top-level page layout blocks AND Lexical-embedded blocks (e.g. ButtonBlock inside richText)
 const allBlocksMap = new Map(
-  [...DEFAULT_BLOCKS, NACMediaBlock, ButtonBlock, CalloutBlock].map((b) => [b.slug, b]),
+  [...DEFAULT_BLOCKS, NACMediaBlock, ObservationsWidgetBlock, ButtonBlock, CalloutBlock].map(
+    (b) => [b.slug, b],
+  ),
 )
 
 function isDataObject(value: unknown): value is DataObject {
@@ -25,15 +28,21 @@ function pointsOnlyAtSharedContent(relationTo: string | string[]): boolean {
   return targets.every(isSharedContentCollection)
 }
 
+// References to tenant-scoped documents, and fields flagged `custom: { tenantScoped: true }`
+function holdsTenantScopedValue(field: Field): boolean {
+  if (field.type === 'relationship' || field.type === 'upload') {
+    return !pointsOnlyAtSharedContent(field.relationTo)
+  }
+  return field.custom?.tenantScoped === true
+}
+
 function clearFieldValuesInPlace(data: DataObject, fields: Field[]): void {
   // Strip 'id' (not fields like 'videoId') so new IDs are assigned on create
   Reflect.deleteProperty(data, 'id')
 
   for (const field of fields) {
-    if (field.type === 'relationship' || field.type === 'upload') {
-      if (!pointsOnlyAtSharedContent(field.relationTo)) {
-        Reflect.deleteProperty(data, field.name)
-      }
+    if ('name' in field && holdsTenantScopedValue(field)) {
+      Reflect.deleteProperty(data, field.name)
     } else if (field.type === 'group') {
       if ('name' in field) {
         const groupData = data[field.name]
@@ -102,8 +111,9 @@ function clearLexicalBlockRelationshipsInPlace(lexicalData: DataObject): void {
 }
 
 /**
- * Clears tenant-scoped relationship and upload fields from a page layout so
- * they can be repopulated after duplication. Shared Content references are kept.
+ * Clears tenant-scoped values (relationship and upload fields, and fields flagged
+ * `custom: { tenantScoped: true }`) from a page layout so they can be repopulated
+ * after duplication. Shared Content references are kept.
  */
 export function clearLayoutRelationships(layout: Page['layout']): Page['layout'] {
   if (!Array.isArray(layout)) return layout

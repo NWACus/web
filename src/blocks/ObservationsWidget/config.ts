@@ -71,6 +71,8 @@ export const ObservationsWidgetBlock: Block = {
           name: 'zones',
           type: 'text',
           hasMany: true,
+          // Zone names belong to one center, so a page copied to another center drops them
+          custom: { tenantScoped: true },
           admin: {
             description: 'Leave empty to show every zone.',
             components: {

@@ -21,8 +21,9 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
+import { Pages } from '@/collections/Pages'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
-import type { Payload, PayloadRequest } from 'payload'
+import type { Field, Payload, PayloadRequest } from 'payload'
 import { getPayload } from 'payload'
 
 const mockFind = jest.fn()
@@ -52,6 +53,17 @@ function buildRequest(
     routeParams: tenantSlug !== undefined ? { tenantSlug } : undefined,
     json: async () => body,
   } as unknown as PayloadRequest
+}
+
+// The block slugs a Page's layout field offers
+function layoutBlockSlugs(fields: Field[]): string[] {
+  return fields.flatMap((field) => {
+    if (field.type === 'tabs') return field.tabs.flatMap((tab) => layoutBlockSlugs(tab.fields))
+    if (field.type === 'blocks' && field.name === 'layout') {
+      return field.blocks.flatMap((block) => (typeof block === 'string' ? [] : [block.slug]))
+    }
+    return []
+  })
 }
 
 describe('duplicatePageToTenant', () => {
@@ -116,6 +128,40 @@ describe('duplicatePageToTenant', () => {
     const layout = mockCreate.mock.calls[0][0].data.layout
     expect(layout[0]).not.toHaveProperty('post')
     expect(layout[0]).toHaveProperty('backgroundColor', 'red')
+  })
+
+  // A kept block id collides with the source page's row, since block ids are primary keys
+  it('gives every block a page layout offers a new id', async () => {
+    const slugs = layoutBlockSlugs(Pages.fields)
+    expect(slugs).toContain('observationsWidget')
+
+    const req = buildRequest('42', {
+      newPage: {
+        title: 'About',
+        slug: 'about',
+        layout: slugs.map((blockType) => ({ blockType, id: `${blockType}-row` })),
+      },
+    })
+    await duplicatePageToTenant(req)
+    const layout: unknown[] = mockCreate.mock.calls[0][0].data.layout
+    expect(layout).toHaveLength(slugs.length)
+    layout.forEach((block) => expect(block).not.toHaveProperty('id'))
+  })
+
+  it("drops the Observations Widget's zones, which belong to the source center", async () => {
+    const req = buildRequest('42', {
+      newPage: {
+        title: 'About',
+        slug: 'about',
+        layout: [
+          { blockType: 'observationsWidget', dateRange: 'pastWeek', zones: ['Stevens Pass'] },
+        ],
+      },
+    })
+    await duplicatePageToTenant(req)
+    const layout = mockCreate.mock.calls[0][0].data.layout
+    expect(layout[0]).not.toHaveProperty('zones')
+    expect(layout[0]).toHaveProperty('dateRange', 'pastWeek')
   })
 
   it('falls back to empty layout when newPage.layout is absent', async () => {
