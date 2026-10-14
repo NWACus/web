@@ -3310,7 +3310,7 @@ export interface Setting {
    */
   logo: number | Media;
   /**
-   * Used as the browser tab icon. Recommended: a square (1:1) image, at least 300x300 pixels.
+   * Used as the browser tab icon. Recommended: a square (1:1) image, at least 96x96 pixels, simple enough to read at 16 pixels.
    */
   icon: number | Media;
   /**
