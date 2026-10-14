@@ -129,6 +129,7 @@ export const avalancheCenterObservationViewerWidgetConfigurationSchema = z.objec
   saturation: z.number(),
   require_approval: z.boolean().optional(),
   map_zoom: z.number().optional().catch(undefined),
+  obs_start_year: z.number().optional().catch(undefined),
 })
 
 export enum Units {

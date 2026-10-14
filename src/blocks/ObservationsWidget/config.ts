@@ -1,5 +1,5 @@
 import type { Block } from 'payload'
-import { DATE_RANGES, DEFAULT_DATE_RANGE } from './widgetPath'
+import { DEFAULT_DATE_RANGE, isValidDateRange } from './widgetPath'
 
 export const DEFAULT_OBSERVATIONS_HEADING = 'Recent Observations'
 
@@ -53,13 +53,18 @@ export const ObservationsWidgetBlock: Block = {
         },
         {
           name: 'dateRange',
-          type: 'select',
-          options: DATE_RANGES.map(({ value, label }) => ({ value, label })),
+          type: 'text',
           defaultValue: DEFAULT_DATE_RANGE,
           required: true,
+          validate: (value: string | null | undefined) =>
+            (typeof value === 'string' && isValidDateRange(value, new Date())) ||
+            'Pick a date range from the list.',
           admin: {
             description:
-              'Counted back from the day someone views the page. Links and bookmarks keep the dates from the day they were copied or saved.',
+              'Ranges count back from the day someone views the page; a past season always shows that whole season. Links and bookmarks keep the dates from the day they were copied or saved.',
+            components: {
+              Field: '@/blocks/ObservationsWidget/DateRangeField#DateRangeField',
+            },
           },
         },
         {
