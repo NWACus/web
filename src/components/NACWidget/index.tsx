@@ -88,12 +88,15 @@ export function NACWidget({
   widget,
   mediaMode,
   mapHeight,
+  observationsMapZoom,
 }: {
   center: string
   widget: Widget
   mediaMode?: 'carousel' | 'grid'
   /** Pixel height of the danger map, passed as `mapWidgetData.height`. Only used when `widget` is `'map'`. */
   mapHeight?: number
+  /** Starting map zoom, passed as `obsWidgetData.zoom` in place of the center's AFP setting. Only used when `widget` is `'observations'`. */
+  observationsMapZoom?: number
 }) {
   const { version, baseUrl, devMode } = useNACWidgetsConfig()
   const widgetId = `nac-widget-${widget}`
@@ -127,6 +130,7 @@ export function NACWidget({
       controlledMount: true,
       ...(widget === 'media' && { mode: mediaMode }),
       ...(widget === 'map' && { height: mapHeight }),
+      ...(widget === 'observations' && { zoom: observationsMapZoom }),
     }
 
     window[widgetDataKey] = widgetData
