@@ -23,7 +23,7 @@ describe('Overall', () => {
     ]) {
       expect(screen.getByRole('heading', { name: title })).toBeInTheDocument()
     }
-    expect(screen.getByText('Hurricane Ridge')).toBeInTheDocument()
+    expect(screen.getAllByText('Hurricane Ridge').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Olympics').length).toBeGreaterThan(0)
     // 53 / 47 °F for Olympics on Night 1, as entered.
     const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
@@ -54,11 +54,16 @@ describe('Overall', () => {
     expect(synopsis?.parentElement).not.toHaveClass('grid')
   })
 
-  it('groups snow stations under their zones', () => {
+  it('groups snow stations under their zones: a zone column, and heading rows for a phone', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     const snow = screen.getByRole('region', { name: 'Snow (in)' })
-    expect(within(snow).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
-    expect(within(snow).getByRole('rowheader', { name: 'Hurricane Ridge' })).toBeInTheDocument()
+    const [wide, phone] = within(snow).getAllByRole('table')
+    expect(within(wide).getByRole('columnheader', { name: 'Zone' })).toBeInTheDocument()
+    expect(within(phone).queryByRole('columnheader', { name: 'Zone' })).toBeNull()
+    for (const table of [wide, phone]) {
+      expect(within(table).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
+      expect(within(table).getByRole('rowheader', { name: 'Hurricane Ridge' })).toBeInTheDocument()
+    }
   })
 
   it('has no extended table on a morning issuance', () => {

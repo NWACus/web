@@ -397,14 +397,18 @@ function GroupColumnBody({ table: t }: { table: Table }) {
                 <th
                   scope="rowgroup"
                   rowSpan={g.rows.length}
-                  className="whitespace-nowrap border-t p-2 pl-3 text-left align-top font-semibold"
+                  className="border-t p-2 pl-3 text-left align-top font-semibold md:whitespace-nowrap"
                 >
                   {g.label ?? DASH}
                 </th>
               )}
               <th
                 scope="row"
-                className={cn(STICKY, rule, 'whitespace-nowrap bg-card p-2 text-left font-normal')}
+                className={cn(
+                  STICKY,
+                  rule,
+                  'bg-card p-2 text-left font-normal md:whitespace-nowrap',
+                )}
               >
                 {r.label}
               </th>
@@ -428,6 +432,18 @@ function TableBody({ table: t }: { table: Table }) {
     <tbody>
       {t.groups.map((g) => (
         <Fragment key={g.key}>
+          {g.label && (
+            <tr>
+              <th
+                scope="rowgroup"
+                colSpan={t.columns.length + 1}
+                className="border-t bg-muted/50 px-3 py-1.5 text-left text-xs font-semibold"
+              >
+                {/* Stays in view while the values scroll sideways under it. */}
+                <span className="sticky left-3">{g.label}</span>
+              </th>
+            </tr>
+          )}
           {g.rows.map((r) => (
             <tr key={r.key}>
               <th
@@ -482,16 +498,18 @@ function TableTitle({
   )
 }
 
-/** Label columns, in rem: the group column (a grouped table's zones) and the row labels. */
-const GROUP_REM = 8
-const LABEL_REM = 12
+/**
+ * Label column widths as CSS variables, narrower on a phone so the values get the room: the group
+ * column (a grouped table's zones) and the row labels. Static classes, so Tailwind sees them.
+ */
+const LABEL_VARS = '[--group:5.5rem] [--label:7.5rem] md:[--group:8rem] md:[--label:12rem]'
 /** A data column of a grouped table, which is sized to its columns rather than stretched. */
 const GROUPED_COL_REM = 5.5
 /** The narrowest a data column of a stretched table gets before the table scrolls instead. */
 const MIN_COL_REM = 5
 
-function labelRem(t: Table) {
-  return (t.groupColumn ? GROUP_REM : 0) + LABEL_REM
+function labels(t: Table) {
+  return t.groupColumn ? 'var(--group) + var(--label)' : 'var(--label)'
 }
 
 /**
@@ -501,15 +519,15 @@ function labelRem(t: Table) {
 function tableWidth(t: Table) {
   const n = t.columns.length
   return t.groupColumn
-    ? { width: `${labelRem(t) + n * GROUPED_COL_REM}rem` }
-    : { width: '100%', minWidth: `${labelRem(t) + n * MIN_COL_REM}rem` }
+    ? { width: `calc(${labels(t)} + ${n * GROUPED_COL_REM}rem)` }
+    : { width: '100%', minWidth: `calc(${labels(t)} + ${n * MIN_COL_REM}rem)` }
 }
 
 function TableColumns({ table: t }: { table: Table }) {
   return (
     <colgroup>
-      {t.groupColumn && <col style={{ width: `${GROUP_REM}rem` }} />}
-      <col style={{ width: `${LABEL_REM}rem` }} />
+      {t.groupColumn && <col style={{ width: 'var(--group)' }} />}
+      <col style={{ width: 'var(--label)' }} />
       {t.columns.map((c) => (
         <col key={c.key} />
       ))}
@@ -530,15 +548,41 @@ function GridTable({
   return (
     <section aria-labelledby={headingId} className="min-w-0 space-y-2">
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
-      {/* A grouped table is only as wide as its columns; stretched, its few periods sprawl. */}
-      <div className={cn('overflow-x-auto rounded-md border', t.groupColumn && 'w-fit max-w-full')}>
-        <table className="table-fixed border-collapse text-sm" style={tableWidth(t)}>
-          <TableColumns table={t} />
-          <TableHead table={t} />
-          <TableBody table={t} />
-        </table>
-      </div>
+      {t.groupColumn ? (
+        <>
+          <TableBox table={t} className="hidden md:block" />
+          {/* On a phone the group column would take half the width: its labels become heading
+              rows over their rows instead, and the values get the room. */}
+          <TableBox table={{ ...t, groupColumn: undefined }} className="md:hidden" />
+        </>
+      ) : (
+        <TableBox table={t} />
+      )}
     </section>
+  )
+}
+
+function TableBox({ table: t, className }: { table: Table; className?: string }) {
+  return (
+    /* A grouped table is only as wide as its columns; stretched, its few periods sprawl. */
+    <div
+      className={cn(
+        // `relative` makes the box the containing block of the headers' screen-reader labels
+        // (absolutely positioned), so they are clipped with the table instead of widening the page.
+        'relative overflow-x-auto rounded-md border',
+        t.groupColumn && 'w-fit max-w-full',
+        className,
+      )}
+    >
+      <table
+        className={cn(LABEL_VARS, 'table-fixed border-collapse text-sm')}
+        style={tableWidth(t)}
+      >
+        <TableColumns table={t} />
+        <TableHead table={t} />
+        <TableBody table={t} />
+      </table>
+    </div>
   )
 }
 
