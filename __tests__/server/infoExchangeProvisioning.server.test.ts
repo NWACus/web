@@ -43,12 +43,12 @@ describe('isInfoExchange', () => {
 })
 
 describe('INFO_EXCHANGE_PAGES_TO_PROVISION', () => {
-  it('provisions only Weather Tools, About Us, Donate / Membership, and Volunteer', () => {
+  it('provisions only Weather Tools, Learn, About Us, and Donate / Membership', () => {
     expect(INFO_EXCHANGE_PAGES_TO_PROVISION).toEqual([
       { slug: 'weather-tools', title: 'Weather Tools' },
+      { slug: 'learn', title: 'Learn' },
       { slug: 'about-us', title: 'About Us' },
       { slug: 'donate-membership', title: 'Donate / Membership' },
-      { slug: 'volunteer', title: 'Volunteer' },
     ])
   })
 })
@@ -88,7 +88,10 @@ describe('provision (info exchange)', () => {
   beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
   afterAll(() => server.close())
 
-  type NavItemData = { link?: unknown; items?: NavItemData[] }
+  type NavItemData = { link?: { label?: string }; items?: NavItemData[] }
+
+  const tabItems = (tab: unknown): NavItemData[] =>
+    tab && typeof tab === 'object' && 'items' in tab && Array.isArray(tab.items) ? tab.items : []
 
   // An item with neither a link nor sub-items fails Payload's navigation validation
   const itemsWithoutLinkOrChildren = (items: NavItemData[] = []): NavItemData[] =>
@@ -127,9 +130,12 @@ describe('provision (info exchange)', () => {
     expect(navigation).toBeDefined()
 
     for (const tab of Object.values(navigation ?? {})) {
-      if (tab && typeof tab === 'object' && 'items' in tab && Array.isArray(tab.items)) {
-        expect(itemsWithoutLinkOrChildren(tab.items)).toEqual([])
-      }
+      expect(itemsWithoutLinkOrChildren(tabItems(tab))).toEqual([])
     }
+
+    expect(tabItems(navigation?.education).map((item) => item.link?.label)).toEqual(['Learn'])
+    expect(tabItems(navigation?.support).map((item) => item.link?.label)).toEqual([
+      'Donate / Membership',
+    ])
   })
 })
