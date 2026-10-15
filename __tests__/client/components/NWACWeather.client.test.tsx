@@ -101,15 +101,17 @@ describe('Overall', () => {
 })
 
 describe('Overall weather summary', () => {
-  it('shows a tab per zone, and the picked zone by day', () => {
+  it('shows a tab per day, and every zone for the picked day', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     const summary = screen.getByRole('region', { name: 'Weather Summary' })
     const tabs = within(summary).getAllByRole('tab')
-    expect(tabs[0]).toHaveTextContent('Olympics')
-    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
     // An afternoon issuance opens on a night, so its first day is Tonight.
-    expect(within(summary).getByRole('heading', { name: /^Tonight/ })).toBeInTheDocument()
-    expect(within(summary).getByRole('heading', { name: /^Tomorrow/ })).toBeInTheDocument()
+    expect(tabs[0]).toHaveTextContent(/^Tonight/)
+    expect(tabs[1]).toHaveTextContent(/^Tomorrow/)
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+    for (const zone of afternoon.zones) {
+      expect(within(summary).getByText(zone.name)).toBeInTheDocument()
+    }
 
     fireEvent.click(tabs[1])
     expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
