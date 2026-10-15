@@ -15,7 +15,7 @@ type Location = Required<{ [K in keyof AddressParts]: string }> & {
   coordinates: Required<Coordinates>
 }
 
-export type GeocodePlan = 'keep' | 'mark-manual' | 'geocode'
+export type GeocodePlan = 'keep' | 'mark-manual' | 'geocode' | 'clear'
 
 const STATUSES: ReadonlySet<unknown> = new Set(['geocoded', 'approximate', 'manual', 'failed'])
 const isStatus = (value: unknown): value is GeocodeStatus => STATUSES.has(value)
@@ -46,6 +46,15 @@ function readLocation(value: unknown): Location {
 const hasPoint = (c?: Coordinates | null) =>
   typeof c?.latitude === 'number' && typeof c?.longitude === 'number'
 
+/** Neither a point nor a record of trying to place one. */
+const isUnplaced = (c: Required<Coordinates>) => !hasPoint(c) && !c.geocodeStatus
+
+const NO_COORDINATES: Required<Coordinates> = {
+  latitude: null,
+  longitude: null,
+  geocodeStatus: null,
+}
+
 /** A partial API update only sends the keys it changes; the rest keep their saved values. */
 const withPrevious = (value: unknown, previousValue: unknown) =>
   isRecord(previousValue) && isRecord(value) ? { ...previousValue, ...value } : value
@@ -55,13 +64,14 @@ const addressOf = ({ address, city, state, zip }: Location) => [address, city, s
 /**
  * Decides what a save does to the point. Coordinates the editor changed win over the address;
  * an address change re-geocodes, even over a hand-placed pin, because that pin was for the old address.
+ * A virtual event has no pin, so switching back to in person geocodes it afresh.
  */
 export function planGeocode(value: unknown, previousValue: unknown): GeocodePlan {
   const next = readLocation(withPrevious(value, previousValue))
   const previous = readLocation(previousValue)
-  if (next.isVirtual) return 'keep'
-
   const now = next.coordinates
+  if (next.isVirtual) return isUnplaced(now) ? 'keep' : 'clear'
+
   const before = previous.coordinates
   const addressChanged = addressOf(next) !== addressOf(previous)
   const pointEdited = now.latitude !== before.latitude || now.longitude !== before.longitude
@@ -73,7 +83,7 @@ export function planGeocode(value: unknown, previousValue: unknown): GeocodePlan
   }
 
   if (addressChanged) return 'geocode'
-  return hasPoint(now) || now.geocodeStatus ? 'keep' : 'geocode'
+  return isUnplaced(now) ? 'geocode' : 'keep'
 }
 
 /** The coordinates a geocode result leaves behind, or null to leave them untouched. */
@@ -98,6 +108,7 @@ export const geocodeLocation: FieldHook = async ({ value, previousValue, req }) 
   if (!isRecord(value)) return value
   const plan = planGeocode(value, previousValue)
   if (plan === 'keep') return value
+  if (plan === 'clear') return { ...value, coordinates: NO_COORDINATES }
 
   const next = readLocation(withPrevious(value, previousValue))
   if (plan === 'mark-manual') {
