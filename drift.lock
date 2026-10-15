@@ -58,7 +58,7 @@ sig = "a7f6555ce616e30f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "27bd4d43cb01700d"
+sig = "c46359f030ca644d"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -428,7 +428,7 @@ sig = "9a46386ccf33f485"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/map/mapbox.ts"
-sig = "997eaa8819164df8"
+sig = "64ba5d87d671aa70"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -1418,12 +1418,12 @@ sig = "7116d846ce543ffc"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMap.client.tsx"
-sig = "4c4efbab3a5ba530"
+sig = "240de970fb5e307e"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMapView.tsx"
-sig = "eff7a081e7e943d4"
+sig = "8f70e318a74920a1"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1473,7 +1473,7 @@ sig = "9a7a825dcdd332e5"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/fields/location/components/PickerMap.client.tsx"
-sig = "9b622524c5d2dcf1"
+sig = "53902ea33509256e"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
