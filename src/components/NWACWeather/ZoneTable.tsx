@@ -37,7 +37,7 @@ const HEAD = 'border-b border-l p-2 text-center font-semibold'
 const ROW_LABEL = 'border-r border-t p-2 pl-3 text-left align-middle font-semibold'
 /** A row's unit, always in parentheses: "Snow (in)", "5000' Temperatures (°F)". */
 const Unit = ({ children }: { children: string }) => (
-  <span className="text-xs font-normal text-muted-foreground"> ({children})</span>
+  <span className="font-normal text-muted-foreground"> ({children})</span>
 )
 
 interface PeriodView {

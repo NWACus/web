@@ -663,7 +663,9 @@ function TableTitle({
           className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
         >
           {t.title}
-          {t.unit && <span className="text-sm font-normal text-muted-foreground"> ({t.unit})</span>}
+          {t.unit && (
+            <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
+          )}
         </Heading>
         {t.legend}
       </div>
@@ -836,7 +838,7 @@ function SynopsisRow({
   // Without a summary the synopsis takes the full width.
   if (!summary) return text
   return (
-    <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+    <div className="grid gap-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] xl:items-start">
       {text || <div />}
       {summary}
     </div>
@@ -860,7 +862,7 @@ function ExtendedSection({
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
         Extended
       </h3>
-      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] xl:items-start">
         {/* The outlook text is optional; without it the table takes the first column. */}
         {extended && (
           <section className="space-y-2">
