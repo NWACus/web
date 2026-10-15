@@ -96,6 +96,7 @@ export interface Config {
     settings: Setting;
     redirects: Redirect;
     sharedMedia: SharedMedia;
+    glossaryTerms: GlossaryTerm;
     forms: Form;
     'form-submissions': FormSubmission;
     'payload-mcp-api-keys': PayloadMcpApiKey;
@@ -151,6 +152,7 @@ export interface Config {
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     sharedMedia: SharedMediaSelect<false> | SharedMediaSelect<true>;
+    glossaryTerms: GlossaryTermsSelect<false> | GlossaryTermsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
@@ -246,6 +248,10 @@ export interface HomePage {
           | ({
               relationTo: 'posts';
               value: number | Post;
+            } | null)
+          | ({
+              relationTo: 'stationPages';
+              value: number | StationPage;
             } | null);
         url?: string | null;
         label?: string | null;
@@ -601,6 +607,7 @@ export interface Media {
   contentHash?: string | null;
   blurDataUrl?: string | null;
   prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -709,6 +716,7 @@ export interface Document {
   tenant: number | Tenant;
   contentHash?: string | null;
   prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1419,6 +1427,10 @@ export interface ImageLinkGridBlock {
             | ({
                 relationTo: 'posts';
                 value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'stationPages';
+                value: number | StationPage;
               } | null);
           url?: string | null;
         };
@@ -1442,6 +1454,60 @@ export interface BuiltInPage {
   title: string;
   url: string;
   tenant: number | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * A public weather page for a group of SnowObs stations as a table, graphs and CSV download.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationPages".
+ */
+export interface StationPage {
+  id: number;
+  tenant: number | Tenant;
+  displayName: string;
+  /**
+   * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
+  slug: string;
+  stations?: {
+    stid: string;
+    source: string;
+  }[];
+  /**
+   * Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.
+   */
+  columns?:
+    | (
+        | 'air_temp'
+        | 'relative_humidity'
+        | 'wind_speed_min'
+        | 'wind_speed'
+        | 'wind_gust'
+        | 'wind_direction'
+        | 'precip_accum_one_hour'
+        | 'snow_depth_24h'
+        | 'snow_depth'
+        | 'intermittent_snow'
+        | 'solar_radiation'
+        | 'pressure'
+        | 'equip_temperature'
+      )[]
+    | null;
+  /**
+   * Which views the page shows. An archived page shows only Download.
+   */
+  tabs?: {
+    table?: boolean | null;
+    graphs?: boolean | null;
+    csv?: boolean | null;
+  };
+  /**
+   * The hardware is gone but the history is still queryable, so the page stays up for downloads.
+   */
+  archived?: boolean | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1521,6 +1587,10 @@ export interface LinkPreviewBlock {
             | ({
                 relationTo: 'posts';
                 value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'stationPages';
+                value: number | StationPage;
               } | null);
           url?: string | null;
           label?: string | null;
@@ -1600,6 +1670,7 @@ export interface SharedMedia {
   contentHash?: string | null;
   blurDataUrl?: string | null;
   prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1783,52 +1854,6 @@ export interface VideoEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'videoEmbed';
-}
-/**
- * The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "stationPages".
- */
-export interface StationPage {
-  id: number;
-  tenant: number | Tenant;
-  displayName: string;
-  /**
-   * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
-   */
-  slug: string;
-  stations?: {
-    stid: string;
-    source: string;
-  }[];
-  /**
-   * Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.
-   */
-  columns?:
-    | (
-        | 'air_temp'
-        | 'relative_humidity'
-        | 'wind_speed_min'
-        | 'wind_speed'
-        | 'wind_gust'
-        | 'wind_direction'
-        | 'precip_accum_one_hour'
-        | 'snow_depth_24h'
-        | 'snow_depth'
-        | 'intermittent_snow'
-        | 'solar_radiation'
-        | 'pressure'
-        | 'equip_temperature'
-      )[]
-    | null;
-  /**
-   * The hardware is gone but the history is still queryable, so the page stays up for downloads.
-   */
-  archived?: boolean | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2063,7 +2088,8 @@ export interface Course {
     | 'America/Los_Angeles'
     | 'America/Phoenix'
     | 'America/Anchorage'
-    | 'Pacific/Honolulu';
+    | 'Pacific/Honolulu'
+    | 'Asia/Tokyo';
   /**
    * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
    */
@@ -2074,7 +2100,8 @@ export interface Course {
     | 'America/Los_Angeles'
     | 'America/Phoenix'
     | 'America/Anchorage'
-    | 'Pacific/Honolulu';
+    | 'Pacific/Honolulu'
+    | 'Asia/Tokyo';
   location: {
     placeName: string;
     address?: string | null;
@@ -2149,7 +2176,8 @@ export interface Course {
     | 'America/Los_Angeles'
     | 'America/Phoenix'
     | 'America/Anchorage'
-    | 'Pacific/Honolulu';
+    | 'Pacific/Honolulu'
+    | 'Asia/Tokyo';
   /**
    * Leave blank to auto-generate from provider + title + start date. Duplicates get a numbered suffix.
    */
@@ -2167,7 +2195,7 @@ export interface Course {
     | 'pro-rescue'
     | 'pro-avsar';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
-  affinityGroups?: ('lgbtq' | 'women' | 'youth')[] | null;
+  affinityGroups?: ('bipoc' | 'lgbtq' | 'women' | 'youth')[] | null;
   provider: number | Provider;
   contentHash?: string | null;
   updatedAt: string;
@@ -2206,6 +2234,7 @@ export interface User {
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
   sessions?:
@@ -2302,6 +2331,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2330,6 +2363,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2351,6 +2388,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2381,6 +2422,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2409,6 +2454,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2430,6 +2479,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2464,6 +2517,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2492,6 +2549,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2513,6 +2574,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2547,6 +2612,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2575,6 +2644,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2596,6 +2669,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2630,6 +2707,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2658,6 +2739,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2679,6 +2764,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2713,6 +2802,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2741,6 +2834,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2762,6 +2859,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2796,6 +2897,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2824,6 +2929,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2845,6 +2954,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2879,6 +2992,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2907,6 +3024,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -2928,6 +3049,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -2962,6 +3087,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -2990,6 +3119,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -3011,6 +3144,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -3045,6 +3182,10 @@ export interface Navigation {
         | ({
             relationTo: 'posts';
             value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
           } | null);
       url?: string | null;
       label?: string | null;
@@ -3073,6 +3214,10 @@ export interface Navigation {
               | ({
                   relationTo: 'posts';
                   value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
                 } | null);
             url?: string | null;
             label?: string | null;
@@ -3094,6 +3239,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'posts';
                         value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
                       } | null);
                   url?: string | null;
                   label?: string | null;
@@ -3160,18 +3309,43 @@ export interface Setting {
     } | null;
   };
   /**
-   * Recommended: Use square (1:1) aspect ratio images for optimal display. Images with aspect ratios close to square are also acceptable.
+   * Used in the footer. Recommended: a square (1:1) image, at least 512x512 pixels, with a transparent background.
    */
   logo: number | Media;
   /**
-   * Used as the browser tab icon. Recommended: Use a compressed, 96x96 pixel, square aspect ratio image.
+   * Used as the browser tab icon. Recommended: a square (1:1) image, at least 96x96 pixels, simple enough to read at 16 pixels.
    */
   icon: number | Media;
   /**
-   * Used in the header of your website next to the USFS logo if added.
+   * Used in the header of your website next to the USFS logo if added, and in link previews. Recommended: a horizontal image, at least 160 pixels tall (300 is ideal), with a transparent background.
    */
   banner: number | Media;
   usfsLogo?: (number | null) | Media;
+  /**
+   * When enabled, these products render natively as Next.js pages on this site’s design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback. Only super admins can change these.
+   */
+  nativeProducts?: {
+    /**
+     * Render the avalanche forecast page natively.
+     */
+    forecast?: boolean | null;
+    /**
+     * Render warning/watch/special bulletins natively: the center-wide alert banner on the home page, and the per-zone banner on the native forecast page.
+     */
+    warning?: boolean | null;
+    /**
+     * Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.
+     */
+    dangerMap?: boolean | null;
+    /**
+     * Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC — and, together with the forecast flag, the forecast archive’s Mountain Weather tab. Centers without one have neither the page nor the tab either way. NWAC’s own Mountain Weather Forecast page takes no flag.
+     */
+    weather?: boolean | null;
+    /**
+     * Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.
+     */
+    stationMap?: boolean | null;
+  };
   socialMedia?: {
     instagram?: string | null;
     facebook?: string | null;
@@ -3214,11 +3388,39 @@ export interface Redirect {
       | ({
           relationTo: 'posts';
           value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'stationPages';
+          value: number | StationPage;
         } | null);
     url?: string | null;
   };
   tenant: number | Tenant;
   contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Terms underlined in forecast text on every center whose forecast has the glossary turned on. Hovering or tapping one shows its definition.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "glossaryTerms".
+ */
+export interface GlossaryTerm {
+  id: number;
+  /**
+   * The term as it should be matched in forecast text. Matching ignores case.
+   */
+  term: string;
+  /**
+   * Other forms that should show the same definition: plurals, tenses, synonyms (e.g. "beacon" for "transceiver"). A term or alias can belong to only one Glossary Term.
+   */
+  aliases?: string[] | null;
+  definition: string;
+  /**
+   * Optional page on avalanche.org to learn more. Shown as a "Learn more" link under the definition.
+   */
+  link?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3260,9 +3462,27 @@ export interface PayloadMcpApiKey {
    * The purpose of the API key.
    */
   description?: string | null;
+  homePages?: {
+    /**
+     * Allow clients to find homePages.
+     */
+    find?: boolean | null;
+  };
+  builtInPages?: {
+    /**
+     * Allow clients to find builtInPages.
+     */
+    find?: boolean | null;
+  };
   pages?: {
     /**
      * Allow clients to find pages.
+     */
+    find?: boolean | null;
+  };
+  stationPages?: {
+    /**
+     * Allow clients to find stationPages.
      */
     find?: boolean | null;
   };
@@ -3272,33 +3492,27 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
-  homePages?: {
-    /**
-     * Allow clients to find homePages.
-     */
-    find?: boolean | null;
-  };
-  events?: {
-    /**
-     * Allow clients to find events.
-     */
-    find?: boolean | null;
-  };
   media?: {
     /**
      * Allow clients to find media.
      */
     find?: boolean | null;
   };
-  teams?: {
+  galleries?: {
     /**
-     * Allow clients to find teams.
+     * Allow clients to find galleries.
      */
     find?: boolean | null;
   };
-  biographies?: {
+  documents?: {
     /**
-     * Allow clients to find biographies.
+     * Allow clients to find documents.
+     */
+    find?: boolean | null;
+  };
+  announcements?: {
+    /**
+     * Allow clients to find announcements.
      */
     find?: boolean | null;
   };
@@ -3314,33 +3528,9 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
-  documents?: {
+  events?: {
     /**
-     * Allow clients to find documents.
-     */
-    find?: boolean | null;
-  };
-  forms?: {
-    /**
-     * Allow clients to find forms.
-     */
-    find?: boolean | null;
-  };
-  navigations?: {
-    /**
-     * Allow clients to find navigations.
-     */
-    find?: boolean | null;
-  };
-  settings?: {
-    /**
-     * Allow clients to find settings.
-     */
-    find?: boolean | null;
-  };
-  tenants?: {
-    /**
-     * Allow clients to find tenants.
+     * Allow clients to find events.
      */
     find?: boolean | null;
   };
@@ -3356,6 +3546,72 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
+  providers?: {
+    /**
+     * Allow clients to find providers.
+     */
+    find?: boolean | null;
+  };
+  courses?: {
+    /**
+     * Allow clients to find courses.
+     */
+    find?: boolean | null;
+  };
+  biographies?: {
+    /**
+     * Allow clients to find biographies.
+     */
+    find?: boolean | null;
+  };
+  teams?: {
+    /**
+     * Allow clients to find teams.
+     */
+    find?: boolean | null;
+  };
+  tenants?: {
+    /**
+     * Allow clients to find tenants.
+     */
+    find?: boolean | null;
+  };
+  navigations?: {
+    /**
+     * Allow clients to find navigations.
+     */
+    find?: boolean | null;
+  };
+  settings?: {
+    /**
+     * Allow clients to find settings.
+     */
+    find?: boolean | null;
+  };
+  redirects?: {
+    /**
+     * Allow clients to find redirects.
+     */
+    find?: boolean | null;
+  };
+  sharedMedia?: {
+    /**
+     * Allow clients to find sharedMedia.
+     */
+    find?: boolean | null;
+  };
+  glossaryTerms?: {
+    /**
+     * Allow clients to find glossaryTerms.
+     */
+    find?: boolean | null;
+  };
+  forms?: {
+    /**
+     * Allow clients to find forms.
+     */
+    find?: boolean | null;
+  };
   nacWidgetsConfig?: {
     /**
      * Allow clients to find nacWidgetsConfig global.
@@ -3367,6 +3623,7 @@ export interface PayloadMcpApiKey {
   enableAPIKey?: boolean | null;
   apiKey?: string | null;
   apiKeyIndex?: string | null;
+  hasAPIKey?: boolean | null;
   collection: 'payload-mcp-api-keys';
 }
 /**
@@ -3504,6 +3761,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'sharedMedia';
         value: number | SharedMedia;
+      } | null)
+    | ({
+        relationTo: 'glossaryTerms';
+        value: number | GlossaryTerm;
       } | null)
     | ({
         relationTo: 'forms';
@@ -4017,6 +4278,13 @@ export interface StationPagesSelect<T extends boolean = true> {
   slug?: T;
   stations?: T;
   columns?: T;
+  tabs?:
+    | T
+    | {
+        table?: T;
+        graphs?: T;
+        csv?: T;
+      };
   archived?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -4068,6 +4336,7 @@ export interface MediaSelect<T extends boolean = true> {
   contentHash?: T;
   blurDataUrl?: T;
   prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -4131,6 +4400,7 @@ export interface DocumentsSelect<T extends boolean = true> {
   tenant?: T;
   contentHash?: T;
   prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -4407,6 +4677,7 @@ export interface UsersSelect<T extends boolean = true> {
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
+  resetPasswordRequestedAt?: T;
   loginAttempts?: T;
   lockUntil?: T;
   sessions?:
@@ -5009,6 +5280,15 @@ export interface SettingsSelect<T extends boolean = true> {
   icon?: T;
   banner?: T;
   usfsLogo?: T;
+  nativeProducts?:
+    | T
+    | {
+        forecast?: T;
+        warning?: T;
+        dangerMap?: T;
+        weather?: T;
+        stationMap?: T;
+      };
   socialMedia?:
     | T
     | {
@@ -5056,6 +5336,7 @@ export interface SharedMediaSelect<T extends boolean = true> {
   contentHash?: T;
   blurDataUrl?: T;
   prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -5081,6 +5362,18 @@ export interface SharedMediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "glossaryTerms_select".
+ */
+export interface GlossaryTermsSelect<T extends boolean = true> {
+  term?: T;
+  aliases?: T;
+  definition?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5241,7 +5534,22 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
   user?: T;
   label?: T;
   description?: T;
+  homePages?:
+    | T
+    | {
+        find?: T;
+      };
+  builtInPages?:
+    | T
+    | {
+        find?: T;
+      };
   pages?:
+    | T
+    | {
+        find?: T;
+      };
+  stationPages?:
     | T
     | {
         find?: T;
@@ -5251,27 +5559,22 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
     | {
         find?: T;
       };
-  homePages?:
-    | T
-    | {
-        find?: T;
-      };
-  events?:
-    | T
-    | {
-        find?: T;
-      };
   media?:
     | T
     | {
         find?: T;
       };
-  teams?:
+  galleries?:
     | T
     | {
         find?: T;
       };
-  biographies?:
+  documents?:
+    | T
+    | {
+        find?: T;
+      };
+  announcements?:
     | T
     | {
         find?: T;
@@ -5286,27 +5589,7 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
     | {
         find?: T;
       };
-  documents?:
-    | T
-    | {
-        find?: T;
-      };
-  forms?:
-    | T
-    | {
-        find?: T;
-      };
-  navigations?:
-    | T
-    | {
-        find?: T;
-      };
-  settings?:
-    | T
-    | {
-        find?: T;
-      };
-  tenants?:
+  events?:
     | T
     | {
         find?: T;
@@ -5321,6 +5604,61 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
     | {
         find?: T;
       };
+  providers?:
+    | T
+    | {
+        find?: T;
+      };
+  courses?:
+    | T
+    | {
+        find?: T;
+      };
+  biographies?:
+    | T
+    | {
+        find?: T;
+      };
+  teams?:
+    | T
+    | {
+        find?: T;
+      };
+  tenants?:
+    | T
+    | {
+        find?: T;
+      };
+  navigations?:
+    | T
+    | {
+        find?: T;
+      };
+  settings?:
+    | T
+    | {
+        find?: T;
+      };
+  redirects?:
+    | T
+    | {
+        find?: T;
+      };
+  sharedMedia?:
+    | T
+    | {
+        find?: T;
+      };
+  glossaryTerms?:
+    | T
+    | {
+        find?: T;
+      };
+  forms?:
+    | T
+    | {
+        find?: T;
+      };
   nacWidgetsConfig?:
     | T
     | {
@@ -5331,6 +5669,7 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
   enableAPIKey?: T;
   apiKey?: T;
   apiKeyIndex?: T;
+  hasAPIKey?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5483,6 +5822,10 @@ export interface ButtonBlock {
       | ({
           relationTo: 'posts';
           value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'stationPages';
+          value: number | StationPage;
         } | null);
     url?: string | null;
     label?: string | null;

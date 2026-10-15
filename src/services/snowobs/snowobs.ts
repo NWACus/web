@@ -3,8 +3,16 @@ import config from '@payload-config'
 import { format, subHours } from 'date-fns'
 import { getPayload } from 'payload'
 import { resolveSnowObsToken, SNOWOBS_API, SnowObsError, snowObsFetch } from './access'
-import type { SnowObsTimeseriesResponse } from './types/schemas'
-import { snowObsTimeseriesResponseSchema } from './types/schemas'
+import type {
+  SnowObsCurrentGeojson,
+  SnowObsTimeseriesResponse,
+  SnowObsWebcamResponse,
+} from './types/schemas'
+import {
+  snowObsCurrentGeojsonSchema,
+  snowObsTimeseriesResponseSchema,
+  snowObsWebcamResponseSchema,
+} from './types/schemas'
 
 export { SnowObsError } from './access'
 
@@ -46,17 +54,30 @@ function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token
     start_date: formatSnowObsDate(start),
     end_date: formatSnowObsDate(end),
   })
-  if (options.rawData) params.set('raw_data', 'true')
+  // raw_data also skips unit conversion, so stations come back in their native
+  // units (KSEA's pressure in inHg beside a logger's millibar); English keeps one
+  // system, as SnowObs suggested.
+  if (options.rawData) {
+    params.set('raw_data', 'true')
+    params.set('units', 'english')
+  }
   return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
 }
 
-// Best-effort logging: bootstrapping payload must never mask the original error.
-async function logSnowObsError(error: unknown, stids: string[]): Promise<void> {
+// Best-effort logging: bootstrapping payload must never mask the original error. Named by call
+// site, because the three SnowObs reads fail independently — a station-map outage should not read
+// as a station-page one.
+async function logSnowObsError(
+  operation: string,
+  error: unknown,
+  context: Record<string, unknown>,
+  level: 'error' | 'warn' = 'error',
+): Promise<void> {
   try {
     const payload = await getPayload({ config })
-    payload.logger.error({ err: error, stids }, 'fetchStationTimeseries error')
+    payload.logger[level]({ err: error, ...context }, `${operation} ${level}`)
   } catch {
-    console.error('fetchStationTimeseries error (payload logger unavailable)', { stids, error })
+    console.error(`${operation} error (payload logger unavailable)`, { ...context, error })
   }
 }
 
@@ -72,6 +93,9 @@ async function parseTimeseriesResponse(
     return { UNITS: {}, VARIABLES: [], STATION: [] }
   }
   if (!res.ok) {
+    // Unread, the body would hold its connection until garbage collection. Not
+    // awaited: freeing it shouldn't hold up the retry.
+    void res.body?.cancel().catch(() => undefined)
     throw new SnowObsError(`SnowObs request failed with status ${res.status}`, null, {
       stids,
       status: res.status,
@@ -88,6 +112,82 @@ function toSnowObsError(error: unknown, stids: string[]): SnowObsError {
     : new SnowObsError('Failed to fetch SnowObs station timeseries', error, { stids })
 }
 
+async function requestTimeseries(
+  stations: StationRef[],
+  options: FetchOptions,
+  token: string,
+): Promise<SnowObsTimeseriesResponse> {
+  const init: RequestInit = options.revalidate
+    ? { next: { revalidate: options.revalidate } }
+    : { cache: 'no-store' }
+  const res = await snowObsFetch(buildTimeseriesUrl(stations, options, token), init)
+  return parseTimeseriesResponse(
+    res,
+    stations.map((s) => s.stid),
+  )
+}
+
+function isServerError(error: unknown): boolean {
+  return error instanceof SnowObsError && error.context?.status === 500
+}
+
+// SnowObs 500s `raw_data` for some Synoptic airport stations (KMHS, KSEA, KBLI…) whose readings
+// its unit conversion can't take, but serves them rounded, as the legacy widget reads every
+// station. Logged, so we can see how often a station comes back rounded.
+async function retryRounded(
+  stations: StationRef[],
+  options: FetchOptions,
+  token: string,
+  error: unknown,
+): Promise<SnowObsTimeseriesResponse> {
+  if (!options.rawData || !isServerError(error)) throw error
+  const stids = stations.map((s) => s.stid)
+  await logSnowObsError('fetchStationTimeseries raw_data', error, { stids }, 'warn')
+  return requestTimeseries(stations, { ...options, rawData: false }, token)
+}
+
+async function requestStation(
+  station: StationRef,
+  options: FetchOptions,
+  token: string,
+): Promise<SnowObsTimeseriesResponse> {
+  try {
+    return await requestTimeseries([station], options, token)
+  } catch (error) {
+    return retryRounded([station], options, token, error)
+  }
+}
+
+function mergeTimeseries(responses: SnowObsTimeseriesResponse[]): SnowObsTimeseriesResponse {
+  const variables = new Map(responses.flatMap((r) => r.VARIABLES).map((v) => [v.variable, v]))
+  return {
+    UNITS: Object.assign({}, ...responses.map((r) => r.UNITS)),
+    VARIABLES: Array.from(variables.values()),
+    STATION: responses.flatMap((r) => r.STATION),
+  }
+}
+
+// One station's bad data fails the whole batch, so retry each station alone and keep the ones
+// that load: raw where they can be, rounded where not. Only a station that fails rounded too
+// drops out, rather than blanking the page.
+async function requestEachStation(
+  stations: StationRef[],
+  options: FetchOptions,
+  token: string,
+  error: unknown,
+): Promise<SnowObsTimeseriesResponse> {
+  const results = await Promise.allSettled(
+    stations.map((station) => requestStation(station, options, token)),
+  )
+  const loaded = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+  if (loaded.length === 0) throw error
+  const failed = stations.filter((_, i) => results[i].status === 'rejected').map((s) => s.stid)
+  if (failed.length > 0) {
+    await logSnowObsError('fetchStationTimeseries per-station', error, { stids: failed })
+  }
+  return mergeTimeseries(loaded)
+}
+
 // Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
 export async function fetchStationTimeseries(
   centerSlug: string,
@@ -97,14 +197,87 @@ export async function fetchStationTimeseries(
   const stids = stations.map((s) => s.stid)
 
   try {
-    const url = buildTimeseriesUrl(stations, options, await resolveSnowObsToken(centerSlug))
-    const res = await snowObsFetch(
-      url,
-      options.revalidate ? { next: { revalidate: options.revalidate } } : { cache: 'no-store' },
-    )
-    return await parseTimeseriesResponse(res, stids)
+    const token = await resolveSnowObsToken(centerSlug)
+    try {
+      return await requestTimeseries(stations, options, token)
+    } catch (error) {
+      if (stations.length < 2) return await retryRounded(stations, options, token, error)
+      // Only a 500 is one station's data; a bad token or an outage fails them all alike.
+      if (!isServerError(error)) throw error
+      return await requestEachStation(stations, options, token, error)
+    }
   } catch (error) {
-    await logSnowObsError(error, stids)
+    await logSnowObsError('fetchStationTimeseries', error, { stids })
     throw toSnowObsError(error, stids)
+  }
+}
+
+// --- Current conditions and webcams (the station map) ----------------------------------------
+
+/** The units SnowObs reports in; `default` is whatever the center configured. */
+export type SnowObsUnits = 'default' | 'english' | 'metric'
+
+const WEBCAMS_REVALIDATE = 3600
+
+// Shared by the current-data and webcam fetches: a non-2xx is a SnowObsError with the status.
+async function checkedJson(res: Response, context: Record<string, unknown>): Promise<unknown> {
+  if (!res.ok) {
+    throw new SnowObsError(`SnowObs request failed with status ${res.status}`, null, {
+      ...context,
+      status: res.status,
+      statusText: res.statusText,
+    })
+  }
+  return res.json()
+}
+
+/**
+ * Every station the center's token tracks, with its latest reading per sensor, as GeoJSON.
+ *
+ * This is the legacy station map's data call. Unlike the timeseries fetch above it is keyed on
+ * the center: any center with `platforms.stations` has a token in its own AFP config, so the map
+ * needs no per-center code. `calc_diff` asks for the 24-hour change columns the widget shows.
+ *
+ * Not cached here: SnowObs holds each response for 60s and the route's CDN for 60s more. A data
+ * cache stacked on those served the first reader after a quiet spell whatever the last visit saw.
+ */
+export async function fetchCurrentStationData(
+  centerSlug: string,
+  units: SnowObsUnits = 'default',
+): Promise<SnowObsCurrentGeojson> {
+  try {
+    const params = new URLSearchParams({
+      token: await resolveSnowObsToken(centerSlug),
+      calc_diff: 'true',
+      units,
+    })
+    // The widget's exact URL, so the Origin header matters here most.
+    const res = await snowObsFetch(`${SNOWOBS_API}/station/data/current/?${params.toString()}`, {
+      headers: { accept: 'application/vnd.geo+json' },
+      cache: 'no-store',
+    })
+    return snowObsCurrentGeojsonSchema.parse(await checkedJson(res, { centerSlug, units }))
+  } catch (error) {
+    await logSnowObsError('fetchCurrentStationData', error, { centerSlug, units })
+    throw error instanceof SnowObsError
+      ? error
+      : new SnowObsError('Failed to fetch SnowObs current station data', error, { centerSlug })
+  }
+}
+
+/** The center's webcams, as the legacy station map shows them alongside the stations. */
+export async function fetchWebcams(centerSlug: string): Promise<SnowObsWebcamResponse> {
+  try {
+    const params = new URLSearchParams({ token: await resolveSnowObsToken(centerSlug) })
+    // A different API family from the weather endpoints — no `/wx` prefix.
+    const res = await snowObsFetch(`https://api.snowobs.com/v1/webcam?${params.toString()}`, {
+      next: { revalidate: WEBCAMS_REVALIDATE },
+    })
+    return snowObsWebcamResponseSchema.parse(await checkedJson(res, { centerSlug }))
+  } catch (error) {
+    await logSnowObsError('fetchWebcams', error, { centerSlug })
+    throw error instanceof SnowObsError
+      ? error
+      : new SnowObsError('Failed to fetch SnowObs webcams', error, { centerSlug })
   }
 }

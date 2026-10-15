@@ -1,4 +1,3 @@
-import configPromise from '@payload-config'
 import type { CollectionSlug, Field, Payload, PayloadRequest, SelectType, Where } from 'payload'
 import { getPayload } from 'payload'
 import { isTenantValue } from './isTenantValue'
@@ -122,7 +121,10 @@ export async function findDocumentsWithReferences(
   reference: ReferenceQuery,
   { includeDrafts = false, req }: FindDocumentsWithReferencesOptions = {},
 ): Promise<DocumentReference[]> {
-  const payload = req?.payload ?? (await getPayload({ config: configPromise }))
+  // Imported lazily: a static import puts every collection whose hooks reach this module in an
+  // import cycle with the Payload config.
+  const payload =
+    req?.payload ?? (await getPayload({ config: (await import('@payload-config')).default }))
 
   const allSlugs = new Set(payload.config.collections.map((c) => c.slug))
   const hasField = (fields: Field[], name: string) =>

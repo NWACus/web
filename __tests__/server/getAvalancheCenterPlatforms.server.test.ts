@@ -7,7 +7,9 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
+import { afpApiHost, nacApiHost } from '@/services/nac/hosts'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { setupMswLifecycle } from '../helpers/mswLifecycle'
 
 const afpCentersResponse = {
   centers: [
@@ -73,18 +75,16 @@ const nwacModules = {
 }
 
 const server = setupServer(
-  http.get('https://forecasts.avalanche.org/', () => HttpResponse.json(afpCentersResponse)),
-  http.get('https://api.avalanche.org/v2/public/avalanche-center/NWAC', () =>
+  http.get(`${afpApiHost}/`, () => HttpResponse.json(afpCentersResponse)),
+  http.get(`${nacApiHost}/v2/public/avalanche-center/NWAC`, () =>
     HttpResponse.json(makeCenterResponse('NWAC', nwacModules)),
   ),
-  http.get('https://api.avalanche.org/v2/public/avalanche-center/SAC', () =>
+  http.get(`${nacApiHost}/v2/public/avalanche-center/SAC`, () =>
     HttpResponse.json(makeCenterResponse('SAC')),
   ),
 )
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
+setupMswLifecycle(server)
 
 describe('services: getAvalancheCenterPlatforms', () => {
   it('returns platforms for a matching center slug', async () => {
@@ -137,7 +137,7 @@ describe('services: getAvalancheCenterPlatforms', () => {
 
   it('reads nwac_weather only for a literal true in config.modules.platforms', async () => {
     server.use(
-      http.get('https://api.avalanche.org/v2/public/avalanche-center/NWAC', () =>
+      http.get(`${nacApiHost}/v2/public/avalanche-center/NWAC`, () =>
         HttpResponse.json(
           makeCenterResponse('NWAC', { display_id: 'NWAC', platforms: { nwac_weather: 1 } }),
         ),
@@ -149,7 +149,7 @@ describe('services: getAvalancheCenterPlatforms', () => {
 
   it('reads nwac_weather false when the metadata call fails', async () => {
     server.use(
-      http.get('https://api.avalanche.org/v2/public/avalanche-center/NWAC', () =>
+      http.get(`${nacApiHost}/v2/public/avalanche-center/NWAC`, () =>
         HttpResponse.json({ message: 'nope' }, { status: 500 }),
       ),
     )

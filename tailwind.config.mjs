@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+import plugin from 'tailwindcss/plugin'
 import { cssVariables } from './src/cssVariables.js'
 
 const { breakpoints, container } = cssVariables
@@ -16,6 +17,15 @@ const config = {
     require('tailwindcss-animate'),
     require('@tailwindcss/typography'),
     require('@tailwindcss/container-queries'),
+    // Printing, on a page wide enough for the multi-column forecast layouts. Browsers lay print
+    // out against the paper box (a US Letter page with our 0.5in margins is ~720px), so this
+    // matches on a phone and a desktop alike: the printed forecast should not depend on the screen
+    // it was printed from. Plugin variants sort before the screens, so `:root` adds the specificity
+    // to override `md:`/`lg:`. Not a `raw` screen: any object screen makes Tailwind drop every
+    // `max-*`/`min-*` variant.
+    plugin(({ addVariant }) =>
+      addVariant('printWide', '@media print and (min-width: 700px) { :root & }'),
+    ),
   ],
   prefix: '',
   theme: {

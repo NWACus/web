@@ -1,0 +1,42 @@
+{
+  "readme": "Captured here because the products-api golden corpus does not cover these yet. Each is blocking a listed E2E path and has an upstream Case filed; when the Case lands, sync the golden and delete the file here. See scripts/e2e/capture-provisional.mjs.",
+  "source": {
+    "host": "https://api.avalanche.org",
+    "scrubPolicy": "products-api api/tests/migration_parity/golden/SCRUB_POLICY.md"
+  },
+  "files": [
+    {
+      "file": "v2_public_center_NWAC.json",
+      "path": "/v2/public/avalanche-center/NWAC",
+      "upstreamCase": "center_NWAC",
+      "blocks": "Every DVAC page. dvac aliases to nwac upstream, and getAvalancheCenterMetadata throws on a missing/unparseable response, so generateStaticParams fails the whole build without this.",
+      "url": "https://api.avalanche.org/v2/public/avalanche-center/NWAC",
+      "capturedAt": "2026-08-23"
+    },
+    {
+      "file": "v2_public_center_SAC.json",
+      "path": "/v2/public/avalanche-center/SAC",
+      "upstreamCase": "center_SAC",
+      "blocks": "Every SAC page. SAC is the widget-mode control tenant in the native-vs-widget spec, and its layout needs center metadata to render at all.",
+      "url": "https://api.avalanche.org/v2/public/avalanche-center/SAC",
+      "capturedAt": "2026-08-23"
+    },
+    {
+      "file": "v2_public_product_forecast_null.json",
+      "path": "/v2/public/product?type=forecast&center_id=NWAC&zone_id=3025",
+      "upstreamCase": "not yet filed",
+      "blocks": "The live zone page's \"The requested product doesn't exist\" state (Forecast-176). The corpus's forecast nomatch is the error page v2 sends for an unknown zone id, which reads as a failed read.",
+      "url": "https://api.avalanche.org/v2/public/product?type=forecast&center_id=NWAC&zone_id=3025",
+      "capturedAt": "2026-10-08"
+    },
+    {
+      "file": "v2_public_product_forecast_no_outlook.json",
+      "host": "https://staging-api.avalanche.org",
+      "path": "/v2/public/product/165008",
+      "upstreamCase": "not yet filed",
+      "blocks": "The desktop travel-advice column that stands in for a missing outlook (Forecast-67). Every SNFAC, SAC and NWAC forecast carries a tomorrow entry, even a blank one, so the shape is set up on staging.",
+      "url": "https://staging-api.avalanche.org/v2/public/product/165008",
+      "capturedAt": "2026-10-12"
+    }
+  ]
+}

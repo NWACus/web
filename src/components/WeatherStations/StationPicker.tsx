@@ -3,11 +3,15 @@
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
+import { stationPagePath } from '@/services/stations/stationPages'
 import { cn } from '@/utilities/ui'
 import { useRouter } from 'next/navigation'
 
@@ -34,6 +38,21 @@ export function StationSelectItems({
   ))
 }
 
+// Retired pages stay reachable, after the active ones.
+function RetiredGroup({ pages }: { pages: StationPageSummary[] }) {
+  const retired = pages.filter((page) => page.archived)
+  if (retired.length === 0) return null
+  return (
+    <>
+      <SelectSeparator />
+      <SelectGroup>
+        <SelectLabel className="text-xs font-normal text-muted-foreground">Retired</SelectLabel>
+        <StationSelectItems pages={retired} />
+      </SelectGroup>
+    </>
+  )
+}
+
 export function StationPicker({
   pages,
   current,
@@ -46,10 +65,7 @@ export function StationPicker({
   const router = useRouter()
 
   return (
-    <Select
-      value={current ?? ''}
-      onValueChange={(slug) => router.push(`/weather/stations/${slug}`)}
-    >
+    <Select value={current ?? ''} onValueChange={(slug) => router.push(stationPagePath(slug))}>
       <SelectTrigger
         aria-label="Jump to a weather station"
         className={cn(stationSelectTriggerClass, 'min-w-48', className)}
@@ -58,7 +74,8 @@ export function StationPicker({
         <SelectValue placeholder="Jump to a station…">Jump to a station…</SelectValue>
       </SelectTrigger>
       <SelectContent position="item-aligned">
-        <StationSelectItems pages={pages} />
+        <StationSelectItems pages={pages} excludeArchived />
+        <RetiredGroup pages={pages} />
       </SelectContent>
     </Select>
   )

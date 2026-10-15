@@ -24,9 +24,11 @@ const SLUG = 'bac'
 const NAME = 'Bridgeport Avalanche Center'
 const SLUG_OPTION = `${SLUG} — ${NAME}`
 
-// Mirrors BUILT_IN_PAGES in src/collections/Tenants/endpoints/provisionTenant.ts;
+// Mirrors BUILT_IN_PAGES and ARCHIVE_PAGES in src/collections/Tenants/endpoints/provisionTenant.ts;
 // forecast pages are resolved from AFP and vary per center.
 const EXPECTED_BUILT_IN_URLS = [
+  '/forecasts/avalanche/archive',
+  '/forecasts/avalanche/archive/danger-over-time',
   '/weather/stations/map',
   '/observations',
   '/observations/submit',

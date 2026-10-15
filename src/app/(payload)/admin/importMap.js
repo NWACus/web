@@ -28,6 +28,9 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
 import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
+import { ToggleField as ToggleField_371a8655e7a5f0cef03f5ca5077a64ce } from '@/components/ToggleField'
+import { ViewStationPageButton as ViewStationPageButton_4e6b34efa94959a825a191dd4faa5e47 } from '@/collections/StationPages/components/ViewStationPageButton'
+import { PublishChangesButton as PublishChangesButton_733c9fec647d0760a6b62cbe16c0e231 } from '@/collections/StationPages/components/PublishChangesButton'
 import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } from '@/collections/Posts/components/ViewPostButton'
 import { DescriptionWithCharCount as DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b } from '@/components/DescriptionWithCharCount'
 import { InitialTimezoneSetter as InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643 } from '@/fields/startAndEndDateField/components/InitialTimezoneSetter'
@@ -49,6 +52,7 @@ import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb6
 import { BannerDescription as BannerDescription_3edfb41266bd8db9320658009eba5899 } from '@/components/BannerDescription'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
+import { NativeProductCheckbox as NativeProductCheckbox_2be46ba709ce10ea0c3fe67495e33beb } from '@/collections/Settings/components/NativeProductCheckbox'
 import { WhereThisIsUsed as WhereThisIsUsed_3c817eccfaa77946710fff3fda18114c } from '@/components/SharedContent/WhereThisIsUsed'
 import { SuggestEditDrawer as SuggestEditDrawer_aba91efd1845c1da20f002ee64b75852 } from '@/components/SharedContent/SuggestEditDrawer'
 import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6 } from '@/globals/Diagnostics/components/DiagnosticsDisplay'
@@ -100,6 +104,9 @@ export const importMap = {
   "@/fields/slug/SlugComponent#SlugComponent": SlugComponent_92cc057d0a2abb4f6cf0307edf59f986,
   "@/collections/Pages/components/ViewPageButton#ViewPageButton": ViewPageButton_5587abba969d5f30cb1f479b0a70bb80,
   "@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor": DuplicatePageFor_8f1d8961a356bec6784e5c591c016925,
+  "@/components/ToggleField#ToggleField": ToggleField_371a8655e7a5f0cef03f5ca5077a64ce,
+  "@/collections/StationPages/components/ViewStationPageButton#ViewStationPageButton": ViewStationPageButton_4e6b34efa94959a825a191dd4faa5e47,
+  "@/collections/StationPages/components/PublishChangesButton#PublishChangesButton": PublishChangesButton_733c9fec647d0760a6b62cbe16c0e231,
   "@/collections/Posts/components/ViewPostButton#ViewPostButton": ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
   "@/components/DescriptionWithCharCount#DescriptionWithCharCount": DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b,
   "@/fields/startAndEndDateField/components/InitialTimezoneSetter#InitialTimezoneSetter": InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643,
@@ -121,6 +128,7 @@ export const importMap = {
   "@/components/BannerDescription#BannerDescription": BannerDescription_3edfb41266bd8db9320658009eba5899,
   "@/collections/Settings/components/AvalancheCenterName#AvalancheCenterName": AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
   "@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription": USFSLogoDescription_d2eea91290575f9a545768dce25713f4,
+  "@/collections/Settings/components/NativeProductCheckbox#NativeProductCheckbox": NativeProductCheckbox_2be46ba709ce10ea0c3fe67495e33beb,
   "@/components/SharedContent/WhereThisIsUsed#WhereThisIsUsed": WhereThisIsUsed_3c817eccfaa77946710fff3fda18114c,
   "@/components/SharedContent/SuggestEditDrawer#SuggestEditDrawer": SuggestEditDrawer_aba91efd1845c1da20f002ee64b75852,
   "@/globals/Diagnostics/components/DiagnosticsDisplay#DiagnosticsDisplay": DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6,

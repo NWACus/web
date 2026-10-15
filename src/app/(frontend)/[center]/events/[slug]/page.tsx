@@ -104,7 +104,6 @@ export default async function Event({ params: paramsPromise }: Args) {
                 startDate={event.startDate}
                 startDate_tz={event.startDate_tz}
                 endDate={event.endDate}
-                endDate_tz={event.endDate_tz}
                 location={event.location}
                 skillLevel={event.skillLevel}
                 showLabels={true}

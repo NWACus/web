@@ -1,10 +1,12 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
+import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
+import type { NativeProduct } from '@/utilities/getNativeProductFlag'
 import { validatePhone } from '@/utilities/validatePhone'
-import { CollectionConfig, Field, TextFieldValidation } from 'payload'
+import { CheckboxField, CollectionConfig, Field, FieldBase, TextFieldValidation } from 'payload'
 import { text } from 'payload/shared'
 import { revalidateSettings } from './hooks/revalidateSettings'
 
@@ -168,7 +170,7 @@ const brandAssetsFields: Field[] = [
     },
     admin: {
       description:
-        'Recommended: Use square (1:1) aspect ratio images for optimal display. Images with aspect ratios close to square are also acceptable.',
+        'Used in the footer. Recommended: a square (1:1) image, at least 512x512 pixels, with a transparent background.',
     },
     required: true,
   },
@@ -182,7 +184,7 @@ const brandAssetsFields: Field[] = [
     },
     admin: {
       description:
-        'Used as the browser tab icon. Recommended: Use a compressed, 96x96 pixel, square aspect ratio image.',
+        'Used as the browser tab icon. Recommended: a square (1:1) image, at least 96x96 pixels, simple enough to read at 16 pixels.',
     },
     required: true,
   },
@@ -195,7 +197,8 @@ const brandAssetsFields: Field[] = [
       mimeType: { contains: 'image' },
     },
     admin: {
-      description: 'Used in the header of your website next to the USFS logo if added.',
+      description:
+        'Used in the header of your website next to the USFS logo if added, and in link previews. Recommended: a horizontal image, at least 160 pixels tall (300 is ideal), with a transparent background.',
     },
     required: true,
   },
@@ -212,6 +215,55 @@ const brandAssetsFields: Field[] = [
         Description: '@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription',
       },
     },
+  },
+]
+
+const superAdminOnly: FieldBase['access'] = {
+  create: hasSuperAdminPermissions,
+  update: hasSuperAdminPermissions,
+}
+
+const nativeProductFlag = (name: NativeProduct, description: string): CheckboxField => ({
+  name,
+  type: 'checkbox',
+  defaultValue: false,
+  access: superAdminOnly,
+  admin: {
+    description,
+    components: {
+      Field: '@/collections/Settings/components/NativeProductCheckbox#NativeProductCheckbox',
+    },
+  },
+})
+
+const featuresFields: Field[] = [
+  {
+    name: 'nativeProducts',
+    type: 'group',
+    label: 'Native product pages',
+    admin: {
+      description:
+        'When enabled, these products render natively as Next.js pages on this site’s design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback. Only super admins can change these.',
+    },
+    fields: [
+      nativeProductFlag('forecast', 'Render the avalanche forecast page natively.'),
+      nativeProductFlag(
+        'warning',
+        'Render warning/watch/special bulletins natively: the center-wide alert banner on the home page, and the per-zone banner on the native forecast page.',
+      ),
+      nativeProductFlag(
+        'dangerMap',
+        'Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.',
+      ),
+      nativeProductFlag(
+        'weather',
+        'Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC — and, together with the forecast flag, the forecast archive’s Mountain Weather tab. Centers without one have neither the page nor the tab either way. NWAC’s own Mountain Weather Forecast page takes no flag.',
+      ),
+      nativeProductFlag(
+        'stationMap',
+        'Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.',
+      ),
+    ],
   },
 ]
 
@@ -324,6 +376,11 @@ export const Settings: CollectionConfig = {
           description:
             'Images used throughout the website including in the header, footer, browser tabs, and link previews.',
           fields: brandAssetsFields,
+        },
+        {
+          label: 'Features',
+          description: 'Feature flags to control which features are enabled for this center.',
+          fields: featuresFields,
         },
         {
           label: 'Social Media',

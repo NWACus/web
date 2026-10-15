@@ -87,6 +87,12 @@ export function PeriodSelect({
   )
 }
 
+/** Whether any live station page besides the current one could join the graphs. */
+function hasComparablePages(pages: StationPageSummary[], currentSlug: string | null): boolean {
+  return pages.some((page) => page.slug !== currentSlug && !page.archived)
+}
+
+// Nothing to offer on a detail page for a center with no station pages.
 export function CompareSelect({
   pages,
   currentSlug,
@@ -95,12 +101,13 @@ export function CompareSelect({
   className,
 }: {
   pages: StationPageSummary[]
-  currentSlug: string
+  currentSlug: string | null
   compareSlugs: string[]
   onCompareChange: (slugs: string[]) => void
   className?: string
 }) {
   const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
+  if (!hasComparablePages(pages, currentSlug)) return null
   return (
     <Select
       value=""
@@ -108,17 +115,17 @@ export function CompareSelect({
       onValueChange={(slug) => onCompareChange([...compareSlugs, slug])}
     >
       <SelectTrigger
-        aria-label="Compare with"
+        aria-label="Add stations"
         className={cn(stationSelectTriggerClass, 'py-1.5', className)}
       >
         <SelectValue
-          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
+          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add stations…'}
         />
       </SelectTrigger>
       <SelectContent position="item-aligned">
         <StationSelectItems
           pages={pages}
-          excludeSlugs={[currentSlug, ...compareSlugs]}
+          excludeSlugs={currentSlug ? [currentSlug, ...compareSlugs] : compareSlugs}
           excludeArchived
         />
       </SelectContent>
@@ -163,7 +170,12 @@ function MobileViewControls(props: EditViewProps) {
         <span className={sectionLabelClass}>Units</span>
         <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
       </div>
-      <div className="flex flex-col gap-2">
+      <div
+        className={cn(
+          'flex flex-col gap-2',
+          !hasComparablePages(props.pages, props.currentSlug) && 'hidden',
+        )}
+      >
         <span className={sectionLabelClass}>Compare stations</span>
         <CompareSelect
           pages={props.pages}
@@ -302,7 +314,8 @@ export type EditViewProps = {
   onPeriodChange: (period: StationPeriod) => void
   unitSystem: UnitSystem
   onUnitChange: (system: UnitSystem) => void
-  currentSlug: string
+  /** The station page being viewed; null on a single station's detail page. */
+  currentSlug: string | null
   compareSlugs: string[]
   onCompareChange: (slugs: string[]) => void
   arrangement: ReturnType<typeof useChartArrangement>

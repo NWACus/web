@@ -4,6 +4,8 @@ import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationColumn } from './stationColumns'
 import { toStationColumns } from './stationColumns'
+import type { StationTabKey } from './stationTabs'
+import { toStationTabs } from './stationTabs'
 
 export type AssembledStationPage = {
   slug: string
@@ -12,6 +14,7 @@ export type AssembledStationPage = {
   stations: StationRef[]
   /** The readings the table shows, for every station; empty means all reported. */
   columns: StationColumn[]
+  tabs: StationTabKey[]
 }
 
 export type StationPageSummary = Pick<
@@ -19,7 +22,10 @@ export type StationPageSummary = Pick<
   'slug' | 'displayName' | 'archived' | 'stations'
 >
 
-type PageRow = Pick<StationPage, 'slug' | 'displayName' | 'archived' | 'stations' | 'columns'>
+type PageRow = Pick<
+  StationPage,
+  'slug' | 'displayName' | 'archived' | 'stations' | 'columns' | 'tabs'
+>
 
 // A flat, alphabetical list: with a dropdown to jump between pages, headings
 // bought less than they cost.
@@ -37,6 +43,8 @@ export function assembleStationPages(pages: PageRow[]): AssembledStationPage[] {
         archived: page.archived ?? false,
         stations,
         columns: toStationColumns(page.columns),
+        // A retired station reports nothing, so only its download is useful.
+        tabs: page.archived ? ['csv'] : toStationTabs(page.tabs),
       }
     })
     .sort(byName)
@@ -49,6 +57,23 @@ export function toPageSummaries(pages: AssembledStationPage[]): StationPageSumma
     archived,
     stations,
   }))
+}
+
+/**
+ * The station page a single station's detail page offers as its area (the widget modal's "Area
+ * Tables" and "Area Graphs"): a live page over an archived one, else the first that lists it.
+ */
+export function areaPageFor(
+  pages: StationPageSummary[],
+  station: StationRef,
+): StationPageSummary | null {
+  const key = stationKey(station)
+  const listing = pages.filter((page) => page.stations.some((s) => stationKey(s) === key))
+  return listing.find((page) => !page.archived) ?? listing[0] ?? null
+}
+
+export function stationPagePath(slug: string): string {
+  return `/weather/stations/${slug}`
 }
 
 // The graph-data route's allowlist, by `source:stid`.
