@@ -15,7 +15,8 @@ export const distanceKm = (a: LatLng, b: LatLng) =>
 /**
  * The smallest lat/lng box that contains every point within `radiusKm` of `center`, so a database
  * can narrow on two indexed number columns before the exact distance check.
- * Boxes that would cross the antimeridian are not split; no avalanche center is near it.
+ * A box crossing ±180° longitude (mid-Pacific) would need two longitude ranges, so it isn't
+ * split; no avalanche center is near that line.
  */
 export function boundingBox(center: LatLng, radiusKm: number): BoundingBox {
   // Turf's Earth radius, so this box and distanceKm agree on where the circle's edge is.
