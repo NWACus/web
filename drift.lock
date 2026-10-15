@@ -8,7 +8,7 @@ sig = "47d841a70f1a75f0"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "befd232286043c26"
+sig = "7b2e734af67c4f0f"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -627,8 +627,18 @@ sig = "93856d4c3ca3e5cd"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
+target = "src/app/(frontend)/[center]/blog/[slug]/page.tsx"
+sig = "00ac0fccf4640f0e"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
 target = "src/app/(frontend)/[center]/theme-preview/page.tsx"
 sig = "092a1be704297a39"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "src/app/(frontend)/globals.css"
+sig = "b3dd8b3c14b678af"
 
 [[bindings]]
 doc = "docs/coding-guide.md"

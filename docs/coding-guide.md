@@ -247,6 +247,12 @@ When creating a new block, you must register it in the following locations:
 - Standalone blocks (`RenderBlocks.tsx`) are top-level page layout blocks that need their own container → `isLayoutBlock={true}`
 - Inline Lexical blocks (`RichText/index.tsx`) are embedded inside a rich text field that already provides a container → `isLayoutBlock={false}`
 
+### Wide blocks in posts (`breakout`)
+
+A post's text column is capped at `48rem`, which is too narrow for wide blocks like the Observations Widget. Add the `breakout` class (defined in `src/app/(frontend)/globals.css`) to the block's outer element when `isLayoutBlock` is `false` and it widens to the page's `.container`, centered on the text column. It does nothing when the column is already that wide, e.g. on mobile.
+
+`breakout` measures against the nearest ancestor with `@container` (it uses `cqw` units), so the page that renders the rich text has to mark its `.container` with `@container`; the post page does. Without one, `cqw` falls back to the viewport and the block runs edge to edge. Only use it in a column that is centered in its container, not in a half-width column.
+
 
 ### BackgroundColorWrapper
 
