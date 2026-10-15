@@ -100,6 +100,19 @@ describe('Overall', () => {
     expect(row?.querySelectorAll('td')).toHaveLength(parts.length)
   })
 
+  it('switches precipitation and snow between 12 and 24 hours', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const twelve = screen.getByRole('button', { name: '12 hours' })
+    const twentyFour = screen.getByRole('button', { name: '24 hours' })
+    expect(twelve).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.queryByRole('columnheader', { name: 'Night + Day' })).toBeNull()
+
+    fireEvent.click(twentyFour)
+    expect(twentyFour).toHaveAttribute('aria-pressed', 'true')
+    // An afternoon issuance's nights pair with the days after them.
+    expect(screen.getAllByRole('columnheader', { name: 'Night + Day' }).length).toBeGreaterThan(0)
+  })
+
   it('has no extended table on a morning issuance', () => {
     render(<Overall parts={overallParts(morning)} />)
     expect(screen.queryByRole('heading', { name: 'Snow Levels (ft)' })).toBeNull()
@@ -152,11 +165,12 @@ describe('Overall table descriptions', () => {
     expect(
       screen.getByText(/^The average speed and direction over each 6 hours/),
     ).toBeInTheDocument()
+    // The 12 and 24 hour tables both carry it; one is hidden.
     expect(
-      screen.getByText(
+      screen.getAllByText(
         /^Water Equivalent \(WE\) and new snow by station; .* LT means less than\.$/,
       ),
-    ).toBeInTheDocument()
+    ).toHaveLength(2)
     expect(screen.getByText(/is the high \/ low$/)).toBeInTheDocument()
     expect(screen.getByText('Points to where the wind comes from')).toBeInTheDocument()
     expect(screen.getByText('Higher or lower than the previous period')).toBeInTheDocument()

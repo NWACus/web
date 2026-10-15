@@ -1,5 +1,6 @@
 import {
   blockDate,
+  dayGroups,
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
@@ -165,5 +166,30 @@ describe('levelTrend', () => {
     expect(levelTrend(3000, 3000)).toBeNull()
     expect(levelTrend(undefined, 3000)).toBeNull()
     expect(levelTrend(3000, null)).toBeNull()
+  })
+})
+
+describe('dayGroups', () => {
+  const period = (key: string, kind: 'day' | 'night') => ({
+    key,
+    label: key,
+    short: null,
+    kind,
+    date: '2026-10-14',
+    precip: true,
+  })
+
+  it('pairs each night with the day after it, a lone period on its own', () => {
+    const groups = dayGroups([
+      period('d1', 'day'),
+      period('n1', 'night'),
+      period('d2', 'day'),
+      period('n2', 'night'),
+    ])
+    expect(groups.map((g) => [g.key, g.partial])).toEqual([
+      ['d1', 'Day only'],
+      ['n1-d2', null],
+      ['n2', 'Night only'],
+    ])
   })
 })

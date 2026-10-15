@@ -105,6 +105,34 @@ export function windBearing(dir: string | null | undefined): number | null {
   return i < 0 ? null : i * 22.5
 }
 
+export interface PeriodGroup {
+  key: string
+  periods: NWACWeatherPeriod[]
+  /** "Night only" / "Day only" for a period with no partner; null for a night and its day. */
+  partial: string | null
+}
+
+/**
+ * The 12h periods folded into 24 hours the way forecasters read them, as the dashboard preview
+ * does: each night with the day after it (afternoon: Night 1 + Day 2, Night 2 + Day 3; morning:
+ * Day 1 alone, then Night 1 + Day 2). A period with no partner stands alone.
+ */
+export function dayGroups(periods: NWACWeatherPeriod[]): PeriodGroup[] {
+  const groups: PeriodGroup[] = []
+  for (let i = 0; i < periods.length; i++) {
+    const period = periods[i]
+    const next = periods[i + 1]
+    if (period.kind === 'night' && next?.kind === 'day') {
+      groups.push({ key: `${period.key}-${next.key}`, periods: [period, next], partial: null })
+      i++
+    } else {
+      const partial = period.kind === 'night' ? 'Night only' : 'Day only'
+      groups.push({ key: period.key, periods: [period], partial })
+    }
+  }
+  return groups
+}
+
 /** The periods the issuance forecasts precipitation for. */
 export function precipPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] {
   return issuance.periods.filter((p) => p.precip)
