@@ -1,4 +1,4 @@
-import { INLINE_SAFE_MIME_TYPES } from './allowedFileTypes'
+import { isInlineSafeMimeType } from './allowedFileTypes'
 
 /**
  * Documents are served from the site's own origin, not from an isolated asset
@@ -15,7 +15,7 @@ export const modifyDocumentResponseHeaders = ({ headers }: { headers: Headers })
 
   const contentType = headers.get('Content-Type')?.split(';')[0].trim()
 
-  if (!contentType || !INLINE_SAFE_MIME_TYPES.includes(contentType)) {
+  if (!isInlineSafeMimeType(contentType)) {
     const disposition = headers.get('Content-Disposition')
 
     headers.set(
