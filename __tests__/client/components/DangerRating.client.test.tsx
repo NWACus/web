@@ -18,7 +18,7 @@ const tomorrow = {
   lower: DangerLevel.Low,
 }
 
-/** The zone page's dated view, as NativeForecastView renders it. */
+/** As NativeForecastView renders it; the all-zones card passes today alone. */
 function renderDated(danger = [today, tomorrow], elevationBandsUrl: string | null = null) {
   return render(
     <DangerRating
@@ -102,13 +102,5 @@ describe('DangerRating', () => {
 
     renderDated([unrated, tomorrow])
     expect(line()).not.toHaveClass('lg:hidden')
-  })
-
-  it('leaves the all-zones card as it was: both days, no help, no collapsible outlook', () => {
-    render(<DangerRating danger={[today, tomorrow]} elevationBandNames={bandNames} />)
-
-    expect(screen.getByRole('heading', { level: 4, name: 'Tomorrow' })).toBeInTheDocument()
-    expect(screen.queryByRole('button')).toBeNull()
-    expect(screen.queryByRole('list', { name: 'Travel advice' })).toBeNull()
   })
 })

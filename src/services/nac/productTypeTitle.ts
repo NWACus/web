@@ -21,3 +21,13 @@ export function productTabLabel(productType: ProductType | null | undefined): st
     ? 'Avalanche Forecast'
     : GENERAL_INFORMATION_TITLE
 }
+
+/**
+ * The all-zones page's heading: a forecast if any zone published one, otherwise general
+ * information. Pass only the zones that loaded, so a failed fetch can't change the claim. `null`
+ * when nothing loaded, as the widget then shows no heading.
+ */
+export function allZonesTitle(productTypes: ProductType[]): string | null {
+  if (productTypes.length === 0) return null
+  return productTypes.includes(ProductType.Forecast) ? FORECAST_TITLE : GENERAL_INFORMATION_TITLE
+}

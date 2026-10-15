@@ -1,4 +1,8 @@
-import { bottomLineDangerLevel, highestDangerLevel } from '@/components/forecast/zoneCardDanger'
+import {
+  bottomLineDangerLevel,
+  highestDangerLevel,
+  withoutOutlook,
+} from '@/components/forecast/zoneCardDanger'
 import {
   DangerLevel,
   ForecastPeriod,
@@ -116,5 +120,25 @@ describe('bottomLineDangerLevel', () => {
       ],
     }
     expect(bottomLineDangerLevel(forecast)).toBe(DangerLevel.None)
+  })
+})
+
+// Forecast-144
+describe('withoutOutlook', () => {
+  const day = (valid_day: ForecastPeriod) => ({
+    valid_day,
+    upper: DangerLevel.Moderate,
+    middle: DangerLevel.Low,
+    lower: DangerLevel.Low,
+  })
+
+  it('drops tomorrow by its valid_day, wherever it sits', () => {
+    expect(withoutOutlook([day(ForecastPeriod.Tomorrow), day(ForecastPeriod.Current)])).toEqual([
+      day(ForecastPeriod.Current),
+    ])
+  })
+
+  it('keeps today when there was no outlook to drop', () => {
+    expect(withoutOutlook([day(ForecastPeriod.Current)])).toEqual([day(ForecastPeriod.Current)])
   })
 })

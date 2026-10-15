@@ -3,11 +3,10 @@
  * detailed treatment — gray rows with white elevation-name pills over a color-coded triangle, the
  * "{level} - {Name}" rating, and the danger diamond icon; tomorrow is the outlook (gray rows,
  * rating + icon), so the current day reads as the more important one. Below sit the Elevation Band
- * Descriptions link and the danger-scale legend. The compact all-zones card passes no dates and
- * renders both days compactly without the legend.
+ * Descriptions link and the danger-scale legend.
  *
  * A section, not a card: the zone page sets it inside the one forecast panel, as the widget did,
- * and the all-zones card wraps it in its own.
+ * and the all-zones card wraps it in its own, passing today alone.
  */
 import Image from 'next/image'
 
@@ -33,19 +32,18 @@ import { ExternalLink } from './ExternalLink'
 import { HelpHeading } from './HelpHeading'
 import { TravelAdviceColumn } from './TravelAdviceColumn'
 import { dangerHeadings, isNoRatingDay, type DangerHeadings } from './dangerRatingLayout'
-import { sectionHeading } from './forecastHeadings'
 import { AVALANCHE_DANGER_HELP } from './forecastHelp'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface DangerRatingProps {
   danger: AvalancheDangerForecast[]
   elevationBandNames: ElevationBandNames
-  /** Published time of the product — when set, day columns are headed by real valid dates. */
-  publishedTime?: string
+  /** Published time of the product, which heads each day column with its valid date. */
+  publishedTime: string
   /** Center timezone for the noon valid-date rule. */
-  timezone?: string | null
-  /** The center's elevation-band explainer, linked under the dated view's ratings when it has one. */
-  elevationBandsUrl?: string | null
+  timezone: string | null | undefined
+  /** The center's elevation-band explainer, linked under the ratings when it has one. */
+  elevationBandsUrl: string | null
 }
 
 export function DangerRating({
@@ -61,38 +59,29 @@ export function DangerRating({
 
   return (
     <section className="space-y-4">
-      {/* The (?) belongs to the zone page's section; the all-zones card keeps its plain
-          heading. */}
-      {headings.dated ? (
-        <HelpHeading
-          title="Avalanche Danger"
-          help={AVALANCHE_DANGER_HELP}
-          helpLabel="About Avalanche Danger"
-        />
-      ) : (
-        <h2 className={sectionHeading}>Avalanche Danger</h2>
-      )}
+      <HelpHeading
+        title="Avalanche Danger"
+        help={AVALANCHE_DANGER_HELP}
+        helpLabel="About Avalanche Danger"
+      />
       <DangerDayColumns
         today={today}
         tomorrow={tomorrow}
         headings={headings}
         elevationBandNames={elevationBandNames}
       />
-      {headings.dated && (
-        <DatedDangerExtras
-          noRatingToday={isNoRatingDay(today)}
-          adviceBesideToday={!tomorrow}
-          elevationBandsUrl={elevationBandsUrl}
-        />
-      )}
+      <DangerExtras
+        noRatingToday={isNoRatingDay(today)}
+        adviceBesideToday={!tomorrow}
+        elevationBandsUrl={elevationBandsUrl}
+      />
     </section>
   )
 }
 
 /**
- * On the dated view today takes the widget's 8 of 12 columns with the triangle, and the right-hand
- * 4 hold tomorrow's outlook, side by side from lg. Below lg the outlook folds into a collapsed row
- * under today. The compact card stacks both days without the triangle.
+ * Today takes the widget's 8 of 12 columns with the triangle, and the right-hand 4 hold tomorrow's
+ * outlook, side by side from lg. Below lg the outlook folds into a collapsed row under today.
  */
 function DangerDayColumns({
   today,
@@ -105,25 +94,6 @@ function DangerDayColumns({
   headings: DangerHeadings
   elevationBandNames: ElevationBandNames
 }) {
-  if (!headings.dated) {
-    return (
-      <div className="flex flex-col gap-6">
-        <DayColumn
-          heading={headings.today}
-          forecast={today}
-          elevationBandNames={elevationBandNames}
-          variant="compact"
-        />
-        <DayColumn
-          heading={headings.tomorrow}
-          forecast={tomorrow}
-          elevationBandNames={elevationBandNames}
-          variant="compact"
-        />
-      </div>
-    )
-  }
-
   return (
     <>
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-[30px] printWide:flex-row printWide:gap-[30px]">
@@ -235,8 +205,8 @@ function OutlookSummary({
   )
 }
 
-/** The explanatory material shown only on the full dated view, not the compact all-zones card. */
-function DatedDangerExtras({
+/** The explanatory material under the ratings. */
+function DangerExtras({
   noRatingToday,
   adviceBesideToday,
   elevationBandsUrl,
@@ -271,10 +241,9 @@ function DatedDangerExtras({
 
 /**
  * `today` draws the triangle behind the rows; `outlook` sits beside today on desktop, its rows lined
- * up with today's, so it drops the elevation labels; `compact` is the all-zones card, labels always
- * and no triangle.
+ * up with today's, so it drops the elevation labels.
  */
-type DangerDayVariant = 'today' | 'outlook' | 'compact'
+type DangerDayVariant = 'today' | 'outlook'
 
 interface DangerDayProps {
   heading: string

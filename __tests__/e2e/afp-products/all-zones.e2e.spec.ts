@@ -11,14 +11,44 @@ test.describe('All-zones grid', () => {
     await expect(page.locator('[data-testid^="zone-card-"]')).toHaveCount(4)
     await expect(page.getByTestId('zone-card-banner-summit')).toBeVisible()
 
-    // The compact card heads its columns "Today"/"Tomorrow" rather than the product's valid dates,
-    // which is what distinguishes it from the single-zone layout.
     const forecastCard = page.getByTestId(`zone-card-${zoneSlug(ZONE.forecast)}`)
-    await expect(forecastCard.getByRole('heading', { name: 'Today' })).toBeVisible()
-    await expect(forecastCard.getByRole('heading', { name: 'Tomorrow' })).toBeVisible()
     await expect(forecastCard.getByRole('heading', { name: 'The Bottom Line' })).toBeVisible()
 
     expect(errors).toEqual([])
+  })
+
+  // Forecast-144
+  test("a forecast card shows today's danger section, with travel advice in the outlook's place", async ({
+    page,
+  }) => {
+    await loadPage(page, GRID_URL)
+
+    // The golden carries an outlook for Monday; the card leaves it out.
+    const forecastCard = page.getByTestId(`zone-card-${zoneSlug(ZONE.forecast)}`)
+    await expect(forecastCard.getByRole('heading', { name: 'Sunday, April 5, 2026' })).toBeVisible()
+    await expect(forecastCard.getByRole('heading', { name: 'Monday, April 6, 2026' })).toHaveCount(
+      0,
+    )
+    await expect(forecastCard.getByRole('list', { name: 'Travel advice' })).toBeVisible()
+    await expect(forecastCard.getByRole('button', { name: 'About Avalanche Danger' })).toBeVisible()
+    await expect(forecastCard.getByText('Avalanche Danger Scale')).toBeVisible()
+    // Kept from before the change: the card's own expired notice (Forecast-46).
+    await expect(forecastCard.getByText('This product is expired.')).toBeVisible()
+  })
+
+  // Forecast-145, Forecast-140
+  test('heads the page by product type and ends it with the scope disclaimer', async ({ page }) => {
+    await loadPage(page, GRID_URL)
+
+    // One zone carries a summary and the rest forecasts, so any forecast decides the heading.
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      'Backcountry Avalanche Forecast',
+    )
+    await expect(
+      page.getByText(
+        'This information is provided by the U.S.D.A. Forest Service and describes general backcountry avalanche hazard and conditions.',
+      ),
+    ).toBeVisible()
   })
 
   test('a summary zone shows no danger block and a warning zone shows its alert', async ({
@@ -27,7 +57,7 @@ test.describe('All-zones grid', () => {
     await loadPage(page, GRID_URL)
 
     const summaryCard = page.getByTestId(`zone-card-${zoneSlug(ZONE.offSeasonSummary)}`)
-    await expect(summaryCard.getByRole('heading', { name: 'Today' })).toHaveCount(0)
+    await expect(summaryCard.getByRole('heading', { name: 'Avalanche Danger' })).toHaveCount(0)
     await expect(summaryCard.getByRole('heading', { name: 'The Bottom Line' })).toBeVisible()
 
     await expect(

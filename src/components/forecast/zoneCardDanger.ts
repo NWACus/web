@@ -1,11 +1,13 @@
 /**
- * The danger level the all-zones card tints its bottom line with: the highest of today's three
- * elevation bands. A summary product carries no danger ratings, so it tints as unrated.
+ * The all-zones card's danger decisions: the level it tints its bottom line with (the highest of
+ * today's three elevation bands; a summary carries no ratings, so it tints as unrated), and which
+ * days its danger section shows.
  */
 import {
   DangerLevel,
   ForecastPeriod,
   ProductType,
+  type AvalancheDangerForecast,
   type ForecastResult,
 } from '@/services/nac/model/forecast'
 
@@ -36,4 +38,12 @@ export function bottomLineDangerLevel(forecast: ForecastResult | null): DangerLe
   if (!today) return DangerLevel.None
 
   return highestDangerLevel(today)
+}
+
+/**
+ * The days the card shows: today without the outlook, as in the widget's all-zones view. Dropped by
+ * `valid_day` rather than position, so an unordered or outlook-less list still keeps today.
+ */
+export function withoutOutlook(danger: AvalancheDangerForecast[]): AvalancheDangerForecast[] {
+  return danger.filter((day) => day.valid_day !== ForecastPeriod.Tomorrow)
 }
