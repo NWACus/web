@@ -33,7 +33,10 @@ const EventsMap = dynamic(() => import('./EventsMap.client').then((mod) => mod.E
   loading: () => <div className="h-full w-full bg-muted" />,
 })
 
-/** Enough for every upcoming event a center lists; the map shows them all at once. */
+/**
+ * A ceiling on one load, not a page size: centers list a few dozen upcoming events, so this only
+ * bites on a wide date range, and `CappedNotice` says so.
+ */
 const MAP_EVENTS_LIMIT = 200
 
 /** The page's filter params, which the events API reads in the same comma-separated format. */
@@ -42,7 +45,7 @@ const FILTER_KEYS = ['types', 'startDate', 'endDate', 'groups', 'tags', 'modesOf
 // The list and map sit side by side from Tailwind's `xl` up.
 const SIDE_BY_SIDE = '(min-width: 1280px)'
 
-type Loaded = { events: Event[]; error: null } | { events: null; error: string }
+type Loaded = { events: Event[]; total: number; error: null } | { events: null; error: string }
 
 /** The last events loaded stay up while the next set loads, so pins and cards don't flash away. */
 type EventsState = (Loaded | { events: null; error: null }) & { loading: boolean }
@@ -54,7 +57,7 @@ async function loadEvents(url: string, signal: AbortSignal): Promise<Loaded | nu
     const result: GetEventsResult = await fetch(url, { signal }).then((res) => res.json())
     return result.error
       ? { events: null, error: result.error }
-      : { events: result.events, error: null }
+      : { events: result.events, total: result.total, error: null }
   } catch {
     return signal.aborted ? null : { events: null, error: 'Failed to load events.' }
   }
@@ -277,6 +280,17 @@ function UnplacedEvents({ events, selection }: { events: Event[]; selection: Sel
   )
 }
 
+/** Says when the filters match more events than one load holds. */
+function CappedNotice({ shown, total }: { shown: number; total: number }) {
+  if (total <= shown) return null
+  return (
+    <p role="status" className="mb-3 rounded-md border bg-muted px-3 py-2 text-sm">
+      Showing {shown} of {total} matching events. Narrow the dates or filters, or search a smaller
+      map area, to see the rest.
+    </p>
+  )
+}
+
 function NoEvents({ searchingArea }: { searchingArea: boolean }) {
   return (
     <p className="text-muted-foreground py-8 text-center">
@@ -306,6 +320,7 @@ function EventsMapList({
 
   return (
     <>
+      <CappedNotice shown={state.events.length} total={state.total} />
       <EventCards events={state.events.filter(pointOf)} selection={selection} />
       <UnplacedEvents events={state.events} selection={selection} />
     </>
