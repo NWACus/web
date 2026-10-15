@@ -45,7 +45,7 @@ test.describe('Events sorted by distance', () => {
     )
     await page.keyboard.press('Escape')
 
-    // Distances show at once; the re-sorted list follows from the server.
+    // Distances only show once the list sorted from that point arrives from the server.
     await expect.poll(async () => isAscending(await listedMiles(page))).toBe(true)
   })
 
