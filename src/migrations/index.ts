@@ -68,6 +68,7 @@ import * as migration_20261007_231209_payload_3_90_upgrade from './20261007_2312
 import * as migration_20261008_000024_link_to_station_pages from './20261008_000024_link_to_station_pages'
 import * as migration_20261008_002426_add_station_page_tabs from './20261008_002426_add_station_page_tabs'
 import * as migration_20261017_214607_station_columns_per_station from './20261017_214607_station_columns_per_station'
+import * as migration_20261019_120000_add_display_as_to_document_block from './20261019_120000_add_display_as_to_document_block'
 
 export const migrations = [
   {
@@ -419,5 +420,10 @@ export const migrations = [
     up: migration_20261017_214607_station_columns_per_station.up,
     down: migration_20261017_214607_station_columns_per_station.down,
     name: '20261017_214607_station_columns_per_station',
+  },
+  {
+    up: migration_20261019_120000_add_display_as_to_document_block.up,
+    down: migration_20261019_120000_add_display_as_to_document_block.down,
+    name: '20261019_120000_add_display_as_to_document_block',
   },
 ]
