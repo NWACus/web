@@ -42,3 +42,6 @@ export const DOCUMENT_MIME_TYPES = [
  * to match its declared type.
  */
 export const INLINE_SAFE_MIME_TYPES = ['application/pdf']
+
+export const isInlineSafeMimeType = (mimeType: string | null | undefined): boolean =>
+  !!mimeType && INLINE_SAFE_MIME_TYPES.includes(mimeType)

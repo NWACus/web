@@ -15,6 +15,7 @@ const document: Document = {
   tenant: 1,
   url: fileUrl,
   filename: 'avalanche-report.pdf',
+  mimeType: 'application/pdf',
   updatedAt: '2026-01-01T00:00:00.000Z',
   createdAt: '2026-01-01T00:00:00.000Z',
 }
@@ -50,6 +51,20 @@ describe('DocumentBlockComponent', () => {
     // without a new tab, nextjs-toploader shows the page as navigating
     expect(link).toHaveAttribute('target', '_blank')
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(container.querySelector('iframe')).toBeNull()
+  })
+
+  it('falls back to a download link when a non-PDF is set to embed', () => {
+    const { container } = renderBlock({
+      displayAs: 'embed',
+      document: {
+        ...document,
+        filename: 'zones.kml',
+        mimeType: 'application/vnd.google-earth.kml+xml',
+      },
+    })
+
+    expect(screen.getByRole('link', { name: 'zones.kml' })).toBeInTheDocument()
     expect(container.querySelector('iframe')).toBeNull()
   })
 
