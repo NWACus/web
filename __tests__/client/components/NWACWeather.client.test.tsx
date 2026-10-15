@@ -15,8 +15,7 @@ describe('Overall', () => {
   it('renders one table per variable, stations and zones down the rows', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     for (const title of [
-      'Precipitation (in)',
-      'Snow (in)',
+      'Precipitation and Snow (in)',
       "5000' Temperatures (°F)",
       'Snow and Freezing Level (ft)',
       'Snow Levels (ft)',
@@ -33,7 +32,7 @@ describe('Overall', () => {
     expect(olympics).toHaveTextContent('53 / 47')
   })
 
-  it('puts the weather summary under the synopsis, then precipitation before snow, and links each zone to its forecast page', () => {
+  it('puts the weather summary under the synopsis, then precipitation and snow, and links each zone to its forecast page', () => {
     render(
       <Overall
         parts={overallParts(afternoon)}
@@ -43,8 +42,8 @@ describe('Overall', () => {
     const headings = screen.getAllByRole('heading').map((h) => h.textContent)
     const at = (name: string) => headings.indexOf(name)
     expect(at('Weather Synopsis')).toBeLessThan(at('Weather Summary'))
-    expect(at('Weather Summary')).toBeLessThan(at('Precipitation (in)'))
-    expect(at('Precipitation (in)')).toBeLessThan(at('Snow (in)'))
+    expect(at('Weather Summary')).toBeLessThan(at('Precipitation and Snow (in)'))
+    expect(at('Precipitation and Snow (in)')).toBeLessThan(at('Snow and Freezing Level (ft)'))
     expect(screen.getByRole('link', { name: 'Olympics' })).toHaveAttribute(
       'href',
       '/forecasts/avalanche/olympics#mountain-weather',
@@ -61,7 +60,7 @@ describe('Overall', () => {
 
   it('groups snow stations under their zones: a zone column, and heading rows for a phone', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const snow = screen.getByRole('region', { name: 'Snow (in)' })
+    const snow = screen.getByRole('region', { name: 'Precipitation and Snow (in)' })
     const [wide, phone] = within(snow).getAllByRole('table')
     expect(within(wide).getByRole('columnheader', { name: 'Zone' })).toBeInTheDocument()
     expect(within(phone).queryByRole('columnheader', { name: 'Zone' })).toBeNull()
@@ -69,6 +68,21 @@ describe('Overall', () => {
       expect(within(table).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
       expect(within(table).getByRole('rowheader', { name: 'Hurricane Ridge' })).toBeInTheDocument()
     }
+  })
+
+  it('splits each period into water equivalent then snow, and ends on the total', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const region = screen.getByRole('region', { name: 'Precipitation and Snow (in)' })
+    const [wide] = within(region).getAllByRole('table')
+    const parts = within(wide)
+      .getAllByRole('columnheader')
+      .map((h) => h.textContent)
+      .filter((text) => text === 'WE' || text === 'Snow')
+    expect(parts.slice(0, 2)).toEqual(['WE', 'Snow'])
+    expect(within(wide).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
+    const row = within(wide).getByRole('rowheader', { name: 'Hurricane Ridge' }).closest('tr')
+    // A WE and a snow cell per period, plus the total's two.
+    expect(row?.querySelectorAll('td')).toHaveLength(parts.length)
   })
 
   it('has no extended table on a morning issuance', () => {
@@ -132,8 +146,12 @@ describe('Overall table descriptions', () => {
     expect(screen.getByText(/16-point compass rose\.$/)).toBeInTheDocument()
     // The extended snow levels have no note of their own, only the explanation.
     expect(screen.getByText(/^The snow level forecast represents/)).toBeInTheDocument()
-    // The snow table has only its note.
-    expect(screen.getByText('New snow by station.')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        /^Water Equivalent \(WE\) and new snow by station\. .* Water Equivalent \(WE\) is the liquid/,
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByText('The label LT, is shorthand for ‘less than’.')).toBeInTheDocument()
   })
 })
 
