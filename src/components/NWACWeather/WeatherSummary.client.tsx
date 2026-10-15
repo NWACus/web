@@ -5,7 +5,6 @@
  * list of the zones beside the picked zone's two days. Arrow keys move between the zones, as a
  * tablist's do.
  */
-import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useId, useRef, useState, type KeyboardEvent } from 'react'
 
@@ -30,7 +29,7 @@ export interface SensibleRow {
 
 function ZoneDays({ row, days }: { row: SensibleRow; days: SensibleDay[] }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {days.map((d) => (
         <section key={d.key} className="space-y-0.5">
           <h4>
@@ -43,13 +42,16 @@ function ZoneDays({ row, days }: { row: SensibleRow; days: SensibleDay[] }) {
         </section>
       ))}
       {row.href && (
-        <Link
-          href={row.href}
-          className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
-        >
-          {row.zone} forecast
-          <ArrowRight aria-hidden="true" className="size-4" />
-        </Link>
+        <p className="border-t pt-4">
+          View the{' '}
+          <Link
+            href={row.href}
+            className="font-semibold text-primary underline underline-offset-4 hover:decoration-2"
+          >
+            avalanche forecast
+          </Link>{' '}
+          for this zone<span className="sr-only"> ({row.zone})</span>.
+        </p>
       )}
     </div>
   )

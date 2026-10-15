@@ -786,13 +786,16 @@ function zoneLinksOf(issuance: NWACWeatherIssuance, zonePaths: ZonePaths): ZoneL
   })
 }
 
-function ZoneLinks({ links }: { links: ZoneLink[] }) {
+// One per issuance panel, so the heading's id takes the issuance's anchor.
+function ZoneLinks({ links, headingId }: { links: ZoneLink[]; headingId: string }) {
   return (
-    <aside aria-label="Weather by zone" className="space-y-3 rounded-lg bg-muted p-4 print:hidden">
-      <div>
-        <h3 className="text-sm font-semibold">Weather by zone</h3>
-        <p className="text-xs text-muted-foreground">
-          Pick a zone to see its forecast with the avalanche forecast.
+    <aside aria-labelledby={headingId} className="space-y-3 border-t pt-6 print:hidden">
+      <div className="space-y-0.5">
+        <h3 id={headingId} className="text-lg font-semibold">
+          Looking for weather by zone?
+        </h3>
+        <p className="text-muted-foreground">
+          Each zone&rsquo;s forecast page has its mountain weather alongside the avalanche forecast.
         </p>
       </div>
       <ul className="flex flex-wrap gap-2">
@@ -800,7 +803,7 @@ function ZoneLinks({ links }: { links: ZoneLink[] }) {
           <li key={l.id}>
             <Link
               href={l.href}
-              className="inline-flex h-9 items-center rounded-md border bg-background px-3 text-sm font-semibold no-underline hover:bg-accent"
+              className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground no-underline transition-colors hover:bg-primary/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {l.name}
             </Link>
@@ -838,7 +841,7 @@ function SynopsisRow({
   // Without a summary the synopsis takes the full width.
   if (!summary) return text
   return (
-    <div className="grid gap-8 xl:grid-cols-2 xl:items-start">
+    <div className="grid gap-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] xl:items-start">
       {text || <div />}
       {summary}
     </div>
@@ -978,7 +981,7 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
         </div>
       )}
       <ExtendedSection anchor={anchor} extended={extended} table={ext} />
-      {zoneLinks.length > 0 && <ZoneLinks links={zoneLinks} />}
+      {zoneLinks.length > 0 && <ZoneLinks links={zoneLinks} headingId={`${anchor}-zone-links`} />}
     </div>
   )
 }

@@ -43,23 +43,24 @@ describe('Overall', () => {
     const at = (name: string) => headings.indexOf(name)
     expect(at('Weather Synopsis')).toBeLessThan(at('Weather Summary by Zone'))
     expect(at('Weather Summary by Zone')).toBeLessThan(at('Precipitation and Snow (in)'))
-    expect(at('Extended')).toBeLessThan(at('Weather by zone'))
+    expect(at('Extended')).toBeLessThan(at('Looking for weather by zone?'))
     expect(screen.getByRole('link', { name: 'Olympics' })).toHaveAttribute(
       'href',
       '/forecasts/avalanche/olympics#mountain-weather',
     )
     // The picked zone's summary links to its forecast too.
     const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
-    expect(within(summary).getByRole('link', { name: 'Olympics forecast' })).toHaveAttribute(
-      'href',
-      '/forecasts/avalanche/olympics#mountain-weather',
-    )
+    expect(
+      within(summary).getByRole('link', {
+        name: 'avalanche forecast',
+      }),
+    ).toHaveAttribute('href', '/forecasts/avalanche/olympics#mountain-weather')
   })
 
   it('puts the weather summary beside the synopsis, and leaves out the zone links when no zone has a page', () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
-    expect(screen.queryByRole('complementary', { name: 'Weather by zone' })).toBeNull()
+    expect(screen.queryByRole('complementary', { name: 'Looking for weather by zone?' })).toBeNull()
     const synopsis = screen.getByRole('heading', { name: 'Weather Synopsis' }).closest('section')
     const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
     expect(synopsis?.parentElement).toHaveClass('grid')
