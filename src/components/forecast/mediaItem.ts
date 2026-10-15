@@ -84,12 +84,12 @@ export function displayableMedia(items: MediaItem[]): MediaItem[] {
 export type MediaSlideContent =
   | { kind: 'youtube'; videoId: string; title: string }
   | { kind: 'photo'; url: string; alt: string }
-  | { kind: 'link'; href: string; label: string }
   | { kind: 'unsupported' }
 
 /**
  * Decide what a media item renders as in the lightbox, in priority order: an embedded YouTube
- * player, a zoomable still, an outbound link (external media or PDF), or nothing we can display.
+ * player, a zoomable still, or nothing we can display. PDFs and external links never reach the
+ * lightbox; their tiles open them in a new tab (see `getMediaLink`).
  */
 export function resolveMediaSlide(item: MediaItem): MediaSlideContent {
   const videoId = getYouTubeVideoId(item)
@@ -102,22 +102,45 @@ export function resolveMediaSlide(item: MediaItem): MediaSlideContent {
     return { kind: 'photo', url: fullUrl, alt: getCaption(item) ?? '' }
   }
 
-  const link = getExternalLink(item)
-  if (link) return link
-
   return { kind: 'unsupported' }
 }
 
-function getExternalLink(item: MediaItem): { kind: 'link'; href: string; label: string } | null {
-  if (
-    item.type === MediaType.External &&
-    typeof item.url === 'object' &&
-    'external_link' in item.url
-  ) {
-    return { kind: 'link', href: item.url.external_link, label: 'Open external media' }
+/** A PDF or external link, which the widget opens in a new tab rather than the lightbox. */
+export interface MediaLink {
+  kind: 'pdf' | 'external'
+  href: string
+  /** The forecaster's title (a PDF's is its filename), or `null` when it has none. */
+  title: string | null
+}
+
+export function getMediaLink(item: MediaItem): MediaLink | null {
+  if (item.type === MediaType.External) {
+    return { kind: 'external', href: item.url.external_link, title: item.title || null }
   }
-  if (item.type === MediaType.PDF && typeof item.url === 'object' && 'original' in item.url) {
-    return { kind: 'link', href: item.url.original, label: 'Open PDF' }
+  if (item.type === MediaType.PDF) {
+    return { kind: 'pdf', href: item.url.original, title: item.title || null }
   }
   return null
+}
+
+/** One Media grid tile: a link out, or a lightbox opener at its index in the lightbox's list. */
+export type MediaGridTile<T> =
+  | { kind: 'link'; media: T; link: MediaLink }
+  | { kind: 'lightbox'; media: T; index: number }
+
+/**
+ * Lay out the Media grid in the product's order, and pull out the lightbox's own sequence, which
+ * keeps images, photos and videos only, as the widget's does.
+ */
+export function mediaGridTiles<T extends { item: MediaItem }>(
+  media: T[],
+): { tiles: MediaGridTile<T>[]; lightbox: T[] } {
+  const lightbox: T[] = []
+  const tiles = media.map((entry): MediaGridTile<T> => {
+    const link = getMediaLink(entry.item)
+    if (link) return { kind: 'link', media: entry, link }
+    lightbox.push(entry)
+    return { kind: 'lightbox', media: entry, index: lightbox.length - 1 }
+  })
+  return { tiles, lightbox }
 }
