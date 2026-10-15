@@ -153,12 +153,14 @@ describe('nwacWeatherFormat', () => {
 })
 
 describe('levelKind', () => {
-  const block = afternoon.blocks.find((b) => b.period != null)!
-  const zone = afternoon.points.find((p) => p.zoneId)!.zoneId!
+  const block = afternoon.blocks.find((b) => b.period != null)
+  const zone = afternoon.points.find((p) => p.zoneId)?.zoneId
+  if (!block?.period || !zone) throw new Error('fixture should have a wet block and a zoned point')
+  const period = block.period
   const withPrecip = (qpf: number, mode: string | null = 'auto') => ({
     ...afternoon,
     precip: Object.fromEntries(
-      afternoon.points.map((p) => [p.code, { [block.period!]: { qpf, density: 10 } }]),
+      afternoon.points.map((p) => [p.code, { [period]: { qpf, density: 10 } }]),
     ),
     snowLevel: { [zone]: { [block.key]: { freezing: 6000, drop: 1000, mode } } },
   })
