@@ -60,7 +60,11 @@ function useEventsMapInstance(containerRef: RefObject<HTMLDivElement | null>) {
  * area search is on: the reader chose that view, so it stays put as the results come in.
  */
 function useFitToPlaces(map: mapboxgl.Map | null, places: EventPlace[], searching: boolean) {
-  const placesKey = places.map((place) => place.key).join('|')
+  // Sorted, so the same pins in a new order (a change of sort) don't refit the map.
+  const placesKey = places
+    .map((place) => place.key)
+    .sort()
+    .join('|')
   const placesRef = useRef(places)
   placesRef.current = places
 
@@ -116,11 +120,14 @@ function viewBox(map: mapboxgl.Map): BoundingBox {
   const { clientWidth, clientHeight } = map.getContainer()
   const southWest = map.unproject([0, clientHeight])
   const northEast = map.unproject([clientWidth, 0])
-  // Zoomed far out, Mapbox reports longitudes past ±180 for the repeated copies of the world.
+  // Panned onto a repeated copy of the world, Mapbox reports longitudes past ±180: shift back to
+  // the copy the centre is on, then clamp what still hangs over the edge when zoomed far out.
+  const center = map.getCenter()
+  const shift = center.lng - center.wrap().lng
   return {
-    west: Math.max(southWest.lng, -180),
+    west: Math.max(southWest.lng - shift, -180),
     south: southWest.lat,
-    east: Math.min(northEast.lng, 180),
+    east: Math.min(northEast.lng - shift, 180),
     north: northEast.lat,
   }
 }
@@ -184,10 +191,15 @@ function PlacePopup({ map, place }: { map: mapboxgl.Map; place: EventPlace }) {
       ref={popupRef}
       className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 rounded-md border bg-card text-card-foreground p-3 shadow-lg text-left"
     >
-      <ul className="flex flex-col gap-2">
+      <ul className="flex max-h-64 flex-col gap-2 overflow-y-auto">
         {place.events.map((event) => (
           <li key={event.id}>
-            <Link href={`/events/${event.slug}`} className="font-semibold text-sm hover:underline">
+            {/* Out of the tab order: the marker is aria-hidden, and each card carries the same link. */}
+            <Link
+              href={`/events/${event.slug}`}
+              tabIndex={-1}
+              className="font-semibold text-sm hover:underline"
+            >
               {event.title}
             </Link>
             <div className="text-xs text-muted-foreground">
