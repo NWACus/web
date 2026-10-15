@@ -100,6 +100,7 @@
     "@turf/bbox": "^7.4.0",
     "@turf/boolean-point-in-polygon": "^7.4.0",
     "@turf/distance": "^7.4.0",
+    "@turf/helpers": "^7.4.0",
     "@types/lodash.merge": "^4.6.9",
     "@vercel/blob": "^2.3.3",
     "@vercel/og": "^0.11.1",

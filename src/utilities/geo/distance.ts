@@ -1,4 +1,5 @@
 import { distance } from '@turf/distance'
+import { degreesToRadians, lengthToRadians, radiansToDegrees } from '@turf/helpers'
 
 export type LatLng = { latitude: number; longitude: number }
 
@@ -6,12 +7,6 @@ export type LatLng = { latitude: number; longitude: number }
 export type StoredCoordinates = { latitude?: number | null; longitude?: number | null }
 
 export type BoundingBox = { south: number; north: number; west: number; east: number }
-
-// Turf's mean Earth radius, so the box below and Turf's distance check agree on the circle.
-const EARTH_RADIUS_KM = 6371.0088
-
-const toRadians = (degrees: number) => (degrees * Math.PI) / 180
-const toDegrees = (radians: number) => (radians * 180) / Math.PI
 
 /** Great-circle distance; Turf takes points as [longitude, latitude]. */
 export const distanceKm = (a: LatLng, b: LatLng) =>
@@ -23,16 +18,17 @@ export const distanceKm = (a: LatLng, b: LatLng) =>
  * Boxes that would cross the antimeridian are not split; no avalanche center is near it.
  */
 export function boundingBox(center: LatLng, radiusKm: number): BoundingBox {
-  const angularRadius = radiusKm / EARTH_RADIUS_KM
-  const lat = toRadians(center.latitude)
-  const south = toDegrees(lat - angularRadius)
-  const north = toDegrees(lat + angularRadius)
+  // Turf's Earth radius, so this box and distanceKm agree on where the circle's edge is.
+  const angularRadius = lengthToRadians(radiusKm, 'kilometers')
+  const lat = degreesToRadians(center.latitude)
+  const south = radiansToDegrees(lat - angularRadius)
+  const north = radiansToDegrees(lat + angularRadius)
 
   if (south <= -90 || north >= 90) {
     return { south: Math.max(south, -90), north: Math.min(north, 90), west: -180, east: 180 }
   }
 
-  const dLng = toDegrees(Math.asin(Math.sin(angularRadius) / Math.cos(lat)))
+  const dLng = radiansToDegrees(Math.asin(Math.sin(angularRadius) / Math.cos(lat)))
   return {
     south,
     north,
