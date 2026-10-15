@@ -143,25 +143,23 @@ describe('Overall extended section', () => {
 })
 
 describe('Overall table descriptions', () => {
-  it('continues each short note with the legacy page’s explanation', () => {
+  it('explains each table, with a legend where its cells need one', () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
+    // The main and extended snow level tables share their explanation.
+    expect(screen.getAllByText(/^The general snow level over each 6 hours/)).toHaveLength(2)
+    expect(screen.getByText(/^The high and low at 5000’ within each 12 hours/)).toBeInTheDocument()
     expect(
-      screen.getByText(/^Where rain turns to snow\. The snow level forecast/),
+      screen.getByText(/^The average speed and direction over each 6 hours/),
     ).toBeInTheDocument()
-    expect(screen.getByText(/^High \/ low\. The 5000’ temperature forecast/)).toBeInTheDocument()
-    expect(
-      screen.getByText(/^Arrows point the way the wind blows\. Ridgeline winds are the average/),
-    ).toBeInTheDocument()
-    expect(screen.getByText(/16-point compass rose\.$/)).toBeInTheDocument()
-    // The extended snow levels have no note of their own, only the explanation.
-    expect(screen.getByText(/^The snow level forecast represents/)).toBeInTheDocument()
     expect(
       screen.getByText(
-        /^Water Equivalent \(WE\) and new snow by station\. .* Water Equivalent \(WE\) is the liquid/,
+        /^Water Equivalent \(WE\) and new snow by station; .* LT means less than\.$/,
       ),
     ).toBeInTheDocument()
-    expect(screen.getByText('The label LT, is shorthand for ‘less than’.')).toBeInTheDocument()
+    expect(screen.getByText(/is the high \/ low$/)).toBeInTheDocument()
+    expect(screen.getByText('Points the way the wind blows')).toBeInTheDocument()
+    expect(screen.getByText('Higher or lower than the previous period')).toBeInTheDocument()
   })
 })
 

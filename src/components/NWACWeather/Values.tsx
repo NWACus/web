@@ -5,13 +5,6 @@ import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/mo
 import { DASH, fmtWind, windBearing } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
-const TONES = [
-  'bg-sky-50 text-sky-950',
-  'bg-sky-100 text-sky-950',
-  'bg-sky-300 text-sky-950',
-  'bg-sky-700 text-white',
-]
-
 /** Any snow in bold, so the few periods with some stand out from the muted zeros. */
 export function SnowValue({ text, some }: { text: string; some: boolean }) {
   return (
@@ -30,21 +23,6 @@ export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
       <span className="font-semibold">{cell.high}</span>
       <span className="text-muted-foreground"> / </span>
       <span className="font-semibold">{cell.low}</span>
-    </span>
-  )
-}
-
-/** `tone` is the level's shade from `snowLevelTones`. */
-export function LevelValue({ level, tone }: { level: number | null; tone: number | null }) {
-  if (level == null) return <span className="block text-center text-muted-foreground">{DASH}</span>
-  return (
-    <span
-      className={cn(
-        'block whitespace-nowrap rounded px-1 py-1 text-center tabular-nums',
-        TONES[tone ?? 0],
-      )}
-    >
-      {level.toLocaleString('en-US')}&apos;
     </span>
   )
 }
@@ -94,7 +72,34 @@ export function SnowLevelLegend() {
       <span className="inline-flex items-center gap-1">
         <TrendingUp aria-hidden="true" className="size-4" />
         <TrendingDown aria-hidden="true" className="size-4" />
-        Higher or lower than the block before
+        Higher or lower than the previous period
+      </span>
+    </p>
+  )
+}
+
+/** How to read the temperature cells, over the table. */
+export function TempLegend() {
+  return (
+    <p className="text-xs text-muted-foreground">
+      <span className="font-semibold text-foreground">44</span> /{' '}
+      <span className="font-semibold text-foreground">35</span> is the high / low
+    </p>
+  )
+}
+
+/** How to read the wind cells, over the table. */
+export function WindLegend() {
+  return (
+    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      <span className="inline-flex items-center gap-1">
+        <ArrowDown aria-hidden="true" className="size-4 text-primary" />
+        Points the way the wind blows
+      </span>
+      <span>VAR: variable</span>
+      <span>
+        Bolder at <span className="font-semibold text-foreground">15</span> and{' '}
+        <span className="font-bold text-foreground">25</span> mph
       </span>
     </p>
   )

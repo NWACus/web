@@ -25,7 +25,6 @@ import {
   periodDateGroups,
   precipPeriods,
   snowLevelBlocks,
-  snowLevelTones,
   tempPeriods,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
@@ -34,11 +33,12 @@ import { cn } from '@/utilities/ui'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import {
   DayNightDate,
-  LevelValue,
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
+  TempLegend,
   TempValue,
+  WindLegend,
   WindValue,
 } from './Values'
 import { WeatherSummary, type SensibleDay, type SensibleRow } from './WeatherSummary.client'
@@ -101,21 +101,18 @@ export type ZonePaths = Record<number, string>
 
 const STICKY = 'sticky left-0 z-10'
 
-// The wording of the info bubbles on NWAC's legacy Mountain Weather Forecast page.
+// Condensed from the info bubbles on NWAC's legacy Mountain Weather Forecast page.
 const PRECIP_DETAIL = [
-  'Water Equivalent (WE) is the liquid water equivalent of all precipitation types; rain, snow, ice pellets, etc., forecast to the hundredth of an inch at specific locations. To use WE as a proxy for snowfall amounts, start with a snow to water ratio of 10:1 (10 inches of snow = 1 inch WE). Temperatures at or near freezing will generally have a lower ratio (heavy wet snow) and very cold temperatures can have a much higher ratio (dry fluffy snow).',
-  'The label LT, is shorthand for ‘less than’.',
+  'WE is the liquid equivalent of all precipitation (rain, snow, ice pellets), to the hundredth of an inch. To estimate snow, start at 10:1 (1" WE ≈ 10" of snow); near freezing gives less (heavy, wet snow), very cold more (light, dry snow). LT means less than.',
 ]
 const SNOW_LEVEL_DETAIL = [
-  'The snow level forecast represents the general snow level over a 6 hr time period. Freezing levels are forecast when precipitation is not expected.',
+  'The general snow level over each 6 hours; a freezing level instead when no precipitation is expected.',
 ]
 const TEMPS_DETAIL = [
-  'The 5000’ temperature forecast does not imply a trend over the 12 hr period and only represents the max and min temperatures within a 12 hr period in the zone. The 6-hr snow level forecast, the forecast discussion, and weather forecast sections may add detail regarding temperature trends.',
+  'The high and low at 5000’ within each 12 hours, not a trend. The snow level, synopsis and weather summary say more about how temperatures change.',
 ]
 const WIND_DETAIL = [
-  'Ridgeline winds are the average wind speed and direction over a 6 hr time period.',
-  'The wind forecast represents an elevation range instead of a single elevation slice. The elevation range overlaps with the near and above treeline elevation bands in the avalanche forecast and differs per zone.',
-  'Wind direction indicates the direction the wind originates or comes from on the 16-point compass rose.',
+  'The average speed and direction over each 6 hours, from the 16-point compass direction the wind comes from. Ridgeline winds cover a range of elevations, differing by zone, that overlaps the near and above treeline bands of the avalanche forecast.',
 ]
 
 // Grouped like the block tables: one date over its periods, Day or Night (with its sun or moon)
@@ -144,15 +141,6 @@ function blockColumn(issuance: NWACWeatherIssuance, b: NWACWeatherBlock): Column
     group: b.period ?? undefined,
     night: period ? period.kind === 'night' : undefined,
   }
-}
-
-/** Shades levels against the whole table so zones compare. */
-function shadedLevels(levels: (number | null)[][]): ReactNode[][] {
-  const width = levels[0]?.length ?? 0
-  const tones = snowLevelTones(levels.flat())
-  return levels.map((row, r) =>
-    row.map((level, c) => <LevelValue key={c} level={level} tone={tones[r * width + c]} />),
-  )
 }
 
 function zoneTables(issuance: NWACWeatherIssuance): Table[] {
@@ -185,7 +173,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: 'Snow & freezing level',
       title: 'Snow and Freezing Level',
       unit: 'ft',
-      note: 'Where rain turns to snow.',
       detail: SNOW_LEVEL_DETAIL,
       legend: <SnowLevelLegend />,
       rowLabel: 'Zone',
@@ -198,8 +185,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: "5000' temps",
       title: "5000' Temperatures",
       unit: '°F',
-      note: 'High / low.',
       detail: TEMPS_DETAIL,
+      legend: <TempLegend />,
       rowLabel: 'Zone',
       columns: temps.map(periodColumn),
       groups: flat(
@@ -213,8 +200,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: 'Ridgeline winds',
       title: 'Ridgeline Winds',
       unit: 'mph',
-      note: 'Arrows point the way the wind blows.',
       detail: WIND_DETAIL,
+      legend: <WindLegend />,
       rowLabel: 'Zone',
       columns: winds.map((b) => blockColumn(issuance, b)),
       groups: flat(
@@ -323,7 +310,7 @@ function precipSnowTable(issuance: NWACWeatherIssuance): Table {
     nav: 'Precipitation & snow',
     title: 'Precipitation and Snow',
     unit: 'in',
-    note: 'Water Equivalent (WE) and new snow by station. Total is the whole forecast window.',
+    note: 'Water Equivalent (WE) and new snow by station; Total covers the whole forecast.',
     detail: PRECIP_DETAIL,
     legend: <SnowFillLegend />,
     rowLabel: 'Station',
@@ -339,14 +326,20 @@ function precipSnowTable(issuance: NWACWeatherIssuance): Table {
 function extendedTable(issuance: NWACWeatherIssuance): Table {
   const zones = issuance.zones.filter((z) => issuance.extendedSnowLevel[z.id])
   const blocks = issuance.extendedBlocks
-  const levels = shadedLevels(
-    zones.map((z) =>
-      blocks.map((b) => {
-        const cell = issuance.extendedSnowLevel[z.id]?.[b.key]
-        return deriveSnowLevel(cell?.freezing, cell?.drop)
-      }),
-    ),
-  )
+  // No precipitation beyond the main window, so a level is a snow level unless the forecaster
+  // marked it a freezing level.
+  const levels = zones.map((z) => {
+    const cells = blocks.map((b) => issuance.extendedSnowLevel[z.id]?.[b.key])
+    const values = cells.map((c) => deriveSnowLevel(c?.freezing, c?.drop))
+    return cells.map((c, i) => (
+      <SnowLevelValue
+        key={blocks[i].key}
+        level={values[i]}
+        snow={c?.mode !== 'freezing'}
+        trend={levelTrend(values[i - 1], values[i])}
+      />
+    ))
+  })
   return {
     id: 'extended-snow-level',
     nav: 'Extended',
@@ -807,7 +800,7 @@ function ZoneLinks({ links, headingId }: { links: ZoneLink[]; headingId: string 
           Looking for weather by zone?
         </h3>
         <p className="text-muted-foreground">
-          Each zone&rsquo;s forecast page has its mountain weather alongside the avalanche forecast.
+          Each zone&rsquo;s page has its mountain weather with the avalanche forecast.
         </p>
       </div>
       <ul className="flex flex-wrap gap-2">

@@ -32,7 +32,9 @@ export function levelKind(
 }
 
 /** Up or down from the level before; null for the first, an unknown or an unchanged one. */
-export function levelTrend(before: number | null | undefined, level: number | null) {
+export type LevelTrend = 'up' | 'down' | null
+
+export function levelTrend(before: number | null | undefined, level: number | null): LevelTrend {
   if (before == null || level == null || before === level) return null
   return level > before ? 'up' : 'down'
 }
@@ -101,18 +103,6 @@ const COMPASS = [
 export function windBearing(dir: string | null | undefined): number | null {
   const i = dir ? COMPASS.indexOf(dir.trim().toUpperCase()) : -1
   return i < 0 ? null : i * 22.5
-}
-
-/** Each level's shade, 0–3, relative to its row: a fixed scale would paint one day flat. */
-export function snowLevelTones(levels: (number | null)[]): (number | null)[] {
-  const known = levels.filter((l): l is number => l != null)
-  if (known.length === 0) return levels.map(() => null)
-  const lo = Math.min(...known)
-  const hi = Math.max(...known)
-  return levels.map((l) => {
-    if (l == null) return null
-    return hi === lo ? 0 : Math.round(((l - lo) / (hi - lo)) * 3)
-  })
 }
 
 /** The periods the issuance forecasts precipitation for. */

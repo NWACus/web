@@ -10,7 +10,6 @@ import {
   periodDateGroups,
   precipPeriods,
   snowLevelBlocks,
-  snowLevelTones,
   windBearing,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
@@ -113,12 +112,6 @@ describe('nwacWeatherFormat', () => {
     expect(windBearing('NNW')).toBe(337.5)
     expect(windBearing('VAR')).toBeNull()
     expect(windBearing(null)).toBeNull()
-  })
-
-  it('shades snow levels relative to the rest of the row', () => {
-    expect(snowLevelTones([8500, 9000, 10000, null])).toEqual([0, 1, 3, null])
-    expect(snowLevelTones([4000, 4000])).toEqual([0, 0])
-    expect(snowLevelTones([null])).toEqual([null])
   })
 
   it('lets the data decide which blocks a 6h table shows', () => {

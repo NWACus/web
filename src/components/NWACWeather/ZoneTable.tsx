@@ -17,10 +17,11 @@ import {
   deriveSnowLevel,
   fmtCalendarDate,
   fmtSnowAmount,
+  levelKind,
+  levelTrend,
   periodDateGroups,
   pointSnow,
   rangeBucket,
-  snowLevelTones,
   tempPeriods,
   windBlocks,
   zonePoints,
@@ -30,7 +31,7 @@ import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
 import { DayTabs } from './DayTabs.client'
-import { DayNightDate, LevelValue, SnowValue, TempValue, WindValue } from './Values'
+import { DayNightDate, SnowLevelValue, SnowValue, TempValue, WindValue } from './Values'
 
 const HEAD = 'border-b border-l p-2 text-center font-semibold'
 // The right border is the line between the labels and the cells, whatever the cells draw.
@@ -49,7 +50,8 @@ interface PeriodView {
 interface BlockView {
   block: NWACWeatherBlock
   level: number | null
-  tone: number | null
+  snow: boolean
+  trend: 'up' | 'down' | null
   wind: NWACWeatherWindCell | undefined
 }
 
@@ -59,11 +61,11 @@ function periodViews(issuance: NWACWeatherIssuance, zone: NWACWeatherZone): Peri
     const cell = issuance.snowLevel[zone.id]?.[b.key]
     return deriveSnowLevel(cell?.freezing, cell?.drop)
   })
-  const tones = snowLevelTones(levels)
   const blocks = issuance.blocks.map((block, i) => ({
     block,
     level: levels[i],
-    tone: tones[i],
+    snow: levelKind(issuance, zone.id, block) === 'snow',
+    trend: levelTrend(levels[i - 1], levels[i]),
     wind: issuance.wind[zone.id]?.[block.key],
   }))
   return issuance.periods.map((period) => ({
@@ -323,7 +325,7 @@ function PeriodTable({
             cell={(p) => (
               <BlockPair
                 blocks={p.blocks}
-                value={(b) => <LevelValue level={b.level} tone={b.tone} />}
+                value={(b) => <SnowLevelValue level={b.level} snow={b.snow} trend={b.trend} />}
               />
             )}
           />
@@ -457,7 +459,7 @@ function CardBlockRow({ b, wind }: { b: BlockView; wind: boolean }) {
         {b.block.part}
       </th>
       <td className="px-3 py-1.5">
-        <LevelValue level={b.level} tone={b.tone} />
+        <SnowLevelValue level={b.level} snow={b.snow} trend={b.trend} />
       </td>
       <td className="px-3 py-2">{wind && <WindValue cell={b.wind} />}</td>
     </tr>
