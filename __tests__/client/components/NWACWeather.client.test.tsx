@@ -20,7 +20,7 @@ describe('Overall', () => {
       'Snow and Freezing Level (ft)',
       'Snow Levels (ft)',
       'Ridgeline Winds (mph)',
-      'Weather Summary',
+      'Weather Summary by Zone',
     ]) {
       expect(screen.getByRole('heading', { name: title })).toBeInTheDocument()
     }
@@ -41,8 +41,8 @@ describe('Overall', () => {
     )
     const headings = screen.getAllByRole('heading').map((h) => h.textContent)
     const at = (name: string) => headings.indexOf(name)
-    expect(at('Weather Synopsis')).toBeLessThan(at('Weather Summary'))
-    expect(at('Weather Summary')).toBeLessThan(at('Weather by zone'))
+    expect(at('Weather Synopsis')).toBeLessThan(at('Weather Summary by Zone'))
+    expect(at('Weather Summary by Zone')).toBeLessThan(at('Weather by zone'))
     expect(at('Weather by zone')).toBeLessThan(at('Precipitation and Snow (in)'))
     expect(at('Precipitation and Snow (in)')).toBeLessThan(at('Snow and Freezing Level (ft)'))
     expect(screen.getByRole('link', { name: 'Olympics' })).toHaveAttribute(
@@ -56,7 +56,7 @@ describe('Overall', () => {
 
     expect(screen.queryByRole('complementary', { name: 'Weather by zone' })).toBeNull()
     const synopsis = screen.getByRole('heading', { name: 'Weather Synopsis' }).closest('section')
-    const summary = screen.getByRole('region', { name: 'Weather Summary' })
+    const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
     expect(synopsis?.parentElement).toHaveClass('grid')
     expect(summary.parentElement).toBe(synopsis?.parentElement)
   })
@@ -101,19 +101,18 @@ describe('Overall', () => {
 })
 
 describe('Overall weather summary', () => {
-  it('shows a tab per day, and every zone for the picked day', () => {
+  it('lists the zones beside the picked zone’s two days, arrow keys moving down the list', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const summary = screen.getByRole('region', { name: 'Weather Summary' })
-    const tabs = within(summary).getAllByRole('tab')
-    // An afternoon issuance opens on a night, so its first day is Tonight.
-    expect(tabs[0]).toHaveTextContent(/^Tonight/)
-    expect(tabs[1]).toHaveTextContent(/^Tomorrow/)
+    const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
+    const list = within(summary).getByRole('tablist', { name: 'Zone' })
+    const tabs = within(list).getAllByRole('tab')
+    expect(tabs.map((t) => t.textContent)).toEqual(afternoon.zones.map((z) => z.name))
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
-    for (const zone of afternoon.zones) {
-      expect(within(summary).getByText(zone.name)).toBeInTheDocument()
-    }
+    // An afternoon issuance opens on a night, so its first day is Tonight.
+    expect(within(summary).getByRole('heading', { name: /^Tonight/ })).toBeInTheDocument()
+    expect(within(summary).getByRole('heading', { name: /^Tomorrow/ })).toBeInTheDocument()
 
-    fireEvent.click(tabs[1])
+    fireEvent.keyDown(tabs[0], { key: 'ArrowDown' })
     expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
     expect(tabs[0]).toHaveAttribute('aria-selected', 'false')
   })

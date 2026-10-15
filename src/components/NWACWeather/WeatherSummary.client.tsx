@@ -2,8 +2,8 @@
 
 /**
  * The forecaster's weather summary for each zone (the "sensible weather"), beside the synopsis: a
- * tab per day shows every zone's text for it, so the zones compare. Arrow keys move between the
- * day tabs, as a tablist's do.
+ * list of the zones beside the picked zone's two days. Arrow keys move between the zones, as a
+ * tablist's do.
  */
 import { useId, useRef, useState, type KeyboardEvent } from 'react'
 
@@ -24,31 +24,57 @@ export interface SensibleRow {
   text: Record<string, string>
 }
 
-function DayTabs({
-  days,
+function ZoneDays({ row, days }: { row: SensibleRow; days: SensibleDay[] }) {
+  return (
+    <div className="space-y-3">
+      {days.map((d) => (
+        <section key={d.key} className="space-y-0.5">
+          <h4>
+            <span className="font-semibold">{d.label}</span>
+            {d.date && <span className="text-muted-foreground"> · {d.date}</span>}
+          </h4>
+          <p className="whitespace-pre-line">
+            {row.text[d.key] || <span className="text-muted-foreground">—</span>}
+          </p>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+/** The zones as a vertical tablist; on a phone, a row that scrolls sideways. */
+function ZoneList({
+  rows,
   active,
   onPick,
   id,
 }: {
-  days: SensibleDay[]
+  rows: SensibleRow[]
   active: number
   onPick: (index: number) => void
   id: string
 }) {
   const tabs = useRef<(HTMLButtonElement | null)[]>([])
   function onKeyDown(event: KeyboardEvent) {
-    const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
-    if (step === 0) return
+    const back = event.key === 'ArrowUp' || event.key === 'ArrowLeft'
+    const forward = event.key === 'ArrowDown' || event.key === 'ArrowRight'
+    if (!back && !forward) return
     event.preventDefault()
-    const next = (active + step + days.length) % days.length
+    const next = (active + (forward ? 1 : -1) + rows.length) % rows.length
     onPick(next)
     tabs.current[next]?.focus()
   }
   return (
-    <div role="tablist" aria-label="Day" className="flex border-b" onKeyDown={onKeyDown}>
-      {days.map((d, i) => (
+    <div
+      role="tablist"
+      aria-label="Zone"
+      aria-orientation="vertical"
+      onKeyDown={onKeyDown}
+      className="flex overflow-x-auto border-b sm:flex-col sm:overflow-visible sm:border-b-0 sm:border-r"
+    >
+      {rows.map((r, i) => (
         <button
-          key={d.key}
+          key={r.key}
           ref={(el) => {
             tabs.current[i] = el
           }}
@@ -60,33 +86,16 @@ function DayTabs({
           tabIndex={i === active ? 0 : -1}
           onClick={() => onPick(i)}
           className={cn(
-            '-mb-px min-h-11 whitespace-nowrap border-b-2 px-3',
+            '-mb-px min-h-11 shrink-0 whitespace-nowrap border-b-2 px-3 text-left text-sm sm:-mr-px sm:mb-0 sm:min-h-9 sm:border-b-0 sm:border-r-2',
             i === active
-              ? 'border-foreground font-semibold text-foreground'
+              ? 'border-foreground bg-muted font-semibold text-foreground'
               : 'border-transparent text-muted-foreground hover:text-foreground',
           )}
         >
-          {d.label}
-          {d.date && <span className="font-normal text-muted-foreground"> · {d.date}</span>}
+          {r.zone}
         </button>
       ))}
     </div>
-  )
-}
-
-/** Every zone's text for the day, a zone to a line. */
-function DayZones({ day, rows }: { day: SensibleDay; rows: SensibleRow[] }) {
-  return (
-    <dl className="divide-y divide-muted">
-      {rows.map((r) => (
-        <div key={r.key} className="grid gap-x-3 gap-y-0.5 py-2 sm:grid-cols-[8rem_minmax(0,1fr)]">
-          <dt className="font-semibold">{r.zone}</dt>
-          <dd className="whitespace-pre-line">
-            {r.text[day.key] || <span className="text-muted-foreground">—</span>}
-          </dd>
-        </div>
-      ))}
-    </dl>
   )
 }
 
@@ -99,18 +108,20 @@ export function WeatherSummary({
   days: SensibleDay[]
   rows: SensibleRow[]
 }) {
-  const [active, setActive] = useState(0)
+  const [zone, setZone] = useState(0)
   const id = useId()
-  const day = days[active] ?? days[0]
+  const row = rows[zone] ?? rows[0]
 
   return (
     <section aria-labelledby={headingId} className="space-y-3">
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
-        Weather Summary
+        Weather Summary by Zone
       </h3>
-      <DayTabs days={days} active={active} onPick={setActive} id={id} />
-      <div role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-tab-${active}`}>
-        {day && <DayZones day={day} rows={rows} />}
+      <div className="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-start">
+        <ZoneList rows={rows} active={zone} onPick={setZone} id={id} />
+        <div role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-tab-${zone}`}>
+          {row && <ZoneDays row={row} days={days} />}
+        </div>
       </div>
     </section>
   )
