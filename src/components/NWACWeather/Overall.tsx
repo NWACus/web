@@ -200,7 +200,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
               const cell = issuance.snowLevel[z.id]?.[b.key]
               return {
                 key: b.key,
-                level: deriveSnowLevel(cell?.freezing, cell?.drop),
+                level: deriveSnowLevel(cell?.freezing),
                 snow: levelKind(issuance, z.id, b) === 'snow',
               }
             }),
@@ -424,7 +424,7 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
               const cell = issuance.extendedSnowLevel[z.id]?.[b.key]
               return {
                 key: b.key,
-                level: deriveSnowLevel(cell?.freezing, cell?.drop),
+                level: deriveSnowLevel(cell?.freezing),
                 snow: cell?.mode !== 'freezing',
               }
             }),

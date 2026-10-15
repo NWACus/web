@@ -39,21 +39,19 @@ export function levelTrend(before: number | null | undefined, level: number | nu
   return level > before ? 'up' : 'down'
 }
 
-/** Snow level = freezing level − drop; the drop defaults to 1,000 ft. */
-export const DEFAULT_DROP_FT = 1000
-
 /** New snow in inches from water equivalent and snow-to-liquid ratio (density 10 → 10:1). */
 export function deriveSnow(qpf: number | null | undefined, density: number | null | undefined) {
   if (qpf == null || density == null || density <= 0) return null
   return Math.round(((qpf * 100) / density) * 10) / 10
 }
 
-export function deriveSnowLevel(
-  freezing: number | null | undefined,
-  drop: number | null | undefined,
-) {
+/**
+ * The level as the forecaster typed it, with the snow/freezing designation as its label (the
+ * old 1,000 ft "drop" derivation is retired; the API folds any stored drop in before serving).
+ */
+export function deriveSnowLevel(freezing: number | null | undefined) {
   if (freezing == null) return null
-  return Math.max(0, freezing - (drop ?? DEFAULT_DROP_FT))
+  return Math.max(0, freezing)
 }
 
 /** Whole inches; under half an inch reads 0 rather than a trace mark. */
@@ -63,14 +61,10 @@ export function fmtSnowAmount(snow: number | null): string {
   return `${Math.round(snow)}"`
 }
 
-/**
- * Water equivalent in inches, as the legacy nwac.us precipitation table printed it: none as 0, a
- * trace as "LT 0.10", otherwise two decimals.
- */
+/** Water equivalent in inches to the hundredth, as the forecasters asked; none reads as 0. */
 export function fmtQpf(qpf: number | null | undefined): string {
   if (qpf == null) return DASH
   if (qpf <= 0) return '0'
-  if (qpf < 0.1) return 'LT 0.10'
   return qpf.toFixed(2)
 }
 

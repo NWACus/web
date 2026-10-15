@@ -140,7 +140,7 @@ describe('Overall weather summary', () => {
 describe('fmtQpf', () => {
   it('prints water equivalent the way the legacy table did', () => {
     expect(fmtQpf(0)).toBe('0')
-    expect(fmtQpf(0.05)).toBe('LT 0.10')
+    expect(fmtQpf(0.05)).toBe('0.05')
     expect(fmtQpf(0.4)).toBe('0.40')
     expect(fmtQpf(null)).toBe('—')
   })

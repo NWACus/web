@@ -28,7 +28,6 @@ export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWea
   const extendedKeys = new Set(wire.extendedBlocks.map((b) => b.key))
   const level = (row: NWACWeatherForecastWire['snowLevel'][number]): NWACWeatherLevelCell => ({
     freezing: row.freezing ?? null,
-    drop: row.drop ?? null,
     mode: row.mode ?? null,
   })
 

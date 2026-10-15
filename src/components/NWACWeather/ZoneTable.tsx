@@ -59,7 +59,7 @@ interface BlockView {
 function periodViews(issuance: NWACWeatherIssuance, zone: NWACWeatherZone): PeriodView[] {
   const levels = issuance.blocks.map((b) => {
     const cell = issuance.snowLevel[zone.id]?.[b.key]
-    return deriveSnowLevel(cell?.freezing, cell?.drop)
+    return deriveSnowLevel(cell?.freezing)
   })
   const blocks = issuance.blocks.map((block, i) => ({
     block,
