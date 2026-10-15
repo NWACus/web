@@ -69,8 +69,15 @@ describe('planGeocode', () => {
     expect(planGeocode(address, null)).toBe('geocode')
   })
 
-  it('leaves virtual events alone', () => {
+  it('leaves virtual events without a pin alone', () => {
     expect(planGeocode({ ...address, isVirtual: true }, null)).toBe('keep')
+  })
+
+  it('clears the pin when an event goes virtual, and geocodes it afresh when it comes back', () => {
+    const virtual = { ...saved, isVirtual: true }
+    expect(planGeocode(virtual, saved)).toBe('clear')
+    const cleared = { ...address, isVirtual: true, coordinates: {} }
+    expect(planGeocode({ ...cleared, isVirtual: false }, cleared)).toBe('geocode')
   })
 
   it('keeps the point when nothing relevant changed', () => {
@@ -106,7 +113,7 @@ describe('planGeocode', () => {
 
   it('reads a partial update against the saved location', () => {
     expect(planGeocode({ placeName: 'Community Hall' }, saved)).toBe('keep')
-    const virtual = { ...saved, isVirtual: true }
+    const virtual = { ...address, isVirtual: true }
     expect(planGeocode({ extraInfo: 'Zoom link to follow' }, virtual)).toBe('keep')
   })
 

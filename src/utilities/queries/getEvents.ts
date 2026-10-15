@@ -31,7 +31,7 @@ export interface GetEventsResult {
   error?: string
 }
 
-/** Where an event is held, or nothing for a virtual event: it may keep an old in-person point. */
+/** Where an event is held, or nothing for a virtual event, which never goes on the map. */
 const placeOf = (event: Pick<Event, 'location'>) =>
   event.location?.isVirtual ? null : event.location?.coordinates
 
@@ -153,7 +153,7 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
     }
 
     if (box) {
-      // Virtual events can keep the point they had when they were in person.
+      // Saving as virtual clears the point; this also covers rows written around the hook.
       conditions.push(withinBoxWhere('location.coordinates', box), {
         'location.isVirtual': { not_equals: true },
       })
