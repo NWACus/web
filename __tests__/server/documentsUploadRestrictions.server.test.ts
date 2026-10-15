@@ -1,7 +1,13 @@
+import { mkdtemp, rm, writeFile } from 'fs/promises'
+import os from 'os'
+import path from 'path'
 import { ValidationError } from 'payload'
 
 import { DOCUMENT_MIME_TYPES } from '../../src/collections/Documents/allowedFileTypes'
-import { assertFileContentMatchesName } from '../../src/collections/Documents/hooks/rejectMismatchedFileContent'
+import {
+  assertFileContentMatchesName,
+  assertUploadedFileContent,
+} from '../../src/collections/Documents/hooks/rejectMismatchedFileContent'
 import { modifyDocumentResponseHeaders } from '../../src/collections/Documents/modifyDocumentResponseHeaders'
 
 const runHook = (name: string, contents: string) =>
@@ -114,6 +120,46 @@ describe('assertFileContentMatchesName', () => {
   it('allows plain text and CSV', () => {
     expect(() => runHook('notes.txt', 'field observations')).not.toThrow()
     expect(() => runHook('data.csv', 'station,temp')).not.toThrow()
+  })
+})
+
+describe('assertUploadedFileContent', () => {
+  let dir: string
+
+  beforeAll(async () => {
+    dir = await mkdtemp(path.join(os.tmpdir(), 'documents-upload-'))
+  })
+
+  afterAll(async () => {
+    await rm(dir, { force: true, recursive: true })
+  })
+
+  // Client uploads reach hooks with an empty buffer and the bytes in a temp file
+  const clientUpload = async (name: string, contents: string) => {
+    const tempFilePath = path.join(dir, name)
+    await writeFile(tempFilePath, contents)
+
+    return assertUploadedFileContent({ data: Buffer.alloc(0), name, tempFilePath })
+  }
+
+  it('reads a client upload from its temp file and allows a genuine PDF', async () => {
+    await expect(clientUpload('report.pdf', '%PDF-1.7 1 0 obj')).resolves.toBeUndefined()
+  })
+
+  it('rejects markup in a client upload', async () => {
+    await expect(
+      clientUpload('notes.txt', '<svg xmlns="http://www.w3.org/2000/svg"/>'),
+    ).rejects.toThrow(ValidationError)
+  })
+
+  it('rejects a client upload named .pdf that is not a PDF', async () => {
+    await expect(clientUpload('fake.pdf', 'PK not a pdf')).rejects.toThrow(ValidationError)
+  })
+
+  it('uses the in-memory buffer when one was sent', async () => {
+    await expect(
+      assertUploadedFileContent({ data: Buffer.from('%PDF-1.7'), name: 'report.pdf' }),
+    ).resolves.toBeUndefined()
   })
 })
 

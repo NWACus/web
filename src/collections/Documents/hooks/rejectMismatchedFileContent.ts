@@ -1,4 +1,6 @@
-import { CollectionConfig, ValidationError } from 'payload'
+import { open } from 'fs/promises'
+import type { CollectionConfig, File } from 'payload'
+import { ValidationError } from 'payload'
 
 type BeforeOperationHook = Exclude<
   Exclude<CollectionConfig['hooks'], undefined>['beforeOperation'],
@@ -44,16 +46,37 @@ export const assertFileContentMatchesName = ({ data, name }: { data: Buffer; nam
 }
 
 /**
- * Documents are served from the site's own origin, so markup that slips through
- * would execute first-party. This runs on every path that reaches the server:
- * local development, the Local API used by seeding, and any REST upload.
- * Direct-to-blob client uploads never reach a hook, which is why the response
- * headers in the collection config are the backstop rather than this hook.
+ * Client uploads arrive with an empty `data` buffer: Payload fetches the blob
+ * back into `tempFilePath` instead, so the leading bytes have to come from disk.
  */
-export const rejectMismatchedFileContent: BeforeOperationHook = ({ operation, req }) => {
+const readLeadingBytes = async ({ data, tempFilePath }: Pick<File, 'data' | 'tempFilePath'>) => {
+  if (data.length > 0 || !tempFilePath) {
+    return data.subarray(0, SNIFF_BYTES)
+  }
+
+  const handle = await open(tempFilePath, 'r')
+  try {
+    const buffer = Buffer.alloc(SNIFF_BYTES)
+    const { bytesRead } = await handle.read(buffer, 0, SNIFF_BYTES, 0)
+    return buffer.subarray(0, bytesRead)
+  } finally {
+    await handle.close()
+  }
+}
+
+export const assertUploadedFileContent = async (
+  file: Pick<File, 'data' | 'name' | 'tempFilePath'>,
+) => assertFileContentMatchesName({ data: await readLeadingBytes(file), name: file.name })
+
+/**
+ * Documents are served from the site's own origin, so markup that slips through
+ * would execute first-party. This runs on every upload path, including client
+ * uploads, which Payload reads back from the blob before running hooks.
+ */
+export const rejectMismatchedFileContent: BeforeOperationHook = async ({ operation, req }) => {
   if ((operation !== 'create' && operation !== 'update') || !req.file) {
     return
   }
 
-  assertFileContentMatchesName(req.file)
+  await assertUploadedFileContent(req.file)
 }
