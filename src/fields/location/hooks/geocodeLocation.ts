@@ -46,6 +46,10 @@ function readLocation(value: unknown): Location {
 const hasPoint = (c?: Coordinates | null) =>
   typeof c?.latitude === 'number' && typeof c?.longitude === 'number'
 
+/** A partial API update only sends the keys it changes; the rest keep their saved values. */
+const withPrevious = (value: unknown, previousValue: unknown) =>
+  isRecord(previousValue) && isRecord(value) ? { ...previousValue, ...value } : value
+
 const addressOf = ({ address, city, state, zip }: Location) => [address, city, state, zip].join('|')
 
 /**
@@ -53,19 +57,22 @@ const addressOf = ({ address, city, state, zip }: Location) => [address, city, s
  * an address change re-geocodes, even over a hand-placed pin, because that pin was for the old address.
  */
 export function planGeocode(value: unknown, previousValue: unknown): GeocodePlan {
-  const next = readLocation(value)
+  const next = readLocation(withPrevious(value, previousValue))
   const previous = readLocation(previousValue)
   if (next.isVirtual) return 'keep'
 
   const now = next.coordinates
   const before = previous.coordinates
+  const addressChanged = addressOf(next) !== addressOf(previous)
   const pointEdited = now.latitude !== before.latitude || now.longitude !== before.longitude
   if (pointEdited && hasPoint(now)) {
     // The admin picker sets a status alongside the point; typed or API-sent coordinates don't.
-    return now.geocodeStatus === before.geocodeStatus ? 'mark-manual' : 'keep'
+    // After an address change, an unchanged status is the picker's "Find from address" result.
+    const statusSet = now.geocodeStatus !== before.geocodeStatus
+    return statusSet || addressChanged ? 'keep' : 'mark-manual'
   }
 
-  if (addressOf(next) !== addressOf(previous)) return 'geocode'
+  if (addressChanged) return 'geocode'
   return hasPoint(now) || now.geocodeStatus ? 'keep' : 'geocode'
 }
 
@@ -92,7 +99,7 @@ export const geocodeLocation: FieldHook = async ({ value, previousValue, req }) 
   const plan = planGeocode(value, previousValue)
   if (plan === 'keep') return value
 
-  const next = readLocation(value)
+  const next = readLocation(withPrevious(value, previousValue))
   if (plan === 'mark-manual') {
     return { ...value, coordinates: { ...next.coordinates, geocodeStatus: 'manual' } }
   }

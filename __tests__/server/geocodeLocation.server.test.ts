@@ -95,6 +95,21 @@ describe('planGeocode', () => {
     expect(planGeocode(picked, saved)).toBe('keep')
   })
 
+  it('keeps a "Find from address" result for a new address, not marking it manual', () => {
+    const found = {
+      ...saved,
+      zip: '98065',
+      coordinates: { ...geocodedPoint, latitude: 47.53, longitude: -121.82 },
+    }
+    expect(planGeocode(found, saved)).toBe('keep')
+  })
+
+  it('reads a partial update against the saved location', () => {
+    expect(planGeocode({ placeName: 'Community Hall' }, saved)).toBe('keep')
+    const virtual = { ...saved, isVirtual: true }
+    expect(planGeocode({ extraInfo: 'Zoom link to follow' }, virtual)).toBe('keep')
+  })
+
   it('backfills an old event that has never been geocoded, but not one that failed', () => {
     expect(planGeocode(address, address)).toBe('geocode')
     const failed = { ...address, coordinates: { geocodeStatus: 'failed' as const } }
