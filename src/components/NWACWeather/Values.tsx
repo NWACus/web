@@ -1,5 +1,5 @@
 /** How one Mountain Weather value draws in a table cell. */
-import { ArrowDown, Moon, Snowflake, Sun, TrendingDown, TrendingUp } from 'lucide-react'
+import { ArrowUp, Moon, Snowflake, Sun, TrendingDown, TrendingUp } from 'lucide-react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import { DASH, fmtWind, windBearing, type LevelTrend } from '@/services/nac/nwacWeatherFormat'
@@ -116,13 +116,13 @@ export function WindLegend() {
   return (
     <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
       <span className="inline-flex items-center gap-1">
-        <ArrowDown aria-hidden="true" className="size-4 text-primary" />
-        Points the way the wind blows
+        <ArrowUp aria-hidden="true" className="size-4 text-primary" />
+        Points to where the wind comes from
       </span>
       <span>VAR: variable</span>
       <span>
-        Bolder at <span className="font-semibold text-foreground">15</span> and{' '}
-        <span className="font-bold text-foreground">25</span> mph
+        Stronger winds are bolder: <span className="font-semibold text-foreground">15+</span> and{' '}
+        <span className="font-bold text-foreground">25+</span> mph
       </span>
     </p>
   )
@@ -134,8 +134,8 @@ export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
   return (
     <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap tabular-nums">
       {bearing != null && (
-        // Points the way the wind blows: from the north is a down arrow.
-        <ArrowDown
+        // Points to where the wind comes from: from the north is an up arrow.
+        <ArrowUp
           aria-hidden="true"
           className="size-4 shrink-0 text-primary"
           style={{ transform: `rotate(${bearing}deg)` }}

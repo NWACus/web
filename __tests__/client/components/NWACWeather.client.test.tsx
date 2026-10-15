@@ -158,7 +158,7 @@ describe('Overall table descriptions', () => {
       ),
     ).toBeInTheDocument()
     expect(screen.getByText(/is the high \/ low$/)).toBeInTheDocument()
-    expect(screen.getByText('Points the way the wind blows')).toBeInTheDocument()
+    expect(screen.getByText('Points to where the wind comes from')).toBeInTheDocument()
     expect(screen.getByText('Higher or lower than the previous period')).toBeInTheDocument()
   })
 })
