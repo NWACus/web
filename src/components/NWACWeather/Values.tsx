@@ -120,10 +120,6 @@ export function WindLegend() {
         Points to where the wind comes from
       </span>
       <span>VAR: variable</span>
-      <span>
-        Stronger winds are bolder: <span className="font-semibold text-foreground">15+</span> and{' '}
-        <span className="font-bold text-foreground">25+</span> mph
-      </span>
     </p>
   )
 }
