@@ -1,5 +1,6 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
+import { fmtQpf } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
@@ -14,12 +15,13 @@ describe('Overall', () => {
   it('renders one table per variable, stations and zones down the rows', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     for (const title of [
+      'Precipitation (in)',
       'Snow (in)',
       "5000' Temperatures (°F)",
-      'Snow Level (ft)',
+      'Snow and Freezing Level (ft)',
       'Snow Levels (ft)',
       'Ridgeline Winds (mph)',
-      'Sensible Weather',
+      'Weather Summary',
     ]) {
       expect(screen.getByRole('heading', { name: title })).toBeInTheDocument()
     }
@@ -31,7 +33,7 @@ describe('Overall', () => {
     expect(olympics).toHaveTextContent('53 / 47')
   })
 
-  it('leads with sensible weather and links each zone to its forecast page', () => {
+  it('puts the weather summary under the synopsis, then precipitation before snow, and links each zone to its forecast page', () => {
     render(
       <Overall
         parts={overallParts(afternoon)}
@@ -39,7 +41,10 @@ describe('Overall', () => {
       />,
     )
     const headings = screen.getAllByRole('heading').map((h) => h.textContent)
-    expect(headings.indexOf('Sensible Weather')).toBeLessThan(headings.indexOf('Snow Level (ft)'))
+    const at = (name: string) => headings.indexOf(name)
+    expect(at('Weather Synopsis')).toBeLessThan(at('Weather Summary'))
+    expect(at('Weather Summary')).toBeLessThan(at('Precipitation (in)'))
+    expect(at('Precipitation (in)')).toBeLessThan(at('Snow (in)'))
     expect(screen.getByRole('link', { name: 'Olympics' })).toHaveAttribute(
       'href',
       '/forecasts/avalanche/olympics#mountain-weather',
@@ -72,20 +77,35 @@ describe('Overall', () => {
   })
 })
 
-describe('Overall sensible weather', () => {
-  it('shows one day at a time and switches to the other', () => {
+describe('Overall weather summary', () => {
+  it('starts collapsed, opens to a tab per zone, and shows the picked zone by day', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const sensible = screen.getByRole('region', { name: 'Sensible Weather' })
-    // An afternoon issuance opens on a night, so its first day is Tonight; each carries its date.
-    const [today, tomorrow] = within(sensible).getAllByRole('radio')
-    expect(today).toHaveTextContent(/^[A-Z][a-z]{2} [A-Z][a-z]{2} \d+Tonight$/)
-    expect(tomorrow).toHaveTextContent(/Tomorrow$/)
-    expect(today).toHaveAttribute('aria-checked', 'true')
-    expect(within(sensible).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
+    const summary = screen.getByRole('region', { name: 'Weather Summary' })
+    const toggle = within(summary).getByRole('button', { name: 'Weather Summary' })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(within(summary).queryByRole('tablist')).toBeNull()
 
-    fireEvent.click(tomorrow)
-    expect(tomorrow).toHaveAttribute('aria-checked', 'true')
-    expect(today).toHaveAttribute('aria-checked', 'false')
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    const tabs = within(summary).getAllByRole('tab')
+    expect(tabs[0]).toHaveTextContent('Olympics')
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+    // An afternoon issuance opens on a night, so its first day is Tonight.
+    expect(within(summary).getByRole('heading', { name: /^Tonight/ })).toBeInTheDocument()
+    expect(within(summary).getByRole('heading', { name: /^Tomorrow/ })).toBeInTheDocument()
+
+    fireEvent.click(tabs[1])
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'false')
+  })
+})
+
+describe('fmtQpf', () => {
+  it('prints water equivalent the way the legacy table did', () => {
+    expect(fmtQpf(0)).toBe('0')
+    expect(fmtQpf(0.05)).toBe('LT 0.10')
+    expect(fmtQpf(0.4)).toBe('0.40')
+    expect(fmtQpf(null)).toBe('—')
   })
 })
 
@@ -121,7 +141,7 @@ describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
     render(<OverallSectionTabs parts={overallParts(afternoon)} />)
     const nav = screen.getByRole('navigation', { name: 'Forecast sections' })
-    expect(within(nav).getByRole('link', { name: 'Sensible weather' })).toHaveAttribute(
+    expect(within(nav).getByRole('link', { name: 'Weather summary' })).toHaveAttribute(
       'href',
       '#afternoon-sensible',
     )

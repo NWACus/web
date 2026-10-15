@@ -32,6 +32,17 @@ export function fmtSnowAmount(snow: number | null): string {
   return `${Math.round(snow)}"`
 }
 
+/**
+ * Water equivalent in inches, as the legacy nwac.us precipitation table printed it: none as 0, a
+ * trace as "LT 0.10", otherwise two decimals.
+ */
+export function fmtQpf(qpf: number | null | undefined): string {
+  if (qpf == null) return DASH
+  if (qpf <= 0) return '0'
+  if (qpf < 0.1) return 'LT 0.10'
+  return qpf.toFixed(2)
+}
+
 export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
   if (cell?.speed == null) return DASH
   if (cell.speed === 0) return 'Calm'

@@ -10,6 +10,7 @@ import type {
   NWACWeatherBlock,
   NWACWeatherIssuance,
   NWACWeatherPeriod,
+  NWACWeatherPrecipCell,
 } from '@/services/nac/model/nwacWeather'
 import {
   DASH,
@@ -18,6 +19,7 @@ import {
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
+  fmtQpf,
   fmtSnowAmount,
   periodDateGroups,
   precipPeriods,
@@ -29,8 +31,8 @@ import {
 import { cn } from '@/utilities/ui'
 
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
-import { SensibleDays, type SensibleDay, type SensibleRow } from './SensibleDays.client'
 import { DayNightDate, LevelValue, SnowValue, TempValue, WindValue } from './Values'
+import { WeatherSummary, type SensibleDay, type SensibleRow } from './WeatherSummary.client'
 
 interface Column {
   key: string
@@ -69,6 +71,8 @@ interface Table {
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
+  /** Narrower label and data columns, for a table that shares its row with another. */
+  compact?: boolean
 }
 
 /** Avalanche zone id → the path of that zone's forecast page. */
@@ -148,8 +152,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   return [
     {
       id: 'snow-level',
-      nav: 'Snow level',
-      title: 'Snow Level (ft)',
+      nav: 'Snow & freezing level',
+      title: 'Snow and Freezing Level (ft)',
       note: 'Where rain turns to snow. Darker is higher.',
       detail: SNOW_LEVEL_DETAIL,
       rowLabel: 'Zone',
@@ -189,18 +193,17 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
 }
 
 /** New snow by station, the stations grouped under their zones in zone order. */
-function snowTable(issuance: NWACWeatherIssuance): Table {
+/** A per-station table over the precipitation periods, its stations grouped under their zones. */
+function stationTable(
+  issuance: NWACWeatherIssuance,
+  head: Pick<Table, 'id' | 'nav' | 'title' | 'note'>,
+  value: (cell: NWACWeatherPrecipCell | undefined, periodKey: string) => ReactNode,
+): Table {
   const periods = precipPeriods(issuance)
   const row = (p: NWACWeatherIssuance['points'][number]): Row => ({
     key: p.code,
     label: p.name,
-    cells: periods.map((period) => {
-      const cell = issuance.precip[p.code]?.[period.key]
-      const snow = deriveSnow(cell?.qpf, cell?.density)
-      return (
-        <SnowValue key={period.key} text={fmtSnowAmount(snow)} some={snow != null && snow >= 0.5} />
-      )
-    }),
+    cells: periods.map((period) => value(issuance.precip[p.code]?.[period.key], period.key)),
   })
   const zoneIds = new Set(issuance.zones.map((z) => z.id))
   const groups: Group[] = issuance.zones.map((z) => ({
@@ -217,15 +220,38 @@ function snowTable(issuance: NWACWeatherIssuance): Table {
     else groups.push({ key, label: p.zoneName || null, rows: [row(p)] })
   }
   return {
-    id: 'snow',
-    nav: 'Snow',
-    title: 'Snow (in)',
-    note: 'New snow by station.',
+    ...head,
     rowLabel: 'Station',
     groupColumn: 'Zone',
+    // Precipitation and snow share a row, so each takes the narrower label columns.
+    compact: true,
     columns: periods.map(periodColumn),
     groups: groups.filter((g) => g.rows.length > 0),
   }
+}
+
+function snowTable(issuance: NWACWeatherIssuance): Table {
+  return stationTable(
+    issuance,
+    { id: 'snow', nav: 'Snow', title: 'Snow (in)', note: 'New snow by station.' },
+    (cell, key) => {
+      const snow = deriveSnow(cell?.qpf, cell?.density)
+      return <SnowValue key={key} text={fmtSnowAmount(snow)} some={snow != null && snow >= 0.5} />
+    },
+  )
+}
+
+function precipTable(issuance: NWACWeatherIssuance): Table {
+  return stationTable(
+    issuance,
+    {
+      id: 'precip',
+      nav: 'Precipitation',
+      title: 'Precipitation (in)',
+      note: 'Water equivalent by station.',
+    },
+    (cell, key) => <span key={key}>{fmtQpf(cell?.qpf)}</span>,
+  )
 }
 
 function extendedTable(issuance: NWACWeatherIssuance): Table {
@@ -397,7 +423,10 @@ function GroupColumnBody({ table: t }: { table: Table }) {
                 <th
                   scope="rowgroup"
                   rowSpan={g.rows.length}
-                  className="border-t p-2 pl-3 text-left align-top font-semibold md:whitespace-nowrap"
+                  className={cn(
+                    'border-t p-2 pl-3 text-left align-top font-semibold',
+                    !t.compact && 'md:whitespace-nowrap',
+                  )}
                 >
                   {g.label ?? DASH}
                 </th>
@@ -407,7 +436,8 @@ function GroupColumnBody({ table: t }: { table: Table }) {
                 className={cn(
                   STICKY,
                   rule,
-                  'bg-card p-2 text-left font-normal md:whitespace-nowrap',
+                  'bg-card p-2 text-left font-normal',
+                  !t.compact && 'md:whitespace-nowrap',
                 )}
               >
                 {r.label}
@@ -503,8 +533,12 @@ function TableTitle({
  * column (a grouped table's zones) and the row labels. Static classes, so Tailwind sees them.
  */
 const LABEL_VARS = '[--group:5.5rem] [--label:7.5rem] md:[--group:8rem] md:[--label:12rem]'
+/** The same for a compact table, which shares its row with another from `xl` up. */
+const COMPACT_LABEL_VARS =
+  '[--group:5.5rem] [--label:7.5rem] md:[--group:7rem] md:[--label:10rem] xl:[--group:5.5rem] xl:[--label:7rem]'
 /** A data column of a grouped table, which is sized to its columns rather than stretched. */
 const GROUPED_COL_REM = 5.5
+const COMPACT_COL_REM = 4.5
 /** The narrowest a data column of a stretched table gets before the table scrolls instead. */
 const MIN_COL_REM = 5
 
@@ -518,6 +552,9 @@ function labels(t: Table) {
  */
 function tableWidth(t: Table) {
   const n = t.columns.length
+  // A compact table fills its half of the row, so the pair sharing it come out the same width.
+  if (t.compact)
+    return { width: '100%', minWidth: `calc(${labels(t)} + ${n * COMPACT_COL_REM}rem)` }
   return t.groupColumn
     ? { width: `calc(${labels(t)} + ${n * GROUPED_COL_REM}rem)` }
     : { width: '100%', minWidth: `calc(${labels(t)} + ${n * MIN_COL_REM}rem)` }
@@ -570,12 +607,15 @@ function TableBox({ table: t, className }: { table: Table; className?: string })
         // `relative` makes the box the containing block of the headers' screen-reader labels
         // (absolutely positioned), so they are clipped with the table instead of widening the page.
         'relative overflow-x-auto rounded-md border',
-        t.groupColumn && 'w-fit max-w-full',
+        t.groupColumn && !t.compact && 'w-fit max-w-full',
         className,
       )}
     >
       <table
-        className={cn(LABEL_VARS, 'table-fixed border-collapse text-sm')}
+        className={cn(
+          t.compact ? COMPACT_LABEL_VARS : LABEL_VARS,
+          'table-fixed border-collapse text-sm',
+        )}
         style={tableWidth(t)}
       >
         <TableColumns table={t} />
@@ -722,6 +762,7 @@ export interface OverallParts {
   temps: Table
   wind: Table
   snow: Table
+  precip: Table
   ext: Table
   sensible: ReturnType<typeof sensibleDays>
 }
@@ -736,6 +777,7 @@ export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
     temps,
     wind,
     snow: snowTable(issuance),
+    precip: precipTable(issuance),
     ext: extendedTable(issuance),
     sensible: sensibleDays(issuance),
   }
@@ -745,8 +787,8 @@ function sectionLinks(p: OverallParts): SectionLink[] {
   const hasExtended = !!p.extended || hasContent(p.ext)
   return [
     ...(p.synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Sensible weather' }] : []),
-    ...[p.snow, p.snowLevel, p.temps, p.wind]
+    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Weather summary' }] : []),
+    ...[p.precip, p.snow, p.snowLevel, p.temps, p.wind]
       .filter(hasContent)
       .map((t) => ({ id: t.id, label: t.nav })),
     ...(hasExtended ? [{ id: 'extended', label: 'Extended' }] : []),
@@ -759,7 +801,8 @@ export function OverallSectionTabs({ parts }: { parts: OverallParts }) {
 }
 
 export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePaths?: ZonePaths }) {
-  const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, snow, ext } = parts
+  const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, snow, precip, ext } =
+    parts
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
   const tempsOrWind = hasContent(temps) || hasContent(wind)
@@ -767,15 +810,16 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
   return (
     <div className="space-y-8">
       <SynopsisRow issuance={issuance} synopsis={synopsis} zonePaths={zonePaths} />
-      {/* Sensible shows one day at a time, so it's narrow enough to share Snow's row. */}
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
-        {sensible.rows.length > 0 && (
-          <SensibleDays
-            headingId={`${anchor}-sensible`}
-            days={sensible.days}
-            rows={sensible.rows}
-          />
-        )}
+      {sensible.rows.length > 0 && (
+        <WeatherSummary
+          headingId={`${anchor}-sensible`}
+          days={sensible.days}
+          rows={sensible.rows}
+        />
+      )}
+      {/* Precipitation beside the snow it falls as, the two the same width. */}
+      <div className="grid gap-8 xl:grid-cols-2 xl:items-start">
+        <MaybeTable table={precip} anchor={anchor} />
         <MaybeTable table={snow} anchor={anchor} />
       </div>
       <MaybeTable table={snowLevel} anchor={anchor} />
