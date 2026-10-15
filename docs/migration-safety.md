@@ -72,12 +72,15 @@ Keep the files in the subdirectory: `payload migrate:create` reads the last `*.j
 
 ### Runbook
 
-For debugging a warning or recording a migration's expected changes.
+For recording a migration's expected changes, or debugging a warning. Run from the repo root with your usual `.env`.
 
-1. Check out the commit (for a warning, the one the workflow ran on).
-2. Clone prod. Add `--timestamp <RFC3339>` of the workflow's clone step to match CI's data.
+1. Check out your branch, or for a warning, the commit the workflow ran on.
+2. Clone a source database into a throwaway one, setting `SOURCE` below to:
+   - **Recording expectations: `payloadcms-dev`.** Every migration on `main` is already applied there, so only your branch's are pending, and user accounts are sanitized. Form submissions are still prod's, so treat it as prod data. Don't clone while a deploy or the nightly sync is re-creating it.
+   - **Debugging a warning: `payloadcms-prod`.** Dev has already applied the migration. Add `--timestamp <RFC3339>` of the workflow's clone step to match CI's data.
    ```bash
-   turso db create payloadcms-dbdiff-debug --from-db payloadcms-prod --wait
+   SOURCE=payloadcms-dev
+   turso db create payloadcms-dbdiff-debug --from-db $SOURCE --wait
    export DATABASE_URI=$(turso db show payloadcms-dbdiff-debug --url)
    export DATABASE_AUTH_TOKEN=$(turso db tokens create payloadcms-dbdiff-debug)
    ```
@@ -87,10 +90,15 @@ For debugging a warning or recording a migration's expected changes.
    NODE_ENV=production pnpm migrate
    pnpm db:diff after .context/db-diff
    ```
-   `.context/db-diff/report.md` has row ids and errors; `report.json` has every id.
-4. Then:
-   - **Record expectations:** `pnpm db:diff expect .context/db-diff [migration name]` writes the newest pending migration's file, minus what other pending migrations declare. It never writes `deletedRows`; add it by hand if the deletion is intended. Re-run `pnpm db:diff after .context/db-diff` to check the result, then commit the file with the migration.
-   - **Debug:** `turso db shell payloadcms-dbdiff-debug`. Deleted rows are gone after migrating; look them up in a fresh clone.
+   It prints the summary CI would post, and each `::warning` line is a warning CI would raise. `.context/db-diff/report.md` adds row ids and errors; `report.json` has every id.
+4. **Record expectations:**
+   ```bash
+   pnpm db:diff expect .context/db-diff [migration name]
+   pnpm db:diff after .context/db-diff
+   ```
+   `expect` writes `src/migrations/expected-changes/<migration name>.json` for the newest pending migration, minus what other pending migrations declare. It never records deleted rows: it prints those tables, and you add `"deletedRows": true` under each one by hand if the deletion is intended. Re-running `after` reuses the before snapshot, so it shows the result with the file applied; repeat it after each edit. Commit the file with the migration.
+
+   **Or debug:** `turso db shell payloadcms-dbdiff-debug`. Deleted rows are gone after migrating; look them up in a fresh clone.
 5. `turso db destroy payloadcms-dbdiff-debug --yes`
 
 To iterate without Turso round trips, serve a local copy with `turso dev -f <copy>.db`. A plain `file:` URL doesn't reproduce Turso's cascade behavior.
