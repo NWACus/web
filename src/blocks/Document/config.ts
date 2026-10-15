@@ -11,5 +11,18 @@ export const DocumentBlock: Block = {
       relationTo: 'documents',
       required: true,
     },
+    {
+      name: 'displayAs',
+      type: 'select',
+      defaultValue: 'download',
+      required: true,
+      admin: {
+        description: 'Only PDFs can be embedded. Use Download Link for other file types.',
+      },
+      options: [
+        { label: 'Download Link', value: 'download' },
+        { label: 'Embed (iframe)', value: 'embed' },
+      ],
+    },
   ],
 }

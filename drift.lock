@@ -1117,6 +1117,11 @@ sig = "32c2d60a25e1dced"
 
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
+target = "src/blocks/Document/Component.tsx"
+sig = "98937cf8188701c1"
+
+[[bindings]]
+doc = "docs/decisions/023-document-upload-restrictions.md"
 target = "src/collections/Documents/allowedFileTypes.ts"
 sig = "46f1f7bdb4e5d569"
 
