@@ -1,12 +1,11 @@
 'use client'
 
 /**
- * The forecaster's weather summary for each zone (the "sensible weather"), under the synopsis.
- * Secondary to the tables, so it starts collapsed; opened, a tab per zone shows that zone's two
- * days side by side. Arrow keys move between the zone tabs, as a tablist's do.
+ * The forecaster's weather summary for each zone (the "sensible weather"), beside the synopsis: a
+ * tab per zone shows that zone's two days. Arrow keys move between the zone tabs, as a tablist's
+ * do.
  */
-import { ChevronDown } from 'lucide-react'
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useId, useRef, useState, type KeyboardEvent } from 'react'
 
 import { cn } from '@/utilities/ui'
 
@@ -81,7 +80,7 @@ function ZoneTabs({
 
 function ZoneDays({ row, days }: { row: SensibleRow; days: SensibleDay[] }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="space-y-4">
       {days.map((d) => (
         <section key={d.key} className="space-y-1">
           <h4>
@@ -106,43 +105,18 @@ export function WeatherSummary({
   days: SensibleDay[]
   rows: SensibleRow[]
 }) {
-  const [open, setOpen] = useState(false)
   const [zone, setZone] = useState(0)
   const id = useId()
   const row = rows[zone] ?? rows[0]
 
-  // The page's section tabs link here; arriving by that link opens it.
-  useEffect(() => {
-    const openOnHash = () => {
-      if (window.location.hash === `#${headingId}`) setOpen(true)
-    }
-    openOnHash()
-    window.addEventListener('hashchange', openOnHash)
-    return () => window.removeEventListener('hashchange', openOnHash)
-  }, [headingId])
-
   return (
-    <section aria-labelledby={headingId} className="space-y-3 rounded-md border">
-      <h3 id={headingId} className="scroll-mt-24">
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={`${id}-body`}
-          onClick={() => setOpen((o) => !o)}
-          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-lg font-semibold"
-        >
-          Weather Summary
-          <ChevronDown
-            aria-hidden="true"
-            className={cn('size-5 shrink-0 transition-transform', open && 'rotate-180')}
-          />
-        </button>
+    <section aria-labelledby={headingId} className="space-y-3">
+      <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
+        Weather Summary
       </h3>
-      <div id={`${id}-body`} hidden={!open} className="space-y-4 px-4 pb-4 print:block">
-        <ZoneTabs rows={rows} active={zone} onPick={setZone} id={id} />
-        <div role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-tab-${zone}`}>
-          {row && <ZoneDays row={row} days={days} />}
-        </div>
+      <ZoneTabs rows={rows} active={zone} onPick={setZone} id={id} />
+      <div role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-tab-${zone}`}>
+        {row && <ZoneDays row={row} days={days} />}
       </div>
     </section>
   )

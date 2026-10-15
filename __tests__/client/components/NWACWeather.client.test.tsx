@@ -32,7 +32,7 @@ describe('Overall', () => {
     expect(olympics).toHaveTextContent('53 / 47')
   })
 
-  it('puts the weather summary under the synopsis, then precipitation and snow, and links each zone to its forecast page', () => {
+  it('puts the weather summary beside the synopsis, the zone links under them, then precipitation and snow, and links each zone to its forecast page', () => {
     render(
       <Overall
         parts={overallParts(afternoon)}
@@ -42,7 +42,8 @@ describe('Overall', () => {
     const headings = screen.getAllByRole('heading').map((h) => h.textContent)
     const at = (name: string) => headings.indexOf(name)
     expect(at('Weather Synopsis')).toBeLessThan(at('Weather Summary'))
-    expect(at('Weather Summary')).toBeLessThan(at('Precipitation and Snow (in)'))
+    expect(at('Weather Summary')).toBeLessThan(at('Weather by zone'))
+    expect(at('Weather by zone')).toBeLessThan(at('Precipitation and Snow (in)'))
     expect(at('Precipitation and Snow (in)')).toBeLessThan(at('Snow and Freezing Level (ft)'))
     expect(screen.getByRole('link', { name: 'Olympics' })).toHaveAttribute(
       'href',
@@ -50,10 +51,18 @@ describe('Overall', () => {
     )
   })
 
-  it('gives the synopsis the full width when no zone has a forecast page to link to', () => {
+  it('puts the weather summary beside the synopsis, and leaves out the zone links when no zone has a page', () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
     expect(screen.queryByRole('complementary', { name: 'Weather by zone' })).toBeNull()
+    const synopsis = screen.getByRole('heading', { name: 'Weather Synopsis' }).closest('section')
+    const summary = screen.getByRole('region', { name: 'Weather Summary' })
+    expect(synopsis?.parentElement).toHaveClass('grid')
+    expect(summary.parentElement).toBe(synopsis?.parentElement)
+  })
+
+  it('gives the synopsis the full width when there is no weather summary', () => {
+    render(<Overall parts={overallParts({ ...afternoon, sensible: {} })} />)
     const synopsis = screen.getByRole('heading', { name: 'Weather Synopsis' }).closest('section')
     expect(synopsis?.parentElement).not.toHaveClass('grid')
   })
@@ -92,15 +101,9 @@ describe('Overall', () => {
 })
 
 describe('Overall weather summary', () => {
-  it('starts collapsed, opens to a tab per zone, and shows the picked zone by day', () => {
+  it('shows a tab per zone, and the picked zone by day', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     const summary = screen.getByRole('region', { name: 'Weather Summary' })
-    const toggle = within(summary).getByRole('button', { name: 'Weather Summary' })
-    expect(toggle).toHaveAttribute('aria-expanded', 'false')
-    expect(within(summary).queryByRole('tablist')).toBeNull()
-
-    fireEvent.click(toggle)
-    expect(toggle).toHaveAttribute('aria-expanded', 'true')
     const tabs = within(summary).getAllByRole('tab')
     expect(tabs[0]).toHaveTextContent('Olympics')
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')

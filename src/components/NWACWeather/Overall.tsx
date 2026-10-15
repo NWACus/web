@@ -70,6 +70,8 @@ interface Table {
   /** The section link's text. */
   nav: string
   title: string
+  /** Shown quietly after the title, in parentheses. */
+  unit?: string
   note?: string
   /** Paragraphs that continue the note: the legacy page's info-bubble text for this table. */
   detail?: string[]
@@ -166,7 +168,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     {
       id: 'snow-level',
       nav: 'Snow & freezing level',
-      title: 'Snow and Freezing Level (ft)',
+      title: 'Snow and Freezing Level',
+      unit: 'ft',
       note: 'Where rain turns to snow. Darker is higher.',
       detail: SNOW_LEVEL_DETAIL,
       rowLabel: 'Zone',
@@ -177,7 +180,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     {
       id: 'temps',
       nav: "5000' temps",
-      title: "5000' Temperatures (°F)",
+      title: "5000' Temperatures",
+      unit: '°F',
       note: 'High / low.',
       detail: TEMPS_DETAIL,
       rowLabel: 'Zone',
@@ -191,7 +195,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     {
       id: 'wind',
       nav: 'Ridgeline winds',
-      title: 'Ridgeline Winds (mph)',
+      title: 'Ridgeline Winds',
+      unit: 'mph',
       note: 'Arrows point the way the wind blows.',
       detail: WIND_DETAIL,
       rowLabel: 'Zone',
@@ -300,7 +305,8 @@ function precipSnowTable(issuance: NWACWeatherIssuance): Table {
   return {
     id: 'precip-snow',
     nav: 'Precipitation & snow',
-    title: 'Precipitation and Snow (in)',
+    title: 'Precipitation and Snow',
+    unit: 'in',
     note: 'Water Equivalent (WE) and new snow by station. Total is the whole forecast window.',
     detail: PRECIP_DETAIL,
     legend: <SnowFillLegend />,
@@ -328,7 +334,8 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
   return {
     id: 'extended-snow-level',
     nav: 'Extended',
-    title: 'Snow Levels (ft)',
+    title: 'Snow Levels',
+    unit: 'ft',
     detail: SNOW_LEVEL_DETAIL,
     rowLabel: 'Zone',
     columns: blocks.map((b) => ({
@@ -656,6 +663,7 @@ function TableTitle({
           className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
         >
           {t.title}
+          {t.unit && <span className="text-sm font-normal text-muted-foreground"> ({t.unit})</span>}
         </Heading>
         {t.legend}
       </div>
@@ -806,17 +814,17 @@ function MaybeTable({ table, anchor }: { table: Table; anchor: string }) {
   return hasContent(table) ? <GridTable table={table} anchor={anchor} /> : null
 }
 
+/** The synopsis, with the zones' weather summary beside it when there is one. */
 function SynopsisRow({
   issuance,
   synopsis,
-  zonePaths,
+  summary,
 }: {
   issuance: NWACWeatherIssuance
   synopsis: string | null
-  zonePaths: ZonePaths
+  summary: ReactNode
 }) {
   const headingId = `${issuance.type}-synopsis`
-  const links = zoneLinksOf(issuance, zonePaths)
   const text = synopsis && (
     <section aria-labelledby={headingId} className="space-y-1">
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
@@ -825,12 +833,12 @@ function SynopsisRow({
       <DiscussionBody html={synopsis} />
     </section>
   )
-  // Without zone links the synopsis takes the full width.
-  if (links.length === 0) return text
+  // Without a summary the synopsis takes the full width.
+  if (!summary) return text
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+    <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
       {text || <div />}
-      <ZoneLinks links={links} />
+      {summary}
     </div>
   )
 }
@@ -939,17 +947,24 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
   const tempsOrWind = hasContent(temps) || hasContent(wind)
+  const zoneLinks = zoneLinksOf(issuance, zonePaths)
 
   return (
     <div className="space-y-8">
-      <SynopsisRow issuance={issuance} synopsis={synopsis} zonePaths={zonePaths} />
-      {sensible.rows.length > 0 && (
-        <WeatherSummary
-          headingId={`${anchor}-sensible`}
-          days={sensible.days}
-          rows={sensible.rows}
-        />
-      )}
+      <SynopsisRow
+        issuance={issuance}
+        synopsis={synopsis}
+        summary={
+          sensible.rows.length > 0 && (
+            <WeatherSummary
+              headingId={`${anchor}-sensible`}
+              days={sensible.days}
+              rows={sensible.rows}
+            />
+          )
+        }
+      />
+      {zoneLinks.length > 0 && <ZoneLinks links={zoneLinks} />}
       <MaybeTable table={precipSnow} anchor={anchor} />
       <MaybeTable table={snowLevel} anchor={anchor} />
       {tempsOrWind && (
