@@ -29,7 +29,7 @@ type FindNearArgs<TSlug extends CollectionSlug> = {
 
 /**
  * Payload's `near` operator is Postgres-only, so on SQLite we narrow by bounding box in the
- * database, then compute exact distances and sort in JS. Access control applies as for any find.
+ * database, then compute exact distances and sort in JS. Like any Local API find, it runs with admin access.
  */
 export async function findNear<TSlug extends CollectionSlug>({
   payload,
