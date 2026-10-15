@@ -52,6 +52,21 @@ describe('Documents upload allow list', () => {
     expect(DOCUMENT_MIME_TYPES).toContain('application/xml')
   })
 
+  it('does not accept types file-type cannot tell apart from installers or archives', () => {
+    // Legacy Office files are detected as application/x-cfb, which .msi installers share, and
+    // KMZ as a plain zip, so listing their own MIME types would never match an upload.
+    for (const type of [
+      'application/msword',
+      'application/vnd.ms-excel',
+      'application/vnd.ms-powerpoint',
+      'application/x-cfb',
+      'application/vnd.google-earth.kmz',
+      'application/zip',
+    ]) {
+      expect(DOCUMENT_MIME_TYPES).not.toContain(type)
+    }
+  })
+
   it('accepts the plain-text and Office types editors actually need', () => {
     for (const type of [
       'application/pdf',

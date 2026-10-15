@@ -22,19 +22,17 @@ export const DOCUMENT_MIME_TYPES = [
   'text/xml',
   'application/vnd.google-earth.kml+xml',
   '.kml',
-  'application/vnd.google-earth.kmz',
-  '.kmz',
   'application/gpx+xml',
   '.gpx',
 
   'text/plain',
   'text/csv',
 
-  'application/msword',
+  // Modern Office formats only. Legacy .doc/.xls/.ppt are detected as the generic
+  // application/x-cfb container, which also covers .msi installers, and KMZ is
+  // detected as a plain zip, so neither can be allowed without opening up much more.
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ]
 
