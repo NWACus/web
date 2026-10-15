@@ -32,7 +32,7 @@ describe('Overall', () => {
     expect(olympics).toHaveTextContent('53 / 47')
   })
 
-  it('puts the weather summary beside the synopsis, the zone links under them, then precipitation and snow, and links each zone to its forecast page', () => {
+  it('puts the weather summary beside the synopsis, then precipitation and snow, the zone links last, and links each zone to its forecast page', () => {
     render(
       <Overall
         parts={overallParts(afternoon)}
@@ -42,10 +42,15 @@ describe('Overall', () => {
     const headings = screen.getAllByRole('heading').map((h) => h.textContent)
     const at = (name: string) => headings.indexOf(name)
     expect(at('Weather Synopsis')).toBeLessThan(at('Weather Summary by Zone'))
-    expect(at('Weather Summary by Zone')).toBeLessThan(at('Weather by zone'))
-    expect(at('Weather by zone')).toBeLessThan(at('Precipitation and Snow (in)'))
-    expect(at('Precipitation and Snow (in)')).toBeLessThan(at('Snow and Freezing Level (ft)'))
+    expect(at('Weather Summary by Zone')).toBeLessThan(at('Precipitation and Snow (in)'))
+    expect(at('Extended')).toBeLessThan(at('Weather by zone'))
     expect(screen.getByRole('link', { name: 'Olympics' })).toHaveAttribute(
+      'href',
+      '/forecasts/avalanche/olympics#mountain-weather',
+    )
+    // The picked zone's summary links to its forecast too.
+    const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
+    expect(within(summary).getByRole('link', { name: 'Olympics forecast' })).toHaveAttribute(
       'href',
       '/forecasts/avalanche/olympics#mountain-weather',
     )

@@ -961,12 +961,14 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
             <WeatherSummary
               headingId={`${anchor}-sensible`}
               days={sensible.days}
-              rows={sensible.rows}
+              rows={sensible.rows.map((r) => ({
+                ...r,
+                href: zoneLinks.find((l) => l.id === r.key)?.href,
+              }))}
             />
           )
         }
       />
-      {zoneLinks.length > 0 && <ZoneLinks links={zoneLinks} />}
       <MaybeTable table={precipSnow} anchor={anchor} />
       <MaybeTable table={snowLevel} anchor={anchor} />
       {tempsOrWind && (
@@ -976,6 +978,7 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
         </div>
       )}
       <ExtendedSection anchor={anchor} extended={extended} table={ext} />
+      {zoneLinks.length > 0 && <ZoneLinks links={zoneLinks} />}
     </div>
   )
 }
