@@ -3,6 +3,7 @@ import type {
   DbDiffReport,
   DbSnapshot,
   SchemaObject,
+  SchemaObjectRef,
   SnapshotError,
   TableDiff,
   TableSnapshot,
@@ -23,11 +24,12 @@ function describeColumn(column: ColumnInfo): string {
 function diffColumns(before: ColumnInfo[], after: ColumnInfo[]) {
   const beforeByName = new Map(before.map((column) => [column.name, column]))
   const afterNames = new Set(after.map((column) => column.name))
-  const alteredColumns: string[] = []
+  const alteredColumns: TableDiff['alteredColumns'] = []
   for (const column of after) {
     const previous = beforeByName.get(column.name)
     if (previous && describeColumn(previous) !== describeColumn(column)) {
-      alteredColumns.push(`${column.name}: ${describeColumn(previous)} → ${describeColumn(column)}`)
+      const change = `${describeColumn(previous)} → ${describeColumn(column)}`
+      alteredColumns.push({ column: column.name, change })
     }
   }
   return {
@@ -158,16 +160,19 @@ function diffTable(table: string, before: TableSnapshot, after: TableSnapshot): 
 }
 
 function diffSchemaObjects(before: SchemaObject[], after: SchemaObject[]) {
-  const label = (object: SchemaObject) => `${object.type} \`${object.name}\``
-  const beforeByKey = new Map(before.map((object) => [label(object), object]))
-  const afterByKey = new Map(after.map((object) => [label(object), object]))
+  const key = (object: SchemaObject) => `${object.type} ${object.name}`
+  const ref = ({ type, name }: SchemaObject): SchemaObjectRef => ({ type, name })
+  const beforeByKey = new Map(before.map((object) => [key(object), object]))
+  const afterByKey = new Map(after.map((object) => [key(object), object]))
   return {
-    addedObjects: [...afterByKey.keys()].filter((key) => !beforeByKey.has(key)),
-    droppedObjects: [...beforeByKey.keys()].filter((key) => !afterByKey.has(key)),
-    alteredObjects: [...afterByKey].flatMap(([key, object]) => {
-      const previous = beforeByKey.get(key)
-      return previous && previous.sql !== object.sql ? [key] : []
-    }),
+    addedObjects: after.filter((object) => !beforeByKey.has(key(object))).map(ref),
+    droppedObjects: before.filter((object) => !afterByKey.has(key(object))).map(ref),
+    alteredObjects: after
+      .filter((object) => {
+        const previous = beforeByKey.get(key(object))
+        return previous && previous.sql !== object.sql
+      })
+      .map(ref),
   }
 }
 

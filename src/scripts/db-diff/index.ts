@@ -1,8 +1,9 @@
 /**
  * Diffs the database across `pnpm migrate` to catch migrations that touch existing data.
  *
- *   pnpm db:diff before <dir>   snapshot, if any migrations are pending
- *   pnpm db:diff after <dir>    snapshot again, diff, write report.md / report.json
+ *   pnpm db:diff before <dir>               snapshot, if any migrations are pending
+ *   pnpm db:diff after <dir>                snapshot again, diff, write report.md / report.json
+ *   pnpm db:diff expect <dir> [migration]   write the migration's expected changes from report.json
  *
  * Warn-only: it never fails the job. See docs/migration-safety.md.
  */
@@ -11,9 +12,10 @@ import 'dotenv/config'
 import fs from 'fs'
 import path from 'path'
 import { diffSnapshots } from './diffSnapshots'
+import { EXPECTATIONS_DIR, expectationsFor, loadExpectations } from './expectations'
 import { findingsFor, formatReport } from './formatReport'
 import { findPendingMigrations, takeSnapshot, toSnapshotError } from './snapshot'
-import type { DbSnapshot } from './types'
+import type { DbDiffReport, DbSnapshot } from './types'
 
 const MIGRATION_DIR = path.resolve(process.cwd(), 'src/migrations')
 
@@ -61,6 +63,10 @@ function readSnapshot(file: string): DbSnapshot {
   return JSON.parse(fs.readFileSync(file, 'utf8'))
 }
 
+function readReport(file: string): DbDiffReport {
+  return JSON.parse(fs.readFileSync(file, 'utf8'))
+}
+
 async function after(dir: string) {
   const beforeFile = path.join(dir, 'before.json')
   if (!fs.existsSync(beforeFile)) {
@@ -69,23 +75,59 @@ async function after(dir: string) {
   }
   const snapshot = await timed('Snapshot taken', () => takeSnapshot(connect(), []))
   const report = diffSnapshots(readSnapshot(beforeFile), snapshot)
-  const markdown = formatReport(report, { detailed })
+  const expectations = loadExpectations(MIGRATION_DIR, report.migrations)
+  const markdown = formatReport(report, { detailed, expectations })
   fs.writeFileSync(path.join(dir, 'report.json'), JSON.stringify(report, null, 2))
-  fs.writeFileSync(path.join(dir, 'report.md'), formatReport(report, { detailed: true }))
+  fs.writeFileSync(
+    path.join(dir, 'report.md'),
+    formatReport(report, { detailed: true, expectations }),
+  )
   console.log(markdown)
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdown)
-  findingsFor(report).forEach(warn)
+  findingsFor(report, expectations).forEach(warn)
 }
 
-const commands: Record<string, (dir: string) => Promise<void>> = { before, after }
+function pickMigration(report: DbDiffReport, migration?: string): string {
+  const target = migration ?? report.migrations.at(-1)
+  if (!target || !report.migrations.includes(target)) {
+    throw new Error(`Pick one of the migrations in report.json: ${report.migrations.join(', ')}`)
+  }
+  return target
+}
+
+/** Records what a run changed as the expectations of one pending migration, the newest by default. */
+async function recordExpectations(dir: string, migration?: string) {
+  const report = readReport(path.join(dir, 'report.json'))
+  const target = pickMigration(report, migration)
+  const existing = loadExpectations(MIGRATION_DIR, [target])
+  if (existing.errors.length) throw new Error(existing.errors.join('; '))
+  const others = loadExpectations(
+    MIGRATION_DIR,
+    report.migrations.filter((name) => name !== target),
+  )
+  const { file: expectations, skippedDeletions } = expectationsFor(report, { others, existing })
+  const file = path.join(MIGRATION_DIR, EXPECTATIONS_DIR, `${target}.json`)
+  fs.mkdirSync(path.dirname(file), { recursive: true })
+  fs.writeFileSync(file, `${JSON.stringify(expectations, null, 2)}\n`)
+  console.log(`Wrote ${path.relative(process.cwd(), file)}`)
+  for (const deletion of skippedDeletions) {
+    console.log(`Not recorded: ${deletion}. If that's intended, add "deletedRows": true by hand.`)
+  }
+}
+
+const commands: Record<string, (dir: string, migration?: string) => Promise<void>> = {
+  before,
+  after,
+  expect: recordExpectations,
+}
 
 async function main() {
-  const [command, dir] = process.argv.slice(2)
+  const [command, dir, migration] = process.argv.slice(2)
   const run = commands[command]
   if (!run || !dir) {
-    throw new Error('Usage: pnpm db:diff <before|after> <dir>')
+    throw new Error('Usage: pnpm db:diff <before|after|expect> <dir> [migration]')
   }
-  await run(dir)
+  await run(dir, migration)
 }
 
 main().catch((error: unknown) => {

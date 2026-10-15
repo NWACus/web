@@ -1,6 +1,20 @@
 import { diffSnapshots, isReinsertedOnUpdate } from '@/scripts/db-diff/diffSnapshots'
+import {
+  EXPECTATIONS_DIR,
+  expectationsFor,
+  loadExpectations,
+  NO_EXPECTATIONS,
+  parseExpectations,
+  toChanges,
+  toFile,
+  type ExpectationFile,
+  type Expectations,
+} from '@/scripts/db-diff/expectations'
 import { findingsFor, formatReport } from '@/scripts/db-diff/formatReport'
 import type { ColumnInfo, DbSnapshot, TableSnapshot } from '@/scripts/db-diff/types'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 
 function column(name: string, type = 'text'): ColumnInfo {
   return { name, type, notNull: false, defaultValue: null, primaryKey: name === 'id' ? 1 : 0 }
@@ -145,7 +159,7 @@ describe('diffSnapshots', () => {
 
     expect(report.tables[0]).toMatchObject({
       droppedColumns: ['updated_at'],
-      alteredColumns: ['title: text → integer NOT NULL'],
+      alteredColumns: [{ column: 'title', change: 'text → integer NOT NULL' }],
     })
     expect(findingsFor(report)).toEqual([
       '`pages`: column `updated_at` dropped',
@@ -218,9 +232,9 @@ describe('diffSnapshots', () => {
 
     const report = diffSnapshots(before, after)
 
-    expect(report.addedObjects).toEqual(['index `glossary_idx`'])
-    expect(report.droppedObjects).toEqual(['index `pages_tenant_idx`'])
-    expect(report.alteredObjects).toEqual(['index `pages_slug_idx`'])
+    expect(report.addedObjects).toEqual([{ type: 'index', name: 'glossary_idx' }])
+    expect(report.droppedObjects).toEqual([{ type: 'index', name: 'pages_tenant_idx' }])
+    expect(report.alteredObjects).toEqual([{ type: 'index', name: 'pages_slug_idx' }])
     expect(findingsFor(report)).toEqual([
       'index `pages_tenant_idx` dropped',
       'index `pages_slug_idx` definition changed',
@@ -381,5 +395,205 @@ describe('formatReport', () => {
     expect(markdown).not.toContain('deleted ids')
     expect(markdown).not.toContain('Before')
     expect(markdown).not.toContain('secret detail')
+  })
+})
+
+describe('expectations', () => {
+  const expecting = (file: ExpectationFile): Expectations => ({
+    ...NO_EXPECTATIONS,
+    changes: toChanges(file),
+    sources: ['expected-changes/20261010_backfill.json'],
+  })
+
+  const backfilled = table(['id', 'title', 'updated_at'], {
+    1: ['h-1', 'h-title-1b', 'h-t1'],
+    2: ['h-2', 'h-title-2b', 'h-t1'],
+  })
+  const backfill = diffSnapshots(
+    snapshot({ tables: { pages } }),
+    snapshot({ tables: { pages: backfilled } }),
+  )
+
+  it('raises no finding for changes a migration declared', () => {
+    const expectations = expecting({
+      tables: { pages: { changedColumns: ['title', 'updated_at'] } },
+    })
+
+    expect(findingsFor(backfill, expectations)).toEqual([])
+    const markdown = formatReport(backfill, { detailed: false, expectations })
+    expect(markdown).toContain('Every change to existing rows')
+    expect(markdown).toContain('### Expected changes (`expected-changes/20261010_backfill.json`)')
+    expect(markdown).toContain('- `pages`: existing rows changed (title ×2, updated_at ×2)')
+  })
+
+  it('still flags columns the migration did not declare', () => {
+    const expectations = expecting({ tables: { pages: { changedColumns: ['title'] } } })
+
+    expect(findingsFor(backfill, expectations)).toEqual([
+      '`pages`: existing rows changed in unexpected columns (updated_at ×2)',
+    ])
+  })
+
+  it('flags declared changes that did not happen', () => {
+    const expectations = expecting({
+      tables: { pages: { changedColumns: ['title', 'updated_at', 'slug'], dropped: true } },
+      droppedObjects: ['pages_slug_idx'],
+    })
+
+    expect(findingsFor(backfill, expectations)).toEqual([
+      "expected but didn't happen: `pages`: table dropped",
+      "expected but didn't happen: `pages`: existing values changed in `slug`",
+      "expected but didn't happen: `pages_slug_idx` dropped",
+    ])
+  })
+
+  it('covers deleted rows only when declared for that table', () => {
+    const rels = table(['id'], { 1: ['h-1'], 2: ['h-2'] })
+    const report = diffSnapshots(
+      snapshot({ tables: { pages_rels: rels, posts_rels: rels } }),
+      snapshot({ tables: { pages_rels: table(['id'], {}), posts_rels: table(['id'], {}) } }),
+    )
+
+    const expectations = expecting({ tables: { pages_rels: { deletedRows: true } } })
+
+    expect(findingsFor(report, expectations)).toEqual(['`posts_rels`: 2 rows deleted'])
+  })
+
+  it('matches dropped schema by table, column and index name', () => {
+    const after: TableSnapshot = { ...table(['id', 'title'], {}), rowCount: 0 }
+    const index = {
+      type: 'index',
+      name: 'pages_old_idx',
+      sql: 'CREATE INDEX pages_old_idx ON pages (title)',
+    }
+    const report = diffSnapshots(
+      snapshot({
+        tables: { pages: table(['id', 'title', 'legacy'], {}), old: table(['id'], {}) },
+        schemaObjects: [index],
+      }),
+      snapshot({ tables: { pages: after } }),
+    )
+
+    const expectations = expecting({
+      tables: { pages: { droppedColumns: ['legacy'] }, old: { dropped: true } },
+      droppedObjects: ['pages_old_idx'],
+    })
+
+    expect(findingsFor(report)).toHaveLength(3)
+    expect(findingsFor(report, expectations)).toEqual([])
+  })
+
+  it('round-trips a file in a stable order', () => {
+    const file: ExpectationFile = {
+      tables: {
+        posts: { changedColumns: ['updated_at', 'slug'] },
+        pages: { droppedColumns: ['legacy'], deletedRows: true },
+      },
+      droppedObjects: ['pages_old_idx'],
+    }
+
+    expect(JSON.stringify(toFile(toChanges(file)))).toBe(
+      JSON.stringify({
+        tables: {
+          pages: { deletedRows: true, droppedColumns: ['legacy'] },
+          posts: { changedColumns: ['slug', 'updated_at'] },
+        },
+        droppedObjects: ['pages_old_idx'],
+      }),
+    )
+  })
+
+  it('rejects unknown fields and wrong types', () => {
+    expect(() =>
+      parseExpectations('x.json', '{"tables":{"pages":{"changedColumn":["a"]}}}'),
+    ).toThrow(/x\.json is invalid \(tables\.pages: Unrecognized key/)
+    expect(() => parseExpectations('x.json', '{"tables":{"pages":{"deletedRows":"yes"}}}')).toThrow(
+      /deletedRows/,
+    )
+  })
+
+  describe('loadExpectations', () => {
+    let dir: string
+    beforeEach(() => {
+      dir = fs.mkdtempSync(path.join(os.tmpdir(), 'db-diff-'))
+      fs.mkdirSync(path.join(dir, EXPECTATIONS_DIR))
+    })
+    afterEach(() => fs.rmSync(dir, { recursive: true, force: true }))
+
+    const write = (name: string, text: string) =>
+      fs.writeFileSync(path.join(dir, EXPECTATIONS_DIR, `${name}.json`), text)
+
+    it('reads the files of pending migrations only', () => {
+      write('20261010_a', '{"tables":{"pages":{"changedColumns":["title"]}}}')
+      write('20261011_released', '{"tables":{"posts":{"deletedRows":true}}}')
+
+      const expectations = loadExpectations(dir, ['20261010_a', '20261012_no_file'])
+
+      expect(expectations.sources).toEqual([path.join(EXPECTATIONS_DIR, '20261010_a.json')])
+      expect(expectations.changes).toEqual([
+        { field: 'changedColumns', table: 'pages', value: 'title' },
+      ])
+    })
+
+    it('turns an unreadable file into a finding instead of failing the run', () => {
+      write('20261010_a', '{ not json')
+
+      const expectations = loadExpectations(dir, ['20261010_a'])
+
+      expect(findingsFor(backfill, expectations)).toEqual([
+        '`pages`: 2 existing rows changed (title ×2, updated_at ×2)',
+        expect.stringMatching(/^expectations not applied: /),
+      ])
+    })
+  })
+
+  describe('expectationsFor', () => {
+    const rels = table(['id'], { 1: ['h-1'] })
+    const report = {
+      ...diffSnapshots(
+        snapshot({ tables: { pages, pages_rels: rels } }),
+        snapshot({ tables: { pages: backfilled, pages_rels: table(['id'], {}) } }),
+      ),
+      migrations: ['20261010_a', '20261011_b'],
+    }
+
+    it('records observed changes, leaving out what other pending migrations expect', () => {
+      const others = expecting({ tables: { pages: { changedColumns: ['updated_at'] } } })
+
+      const { file, skippedDeletions } = expectationsFor(report, {
+        others,
+        existing: NO_EXPECTATIONS,
+      })
+
+      expect(file).toEqual({ tables: { pages: { changedColumns: ['title'] } } })
+      expect(skippedDeletions).toEqual(['`pages_rels`: rows deleted'])
+    })
+
+    it('keeps row deletions the existing file already declares', () => {
+      const existing = expecting({ tables: { pages_rels: { deletedRows: true } } })
+
+      const { file, skippedDeletions } = expectationsFor(report, {
+        others: NO_EXPECTATIONS,
+        existing,
+      })
+
+      expect(file.tables?.pages_rels).toEqual({ deletedRows: true })
+      expect(skippedDeletions).toEqual([])
+    })
+  })
+
+  it('names a real migration in every committed expectation file', () => {
+    const migrationDir = path.resolve(__dirname, '../../src/migrations')
+    const dir = path.join(migrationDir, EXPECTATIONS_DIR)
+    const files = fs.existsSync(dir) ? fs.readdirSync(dir) : []
+
+    for (const file of files) {
+      // Every file is <migration name>.json, so swapping the extension finds its migration.
+      expect(file).toMatch(/\.json$/)
+      expect(fs.existsSync(path.join(migrationDir, file.replace(/\.json$/, '.ts')))).toBe(true)
+      expect(() =>
+        parseExpectations(file, fs.readFileSync(path.join(dir, file), 'utf8')),
+      ).not.toThrow()
+    }
   })
 })

@@ -44,44 +44,56 @@ Potentially dangerous patterns it detects:
 
 ## Runtime Data Diff
 
-The static check reads migration SQL; this one checks what migrations actually do to prod data. The `development` (push to `main`) and nightly `Sync Production to Dev` workflows clone prod into `payloadcms-dev`, then run `pnpm migrate`. `pnpm db:diff` snapshots the database on each side of `pnpm migrate` (before `pnpm sanitize`) and reports the difference. It skips itself when no migration is pending.
+`pnpm db:diff` checks what migrations do to prod data. The `development` workflow (push to `main`) and the nightly `Sync Production to Dev` clone prod into `payloadcms-dev`, snapshot it, run `pnpm migrate`, and diff. It's warn-only and skips itself when no migration is pending.
 
-A snapshot records every table's columns, constraints and indexes, the foreign key violation counts, and a hash of every cell keyed by row `id`. It stores hashes only, never values.
+Snapshots hold each table's columns, constraints and indexes, foreign key violation counts, and a hash of every cell keyed by row `id`. No values.
 
-**Findings** are changes to anything that existed before the run:
+**Findings** are changes to anything that existed before the run: deleted or changed rows, dropped tables, columns, indexes or constraints, altered columns, new foreign key violations, and unreadable tables. Additions are listed but not flagged. `_rels`-style tables (integer `id` plus `parent_id`/`_parent_id`) are matched by content, since `payload.update` re-inserts them with new ids. Volatile tables (`payload_kv`, `payload_preferences*`, `payload_locked_documents*`, `users_sessions`) compare row counts only.
 
-- deleted rows, e.g. `_rels` rows lost to the cascade-delete issue above
-- existing rows whose values changed, e.g. a bumped `updated_at`
-- dropped tables, columns, indexes or constraints, and altered column definitions
-- new foreign key violations
-- tables that couldn't be read
+**CI output is public:** only names, kinds of change and row deltas. Row ids, table sizes and error messages stay in the local report.
 
-New tables, columns and rows are listed but aren't findings. `payload.update` re-inserts `_rels`-style rows with new ids, so tables with an integer `id` and a `parent_id`/`_parent_id` column are matched by content instead of id. Volatile tables (`payload_kv`, `payload_preferences*`, `payload_locked_documents*`, `users_sessions`) compare row counts only.
+### Expected changes
 
-The check is **warn-only**: it never blocks the deploy, and a backfill legitimately changes rows. Migrations stay pending until the next release, so every run re-reports them.
+A migration stays pending until release, so every run re-reports it. To silence intended changes, declare them in `src/migrations/expected-changes/<migration name>.json`. Declared changes are listed as expected. Undeclared changes, and declared ones that didn't happen, still warn.
 
-**CI output is public.** The job summary and annotations show only table, column and migration names, the kind of change, and row deltas. They leave out row ids, table sizes and error messages.
+```json
+{
+  "tables": {
+    "pages": { "changedColumns": ["slug", "updated_at"], "droppedColumns": ["legacy_slug"] },
+    "pages_rels": { "deletedRows": true }
+  },
+  "droppedObjects": ["pages_legacy_slug_idx"]
+}
+```
 
-### Debugging a warning
+Fields: per table `changedColumns`, `droppedColumns`, `alteredColumns`, `droppedConstraints` (as printed in the report), `deletedRows`, `dropped`; top level `droppedObjects`, `alteredObjects` (index, trigger or view names). Matching is by name, never row count. Failed reads and foreign key violations can't be declared. All pending migrations' files apply together.
 
-1. Check out the commit the workflow ran on.
-2. Clone prod into a throwaway Turso database. To match the data CI saw exactly, add `--timestamp <RFC3339>` set to the time of the workflow's clone step.
+Keep the files in the subdirectory: `payload migrate:create` reads the last `*.json` directly in `src/migrations/` as its schema snapshot.
+
+### Runbook
+
+For debugging a warning or recording a migration's expected changes.
+
+1. Check out the commit (for a warning, the one the workflow ran on).
+2. Clone prod. Add `--timestamp <RFC3339>` of the workflow's clone step to match CI's data.
    ```bash
    turso db create payloadcms-dbdiff-debug --from-db payloadcms-prod --wait
    export DATABASE_URI=$(turso db show payloadcms-dbdiff-debug --url)
    export DATABASE_AUTH_TOKEN=$(turso db tokens create payloadcms-dbdiff-debug)
    ```
-3. Re-run the diff locally, where the output is detailed. `NODE_ENV=production` turns off dev push mode.
+3. Run the diff. `NODE_ENV=production` turns off dev push mode.
    ```bash
    pnpm db:diff before .context/db-diff
    NODE_ENV=production pnpm migrate
    pnpm db:diff after .context/db-diff
    ```
-   `.context/db-diff/report.md` lists the affected row ids and any error messages, and `report.json` has every id.
-4. Inspect the rows with `turso db shell payloadcms-dbdiff-debug`. Deleted rows are gone after migrating, so look them up in a fresh clone.
+   `.context/db-diff/report.md` has row ids and errors; `report.json` has every id.
+4. Then:
+   - **Record expectations:** `pnpm db:diff expect .context/db-diff [migration name]` writes the newest pending migration's file, minus what other pending migrations declare. It never writes `deletedRows`; add it by hand if the deletion is intended. Re-run `pnpm db:diff after .context/db-diff` to check the result, then commit the file with the migration.
+   - **Debug:** `turso db shell payloadcms-dbdiff-debug`. Deleted rows are gone after migrating; look them up in a fresh clone.
 5. `turso db destroy payloadcms-dbdiff-debug --yes`
 
-To iterate on a fix without Turso round trips, serve a local copy with `turso dev -f <copy>.db` and point `DATABASE_URI` at it. A plain `file:` URL doesn't reproduce Turso's cascade behavior.
+To iterate without Turso round trips, serve a local copy with `turso dev -f <copy>.db`. A plain `file:` URL doesn't reproduce Turso's cascade behavior.
 
 ## Workflow
 
@@ -222,4 +234,4 @@ Keep the old schema and mark fields as `hidden: true` (see "The fix: keep old at
 - CI Job: `.github/workflows/ci.yaml` (migration-safety job)
 - Migration check script: `src/scripts/check-migrations.ts`
 - Migration diff script: `src/scripts/analyze-migration-diff.ts`
-- Runtime data diff: `src/scripts/db-diff/` (`pnpm db:diff`), run from `.github/workflows/development.yaml` and `.github/workflows/sync-prod-to-dev.yml`
+- Runtime data diff: `src/scripts/db-diff/` (`pnpm db:diff`; expected changes in `src/migrations/expected-changes/`), run from `.github/workflows/development.yaml` and `.github/workflows/sync-prod-to-dev.yml`

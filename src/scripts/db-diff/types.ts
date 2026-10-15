@@ -22,6 +22,8 @@ export type SchemaObject = {
   sql: string | null
 }
 
+export type SchemaObjectRef = Pick<SchemaObject, 'type' | 'name'>
+
 /** A table (or the foreign key check) that couldn't be read. */
 export type SnapshotError = {
   target: string
@@ -45,7 +47,7 @@ export type TableDiff = {
   rowsAfter: number
   addedColumns: string[]
   droppedColumns: string[]
-  alteredColumns: string[]
+  alteredColumns: { column: string; change: string }[]
   addedConstraints: string[]
   droppedConstraints: string[]
   /** False for volatile tables, which only compare counts and leave the row-level fields empty. */
@@ -61,9 +63,9 @@ export type DbDiffReport = {
   migrations: string[]
   addedTables: { table: string; rows: number }[]
   droppedTables: { table: string; rows: number }[]
-  addedObjects: string[]
-  droppedObjects: string[]
-  alteredObjects: string[]
+  addedObjects: SchemaObjectRef[]
+  droppedObjects: SchemaObjectRef[]
+  alteredObjects: SchemaObjectRef[]
   tables: TableDiff[]
   newForeignKeyViolations: string[]
   failures: (SnapshotError & { snapshot: 'before' | 'after' })[]
