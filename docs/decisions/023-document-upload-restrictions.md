@@ -1,6 +1,6 @@
 # Documents Use an Allow List, and Response Headers Are the Real Control
 
-Date: 2026-08-31
+Date: 2026-10-15
 
 Status: accepted
 
@@ -16,7 +16,7 @@ Status: accepted
 
 Two gaps mean the allow list cannot be the security boundary on its own:
 
-- `clientUploads: true` sends files straight from the browser to Vercel Blob. Neither `checkFileRestrictions` nor any collection hook ever sees the bytes, so the allow list is not enforced on that path. Payload 3.90.2 narrowed this considerably -- it now requires a well-formed MIME type, pins `allowedContentTypes` to the declared type on the upload token, and routes SVG and XML through the server -- but it still does not check the declared type against the collection's `mimeTypes`.
+- `clientUploads: true` sends files straight from the browser to Vercel Blob, so the bytes are stored before anything checks them. As of Payload 3.90.2 the server does still check them afterwards: because Documents sets `mimeTypes`, `getFileContentRequirement` asks for the full file, and `getFileFromClientUpload` streams the blob back into a temp file before the operation runs. `checkFileRestrictions` and our hooks then see the real bytes, but through `req.file.tempFilePath` with an empty `req.file.data`, so any hook that reads the bytes has to handle both. A rejected upload leaves its blob behind in storage, though no Document points to it, so the site never serves it.
 - For files with no magic bytes, Payload falls back to `getFileTypeFallback`, which reports `text/plain` for unmapped extensions — including `.pdf`. Its `validatePDF` branch therefore never runs, and HTML bytes named `report.pdf` pass the allow list.
 
 ## Decision
@@ -24,15 +24,18 @@ Two gaps mean the allow list cannot be the security boundary on its own:
 Keep an allow list, and treat the response headers as the actual control.
 
 - `DOCUMENT_MIME_TYPES` enumerates what Documents accepts. Images and videos are excluded by construction, which satisfies #836 without giving up byte sniffing. Executables are excluded for the same reason, so no separate deny list is needed.
+- Every entry has to match a type Payload can actually detect. Legacy Office files (`.doc`, `.xls`, `.ppt`) are detected as the generic `application/x-cfb` container, which `.msi` installers share, and KMZ is detected as `application/zip`. Their own MIME types would never match, and allowing the container types would let installers and arbitrary archives through, so those formats are not accepted. Editors can save as `.docx`/`.xlsx`/`.pptx` or `.kml`.
 - `text/html`, `application/xhtml+xml`, and `image/svg+xml` are never allowed. `application/octet-stream` was dropped as a catch-all that defeats the point of the list.
 - `application/xml` and `text/xml` stay, because `fileTypeFromBuffer` reports KML and GPX as `application/xml` and Payload validates the *detected* type. Removing them breaks geospatial uploads.
 - `modifyDocumentResponseHeaders` sets `X-Content-Type-Options: nosniff` on every response and forces `Content-Disposition: attachment` for everything except PDF. This holds even for uploads that skipped the server-side checks.
-- `assertFileContentMatchesName` (a `beforeOperation` hook) rejects HTML/SVG content under any filename and requires `%PDF-` for anything named `.pdf`, closing the fallback gap on paths that reach the server.
+- `rejectMismatchedFileContent` (a `beforeOperation` hook) rejects HTML/SVG content under any filename and requires `%PDF-` for anything named `.pdf`, closing the fallback gap. It reads the leading bytes from the temp file when `req.file.data` is empty, so it covers client uploads too.
+- Only inline-safe types (PDF) can be embedded. The Document block's `displayAs` field rejects `embed` for any other document, and the block component falls back to a download link if older content embeds one anyway, since an attachment in an iframe downloads on every page view.
 
 ## Consequences
 
 - Adding a new document type means editing `DOCUMENT_MIME_TYPES`. That is the intended cost: the list is the thing keeping byte verification switched on.
-- The direct-to-blob path is bounded by upstream's own checks rather than by anything here, and those checks trust the browser-declared content type. A client that declares an allowed type and sends other bytes still gets stored; the response headers are what contain that case.
+- The served `Content-Type` comes from the blob's metadata, which on the client-upload path is whatever the browser declared. The server-side checks reject a mismatched file before a Document is created, and `nosniff` plus `attachment` contain anything that gets past them.
+- Hooks that inspect upload bytes must read `tempFilePath` when `data` is empty. Tests that only build `req.file` from a buffer miss the production path, because local development without a Blob token uses ordinary multipart uploads.
 - PDFs remain `inline` so the Document block's embed layout keeps working. Any new inline-rendered type must be added to `INLINE_SAFE_MIME_TYPES` deliberately, with the first-party origin in mind.
 - There is still no size cap on client uploads: `maximumSizeInBytes` is not reachable through the plugin's public options, and we chose not to carry a `@payloadcms/storage-vercel-blob` patch for it. The largest document in production is ~51MB, so nothing is near a practical ceiling today; revisit if that changes.
-- `clientUploads` bypasses server-side file checks for `Media` too. That collection accepts images by design, so the exposure is different, but the same reasoning applies if its restrictions ever start mattering.
+- `Media` gets the same full read-back only while it sets `mimeTypes`. Without an allow list, `getFileContentRequirement` fetches just an image header or nothing at all, so server-side checks there would see partial or empty bytes.
