@@ -33,6 +33,7 @@ import { cn } from '@/utilities/ui'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import {
   DayNightDate,
+  SNOW_LEVEL_FILL,
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
@@ -143,26 +144,36 @@ function blockColumn(issuance: NWACWeatherIssuance, b: NWACWeatherBlock): Column
   }
 }
 
+/**
+ * A zone's snow and freezing levels: the snow levels' cells filled light blue, so the fill takes the
+ * whole cell rather than a pill inside it, and each with its trend from the block before.
+ */
+function levelRow(
+  zone: { id: string; name: string },
+  cells: { key: string; level: number | null; snow: boolean }[],
+): Row {
+  return {
+    key: zone.id,
+    label: zone.name,
+    cells: cells.map((c, i) => (
+      <SnowLevelValue
+        key={c.key}
+        level={c.level}
+        snow={c.snow}
+        trend={levelTrend(cells[i - 1]?.level, c.level)}
+        pill={false}
+      />
+    )),
+    fills: cells.map((c) => (c.snow && c.level != null ? SNOW_LEVEL_FILL : undefined)),
+  }
+}
+
 function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   const flat = (rows: Row[]): Group[] => [{ key: 'all', label: null, rows }]
   const zoneRows = (cells: (zoneId: string) => ReactNode[]): Row[] =>
     issuance.zones.map((z) => ({ key: z.id, label: z.name, cells: cells(z.id) }))
 
   const levelBlocks = snowLevelBlocks(issuance)
-  const levelCells = (zoneId: string) => {
-    const levels = levelBlocks.map((b) => {
-      const cell = issuance.snowLevel[zoneId]?.[b.key]
-      return deriveSnowLevel(cell?.freezing, cell?.drop)
-    })
-    return levelBlocks.map((b, i) => (
-      <SnowLevelValue
-        key={b.key}
-        level={levels[i]}
-        snow={levelKind(issuance, zoneId, b) === 'snow'}
-        trend={levelTrend(levels[i - 1], levels[i])}
-      />
-    ))
-  }
 
   const temps = tempPeriods(issuance)
   const winds = windBlocks(issuance)
@@ -177,7 +188,21 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       legend: <SnowLevelLegend />,
       rowLabel: 'Zone',
       columns: levelBlocks.map((b) => blockColumn(issuance, b)),
-      groups: flat(zoneRows(levelCells)),
+      groups: flat(
+        issuance.zones.map((z) =>
+          levelRow(
+            z,
+            levelBlocks.map((b) => {
+              const cell = issuance.snowLevel[z.id]?.[b.key]
+              return {
+                key: b.key,
+                level: deriveSnowLevel(cell?.freezing, cell?.drop),
+                snow: levelKind(issuance, z.id, b) === 'snow',
+              }
+            }),
+          ),
+        ),
+      ),
       filled: true,
     },
     {
@@ -328,18 +353,6 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
   const blocks = issuance.extendedBlocks
   // No precipitation beyond the main window, so a level is a snow level unless the forecaster
   // marked it a freezing level.
-  const levels = zones.map((z) => {
-    const cells = blocks.map((b) => issuance.extendedSnowLevel[z.id]?.[b.key])
-    const values = cells.map((c) => deriveSnowLevel(c?.freezing, c?.drop))
-    return cells.map((c, i) => (
-      <SnowLevelValue
-        key={blocks[i].key}
-        level={values[i]}
-        snow={c?.mode !== 'freezing'}
-        trend={levelTrend(values[i - 1], values[i])}
-      />
-    ))
-  })
   return {
     id: 'extended-snow-level',
     nav: 'Extended',
@@ -357,7 +370,19 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
       {
         key: 'all',
         label: null,
-        rows: zones.map((z, i) => ({ key: z.id, label: z.name, cells: levels[i] })),
+        rows: zones.map((z) =>
+          levelRow(
+            z,
+            blocks.map((b) => {
+              const cell = issuance.extendedSnowLevel[z.id]?.[b.key]
+              return {
+                key: b.key,
+                level: deriveSnowLevel(cell?.freezing, cell?.drop),
+                snow: cell?.mode !== 'freezing',
+              }
+            }),
+          ),
+        ),
       },
     ],
     filled: true,

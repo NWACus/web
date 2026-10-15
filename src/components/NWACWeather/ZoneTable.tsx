@@ -270,6 +270,16 @@ function BlockPair({ blocks, value }: { blocks: BlockView[]; value: (b: BlockVie
   )
 }
 
+/** The keys of the 6h blocks after the first `count`: the ones a value isn't forecast for. */
+function blocksPast(periods: PeriodView[], count: number) {
+  return new Set(
+    periods
+      .flatMap((p) => p.blocks)
+      .slice(count)
+      .map((b) => b.block.key),
+  )
+}
+
 /**
  * The zone's numbers from `md` up and on paper, one column per 12h period: snow (the zone's,
  * then each point's when several), snow level, temps and ridgeline wind. Snow level and wind are
@@ -286,12 +296,7 @@ function PeriodTable({
   periods: PeriodView[]
 }) {
   const covered = coverage(issuance, periods)
-  const windOut = new Set(
-    periods
-      .flatMap((p) => p.blocks)
-      .slice(covered.winds)
-      .map((b) => b.block.key),
-  )
+  const windOut = blocksPast(periods, covered.winds)
   return (
     <div className="hidden overflow-hidden rounded-md border md:block print:block">
       <table className="w-full table-fixed border-collapse text-sm">
@@ -527,12 +532,7 @@ function PeriodCards({
   periods: PeriodView[]
 }) {
   const covered = coverage(issuance, periods)
-  const windOut = new Set(
-    periods
-      .flatMap((p) => p.blocks)
-      .slice(covered.winds)
-      .map((b) => b.block.key),
-  )
+  const windOut = blocksPast(periods, covered.winds)
   const card = (p: PeriodView) => (
     <PeriodCard
       key={p.period.key}
