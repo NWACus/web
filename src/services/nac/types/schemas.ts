@@ -328,3 +328,15 @@ export const avalancheCenterSchema = z.object({
   off_season: z.boolean(),
 })
 export type AvalancheCenter = z.infer<typeof avalancheCenterSchema>
+
+// The obs API's zones for one center: its forecast zones plus any observation-only zones, as the
+// observations widget lists them. Each also carries its outline (`geom`), dropped here.
+export const combinedObsZoneSchema = z.object({
+  zone_id: z.string(),
+  name: z.string(),
+  status: z.string(),
+  zone_type: z.string(),
+  priority: z.number(),
+})
+export const combinedObsZonesSchema = z.array(combinedObsZoneSchema)
+export type CombinedObsZone = z.infer<typeof combinedObsZoneSchema>
