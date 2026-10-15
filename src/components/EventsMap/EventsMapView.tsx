@@ -141,15 +141,19 @@ function eventMeta(event: Event, origin: NearOrigin | null): string {
 
 function ShowOnMapButton({
   placeKey,
+  title,
   selection,
 }: {
   placeKey: string | null
+  title: string
   selection: Selection
 }) {
   if (!placeKey) return null
   return (
     <button
       type="button"
+      // Starts with the visible label, then names the event, since every card repeats the button.
+      aria-label={`Show on map: ${title}`}
       onClick={() => selection.showOnMap(placeKey)}
       className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
     >
@@ -195,15 +199,18 @@ function EventDetails({ event, id }: { event: Event; id: string }) {
 function DetailsToggle({
   expanded,
   controls,
+  title,
   onToggle,
 }: {
   expanded: boolean
   controls: string
+  title: string
   onToggle: () => void
 }) {
   return (
     <button
       type="button"
+      aria-label={`Details: ${title}`}
       aria-expanded={expanded}
       aria-controls={controls}
       onClick={onToggle}
@@ -244,10 +251,11 @@ function EventMapCard({ event, selection }: { event: Event; selection: Selection
         </Link>
         <div className="text-sm text-muted-foreground">{describeWhere(event.location)}</div>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <ShowOnMapButton placeKey={key} selection={selection} />
+          <ShowOnMapButton placeKey={key} title={event.title} selection={selection} />
           <DetailsToggle
             expanded={expanded}
             controls={detailsId}
+            title={event.title}
             onToggle={() => setExpanded(!expanded)}
           />
         </div>
@@ -284,7 +292,7 @@ function UnplacedEvents({ events, selection }: { events: Event[]; selection: Sel
 function CappedNotice({ shown, total }: { shown: number; total: number }) {
   if (total <= shown) return null
   return (
-    <p role="status" className="mb-3 rounded-md border bg-muted px-3 py-2 text-sm">
+    <p className="mb-3 rounded-md border bg-muted px-3 py-2 text-sm">
       Showing {shown} of {total} matching events. Narrow the dates or filters, or search a smaller
       map area, to see the rest.
     </p>
@@ -366,6 +374,24 @@ function useRevealOnMount(mapRef: RefObject<HTMLDivElement | null>, reveal: bool
   }, [mapRef])
 }
 
+const eventCount = (shown: number, total: number) =>
+  total > shown ? `${shown} of ${total} events` : `${shown} ${shown === 1 ? 'event' : 'events'}`
+
+function countMessage(state: EventsState, searchingArea: boolean): string {
+  if (!state.events || state.loading) return ''
+  const count = eventCount(state.events.length, state.total)
+  return searchingArea ? `${count} in this map area` : count
+}
+
+/** Always rendered, so screen readers hear the new count after a filter or area search. */
+function ResultsStatus({ state, searchingArea }: { state: EventsState; searchingArea: boolean }) {
+  return (
+    <p role="status" className="sr-only">
+      {countMessage(state, searchingArea)}
+    </p>
+  )
+}
+
 /** The list column, which scrolls with the page while the map beside it stays put. */
 function ListPane({
   state,
@@ -382,6 +408,7 @@ function ListPane({
 }) {
   return (
     <div ref={listRef} className="xl:order-1 xl:w-[380px] shrink-0">
+      <ResultsStatus state={state} searchingArea={searchedBox !== null} />
       {searchedBox && <SearchedAreaBar loading={state.loading} onClear={onClearArea} />}
       {/* Dimmed while the next set loads; the last set stays up until it arrives. */}
       <div className={cn('transition-opacity', state.loading && 'opacity-60')}>

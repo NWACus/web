@@ -44,6 +44,7 @@ export function PickerMap({ point, focus, onPick, readOnly = false }: PickerMapP
       wrapper,
       token,
       start ? { center: [start.longitude, start.latitude], zoom: POINT_ZOOM } : UNSET_VIEW,
+      'Event location map',
     )
     map.on('click', (event) => {
       onPickRef.current({ latitude: event.lngLat.lat, longitude: event.lngLat.lng })

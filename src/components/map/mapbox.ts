@@ -51,17 +51,26 @@ export function hasSource(map: MapboxMap, sourceId: string): boolean {
 /**
  * A product map inside `wrapper`: the shared style, cooperative gestures, no rotation, zoom buttons.
  * Mapbox gets a fresh child element each time, because dev's double-mounted effects would otherwise
- * hand it one a previous map used. `remove` tears down both.
+ * hand it one a previous map used. `remove` tears down both. `label` names the map region for
+ * screen readers in place of Mapbox's generic "Map".
  */
 export function createProductMap(
   wrapper: HTMLElement,
   token: string,
   view: { center: [number, number]; zoom: number },
+  label?: string,
 ): { map: MapboxMap; remove: () => void } {
   mapboxgl.accessToken = token
   const container = wrapper.appendChild(document.createElement('div'))
   container.className = 'h-full w-full'
-  const map = new mapboxgl.Map({ container, style: MAP_STYLE, cooperativeGestures: true, ...view })
+  const locale = label ? { 'Map.Title': label } : undefined
+  const map = new mapboxgl.Map({
+    container,
+    style: MAP_STYLE,
+    cooperativeGestures: true,
+    locale,
+    ...view,
+  })
   disableRotation(map)
   map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
   return {

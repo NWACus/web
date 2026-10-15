@@ -41,10 +41,12 @@ function useEventsMapInstance(containerRef: RefObject<HTMLDivElement | null>) {
     const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
     const wrapper = containerRef.current
     if (!wrapper || !token) return
-    const { map: instance, remove } = createProductMap(wrapper, token, {
-      center: [-114, 44],
-      zoom: 3.5,
-    })
+    const { map: instance, remove } = createProductMap(
+      wrapper,
+      token,
+      { center: [-114, 44], zoom: 3.5 },
+      'Events map',
+    )
     setMap(instance)
     return () => {
       setMap(null)
@@ -213,6 +215,22 @@ function PlacePopup({ map, place }: { map: mapboxgl.Map; place: EventPlace }) {
   )
 }
 
+/** A click on the map's background closes the popup, and so does Escape, as it would a dialog. */
+function useClosePopup(map: mapboxgl.Map | null, selectedKey: string | null, onClose: () => void) {
+  useMapBackgroundClick(map, onClose)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+  const open = selectedKey !== null
+  useEffect(() => {
+    if (!open) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseRef.current()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [open])
+}
+
 /** Flies to a pin when the list asks to show an event on the map. */
 function useFlyToFocus(map: mapboxgl.Map | null, places: EventPlace[], focus: FocusRequest | null) {
   const placesRef = useRef(places)
@@ -293,7 +311,7 @@ export function EventsMap({
   const map = useEventsMapInstance(containerRef)
   useFitToPlaces(map, places, searchedBox !== null)
   useOpenOnSearchedBox(map, searchedBox)
-  useMapBackgroundClick(map, onClear)
+  useClosePopup(map, selectedKey, onClear)
   useFlyToFocus(map, places, focus)
   const movedByReader = useMovedByReader(map)
 
