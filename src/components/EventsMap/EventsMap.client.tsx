@@ -12,6 +12,7 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { clusterPlaces, mapItemsAt, type PlaceCluster } from './clusters'
 import type { EventPlace } from './eventPlaces'
 import type { NearOrigin } from './useNearOrigin'
 
@@ -100,6 +101,21 @@ function useOpenOnSearchedBox(map: mapboxgl.Map | null, searchedBox: BoundingBox
   }, [map])
 }
 
+/** The map's whole-number zoom, which is all clustering changes with. */
+function useZoomLevel(map: mapboxgl.Map | null) {
+  const [zoom, setZoom] = useState(0)
+  useEffect(() => {
+    if (!map) return
+    const update = () => setZoom(Math.floor(map.getZoom()))
+    update()
+    map.on('moveend', update)
+    return () => {
+      map.off('moveend', update)
+    }
+  }, [map])
+  return zoom
+}
+
 /** Whether the reader panned or zoomed last; the map's own moves (fitting, flying) reset it. */
 function useMovedByReader(map: mapboxgl.Map | null) {
   const [moved, setMoved] = useState(false)
@@ -164,24 +180,29 @@ const overshoot = (start: number, end: number, min: number, max: number) =>
   Math.min(0, start - min) || Math.max(0, end - max)
 
 /** Pans the map just enough to show the whole popup when it opens hanging off an edge. */
+function panToShow(map: mapboxgl.Map, popupElement: HTMLElement) {
+  const popup = popupElement.getBoundingClientRect()
+  const frame = map.getContainer().getBoundingClientRect()
+  const dx = overshoot(
+    popup.left,
+    popup.right,
+    frame.left + POPUP_MARGIN,
+    frame.right - POPUP_MARGIN,
+  )
+  const dy = overshoot(
+    popup.top,
+    popup.bottom,
+    frame.top + POPUP_MARGIN,
+    frame.bottom - POPUP_MARGIN,
+  )
+  if (dx || dy) map.panBy([dx, dy])
+}
+
 function usePanIntoView(map: mapboxgl.Map, popupRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
-    const popup = popupRef.current?.getBoundingClientRect()
-    if (!popup) return
-    const frame = map.getContainer().getBoundingClientRect()
-    const dx = overshoot(
-      popup.left,
-      popup.right,
-      frame.left + POPUP_MARGIN,
-      frame.right - POPUP_MARGIN,
-    )
-    const dy = overshoot(
-      popup.top,
-      popup.bottom,
-      frame.top + POPUP_MARGIN,
-      frame.bottom - POPUP_MARGIN,
-    )
-    if (dx || dy) map.panBy([dx, dy])
+    const popup = popupRef.current
+    // A pin split out of a cluster isn't on the map yet, so its popup has no position to read.
+    if (popup?.isConnected) panToShow(map, popup)
   }, [map, popupRef])
 }
 
@@ -296,6 +317,68 @@ function EventPin({ map, place, selected, active, onSelect }: EventPinProps) {
   )
 }
 
+interface ClusterPinProps {
+  map: mapboxgl.Map
+  cluster: PlaceCluster
+  active: boolean
+}
+
+/** Several places' events as one marker; a click zooms in until they split. */
+function ClusterPin({ map, cluster, active }: ClusterPinProps) {
+  const lngLat = useMemo<[number, number]>(
+    () => [cluster.longitude, cluster.latitude],
+    [cluster.longitude, cluster.latitude],
+  )
+  return (
+    <MapMarker map={map} lngLat={lngLat} raised={active}>
+      <div
+        onClick={() => map.easeTo({ center: lngLat, zoom: cluster.expansionZoom })}
+        className={cn(
+          'flex h-10 min-w-10 px-1.5 items-center justify-center rounded-full border-2 border-white text-sm font-semibold cursor-pointer transition-transform shadow-[0_0_0_4px_var(--primary),0_4px_6px_rgb(0_0_0_/_0.2)]',
+          active ? 'bg-foreground text-background scale-110' : 'bg-primary text-primary-foreground',
+        )}
+      >
+        {cluster.eventCount}
+      </div>
+    </MapMarker>
+  )
+}
+
+interface PinsProps {
+  map: mapboxgl.Map | null
+  places: EventPlace[]
+  selectedKey: string | null
+  hoveredKey: string | null
+  onSelect: (key: string) => void
+}
+
+/** A pin per place, with places that would overlap at this zoom merged into clusters. */
+function Pins({ map, places, selectedKey, hoveredKey, onSelect }: PinsProps) {
+  const zoom = useZoomLevel(map)
+  const clusters = useMemo(() => clusterPlaces(places, selectedKey), [places, selectedKey])
+  const items = useMemo(() => mapItemsAt(clusters, zoom), [clusters, zoom])
+  if (!map) return null
+  return items.map((item) =>
+    item.kind === 'cluster' ? (
+      <ClusterPin
+        key={`cluster-${item.cluster.id}`}
+        map={map}
+        cluster={item.cluster}
+        active={hoveredKey !== null && item.cluster.keys.includes(hoveredKey)}
+      />
+    ) : (
+      <EventPin
+        key={item.place.key}
+        map={map}
+        place={item.place}
+        selected={item.place.key === selectedKey}
+        active={item.place.key === selectedKey || item.place.key === hoveredKey}
+        onSelect={onSelect}
+      />
+    ),
+  )
+}
+
 export function EventsMap({
   places,
   selectedKey,
@@ -326,17 +409,13 @@ export function EventsMap({
   return (
     <div className="relative h-full w-full">
       <div ref={containerRef} className="h-full w-full">
-        {map &&
-          places.map((place) => (
-            <EventPin
-              key={place.key}
-              map={map}
-              place={place}
-              selected={place.key === selectedKey}
-              active={place.key === selectedKey || place.key === hoveredKey}
-              onSelect={onSelect}
-            />
-          ))}
+        <Pins
+          map={map}
+          places={places}
+          selectedKey={selectedKey}
+          hoveredKey={hoveredKey}
+          onSelect={onSelect}
+        />
         <OriginMarker map={map} origin={origin} />
       </div>
       <SearchAreaButton
