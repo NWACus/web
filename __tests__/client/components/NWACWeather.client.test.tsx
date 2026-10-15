@@ -92,8 +92,8 @@ describe('Overall', () => {
     const parts = within(wide)
       .getAllByRole('columnheader')
       .map((h) => h.textContent)
-      .filter((text) => text === 'WE' || text === 'Snow')
-    expect(parts.slice(0, 2)).toEqual(['WE', 'Snow'])
+      .filter((text) => text === 'Precip' || text === 'Snow')
+    expect(parts.slice(0, 2)).toEqual(['Precip', 'Snow'])
     expect(within(wide).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
     const row = within(wide).getByRole('rowheader', { name: 'Hurricane Ridge' }).closest('tr')
     // A WE and a snow cell per period, plus the total's two.
@@ -168,7 +168,7 @@ describe('Overall table descriptions', () => {
     // The 12 and 24 hour tables both carry it; one is hidden.
     expect(
       screen.getAllByText(
-        /^Water Equivalent \(WE\) and new snow by station; .* LT means less than\.$/,
+        /^Precipitation \(liquid, in\) and new snow by station; .* \(light, dry snow\)\.$/,
       ),
     ).toHaveLength(2)
     expect(screen.getByText(/is the high \/ low$/)).toBeInTheDocument()

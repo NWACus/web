@@ -57,7 +57,7 @@ interface Column {
   /** Its sun or moon goes by the sub-label (a date's Day / Night), not the date. */
   dayNightOnSub?: boolean
   /**
-   * A third header row under the sub-label, for a period split into several values ("WE",
+   * A third header row under the sub-label, for a period split into several values ("Precip",
    * "Snow"); columns sharing a `split` sit under one sub-label.
    */
   part?: string
@@ -108,7 +108,7 @@ const STICKY = 'sticky left-0 z-10'
 
 // Condensed from the info bubbles on NWAC's legacy Mountain Weather Forecast page.
 const PRECIP_DETAIL = [
-  'WE is the liquid equivalent of all precipitation (rain, snow, ice pellets), to the hundredth of an inch. To estimate snow, start at 10:1 (1" WE ≈ 10" of snow); near freezing gives less (heavy, wet snow), very cold more (light, dry snow). LT means less than.',
+  'Precip is the liquid equivalent of all precipitation (rain, snow, ice pellets), to the hundredth of an inch. To estimate snow, start at 10:1 (1" of precip ≈ 10" of snow); near freezing gives less (heavy, wet snow), very cold more (light, dry snow).',
 ]
 const SNOW_LEVEL_DETAIL = [
   'The general snow level over each 6 hours; a freezing level instead when no precipitation is expected.',
@@ -348,7 +348,7 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Tab
     }
   }
   const split = (column: Column): Column[] =>
-    ['WE', 'Snow'].map((part) => ({
+    ['Precip', 'Snow'].map((part) => ({
       ...column,
       key: `${column.key}-${part}`,
       part,
@@ -359,7 +359,7 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Tab
     nav: 'Precipitation & snow',
     title: 'Precipitation and Snow',
     unit: 'in',
-    note: 'Water Equivalent (WE) and new snow by station; Total covers the whole forecast.',
+    note: 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.',
     detail: PRECIP_DETAIL,
     legend: <SnowFillLegend />,
     aside: <PrecipHoursToggle />,
@@ -770,7 +770,7 @@ function TableTitle({
 const LABEL_VARS = '[--group:5.5rem] [--label:7.5rem] md:[--group:8rem] md:[--label:12rem]'
 /** A data column of a grouped table, which is sized to its columns rather than stretched. */
 const GROUPED_COL_REM = 5.5
-/** A split table's value column, half a period: room for "LT 0.10". */
+/** A split table's value column, half a period: room for a two-decimal amount. */
 const SPLIT_COL_REM = 4
 /** The narrowest a data column of a stretched table gets before the table scrolls instead. */
 const MIN_COL_REM = 5
