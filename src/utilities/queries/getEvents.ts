@@ -32,11 +32,12 @@ export interface GetEventsResult {
 }
 
 /** Where an event is held, or nothing for a virtual event: it may keep an old in-person point. */
-const placeOf = (event: Event) => (event.location?.isVirtual ? null : event.location?.coordinates)
+const placeOf = (event: Pick<Event, 'location'>) =>
+  event.location?.isVirtual ? null : event.location?.coordinates
 
 /**
- * The database can't sort by distance on SQLite, so this loads every matching event (a season's
- * worth at most), sorts them here and pages through the sorted list.
+ * The database can't sort by distance on SQLite, so this loads every matching event's location,
+ * sorts them here, and only fully loads the page being shown.
  */
 async function findNearestEvents(
   payload: Payload,
@@ -45,18 +46,28 @@ async function findNearestEvents(
   offset: number,
   limit: number,
 ): Promise<GetEventsResult> {
-  const { docs } = await payload.find({
+  const { docs: located } = await payload.find({
     collection: 'events',
     where,
     pagination: false,
     sort: 'startDate',
+    depth: 0,
+    select: { location: true },
+  })
+  const pageIds = nearestFirst(located, near, placeOf)
+    .slice(offset, offset + limit)
+    .map((event) => event.id)
+  const { docs } = await payload.find({
+    collection: 'events',
+    where: { id: { in: pageIds } },
+    pagination: false,
     depth: 2,
   })
-  const sorted = nearestFirst(docs, near, placeOf)
+  const byId = new Map(docs.map((event) => [event.id, event]))
   return {
-    events: sorted.slice(offset, offset + limit),
-    hasMore: offset + limit < sorted.length,
-    total: sorted.length,
+    events: pageIds.flatMap((id) => byId.get(id) ?? []),
+    hasMore: offset + limit < located.length,
+    total: located.length,
   }
 }
 
@@ -66,8 +77,8 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
   try {
     const { types, startDate, endDate, groups, tags, modesOfTravel, box, near, center } = params
 
-    const offset = params.offset || 0
-    const limit = Math.floor(Number(params.limit)) || EVENTS_LIMIT
+    const offset = Math.max(0, Math.floor(Number(params.offset)) || 0)
+    const limit = Math.max(0, Math.floor(Number(params.limit))) || EVENTS_LIMIT
 
     const conditions: Where[] = [
       {
@@ -141,7 +152,12 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
       })
     }
 
-    if (box) conditions.push(withinBoxWhere('location.coordinates', box))
+    if (box) {
+      // Virtual events can keep the point they had when they were in person.
+      conditions.push(withinBoxWhere('location.coordinates', box), {
+        'location.isVirtual': { not_equals: true },
+      })
+    }
 
     const where: Where = conditions.length > 0 ? { and: conditions } : {}
 

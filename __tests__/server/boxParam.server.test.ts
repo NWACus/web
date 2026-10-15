@@ -29,6 +29,7 @@ describe('parseBoxParam', () => {
     ['too few values', '-122,47,-121'],
     ['too many values', '-122,47,-121,48,1'],
     ['not numbers', '-122,abc,-121,48'],
+    ['blank values', ',,,'],
     ['south above north', '-122,49,-121,48'],
     ['west east of east', '-121,47,-122,48'],
     ['latitude out of range', '-122,-91,-121,48'],
