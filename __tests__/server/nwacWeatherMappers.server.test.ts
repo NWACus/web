@@ -5,6 +5,8 @@ import {
   fmtCalendarDate,
   fmtSnowAmount,
   fmtWind,
+  levelKind,
+  levelTrend,
   periodDateGroups,
   precipPeriods,
   snowLevelBlocks,
@@ -138,5 +140,37 @@ describe('nwacWeatherFormat', () => {
       { date: '2026-09-15', span: 1 },
     ])
     expect(blockDate(afternoon, afternoon.blocks[0])).toBe('2026-09-14')
+  })
+})
+
+describe('levelKind', () => {
+  const block = afternoon.blocks.find((b) => b.period != null)!
+  const zone = afternoon.points.find((p) => p.zoneId)!.zoneId!
+  const withPrecip = (qpf: number, mode: string | null = 'auto') => ({
+    ...afternoon,
+    precip: Object.fromEntries(
+      afternoon.points.map((p) => [p.code, { [block.period!]: { qpf, density: 10 } }]),
+    ),
+    snowLevel: { [zone]: { [block.key]: { freezing: 6000, drop: 1000, mode } } },
+  })
+
+  it('reads a wet period as a snow level and a dry one as a freezing level', () => {
+    expect(levelKind(withPrecip(0.05), zone, block)).toBe('snow')
+    expect(levelKind(withPrecip(0), zone, block)).toBe('freezing')
+  })
+
+  it('takes the forecaster’s pick over the precipitation', () => {
+    expect(levelKind(withPrecip(0, 'snow'), zone, block)).toBe('snow')
+    expect(levelKind(withPrecip(0.5, 'freezing'), zone, block)).toBe('freezing')
+  })
+})
+
+describe('levelTrend', () => {
+  it('says up or down from the level before, nothing when unchanged or unknown', () => {
+    expect(levelTrend(3000, 3500)).toBe('up')
+    expect(levelTrend(3500, 3000)).toBe('down')
+    expect(levelTrend(3000, 3000)).toBeNull()
+    expect(levelTrend(undefined, 3000)).toBeNull()
+    expect(levelTrend(3000, null)).toBeNull()
   })
 })

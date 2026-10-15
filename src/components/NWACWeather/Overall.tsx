@@ -20,6 +20,8 @@ import {
   fmtCalendarDate,
   fmtQpf,
   fmtSnowAmount,
+  levelKind,
+  levelTrend,
   periodDateGroups,
   precipPeriods,
   snowLevelBlocks,
@@ -30,7 +32,15 @@ import {
 import { cn } from '@/utilities/ui'
 
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
-import { DayNightDate, LevelValue, SnowValue, TempValue, WindValue } from './Values'
+import {
+  DayNightDate,
+  LevelValue,
+  SnowLevelLegend,
+  SnowLevelValue,
+  SnowValue,
+  TempValue,
+  WindValue,
+} from './Values'
 import { WeatherSummary, type SensibleDay, type SensibleRow } from './WeatherSummary.client'
 
 interface Column {
@@ -82,7 +92,7 @@ interface Table {
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
-  /** Beside the title, bottom-aligned: what the shading means. */
+  /** After the description, over the table: what the shading means. */
   legend?: ReactNode
 }
 
@@ -151,15 +161,20 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     issuance.zones.map((z) => ({ key: z.id, label: z.name, cells: cells(z.id) }))
 
   const levelBlocks = snowLevelBlocks(issuance)
-  const levels = shadedLevels(
-    issuance.zones.map((z) =>
-      levelBlocks.map((b) => {
-        const cell = issuance.snowLevel[z.id]?.[b.key]
-        return deriveSnowLevel(cell?.freezing, cell?.drop)
-      }),
-    ),
-  )
-  const levelsByZone = new Map(issuance.zones.map((z, i) => [z.id, levels[i]]))
+  const levelCells = (zoneId: string) => {
+    const levels = levelBlocks.map((b) => {
+      const cell = issuance.snowLevel[zoneId]?.[b.key]
+      return deriveSnowLevel(cell?.freezing, cell?.drop)
+    })
+    return levelBlocks.map((b, i) => (
+      <SnowLevelValue
+        key={b.key}
+        level={levels[i]}
+        snow={levelKind(issuance, zoneId, b) === 'snow'}
+        trend={levelTrend(levels[i - 1], levels[i])}
+      />
+    ))
+  }
 
   const temps = tempPeriods(issuance)
   const winds = windBlocks(issuance)
@@ -170,11 +185,12 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: 'Snow & freezing level',
       title: 'Snow and Freezing Level',
       unit: 'ft',
-      note: 'Where rain turns to snow. Darker is higher.',
+      note: 'Where rain turns to snow.',
       detail: SNOW_LEVEL_DETAIL,
+      legend: <SnowLevelLegend />,
       rowLabel: 'Zone',
       columns: levelBlocks.map((b) => blockColumn(issuance, b)),
-      groups: flat(zoneRows((id) => levelsByZone.get(id) ?? [])),
+      groups: flat(zoneRows(levelCells)),
       filled: true,
     },
     {
@@ -657,18 +673,13 @@ function TableTitle({
   const [first, ...rest] = t.detail ?? []
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-        <Heading
-          id={headingId}
-          className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
-        >
-          {t.title}
-          {t.unit && (
-            <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
-          )}
-        </Heading>
-        {t.legend}
-      </div>
+      <Heading
+        id={headingId}
+        className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
+      >
+        {t.title}
+        {t.unit && <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>}
+      </Heading>
       {(t.note || first) && (
         <div className="space-y-1 text-sm text-muted-foreground">
           <p>{[t.note, first].filter(Boolean).join(' ')}</p>
@@ -677,6 +688,7 @@ function TableTitle({
           ))}
         </div>
       )}
+      {t.legend && <div className="pt-2">{t.legend}</div>}
     </div>
   )
 }

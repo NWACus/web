@@ -8,6 +8,35 @@ import type {
 
 export const DASH = '—'
 
+/** A zone's period is wet when any of its stations forecasts this much or more (inches). */
+export const WET_QPF_IN = 0.01
+
+/**
+ * Whether a block's level is a snow level or a freezing level, as the dashboard decides it: the
+ * forecaster's pick when they made one, else snow when the zone's period is wet.
+ */
+export function levelKind(
+  issuance: NWACWeatherIssuance,
+  zoneId: string,
+  block: NWACWeatherBlock,
+): 'snow' | 'freezing' {
+  const mode = issuance.snowLevel[zoneId]?.[block.key]?.mode
+  if (mode === 'snow' || mode === 'freezing') return mode
+  const period = block.period
+  const wet =
+    period != null &&
+    issuance.points.some(
+      (p) => p.zoneId === zoneId && (issuance.precip[p.code]?.[period]?.qpf ?? 0) >= WET_QPF_IN,
+    )
+  return wet ? 'snow' : 'freezing'
+}
+
+/** Up or down from the level before; null for the first, an unknown or an unchanged one. */
+export function levelTrend(before: number | null | undefined, level: number | null) {
+  if (before == null || level == null || before === level) return null
+  return level > before ? 'up' : 'down'
+}
+
 /** Snow level = freezing level − drop; the drop defaults to 1,000 ft. */
 export const DEFAULT_DROP_FT = 1000
 

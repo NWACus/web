@@ -147,7 +147,7 @@ describe('Overall table descriptions', () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
     expect(
-      screen.getByText(/^Where rain turns to snow\. Darker is higher\. The snow level forecast/),
+      screen.getByText(/^Where rain turns to snow\. The snow level forecast/),
     ).toBeInTheDocument()
     expect(screen.getByText(/^High \/ low\. The 5000’ temperature forecast/)).toBeInTheDocument()
     expect(

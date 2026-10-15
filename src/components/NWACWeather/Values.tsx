@@ -1,5 +1,5 @@
 /** How one Mountain Weather value draws in a table cell. */
-import { ArrowDown, Moon, Sun } from 'lucide-react'
+import { ArrowDown, Moon, Snowflake, Sun, TrendingDown, TrendingUp } from 'lucide-react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import { DASH, fmtWind, windBearing } from '@/services/nac/nwacWeatherFormat'
@@ -46,6 +46,57 @@ export function LevelValue({ level, tone }: { level: number | null; tone: number
     >
       {level.toLocaleString('en-US')}&apos;
     </span>
+  )
+}
+
+/**
+ * A block's snow or freezing level: a snow level on light blue with a snowflake, a freezing level
+ * (a dry block) plain, and a trending arrow for the change from the block before.
+ */
+export function SnowLevelValue({
+  level,
+  snow,
+  trend,
+}: {
+  level: number | null
+  snow: boolean
+  trend: 'up' | 'down' | null
+}) {
+  if (level == null) return <span className="block text-center text-muted-foreground">{DASH}</span>
+  const Trend = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : null
+  return (
+    <span
+      className={cn(
+        'flex items-center justify-center gap-1 whitespace-nowrap rounded px-1 py-1 font-semibold tabular-nums',
+        snow && 'bg-sky-100 text-sky-950',
+      )}
+    >
+      {snow && <Snowflake aria-hidden="true" className="size-3.5 shrink-0 text-sky-700" />}
+      {level.toLocaleString('en-US')}&apos;
+      <span className="sr-only">
+        {snow ? ' snow level' : ' freezing level'}
+        {trend && (trend === 'up' ? ', rising' : ', falling')}
+      </span>
+      {Trend && <Trend aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />}
+    </span>
+  )
+}
+
+/** What the snow and freezing level cells mean, over the table. */
+export function SnowLevelLegend() {
+  return (
+    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      <span className="inline-flex items-center gap-1 rounded bg-sky-100 px-2 py-0.5 text-sky-950">
+        <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
+        Snow level
+      </span>
+      <span>Freezing level (dry)</span>
+      <span className="inline-flex items-center gap-1">
+        <TrendingUp aria-hidden="true" className="size-4" />
+        <TrendingDown aria-hidden="true" className="size-4" />
+        Higher or lower than the block before
+      </span>
+    </p>
   )
 }
 
