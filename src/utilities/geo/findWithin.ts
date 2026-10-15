@@ -25,7 +25,7 @@ type FindWithinArgs<TSlug extends CollectionSlug> = {
 
 /**
  * Docs whose point falls inside a lat/lng box, e.g. the map's current view. Entirely a database
- * query, so it sorts and paginates like any other find. Access control applies as usual.
+ * query, so it sorts and paginates like any other find, with admin access like any Local API find.
  */
 export function findWithinBox<TSlug extends CollectionSlug>({
   payload,
