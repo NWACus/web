@@ -18,6 +18,7 @@ function usePlaceSuggestions(query: string, sessionToken: string) {
     const trimmed = query.trim()
     if (trimmed.length < 2) {
       setSuggestions([])
+      setFailed(false)
       return
     }
     const controller = new AbortController()
