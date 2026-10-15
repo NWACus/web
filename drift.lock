@@ -642,6 +642,11 @@ sig = "b3dd8b3c14b678af"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
+target = "src/blocks/ObservationsWidget/Component.tsx"
+sig = "c82d70ef63697c9a"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
 target = "src/blocks/RenderBlocks.tsx"
 sig = "f43871fb7d3ff5cf"
 
