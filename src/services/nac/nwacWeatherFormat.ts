@@ -74,6 +74,17 @@ export function fmtWind(cell: { dir: string | null; speed: number | null } | und
   return `${cell.dir ?? ''} ${cell.speed}`.trim()
 }
 
+/**
+ * The public reads wind as a 10 mph band around the entered speed (25 → 20–30, 12 → 5–15);
+ * calm stays "Calm". A first cut at the bands, to be tuned with the forecasters.
+ */
+export function windRange(speed: number | null | undefined): string | null {
+  if (speed == null) return null
+  if (speed <= 0) return 'Calm'
+  const lo = Math.max(0, Math.round(speed / 5) * 5 - 5)
+  return `${lo}–${lo + 10}`
+}
+
 const COMPASS = [
   'N',
   'NNE',
@@ -205,11 +216,24 @@ export function blockDate(issuance: NWACWeatherIssuance, block: NWACWeatherBlock
 }
 
 /** A zone's snow for one period: the mean over its points, printed in 2-inch bands. */
-export function rangeBucket(value: number | null, step = 2): string {
-  if (value == null) return DASH
-  if (value <= 0) return '0'
-  const lo = Math.floor(value / step) * step
-  return `${lo}–${lo + step}"`
+/**
+ * The public reads snow as a range, never the exact derived amount (the forecasters' spec:
+ * "translated into a prescribed non-editable snow range"). A first cut at the bands, to be tuned
+ * with the forecasters: 2-inch steps to 8, then 8–12, 12–18, 18–24, 24+. Under half an inch is 0.
+ */
+export const SNOW_RANGE_EDGES = [2, 4, 6, 8, 12, 18, 24]
+export function snowRange(snow: number | null | undefined): string {
+  if (snow == null) return DASH
+  if (snow < 0.5) return '0'
+  let lo = 0
+  for (const edge of SNOW_RANGE_EDGES) {
+    if (snow < edge) return `${lo}–${edge}"`
+    lo = edge
+  }
+  return `${lo}+"`
+}
+export function rangeBucket(value: number | null): string {
+  return snowRange(value)
 }
 
 /** One point's snow for one period, from its water amount and density. */

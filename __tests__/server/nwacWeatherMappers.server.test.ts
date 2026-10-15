@@ -11,8 +11,10 @@ import {
   periodDateGroups,
   precipPeriods,
   snowLevelBlocks,
+  snowRange,
   windBearing,
   windBlocks,
+  windRange,
 } from '@/services/nac/nwacWeatherFormat'
 import {
   mapV3NWACWeatherForecastDay,
@@ -104,6 +106,19 @@ describe('nwacWeatherFormat', () => {
     expect(fmtWind({ dir: 'SW', speed: 25 })).toBe('SW 25')
     expect(fmtWind({ dir: null, speed: 0 })).toBe('Calm')
     expect(fmtWind(undefined)).toBe('—')
+  })
+
+  it('reads snow and wind to the public as ranges', () => {
+    expect(snowRange(null)).toBe('—')
+    expect(snowRange(0.3)).toBe('0')
+    expect(snowRange(0.5)).toBe('0–2"')
+    expect(snowRange(7.9)).toBe('6–8"')
+    expect(snowRange(10)).toBe('8–12"')
+    expect(snowRange(30)).toBe('24+"')
+    expect(windRange(25)).toBe('20–30')
+    expect(windRange(12)).toBe('5–15')
+    expect(windRange(0)).toBe('Calm')
+    expect(windRange(null)).toBeNull()
     expect(fmtCalendarDate('2026-09-14')).toBe('Mon Sep 14')
   })
 

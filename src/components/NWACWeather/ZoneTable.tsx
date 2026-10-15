@@ -16,12 +16,12 @@ import {
   SENSIBLE_SLOTS,
   deriveSnowLevel,
   fmtCalendarDate,
-  fmtSnowAmount,
   levelKind,
   levelTrend,
   periodDateGroups,
   pointSnow,
   rangeBucket,
+  snowRange,
   tempPeriods,
   windBlocks,
   zonePoints,
@@ -99,7 +99,7 @@ function PointSnow({
   period: NWACWeatherPeriod
 }) {
   const snow = pointSnow(issuance, point.code, period.key)
-  return <SnowValue text={fmtSnowAmount(snow)} some={snow != null && snow >= 0.5} />
+  return <SnowValue text={snowRange(snow)} some={snow != null && snow >= 0.5} />
 }
 
 /**

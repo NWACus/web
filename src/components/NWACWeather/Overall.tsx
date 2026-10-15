@@ -20,12 +20,12 @@ import {
   deriveSnowLevel,
   fmtCalendarDate,
   fmtQpf,
-  fmtSnowAmount,
   levelKind,
   levelTrend,
   periodDateGroups,
   precipPeriods,
   snowLevelBlocks,
+  snowRange,
   tempPeriods,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
@@ -271,7 +271,7 @@ function precipSnowPair(qpf: number | null | undefined, snow: number | null, sha
       <span key="we" className="tabular-nums text-muted-foreground">
         {dry ? '' : fmtQpf(qpf)}
       </span>,
-      <SnowValue key="snow" text={fmtSnowAmount(snow)} some={some} />,
+      <SnowValue key="snow" text={snowRange(snow)} some={some} />,
     ],
     fills: [fill, fill],
   }

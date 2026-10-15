@@ -2,7 +2,13 @@
 import { ArrowUp, Moon, Snowflake, Sun, TrendingDown, TrendingUp } from 'lucide-react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
-import { DASH, fmtWind, windBearing, type LevelTrend } from '@/services/nac/nwacWeatherFormat'
+import {
+  DASH,
+  fmtWind,
+  windBearing,
+  windRange,
+  type LevelTrend,
+} from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
 /** A snow level's light blue, on its pill or its table cell. */
@@ -141,7 +147,7 @@ export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
       <span
         className={cn(cell.speed >= 25 ? 'font-bold' : cell.speed >= 15 ? 'font-semibold' : '')}
       >
-        {cell.speed}
+        {windRange(cell.speed)}
       </span>
     </span>
   )
