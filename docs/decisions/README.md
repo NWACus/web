@@ -33,7 +33,7 @@ Each record loosely follows the [ADR format](https://adr.github.io/) (Context, D
 | [022](022-shared-content.md)                   | Shared Content: no owning Tenant, written by Global Role, readable by every center | 2026-09-21 | accepted           |
 | [023](023-document-upload-restrictions.md)      | Document upload restrictions and response headers   | 2026-10-15 | accepted                                           |
 
-> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `023`.
+> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `024`.
 
 ## Related reading
 
