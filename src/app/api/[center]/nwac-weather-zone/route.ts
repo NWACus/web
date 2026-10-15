@@ -35,11 +35,18 @@ export async function GET(
 
   const historical = asked.date < todayInTimezone(timezone)
   const day = await getNWACWeatherSource().getDay(asked.date, { historical })
+  const zoneDay = day && forZone(day, asked.zone)
 
   return NextResponse.json(
-    { day: day && forZone(day, asked.zone) },
-    // A past day no longer changes; the current one can gain its afternoon issuance.
-    { headers: { 'Cache-Control': historical ? HISTORICAL_CACHE : CURRENT_CACHE } },
+    { day: zoneDay },
+    // A past day no longer changes; the current one can gain its afternoon issuance. Nothing found
+    // is kept briefly either way: an issuance published late, or an upstream hiccup, would
+    // otherwise hide a past day for a day.
+    {
+      headers: {
+        'Cache-Control': historical && zoneDay ? HISTORICAL_CACHE : CURRENT_CACHE,
+      },
+    },
   )
 }
 

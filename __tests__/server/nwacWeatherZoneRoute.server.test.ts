@@ -58,6 +58,16 @@ describe('nwac-weather-zone route', () => {
     )
   })
 
+  it('caches a past day with nothing for the zone briefly, not for a day', async () => {
+    mockGetDay.mockResolvedValue(null)
+    const res = await ask(`?zone=${OLYMPICS}&published=2026-09-01T15:00:00Z`)
+
+    expect(await res.json()).toEqual({ day: null })
+    expect(res.headers.get('Cache-Control')).toBe(
+      'public, s-maxage=300, stale-while-revalidate=600',
+    )
+  })
+
   it('keeps only the issuances covering the zone, their authored HTML sanitized', async () => {
     if (!day) throw new Error('fixture should map to a forecast day')
     const [first, ...rest] = day.issuances
