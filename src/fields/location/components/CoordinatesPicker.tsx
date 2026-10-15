@@ -1,6 +1,7 @@
 'use client'
 
 import type { AddressParts, GeocodeResult } from '@/services/geocodio'
+import { isRecord } from '@/utilities/isRecord'
 import { Button, FieldDescription, FieldLabel, toast, useField } from '@payloadcms/ui'
 import dynamic from 'next/dynamic'
 import type { UIFieldClientComponent } from 'payload'
@@ -46,14 +47,23 @@ type Point = { latitude: number; longitude: number }
 const pointFrom = (latitude: unknown, longitude: unknown): Point | null =>
   typeof latitude === 'number' && typeof longitude === 'number' ? { latitude, longitude } : null
 
+const MISSED: ReadonlySet<unknown> = new Set(['no-match', 'unavailable'])
+
+function isGeocodeResult(body: unknown): body is GeocodeResult {
+  if (!isRecord(body)) return false
+  if (body.status !== 'found') return MISSED.has(body.status)
+  return typeof body.latitude === 'number' && typeof body.longitude === 'number'
+}
+
 async function requestGeocode(parts: AddressParts): Promise<GeocodeResult> {
-  const params = new URLSearchParams()
-  for (const [key, value] of Object.entries(parts)) {
-    if (value) params.set(key, value)
-  }
+  const params = new URLSearchParams(
+    Object.entries(parts).flatMap(([key, value]) => (value ? [[key, value]] : [])),
+  )
   try {
     const response = await fetch(`/api/events/geocode?${params}`, { credentials: 'include' })
-    return await response.json()
+    const body: unknown = await response.json()
+    if (response.ok && isGeocodeResult(body)) return body
+    return { status: 'unavailable', reason: `request failed (${response.status})` }
   } catch {
     return { status: 'unavailable', reason: 'request failed' }
   }
@@ -66,7 +76,24 @@ function describeStatus(status: GeocodeStatus | null, placed: boolean) {
     : 'Saving places the pin from the address. You can also click the map.'
 }
 
-export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
+function FindButton(props: { finding: boolean; disabled: boolean; onClick: () => void }) {
+  return (
+    <Button
+      buttonStyle="secondary"
+      size="small"
+      margin={false}
+      disabled={props.finding || props.disabled}
+      onClick={props.onClick}
+    >
+      {props.finding ? 'Finding…' : 'Find from address'}
+    </Button>
+  )
+}
+
+export const CoordinatesPicker: UIFieldClientComponent = ({
+  path,
+  readOnly: readOnlyFromProps,
+}) => {
   // The picker lives in the `coordinates` group, which sits in the location group with the address.
   const coordinates = parentOf(path)
   const location = parentOf(coordinates)
@@ -79,6 +106,7 @@ export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
   const state = useField<string>({ path: join(location, 'state') })
   const zip = useField<string>({ path: join(location, 'zip') })
 
+  const readOnly = Boolean(readOnlyFromProps) || latitude.disabled
   const [finding, setFinding] = useState(false)
   const [focus, setFocus] = useState<Point | null>(null)
 
@@ -113,17 +141,14 @@ export const CoordinatesPicker: UIFieldClientComponent = ({ path }) => {
     <div className="field-type flex flex-col gap-2">
       <div className="flex items-center justify-between gap-4">
         <FieldLabel label="Map location" />
-        <Button
-          buttonStyle="secondary"
-          size="small"
-          margin={false}
-          disabled={finding}
-          onClick={findFromAddress}
-        >
-          {finding ? 'Finding…' : 'Find from address'}
-        </Button>
+        <FindButton finding={finding} disabled={readOnly} onClick={findFromAddress} />
       </div>
-      <PickerMap point={point} focus={focus} onPick={(next) => setPoint(next, 'manual')} />
+      <PickerMap
+        point={point}
+        focus={focus}
+        readOnly={readOnly}
+        onPick={(next) => setPoint(next, 'manual')}
+      />
       <FieldDescription path={path} description={describeStatus(status.value, point !== null)} />
     </div>
   )
