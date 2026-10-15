@@ -3,7 +3,8 @@ import type { PayloadHandler } from 'payload'
 
 /** Geocodes an address for the location picker, so the admin never handles the Geocodio key. */
 export const geocode: PayloadHandler = async (req) => {
-  if (!req.user) {
+  // Admin users only: an MCP API key also signs in, and would otherwise spend the Geocodio quota.
+  if (req.user?.collection !== 'users') {
     return Response.json({ error: 'Authentication required' }, { status: 401 })
   }
   const params = req.url ? new URL(req.url).searchParams : new URLSearchParams()

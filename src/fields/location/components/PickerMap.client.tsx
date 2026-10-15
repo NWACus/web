@@ -12,6 +12,8 @@ interface PickerMapProps {
   /** A new object flies the map to it at the zoom a placed pin opens at. */
   focus?: Point | null
   onPick: (point: Point) => void
+  /** Shows the pin without letting it be moved, e.g. for a locked document. */
+  readOnly?: boolean
 }
 
 // Roughly the western US, where every avalanche center sits.
@@ -24,12 +26,12 @@ function keepInView(map: mapboxgl.Map, lngLat: [number, number]) {
 }
 
 /** A map you click or drag a pin on. Typed coordinates move the pin; the pin writes them back. */
-export function PickerMap({ point, focus, onPick }: PickerMapProps) {
+export function PickerMap({ point, focus, onPick, readOnly = false }: PickerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const markerRef = useRef<mapboxgl.Marker | null>(null)
   const onPickRef = useRef(onPick)
-  onPickRef.current = onPick
+  onPickRef.current = readOnly ? () => {} : onPick
   const initialPoint = useRef(point)
 
   useEffect(() => {
@@ -43,7 +45,6 @@ export function PickerMap({ point, focus, onPick }: PickerMapProps) {
       token,
       start ? { center: [start.longitude, start.latitude], zoom: POINT_ZOOM } : UNSET_VIEW,
     )
-    map.getCanvas().style.cursor = 'crosshair'
     map.on('click', (event) => {
       onPickRef.current({ latitude: event.lngLat.lat, longitude: event.lngLat.lng })
     })
@@ -75,6 +76,12 @@ export function PickerMap({ point, focus, onPick }: PickerMapProps) {
     marker.setLngLat(lngLat).addTo(map)
     keepInView(map, lngLat)
   }, [point])
+
+  useEffect(() => {
+    markerRef.current?.setDraggable(!readOnly)
+    const canvas = mapRef.current?.getCanvas()
+    if (canvas) canvas.style.cursor = readOnly ? '' : 'crosshair'
+  }, [readOnly])
 
   useEffect(() => {
     if (!focus) return
