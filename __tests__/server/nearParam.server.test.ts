@@ -31,6 +31,7 @@ describe('parseNearParam', () => {
     ['one value', '47.6'],
     ['three values', '47.6,-122.3,1'],
     ['not numbers', '47.6,abc'],
+    ['blank values', ','],
     ['latitude out of range', '91,-122.3'],
     ['longitude out of range', '47.6,-181'],
   ])('rejects a point that is %s', (_label, value) => {

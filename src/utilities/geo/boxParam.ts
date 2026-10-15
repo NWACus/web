@@ -16,7 +16,8 @@ export function formatBoxParam({ west, south, east, north }: BoundingBox): strin
 
 /** The box a `bbox` URL param describes, or null when it is missing or malformed. */
 export function parseBoxParam(value: string | null | undefined): BoundingBox | null {
-  const parts = value?.split(',').map(Number) ?? []
+  // Blank parts are malformed, not zero: `Number('')` is 0.
+  const parts = value?.split(',').map((part) => (part.trim() ? Number(part) : NaN)) ?? []
   if (parts.length !== 4 || !parts.every(Number.isFinite)) return null
   const [west = 0, south = 0, east = 0, north = 0] = parts
   const inRange = south >= -90 && north <= 90 && west >= -180 && east <= 180
