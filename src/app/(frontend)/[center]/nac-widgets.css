@@ -61,7 +61,9 @@
   max-height: none !important;
 }
 
-#nac-forecast-container h1.nac-h1:first-of-type,
+/* The weather page prints its own "Mountain Weather" h1. Avalanche pages print none, so the widget's
+   product-type title has to show there. */
+[data-widget-page='weather-forecast'] #nac-forecast-container h1.nac-h1:first-of-type,
 #nac-obs-form-widget h1.nac-h1:first-of-type,
 #nac-single-observation-view h1.nac-h1:first-of-type,
 #nac-single-avalanche-view h1.nac-h1:first-of-type {

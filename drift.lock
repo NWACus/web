@@ -198,7 +198,7 @@ sig = "a03f04eb361a053c"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/weather/forecast/page.tsx"
-sig = "9885d84ca9062d06"
+sig = "1e4a8f7bc23d0dc7"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
