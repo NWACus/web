@@ -166,7 +166,7 @@
       "stationMap": false
     },
     "nwac": {
-      "forecast": true,
+      "forecast": false,
       "warning": true,
       "dangerMap": true,
       "weather": true,

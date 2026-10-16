@@ -1,16 +1,20 @@
 import {
   blockDate,
+  dayGroups,
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
   fmtSnowAmount,
   fmtWind,
+  levelKind,
+  levelTrend,
   periodDateGroups,
   precipPeriods,
   snowLevelBlocks,
-  snowLevelTones,
+  snowRange,
   windBearing,
   windBlocks,
+  windRange,
 } from '@/services/nac/nwacWeatherFormat'
 import {
   mapV3NWACWeatherForecastDay,
@@ -85,14 +89,14 @@ describe('mapV3NWACWeatherForecastDay', () => {
 })
 
 describe('nwacWeatherFormat', () => {
-  it('derives snow from QPF and density, snow level from freezing minus drop', () => {
+  it('derives snow from QPF and density; the level is the elevation as typed', () => {
     expect(deriveSnow(0.3, 10)).toBe(3)
     expect(deriveSnow(0.24, 11)).toBe(2.2)
     expect(deriveSnow(null, 10)).toBeNull()
     expect(deriveSnow(0.3, 0)).toBeNull()
-    expect(deriveSnowLevel(5000, 1000)).toBe(4000)
-    expect(deriveSnowLevel(5000, null)).toBe(4000)
-    expect(deriveSnowLevel(500, 1000)).toBe(0)
+    expect(deriveSnowLevel(5000)).toBe(5000)
+    expect(deriveSnowLevel(0)).toBe(0)
+    expect(deriveSnowLevel(null)).toBeNull()
   })
 
   it('prints values the way the dashboard preview does', () => {
@@ -102,6 +106,20 @@ describe('nwacWeatherFormat', () => {
     expect(fmtWind({ dir: 'SW', speed: 25 })).toBe('SW 25')
     expect(fmtWind({ dir: null, speed: 0 })).toBe('Calm')
     expect(fmtWind(undefined)).toBe('—')
+  })
+
+  it('reads snow and wind to the public as ranges', () => {
+    expect(snowRange(null)).toBe('—')
+    expect(snowRange(NaN)).toBe('—')
+    expect(snowRange(0.3)).toBe('0')
+    expect(snowRange(0.5)).toBe('0–2"')
+    expect(snowRange(7.9)).toBe('6–8"')
+    expect(snowRange(10)).toBe('8–12"')
+    expect(snowRange(30)).toBe('24+"')
+    expect(windRange(25)).toBe('20–30')
+    expect(windRange(12)).toBe('5–15')
+    expect(windRange(0)).toBe('Calm')
+    expect(windRange(null)).toBeNull()
     expect(fmtCalendarDate('2026-09-14')).toBe('Mon Sep 14')
   })
 
@@ -111,12 +129,6 @@ describe('nwacWeatherFormat', () => {
     expect(windBearing('NNW')).toBe(337.5)
     expect(windBearing('VAR')).toBeNull()
     expect(windBearing(null)).toBeNull()
-  })
-
-  it('shades snow levels relative to the rest of the row', () => {
-    expect(snowLevelTones([8500, 9000, 10000, null])).toEqual([0, 1, 3, null])
-    expect(snowLevelTones([4000, 4000])).toEqual([0, 0])
-    expect(snowLevelTones([null])).toEqual([null])
   })
 
   it('lets the data decide which blocks a 6h table shows', () => {
@@ -138,5 +150,64 @@ describe('nwacWeatherFormat', () => {
       { date: '2026-09-15', span: 1 },
     ])
     expect(blockDate(afternoon, afternoon.blocks[0])).toBe('2026-09-14')
+  })
+})
+
+describe('levelKind', () => {
+  const block = afternoon.blocks.find((b) => b.period != null)
+  const zone = afternoon.points.find((p) => p.zoneId)?.zoneId
+  if (!block?.period || !zone) throw new Error('fixture should have a wet block and a zoned point')
+  const period = block.period
+  const withPrecip = (qpf: number, mode: string | null = 'auto') => ({
+    ...afternoon,
+    precip: Object.fromEntries(
+      afternoon.points.map((p) => [p.code, { [period]: { qpf, density: 10 } }]),
+    ),
+    snowLevel: { [zone]: { [block.key]: { freezing: 6000, drop: 1000, mode } } },
+  })
+
+  it('reads a wet period as a snow level and a dry one as a freezing level', () => {
+    expect(levelKind(withPrecip(0.05), zone, block)).toBe('snow')
+    expect(levelKind(withPrecip(0), zone, block)).toBe('freezing')
+  })
+
+  it('takes the forecaster’s pick over the precipitation', () => {
+    expect(levelKind(withPrecip(0, 'snow'), zone, block)).toBe('snow')
+    expect(levelKind(withPrecip(0.5, 'freezing'), zone, block)).toBe('freezing')
+  })
+})
+
+describe('levelTrend', () => {
+  it('says up or down from the level before, nothing when unchanged or unknown', () => {
+    expect(levelTrend(3000, 3500)).toBe('up')
+    expect(levelTrend(3500, 3000)).toBe('down')
+    expect(levelTrend(3000, 3000)).toBeNull()
+    expect(levelTrend(undefined, 3000)).toBeNull()
+    expect(levelTrend(3000, null)).toBeNull()
+  })
+})
+
+describe('dayGroups', () => {
+  const period = (key: string, kind: 'day' | 'night') => ({
+    key,
+    label: key,
+    short: null,
+    kind,
+    date: '2026-10-14',
+    precip: true,
+  })
+
+  it('pairs each night with the day after it, a lone period on its own', () => {
+    const groups = dayGroups([
+      period('d1', 'day'),
+      period('n1', 'night'),
+      period('d2', 'day'),
+      period('n2', 'night'),
+    ])
+    expect(groups.map((g) => [g.key, g.partial])).toEqual([
+      ['d1', 'Day only'],
+      ['n1-d2', null],
+      ['n2', 'Night only'],
+    ])
   })
 })

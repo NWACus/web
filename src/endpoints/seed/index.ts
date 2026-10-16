@@ -72,7 +72,8 @@ const defaultNacWidgetsConfig = {
   requiredFields: {
     version: '20260527',
     baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
-    devMode: false,
+    // TEMPORARY (revert before merging): the widget reads staging, to match the preview's data.
+    devMode: true,
   },
 }
 
@@ -106,7 +107,8 @@ const nativeProductsByTenant: Record<
   }
 > = {
   snfac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
-  nwac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
+  // TEMPORARY (revert before merging): NWAC zone pages on the widget, to preview its weather.
+  nwac: { forecast: false, warning: true, dangerMap: true, weather: true, stationMap: true },
   sac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: true },
 }
 

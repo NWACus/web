@@ -8,8 +8,36 @@ import type {
 
 export const DASH = '—'
 
-/** Snow level = freezing level − drop; the drop defaults to 1,000 ft. */
-export const DEFAULT_DROP_FT = 1000
+/** A zone's period is wet when any of its stations forecasts this much or more (inches). */
+export const WET_QPF_IN = 0.01
+
+/**
+ * Whether a block's level is a snow level or a freezing level, as the dashboard decides it: the
+ * forecaster's pick when they made one, else snow when the zone's period is wet.
+ */
+export function levelKind(
+  issuance: NWACWeatherIssuance,
+  zoneId: string,
+  block: NWACWeatherBlock,
+): 'snow' | 'freezing' {
+  const mode = issuance.snowLevel[zoneId]?.[block.key]?.mode
+  if (mode === 'snow' || mode === 'freezing') return mode
+  const period = block.period
+  const wet =
+    period != null &&
+    issuance.points.some(
+      (p) => p.zoneId === zoneId && (issuance.precip[p.code]?.[period]?.qpf ?? 0) >= WET_QPF_IN,
+    )
+  return wet ? 'snow' : 'freezing'
+}
+
+/** Up or down from the level before; null for the first, an unknown or an unchanged one. */
+export type LevelTrend = 'up' | 'down' | null
+
+export function levelTrend(before: number | null | undefined, level: number | null): LevelTrend {
+  if (before == null || level == null || before === level) return null
+  return level > before ? 'up' : 'down'
+}
 
 /** New snow in inches from water equivalent and snow-to-liquid ratio (density 10 → 10:1). */
 export function deriveSnow(qpf: number | null | undefined, density: number | null | undefined) {
@@ -17,12 +45,13 @@ export function deriveSnow(qpf: number | null | undefined, density: number | nul
   return Math.round(((qpf * 100) / density) * 10) / 10
 }
 
-export function deriveSnowLevel(
-  freezing: number | null | undefined,
-  drop: number | null | undefined,
-) {
+/**
+ * The level as the forecaster typed it, with the snow/freezing designation as its label (the
+ * old 1,000 ft "drop" derivation is retired; the API folds any stored drop in before serving).
+ */
+export function deriveSnowLevel(freezing: number | null | undefined) {
   if (freezing == null) return null
-  return Math.max(0, freezing - (drop ?? DEFAULT_DROP_FT))
+  return Math.max(0, freezing)
 }
 
 /** Whole inches; under half an inch reads 0 rather than a trace mark. */
@@ -32,10 +61,28 @@ export function fmtSnowAmount(snow: number | null): string {
   return `${Math.round(snow)}"`
 }
 
+/** Water equivalent in inches to the hundredth, as the forecasters asked; none reads as 0. */
+export function fmtQpf(qpf: number | null | undefined): string {
+  if (qpf == null) return DASH
+  if (qpf <= 0) return '0'
+  return qpf.toFixed(2)
+}
+
 export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
   if (cell?.speed == null) return DASH
   if (cell.speed === 0) return 'Calm'
   return `${cell.dir ?? ''} ${cell.speed}`.trim()
+}
+
+/**
+ * The public reads wind as a 10 mph band around the entered speed (25 → 20–30, 12 → 5–15);
+ * calm stays "Calm". A first cut at the bands, to be tuned with the forecasters.
+ */
+export function windRange(speed: number | null | undefined): string | null {
+  if (speed == null) return null
+  if (speed <= 0) return 'Calm'
+  const lo = Math.max(0, Math.round(speed / 5) * 5 - 5)
+  return `${lo}–${lo + 10}`
 }
 
 const COMPASS = [
@@ -63,16 +110,32 @@ export function windBearing(dir: string | null | undefined): number | null {
   return i < 0 ? null : i * 22.5
 }
 
-/** Each level's shade, 0–3, relative to its row: a fixed scale would paint one day flat. */
-export function snowLevelTones(levels: (number | null)[]): (number | null)[] {
-  const known = levels.filter((l): l is number => l != null)
-  if (known.length === 0) return levels.map(() => null)
-  const lo = Math.min(...known)
-  const hi = Math.max(...known)
-  return levels.map((l) => {
-    if (l == null) return null
-    return hi === lo ? 0 : Math.round(((l - lo) / (hi - lo)) * 3)
-  })
+export interface PeriodGroup {
+  key: string
+  periods: NWACWeatherPeriod[]
+  /** "Night only" / "Day only" for a period with no partner; null for a night and its day. */
+  partial: string | null
+}
+
+/**
+ * The 12h periods folded into 24 hours the way forecasters read them, as the dashboard preview
+ * does: each night with the day after it (afternoon: Night 1 + Day 2, Night 2 + Day 3; morning:
+ * Day 1 alone, then Night 1 + Day 2). A period with no partner stands alone.
+ */
+export function dayGroups(periods: NWACWeatherPeriod[]): PeriodGroup[] {
+  const groups: PeriodGroup[] = []
+  for (let i = 0; i < periods.length; i++) {
+    const period = periods[i]
+    const next = periods[i + 1]
+    if (period.kind === 'night' && next?.kind === 'day') {
+      groups.push({ key: `${period.key}-${next.key}`, periods: [period, next], partial: null })
+      i++
+    } else {
+      const partial = period.kind === 'night' ? 'Night only' : 'Day only'
+      groups.push({ key: period.key, periods: [period], partial })
+    }
+  }
+  return groups
 }
 
 /** The periods the issuance forecasts precipitation for. */
@@ -150,4 +213,59 @@ export function periodDateGroups(periods: NWACWeatherPeriod[]): { date: string; 
 /** The date a 6h block falls on, via its parent period. */
 export function blockDate(issuance: NWACWeatherIssuance, block: NWACWeatherBlock): string | null {
   return issuance.periods.find((p) => p.key === block.period)?.date ?? null
+}
+
+/** A zone's snow for one period: the mean over its points, printed in 2-inch bands. */
+/**
+ * The public reads snow as a range, never the exact derived amount (the forecasters' spec:
+ * "translated into a prescribed non-editable snow range"). A first cut at the bands, to be tuned
+ * with the forecasters: 2-inch steps to 8, then 8–12, 12–18, 18–24, 24+. Under half an inch is 0.
+ */
+export const SNOW_RANGE_EDGES = [2, 4, 6, 8, 12, 18, 24]
+export function snowRange(snow: number | null | undefined): string {
+  if (snow == null || !Number.isFinite(snow)) return DASH
+  if (snow < 0.5) return '0'
+  let lo = 0
+  for (const edge of SNOW_RANGE_EDGES) {
+    if (snow < edge) return `${lo}–${edge}"`
+    lo = edge
+  }
+  return `${lo}+"`
+}
+export function rangeBucket(value: number | null): string {
+  return snowRange(value)
+}
+
+/** One point's snow for one period, from its water amount and density. */
+export function pointSnow(
+  issuance: NWACWeatherIssuance,
+  pointCode: string,
+  periodKey: string,
+): number | null {
+  const cell = issuance.precip[pointCode]?.[periodKey]
+  return deriveSnow(cell?.qpf, cell?.density)
+}
+
+/** The points that forecast a zone's snow, in the issuance's order. */
+export function zonePoints(issuance: NWACWeatherIssuance, zoneId: string) {
+  return issuance.points.filter((p) => p.zoneId === zoneId)
+}
+
+export function zoneSnow(
+  issuance: NWACWeatherIssuance,
+  zoneId: string,
+  periodKey: string,
+): number | null {
+  const snows = zonePoints(issuance, zoneId)
+    .map((p) => pointSnow(issuance, p.code, periodKey))
+    .filter((s): s is number => s != null)
+  if (snows.length === 0) return null
+  return Math.round((snows.reduce((a, b) => a + b, 0) / snows.length) * 10) / 10
+}
+
+/** The zones an issuance measured, narrowed to one avalanche zone when the page has one. */
+export function zonesFor(issuance: NWACWeatherIssuance, avalancheZoneId?: number | null) {
+  if (avalancheZoneId == null) return issuance.zones
+  const match = issuance.zones.filter((z) => z.avalancheZoneId === avalancheZoneId)
+  return match
 }

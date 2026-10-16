@@ -62,7 +62,6 @@ export interface NWACWeatherWindCell {
 }
 export interface NWACWeatherLevelCell {
   freezing: number | null
-  drop: number | null
   mode: string | null
 }
 

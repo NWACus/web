@@ -22,14 +22,15 @@ import { addMonths, endOfMonth, format, parseISO } from 'date-fns'
 import { DatePicker } from './DatePicker.client'
 import { IssuanceSwitch } from './IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts, type ZonePaths } from './Overall'
+import { sanitizeIssuance } from './sanitizeIssuance'
 
 const HEADING = <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Mountain Weather</h1>
 
-/** Each active zone's avalanche forecast page. */
-async function zonePathsOf(centerSlug: string) {
+/** Each active zone's avalanche forecast page: for `date` when one is picked, else the current. */
+async function zonePathsOf(centerSlug: string, date: string | undefined) {
   const paths: ZonePaths = {}
   for (const { slug, zone } of await getActiveForecastZones(centerSlug)) {
-    paths[zone.id] = `/forecasts/avalanche/${slug}`
+    paths[zone.id] = date ? `/forecasts/avalanche/${slug}/${date}` : `/forecasts/avalanche/${slug}`
   }
   return paths
 }
@@ -63,7 +64,7 @@ function IssuanceCard({
   issuance: NWACWeatherIssuance
   zonePaths: ZonePaths
 }) {
-  const parts = overallParts(issuance)
+  const parts = overallParts(sanitizeIssuance(issuance))
   return (
     <Card>
       <section aria-label={issuanceLabel(issuance.type)}>
@@ -87,7 +88,7 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
   const [{ day, shown }, dates, zonePaths] = await Promise.all([
     readShown(date, today),
     getNWACWeatherSource().getDates(window.from, window.to, { historical: window.to < today }),
-    zonePathsOf(centerSlug),
+    zonePathsOf(centerSlug, date),
   ])
   const picker = (
     <DatePicker date={shown} today={today} initialDates={dates} initialRange={window} />
