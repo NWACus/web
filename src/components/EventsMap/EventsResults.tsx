@@ -48,11 +48,14 @@ function ViewToggle({ view, onChange }: { view: View; onChange: (view: View) => 
           if (value === 'map' || value === 'list') onChange(value)
         }}
       >
+        {/* Icons alone on phones, leaving the sort button room for its place name. */}
         <ToggleGroupItem value="list" aria-label="List">
-          <List /> List
+          <List />
+          <span className="max-sm:hidden">List</span>
         </ToggleGroupItem>
         <ToggleGroupItem value="map" aria-label="Map">
-          <MapIcon /> Map
+          <MapIcon />
+          <span className="max-sm:hidden">Map</span>
         </ToggleGroupItem>
       </ToggleGroup>
     </div>
