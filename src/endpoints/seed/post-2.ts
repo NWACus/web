@@ -104,6 +104,20 @@ export const post2: (
             version: 2,
           },
           {
+            type: 'block',
+            fields: {
+              blockName: '',
+              blockType: 'observationsWidget',
+              showHeader: true,
+              heading: 'Observations Reporting Avalanches',
+              tab: 'observations',
+              avalanchesObservedOnly: true,
+              dateRange: 'thisSeason',
+            },
+            format: '',
+            version: 2,
+          },
+          {
             type: 'paragraph',
             children: [
               {
