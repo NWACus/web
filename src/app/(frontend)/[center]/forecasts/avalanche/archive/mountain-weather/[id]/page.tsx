@@ -54,9 +54,21 @@ export default async function Page({ params }: Args) {
 
   if (!access.native) {
     return (
-      <ForecastWidget center={center} initialPath={`/weather/${id}`} widgetPageKey="forecast-zone">
-        <ArchivedWeatherBreadcrumbs center={center} path={path} title={TITLE} />
-      </ForecastWidget>
+      // Hides the widget's duplicate title; see nac-widgets.css.
+      <div data-hide-widget-title>
+        <ForecastWidget
+          center={center}
+          initialPath={`/weather/${id}`}
+          widgetPageKey="forecast-zone"
+        >
+          <ArchivedWeatherBreadcrumbs center={center} path={path} title={TITLE} />
+          <div className="container mb-4">
+            <div className="prose dark:prose-invert max-w-none">
+              <h1 className="font-bold">{TITLE}</h1>
+            </div>
+          </div>
+        </ForecastWidget>
+      </div>
     )
   }
 
