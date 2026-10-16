@@ -1418,7 +1418,7 @@ sig = "7116d846ce543ffc"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMap.client.tsx"
-sig = "beb90396f91bcb8d"
+sig = "dc01b3030f3dbb85"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
