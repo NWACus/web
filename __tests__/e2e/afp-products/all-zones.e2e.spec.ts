@@ -18,7 +18,7 @@ test.describe('All-zones grid', () => {
   })
 
   // Forecast-144
-  test("a forecast card shows today's danger section, with travel advice in the outlook's place", async ({
+  test("a forecast card shows today's danger section alone, with no outlook or travel advice", async ({
     page,
   }) => {
     await loadPage(page, GRID_URL)
@@ -29,7 +29,8 @@ test.describe('All-zones grid', () => {
     await expect(forecastCard.getByRole('heading', { name: 'Monday, April 6, 2026' })).toHaveCount(
       0,
     )
-    await expect(forecastCard.getByRole('list', { name: 'Travel advice' })).toBeVisible()
+    // The widget's all-zones view hides the travel advice that stands in for a missing outlook.
+    await expect(forecastCard.getByRole('list', { name: 'Travel advice' })).toHaveCount(0)
     await expect(forecastCard.getByRole('button', { name: 'About Avalanche Danger' })).toBeVisible()
     await expect(forecastCard.getByText('Avalanche Danger Scale')).toBeVisible()
     // Kept from before the change: the card's own expired notice (Forecast-46).

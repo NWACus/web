@@ -6,7 +6,7 @@
  * Descriptions link and the danger-scale legend.
  *
  * A section, not a card: the zone page sets it inside the one forecast panel, as the widget did,
- * and the all-zones card wraps it in its own, passing today alone.
+ * and the all-zones card wraps it in its own, showing today alone.
  */
 import Image from 'next/image'
 
@@ -44,6 +44,11 @@ interface DangerRatingProps {
   timezone: string | null | undefined
   /** The center's elevation-band explainer, linked under the ratings when it has one. */
   elevationBandsUrl: string | null
+  /**
+   * Today at full width with nothing beside it, neither the outlook nor travel advice: the widget's
+   * all-zones view.
+   */
+  todayOnly?: boolean
 }
 
 export function DangerRating({
@@ -52,9 +57,12 @@ export function DangerRating({
   publishedTime,
   timezone,
   elevationBandsUrl,
+  todayOnly = false,
 }: DangerRatingProps) {
   const today = danger.find((d) => d.valid_day === ForecastPeriod.Current)
-  const tomorrow = danger.find((d) => d.valid_day === ForecastPeriod.Tomorrow)
+  const tomorrow = todayOnly
+    ? undefined
+    : danger.find((d) => d.valid_day === ForecastPeriod.Tomorrow)
   const headings = dangerHeadings(publishedTime, timezone)
 
   return (
@@ -69,10 +77,11 @@ export function DangerRating({
         tomorrow={tomorrow}
         headings={headings}
         elevationBandNames={elevationBandNames}
+        besideToday={!todayOnly}
       />
       <DangerExtras
         noRatingToday={isNoRatingDay(today)}
-        adviceBesideToday={!tomorrow}
+        adviceBesideToday={!todayOnly && !tomorrow}
         elevationBandsUrl={elevationBandsUrl}
       />
     </section>
@@ -88,11 +97,13 @@ function DangerDayColumns({
   tomorrow,
   headings,
   elevationBandNames,
+  besideToday,
 }: {
   today: AvalancheDangerForecast | undefined
   tomorrow: AvalancheDangerForecast | undefined
   headings: DangerHeadings
   elevationBandNames: ElevationBandNames
+  besideToday: boolean
 }) {
   return (
     <>
@@ -104,12 +115,14 @@ function DangerDayColumns({
           elevationBandNames={elevationBandNames}
           variant="today"
         />
-        <BesideToday
-          today={today}
-          tomorrow={tomorrow}
-          heading={headings.tomorrow}
-          elevationBandNames={elevationBandNames}
-        />
+        {besideToday && (
+          <BesideToday
+            today={today}
+            tomorrow={tomorrow}
+            heading={headings.tomorrow}
+            elevationBandNames={elevationBandNames}
+          />
+        )}
       </div>
       {tomorrow && (
         <CollapsibleOutlook heading={headings.tomorrow} className="lg:hidden printWide:hidden">

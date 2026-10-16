@@ -22,7 +22,7 @@ import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ForecastHeader } from './ForecastHeader'
 import { ProductExpiry } from './ProductExpiry'
 import { WarningBanner } from './WarningBanner'
-import { bottomLineDangerLevel, withoutOutlook } from './zoneCardDanger'
+import { bottomLineDangerLevel } from './zoneCardDanger'
 
 interface ZoneForecastCardProps {
   zoneName: string
@@ -114,7 +114,7 @@ function ZoneForecastCardBody({
 
 /**
  * Today's danger section as the zone page draws it, in a panel of its own as the widget's all-zones
- * view set it. Without the outlook, the column beside today holds its travel advice.
+ * view set it, today alone across the full width.
  */
 function ZoneDangerPanel({
   forecast,
@@ -134,11 +134,12 @@ function ZoneDangerPanel({
       <CardContent className="px-4 py-8 sm:px-6">
         <ForecastErrorBoundary fallbackMessage="Unable to display danger rating">
           <DangerRating
-            danger={withoutOutlook(forecast.danger)}
+            danger={forecast.danger}
             elevationBandNames={elevationBandNames}
             publishedTime={forecast.published_time}
             timezone={timezone}
             elevationBandsUrl={elevationBandsUrl}
+            todayOnly
           />
         </ForecastErrorBoundary>
       </CardContent>

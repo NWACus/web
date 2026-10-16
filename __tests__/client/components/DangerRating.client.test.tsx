@@ -18,8 +18,12 @@ const tomorrow = {
   lower: DangerLevel.Low,
 }
 
-/** As NativeForecastView renders it; the all-zones card passes today alone. */
-function renderDated(danger = [today, tomorrow], elevationBandsUrl: string | null = null) {
+/** As NativeForecastView renders it; the all-zones card adds `todayOnly`. */
+function renderDated(
+  danger = [today, tomorrow],
+  elevationBandsUrl: string | null = null,
+  todayOnly = false,
+) {
   return render(
     <DangerRating
       danger={danger}
@@ -27,6 +31,7 @@ function renderDated(danger = [today, tomorrow], elevationBandsUrl: string | nul
       publishedTime="2026-01-05T13:00:00+00:00"
       timezone="America/Los_Angeles"
       elevationBandsUrl={elevationBandsUrl}
+      todayOnly={todayOnly}
     />,
   )
 }
@@ -83,6 +88,16 @@ describe('DangerRating', () => {
     expect(screen.queryByRole('button', { name: /Tuesday/ })).toBeNull()
   })
 
+  // Forecast-144: the widget's all-zones view hides both the outlook and the advice in its place.
+  it('shows today alone, with nothing beside it, when asked for today only', () => {
+    renderDated([today, tomorrow], null, true)
+
+    expect(screen.getByRole('heading', { name: 'Monday, January 5, 2026' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /Tuesday/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: /Tuesday/ })).toBeNull()
+    expect(screen.queryByRole('list', { name: 'Travel advice' })).toBeNull()
+  })
+
   // Forecast-61 beside Forecast-67: the advice column already explains No Rating for each band.
   it('keeps the No Rating line off desktop only when the advice column stands in for the outlook', () => {
     const unrated = {
@@ -100,7 +115,11 @@ describe('DangerRating', () => {
     expect(line()).toHaveClass('lg:hidden', 'printWide:hidden')
     unmount()
 
-    renderDated([unrated, tomorrow])
+    const withOutlook = renderDated([unrated, tomorrow])
+    expect(line()).not.toHaveClass('lg:hidden')
+    withOutlook.unmount()
+
+    renderDated([unrated], null, true)
     expect(line()).not.toHaveClass('lg:hidden')
   })
 })
