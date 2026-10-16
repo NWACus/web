@@ -67,6 +67,7 @@ import * as migration_20261007_225104_glossary_terms_mcp_access from './20261007
 import * as migration_20261007_231209_payload_3_90_upgrade from './20261007_231209_payload_3_90_upgrade'
 import * as migration_20261008_000024_link_to_station_pages from './20261008_000024_link_to_station_pages'
 import * as migration_20261008_002426_add_station_page_tabs from './20261008_002426_add_station_page_tabs'
+import * as migration_20261015_200352_add_display_as_to_document_block from './20261015_200352_add_display_as_to_document_block'
 
 export const migrations = [
   {
@@ -413,5 +414,10 @@ export const migrations = [
     up: migration_20261008_002426_add_station_page_tabs.up,
     down: migration_20261008_002426_add_station_page_tabs.down,
     name: '20261008_002426_add_station_page_tabs',
+  },
+  {
+    up: migration_20261015_200352_add_display_as_to_document_block.up,
+    down: migration_20261015_200352_add_display_as_to_document_block.down,
+    name: '20261015_200352_add_display_as_to_document_block',
   },
 ]

@@ -703,6 +703,10 @@ export interface ContentBlock {
  */
 export interface DocumentBlock {
   document: number | Document;
+  /**
+   * Only PDFs can be embedded. Use Download Link for other file types.
+   */
+  displayAs: 'download' | 'embed';
   id?: string | null;
   blockName?: string | null;
   blockType: 'documentBlock';
@@ -3944,6 +3948,7 @@ export interface ContentBlockSelect<T extends boolean = true> {
  */
 export interface DocumentBlockSelect<T extends boolean = true> {
   document?: T;
+  displayAs?: T;
   id?: T;
   blockName?: T;
 }

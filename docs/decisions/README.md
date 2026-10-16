@@ -31,8 +31,9 @@ Each record loosely follows the [ADR format](https://adr.github.io/) (Context, D
 | [020](020-center-timezone-is-a-hardcoded-fact.md) | Center timezone is a hardcoded fact; AvyWeb owns AFP-derived values | 2026-09-14 | accepted                          |
 | [021](021-weather-station-pages.md) | Weather Station pages | 2026-09-18 | proposed                          |
 | [022](022-shared-content.md)                   | Shared Content: no owning Tenant, written by Global Role, readable by every center | 2026-09-21 | accepted           |
+| [023](023-document-upload-restrictions.md)      | Document upload restrictions and response headers   | 2026-10-15 | accepted                                           |
 
-> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `023`.
+> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `024`.
 
 ## Related reading
 
