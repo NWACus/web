@@ -1,24 +1,55 @@
 /**
  * Zod schemas for products-api's public NWAC weather reads (`/v3/public/nwac-weather/…`), as
- * sent: flat rows with calendar dates already resolved.
+ * sent: flat rows with calendar dates already resolved, the rows and slots the forecast's format
+ * froze when it was published, and the template that names that format's sections.
  */
 import { z } from 'zod'
 
 const nullableNumber = z.number().nullable()
+const keys = z.array(z.string())
 
 export const nwacWeatherIssuanceTypeSchema = z.enum(['morning', 'afternoon'])
 
-export const nwacWeatherZoneSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  avalancheZoneId: nullableNumber.optional(),
+/** The format the forecast was published under: one center's instance of a template. */
+export const nwacWeatherFormatSchema = z.object({
+  id: z.number(),
+  name: z.string().nullable().optional(),
+  /** The template's registry name, e.g. `dashboardv2_09-2026`. */
+  template: z.string(),
+  startsAt: z.string().nullable().optional(),
 })
 
+/** One section of the template: a grid the forecast has, and what it runs down and across. */
+export const nwacWeatherSectionSchema = z.object({
+  id: z.string(),
+  grid: z.string(),
+  /** The row list it runs down: `zones`, `points` or `extendedZones`. */
+  rows: z.string(),
+  /** The entry of `axes` it runs across. */
+  axis: z.string(),
+})
+
+export const nwacWeatherTemplateSchema = z.object({
+  label: z.string(),
+  sections: z.array(nwacWeatherSectionSchema),
+})
+
+/** A weather zone as the format froze it; `id` is the key the zone grids use. */
+export const nwacWeatherZoneSchema = z.object({
+  id: z.string(),
+  slug: z.string().nullable().optional(),
+  name: z.string(),
+  avalancheZoneId: nullableNumber.optional(),
+  /** Whether the format carries the extended snow-level outlook for this zone. */
+  extendedSnowLevel: z.boolean().optional(),
+})
+
+/** A precipitation point as the format froze it; `id` is the key the precip grid uses. */
 export const nwacWeatherPointSchema = z.object({
+  id: z.string(),
   code: z.string(),
   name: z.string(),
-  /** The zone's display name, as typed into the point's settings. */
-  zone: z.string().nullable().optional(),
+  /** The id of the zone the point sits in. */
   zoneId: z.string().nullable().optional(),
   avalancheZoneId: nullableNumber.optional(),
 })
@@ -30,8 +61,6 @@ export const nwacWeatherPeriodSchema = z.object({
   kind: z.enum(['day', 'night']).nullable().optional(),
   /** `YYYY-MM-DD`, resolved server-side. */
   date: z.string(),
-  /** Whether the issuance forecasts precipitation for this period. */
-  precip: z.boolean().optional(),
 })
 
 export const nwacWeatherBlockSchema = z.object({
@@ -48,7 +77,26 @@ export const nwacWeatherExtendedBlockSchema = z.object({
   date: z.string(),
 })
 
+/** A sensible-weather text slot as this issuance labels it ("Tonight", "Tomorrow"). */
+export const nwacWeatherSensibleSlotSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  period: z.string().nullable().optional(),
+  date: z.string().nullable().optional(),
+})
+
+/** The slot keys each grid covers, as the format set them for this issuance. */
+export const nwacWeatherAxesSchema = z.object({
+  precipPeriods: keys,
+  tempPeriods: keys,
+  snowLevelBlocks: keys,
+  windBlocks: keys,
+  extendedBlocks: keys,
+  sensibleSlots: keys,
+})
+
 export const nwacWeatherPrecipRowSchema = z.object({
+  /** A point id. */
   point: z.string(),
   period: z.string(),
   qpf: nullableNumber.optional(),
@@ -91,13 +139,19 @@ export const nwacWeatherForecastSchema = z.object({
   type: nwacWeatherIssuanceTypeSchema,
   serviceDate: z.string(),
   author: z.string().nullable(),
+  format: nwacWeatherFormatSchema,
+  template: nwacWeatherTemplateSchema,
   synopsis: z.string().nullable(),
   extendedOutlook: z.string().nullable(),
   zones: z.array(nwacWeatherZoneSchema),
   points: z.array(nwacWeatherPointSchema),
+  /** Ids of the zones that carry the extended snow-level outlook, in zone order. */
+  extendedZones: keys,
   periods: z.array(nwacWeatherPeriodSchema),
   blocks: z.array(nwacWeatherBlockSchema),
   extendedBlocks: z.array(nwacWeatherExtendedBlockSchema),
+  sensibleSlots: z.array(nwacWeatherSensibleSlotSchema),
+  axes: nwacWeatherAxesSchema,
   precip: z.array(nwacWeatherPrecipRowSchema),
   temp: z.array(nwacWeatherTempRowSchema),
   wind: z.array(nwacWeatherWindRowSchema),
