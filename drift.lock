@@ -178,7 +178,7 @@ sig = "61e457747c70fff3"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/mountain-weather/[id]/page.tsx"
-sig = "c1a9aaa6aef53d4b"
+sig = "80d60f3a958e898b"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -198,7 +198,7 @@ sig = "a03f04eb361a053c"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/weather/forecast/page.tsx"
-sig = "1e4a8f7bc23d0dc7"
+sig = "d4fa6cff0bc55e12"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

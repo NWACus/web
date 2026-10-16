@@ -53,8 +53,8 @@ export default async function Page({ params }: CenterRouteArgs) {
     <>
       <WidgetRouterHandler initialPath="/weather" widgetPageKey="weather-forecast" />
       <Breadcrumbs center={center} path="/weather/forecast" />
-      {/* Scopes the widget title hide in nac-widgets.css to this page. */}
-      <div className="flex flex-col gap-4" data-widget-page="weather-forecast">
+      {/* Hides the widget's duplicate title; see nac-widgets.css. */}
+      <div className="flex flex-col gap-4" data-hide-widget-title>
         <div className="container mb-4">
           <div className="prose dark:prose-invert max-w-none">
             <h1 className="font-bold">Mountain Weather</h1>
