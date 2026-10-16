@@ -121,7 +121,10 @@ function useMovedByReader(map: mapboxgl.Map | null) {
   const [moved, setMoved] = useState(false)
   useEffect(() => {
     if (!map) return
-    const onMoveEnd = (event: { originalEvent?: unknown }) => setMoved(Boolean(event.originalEvent))
+    // Mapbox passes a window resize along as if the reader moved: a phone rotating, or iOS
+    // Safari's toolbar hiding as the page scrolls.
+    const onMoveEnd = (event: { originalEvent?: unknown }) =>
+      setMoved(event.originalEvent instanceof Event && event.originalEvent.type !== 'resize')
     map.on('moveend', onMoveEnd)
     return () => {
       map.off('moveend', onMoveEnd)
