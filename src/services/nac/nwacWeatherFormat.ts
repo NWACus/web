@@ -223,7 +223,7 @@ export function blockDate(issuance: NWACWeatherIssuance, block: NWACWeatherBlock
  */
 export const SNOW_RANGE_EDGES = [2, 4, 6, 8, 12, 18, 24]
 export function snowRange(snow: number | null | undefined): string {
-  if (snow == null) return DASH
+  if (snow == null || !Number.isFinite(snow)) return DASH
   if (snow < 0.5) return '0'
   let lo = 0
   for (const edge of SNOW_RANGE_EDGES) {

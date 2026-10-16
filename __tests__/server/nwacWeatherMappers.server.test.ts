@@ -110,6 +110,7 @@ describe('nwacWeatherFormat', () => {
 
   it('reads snow and wind to the public as ranges', () => {
     expect(snowRange(null)).toBe('—')
+    expect(snowRange(NaN)).toBe('—')
     expect(snowRange(0.3)).toBe('0')
     expect(snowRange(0.5)).toBe('0–2"')
     expect(snowRange(7.9)).toBe('6–8"')
