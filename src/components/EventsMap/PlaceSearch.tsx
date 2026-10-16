@@ -140,6 +140,8 @@ export function PlaceSearch({
         aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
         autoComplete="off"
         placeholder="Town, trailhead or ZIP"
+        // iOS Safari zooms the page into any input under 16px.
+        className="text-base md:text-sm"
         value={placeQuery.query}
         onFocus={(event) => placeQuery.selectPrefilled(event.target)}
         onChange={(event) => {
