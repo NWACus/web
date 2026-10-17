@@ -2,6 +2,7 @@ import {
   allStations,
   areaPageFor,
   assembleStationPages,
+  toPageSummaries,
 } from '../../src/services/stations/stationPages'
 
 type PageDoc = Parameters<typeof assembleStationPages>[0][number]
@@ -39,13 +40,25 @@ describe('assembleStationPages', () => {
     expect(pages.find((p) => p.slug === 'alpental')?.tabs).toEqual(['table', 'csv'])
   })
 
-  it('carries the chosen readings, or none', () => {
+  it("carries each station's chosen readings and the column order, or none", () => {
     const pages = assembleStationPages([
-      pageDoc({ slug: 'a', stations: [ref('1')], columns: ['air_temp'] }),
-      pageDoc({ slug: 'b', columns: undefined }),
+      pageDoc({
+        slug: 'a',
+        stations: [{ ...ref('1'), columns: ['air_temp'] }, ref('2')],
+        columnOrder: [{ ...ref('2'), variable: 'snow_depth' }],
+      }),
+      pageDoc({ slug: 'b', columnOrder: undefined }),
     ])
-    expect(pages[0].columns).toEqual(['air_temp'])
-    expect(pages[1].columns).toEqual([])
+    expect(pages[0].stations).toEqual([{ ...ref('1'), columns: ['air_temp'] }, ref('2')])
+    expect(pages[0].columnOrder).toEqual([{ ...ref('2'), variable: 'snow_depth' }])
+    expect(pages[1].columnOrder).toEqual([])
+  })
+
+  it('leaves the chosen readings out of the page summaries', () => {
+    const [page] = assembleStationPages([
+      pageDoc({ slug: 'a', stations: [{ ...ref('1'), columns: ['air_temp'] }] }),
+    ])
+    expect(toPageSummaries([page])[0].stations).toEqual([ref('1')])
   })
 
   it('treats a page with no stations as empty rather than missing', () => {

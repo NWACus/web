@@ -28,6 +28,7 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
 import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
+import { ColumnOrderInput as ColumnOrderInput_2b454a78a7ebeada3fba7b318a527fba } from '@/collections/StationPages/components/ColumnOrderInput'
 import { ToggleField as ToggleField_371a8655e7a5f0cef03f5ca5077a64ce } from '@/components/ToggleField'
 import { ViewStationPageButton as ViewStationPageButton_4e6b34efa94959a825a191dd4faa5e47 } from '@/collections/StationPages/components/ViewStationPageButton'
 import { PublishChangesButton as PublishChangesButton_733c9fec647d0760a6b62cbe16c0e231 } from '@/collections/StationPages/components/PublishChangesButton'
@@ -104,6 +105,7 @@ export const importMap = {
   "@/fields/slug/SlugComponent#SlugComponent": SlugComponent_92cc057d0a2abb4f6cf0307edf59f986,
   "@/collections/Pages/components/ViewPageButton#ViewPageButton": ViewPageButton_5587abba969d5f30cb1f479b0a70bb80,
   "@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor": DuplicatePageFor_8f1d8961a356bec6784e5c591c016925,
+  "@/collections/StationPages/components/ColumnOrderInput#ColumnOrderInput": ColumnOrderInput_2b454a78a7ebeada3fba7b318a527fba,
   "@/components/ToggleField#ToggleField": ToggleField_371a8655e7a5f0cef03f5ca5077a64ce,
   "@/collections/StationPages/components/ViewStationPageButton#ViewStationPageButton": ViewStationPageButton_4e6b34efa94959a825a191dd4faa5e47,
   "@/collections/StationPages/components/PublishChangesButton#PublishChangesButton": PublishChangesButton_733c9fec647d0760a6b62cbe16c0e231,

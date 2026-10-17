@@ -12,7 +12,7 @@ const context: StationTabContext = {
     slug: 'alpental',
     archived: false,
     stations: [{ stid: '1', source: 'nwac' }],
-    columns: [],
+    columnOrder: [],
     tabs: ['table', 'graphs', 'csv'],
   },
   pages: [],

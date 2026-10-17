@@ -8,7 +8,6 @@ import {
   revalidateStationPages,
   revalidateStationPagesDelete,
 } from '@/services/stations/revalidate'
-import { STATION_COLUMNS } from '@/services/stations/stationColumns'
 import { stationTabFields } from '@/services/stations/stationTabs'
 import { CollectionConfig } from 'payload'
 import { trackedStations } from './endpoints/trackedStations'
@@ -21,8 +20,8 @@ import { trackedStations } from './endpoints/trackedStations'
 // which stations it shows, in what order -- and nothing SnowObs can. A station
 // is only ever a (source, stid) reference; its name, elevation and coordinates
 // are read live from SnowObs, both here (the picker) and on the public page.
-// The table's columns follow what those stations report unless the page
-// lists its own.
+// The table's columns follow what those stations report unless a station
+// chooses its own readings or the page reorders them.
 export const StationPages: CollectionConfig<'stationPages'> = {
   slug: 'stationPages',
   access: accessByTenantRole('stationPages'),
@@ -61,18 +60,36 @@ export const StationPages: CollectionConfig<'stationPages'> = {
       name: 'stations',
       label: 'Stations',
       description:
-        'The SnowObs stations this page shows, in this order, on its table, graphs and download. Drag to reorder, or search below to add one.',
+        'The SnowObs stations this page shows, in this order, on its table, graphs and download. Drag to reorder, or search below to add one. Edit a station’s table columns to choose which of its readings the table shows.',
+      perStationColumns: true,
     }),
     {
-      name: 'columns',
-      type: 'select',
-      label: 'Table columns',
-      hasMany: true,
-      options: STATION_COLUMNS,
+      name: 'columnOrder',
+      type: 'json',
+      label: 'Column order',
+      defaultValue: [],
       admin: {
         description:
-          'Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.',
+          'Every column the table shows, one per station and reading, in table order. Drag a column to move it. A column added later goes after the others for its reading.',
+        components: {
+          Field: '@/collections/StationPages/components/ColumnOrderInput#ColumnOrderInput',
+        },
       },
+      typescriptSchema: [
+        () => ({
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              stid: { type: 'string' },
+              source: { type: 'string' },
+              variable: { type: 'string' },
+            },
+            required: ['stid', 'source', 'variable'],
+            additionalProperties: false,
+          },
+        }),
+      ],
     },
     {
       name: 'tabs',

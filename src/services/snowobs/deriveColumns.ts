@@ -1,3 +1,5 @@
+import type { ColumnOrderEntry, StationEntry } from '@/services/stations/stationColumns'
+import { orderColumns, selectColumns } from '@/services/stations/stationColumns'
 import { TABLE_VARIABLE_ORDER } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
@@ -19,21 +21,19 @@ function byTableOrder(a: string, b: string): number {
   return rank(a) - rank(b) || a.localeCompare(b)
 }
 
-// Every variable the loggers report, in fixed variable order, loggers in page
+// Every reading the loggers report, in fixed variable order, loggers in page
 // order within each. Reproduces the legacy layout except for the two pages that
-// hand-interleaved a pair of snow readings.
-export function deriveColumns(
-  response: SnowObsTimeseriesResponse,
+// hand-interleaved a pair of snow readings. `reportedBy` is the station's
+// reported variables, from a timeseries response here or the tracking list in the admin.
+export function columnsFromReported(
   stations: StationRef[],
+  reportedBy: (station: StationRef) => Iterable<string>,
 ): StationColumnConfig[] {
-  const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
-
   const reported = new Set<string>()
   const variablesByStation = new Map<string, Set<string>>()
   for (const station of stations) {
-    const observations = byKey.get(stationKey(station))?.observations ?? {}
     const variables = new Set(
-      Object.keys(observations).filter(
+      Array.from(reportedBy(station)).filter(
         (v) => !NOT_A_READING.has(v) && !HIDDEN_TABLE_VARIABLES.has(v),
       ),
     )
@@ -52,14 +52,22 @@ export function deriveColumns(
   return columns
 }
 
+export function deriveColumns(
+  response: SnowObsTimeseriesResponse,
+  stations: StationRef[],
+): StationColumnConfig[] {
+  const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
+  return columnsFromReported(stations, (station) =>
+    Object.keys(byKey.get(stationKey(station))?.observations ?? {}),
+  )
+}
+
+// What a station page's table shows: each station's chosen readings, in the page's column order.
 export function resolveColumns(
   response: SnowObsTimeseriesResponse,
-  page: { stations: StationRef[]; columns: string[] },
+  page: { stations: StationEntry[]; columnOrder: ColumnOrderEntry[] },
 ): StationColumnConfig[] {
-  const derived = deriveColumns(response, page.stations)
-  if (page.columns.length === 0) return derived
-  const position = new Map(page.columns.map((variable, i) => [variable, i]))
-  return derived
-    .filter(({ variable }) => position.has(variable))
-    .sort((a, b) => (position.get(a.variable) ?? 0) - (position.get(b.variable) ?? 0))
+  const refs = page.stations.map(({ stid, source }) => ({ stid, source }))
+  const columns = selectColumns(deriveColumns(response, refs), page.stations)
+  return orderColumns(columns, page.columnOrder)
 }
