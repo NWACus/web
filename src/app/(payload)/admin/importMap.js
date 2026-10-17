@@ -50,6 +50,7 @@ import { AutoFillNameFromSlug as AutoFillNameFromSlug_d35762ea9217d01948b813fe42
 import { default as default_82dc161b944e4ac13e65d7b8b57c6182 } from '@/components/Navigations/DisplayModePicker'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { BannerDescription as BannerDescription_3edfb41266bd8db9320658009eba5899 } from '@/components/BannerDescription'
+import { SectionLabelField as SectionLabelField_fb40ae1b05cb4615976c74d895e5472c } from '@/components/Navigations/SectionLabelField'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
 import { NativeProductCheckbox as NativeProductCheckbox_2be46ba709ce10ea0c3fe67495e33beb } from '@/collections/Settings/components/NativeProductCheckbox'
@@ -126,6 +127,7 @@ export const importMap = {
   "@/components/Navigations/DisplayModePicker#default": default_82dc161b944e4ac13e65d7b8b57c6182,
   "@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription": LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
   "@/components/BannerDescription#BannerDescription": BannerDescription_3edfb41266bd8db9320658009eba5899,
+  "@/components/Navigations/SectionLabelField#SectionLabelField": SectionLabelField_fb40ae1b05cb4615976c74d895e5472c,
   "@/collections/Settings/components/AvalancheCenterName#AvalancheCenterName": AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
   "@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription": USFSLogoDescription_d2eea91290575f9a545768dce25713f4,
   "@/collections/Settings/components/NativeProductCheckbox#NativeProductCheckbox": NativeProductCheckbox_2be46ba709ce10ea0c3fe67495e33beb,

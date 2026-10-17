@@ -1,13 +1,21 @@
 import { navLink } from '@/fields/navLink'
+import { isRecord } from '@/utilities/isRecord'
 import { merge } from 'lodash-es'
-import { ArrayField, Condition, FieldHook } from 'payload'
+import { ArrayField, Condition, Field, FieldHook } from 'payload'
 
 // Condition: show field only when item has sub-items (accordion/section mode)
 const hasSubItems: Condition = (_, siblingData) =>
   Array.isArray(siblingData?.items) && siblingData.items.length > 0
 
-// Copy link.label to standalone label when sub-items are added,
-// and clear standalone label when sub-items are removed
+// The link still holds a page or URL that clearLinkWhenHasSubItems will drop on save
+const isDroppingLink: Condition = (data, siblingData, ctx) => {
+  const link = siblingData?.link
+  return (
+    hasSubItems(data, siblingData, ctx) && isRecord(link) && Boolean(link.reference || link.url)
+  )
+}
+
+// Clear standalone label when sub-items are removed
 const clearLabelWhenItemHasNoSubItems: FieldHook = ({ siblingData, value }) => {
   const items = siblingData?.items
   const hasItems = Array.isArray(items) && items.length > 0
@@ -34,6 +42,40 @@ const clearLinkWhenHasSubItems: FieldHook = ({ siblingData, value }) => {
   return value
 }
 
+const sectionHeaderNote: Field = {
+  name: 'sectionHeaderNote',
+  type: 'ui',
+  admin: {
+    condition: isDroppingLink,
+    components: {
+      Field: {
+        path: '@/components/BannerDescription#BannerDescription',
+        clientProps: {
+          message:
+            "Items with sub-items show as a section header, so this item's link is no longer used and is removed when you save.",
+          type: 'info',
+        },
+      },
+    },
+  },
+}
+
+const sectionLabel: Field = {
+  name: 'label',
+  type: 'text',
+  required: true,
+  admin: {
+    description: 'Label for this nav section (shown when item has sub-items)',
+    condition: hasSubItems,
+    components: {
+      Field: '@/components/Navigations/SectionLabelField#SectionLabelField',
+    },
+  },
+  hooks: {
+    beforeChange: [clearLabelWhenItemHasNoSubItems],
+  },
+}
+
 export const itemsField = ({
   label,
   description,
@@ -52,18 +94,8 @@ export const itemsField = ({
         description,
       },
       fields: [
-        {
-          name: 'label',
-          type: 'text',
-          required: true,
-          admin: {
-            description: 'Label for this nav section (shown when item has sub-items)',
-            condition: hasSubItems,
-          },
-          hooks: {
-            beforeChange: [clearLabelWhenItemHasNoSubItems],
-          },
-        },
+        sectionHeaderNote,
+        sectionLabel,
         {
           ...navLink,
           admin: {
