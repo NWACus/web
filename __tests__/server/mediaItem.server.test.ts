@@ -226,6 +226,7 @@ describe('getMediaLink', () => {
   it('reads a blank title as none', () => {
     expect(getMediaLink(pdfItem(''))).toMatchObject({ title: null })
     expect(getMediaLink(pdfItem())).toMatchObject({ title: null })
+    expect(getMediaLink(externalItem('  '))).toMatchObject({ title: null })
   })
 
   it('leaves images and videos to the lightbox', () => {

@@ -66,7 +66,7 @@ export function getCaption(item: MediaItem): string | null {
   return null
 }
 
-/** Media items with something to display in the lightbox. */
+/** Media items the Media grid can show: lightbox media, plus PDFs and links that open in a new tab. */
 export function displayableMedia(items: MediaItem[]): MediaItem[] {
   return items.filter((item): item is MediaItem & { type: MediaType } => {
     const t = item.type
@@ -115,10 +115,10 @@ export interface MediaLink {
 
 export function getMediaLink(item: MediaItem): MediaLink | null {
   if (item.type === MediaType.External) {
-    return { kind: 'external', href: item.url.external_link, title: item.title || null }
+    return { kind: 'external', href: item.url.external_link, title: item.title?.trim() || null }
   }
   if (item.type === MediaType.PDF) {
-    return { kind: 'pdf', href: item.url.original, title: item.title || null }
+    return { kind: 'pdf', href: item.url.original, title: item.title?.trim() || null }
   }
   return null
 }

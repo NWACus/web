@@ -1,6 +1,6 @@
 /**
- * The all-zones card's danger decisions: the level it tints its bottom line with (the highest of
- * today's three elevation bands; a summary carries no ratings, so it tints as unrated).
+ * The danger level the all-zones card tints its bottom line with: the highest of today's three
+ * elevation bands. A summary product carries no danger ratings, so it tints as unrated.
  */
 import {
   DangerLevel,
