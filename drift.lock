@@ -1438,7 +1438,7 @@ sig = "3ca1fb7994f74406"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/utilities/queries/getEvents.ts"
-sig = "7be42b17124981eb"
+sig = "bcd091fd33108e45"
 
 [[bindings]]
 doc = "docs/mcp-server.md"
