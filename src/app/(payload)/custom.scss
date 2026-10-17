@@ -224,6 +224,13 @@
     user-select: none;
     font-size: 0.9rem;
     touch-action: none;
+    position: relative;
+
+    &--dragging {
+      z-index: 2;
+      border-color: var(--theme-elevation-400);
+      box-shadow: 0 2px 6px rgb(0 0 0 / 15%);
+    }
   }
 
   &__n,

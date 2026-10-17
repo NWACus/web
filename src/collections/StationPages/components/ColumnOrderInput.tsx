@@ -15,6 +15,7 @@ import {
   toColumnOrder,
   toColumnOrderEntries,
 } from '@/services/stations/stationColumns'
+import { cn } from '@/utilities/ui'
 import { arrayMove } from '@dnd-kit/sortable'
 import {
   Button,
@@ -61,14 +62,18 @@ function ColumnChips({
     >
       {columns.map((column, i) => (
         <DraggableSortableItem key={ids[i]} id={ids[i]}>
-          {({ attributes, listeners, setNodeRef, transform, transition }) => (
+          {({ attributes, isDragging, listeners, setNodeRef, transform, transition }) => (
+            // Spread first: `attributes` carries its own style, which would drop the transform.
             <div
-              ref={setNodeRef}
-              style={{ transform, transition }}
-              className="column-order-input__chip"
-              title={`${column.station.stid} · ${column.variable}`}
               {...attributes}
               {...listeners}
+              ref={setNodeRef}
+              style={{ ...attributes.style, transform, transition }}
+              className={cn(
+                'column-order-input__chip',
+                isDragging && 'column-order-input__chip--dragging',
+              )}
+              title={`${column.station.stid} · ${column.variable}`}
             >
               <span className="column-order-input__n">{i + 1}</span>
               {readingLabel(column.variable)}

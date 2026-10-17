@@ -963,7 +963,7 @@ sig = "bb66e8620bc4d127"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/components/ColumnOrderInput.tsx"
-sig = "c578ac5d9a9877a3"
+sig = "c86e56e53b8fff3e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
