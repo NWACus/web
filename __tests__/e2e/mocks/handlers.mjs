@@ -71,6 +71,14 @@ export const PROBE_PATH = '/__e2e-mock-probe'
 
 const fixtureCache = new Map()
 
+/** A fixture recorded next to the specs, read once per process. */
+function readFixtureOnce(relativePath) {
+  if (!fixtureCache.has(relativePath)) {
+    fixtureCache.set(relativePath, readFileSync(join(mocksDir, relativePath), 'utf8'))
+  }
+  return fixtureCache.get(relativePath)
+}
+
 function fixture(name) {
   if (!fixtureCache.has(name)) {
     const vendored = join(mocksDir, 'afp-golden', name)
@@ -250,6 +258,16 @@ export function buildHandlers() {
     }),
     http.get(`${mockSnowObsHost}/v1/webcam`, () =>
       HttpResponse.text(snowObsFixture('webcams.json'), {
+        headers: { 'content-type': 'application/json' },
+      }),
+    ),
+
+    // The obs API's GraphQL, behind the forecast page's Observations and Avalanches tabs
+    // (Forecast-9). No golden corpus either: one recorded center-week, scrubbed to what the cards
+    // read (`scripts/e2e/capture-obs-week.mjs`), served whatever center and dates are asked. The
+    // zone filter is the app's, so the spec asserts on which of the week's records it kept.
+    http.post(`${mockNacHost}/obs/v1/public/graphql`, () =>
+      HttpResponse.text(readFixtureOnce('obs/graphql-week.json'), {
         headers: { 'content-type': 'application/json' },
       }),
     ),

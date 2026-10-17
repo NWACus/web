@@ -44,6 +44,7 @@
     "e2e:start": "node scripts/e2e/run-with-mocks.mjs start",
     "afp-golden:sync": "node scripts/e2e/sync-afp-golden.mjs",
     "afp-golden:check": "node scripts/e2e/sync-afp-golden.mjs --check && node scripts/e2e/capture-provisional.mjs --verify",
+    "e2e:capture-obs": "node scripts/e2e/capture-obs-week.mjs",
     "test:all": "pnpm test && pnpm test:e2e && pnpm test:e2e:afp-products",
     "migrate": "payload migrate",
     "check:centers": "tsx ./src/scripts/check-centers.ts",

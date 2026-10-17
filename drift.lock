@@ -592,8 +592,13 @@ sig = "16419183a532a566"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
+target = "__tests__/e2e/afp-products/zone-observations.e2e.spec.ts"
+sig = "184170ce6dee3203"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/mocks/handlers.mjs"
-sig = "c66f35f989fb2339"
+sig = "cd64d040b54613fa"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
@@ -604,6 +609,11 @@ sig = "3701b5dbdfb786cb"
 doc = "docs/afp-products/e2e-mocks.md"
 target = "playwright.afp-products.config.ts"
 sig = "1a914a80219196fc"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "scripts/e2e/capture-obs-week.mjs"
+sig = "5937528d9f3121e5"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
