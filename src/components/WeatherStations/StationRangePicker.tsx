@@ -6,12 +6,11 @@ import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/utilities/ui'
-import { addDays, format, isValid, max, min, parseISO, subDays, subMonths } from 'date-fns'
-import { CalendarDays } from 'lucide-react'
+import { addDays, format, isValid, max, min, parse, parseISO, subDays, subMonths } from 'date-fns'
+import { CalendarDays, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { DateRange as DayPickerRange } from 'react-day-picker'
-import { ChipGroup, chipClass } from './ChipGroup'
 import type { DateRange, StationPeriod } from './stationPeriods'
 import {
   EARLIEST_CUSTOM_DATE,
@@ -149,6 +148,20 @@ function RangeCalendar({
   )
 }
 
+const FIELD_FORMAT = 'MMM d, yyyy'
+// Typed dates: the field's own format, then numeric US and ISO dates.
+const TYPED_FORMATS = [FIELD_FORMAT, 'MMM d yyyy', 'M/d/yyyy', 'M/d/yy', 'yyyy-MM-dd']
+
+function parseTyped(text: string): Date | null {
+  const trimmed = text.trim()
+  for (const pattern of TYPED_FORMATS) {
+    const date = parse(trimmed, pattern, new Date())
+    if (isValid(date)) return date
+  }
+  return null
+}
+
+/** Shows a date as "Oct 10, 2026"; a typed date takes effect on blur or Enter. */
 function DateField({
   label,
   value,
@@ -160,18 +173,30 @@ function DateField({
   today: string
   onChange: (date: Date) => void
 }) {
+  const shown = value ? format(value, FIELD_FORMAT) : ''
+  const [text, setText] = useState(shown)
+  useEffect(() => setText(shown), [shown])
+
+  const commit = () => {
+    const date = parseTyped(text)
+    const iso = date && toIso(date)
+    if (date && iso && iso >= EARLIEST_CUSTOM_DATE && iso <= today) onChange(date)
+    else setText(shown)
+  }
+
   return (
     <Input
-      type="date"
+      type="text"
+      inputMode="text"
       aria-label={label}
-      value={value ? toIso(value) : ''}
-      min={EARLIEST_CUSTOM_DATE}
-      max={today}
-      onChange={(event) => {
-        const date = parseISO(event.target.value)
-        if (isValid(date)) onChange(date)
+      placeholder="Oct 1, 2026"
+      value={text}
+      onChange={(event) => setText(event.target.value)}
+      onBlur={commit}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') commit()
       }}
-      className="h-9 w-full sm:w-40"
+      className="h-9 w-full sm:w-36"
     />
   )
 }
@@ -240,16 +265,14 @@ function useRangeDraft(value: DateRange | null, today: Date) {
   return { draft, setDraft, month, setMonth, reset, setFrom, setTo }
 }
 
-function RangeButton({ label, active }: { label: string; active: boolean }) {
+function RangeButton({ label }: { label: string }) {
   return (
     <PopoverTrigger asChild>
-      <button
-        type="button"
-        className={cn(chipClass(active), 'inline-flex items-center gap-1.5 whitespace-nowrap')}
-      >
+      <Button variant="outline" size="sm" className="gap-1.5 whitespace-nowrap font-normal">
         <CalendarDays className="h-4 w-4" aria-hidden="true" />
         {label}
-      </button>
+        <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+      </Button>
     </PopoverTrigger>
   )
 }
@@ -313,12 +336,12 @@ function RangePanel({
 }
 
 /**
- * Quick preset chips plus a button showing the dates in view, which opens every preset beside a
- * range calendar. Custom dates are whole days in the center's zone; nothing changes until Apply.
+ * A button naming the range in view (a preset's name or custom dates) that opens every preset
+ * beside a range calendar. Custom dates are whole days in the center's zone; nothing changes
+ * until Apply.
  */
 export function StationRangePicker({
   periods,
-  quickKeys,
   activePeriod,
   custom,
   onApplyCustom,
@@ -330,8 +353,6 @@ export function StationRangePicker({
 }: PeriodTarget & {
   /** Every preset, listed in the popover. */
   periods: StationPeriod[]
-  /** The presets also shown as chips. */
-  quickKeys: string[]
   activePeriod: StationPeriod
   custom: DateRange | null
   onApplyCustom: (range: DateRange) => void
@@ -342,18 +363,15 @@ export function StationRangePicker({
 }) {
   const now = new Date()
   const todayIso = todayInZone(now, timeZone)
-  const today = parseISO(todayIso)
   const [open, setOpen] = useState(false)
-  const range = useRangeDraft(custom, today)
-  const activeKey = custom ? null : activePeriod.key
-
-  const chips = periods
-    .filter((p) => quickKeys.includes(p.key))
-    .map((p) => ({ key: p.key, label: p.label, href: target.periodHref?.(p.key) }))
+  // The calendar opens on the dates in view, a preset's included.
+  const range = useRangeDraft(
+    custom ?? presetRange(activePeriod, timeZone, now),
+    parseISO(todayIso),
+  )
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-1', className)}>
-      <ChipGroup chips={chips} activeKey={activeKey} onSelect={target.onSelectPeriod} />
+    <div className={className}>
       <Popover
         open={open}
         onOpenChange={(next) => {
@@ -362,16 +380,11 @@ export function StationRangePicker({
         }}
       >
         <RangeButton
-          label={formatRangeLabel(
-            custom ?? presetRange(activePeriod, timeZone, now),
-            now,
-            timeZone,
-          )}
-          active={custom !== null}
+          label={custom ? formatRangeLabel(custom, now, timeZone) : activePeriod.label}
         />
         <RangePanel
           periods={periods}
-          activeKey={activeKey}
+          activeKey={custom ? null : activePeriod.key}
           target={target}
           range={range}
           maxDays={maxDays}

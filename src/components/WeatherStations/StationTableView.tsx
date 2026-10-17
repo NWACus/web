@@ -33,7 +33,6 @@ function TableRangePicker({
   return (
     <StationRangePicker
       periods={TABLE_PERIODS}
-      quickKeys={TABLE_PERIODS.map((p) => p.key)}
       activePeriod={resolveTablePeriod(activePeriodKey)}
       custom={customRange}
       periodHref={tableHref}

@@ -49,8 +49,6 @@ const sectionLabelClass = 'text-sm font-medium'
 
 export const chipClass = 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm'
 
-const GRAPH_QUICK_KEYS = ['24h', '72h', '7d', '30d']
-
 /** The graphs' window: a preset, or a custom range that overrides it. */
 export type GraphRange = { period: StationPeriod; custom: DateRange | null }
 
@@ -68,7 +66,6 @@ export function GraphRangePicker({
   return (
     <StationRangePicker
       periods={GRAPH_PERIODS}
-      quickKeys={GRAPH_QUICK_KEYS}
       activePeriod={value.period}
       custom={value.custom}
       onSelectPeriod={(key) =>
