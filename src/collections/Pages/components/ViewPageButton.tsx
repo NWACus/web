@@ -24,9 +24,10 @@ export const ViewPageButton = async (props: BeforeDocumentControlsServerProps) =
 
   const page = pageRes.docs[0]
   const pageTenant = await resolveTenant(page.tenant)
-  const canonicalUrl = await getCanonicalUrlForSlug(pageTenant.slug, page.slug)
+  if (page._status !== 'published') return null
 
-  if (!canonicalUrl || page._status !== 'published') return null
+  // Pages missing from the nav still render at /<slug>
+  const url = (await getCanonicalUrlForSlug(pageTenant.slug, page.slug)) ?? page.slug
 
-  return <ViewDocumentButton url={`/${pageTenant.slug}/${canonicalUrl}`} />
+  return <ViewDocumentButton url={`/${pageTenant.slug}/${url}`} />
 }
