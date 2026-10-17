@@ -3,6 +3,7 @@ import { cn } from '@/utilities/ui'
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
 import { ChevronDown, Info, TriangleAlert } from 'lucide-react'
+import { ExpandableNote } from './ExpandableNote'
 
 function noteDate(startDate: string | null, timeZone: string): string | null {
   if (!startDate) return null
@@ -101,14 +102,16 @@ export function StationNotes({ notes, timeZone }: { notes: StationNote[]; timeZo
   if (!lead) return null
   const hasActive = lead.status === 'active'
 
-  // Nothing to fold away, so show the lone note in full.
+  // Nothing to fold away: the lone note shows in full unless it runs past one line.
   if (rest.length === 0) {
     return (
-      <aside aria-label="Station notes" className={cn('w-fit text-sm', frameClass(hasActive))}>
-        <p className={barClass(hasActive)}>
-          <NoteIcon status={lead.status} />
+      <aside
+        aria-label="Station notes"
+        className={cn('w-fit max-w-full text-sm', frameClass(hasActive))}
+      >
+        <ExpandableNote icon={<NoteIcon status={lead.status} />} className={barClass(hasActive)}>
           <NoteText note={lead} timeZone={timeZone} />
-        </p>
+        </ExpandableNote>
       </aside>
     )
   }
