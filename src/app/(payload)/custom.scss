@@ -233,6 +233,11 @@
     }
   }
 
+  &__handle {
+    flex-shrink: 0;
+    margin-block: -0.15rem;
+  }
+
   &__n,
   &__station {
     color: var(--theme-elevation-500);

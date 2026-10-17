@@ -21,6 +21,7 @@ import {
   Button,
   DraggableSortable,
   DraggableSortableItem,
+  DragHandleIcon,
   FieldDescription,
   FieldError,
   FieldLabel,
@@ -75,6 +76,7 @@ function ColumnChips({
               )}
               title={`${column.station.stid} · ${column.variable}`}
             >
+              <DragHandleIcon className="column-order-input__handle" />
               <span className="column-order-input__n">{i + 1}</span>
               {readingLabel(column.variable)}
               <span className="column-order-input__station">{name(column.station)}</span>
