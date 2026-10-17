@@ -11,13 +11,12 @@ import { Loader2, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
-import type { EditViewProps } from './EditViewDialog'
+import type { EditViewProps, GraphRange } from './EditViewDialog'
 import { CompareChips, CompareSelect, EditViewDialog, PeriodSelect } from './EditViewDialog'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
-import type { StationPeriod } from './stationPeriods'
-import { DEFAULT_GRAPH_PERIOD } from './stationPeriods'
+import { customRangeBounds, DEFAULT_GRAPH_PERIOD } from './stationPeriods'
 import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
@@ -34,9 +33,11 @@ const EChart = dynamic(() => import('@/components/charts/EChart').then((m) => m.
 // "Now" is bucketed to the route's one-minute CDN window so URLs are shared.
 const CACHE_BUCKET_MS = 60 * 1000
 
-function periodRange(period: StationPeriod, timeZone: string): { from: Date; to: Date } {
-  const to = new Date(Math.floor(Date.now() / CACHE_BUCKET_MS) * CACHE_BUCKET_MS)
-  return { from: subHours(to, period.hoursBack(to, timeZone)), to }
+function graphWindow(range: GraphRange, timeZone: string): { from: Date; to: Date } {
+  const now = new Date(Math.floor(Date.now() / CACHE_BUCKET_MS) * CACHE_BUCKET_MS)
+  if (!range.custom) return { from: subHours(now, range.period.hoursBack(now, timeZone)), to: now }
+  const { from, to } = customRangeBounds(range.custom, timeZone, now)
+  return { from, to: to ?? now }
 }
 
 function graphDataUrl(stations: StationRef[], variables: string[], from: Date, to: Date): string {
@@ -54,7 +55,7 @@ function graphDataUrl(stations: StationRef[], variables: string[], from: Date, t
 function useGraphData(
   stations: StationRef[],
   variables: string[],
-  period: StationPeriod,
+  range: GraphRange,
   timeZone: string,
 ) {
   const [data, setData] = useState<GraphData | null>(null)
@@ -62,7 +63,7 @@ function useGraphData(
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const { from, to } = periodRange(period, timeZone)
+    const { from, to } = graphWindow(range, timeZone)
     const controller = new AbortController()
     setError(null)
     setLoading(true)
@@ -76,7 +77,7 @@ function useGraphData(
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [stations, variables, period, timeZone])
+  }, [stations, variables, range, timeZone])
 
   return { data, error, loading }
 }
@@ -204,8 +205,9 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
         )}
         <div className="hidden sm:contents">
           <PeriodSelect
-            active={props.graphPeriod}
-            onChange={props.onPeriodChange}
+            value={props.graphRange}
+            onChange={props.onRangeChange}
+            timeZone={props.timeZone}
             className="sm:ml-auto"
           />
           <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
@@ -248,7 +250,10 @@ export function StationGraphs({
   timeZone: string
   tabs?: ReactNode
 }) {
-  const [graphPeriod, setStationPeriod] = useState(DEFAULT_GRAPH_PERIOD)
+  const [graphRange, setGraphRange] = useState<GraphRange>({
+    period: DEFAULT_GRAPH_PERIOD,
+    custom: null,
+  })
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
   const [unitSystem, changeUnitSystem] = useUnitSystem()
 
@@ -262,7 +267,7 @@ export function StationGraphs({
     [presets],
   )
 
-  const { data, error, loading } = useGraphData(allStations, variables, graphPeriod, timeZone)
+  const { data, error, loading } = useGraphData(allStations, variables, graphRange, timeZone)
 
   const emptyKeys = useMemo(() => emptyPresetKeys(data, presets), [data, presets])
 
@@ -277,8 +282,9 @@ export function StationGraphs({
       <GraphsToolbar
         tabs={tabs}
         pages={pages}
-        graphPeriod={graphPeriod}
-        onPeriodChange={setStationPeriod}
+        graphRange={graphRange}
+        onRangeChange={setGraphRange}
+        timeZone={timeZone}
         unitSystem={unitSystem}
         onUnitChange={changeUnitSystem}
         currentSlug={currentSlug}

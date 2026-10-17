@@ -39,10 +39,17 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { ArrowDown, ArrowUp, GripVertical, SlidersHorizontal, X } from 'lucide-react'
+import { useState } from 'react'
+import { DateRangePopover } from './DateRangePopover'
 import type { GraphPreset } from './stationGraphPresets'
 import { MAX_COMPARE_STATIONS } from './stationGraphPresets'
-import type { StationPeriod } from './stationPeriods'
-import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
+import type { DateRange, StationPeriod } from './stationPeriods'
+import {
+  DEFAULT_GRAPH_PERIOD,
+  formatRangeLabel,
+  GRAPH_MAX_CUSTOM_DAYS,
+  GRAPH_PERIODS,
+} from './stationPeriods'
 import { StationSelectItems, stationSelectTriggerClass } from './StationPicker'
 import { UnitToggle } from './UnitToggle'
 import type { useChartArrangement } from './useChartArrangement'
@@ -54,36 +61,65 @@ const sectionLabelClass = 'text-sm font-medium'
 
 export const chipClass = 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm'
 
+const CUSTOM_KEY = 'custom'
+
+/** The graphs' window: a preset, or a custom range that overrides it. */
+export type GraphRange = { period: StationPeriod; custom: DateRange | null }
+
 export function PeriodSelect({
-  active,
+  value,
   onChange,
+  timeZone,
   className,
 }: {
-  active: StationPeriod
-  onChange: (period: StationPeriod) => void
+  value: GraphRange
+  onChange: (range: GraphRange) => void
+  timeZone: string
   className?: string
 }) {
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const { custom } = value
   return (
-    <Select
-      value={active.key}
-      onValueChange={(key) =>
-        onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)
-      }
+    <DateRangePopover
+      open={calendarOpen}
+      onOpenChange={setCalendarOpen}
+      value={custom}
+      maxDays={GRAPH_MAX_CUSTOM_DAYS}
+      maxLabel="Up to 5 years"
+      timeZone={timeZone}
+      onApply={(range) => onChange({ ...value, custom: range })}
+      align="end"
     >
-      <SelectTrigger
-        aria-label="Date range"
-        className={cn(stationSelectTriggerClass, 'py-1.5', className)}
-      >
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent position="item-aligned">
-        {GRAPH_PERIODS.map((period) => (
-          <SelectItem key={period.key} value={period.key}>
-            {period.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+      <div className={className}>
+        {/* With a custom range the value is empty so the placeholder shows it, and picking
+            Custom… again still fires onValueChange. */}
+        <Select
+          value={custom ? '' : value.period.key}
+          onValueChange={(key) => {
+            if (key === CUSTOM_KEY) return setCalendarOpen(true)
+            onChange({
+              period: GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD,
+              custom: null,
+            })
+          }}
+        >
+          <SelectTrigger
+            aria-label="Date range"
+            className={cn(stationSelectTriggerClass, 'py-1.5')}
+          >
+            <SelectValue placeholder={custom && formatRangeLabel(custom, new Date(), timeZone)} />
+          </SelectTrigger>
+          <SelectContent position="item-aligned">
+            {GRAPH_PERIODS.map((period) => (
+              <SelectItem key={period.key} value={period.key}>
+                {period.label}
+              </SelectItem>
+            ))}
+            <SelectItem value={CUSTOM_KEY}>Custom…</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </DateRangePopover>
   )
 }
 
@@ -164,7 +200,11 @@ function MobileViewControls(props: EditViewProps) {
     <div className="flex flex-col gap-4 sm:hidden">
       <div className="flex items-center justify-between gap-3">
         <span className={sectionLabelClass}>Date range</span>
-        <PeriodSelect active={props.graphPeriod} onChange={props.onPeriodChange} />
+        <PeriodSelect
+          value={props.graphRange}
+          onChange={props.onRangeChange}
+          timeZone={props.timeZone}
+        />
       </div>
       <div className="flex items-center justify-between gap-3">
         <span className={sectionLabelClass}>Units</span>
@@ -310,8 +350,9 @@ function GraphList({
 
 export type EditViewProps = {
   pages: StationPageSummary[]
-  graphPeriod: StationPeriod
-  onPeriodChange: (period: StationPeriod) => void
+  graphRange: GraphRange
+  onRangeChange: (range: GraphRange) => void
+  timeZone: string
   unitSystem: UnitSystem
   onUnitChange: (system: UnitSystem) => void
   /** The station page being viewed; null on a single station's detail page. */
