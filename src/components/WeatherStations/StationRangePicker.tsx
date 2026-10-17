@@ -1,15 +1,18 @@
 'use client'
 
 import { useIsNarrowViewport } from '@/components/charts/useIsNarrowViewport'
+import type { ButtonProps } from '@/components/ui/button'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/utilities/ui'
 import { addDays, format, isValid, max, min, parse, parseISO, subDays, subMonths } from 'date-fns'
 import { CalendarDays, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
+import { forwardRef, useEffect, useState } from 'react'
 import type { DateRange as DayPickerRange } from 'react-day-picker'
 import type { DateRange, StationPeriod } from './stationPeriods'
 import {
@@ -82,7 +85,7 @@ function PeriodList({
   return (
     <nav
       aria-label="Preset ranges"
-      className="flex gap-1 overflow-x-auto border-b p-2 sm:flex-col sm:overflow-visible sm:border-b-0 sm:border-r"
+      className="flex flex-wrap gap-1 border-b p-2 sm:flex-col sm:flex-nowrap sm:border-b-0 sm:border-r"
     >
       {periods.map((period) =>
         target.periodHref ? (
@@ -211,7 +214,7 @@ function RangeFields({
 }: {
   draft: DayPickerRange | undefined
   today: string
-  maxLabel: string
+  maxLabel?: string
   onFromChange: (date: Date) => void
   onToChange: (date: Date) => void
 }) {
@@ -222,7 +225,7 @@ function RangeFields({
         <span aria-hidden="true">–</span>
         <DateField label="End date" value={draft?.to} today={today} onChange={onToChange} />
       </div>
-      <span className="text-xs text-muted-foreground">{maxLabel}</span>
+      {maxLabel && <span className="text-xs text-muted-foreground">{maxLabel}</span>}
     </div>
   )
 }
@@ -267,24 +270,26 @@ function useRangeDraft({
   return { draft, edit, month, setMonth, reset, setFrom, setTo }
 }
 
-function RangeButton({ label }: { label: string }) {
-  return (
-    <PopoverTrigger asChild>
+const RangeButton = forwardRef<HTMLButtonElement, ButtonProps & { label: string }>(
+  function RangeButton({ label, ...props }, ref) {
+    return (
       <Button
+        ref={ref}
         variant="outline"
         size="sm"
         aria-label={`Date range: ${label}`}
         className="gap-1.5 whitespace-nowrap font-normal"
+        {...props}
       >
         <CalendarDays className="h-4 w-4" aria-hidden="true" />
         {label}
         <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
       </Button>
-    </PopoverTrigger>
-  )
-}
+    )
+  },
+)
 
-function RangePanel({
+function RangeBody({
   periods,
   activeKey,
   target,
@@ -299,19 +304,14 @@ function RangePanel({
   target: PeriodTarget
   range: ReturnType<typeof useRangeDraft>
   maxDays: number
-  maxLabel: string
+  maxLabel?: string
   todayIso: string
   onClose: () => void
 }) {
   return (
-    <PopoverContent
-      // Taller than a phone's room above or below the button, so it scrolls within it.
-      className="flex max-h-[--radix-popover-content-available-height] w-auto max-w-[calc(100vw-2rem)] flex-col overflow-y-auto p-0 sm:flex-row"
-      align="start"
-      collisionPadding={8}
-    >
+    <>
       <PeriodList periods={periods} activeKey={activeKey} target={target} onPicked={onClose} />
-      <div className="flex flex-col">
+      <div className="flex flex-col items-center sm:items-stretch">
         <RangeCalendar
           draft={range.draft}
           onDraftChange={range.edit}
@@ -328,7 +328,41 @@ function RangePanel({
           onToChange={range.setTo}
         />
       </div>
-    </PopoverContent>
+    </>
+  )
+}
+
+type ShellProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  label: string
+  children: ReactNode
+}
+
+function RangeDialog({ open, onOpenChange, label, children }: ShellProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
+        <RangeButton label={label} />
+      </DialogTrigger>
+      <DialogContent className="max-h-[90dvh] w-[calc(100vw-2rem)] gap-0 overflow-y-auto rounded-lg p-0">
+        <DialogTitle className="px-4 pb-2 pt-4 text-base">Date range</DialogTitle>
+        {children}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function RangePopover({ open, onOpenChange, label, children }: ShellProps) {
+  return (
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <PopoverTrigger asChild>
+        <RangeButton label={label} />
+      </PopoverTrigger>
+      <PopoverContent className="flex w-auto flex-row p-0" align="start" collisionPadding={8}>
+        {children}
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -354,10 +388,12 @@ export function StationRangePicker({
   custom: DateRange | null
   onApplyCustom: (range: DateRange) => void
   maxDays: number
-  maxLabel: string
+  /** A hint under the date fields, for a cap a reader might hit. */
+  maxLabel?: string
   timeZone: string
   className?: string
 }) {
+  const narrow = useIsNarrowViewport()
   const now = new Date()
   const todayIso = todayInZone(now, timeZone)
   const [open, setOpen] = useState(false)
@@ -371,29 +407,31 @@ export function StationRangePicker({
     },
   })
 
+  const changeOpen = (next: boolean) => {
+    if (next) range.reset()
+    setOpen(next)
+  }
+  const label = custom ? formatRangeLabel(custom, now, timeZone) : activePeriod.label
+  const body = (
+    <RangeBody
+      periods={periods}
+      activeKey={custom ? null : activePeriod.key}
+      target={target}
+      range={range}
+      maxDays={maxDays}
+      maxLabel={maxLabel}
+      todayIso={todayIso}
+      onClose={() => setOpen(false)}
+    />
+  )
+
+  // A phone has no room for a popover beside the button, so the picker opens as a dialog.
+  const Shell = narrow ? RangeDialog : RangePopover
   return (
     <div className={className}>
-      <Popover
-        open={open}
-        onOpenChange={(next) => {
-          if (next) range.reset()
-          setOpen(next)
-        }}
-      >
-        <RangeButton
-          label={custom ? formatRangeLabel(custom, now, timeZone) : activePeriod.label}
-        />
-        <RangePanel
-          periods={periods}
-          activeKey={custom ? null : activePeriod.key}
-          target={target}
-          range={range}
-          maxDays={maxDays}
-          maxLabel={maxLabel}
-          todayIso={todayIso}
-          onClose={() => setOpen(false)}
-        />
-      </Popover>
+      <Shell open={open} onOpenChange={changeOpen} label={label}>
+        {body}
+      </Shell>
     </div>
   )
 }

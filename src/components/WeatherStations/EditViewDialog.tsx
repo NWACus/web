@@ -76,7 +76,6 @@ export function GraphRangePicker({
       }
       onApplyCustom={(custom) => onChange({ ...value, custom })}
       maxDays={GRAPH_MAX_CUSTOM_DAYS}
-      maxLabel="Up to 5 years"
       timeZone={timeZone}
       className={className}
     />
