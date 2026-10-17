@@ -165,7 +165,7 @@ async function tableTabView(
     tabContent: (
       <StationTableView
         table={table}
-        activePeriodKey={custom ? null : period.key}
+        activePeriodKey={period.key}
         customRange={custom}
         timeZone={timeZone}
         tabs={<StationRangeTabs activeKey="table" tabs={subject.tabs} />}

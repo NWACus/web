@@ -2,6 +2,8 @@ import {
   customRangeBounds,
   formatRangeLabel,
   parseCustomRange,
+  presetRange,
+  STATION_PERIODS,
   TABLE_MAX_CUSTOM_DAYS,
 } from '../../src/components/WeatherStations/stationPeriods'
 
@@ -63,5 +65,19 @@ describe('formatRangeLabel', () => {
     expect(formatRangeLabel({ from: '2024-12-01', to: '2025-03-31' }, now, zone)).toBe(
       'Dec 1, 2024 – Mar 31, 2025',
     )
+  })
+})
+
+describe('presetRange', () => {
+  it('labels a rolling preset by the days it covers', () => {
+    expect(presetRange(STATION_PERIODS[0], zone, now)).toEqual({
+      from: '2026-10-14',
+      to: '2026-10-15',
+    })
+  })
+
+  it('starts the season on Oct 1 despite rounding up to whole hours', () => {
+    const season = STATION_PERIODS.find((p) => p.key === 'season')
+    expect(season && presetRange(season, zone, now).from).toBe('2026-10-01')
   })
 })

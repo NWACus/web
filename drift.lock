@@ -978,17 +978,22 @@ sig = "ff3681ee4cfc577f"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationGraphs.tsx"
-sig = "a0161a6e90d32e90"
+sig = "b42c7443791bc007"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/StationRangePicker.tsx"
+sig = "479304e8d4e4b38c"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationPeriods.ts"
-sig = "cd47a366c6c63d8f"
+sig = "ad0d5c58b66839c3"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationTabViews.tsx"
-sig = "0364586feae5566e"
+sig = "c25d847068e3e558"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

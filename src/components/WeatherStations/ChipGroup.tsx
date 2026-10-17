@@ -29,7 +29,7 @@ export function ChipGroup({
   onSelect?: (key: string) => void
 }) {
   return (
-    <div className="flex gap-1">
+    <div className="flex flex-wrap gap-1">
       {chips.map((chip) =>
         chip.href ? (
           <Link

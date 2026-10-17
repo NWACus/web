@@ -12,7 +12,7 @@ import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import type { EditViewProps, GraphRange } from './EditViewDialog'
-import { CompareChips, CompareSelect, EditViewDialog, PeriodSelect } from './EditViewDialog'
+import { CompareChips, CompareSelect, EditViewDialog, GraphRangePicker } from './EditViewDialog'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
@@ -204,7 +204,7 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
           </div>
         )}
         <div className="hidden sm:contents">
-          <PeriodSelect
+          <GraphRangePicker
             value={props.graphRange}
             onChange={props.onRangeChange}
             timeZone={props.timeZone}

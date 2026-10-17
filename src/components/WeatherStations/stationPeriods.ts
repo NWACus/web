@@ -1,11 +1,13 @@
 import { TZDate } from '@date-fns/tz'
 import {
   addDays,
+  addMinutes,
   differenceInCalendarDays,
   differenceInHours,
   format,
   isValid,
   parseISO,
+  subHours,
   subMinutes,
 } from 'date-fns'
 
@@ -117,4 +119,12 @@ export function formatRangeLabel(range: DateRange, now: Date, timeZone: string):
   const pattern = showYear ? 'MMM d, yyyy' : 'MMM d'
   const from = format(parseISO(range.from), pattern)
   return range.from === range.to ? from : `${from} – ${format(parseISO(range.to), pattern)}`
+}
+
+/** The calendar days a rolling preset touches, for labelling it like a custom range. */
+export function presetRange(period: StationPeriod, timeZone: string, now: Date): DateRange {
+  // hoursBack rounds up to whole hours (Season starts up to 59 minutes before Oct 1), so the
+  // label steps forward to the day the readings start.
+  const start = addMinutes(subHours(now, period.hoursBack(now, timeZone)), 59)
+  return { from: todayInZone(start, timeZone), to: todayInZone(now, timeZone) }
 }

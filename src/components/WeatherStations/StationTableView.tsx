@@ -1,75 +1,49 @@
 'use client'
 
 import type { StationTable } from '@/services/snowobs/tableHelpers'
-import { cn } from '@/utilities/ui'
-import { CalendarDays } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { useMemo, useState } from 'react'
-import { chipClass, ChipGroup } from './ChipGroup'
-import { DateRangePopover } from './DateRangePopover'
+import { useMemo } from 'react'
 import { StationLatestObservation } from './StationLatestObservation'
 import { StationNowTable } from './StationNowTable'
 import type { DateRange } from './stationPeriods'
 import {
-  formatRangeLabel,
+  resolveTablePeriod,
   TABLE_MAX_CUSTOM_DAYS,
   TABLE_PERIODS,
   todayInZone,
 } from './stationPeriods'
+import { StationRangePicker } from './StationRangePicker'
 import { convertStationTable } from './stationTableUnits'
 import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 
-const TABLE_PERIOD_CHIPS = TABLE_PERIODS.map((p) => ({
-  key: p.key,
-  label: p.label,
-  href: `?range=table&period=${p.key}`,
-}))
+const tableHref = (key: string) => `?range=table&period=${key}`
 
-function CustomRangeChip({ range, timeZone }: { range: DateRange | null; timeZone: string }) {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  return (
-    <DateRangePopover
-      open={open}
-      onOpenChange={setOpen}
-      value={range}
-      maxDays={TABLE_MAX_CUSTOM_DAYS}
-      maxLabel={`Up to ${TABLE_MAX_CUSTOM_DAYS} days`}
-      timeZone={timeZone}
-      onApply={({ from, to }) =>
-        router.push(`?range=table&from=${from}&to=${to}`, { scroll: false })
-      }
-    >
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-pressed={range !== null}
-        aria-haspopup="dialog"
-        className={cn(chipClass(range !== null), 'inline-flex items-center gap-1.5')}
-      >
-        <CalendarDays className="h-4 w-4" aria-hidden="true" />
-        {range ? formatRangeLabel(range, new Date(), timeZone) : 'Custom'}
-      </button>
-    </DateRangePopover>
-  )
-}
-
-function TableRangeChips({
+function TableRangePicker({
   activePeriodKey,
   customRange,
   timeZone,
 }: {
-  activePeriodKey: string | null
+  activePeriodKey: string
   customRange: DateRange | null
   timeZone: string
 }) {
+  const router = useRouter()
   return (
-    <div className="flex flex-wrap gap-1">
-      <ChipGroup chips={TABLE_PERIOD_CHIPS} activeKey={activePeriodKey} />
-      <CustomRangeChip range={customRange} timeZone={timeZone} />
-    </div>
+    <StationRangePicker
+      periods={TABLE_PERIODS}
+      quickKeys={TABLE_PERIODS.map((p) => p.key)}
+      activePeriod={resolveTablePeriod(activePeriodKey)}
+      custom={customRange}
+      periodHref={tableHref}
+      onApplyCustom={({ from, to }) =>
+        router.push(`?range=table&from=${from}&to=${to}`, { scroll: false })
+      }
+      maxDays={TABLE_MAX_CUSTOM_DAYS}
+      maxLabel={`Up to ${TABLE_MAX_CUSTOM_DAYS} days`}
+      timeZone={timeZone}
+    />
   )
 }
 
@@ -95,8 +69,8 @@ export function StationTableView({
   tabs,
 }: {
   table: StationTable
-  /** Null when a custom range is showing. */
-  activePeriodKey: string | null
+  /** The preset in force; a valid custom range overrides it. */
+  activePeriodKey: string
   customRange: DateRange | null
   timeZone: string
   tabs?: ReactNode
@@ -109,7 +83,7 @@ export function StationTableView({
       <StationViewBar pinned={false}>
         {tabs}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <TableRangeChips
+          <TableRangePicker
             activePeriodKey={activePeriodKey}
             customRange={customRange}
             timeZone={timeZone}
