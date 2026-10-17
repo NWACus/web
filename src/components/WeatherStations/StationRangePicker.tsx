@@ -51,7 +51,7 @@ function selectableBounds(draft: DayPickerRange | undefined, today: Date, maxDay
   }
 }
 
-/** The draft as a range Apply can take, or null when it is incomplete or out of bounds. */
+/** The draft as a range to apply, or null when it is incomplete or out of bounds. */
 function applicableRange(
   draft: DayPickerRange | undefined,
   maxDays: number,
@@ -122,7 +122,7 @@ function RangeCalendar({
   today,
 }: {
   draft: DayPickerRange | undefined
-  onDraftChange: (draft: DayPickerRange | undefined) => void
+  onDraftChange: (draft: DayPickerRange) => void
   month: Date
   onMonthChange: (month: Date) => void
   maxDays: number
@@ -150,13 +150,14 @@ function RangeCalendar({
 
 const FIELD_FORMAT = 'MMM d, yyyy'
 // Typed dates: the field's own format, then numeric US and ISO dates.
-const TYPED_FORMATS = [FIELD_FORMAT, 'MMM d yyyy', 'M/d/yyyy', 'M/d/yy', 'yyyy-MM-dd']
+const TYPED_FORMATS = [FIELD_FORMAT, 'MMM d yyyy', 'M/d/yyyy', 'yyyy-MM-dd', 'MMM d, yy', 'M/d/yy']
 
 function parseTyped(text: string): Date | null {
   const trimmed = text.trim()
   for (const pattern of TYPED_FORMATS) {
     const date = parse(trimmed, pattern, new Date())
-    if (isValid(date)) return date
+    // A `yyyy` pattern reads "26" as the year 26, so leave short years to the `yy` patterns.
+    if (isValid(date) && date.getFullYear() >= 1000) return date
   }
   return null
 }
@@ -201,74 +202,80 @@ function DateField({
   )
 }
 
-function RangeFooter({
+function RangeFields({
   draft,
   today,
   maxLabel,
-  canApply,
   onFromChange,
   onToChange,
-  onCancel,
-  onApply,
 }: {
   draft: DayPickerRange | undefined
   today: string
   maxLabel: string
-  canApply: boolean
   onFromChange: (date: Date) => void
   onToChange: (date: Date) => void
-  onCancel: () => void
-  onApply: () => void
 }) {
   return (
-    <div className="flex flex-col gap-3 border-t p-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-2 border-t p-3">
       <div className="flex items-center gap-2">
         <DateField label="Start date" value={draft?.from} today={today} onChange={onFromChange} />
         <span aria-hidden="true">–</span>
         <DateField label="End date" value={draft?.to} today={today} onChange={onToChange} />
       </div>
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-xs text-muted-foreground">{maxLabel}</span>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button size="sm" disabled={!canApply} onClick={onApply}>
-            Apply
-          </Button>
-        </div>
-      </div>
+      <span className="text-xs text-muted-foreground">{maxLabel}</span>
     </div>
   )
 }
 
-function useRangeDraft(value: DateRange | null, today: Date) {
+// The draft opens on the range in view and is applied the moment an edit completes it, so an
+// untouched preset never turns into the whole days it touches.
+function useRangeDraft({
+  value,
+  today,
+  maxDays,
+  onComplete,
+}: {
+  value: DateRange | null
+  today: Date
+  maxDays: number
+  onComplete: (range: DateRange) => void
+}) {
   const narrow = useIsNarrowViewport()
-  const [draft, setDraft] = useState(() => toDraft(value))
+  const [draft, setDraftState] = useState(() => toDraft(value))
   const [month, setMonth] = useState(today)
   // Shows the draft's start, with the month after it beside it when there is room.
   const showFrom = (from: Date | undefined) =>
     setMonth(from ?? (narrow ? today : subMonths(today, 1)))
+  const edit = (next: DayPickerRange) => {
+    setDraftState(next)
+    const range = next.to ? applicableRange(next, maxDays, toIso(today)) : null
+    if (range) onComplete(range)
+  }
   const reset = () => {
     const next = toDraft(value)
-    setDraft(next)
+    setDraftState(next)
     showFrom(next?.from)
   }
   const setFrom = (from: Date) => {
-    setDraft((d) => ({ from, to: d?.to && d.to >= from ? d.to : undefined }))
+    edit({ from, to: draft?.to && draft.to >= from ? draft.to : undefined })
     showFrom(from)
   }
   const setTo = (to: Date) => {
-    setDraft((d) => ({ from: d?.from && d.from <= to ? d.from : to, to }))
+    edit({ from: draft?.from && draft.from <= to ? draft.from : to, to })
     setMonth(narrow ? to : subMonths(to, 1))
   }
-  return { draft, setDraft, month, setMonth, reset, setFrom, setTo }
+  return { draft, edit, month, setMonth, reset, setFrom, setTo }
 }
 
 function RangeButton({ label }: { label: string }) {
   return (
     <PopoverTrigger asChild>
-      <Button variant="outline" size="sm" className="gap-1.5 whitespace-nowrap font-normal">
+      <Button
+        variant="outline"
+        size="sm"
+        aria-label={`Date range: ${label}`}
+        className="gap-1.5 whitespace-nowrap font-normal"
+      >
         <CalendarDays className="h-4 w-4" aria-hidden="true" />
         {label}
         <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
@@ -285,7 +292,6 @@ function RangePanel({
   maxDays,
   maxLabel,
   todayIso,
-  onApplyCustom,
   onClose,
 }: {
   periods: StationPeriod[]
@@ -295,50 +301,41 @@ function RangePanel({
   maxDays: number
   maxLabel: string
   todayIso: string
-  onApplyCustom: (range: DateRange) => void
   onClose: () => void
 }) {
-  const applicable = applicableRange(range.draft, maxDays, todayIso)
   return (
     <PopoverContent
       // Taller than a phone's room above or below the button, so it scrolls within it.
-      className="max-h-[--radix-popover-content-available-height] w-auto max-w-[calc(100vw-2rem)] overflow-y-auto p-0"
+      className="flex max-h-[--radix-popover-content-available-height] w-auto max-w-[calc(100vw-2rem)] flex-col overflow-y-auto p-0 sm:flex-row"
       align="start"
       collisionPadding={8}
     >
-      <div className="flex flex-col sm:flex-row">
-        <PeriodList periods={periods} activeKey={activeKey} target={target} onPicked={onClose} />
+      <PeriodList periods={periods} activeKey={activeKey} target={target} onPicked={onClose} />
+      <div className="flex flex-col">
         <RangeCalendar
           draft={range.draft}
-          onDraftChange={range.setDraft}
+          onDraftChange={range.edit}
           month={range.month}
           onMonthChange={range.setMonth}
           maxDays={maxDays}
           today={parseISO(todayIso)}
         />
+        <RangeFields
+          draft={range.draft}
+          today={todayIso}
+          maxLabel={maxLabel}
+          onFromChange={range.setFrom}
+          onToChange={range.setTo}
+        />
       </div>
-      <RangeFooter
-        draft={range.draft}
-        today={todayIso}
-        maxLabel={maxLabel}
-        canApply={applicable !== null}
-        onFromChange={range.setFrom}
-        onToChange={range.setTo}
-        onCancel={onClose}
-        onApply={() => {
-          if (!applicable) return
-          onApplyCustom(applicable)
-          onClose()
-        }}
-      />
     </PopoverContent>
   )
 }
 
 /**
  * A button naming the range in view (a preset's name or custom dates) that opens every preset
- * beside a range calendar. Custom dates are whole days in the center's zone; nothing changes
- * until Apply.
+ * beside a range calendar. Custom dates are whole days in the center's zone, applied as soon as
+ * both ends are picked or typed.
  */
 export function StationRangePicker({
   periods,
@@ -364,11 +361,15 @@ export function StationRangePicker({
   const now = new Date()
   const todayIso = todayInZone(now, timeZone)
   const [open, setOpen] = useState(false)
-  // The calendar opens on the dates in view, a preset's included.
-  const range = useRangeDraft(
-    custom ?? presetRange(activePeriod, timeZone, now),
-    parseISO(todayIso),
-  )
+  const range = useRangeDraft({
+    value: custom ?? presetRange(activePeriod, timeZone, now),
+    today: parseISO(todayIso),
+    maxDays,
+    onComplete: (completed) => {
+      onApplyCustom(completed)
+      setOpen(false)
+    },
+  })
 
   return (
     <div className={className}>
@@ -390,7 +391,6 @@ export function StationRangePicker({
           maxDays={maxDays}
           maxLabel={maxLabel}
           todayIso={todayIso}
-          onApplyCustom={onApplyCustom}
           onClose={() => setOpen(false)}
         />
       </Popover>

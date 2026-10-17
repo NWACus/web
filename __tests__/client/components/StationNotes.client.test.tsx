@@ -68,7 +68,7 @@ describe('StationNotes', () => {
     render(<StationNotes notes={[ACTIVE]} timeZone={TZ} />)
     expect(screen.getByText(/Disregard all values/)).toBeInTheDocument()
     expect(screen.queryByText(/^\+\d/)).toBeNull()
-    expect(summary().querySelector('.lucide-chevron-down')).toBeNull()
+    expect(document.querySelector('details')).toBeNull()
   })
 
   it('lets a lone note that runs past one line expand', () => {

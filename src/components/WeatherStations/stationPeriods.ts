@@ -61,6 +61,7 @@ export const GRAPH_MAX_CUSTOM_DAYS = 5 * 365 + 1
 // NWAC's own loggers report to SnowObs from mid-2015.
 export const EARLIEST_CUSTOM_DATE = '2015-10-01'
 
+// A whole-string yyyy-MM-dd date, the only form a custom range takes in the URL.
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 
 function isIsoDate(value: string | undefined): value is string {

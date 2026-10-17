@@ -983,12 +983,12 @@ sig = "b42c7443791bc007"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationRangePicker.tsx"
-sig = "44d6c6e04c0b4e8a"
+sig = "a227d9b85f8acdfe"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationPeriods.ts"
-sig = "ad0d5c58b66839c3"
+sig = "506b95ae4fab743c"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
