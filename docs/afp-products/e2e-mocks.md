@@ -62,9 +62,9 @@ The station map reads SnowObs, which has no v2→v3 migration and so no golden c
 
 ## The obs API is mocked the same way
 
-The forecast page's Observations and Avalanches tabs (Forecast-9) read the obs API's GraphQL, which has no v2→v3 parity obligation and so no corpus. `handlers.mjs` answers it with one recorded center-week, `__tests__/e2e/mocks/obs/graphql-week.json` (SNFAC, Feb 24 – Mar 2, 2026), whatever center and dates are asked. The app's zone filter does the rest, so `zone-observations.e2e.spec.ts` asserts on which of the week's records each zone keeps: Galena Summit's 13 observations and 17 avalanches are the counts the live widget showed for that week.
+The forecast page's Observations and Avalanches tabs (Forecast-9) read the obs API's REST lists, which have no v2→v3 parity obligation and so no corpus. `handlers.mjs` answers `observation/list/` and `avalanche_observation/list/` from one recorded week, `__tests__/e2e/mocks/obs/week.json` (SNFAC, Feb 24 – Mar 2, 2026), whatever center and dates are asked. The zone filter is the API's, so the handler applies it from the request's `zone_id[in]`, and a zone with nothing recorded gets an empty list rather than a 501. The week holds Galena Summit's 13 observations and 17 avalanches, the counts the live widget showed for that week, and Soldier Mountains' 3 observations, so `zone-observations.e2e.spec.ts` can check a Soldier record stays off Galena's tab.
 
-`pnpm e2e:capture-obs [CENTER] [FROM] [TO]` (`scripts/e2e/capture-obs-week.mjs`) re-records it with one request, sending the query the app sends. It keeps each media item's `type` and `url` only, since the rest carries photographers' names and captions the cards never read, and the query asks for no observer names at all. Card thumbnails are on S3, which `stubExternalAssets` already fulfils.
+`pnpm e2e:capture-obs [CENTER] [FROM] [TO] [ZONE] [OTHER_ZONE]` (`scripts/e2e/capture-obs-week.mjs`) re-records it with three requests, building the URLs the app builds. It keeps only the fields the cards read plus each record's zone, and each media item's `type` and `url`: the rest carries observers' names, write-ups and photographers' credits. Card thumbnails are on S3, which `stubExternalAssets` already fulfils.
 
 ## NWAC's Mountain Weather Forecast is mocked the same way
 

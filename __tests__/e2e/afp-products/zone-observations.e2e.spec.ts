@@ -4,11 +4,10 @@ import { ZONE, loadPage, tenant, zoneSlug } from './helpers'
 /**
  * Forecast-9: the zone's Observations and Avalanches tabs on the live forecast page.
  *
- * SNFAC's metadata fixture has `obs_tab` on. The obs API serves one recorded center-week
- * (`mocks/obs/graphql-week.json`: 30 observations and 56 avalanches), and the app keeps the ones
- * inside the zone's map-layer outline: 13 and 17 for Galena Summit, the counts the live widget
- * shows for that week. Galena's fixture is a summary, so the first tab reads "Avalanche
- * Information".
+ * SNFAC's metadata fixture has `obs_tab` on. The obs API's lists serve one recorded week
+ * (`mocks/obs/week.json`, Feb 24 – Mar 2, 2026) filtered by zone: Galena Summit's 13 observations
+ * and 17 avalanches, the counts the live widget shows for that week, and Soldier's 3 observations.
+ * Galena's fixture is a summary, so the first tab reads "Avalanche Information".
  */
 const GALENA = `${tenant('snfac')}/forecasts/avalanche/${zoneSlug(ZONE.offSeasonSummary)}`
 const SOLDIER = `${tenant('snfac')}/forecasts/avalanche/${zoneSlug(ZONE.forecast)}`
@@ -41,18 +40,18 @@ test.describe('Zone Observations and Avalanches tabs', () => {
       pane.locator('a[href^="/observations/"]').filter({ hasText: ', 2026' }),
     ).toHaveCount(13)
 
-    // Newest first, with the widget's date, sign and media count.
+    // Newest date first and, within Mar 2's three, newest submitted, with the widget's date and sign.
     const first = pane.locator('a[href^="/observations/"]').first()
     await expect(first).toHaveAttribute(
       'href',
-      '/observations/5f0d40b1-1dd0-45d5-b85c-cc99683b9e30',
+      '/observations/f6e4bedb-6fae-44e0-8d66-969558aaec92',
     )
     await expect(first).toContainText('Mar 2, 2026')
-    await expect(first).toContainText('Butterfield')
+    await expect(first).toContainText('4th of July')
     await expect(first).toContainText('Collapsing/Cracking')
 
-    // A record from the center's week outside the zone's outline is not shown.
-    await expect(pane.getByText('Williams', { exact: true })).toHaveCount(0)
+    // A Soldier Mountains record from the same week is not shown.
+    await expect(pane.getByText('Fox Peak', { exact: true })).toHaveCount(0)
     // The forecast is hidden, not gone.
     await expect(page.getByRole('heading', { name: 'The Bottom Line' })).toBeVisible()
     expect(errors).toEqual([])

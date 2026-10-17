@@ -4,47 +4,27 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
-import type { ZoneGeometry } from '@/services/nac/model/mapLayer'
 import {
-  inZone,
-  isInZone,
+  listUrl,
   newestFirst,
   observationMedia,
   thumbnailOf,
-  toCenterWeek,
+  toAvalanches,
+  toObservations,
   weekWindow,
 } from '@/services/nac/zoneObservations'
-
-// A 1°×1° square from (0,0) to (1,1), with a hole from (0.4,0.4) to (0.6,0.6).
-const square: ZoneGeometry = {
-  type: 'Polygon',
-  coordinates: [
-    [
-      [0, 0],
-      [1, 0],
-      [1, 1],
-      [0, 1],
-      [0, 0],
-    ],
-    [
-      [0.4, 0.4],
-      [0.6, 0.4],
-      [0.6, 0.6],
-      [0.4, 0.6],
-      [0.4, 0.4],
-    ],
-  ],
-}
 
 const window = { from: '2026-02-24', to: '2026-03-02' }
 
 function observation(overrides: Record<string, unknown> = {}) {
   return {
     id: 'obs-1',
-    startDate: '2026-03-01',
-    locationName: 'Butterfield',
-    locationPoint: { lat: 0.2, lng: 0.2 },
-    observerType: 'forecaster',
+    start_date: '2026-03-01',
+    created_at: '2026-03-01T20:00:00.000000Z',
+    zone_id: '2904',
+    location_name: 'Butterfield',
+    location_point: { lat: null, lng: null },
+    observer_type: 'forecaster',
     organization: '',
     instability: { cracking: false, collapsing: true, avalanches_observed: false },
     media: [],
@@ -57,70 +37,57 @@ function avalanche(overrides: Record<string, unknown> = {}) {
   return {
     id: 'avy-1',
     date: '2026-02-25',
-    locationName: 'Goat Peak',
-    locationPoint: { lat: 0.8, lng: 0.8 },
+    created_at: '2026-02-26T05:41:23.706864Z',
+    zone_id: '2904',
+    location_name: 'Goat Peak',
     number: 1,
     aspect: 'SE',
     elevation: 10300,
-    dSize: '2.5',
+    d_size: '2.5',
     trigger: 'N',
     media: [],
     ...overrides,
   }
 }
 
-function body(observations: unknown[], avalanches: unknown[]) {
-  return { data: { getObservationList: observations, getAvalancheObservationList: avalanches } }
-}
+const list = (results: unknown[]) => ({ total: results.length, pages: 1, results })
 
-describe('isInZone', () => {
-  it('keeps points inside the outline and drops points in a hole or outside', () => {
-    expect(isInZone({ lat: 0.2, lng: 0.2 }, square)).toBe(true)
-    expect(isInZone({ lat: 0.5, lng: 0.5 }, square)).toBe(false)
-    expect(isInZone({ lat: 1.5, lng: 0.5 }, square)).toBe(false)
+describe('listUrl', () => {
+  it('asks for the zone’s week with the operator params, newest first', () => {
+    const url = new URL(listUrl('observation', 'SNFAC', 2904, window))
+
+    expect(url.pathname).toBe('/obs/v1/public/observation/list/')
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      'center_id[eq]': 'snfac',
+      'zone_id[in]': '2904',
+      'start_date[gte]': '2026-02-24',
+      'start_date[lte]': '2026-03-02',
+      page_size: '100',
+      sort_by: 'start_date',
+      sort_order: 'DESC',
+    })
   })
 
-  it('drops records without a point', () => {
-    expect(isInZone(null, square)).toBe(false)
-    expect(isInZone({ lat: null, lng: null }, square)).toBe(false)
-  })
+  it('filters avalanches by their date field', () => {
+    const url = new URL(listUrl('avalanche_observation', 'SNFAC', 2904, window))
 
-  it('checks every polygon of a MultiPolygon', () => {
-    const multi: ZoneGeometry = {
-      type: 'MultiPolygon',
-      coordinates: [
-        [
-          [
-            [0, 0],
-            [1, 0],
-            [1, 1],
-            [0, 0],
-          ],
-        ],
-        [
-          [
-            [5, 5],
-            [6, 5],
-            [6, 6],
-            [5, 5],
-          ],
-        ],
-      ],
-    }
-    expect(isInZone({ lat: 5.2, lng: 5.8 }, multi)).toBe(true)
-    expect(isInZone({ lat: 3, lng: 3 }, multi)).toBe(false)
+    expect(url.pathname).toBe('/obs/v1/public/avalanche_observation/list/')
+    expect(url.searchParams.get('date[gte]')).toBe('2026-02-24')
+    expect(url.searchParams.get('date[lte]')).toBe('2026-03-02')
+    expect(url.searchParams.get('sort_by')).toBe('date')
   })
 })
 
 describe('newestFirst', () => {
-  it('sorts by date and keeps the API order within a day, as the widget does', () => {
+  it('sorts by date, then newest submitted, then id', () => {
     const items = [
-      { id: 'a', date: '2026-02-25' },
-      { id: 'b', date: '2026-02-26' },
-      { id: 'c', date: '2026-02-25' },
-      { id: 'd', date: '2026-02-25' },
+      { id: 'a', date: '2026-02-25', createdAt: '2026-02-26T01:00:00.5Z' },
+      { id: 'b', date: '2026-02-26', createdAt: '2026-02-26T00:00:00Z' },
+      { id: 'c', date: '2026-02-25', createdAt: '2026-02-26T01:00:00.271936Z' },
+      { id: 'e', date: '2026-02-25', createdAt: null },
+      { id: 'd', date: '2026-02-25', createdAt: null },
     ]
-    expect(newestFirst(items).map((i) => i.id)).toEqual(['b', 'a', 'c', 'd'])
+    expect(newestFirst(items).map((i) => i.id)).toEqual(['b', 'a', 'c', 'd', 'e'])
   })
 })
 
@@ -172,27 +139,19 @@ describe('thumbnailOf', () => {
   })
 })
 
-describe('toZoneObservations', () => {
-  it('keeps the zone’s records and maps the fields the cards read', () => {
-    const result = inZone(
-      toCenterWeek(
-        body(
-          [
-            observation({
-              media: [{ type: 'image', url: { thumbnail: 'a.jpg' } }],
-              avalanches: [{ media: [{ type: 'image', url: { thumbnail: 'b.jpg' } }] }],
-            }),
-            observation({ id: 'outside', locationPoint: { lat: 3, lng: 3 } }),
-          ],
-          [avalanche(), avalanche({ id: 'in-hole', locationPoint: { lat: 0.5, lng: 0.5 } })],
-        ),
-      ),
-      square,
-      window,
+describe('toObservations', () => {
+  it('maps the fields the cards read, newest first', () => {
+    const result = toObservations(
+      list([
+        observation({ id: 'older', start_date: '2026-02-28' }),
+        observation({
+          media: [{ type: 'image', url: { thumbnail: 'a.jpg' } }],
+          avalanches: [{ media: [{ type: 'image', url: { thumbnail: 'b.jpg' } }] }],
+        }),
+      ]),
     )
 
-    expect(result.window).toEqual(window)
-    expect(result.observations).toEqual([
+    expect(result).toEqual([
       {
         id: 'obs-1',
         date: '2026-03-01',
@@ -204,13 +163,34 @@ describe('toZoneObservations', () => {
         thumbnail: { kind: 'image', src: 'a.jpg' },
         mediaCount: 2,
       },
+      expect.objectContaining({ id: 'older', date: '2026-02-28' }),
     ])
-    expect(result.avalanches.map((a) => a.id)).toEqual(['avy-1'])
-    expect(result.avalanches[0]).toMatchObject({ dSize: '2.5', trigger: 'N', mediaCount: 0 })
   })
 
-  it('rejects a response without the two lists', () => {
-    expect(() => toCenterWeek({ data: null })).toThrow()
+  it('rejects a response without a results list', () => {
+    expect(() => toObservations({ detail: 'Unauthorized' })).toThrow()
+  })
+})
+
+describe('toAvalanches', () => {
+  it('maps the fields the cards read, newest first', () => {
+    const result = toAvalanches(
+      list([avalanche(), avalanche({ id: 'avy-2', date: '2026-02-26', d_size: null })]),
+    )
+
+    expect(result.map((a) => a.id)).toEqual(['avy-2', 'avy-1'])
+    expect(result[1]).toEqual({
+      id: 'avy-1',
+      date: '2026-02-25',
+      location: 'Goat Peak',
+      number: 1,
+      aspect: 'SE',
+      elevation: 10300,
+      dSize: '2.5',
+      trigger: 'N',
+      thumbnail: null,
+      mediaCount: 0,
+    })
   })
 })
 

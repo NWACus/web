@@ -1,8 +1,7 @@
 /**
- * The zone's last 7 days of observations and avalanches, read the way the widget's forecast tab
- * reads them (`ObservationTab.vue`): one GraphQL request for the center's week, kept when the
- * record's point falls inside the zone's map-layer polygon, newest date first. Same-day records
- * keep the API's order, which is what the widget shows.
+ * The zone's last 7 days of observations and avalanches, from the obs API's REST lists (what NAC's
+ * newer observations viewer reads): the API filters by forecast zone, and the records are sorted
+ * newest date first, then newest submitted.
  *
  * Server-only: the obs API rejects requests without an allowlisted `Origin`, which a server fetch
  * can send from any host, previews included.
@@ -10,11 +9,8 @@
 import { unstable_cache } from 'next/cache'
 import { z } from 'zod'
 
-import { pointInPolygon } from '@/utilities/geo/pointInPolygon'
-import { getZoneMapLayer } from './dangerMap/mapLayer'
 import { ALLOWLISTED_ORIGIN, nacApiHost } from './hosts'
 
-import type { ZoneGeometry } from './model/mapLayer'
 import type {
   MediaThumbnail,
   ZoneAvalanche,
@@ -31,6 +27,9 @@ const CACHE_SECONDS = 300
 /** Longer than the obs API ever takes when it's up; a hung request shouldn't hold the function. */
 const UPSTREAM_TIMEOUT_MS = 10_000
 
+/** The API's largest page. A zone's week has never come close, so later pages aren't read. */
+const PAGE_SIZE = 100
+
 const mediaSchema = z
   .object({
     type: z.string().optional(),
@@ -45,14 +44,12 @@ const mediaSchema = z
 
 const mediaListSchema = z.array(mediaSchema).nullable().catch([])
 
-const pointSchema = z.object({ lat: z.number().nullable(), lng: z.number().nullable() }).nullable()
-
 const observationSchema = z.object({
   id: z.string(),
-  startDate: z.string(),
-  locationName: z.string().nullable(),
-  locationPoint: pointSchema.catch(null),
-  observerType: z.string().nullable(),
+  start_date: z.string(),
+  created_at: z.string().nullable().catch(null),
+  location_name: z.string().nullable(),
+  observer_type: z.string().nullable(),
   organization: z.string().nullable(),
   instability: z
     .object({
@@ -72,38 +69,19 @@ const observationSchema = z.object({
 const avalancheSchema = z.object({
   id: z.string(),
   date: z.string(),
-  locationName: z.string().nullable(),
-  locationPoint: pointSchema.catch(null),
+  created_at: z.string().nullable().catch(null),
+  location_name: z.string().nullable(),
   number: z.number().nullable(),
   aspect: z.string().nullable(),
   elevation: z.number().nullable(),
-  dSize: z.string().nullable(),
+  d_size: z.string().nullable(),
   trigger: z.string().nullable(),
   media: mediaListSchema,
 })
 
-const responseSchema = z.object({
-  data: z.object({
-    getObservationList: z.array(observationSchema),
-    getAvalancheObservationList: z.array(avalancheSchema),
-  }),
-})
+const listSchema = <T extends z.ZodTypeAny>(record: T) => z.object({ results: z.array(record) })
 
 type Media = z.infer<typeof mediaSchema>
-type Point = z.infer<typeof pointSchema>
-
-/** The widget's query (`ObservationTab.vue`), trimmed to the fields its cards read. */
-function weekQuery(centerId: string, from: string, to: string): string {
-  return `{
-    getObservationList(centerId: "${centerId}", startDate: "${from}", endDate: "${to}") {
-      id startDate locationName locationPoint { lat lng } observerType organization instability media
-      avalanches { media }
-    }
-    getAvalancheObservationList(centerId: "${centerId}", startDate: "${from}", endDate: "${to}") {
-      id date locationName locationPoint { lat lng } number aspect elevation dSize trigger media
-    }
-  }`
-}
 
 /**
  * Whether the center shows the zone's Observations and Avalanches tabs: its `obs_tab` switch, as
@@ -125,12 +103,6 @@ export function weekWindow(now: Date, timeZone: string): { from: string; to: str
   const from = new Date(`${to}T00:00:00Z`)
   from.setUTCDate(from.getUTCDate() - (WINDOW_DAYS - 1))
   return { from: from.toISOString().slice(0, 10), to }
-}
-
-/** Whether a record's point is inside the zone, as the widget's turf `booleanPointInPolygon` decides. */
-export function isInZone(point: Point, geometry: ZoneGeometry): boolean {
-  if (point?.lat == null || point.lng == null) return false
-  return pointInPolygon([point.lng, point.lat], geometry)
 }
 
 function imageSrc(item: Media): string | null {
@@ -166,119 +138,136 @@ export function observationMedia(own: Media[], avalanches: { media: Media[] | nu
   return [...own, ...avalanches.flatMap((a) => a.media ?? [])]
 }
 
-/** Newest date first. `sort` is stable, so same-day records keep the API's order, as in the widget. */
-export function newestFirst<T extends { date: string }>(items: T[]): T[] {
-  return [...items].sort((a, b) => b.date.localeCompare(a.date))
+interface Sortable {
+  id: string
+  date: string
+  createdAt: string | null
 }
 
-interface Located {
-  point: Point
+function submittedMs(item: Sortable): number {
+  return item.createdAt ? Date.parse(item.createdAt) || 0 : 0
 }
 
-type CenterWeek = {
-  observations: (ZoneObservation & Located)[]
-  avalanches: (ZoneAvalanche & Located)[]
+/**
+ * Newest date first, then newest submitted, then by id. The API's same-day order is arbitrary
+ * (not its `created_at`), so the tie-breaks keep a refresh from reshuffling a day's cards.
+ */
+export function newestFirst<T extends Sortable>(items: T[]): T[] {
+  return [...items].sort(
+    (a, b) =>
+      b.date.localeCompare(a.date) || submittedMs(b) - submittedMs(a) || a.id.localeCompare(b.id),
+  )
 }
 
-function toObservation(r: z.infer<typeof observationSchema>): ZoneObservation & Located {
+function toObservation(r: z.infer<typeof observationSchema>): ZoneObservation & Sortable {
   const instability = r.instability ?? {}
   return {
     id: r.id,
-    date: r.startDate,
-    location: r.locationName || null,
-    observerType: r.observerType || null,
+    date: r.start_date,
+    createdAt: r.created_at,
+    location: r.location_name || null,
+    observerType: r.observer_type || null,
     organization: r.organization || null,
     avalanchesObserved: Boolean(instability.avalanches_observed),
     instability: Boolean(instability.cracking || instability.collapsing),
     ...withMedia(observationMedia(r.media ?? [], r.avalanches ?? [])),
-    point: r.locationPoint,
   }
 }
 
-function toAvalanche(r: z.infer<typeof avalancheSchema>): ZoneAvalanche & Located {
+function toAvalanche(r: z.infer<typeof avalancheSchema>): ZoneAvalanche & Sortable {
   return {
     id: r.id,
     date: r.date,
-    location: r.locationName || null,
+    createdAt: r.created_at,
+    location: r.location_name || null,
     number: r.number,
     aspect: r.aspect,
     elevation: r.elevation,
-    dSize: r.dSize,
+    dSize: r.d_size,
     trigger: r.trigger,
     ...withMedia(r.media ?? []),
-    point: r.locationPoint,
   }
 }
 
-/** The center's week, mapped to what the cards read; cached once for all of its zones. */
-export function toCenterWeek(body: unknown): CenterWeek {
-  const { data } = responseSchema.parse(body)
-  return {
-    observations: data.getObservationList.map(toObservation),
-    avalanches: data.getAvalancheObservationList.map(toAvalanche),
-  }
+function sorted<T extends Sortable>(items: T[]): Omit<T, 'createdAt'>[] {
+  return newestFirst(items).map(({ createdAt: _createdAt, ...rest }) => rest)
 }
 
-function keepInZone<T extends Located & { date: string }>(
-  items: T[],
-  geometry: ZoneGeometry,
-): Omit<T, 'point'>[] {
-  return newestFirst(items.filter((item) => isInZone(item.point, geometry))).map(
-    ({ point: _point, ...rest }) => rest,
-  )
+/** A list response's observations, mapped to what the cards read, newest first. */
+export function toObservations(body: unknown): ZoneObservation[] {
+  return sorted(listSchema(observationSchema).parse(body).results.map(toObservation))
 }
 
-/** The zone's records from the center's week, newest first, without their points. */
-export function inZone(
-  week: CenterWeek,
-  geometry: ZoneGeometry,
-  window: { from: string; to: string },
-): ZoneObservations {
-  return {
-    window,
-    observations: keepInZone(week.observations, geometry),
-    avalanches: keepInZone(week.avalanches, geometry),
-  }
+/** A list response's avalanches, mapped to what the cards read, newest first. */
+export function toAvalanches(body: unknown): ZoneAvalanche[] {
+  return sorted(listSchema(avalancheSchema).parse(body).results.map(toAvalanche))
 }
 
-async function fetchCenterWeek(
+/**
+ * A REST list's URL for the zone and week. The operator forms are required: the plain
+ * `start_date`/`end_date` params filter differently, and the avalanche list ignores them.
+ */
+export function listUrl(
+  list: 'observation' | 'avalanche_observation',
   centerId: string,
+  zoneId: number,
   window: { from: string; to: string },
-): Promise<CenterWeek> {
-  const res = await fetch(`${nacApiHost}/obs/v1/public/graphql`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', origin: ALLOWLISTED_ORIGIN },
-    body: JSON.stringify({ query: weekQuery(centerId, window.from, window.to) }),
+): string {
+  const dateField = list === 'observation' ? 'start_date' : 'date'
+  const params = new URLSearchParams({
+    'center_id[eq]': centerId.toLowerCase(),
+    // A forecast zone's `zone_id` is its NAC zone id as a string.
+    'zone_id[in]': String(zoneId),
+    [`${dateField}[gte]`]: window.from,
+    [`${dateField}[lte]`]: window.to,
+    page_size: String(PAGE_SIZE),
+    sort_by: dateField,
+    sort_order: 'DESC',
+  })
+  // The trailing slash is required.
+  return `${nacApiHost}/obs/v1/public/${list}/list/?${params}`
+}
+
+async function fetchList(url: string): Promise<unknown> {
+  const res = await fetch(url, {
+    headers: { origin: ALLOWLISTED_ORIGIN },
     cache: 'no-store',
     signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   })
   if (!res.ok) throw new Error(`Observations request failed with status ${res.status}`)
-  return toCenterWeek(await res.json())
+  return res.json()
+}
+
+async function fetchZoneWeek(
+  centerId: string,
+  zoneId: number,
+  window: { from: string; to: string },
+): Promise<ZoneObservations> {
+  const [observations, avalanches] = await Promise.all([
+    fetchList(listUrl('observation', centerId, zoneId, window)),
+    fetchList(listUrl('avalanche_observation', centerId, zoneId, window)),
+  ])
+  return {
+    window,
+    observations: toObservations(observations),
+    avalanches: toAvalanches(avalanches),
+  }
 }
 
 /**
- * The zone's records for the week ending today. Throws when the zone has no outline or the
- * request fails; the caller answers with an error state.
+ * The zone's records for the week ending today, cached per zone. Throws when a request fails; the
+ * caller answers with an error state.
  */
 export async function getZoneObservations(
-  centerSlug: string,
-  /** The NAC center id from the center's metadata (`SNFAC`), which the obs API takes. */
+  /** The NAC center id from the center's metadata (`SNFAC`). */
   centerId: string,
   zoneId: number,
   timeZone: string,
 ): Promise<ZoneObservations> {
   const window = weekWindow(new Date(), timeZone)
-  // One upstream request per center and week, shared by every zone's tab.
-  const cachedWeek = unstable_cache(
-    () => fetchCenterWeek(centerId, window),
-    ['zone-observations-week', centerId, window.from, window.to],
+  return unstable_cache(
+    () => fetchZoneWeek(centerId, zoneId, window),
+    ['zone-observations', centerId, String(zoneId), window.from, window.to],
     { revalidate: CACHE_SECONDS },
-  )
-
-  const [mapLayer, week] = await Promise.all([getZoneMapLayer(centerSlug), cachedWeek()])
-
-  const geometry = mapLayer.features.find((f) => f.id != null && Number(f.id) === zoneId)?.geometry
-  if (!geometry) throw new Error(`No map-layer outline for zone ${zoneId}`)
-
-  return inZone(week, geometry, window)
+  )()
 }
