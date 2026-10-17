@@ -10,7 +10,7 @@ export type ChipItem = {
   href?: string
 }
 
-function chipClass(active: boolean): string {
+export function chipClass(active: boolean): string {
   return cn(
     'rounded-md px-3 py-1.5 text-sm',
     active
@@ -25,7 +25,7 @@ export function ChipGroup({
   onSelect,
 }: {
   chips: ChipItem[]
-  activeKey: string
+  activeKey: string | null
   onSelect?: (key: string) => void
 }) {
   return (

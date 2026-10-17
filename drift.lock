@@ -943,7 +943,7 @@ sig = "e60ed523ee08908d"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/stations/station/[source]/[stid]/page.tsx"
-sig = "796a36d58f486e5c"
+sig = "f475ee3fb85d02ae"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -978,12 +978,17 @@ sig = "ff3681ee4cfc577f"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationGraphs.tsx"
-sig = "22c66b7cef29079d"
+sig = "a0161a6e90d32e90"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/stationPeriods.ts"
+sig = "9bcd76c83dd1b5fa"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationTabViews.tsx"
-sig = "48235a3708a57c77"
+sig = "0364586feae5566e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
