@@ -1,33 +1,23 @@
 import { itemsField } from '@/collections/Navigations/fields/itemsField'
-import type { Field, FieldHook, NamedGroupField, RelationshipField } from 'payload'
-
-function findField(fields: Field[], match: (field: Field) => boolean): Field | undefined {
-  for (const field of fields) {
-    if (match(field)) return field
-    if ('fields' in field) {
-      const found = findField(field.fields, match)
-      if (found) return found
-    }
-  }
-}
+import type { Field, FieldHook, NamedGroupField } from 'payload'
 
 function getLinkGroup(): NamedGroupField {
-  const field = findField(
-    itemsField({ label: 'Nav Items' }).fields,
-    (f) => 'name' in f && f.name === 'link',
+  const field = itemsField({ label: 'Nav Items' }).fields.find(
+    (f: Field) => 'name' in f && f.name === 'link',
   )
   if (!field || field.type !== 'group' || !('name' in field))
     throw new Error('link group not found')
   return field
 }
 
-function getReferenceValidate() {
-  const field = findField([getLinkGroup()], (f) => f.type === 'relationship')
-  if (!field || field.type !== 'relationship' || !field.validate)
-    throw new Error('link reference validate not found')
-  return field.validate
+// The item-level cleanup hook is the last one on the link group
+function getClearLinkHook(): FieldHook {
+  const hooks = getLinkGroup().hooks?.beforeChange
+  if (!hooks?.length) throw new Error('link group beforeChange hooks not found')
+  return hooks[hooks.length - 1]
 }
 
+// Only siblingData and value are read by the hook
 function hookArgs(siblingData: Record<string, unknown>, value: unknown) {
   // @ts-expect-error - partial mock of FieldHookArgs
   const args: Parameters<FieldHook>[0] = {
@@ -40,43 +30,31 @@ function hookArgs(siblingData: Record<string, unknown>, value: unknown) {
   return args
 }
 
-function validateArgs(item: Record<string, unknown>) {
-  const reference: Partial<RelationshipField> = { relationTo: ['pages'], required: true }
-  return {
-    ...reference,
-    data: { education: { items: [item] } },
-    path: ['education', 'items', 0, 'link', 'reference'],
-    req: { t: (key: string) => key },
-    siblingData: {},
-  }
-}
+describe('nav item link cleanup', () => {
+  const link = { type: 'internal', reference: { relationTo: 'pages', value: 1 }, newTab: true }
 
-describe('nav item link', () => {
-  it('stays visible when the item has sub-items', () => {
-    expect(getLinkGroup().admin?.condition).toBeUndefined()
-  })
-
-  it('keeps its data when the item has sub-items', () => {
-    const hooks = getLinkGroup().hooks?.beforeChange ?? []
-    const link = { type: 'internal', reference: { relationTo: 'pages', value: 1 }, newTab: true }
+  it('clears the link sub-fields when the item has sub-items', () => {
     const siblingData = { label: 'Classes', items: [{ link: { type: 'internal' } }], link }
 
-    for (const hook of hooks) {
-      expect(hook(hookArgs(siblingData, link))).toEqual(link)
-    }
+    expect(getClearLinkHook()(hookArgs(siblingData, link))).toEqual({
+      type: 'internal',
+      reference: null,
+      url: null,
+      label: null,
+      newTab: null,
+    })
   })
 
-  it('does not require a page when the item has sub-items', async () => {
-    const item = { label: 'Classes', items: [{ link: { type: 'internal' } }], link: {} }
+  // Payload traverses a group's sub-fields using the value this hook returns as their siblingData,
+  // and reads siblingData[name] to build each sub-field hook's args. Returning null there makes
+  // every sub-field hook throw, which would break saving any navigation with an accordion item.
+  it('never returns null, so the group sub-field hooks still have siblingData', () => {
+    const siblingData = { label: 'Classes', items: [{ link: { type: 'internal' } }], link }
 
-    // @ts-expect-error - partial mock of ValidateOptions
-    expect(await getReferenceValidate()(null, validateArgs(item))).toBe(true)
+    expect(getClearLinkHook()(hookArgs(siblingData, link))).not.toBeNull()
   })
 
-  it('requires a page when the item has no sub-items', async () => {
-    const item = { items: [], link: { type: 'internal' } }
-
-    // @ts-expect-error - partial mock of ValidateOptions
-    expect(await getReferenceValidate()(null, validateArgs(item))).toBe('validation:required')
+  it('leaves the link alone when the item has no sub-items', () => {
+    expect(getClearLinkHook()(hookArgs({ items: [], link }, link))).toBe(link)
   })
 })

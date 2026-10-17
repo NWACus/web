@@ -1,16 +1,17 @@
 import { navLink } from '@/fields/navLink'
-import { isRecord } from '@/utilities/isRecord'
-import { get, merge } from 'lodash-es'
-import { ArrayField, Condition, Field, FieldHook, RelationshipFieldValidation } from 'payload'
-import { relationship } from 'payload/shared'
+import { merge } from 'lodash-es'
+import { ArrayField, Condition, FieldHook } from 'payload'
 
 // Condition: show field only when item has sub-items (accordion/section mode)
 const hasSubItems: Condition = (_, siblingData) =>
   Array.isArray(siblingData?.items) && siblingData.items.length > 0
 
+// Copy link.label to standalone label when sub-items are added,
+// and clear standalone label when sub-items are removed
 const clearLabelWhenItemHasNoSubItems: FieldHook = ({ siblingData, value }) => {
   const items = siblingData?.items
   const hasItems = Array.isArray(items) && items.length > 0
+  // If item has no sub-items, clear the standalone label (it's not used)
   if (!hasItems && value) {
     return null
   }
@@ -18,28 +19,20 @@ const clearLabelWhenItemHasNoSubItems: FieldHook = ({ siblingData, value }) => {
   return value
 }
 
-// A section header's link isn't rendered, so its page is optional. The validator sits on
-// link.reference, so step up past `reference` and `link` to reach the nav item.
-const validateItemReference: RelationshipFieldValidation = (value, options) => {
-  const item: unknown = get(options.data, options.path.slice(0, -2))
-  const hasItems = isRecord(item) && Array.isArray(item.items) && item.items.length > 0
-  return relationship(value, { ...options, required: !hasItems })
-}
+// Clear link data when item has sub-items (link is not used for accordion items)
+const clearLinkWhenHasSubItems: FieldHook = ({ siblingData, value }) => {
+  const items = siblingData?.items
+  const hasItems = Array.isArray(items) && items.length > 0
 
-const withItemReferenceValidation = (fields: Field[]): Field[] =>
-  fields.map((field) => {
-    if (field.type === 'row') return { ...field, fields: withItemReferenceValidation(field.fields) }
-    if (field.type === 'relationship' && field.name === 'reference')
-      return merge({}, field, {
-        validate: validateItemReference,
-        admin: {
-          components: {
-            Label: '@/components/Navigations/ItemLinkReferenceLabel#ItemLinkReferenceLabel',
-          },
-        },
-      })
-    return field
-  })
+  if (hasItems && value && typeof value === 'object') {
+    // Null each sub-field rather than the group itself: Payload treats a null group as the
+    // siblingData it traverses the group's sub-fields with, so returning null here makes every
+    // sub-field hook throw. Nulling the sub-fields also actually clears the DB columns.
+    return { type: 'internal', reference: null, url: null, label: null, newTab: null }
+  }
+
+  return value
+}
 
 export const itemsField = ({
   label,
@@ -73,7 +66,14 @@ export const itemsField = ({
         },
         {
           ...navLink,
-          fields: withItemReferenceValidation(navLink.fields),
+          admin: {
+            ...navLink.admin,
+            condition: (...args: Parameters<Condition>) => !hasSubItems(...args),
+          },
+          hooks: {
+            // navLink.hooks contains clearIrrelevantLinkValues; we add our cleanup hook
+            beforeChange: [...(navLink.hooks?.beforeChange ?? []), clearLinkWhenHasSubItems],
+          },
         },
         {
           name: 'items',
