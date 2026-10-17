@@ -983,7 +983,7 @@ sig = "a0161a6e90d32e90"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationPeriods.ts"
-sig = "9bcd76c83dd1b5fa"
+sig = "cd47a366c6c63d8f"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

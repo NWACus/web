@@ -27,6 +27,8 @@ const WEEK_PERIOD: StationPeriod = { key: '7d', label: '7 days', hoursBack: () =
 
 export const STATION_PERIODS: StationPeriod[] = [
   { key: '24h', label: '24 hours', hoursBack: () => 24 },
+  { key: '48h', label: '48 hours', hoursBack: () => 48 },
+  { key: '72h', label: '72 hours', hoursBack: () => 72 },
   WEEK_PERIOD,
   { key: '30d', label: '30 days', hoursBack: () => 30 * 24 },
   { key: '3m', label: '3 months', hoursBack: () => 91 * 24 },
