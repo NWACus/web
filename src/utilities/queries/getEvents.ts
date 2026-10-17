@@ -52,7 +52,7 @@ async function findNearestEvents(
     pagination: false,
     sort: 'startDate',
     depth: 0,
-    select: { location: true },
+    select: { location: { isVirtual: true, coordinates: true } },
   })
   const pageIds = nearestFirst(located, near, placeOf)
     .slice(offset, offset + limit)
