@@ -11,9 +11,7 @@ function collectLinks(items: NavItemData[]): NavLinkData[] {
 }
 
 /**
- * A nav item with sub-items renders as an accordion, so its own link data is cleared on save.
- * Payload traverses a group's sub-field hooks using whatever that cleanup returns as their
- * siblingData, which makes this the only path that exercises the link field hooks for real.
+ * Saving a tab whose item has sub-items runs the nested link field hooks for real.
  * The jest suites build hook args by hand and cannot catch a break here.
  */
 authTest.describe('Navigations save', () => {
