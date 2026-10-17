@@ -14,7 +14,7 @@ Canonical defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 
 ### Domain docs
 
-Single-context: `DOMAIN_CONTEXT.md` and `docs/decisions/` at the repo root. See `docs/agents/domain.md`.
+Single-context: `GLOSSARY.md` and `docs/decisions/` at the repo root. See `docs/agents/domain.md`.
 
 ## LLM Documentation References
 
