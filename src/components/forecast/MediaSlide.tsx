@@ -5,7 +5,7 @@ import { type ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { ZoomablePhoto } from './ZoomablePhoto'
 import { getPosterUrl, resolveMediaSlide } from './mediaItem'
 
-/** A single slide in the media lightbox. Which of the four shapes it takes is decided by
+/** A single slide in the media lightbox. Which of the three shapes it takes is decided by
  * `resolveMediaSlide`, so this component only renders.
  *
  * Only the active slide mounts what is expensive or stateful — the video player and the zoom
@@ -43,17 +43,6 @@ export function MediaSlide({
       // Remounting the zoom surface on navigation is what resets the zoom for the next slide.
       if (!isActive) return <PosterStill src={slide.url} alt={slide.alt} />
       return <ZoomablePhoto src={slide.url} alt={slide.alt} transformRef={transformRef} />
-    case 'link':
-      return (
-        <a
-          href={slide.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-white/70 underline"
-        >
-          {slide.label}
-        </a>
-      )
     case 'unsupported':
       return <p className="text-sm text-white/50">Unsupported media type</p>
   }

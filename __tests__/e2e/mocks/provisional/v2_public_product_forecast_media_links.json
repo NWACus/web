@@ -1,0 +1,318 @@
+{
+  "id": 175072,
+  "published_time": "2025-12-08T13:57:00+00:00",
+  "expires_time": "2025-12-09T07:00:00+00:00",
+  "created_at": "2025-12-08T12:26:34+00:00",
+  "updated_at": "2025-12-08T13:57:53+00:00",
+  "author": "Test Author A",
+  "product_type": "forecast",
+  "bottom_line": "<p>Heightened avalanche conditions exist above 8,500 feet, where a skier or rider could trigger an avalanche. Slides may be triggered by the weight of a person or remotely, especially on slopes that have been recently wind loaded. Don&rsquo;t be deceived by the white canvas of recent snow. Early season conditions exist, with rocks, stumps, and logs lurking just below the snow surface. To travel safely and avoid avalanches, stick to low-angle terrain outside of wind affected areas.</p>",
+  "hazard_discussion": "<p>The slow start to winter has left weak snow at upper elevations on northerly slopes. Last night's storm did not produce the precipitation expected with 1-5&rdquo; of snow and .1-.5&rdquo; of SWE. But the snow load we have seen over the last 5 days is significant and has tipped the scales, stressing weak layers that were buried in late November. This is the current persistent weak layer.&nbsp;</p>\n<p>How long this weak layer persists depends on what the weather does. If we continue to see precipitation and active weather, the weak faceted snow will start to become more cohesive and heal faster. If we keep getting dribbles of snow or the weather shuts off it may take a bit longer. For now we will be keeping an eye on the weather and avoiding steep slopes where this problem exists. Good turns can be found on low angle slopes above 8,500&rsquo; where wind and sun have been kept at bay.</p>",
+  "weather_discussion": null,
+  "announcement": null,
+  "status": "published",
+  "media": [
+    {
+      "id": 1,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3427_6935af8a42942-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3427_6935af8a42942-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3427_6935af8a42942.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3427_6935af8a42942-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": "Public Observation: Grand Targhee Resort",
+      "caption": "(12/6/2025) From the bottom where the initial slide occurred Photo: Daniel Nagy",
+      "favorite": false
+    },
+    {
+      "id": 2,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_6308_6935af8c256a5-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_6308_6935af8c256a5-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_6308_6935af8c256a5.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_6308_6935af8c256a5-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": "",
+      "caption": "(12/6/2025) <p>This photo illustrates the type of avalanche that could be triggered. Enough to bury in the wrong terrain, and enough to take you off your feet.&nbsp;</p> Photo: Daniel Nagy",
+      "favorite": false
+    },
+    {
+      "id": 3,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0503_6935af8d41956-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0503_6935af8d41956-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0503_6935af8d41956.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0503_6935af8d41956-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": "Public Observation: Grand Targhee Resort",
+      "caption": "(12/6/2025) <p>This avalanche occured on a wind loaded that broke wide and stepped down into older snow.</p> Photo: Daniel Nagy",
+      "favorite": false
+    },
+    {
+      "id": 4,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_123456_6934c51e8d76d-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_123456_6934c51e8d76d-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_123456_6934c51e8d76d.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_123456_6934c51e8d76d-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "<p>NE at ~9,700' 29 degrees. ECTP12 30cm down failing foth above and below the mid pack MFc.</p> Photo: Bridger-Teton Avalanche Center",
+      "favorite": false
+    },
+    {
+      "id": 5,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1487_6935ed371e84f-large.jpeg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1487_6935ed371e84f-medium.jpeg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1487_6935ed371e84f.jpeg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1487_6935ed371e84f-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Public Observation: Glory - gully North of Lord Calvert’s",
+      "caption": "(12/7/2025) View from opposite side of gully. Photo: lingo",
+      "favorite": false
+    },
+    {
+      "id": 6,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_9645_693615e558f6b-large.jpeg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_9645_693615e558f6b-medium.jpeg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_9645_693615e558f6b.jpeg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_9645_693615e558f6b-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Public Observation: Tetons- 25 Short",
+      "caption": "(12/7/2025)  Photo: Chris Gratton",
+      "favorite": false
+    },
+    {
+      "id": 7,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3184_6934b2548d910-large.jpeg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3184_6934b2548d910-medium.jpeg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3184_6934b2548d910.jpeg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3184_6934b2548d910-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Public Observation: Christmas tree bowl",
+      "caption": "(12/6/2025) ",
+      "favorite": false
+    },
+    {
+      "id": 8,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5517_6934bc539d949-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5517_6934bc539d949-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5517_6934bc539d949.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5517_6934bc539d949-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": "Public Observation: Windy Ridge / Super Bowl",
+      "caption": "(12/6/2025) ",
+      "favorite": false
+    },
+    {
+      "id": 9,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_7234_6934c4b936ad4-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_7234_6934c4b936ad4-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_7234_6934c4b936ad4.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_7234_6934c4b936ad4-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": "Public Observation: Mesquite divide",
+      "caption": "(12/6/2025) ",
+      "favorite": false
+    },
+    {
+      "id": 10,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0372_6934d78455a34-large.jpeg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0372_6934d78455a34-medium.jpeg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0372_6934d78455a34.jpeg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0372_6934d78455a34-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Public Observation: ENE Face of Beard Mt",
+      "caption": "(12/6/2025) ",
+      "favorite": false
+    },
+    {
+      "id": 11,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_143118_6934c74e2cb88-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_143118_6934c74e2cb88-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_143118_6934c74e2cb88.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_143118_6934c74e2cb88-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": " Photo: Joey Manship",
+      "favorite": false
+    },
+    {
+      "id": 12,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/DBEAB395-A76C-497C-ABF1-360B0218475A_6934ddb790bdf-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/DBEAB395-A76C-497C-ABF1-360B0218475A_6934ddb790bdf-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/DBEAB395-A76C-497C-ABF1-360B0218475A_6934ddb790bdf.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/DBEAB395-A76C-497C-ABF1-360B0218475A_6934ddb790bdf-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": "Public Observation: Thanksgiving Bowl",
+      "caption": "(12/6/2025)  Photo: Travis Halverson",
+      "favorite": false
+    },
+    {
+      "id": 13,
+      "url": {
+        "external_link": "https://youtu.be/ywmI1WsyUUI",
+        "external_type": "video"
+      },
+      "type": "external",
+      "title": "Field observations Teton Pass Dec 6, 2025",
+      "caption": " Photo: John Fitzgerald",
+      "favorite": false
+    },
+    {
+      "id": 14,
+      "url": {
+        "external_link": "https://youtu.be/TBwbc_tTEqU?si=Gb3JAOONAX5p34Zs",
+        "external_type": "video"
+      },
+      "type": "external",
+      "title": "Mt. Glory Snowpit Video 20251206",
+      "caption": " Photo: Joey Manship",
+      "favorite": false
+    },
+    {
+      "id": 15,
+      "url": {
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206-Glory-NE-Ridge_6934d180001f9.pdf"
+      },
+      "type": "pdf",
+      "title": "20251206-Glory-NE-Ridge.pdf",
+      "caption": "",
+      "favorite": false
+    }
+  ],
+  "weather_data": {
+    "weather_product_id": 175073
+  },
+  "avalanche_center": {
+    "id": "BTAC",
+    "name": "Bridger-Teton Avalanche Center",
+    "url": "http://bridgertetonavalanchecenter.org/",
+    "city": "Jackson",
+    "state": "WY"
+  },
+  "forecast_avalanche_problems": [
+    {
+      "id": 2492151,
+      "forecast_id": 175072,
+      "avalanche_problem_id": 4,
+      "rank": 1,
+      "likelihood": "possible",
+      "discussion": "<p>In the last 5 days the Tetons have received 1-2 feet of snow and with 2-3 inches of Snow Water Equivalent. While this has allowed for better mountain travel, it has also overloaded weak snow that was buried in late November. Nearly 20 avalanches have been reported on northerly and easterly slopes above 8,500 feet. Although there was a decrease in avalanche activity yesterday, poor structure in the snowpack still exists. Avoid steep slopes above 8,500&rsquo; that have a northerly tilt (west-north-east) and you can avoid this problem. Due to the connectivity of the weak layer, these avalanches can be triggered remotely. Remember with shallow coverage, even a small avalanche has increased risk of injury due to rocks, stumps, and logs thinly veiled beneath the snow surface.&nbsp;</p>",
+      "media": {
+        "url": {
+          "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_143922_6934c7497744d-large.jpg",
+          "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_143922_6934c7497744d-medium.jpg",
+          "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_143922_6934c7497744d.jpg",
+          "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20251206_143922_6934c7497744d-thumbnail.jpg"
+        },
+        "type": "image",
+        "title": null,
+        "caption": "<p>(12/6/2025)</p>\n<p>Photo of a human triggered avalanche in Thanksgiving bowl in 12/6/2025. On a steep NE facing slope</p>"
+      },
+      "location": [
+        "north middle",
+        "northeast middle",
+        "northwest middle",
+        "east middle",
+        "northwest upper",
+        "north upper",
+        "northeast upper",
+        "east upper",
+        "south upper",
+        "southeast upper",
+        "southwest upper",
+        "west upper"
+      ],
+      "size": [
+        "1",
+        "2"
+      ],
+      "name": "Persistent Slab",
+      "problem_description": "Persistent Slab avalanches are the release of a cohesive layer of snow (a slab) in the middle to upper snowpack, when the bond to an underlying persistent weak layer breaks. Persistent layers include: surface hoar, depth hoar, near-surface facets, or faceted snow. Persistent weak layers can continue to produce avalanches for days, weeks or even months, making them especially dangerous and tricky. As additional snow and wind events build a thicker slab on top of the persistent weak layer, this avalanche problem may develop into a Deep Persistent Slab.",
+      "icon": "http://api.avalanche.org/img/avalanche_problems/PersistentSlab.png"
+    },
+    {
+      "id": 2492152,
+      "forecast_id": 175072,
+      "avalanche_problem_id": 3,
+      "rank": 2,
+      "likelihood": "possible",
+      "discussion": "<p>Last night westerly wind speeds held steady in the 20s, with gusts in the 40s. These speeds combined with dry snow available for transport have created fresh wind drifts at upper elevations on leeward slopes. If triggered, a wind slab avalanche could step deeper into buried weak layers, breaking wider than expected. Although they may be appealing due to improved coverage, avoid steep, wind-loaded slopes, especially those on the north and east side of the compass.</p>",
+      "media": {
+        "url": {
+          "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0503_6935af8d41956-large.jpg",
+          "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0503_6935af8d41956-medium.jpg",
+          "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0503_6935af8d41956.jpg",
+          "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_0503_6935af8d41956-thumbnail.jpg"
+        },
+        "type": "image",
+        "title": "Public Observation: Grand Targhee Resort",
+        "caption": "(12/6/2025) <p>This avalanche occured on a wind loaded that broke wide and stepped down into older snow.</p> Photo: Daniel Nagy"
+      },
+      "location": [
+        "north middle",
+        "northeast middle",
+        "east middle",
+        "north upper",
+        "northeast upper",
+        "east upper",
+        "southeast upper",
+        "south upper",
+        "southeast middle",
+        "south middle"
+      ],
+      "size": [
+        "1",
+        "2"
+      ],
+      "name": "Wind Slab",
+      "problem_description": "Wind Slab avalanches are the release of a cohesive layer of snow (a slab) formed by the wind. Wind typically transports snow from the upwind sides of terrain features and deposits snow on the downwind side. Wind slabs are often smooth and rounded and sometimes sound hollow, and can range from soft to hard. Wind slabs that form over a persistent weak layer (surface hoar, depth hoar, or near-surface facets) may be termed Persistent Slabs or may develop into Persistent Slabs.",
+      "icon": "http://api.avalanche.org/img/avalanche_problems/WindSlab.png"
+    }
+  ],
+  "danger": [
+    {
+      "lower": 1,
+      "upper": 2,
+      "middle": 2,
+      "valid_day": "current"
+    },
+    {
+      "lower": 1,
+      "upper": 2,
+      "middle": 2,
+      "valid_day": "tomorrow"
+    }
+  ],
+  "forecast_zone": [
+    {
+      "id": 2855,
+      "name": "Tetons",
+      "url": "https://bridgertetonavalanchecenter.org/forecasts/#/tetons",
+      "state": "WY",
+      "zone_id": "teton",
+      "config": null
+    }
+  ]
+}

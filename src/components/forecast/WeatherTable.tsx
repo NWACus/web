@@ -26,16 +26,17 @@ export function WeatherTable({ table }: { table: RowColumnWeatherData }) {
 
   return (
     <div className="my-3 overflow-x-auto">
-      <table className="w-full min-w-[640px] border-collapse text-sm">
+      <table className="w-full min-w-[640px] border-collapse text-sm print:text-xs">
         {/* The heavier rule under the heading block wins the border-collapse tie on width. */}
         <thead className="border-b-2 border-b-muted-foreground">
           {columns.map((headingRow, rowIndex) => (
             <tr key={rowIndex}>
-              {/* Row headings never wrap; the zone name is long enough to eat a phone's whole table width. */}
+              {/* Row headings never wrap on screen, where the table scrolls; the zone name is long enough to
+                eat a phone's whole table width. Paper can't scroll, so there they wrap to fit the page. */}
               {rowIndex === 0 && (
                 <th
                   rowSpan={columns.length}
-                  className="border bg-muted px-3 py-2 text-left align-middle font-semibold md:whitespace-nowrap"
+                  className="border bg-muted px-3 py-2 text-left align-middle font-semibold md:whitespace-nowrap print:whitespace-normal"
                 >
                   {table.zone_name}
                 </th>
@@ -64,7 +65,7 @@ export function WeatherTable({ table }: { table: RowColumnWeatherData }) {
         <tbody>
           {rows.map((row, rowIndex) => (
             <tr key={rowIndex}>
-              <td className="whitespace-nowrap border px-3 py-2 text-left align-middle">
+              <td className="whitespace-nowrap border px-3 py-2 text-left align-middle print:whitespace-normal">
                 <span className="font-medium">{row.heading}</span>
                 {/* Sanitizing stays on the server; the hint is a client component that only renders it. */}
                 {row.help && (
