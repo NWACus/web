@@ -49,6 +49,7 @@ import { DeleteTenantModal as DeleteTenantModal_4179c7e18c353aeb4f324f76e2ac1d6e
 import { AutoFillNameFromSlug as AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10 } from '@/collections/Tenants/components/AutoFillNameFromSlug'
 import { default as default_82dc161b944e4ac13e65d7b8b57c6182 } from '@/components/Navigations/DisplayModePicker'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
+import { ItemLinkReferenceLabel as ItemLinkReferenceLabel_1477a956893669581f96d0cddc622280 } from '@/components/Navigations/ItemLinkReferenceLabel'
 import { BannerDescription as BannerDescription_3edfb41266bd8db9320658009eba5899 } from '@/components/BannerDescription'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
@@ -125,6 +126,7 @@ export const importMap = {
   "@/collections/Tenants/components/AutoFillNameFromSlug#AutoFillNameFromSlug": AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10,
   "@/components/Navigations/DisplayModePicker#default": default_82dc161b944e4ac13e65d7b8b57c6182,
   "@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription": LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
+  "@/components/Navigations/ItemLinkReferenceLabel#ItemLinkReferenceLabel": ItemLinkReferenceLabel_1477a956893669581f96d0cddc622280,
   "@/components/BannerDescription#BannerDescription": BannerDescription_3edfb41266bd8db9320658009eba5899,
   "@/collections/Settings/components/AvalancheCenterName#AvalancheCenterName": AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
   "@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription": USFSLogoDescription_d2eea91290575f9a545768dce25713f4,

@@ -30,7 +30,14 @@ const withItemReferenceValidation = (fields: Field[]): Field[] =>
   fields.map((field) => {
     if (field.type === 'row') return { ...field, fields: withItemReferenceValidation(field.fields) }
     if (field.type === 'relationship' && field.name === 'reference')
-      return { ...field, validate: validateItemReference }
+      return merge({}, field, {
+        validate: validateItemReference,
+        admin: {
+          components: {
+            Label: '@/components/Navigations/ItemLinkReferenceLabel#ItemLinkReferenceLabel',
+          },
+        },
+      })
     return field
   })
 
