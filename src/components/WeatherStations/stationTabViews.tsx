@@ -2,7 +2,13 @@ import type { Datalogger } from '@/components/WeatherStations/StationCsvForm'
 import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
 import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
-import { resolveTablePeriod } from '@/components/WeatherStations/stationPeriods'
+import type { DateRange } from '@/components/WeatherStations/stationPeriods'
+import {
+  customRangeBounds,
+  parseCustomRange,
+  resolveTablePeriod,
+  TABLE_MAX_CUSTOM_DAYS,
+} from '@/components/WeatherStations/stationPeriods'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
@@ -127,13 +133,30 @@ function graphsTabView({ subject, pages, timeZone }: StationTabContext): Station
   }
 }
 
+/** The table's query params: a preset `period`, or a custom `from`/`to` that wins when valid. */
+export type TableRangeParams = { period?: string; from?: string; to?: string }
+
+function tableWindow(
+  period: ReturnType<typeof resolveTablePeriod>,
+  custom: DateRange | null,
+  timeZone: string,
+  now: Date,
+) {
+  if (!custom) return { windowHours: period.hoursBack(now, timeZone) }
+  const { from, to } = customRangeBounds(custom, timeZone, now)
+  // A range ending today leaves `end` unset so the fetch keeps its cache bucket.
+  return to ? { start: from, end: to } : { start: from }
+}
+
 async function tableTabView(
   { center, subject, timeZone }: StationTabContext,
-  periodParam?: string,
+  params: TableRangeParams,
 ): Promise<StationTabView> {
-  const period = resolveTablePeriod(periodParam)
+  const now = new Date()
+  const period = resolveTablePeriod(params.period)
+  const custom = parseCustomRange(params.from, params.to, TABLE_MAX_CUSTOM_DAYS, timeZone, now)
   const response = await fetchStationTimeseries(center, subject.stations, {
-    windowHours: period.hoursBack(new Date(), timeZone),
+    ...tableWindow(period, custom, timeZone, now),
     rawData: true,
     revalidate: TABLE_REVALIDATE,
   })
@@ -142,7 +165,9 @@ async function tableTabView(
     tabContent: (
       <StationTableView
         table={table}
-        activePeriodKey={period.key}
+        activePeriodKey={custom ? null : period.key}
+        customRange={custom}
+        timeZone={timeZone}
         tabs={<StationRangeTabs activeKey="table" tabs={subject.tabs} />}
       />
     ),
@@ -151,12 +176,12 @@ async function tableTabView(
 
 export async function resolveTabView(
   context: StationTabContext,
-  rangeParam?: string,
-  periodParam?: string,
+  rangeParam: string | undefined,
+  tableParams: TableRangeParams,
 ): Promise<StationTabView> {
   const { subject } = context
   const { tab, period } = resolveStationTab(subject.tabs, subject.archived, rangeParam)
   if (tab === 'csv') return csvTabView(context)
   if (tab === 'graphs') return graphsTabView(context)
-  return tableTabView(context, periodParam ?? period)
+  return tableTabView(context, { ...tableParams, period: tableParams.period ?? period })
 }
