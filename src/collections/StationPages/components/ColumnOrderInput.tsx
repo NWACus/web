@@ -8,12 +8,12 @@ import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
 import {
   columnKey,
+  mergeOrder,
   orderColumns,
   orderToSave,
   readingLabel,
   selectColumns,
   toColumnOrder,
-  toColumnOrderEntries,
 } from '@/services/stations/stationColumns'
 import { cn } from '@/utilities/ui'
 import { arrayMove } from '@dnd-kit/sortable'
@@ -146,6 +146,7 @@ function useColumnOrder(value: unknown, stationsValue: unknown) {
     tracked,
     entries,
     live,
+    stored,
     columns: orderColumns(live, stored),
     isCustom: stored.length > 0,
     name: (ref: Ref) => byKey.get(stationKey(ref))?.name ?? ref.stid,
@@ -160,12 +161,12 @@ function useColumnOrder(value: unknown, stationsValue: unknown) {
 export function ColumnOrderInput({ path, field }: JSONFieldClientProps) {
   const { value, setValue, showError, errorMessage } = useField<unknown>({ path })
   const stationsValue = useFormFields(([fields]) => fields.stations?.value)
-  const { tracked, entries, live, columns, isCustom, name, silent } = useColumnOrder(
+  const { tracked, entries, live, stored, columns, isCustom, name, silent } = useColumnOrder(
     value,
     stationsValue,
   )
   useSyncCustomOrder(JSON.stringify(entries), tracked.status === 'ready', () => {
-    if (isCustom) setValue(toColumnOrderEntries(columns))
+    if (isCustom) setValue(mergeOrder(stored, columns, entries))
   })
 
   const note = statusNote(tracked, columns.length > 0)
@@ -179,7 +180,9 @@ export function ColumnOrderInput({ path, field }: JSONFieldClientProps) {
           <ColumnChips
             columns={columns}
             name={name}
-            onMove={(from, to) => setValue(orderToSave(arrayMove(columns, from, to), live))}
+            onMove={(from, to) =>
+              setValue(orderToSave(arrayMove(columns, from, to), live, stored, entries))
+            }
           />
           <OrderMeta count={columns.length} isCustom={isCustom} onReset={() => setValue([])} />
           <SilentNote names={silent.map(name)} />

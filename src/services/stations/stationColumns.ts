@@ -74,10 +74,62 @@ export function orderColumns(
   return ordered
 }
 
+// Well-formed entries, no column twice. Exported so it can be tested without a form.
+export function validateColumnOrder(value: unknown): true | string {
+  if (value == null) return true
+  if (!Array.isArray(value) || !value.every(isColumnOrderEntry)) {
+    return 'Each column needs a SnowObs id, source and reading.'
+  }
+  const keys = value.map((o) => columnKey(o, o.variable))
+  const repeat = keys.find((key, i) => keys.indexOf(key) !== i)
+  return repeat ? `${repeat} is listed twice.` : true
+}
+
+// Drops entries for a station no longer on the page or a reading its station no longer shows.
+export function pruneColumnOrder(
+  order: ColumnOrderEntry[],
+  stations: StationEntry[],
+): ColumnOrderEntry[] {
+  const onPage = new Map(stations.map((s) => [stationKey(s), s.columns]))
+  return order.filter((o) => {
+    const key = stationKey(o)
+    if (!onPage.has(key)) return false
+    const columns = onPage.get(key)
+    return columns === undefined || columns.includes(o.variable)
+  })
+}
+
+/**
+ * The order to store for the columns as arranged. Entries the arrangement can't show, such as a
+ * reading missing from a station's latest report, keep their place after the entry they followed.
+ */
+export function mergeOrder(
+  stored: ColumnOrderEntry[],
+  shown: StationColumnConfig[],
+  stations: StationEntry[],
+): ColumnOrderEntry[] {
+  const merged = toColumnOrderEntries(shown)
+  const keyOf = (o: ColumnOrderEntry) => columnKey(o, o.variable)
+  const kept = new Set(merged.map(keyOf))
+  const unseen = new Set(pruneColumnOrder(stored, stations).map(keyOf))
+  stored.forEach((entry, i) => {
+    if (kept.has(keyOf(entry)) || !unseen.has(keyOf(entry))) return
+    const before = stored
+      .slice(0, i)
+      .reverse()
+      .find((o) => kept.has(keyOf(o)))
+    merged.splice(before ? merged.findIndex((o) => keyOf(o) === keyOf(before)) + 1 : 0, 0, entry)
+    kept.add(keyOf(entry))
+  })
+  return merged
+}
+
 // What the column order field stores for an arrangement: nothing while it is the default.
 export function orderToSave(
   next: StationColumnConfig[],
   defaults: StationColumnConfig[],
+  stored: ColumnOrderEntry[],
+  stations: StationEntry[],
 ): ColumnOrderEntry[] {
   const isDefault =
     next.length === defaults.length &&
@@ -85,7 +137,7 @@ export function orderToSave(
       (c, i) =>
         columnKey(c.station, c.variable) === columnKey(defaults[i].station, defaults[i].variable),
     )
-  return isDefault ? [] : toColumnOrderEntries(next)
+  return isDefault ? [] : mergeOrder(stored, next, stations)
 }
 
 export function toColumnOrderEntries(columns: StationColumnConfig[]): ColumnOrderEntry[] {

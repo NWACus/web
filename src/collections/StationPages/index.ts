@@ -2,12 +2,17 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
-import { stationsField } from '@/fields/stations'
+import { stationsField, toStationEntries } from '@/fields/stations'
 import { tenantField } from '@/fields/tenantField'
 import {
   revalidateStationPages,
   revalidateStationPagesDelete,
 } from '@/services/stations/revalidate'
+import {
+  pruneColumnOrder,
+  toColumnOrder,
+  validateColumnOrder,
+} from '@/services/stations/stationColumns'
 import { stationTabFields } from '@/services/stations/stationTabs'
 import { CollectionConfig } from 'payload'
 import { trackedStations } from './endpoints/trackedStations'
@@ -68,9 +73,21 @@ export const StationPages: CollectionConfig<'stationPages'> = {
       type: 'json',
       label: 'Column order',
       defaultValue: [],
+      validate: (value) => validateColumnOrder(value),
+      hooks: {
+        // A removed station's entries would otherwise come back if it were re-added. Runs before
+        // `validate`, so a malformed value passes through untouched for validation to reject.
+        beforeChange: [
+          ({ value, siblingData, originalDoc }) => {
+            const stations = siblingData.stations ?? originalDoc?.stations
+            if (stations === undefined || validateColumnOrder(value) !== true) return value
+            return pruneColumnOrder(toColumnOrder(value), toStationEntries(stations))
+          },
+        ],
+      },
       admin: {
         description:
-          'Every column the table shows, one per station and reading, in table order. Drag a column to move it. A column added later goes after the others for its reading.',
+          "Every column the table shows, one per station and reading, in table order. Drag a column to move it. Columns are listed from each station's latest SnowObs report, so a reading it sends only now and then may be missing here; on the page it goes after the others for its reading, as does a column added later.",
         components: {
           Field: '@/collections/StationPages/components/ColumnOrderInput#ColumnOrderInput',
         },
