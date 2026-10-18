@@ -44,7 +44,9 @@ export const DEFAULT_GRAPH_PERIOD = WEEK_PERIOD
 
 // Tables cap at 30 days: longer graph periods aggregate to daily rows, which
 // a row-per-observation table can't do.
-export const TABLE_PERIODS = STATION_PERIODS.filter((p) => ['24h', '7d', '30d'].includes(p.key))
+export const TABLE_PERIODS = STATION_PERIODS.filter((p) =>
+  ['24h', '48h', '72h', '7d', '30d'].includes(p.key),
+)
 
 // Legacy `?range=24h`/`?range=7d` URLs resolve as period keys.
 export function resolveTablePeriod(param: string | undefined): StationPeriod {

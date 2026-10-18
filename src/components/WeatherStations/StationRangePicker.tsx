@@ -208,13 +208,11 @@ function DateField({
 function RangeFields({
   draft,
   today,
-  maxLabel,
   onFromChange,
   onToChange,
 }: {
   draft: DayPickerRange | undefined
   today: string
-  maxLabel?: string
   onFromChange: (date: Date) => void
   onToChange: (date: Date) => void
 }) {
@@ -225,7 +223,6 @@ function RangeFields({
         <span aria-hidden="true">–</span>
         <DateField label="End date" value={draft?.to} today={today} onChange={onToChange} />
       </div>
-      {maxLabel && <span className="text-xs text-muted-foreground">{maxLabel}</span>}
     </div>
   )
 }
@@ -295,7 +292,6 @@ function RangeBody({
   target,
   range,
   maxDays,
-  maxLabel,
   todayIso,
   onClose,
 }: {
@@ -304,7 +300,6 @@ function RangeBody({
   target: PeriodTarget
   range: ReturnType<typeof useRangeDraft>
   maxDays: number
-  maxLabel?: string
   todayIso: string
   onClose: () => void
 }) {
@@ -323,7 +318,6 @@ function RangeBody({
         <RangeFields
           draft={range.draft}
           today={todayIso}
-          maxLabel={maxLabel}
           onFromChange={range.setFrom}
           onToChange={range.setTo}
         />
@@ -377,7 +371,6 @@ export function StationRangePicker({
   custom,
   onApplyCustom,
   maxDays,
-  maxLabel,
   timeZone,
   className,
   ...target
@@ -388,8 +381,6 @@ export function StationRangePicker({
   custom: DateRange | null
   onApplyCustom: (range: DateRange) => void
   maxDays: number
-  /** A hint under the date fields, for a cap a reader might hit. */
-  maxLabel?: string
   timeZone: string
   className?: string
 }) {
@@ -419,7 +410,6 @@ export function StationRangePicker({
       target={target}
       range={range}
       maxDays={maxDays}
-      maxLabel={maxLabel}
       todayIso={todayIso}
       onClose={() => setOpen(false)}
     />

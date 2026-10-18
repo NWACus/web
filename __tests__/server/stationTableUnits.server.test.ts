@@ -114,7 +114,7 @@ describe('resolveTablePeriod', () => {
   })
 
   it('caps table periods at 30 days', () => {
-    expect(TABLE_PERIODS.map((p) => p.key)).toEqual(['24h', '7d', '30d'])
+    expect(TABLE_PERIODS.map((p) => p.key)).toEqual(['24h', '48h', '72h', '7d', '30d'])
   })
 })
 

@@ -40,7 +40,6 @@ function TableRangePicker({
         router.push(`?range=table&from=${from}&to=${to}`, { scroll: false })
       }
       maxDays={TABLE_MAX_CUSTOM_DAYS}
-      maxLabel={`Up to ${TABLE_MAX_CUSTOM_DAYS} days`}
       timeZone={timeZone}
     />
   )
