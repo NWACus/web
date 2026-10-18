@@ -21,20 +21,16 @@ import {
   presetRange,
   rangeDays,
   todayInZone,
+  toIsoDate,
 } from './stationPeriods'
 
-type PeriodTarget = {
-  /** Link target for a preset; without it presets call onSelectPeriod. */
-  periodHref?: (key: string) => string
-  onSelectPeriod?: (key: string) => void
-}
+/** How a preset is picked: by navigating to its link, or through a callback. */
+type PeriodTarget =
+  | { periodHref: (key: string) => string; onSelectPeriod?: never }
+  | { onSelectPeriod: (key: string) => void; periodHref?: never }
 
 function toDraft(range: DateRange | null): DayPickerRange | undefined {
   return range ? { from: parseISO(range.from), to: parseISO(range.to) } : undefined
-}
-
-function toIso(date: Date): string {
-  return format(date, 'yyyy-MM-dd')
 }
 
 // The first click picks the start, the second the end (either order); a third starts over.
@@ -61,7 +57,7 @@ function applicableRange(
   today: string,
 ): DateRange | null {
   if (!draft?.from) return null
-  const range = { from: toIso(draft.from), to: toIso(draft.to ?? draft.from) }
+  const range = { from: toIsoDate(draft.from), to: toIsoDate(draft.to ?? draft.from) }
   const inBounds = range.from >= EARLIEST_CUSTOM_DATE && range.to <= today
   return inBounds && range.from <= range.to && rangeDays(range) <= maxDays ? range : null
 }
@@ -103,7 +99,7 @@ function PeriodList({
             key={period.key}
             type="button"
             onClick={() => {
-              target.onSelectPeriod?.(period.key)
+              target.onSelectPeriod(period.key)
               onPicked()
             }}
             className={itemClass(period.key)}
@@ -183,7 +179,7 @@ function DateField({
 
   const commit = () => {
     const date = parseTyped(text)
-    const iso = date && toIso(date)
+    const iso = date && toIsoDate(date)
     if (date && iso && iso >= EARLIEST_CUSTOM_DATE && iso <= today) onChange(date)
     else setText(shown)
   }
@@ -191,7 +187,6 @@ function DateField({
   return (
     <Input
       type="text"
-      inputMode="text"
       aria-label={label}
       placeholder="Oct 1, 2026"
       value={text}
@@ -248,7 +243,7 @@ function useRangeDraft({
     setMonth(from ?? (narrow ? today : subMonths(today, 1)))
   const edit = (next: DayPickerRange) => {
     setDraftState(next)
-    const range = next.to ? applicableRange(next, maxDays, toIso(today)) : null
+    const range = next.to ? applicableRange(next, maxDays, toIsoDate(today)) : null
     if (range) onComplete(range)
   }
   const reset = () => {

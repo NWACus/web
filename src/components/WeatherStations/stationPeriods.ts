@@ -42,8 +42,8 @@ export const GRAPH_PERIODS = STATION_PERIODS
 
 export const DEFAULT_GRAPH_PERIOD = WEEK_PERIOD
 
-// Tables cap at 30 days: longer graph periods aggregate to daily rows, which
-// a row-per-observation table can't do.
+// Table presets stop at 30 days: longer graph periods aggregate to daily rows, which a
+// row-per-observation table can't do. Custom table ranges have their own cap below.
 export const TABLE_PERIODS = STATION_PERIODS.filter((p) =>
   ['24h', '48h', '72h', '7d', '30d'].includes(p.key),
 )
@@ -70,11 +70,16 @@ function isIsoDate(value: string | undefined): value is string {
   if (!value || !ISO_DATE.test(value)) return false
   const parsed = parseISO(value)
   // Rejects dates like 2026-02-31 that parseISO rolls over.
-  return isValid(parsed) && format(parsed, 'yyyy-MM-dd') === value
+  return isValid(parsed) && toIsoDate(parsed) === value
+}
+
+/** A date's calendar day as `yyyy-MM-dd`, read in the zone the Date carries. */
+export function toIsoDate(date: Date): string {
+  return format(date, 'yyyy-MM-dd')
 }
 
 export function todayInZone(now: Date, timeZone: string): string {
-  return format(new TZDate(now.getTime(), timeZone), 'yyyy-MM-dd')
+  return toIsoDate(new TZDate(now.getTime(), timeZone))
 }
 
 /** Inclusive day count of a range. */
@@ -112,7 +117,7 @@ export function customRangeBounds(
   const from = startOfDayInZone(range.from, timeZone)
   if (range.to >= todayInZone(now, timeZone)) return { from, to: null }
   // SnowObs's end_date is inclusive, so stop a minute short of the next midnight's reading.
-  const dayAfter = format(addDays(parseISO(range.to), 1), 'yyyy-MM-dd')
+  const dayAfter = toIsoDate(addDays(parseISO(range.to), 1))
   return { from, to: subMinutes(startOfDayInZone(dayAfter, timeZone), 1) }
 }
 
