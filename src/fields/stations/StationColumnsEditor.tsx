@@ -12,6 +12,16 @@ export function readingChoices(entry: StationEntry, reported: string[]): string[
   return columnsFromReported([entry], () => variables).map((c) => c.variable)
 }
 
+// The station with one reading turned off; a station showing all its readings switches to choosing.
+export function withoutReading(
+  entry: StationEntry,
+  reported: string[],
+  variable: string,
+): StationEntry {
+  const columns = (entry.columns ?? readingChoices(entry, reported)).filter((v) => v !== variable)
+  return { stid: entry.stid, source: entry.source, columns }
+}
+
 export function ColumnsSummary({ entry, reported }: { entry: StationEntry; reported: string[] }) {
   if (!entry.columns) {
     const count = readingChoices(entry, reported).length

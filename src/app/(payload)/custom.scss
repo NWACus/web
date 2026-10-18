@@ -238,6 +238,26 @@
     margin-block: -0.15rem;
   }
 
+  &__remove {
+    display: inline-flex;
+    margin: -0.15rem -0.4rem -0.15rem 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--theme-elevation-500);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--theme-error-500);
+    }
+
+    .icon {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+  }
+
   &__n,
   &__station {
     color: var(--theme-elevation-500);
@@ -253,6 +273,7 @@
   &__meta {
     display: flex;
     align-items: center;
+    min-height: 1.5rem;
     gap: calc(var(--base) * 0.75);
     margin-top: calc(var(--base) * 0.4);
     font-size: 0.85rem;
@@ -260,6 +281,7 @@
   }
 
   &__reset {
+    margin: 0;
     color: var(--theme-success-600);
     text-decoration: underline;
   }

@@ -1,6 +1,7 @@
 'use client'
 
 import { toStationEntries } from '@/fields/stations'
+import { withoutReading } from '@/fields/stations/StationColumnsEditor'
 import type { TrackedStations } from '@/fields/stations/useTrackedStations'
 import { useCenterSlug, useTrackedStations } from '@/fields/stations/useTrackedStations'
 import { columnsFromReported } from '@/services/snowobs/deriveColumns'
@@ -26,7 +27,7 @@ import {
   FieldError,
   FieldLabel,
   useField,
-  useFormFields,
+  XIcon,
 } from '@payloadcms/ui'
 import type { JSONFieldClientProps } from 'payload'
 import { useEffect, useRef } from 'react'
@@ -49,10 +50,12 @@ function ColumnChips({
   columns,
   name,
   onMove,
+  onRemove,
 }: {
   columns: StationColumnConfig[]
   name: (ref: Ref) => string
   onMove: (from: number, to: number) => void
+  onRemove: (column: StationColumnConfig) => void
 }) {
   const ids = columns.map((c) => columnKey(c.station, c.variable))
   return (
@@ -80,6 +83,18 @@ function ColumnChips({
               <span className="column-order-input__n">{i + 1}</span>
               {readingLabel(column.variable)}
               <span className="column-order-input__station">{name(column.station)}</span>
+              <button
+                type="button"
+                className="column-order-input__remove"
+                aria-label={`Remove ${readingLabel(column.variable)} for ${name(column.station)}`}
+                title="Remove this column (unticks the reading on its station)"
+                // Keep a press on the button from starting a drag of the chip.
+                onMouseDown={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onClick={() => onRemove(column)}
+              >
+                <XIcon />
+              </button>
             </div>
           )}
         </DraggableSortableItem>
@@ -151,6 +166,7 @@ function useColumnOrder(value: unknown, stationsValue: unknown) {
     isCustom: stored.length > 0,
     name: (ref: Ref) => byKey.get(stationKey(ref))?.name ?? ref.stid,
     silent: entries.filter((e) => !e.columns && reported(e).length === 0),
+    reported,
   }
 }
 
@@ -160,11 +176,15 @@ function useColumnOrder(value: unknown, stationsValue: unknown) {
 // the default.
 export function ColumnOrderInput({ path, field }: JSONFieldClientProps) {
   const { value, setValue, showError, errorMessage } = useField<unknown>({ path })
-  const stationsValue = useFormFields(([fields]) => fields.stations?.value)
-  const { tracked, entries, live, stored, columns, isCustom, name, silent } = useColumnOrder(
-    value,
-    stationsValue,
-  )
+  const stationsField = useField<unknown>({ path: 'stations' })
+  const { tracked, entries, live, stored, columns, isCustom, name, silent, reported } =
+    useColumnOrder(value, stationsField.value)
+  const removeColumn = ({ station, variable }: StationColumnConfig) =>
+    stationsField.setValue(
+      entries.map((e) =>
+        stationKey(e) === stationKey(station) ? withoutReading(e, reported(e), variable) : e,
+      ),
+    )
   useSyncCustomOrder(JSON.stringify(entries), tracked.status === 'ready', () => {
     if (isCustom) setValue(mergeOrder(stored, columns, entries))
   })
@@ -180,6 +200,7 @@ export function ColumnOrderInput({ path, field }: JSONFieldClientProps) {
           <ColumnChips
             columns={columns}
             name={name}
+            onRemove={removeColumn}
             onMove={(from, to) =>
               setValue(orderToSave(arrayMove(columns, from, to), live, stored, entries))
             }
