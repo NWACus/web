@@ -359,7 +359,7 @@ function RangePopover({ open, onOpenChange, label, children }: ShellProps) {
       <PopoverTrigger asChild>
         <RangeButton label={label} />
       </PopoverTrigger>
-      <PopoverContent className="flex w-auto flex-row p-0" align="start" collisionPadding={8}>
+      <PopoverContent className="flex w-auto flex-row p-0" align="center" collisionPadding={8}>
         {children}
       </PopoverContent>
     </Popover>
