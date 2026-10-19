@@ -26,6 +26,105 @@ const { breakpoints } = cssVariables
  */
 const imageSizes = `(max-width: ${breakpoints.lg}px) 100vw, 256px`
 
+function EventDate({ startDate, startDate_tz }: Pick<Event, 'startDate' | 'startDate_tz'>) {
+  if (!startDate) return null
+  const isPastEvent = new Date(startDate) < new Date()
+  return (
+    <div className="hidden @xl:flex flex-col min-w-[80px] gap-1 items-center text-center">
+      <div
+        className={cn('flex flex-col pt-4', {
+          'text-muted-foreground italic': isPastEvent,
+        })}
+      >
+        <div className="text-2xl font-bold">{formatDateTime(startDate, startDate_tz, 'MMM')}</div>
+        <div className="text-2xl font-bold leading-none pb-1">
+          {formatDateTime(startDate, startDate_tz, 'd')}
+        </div>
+        <div className="text-sm pb-2">{formatDateTime(startDate, startDate_tz, 'yyyy')}</div>
+        {isPastEvent && (
+          <Badge variant="secondary" className="text-xs whitespace-nowrap not-italic">
+            Past Event
+          </Badge>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function EventHeading({
+  event: { type, title, subtitle, description },
+  eventUrl,
+}: {
+  event: Event
+  eventUrl: string
+}) {
+  const eventTypeDisplay = type ? eventTypesData.find((et) => et.value === type)?.label : null
+  return (
+    <>
+      {eventTypeDisplay && <div className="text-xs text-muted-foreground">{eventTypeDisplay}</div>}
+      {title && (
+        <div>
+          <Link href={eventUrl}>
+            <h3 className="text-lg @lg:text-xl font-semibold leading-tight group-hover:underline">
+              {title}
+            </h3>
+          </Link>
+          {subtitle && <p className="text-muted-foreground line-clamp-2">{subtitle}</p>}
+        </div>
+      )}
+      {description && (
+        <p className="text-muted-foreground text-sm @lg:text-base line-clamp-3">{description}</p>
+      )}
+    </>
+  )
+}
+
+function EventWhere({
+  location,
+  distance,
+}: {
+  location: Event['location']
+  distance?: string | null
+}) {
+  return (
+    <>
+      {location?.isVirtual ? (
+        <Badge variant="outline" className="text-xs whitespace-nowrap not-italic my-2 w-fit">
+          Virtual Event
+        </Badge>
+      ) : (
+        location && <LocationPopover location={location} />
+      )}
+      {distance && (
+        <div className="flex items-start gap-2 text-sm text-muted-foreground">
+          <Navigation className="h-4 w-4 mt-0.5 flex-shrink-0" />
+          {distance}
+        </div>
+      )}
+    </>
+  )
+}
+
+function EventThumbnail({ image, eventUrl }: { image: Event['thumbnailImage']; eventUrl: string }) {
+  return (
+    <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
+      <Link
+        href={eventUrl}
+        className="flex flex-grow w-full @lg:w-48 @xl:w-56 @2xl:w-64 @lg:flex-shrink-0 h-full"
+      >
+        {image && typeof image !== 'number' && (
+          <ImageMedia
+            imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            resource={image}
+            pictureClassName="w-full h-full overflow-hidden rounded"
+            sizes={imageSizes}
+          />
+        )}
+      </Link>
+    </div>
+  )
+}
+
 export const EventPreview = (props: {
   alignItems?: 'center'
   className?: string
@@ -37,29 +136,8 @@ export const EventPreview = (props: {
 
   if (!event) return null
 
-  const {
-    title,
-    subtitle,
-    description,
-    slug,
-    thumbnailImage,
-    startDate,
-    startDate_tz,
-    endDate,
-    skillLevel,
-    type,
-    location,
-  } = event
-
-  const isPastEvent = startDate && new Date(startDate) < new Date()
-
+  const { slug, thumbnailImage, startDate, startDate_tz, endDate, skillLevel, location } = event
   const eventUrl = `/events/${slug}`
-
-  const eventTypeDisplay = type ? eventTypesData.find((et) => et.value === type)?.label : null
-
-  const month = formatDateTime(startDate, startDate_tz, 'MMM')
-  const day = formatDateTime(startDate, startDate_tz, 'd')
-  const year = formatDateTime(startDate, startDate_tz, 'yyyy')
 
   return (
     <article
@@ -68,45 +146,11 @@ export const EventPreview = (props: {
         className,
       )}
     >
-      {startDate && (
-        <div className="hidden @xl:flex flex-col min-w-[80px] gap-1 items-center text-center">
-          <div
-            className={cn('flex flex-col pt-4', {
-              'text-muted-foreground italic': isPastEvent,
-            })}
-          >
-            <div className="text-2xl font-bold">{month}</div>
-            <div className="text-2xl font-bold leading-none pb-1">{day}</div>
-            <div className="text-sm pb-2">{year}</div>
-            {isPastEvent && (
-              <Badge variant="secondary" className="text-xs whitespace-nowrap not-italic">
-                Past Event
-              </Badge>
-            )}
-          </div>
-        </div>
-      )}
+      <EventDate startDate={startDate} startDate_tz={startDate_tz} />
 
       <div className="flex flex-col justify-between flex-grow min-w-0 gap-4">
         <div className="flex flex-col gap-2">
-          {eventTypeDisplay && (
-            <div className="text-xs text-muted-foreground">{eventTypeDisplay}</div>
-          )}
-          {title && (
-            <div>
-              <Link href={eventUrl ?? '#'}>
-                <h3 className="text-lg @lg:text-xl font-semibold leading-tight group-hover:underline">
-                  {title}
-                </h3>
-              </Link>
-              {subtitle && <p className="text-muted-foreground line-clamp-2">{subtitle}</p>}
-            </div>
-          )}
-          {description && (
-            <p className="text-muted-foreground text-sm @lg:text-base line-clamp-3">
-              {description}
-            </p>
-          )}
+          <EventHeading event={event} eventUrl={eventUrl} />
           <div className="flex flex-col gap-1">
             <EventInfo
               startDate={startDate}
@@ -115,39 +159,13 @@ export const EventPreview = (props: {
               skillLevel={skillLevel}
               className="flex flex-col gap-1"
             />
-            {location?.isVirtual ? (
-              <Badge variant="outline" className="text-xs whitespace-nowrap not-italic my-2 w-fit">
-                Virtual Event
-              </Badge>
-            ) : (
-              location && <LocationPopover location={location} />
-            )}
-            {distance && (
-              <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Navigation className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                {distance}
-              </div>
-            )}
+            <EventWhere location={location} distance={distance} />
           </div>
         </div>
 
         <EventActions event={event} className="flex @sm:flex-col @md:flex-row gap-3" />
       </div>
-      <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
-        <Link
-          href={eventUrl}
-          className="flex flex-grow w-full @lg:w-48 @xl:w-56 @2xl:w-64 @lg:flex-shrink-0 h-full"
-        >
-          {thumbnailImage && typeof thumbnailImage !== 'number' && (
-            <ImageMedia
-              imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              resource={thumbnailImage}
-              pictureClassName="w-full h-full overflow-hidden rounded"
-              sizes={imageSizes}
-            />
-          )}
-        </Link>
-      </div>
+      <EventThumbnail image={thumbnailImage} eventUrl={eventUrl} />
     </article>
   )
 }
