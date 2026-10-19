@@ -15,6 +15,7 @@ import {
 } from '@/services/stations/stationColumns'
 import { stationTabFields } from '@/services/stations/stationTabs'
 import { CollectionConfig } from 'payload'
+import { reportedReadings } from './endpoints/reportedReadings'
 import { trackedStations } from './endpoints/trackedStations'
 
 // A page under /weather/stations. Not a station: 17 of NWAC's 32 cover more
@@ -52,7 +53,10 @@ export const StationPages: CollectionConfig<'stationPages'> = {
       'A public weather page for a group of SnowObs stations as a table, graphs and CSV download.',
   },
   defaultSort: 'displayName',
-  endpoints: [{ path: '/tracked-stations', method: 'get', handler: trackedStations }],
+  endpoints: [
+    { path: '/tracked-stations', method: 'get', handler: trackedStations },
+    { path: '/reported-readings', method: 'get', handler: reportedReadings },
+  ],
   fields: [
     tenantField(),
     {
@@ -90,7 +94,7 @@ export const StationPages: CollectionConfig<'stationPages'> = {
       },
       admin: {
         description:
-          "Every column the table shows, one per station and reading, in table order. Drag a column to move it. Columns are listed from each station's latest SnowObs report, so a reading it sends only now and then may be missing here; on the page it goes after the others for its reading, as does a column added later.",
+          "Every column the table shows, one per station and reading, in table order. Drag a column to move it. Columns are listed from the stations' last 24 hours, the table's default view; a reading that appears only over a longer range goes after the others for its reading, as does a column added later.",
         components: {
           Field: {
             path: '@/collections/StationPages/components/ColumnOrderInput#ColumnOrderInput',

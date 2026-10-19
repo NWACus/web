@@ -21,6 +21,8 @@ import { toStationEntries } from './index'
 import { ColumnsDrawer, ColumnsSummary } from './StationColumnsEditor'
 import type { StationStatus } from './status'
 import { stationStatus, STATUS_LABEL } from './status'
+import type { ReportedReadings } from './useReportedReadings'
+import { useReportedReadings } from './useReportedReadings'
 import type { TrackedStations } from './useTrackedStations'
 import { useCenterSlug, useTrackedStations } from './useTrackedStations'
 
@@ -118,10 +120,6 @@ function trackedView(station: TrackedStation, required?: RequiredVariable): RowV
 
 function trackedStation(entry: StationRef, tracked: TrackedStations): TrackedStation | undefined {
   return tracked.stations.find((s) => s.stid === entry.stid && s.source === entry.source)
-}
-
-function reportedVariables(entry: StationRef, tracked: TrackedStations): string[] {
-  return trackedStation(entry, tracked)?.variables ?? []
 }
 
 function rowView(
@@ -232,6 +230,7 @@ function StationsTable({
   path,
   refs,
   tracked,
+  readings,
   required,
   perStationColumns,
   onChange,
@@ -239,6 +238,7 @@ function StationsTable({
   path: string
   refs: StationEntry[]
   tracked: TrackedStations
+  readings: ReportedReadings
   required?: RequiredVariable
   perStationColumns?: boolean
   onChange: (refs: StationEntry[]) => void
@@ -255,7 +255,7 @@ function StationsTable({
     onChange(refs.map((entry, i) => (i === index ? next : entry)))
   const rows = refs.map((entry, index) => {
     const k = key(entry)
-    const reported = reportedVariables(entry, tracked)
+    const reported = readings.of(entry)
     const cell = perStationColumns
       ? { reported, open: open.has(k), onToggle: () => toggle(k) }
       : undefined
@@ -370,8 +370,10 @@ export function StationsInput({
   perStationColumns,
 }: JSONFieldClientProps & StationsInputClientProps) {
   const { value, setValue, showError, errorMessage } = useField<unknown>({ path })
-  const tracked = useTrackedStations(useCenterSlug())
+  const center = useCenterSlug()
+  const tracked = useTrackedStations(center)
   const refs = toStationEntries(value)
+  const readings = useReportedReadings(center, refs, perStationColumns)
   const onPage = new Set(refs.map(key))
   // Offer stations that report what the list needs, or have no recent report to
   // judge by, and not ones already on it.
@@ -389,6 +391,7 @@ export function StationsInput({
       {refs.length > 0 && (
         <StationsTable
           path={path}
+          readings={readings}
           refs={refs}
           tracked={tracked}
           required={requiredVariable}

@@ -2,7 +2,8 @@
 
 import { toStationEntries } from '@/fields/stations'
 import { withoutReading } from '@/fields/stations/StationColumnsEditor'
-import type { TrackedStations } from '@/fields/stations/useTrackedStations'
+import type { ReportedReadings } from '@/fields/stations/useReportedReadings'
+import { useReportedReadings } from '@/fields/stations/useReportedReadings'
 import { useCenterSlug, useTrackedStations } from '@/fields/stations/useTrackedStations'
 import { columnsFromReported } from '@/services/snowobs/deriveColumns'
 import { stationKey } from '@/services/snowobs/stationKey'
@@ -116,22 +117,26 @@ function SilentNote({ names }: { names: string[] }) {
   const one = names.length === 1
   return (
     <p className="column-order-input__note">
-      {names.join(', ')} {one ? 'has' : 'have'} no recent report, so{' '}
-      {one ? 'its columns are' : 'their columns are'} not listed yet.
+      {names.join(', ')} reported nothing in the last 24 hours, so{' '}
+      {one ? 'its columns are' : 'their columns are'} not listed.
     </p>
   )
 }
 
-// Why there are no chips to show, or null when there are (or the stations simply have none).
-function statusNote(tracked: TrackedStations, hasStations: boolean): string | null {
-  if (tracked.status === 'error') {
-    return `Could not load the SnowObs list (${tracked.message}), so the columns cannot be shown or reordered until it is back.`
-  }
-  const notes = {
-    loading: 'Loading readings from SnowObs…',
-    ready: hasStations ? null : 'Add a station to see its columns here.',
-  }
-  return notes[tracked.status]
+const LOADING = 'Loading readings from SnowObs…'
+const NOTES: Record<ReportedReadings['status'], (r: ReportedReadings) => string | null> = {
+  error: (r) =>
+    `Could not load the stations' readings from SnowObs (${r.message}), so the columns cannot be shown or reordered until it is back.`,
+  idle: () => LOADING,
+  loading: () => LOADING,
+  ready: () => null,
+}
+
+// Why there are no chips to show; a reload after a station is added keeps the chips up.
+function statusNote(readings: ReportedReadings, hasStations: boolean, hasColumns: boolean) {
+  if (!hasStations) return 'Add a station to see its columns here.'
+  if (hasColumns && readings.status === 'loading') return null
+  return NOTES[readings.status](readings)
 }
 
 function OrderMeta({
@@ -159,22 +164,22 @@ function OrderMeta({
 
 // The stations' live columns in the stored order, with SnowObs's names for the chips.
 function useColumnOrder(value: unknown, stationsValue: unknown) {
-  const tracked = useTrackedStations(useCenterSlug())
+  const center = useCenterSlug()
+  const tracked = useTrackedStations(center)
   const entries = toStationEntries(stationsValue)
+  const readings = useReportedReadings(center, entries)
   const byKey = new Map(tracked.stations.map((s) => [stationKey(s), s]))
-  const reported = (s: Ref) => byKey.get(stationKey(s))?.variables ?? []
-  const live = selectColumns(columnsFromReported(entries, reported), entries)
+  const live = selectColumns(columnsFromReported(entries, readings.of), entries)
   const stored = toColumnOrder(value)
   return {
-    tracked,
+    readings,
     entries,
     live,
     stored,
     columns: orderColumns(live, stored),
     isCustom: stored.length > 0,
     name: (ref: Ref) => byKey.get(stationKey(ref))?.name ?? ref.stid,
-    silent: entries.filter((e) => !e.columns && reported(e).length === 0),
-    reported,
+    silent: entries.filter((e) => !e.columns && readings.of(e).length === 0),
   }
 }
 
@@ -187,23 +192,25 @@ export function ColumnOrderInput({
 }: JSONFieldClientProps & ColumnOrderInputClientProps) {
   const { value, setValue, showError, errorMessage } = useField<unknown>({ path })
   const stationsField = useField<unknown>({ path: stationsPath })
-  const { tracked, entries, live, stored, columns, isCustom, name, silent, reported } =
-    useColumnOrder(value, stationsField.value)
+  const { readings, entries, live, stored, columns, isCustom, name, silent } = useColumnOrder(
+    value,
+    stationsField.value,
+  )
   const removeColumn = ({ station, variable }: StationColumnConfig) =>
     stationsField.setValue(
       entries.map((e) =>
-        stationKey(e) === stationKey(station) ? withoutReading(e, reported(e), variable) : e,
+        stationKey(e) === stationKey(station) ? withoutReading(e, readings.of(e), variable) : e,
       ),
     )
   const stationsKey = useMemo(
     () => JSON.stringify(toStationEntries(stationsField.value)),
     [stationsField.value],
   )
-  useSyncCustomOrder(stationsKey, tracked.status === 'ready', () => {
+  useSyncCustomOrder(stationsKey, readings.status === 'ready', () => {
     if (isCustom) setValue(mergeOrder(stored, columns, entries))
   })
 
-  const note = statusNote(tracked, entries.length > 0)
+  const note = statusNote(readings, entries.length > 0, columns.length > 0)
   return (
     <div className="field-type json column-order-input mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />

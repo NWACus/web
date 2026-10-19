@@ -62,6 +62,20 @@ export function deriveColumns(
   )
 }
 
+// Each station's table readings in a response, by `source:stid`, for the admin's pickers.
+export function readingsByStation(
+  response: SnowObsTimeseriesResponse,
+  stations: StationRef[],
+): Record<string, string[]> {
+  const readings: Record<string, string[]> = Object.fromEntries(
+    stations.map((s) => [stationKey(s), []]),
+  )
+  for (const { station, variable } of deriveColumns(response, stations)) {
+    readings[stationKey(station)].push(variable)
+  }
+  return readings
+}
+
 // What a station page's table shows: each station's chosen readings, in the page's column order.
 export function resolveColumns(
   response: SnowObsTimeseriesResponse,

@@ -12,8 +12,8 @@ import {
 import { cn } from '@/utilities/ui'
 import { Button } from '@payloadcms/ui'
 
-// What a station can show: its latest report plus any reading it already chose or hid, which may
-// have gone quiet since. Table-ordered, battery excluded.
+// What a station can show: its readings in the table's default window plus any it already chose
+// or hid, which may have gone quiet since. Table-ordered, battery excluded.
 export function readingChoices(entry: StationEntry, reported: string[]): string[] {
   const variables = new Set([...reported, ...(entry.columns ?? []), ...(entry.hidden ?? [])])
   return columnsFromReported([entry], () => variables).map((c) => c.variable)
@@ -75,8 +75,8 @@ function StationColumnsEditor({ id, entry, reported, onChange }: EditorProps) {
   if (choices.length === 0) {
     return (
       <p className="stations-columns__none">
-        SnowObs has no recent report from this station, so there are no readings to choose from. It
-        shows every reading it reports.
+        This station reported nothing in the last 24 hours, so there are no readings to choose from.
+        It shows every reading it reports.
       </p>
     )
   }
@@ -119,7 +119,7 @@ function StationColumnsEditor({ id, entry, reported, onChange }: EditorProps) {
             {readingName(variable)}
             <span className="stations-columns__code">{readingLabel(variable)}</span>
             {!reporting.has(variable) && (
-              <span className="stations-columns__quiet">not in latest report</span>
+              <span className="stations-columns__quiet">nothing in the last 24 hours</span>
             )}
           </label>
         ))}

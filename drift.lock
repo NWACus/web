@@ -963,7 +963,12 @@ sig = "bb66e8620bc4d127"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/components/ColumnOrderInput.tsx"
-sig = "a53163aff5d641bc"
+sig = "a9e9429bf4c220ad"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/collections/StationPages/endpoints/reportedReadings.ts"
+sig = "3db693c8a7cf7335"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -973,7 +978,7 @@ sig = "8364b5c2c9c54525"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/index.ts"
-sig = "b02a34b6b594bea6"
+sig = "64928701e7b1ff21"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1008,12 +1013,12 @@ sig = "eeca99141c22714b"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationColumnsEditor.tsx"
-sig = "9764cffd61c60756"
+sig = "b7ce03ed3d400c85"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationsInput.tsx"
-sig = "260577042d847680"
+sig = "235e528d81880b9d"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1024,6 +1029,11 @@ sig = "a3610cba72b10372"
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/status.ts"
 sig = "2f46673998744e5e"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/fields/stations/useReportedReadings.ts"
+sig = "d64a146a1d957b5a"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1048,7 +1058,7 @@ sig = "0ce7c520737db6cf"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/deriveColumns.ts"
-sig = "53cfb3c8e4654cce"
+sig = "50b492245b1169c1"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
