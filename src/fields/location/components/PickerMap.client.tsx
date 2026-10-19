@@ -57,8 +57,12 @@ export function PickerMap({ point, focus, onPick, readOnly = false }: PickerMapP
     })
     mapRef.current = map
     markerRef.current = marker
+    // Mapbox only follows window resizes; the admin nav and live preview resize the field alone.
+    const observer = new ResizeObserver(() => map.resize())
+    observer.observe(wrapper)
 
     return () => {
+      observer.disconnect()
       markerRef.current = null
       mapRef.current = null
       remove()
@@ -95,7 +99,7 @@ export function PickerMap({ point, focus, onPick, readOnly = false }: PickerMapP
   return (
     <div
       ref={containerRef}
-      className="h-72 w-full overflow-hidden rounded-[var(--style-radius-s)] border border-[var(--theme-elevation-150)]"
+      className="h-72 w-full overflow-hidden rounded-[var(--style-radius-s)] border border-solid border-[var(--theme-elevation-150)]"
     />
   )
 }
