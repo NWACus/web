@@ -227,6 +227,11 @@
     touch-action: none;
     position: relative;
 
+    &--quiet {
+      border-style: dashed;
+      color: var(--theme-elevation-600);
+    }
+
     &--dragging {
       z-index: 2;
       border-color: var(--theme-elevation-400);

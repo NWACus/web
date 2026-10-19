@@ -28,6 +28,14 @@ export function readingsSummary(station: StationEntry, choices: string[]): strin
   return `All except ${hidden.map(readingLabel).join(', ')}`
 }
 
+export function formatLastReported(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
 export function showsReading(station: StationEntry, variable: string): boolean {
   return !station.hidden?.includes(variable)
 }

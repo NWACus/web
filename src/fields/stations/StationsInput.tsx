@@ -273,6 +273,7 @@ function StationsTable({
             id={`${path}-${k}`}
             entry={entry}
             reported={reported}
+            lastReported={readings.lastReported(entry)}
             span={headCount(perStationColumns) - 1}
             onChange={(next) => setEntry(index, next)}
           />

@@ -2,20 +2,24 @@
 
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
+import type { StationReadings } from '@/services/stations/reportedReadings'
 import { useEffect, useState } from 'react'
 import { createFetchOnce } from './fetchOnce'
 
-type Readings = Record<string, string[]>
+type Readings = StationReadings
+const NONE: Readings = { readings: {}, lastReported: {} }
 
 export type ReportedReadings = {
   status: 'idle' | 'loading' | 'ready' | 'error'
-  /** The station's table readings; empty while unknown or when it has none in the window. */
+  /** The station's table readings; empty while unknown or when it has never reported. */
   of: (station: StationRef) => string[]
+  /** When a station silent for the table's default window last reported, else null. */
+  lastReported: (station: StationRef) => string | null
   message?: string
 }
 
 // One request per set of stations, shared by the stations table and the column order field.
-const fetchReadings = createFetchOnce<Readings>('readings')
+const fetchReadings = createFetchOnce<Readings>()
 
 function fetchOnce(center: string, keys: string): Promise<Readings> {
   const query = `center=${encodeURIComponent(center)}&stations=${encodeURIComponent(keys)}`
@@ -38,12 +42,12 @@ export function useReportedReadings(
     message?: string
   }>({
     status: 'idle',
-    readings: {},
+    readings: NONE,
   })
   useEffect(() => {
     if (!active) return
     if (!keys) {
-      setState({ status: 'ready', readings: {} })
+      setState({ status: 'ready', readings: NONE })
       return
     }
     let cancelled = false
@@ -69,6 +73,7 @@ export function useReportedReadings(
   return {
     status: state.status,
     message: state.message,
-    of: (station) => state.readings[stationKey(station)] ?? [],
+    of: (station) => state.readings.readings[stationKey(station)] ?? [],
+    lastReported: (station) => state.readings.lastReported[stationKey(station)] ?? null,
   }
 }

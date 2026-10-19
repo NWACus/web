@@ -963,12 +963,12 @@ sig = "bb66e8620bc4d127"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/components/ColumnOrderInput.tsx"
-sig = "84687d6a0396ff21"
+sig = "4921f501850ab2f1"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/endpoints/reportedReadings.ts"
-sig = "3db693c8a7cf7335"
+sig = "837f5117e526f2f0"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1013,17 +1013,17 @@ sig = "eeca99141c22714b"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationColumnsEditor.tsx"
-sig = "cfd35aaf978766f6"
+sig = "0d2ae8f3f47d1e1b"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationsInput.tsx"
-sig = "235e528d81880b9d"
+sig = "33e0c9d1cd782255"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/fetchOnce.ts"
-sig = "c0e954d86a9164de"
+sig = "2369a80fe9ca2f1d"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1038,7 +1038,7 @@ sig = "2f46673998744e5e"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/useReportedReadings.ts"
-sig = "a9a379053c094622"
+sig = "4ae61deb32567f8d"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1107,6 +1107,11 @@ sig = "6ec05c29260eebd3"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/reportedReadings.ts"
+sig = "2cdb6ed5baf73003"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/revalidate.ts"
 sig = "b103c089e2b429c2"
 
@@ -1118,7 +1123,7 @@ sig = "ec2f6f857fdc7e79"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/stationColumns.ts"
-sig = "ec4df800ca18422a"
+sig = "845fcd176306c630"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

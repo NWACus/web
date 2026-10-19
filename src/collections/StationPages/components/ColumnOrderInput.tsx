@@ -10,6 +10,7 @@ import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
 import {
   columnKey,
+  formatLastReported,
   orderColumns,
   orderToSave,
   readingLabel,
@@ -37,11 +38,13 @@ export type ColumnOrderInputClientProps = { stationsPath: string }
 function ColumnChips({
   columns,
   name,
+  lastReported,
   onMove,
   onRemove,
 }: {
   columns: StationColumnConfig[]
   name: (ref: Ref) => string
+  lastReported: (ref: Ref) => string | null
   onMove: (from: number, to: number) => void
   onRemove: (column: StationColumnConfig) => void
 }) {
@@ -53,43 +56,47 @@ function ColumnChips({
       onDragEnd={({ moveFromIndex, moveToIndex }) => onMove(moveFromIndex, moveToIndex)}
       className="column-order-input__list"
     >
-      {columns.map((column, i) => (
-        <DraggableSortableItem key={ids[i]} id={ids[i]}>
-          {({ attributes, isDragging, listeners, setNodeRef, transform, transition }) => (
-            // Spread first: `attributes` carries its own style, which would drop the transform.
-            <div
-              {...attributes}
-              {...listeners}
-              // dnd-kit makes the chip a button; a group can hold the remove button.
-              role="group"
-              aria-label={`${readingLabel(column.variable)}, ${name(column.station)}, column ${i + 1}`}
-              ref={setNodeRef}
-              style={{ ...attributes.style, transform, transition }}
-              className={cn(
-                'column-order-input__chip',
-                isDragging && 'column-order-input__chip--dragging',
-              )}
-              title={`${column.station.stid} · ${column.variable}`}
-            >
-              <span className="column-order-input__n">{i + 1}</span>
-              {readingLabel(column.variable)}
-              <span className="column-order-input__station">{name(column.station)}</span>
-              <button
-                type="button"
-                className="column-order-input__remove"
-                aria-label={`Remove ${readingLabel(column.variable)} for ${name(column.station)}`}
-                title="Hide this reading on its station"
-                // Keep a press on the button from starting a drag of the chip.
-                onMouseDown={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-                onClick={() => onRemove(column)}
+      {columns.map((column, i) => {
+        const last = lastReported(column.station)
+        return (
+          <DraggableSortableItem key={ids[i]} id={ids[i]}>
+            {({ attributes, isDragging, listeners, setNodeRef, transform, transition }) => (
+              // Spread first: `attributes` carries its own style, which would drop the transform.
+              <div
+                {...attributes}
+                {...listeners}
+                // dnd-kit makes the chip a button; a group can hold the remove button.
+                role="group"
+                aria-label={`${readingLabel(column.variable)}, ${name(column.station)}, column ${i + 1}`}
+                ref={setNodeRef}
+                style={{ ...attributes.style, transform, transition }}
+                className={cn(
+                  'column-order-input__chip',
+                  isDragging && 'column-order-input__chip--dragging',
+                  last && 'column-order-input__chip--quiet',
+                )}
+                title={`${column.station.stid} · ${column.variable}${last ? ` · last reported ${formatLastReported(last)}` : ''}`}
               >
-                <XIcon />
-              </button>
-            </div>
-          )}
-        </DraggableSortableItem>
-      ))}
+                <span className="column-order-input__n">{i + 1}</span>
+                {readingLabel(column.variable)}
+                <span className="column-order-input__station">{name(column.station)}</span>
+                <button
+                  type="button"
+                  className="column-order-input__remove"
+                  aria-label={`Remove ${readingLabel(column.variable)} for ${name(column.station)}`}
+                  title="Hide this reading on its station"
+                  // Keep a press on the button from starting a drag of the chip.
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  onClick={() => onRemove(column)}
+                >
+                  <XIcon />
+                </button>
+              </div>
+            )}
+          </DraggableSortableItem>
+        )
+      })}
     </DraggableSortable>
   )
 }
@@ -99,8 +106,8 @@ function SilentNote({ names }: { names: string[] }) {
   const one = names.length === 1
   return (
     <p className="column-order-input__note">
-      {names.join(', ')} reported nothing in the last 24 hours, so{' '}
-      {one ? 'its columns are' : 'their columns are'} not listed.
+      SnowObs has no report from {names.join(', ')}, so {one ? 'its columns' : 'their columns'}{' '}
+      can&apos;t be listed.
     </p>
   )
 }
@@ -195,6 +202,7 @@ export function ColumnOrderInput({
           <ColumnChips
             columns={columns}
             name={name}
+            lastReported={readings.lastReported}
             onRemove={removeColumn}
             onMove={(from, to) => setValue(orderToSave(arrayMove(columns, from, to), live))}
           />

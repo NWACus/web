@@ -14,10 +14,11 @@ export type TrackedStations =
 // One request per center per admin tab, shared by every picker and row label
 // on the form. Module scope survives re-renders, row reorders and client-side
 // navigation, so a station SnowObs starts tracking shows after a full reload.
-const fetchStations = createFetchOnce<TrackedStation[]>('stations')
+const fetchStations = createFetchOnce<{ stations: TrackedStation[] }>()
 
-function fetchOnce(center: string): Promise<TrackedStation[]> {
-  return fetchStations(`/api/stationPages/tracked-stations?center=${encodeURIComponent(center)}`)
+async function fetchOnce(center: string): Promise<TrackedStation[]> {
+  const url = `/api/stationPages/tracked-stations?center=${encodeURIComponent(center)}`
+  return (await fetchStations(url)).stations
 }
 
 // The page's center, from the tenant field on the form (set from the cookie

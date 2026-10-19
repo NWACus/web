@@ -3,6 +3,7 @@
 import { columnsFromReported } from '@/services/snowobs/deriveColumns'
 import type { StationEntry } from '@/services/stations/stationColumns'
 import {
+  formatLastReported,
   readingLabel,
   readingName,
   readingsSummary,
@@ -49,11 +50,13 @@ type EditorProps = {
   id: string
   entry: StationEntry
   reported: string[]
+  /** Set when the station is silent and `reported` is from the last day it reported. */
+  lastReported: string | null
   onChange: (entry: StationEntry) => void
 }
 
 // Show all and Hide all, then a checkbox per reading. A new reading always shows until hidden.
-function StationColumnsEditor({ id, entry, reported, onChange }: EditorProps) {
+function StationColumnsEditor({ id, entry, reported, lastReported, onChange }: EditorProps) {
   const choices = readingChoices(entry, reported)
   const reporting = new Set(reported)
   const hidden = new Set(entry.hidden ?? [])
@@ -67,13 +70,19 @@ function StationColumnsEditor({ id, entry, reported, onChange }: EditorProps) {
   if (choices.length === 0) {
     return (
       <p className="stations-columns__none">
-        This station reported nothing in the last 24 hours, so there are no readings to choose from.
-        It shows every reading it reports.
+        SnowObs has no report from this station, so there are no readings to choose from. It shows
+        every reading it reports.
       </p>
     )
   }
   return (
     <div className="stations-columns">
+      {lastReported && (
+        <p className="stations-columns__none">
+          Last reported {formatLastReported(lastReported)}. These are its readings from that day;
+          the table shows them again once it reports.
+        </p>
+      )}
       <div className="stations-columns__actions">
         <Button
           buttonStyle="none"

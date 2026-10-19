@@ -1,6 +1,6 @@
-const fetchStationTimeseriesMock = jest.fn()
-jest.mock('../../src/services/snowobs/snowobs', () => ({
-  fetchStationTimeseries: (...args: unknown[]) => fetchStationTimeseriesMock(...args),
+const fetchReportedReadingsMock = jest.fn()
+jest.mock('../../src/services/stations/reportedReadings', () => ({
+  fetchReportedReadings: (...args: unknown[]) => fetchReportedReadingsMock(...args),
 }))
 
 import { reportedReadings } from '@/collections/StationPages/endpoints/reportedReadings'
@@ -49,33 +49,32 @@ describe('readingsByStation', () => {
 
 describe('the reported-readings endpoint', () => {
   beforeEach(() => {
-    fetchStationTimeseriesMock.mockReset()
-    fetchStationTimeseriesMock.mockResolvedValue(response)
+    fetchReportedReadingsMock.mockReset()
+    fetchReportedReadingsMock.mockResolvedValue({
+      readings: { 'nwac:22': ['air_temp'] },
+      lastReported: {},
+    })
   })
 
-  it("fetches the table's default 24 hours, as the table does, and groups by station", async () => {
+  it('looks up the requested stations for the center', async () => {
     const res = await reportedReadings(request('center=nwac&stations=nwac:22,snotel:515'))
     expect(res.status).toBe(200)
-    expect((await res.json()).readings['snotel:515']).toEqual(['wind_gust', 'snow_depth'])
-    expect(fetchStationTimeseriesMock).toHaveBeenCalledWith(
-      'nwac',
-      [
-        { source: 'nwac', stid: '22' },
-        { source: 'snotel', stid: '515' },
-      ],
-      { windowHours: 24, revalidate: 60, rawData: true },
-    )
+    expect(await res.json()).toEqual({ readings: { 'nwac:22': ['air_temp'] }, lastReported: {} })
+    expect(fetchReportedReadingsMock).toHaveBeenCalledWith('nwac', [
+      { source: 'nwac', stid: '22' },
+      { source: 'snotel', stid: '515' },
+    ])
   })
 
   it('refuses an anonymous caller, an unknown center or malformed stations', async () => {
     expect((await reportedReadings(request('center=nwac&stations=nwac:22', null))).status).toBe(401)
     expect((await reportedReadings(request('center=nope&stations=nwac:22'))).status).toBe(400)
     expect((await reportedReadings(request('center=nwac&stations=22'))).status).toBe(400)
-    expect(fetchStationTimeseriesMock).not.toHaveBeenCalled()
+    expect(fetchReportedReadingsMock).not.toHaveBeenCalled()
   })
 
   it('reports a SnowObs failure as a 502', async () => {
-    fetchStationTimeseriesMock.mockRejectedValue(new Error('SnowObs down'))
+    fetchReportedReadingsMock.mockRejectedValue(new Error('SnowObs down'))
     const res = await reportedReadings(request('center=nwac&stations=nwac:22'))
     expect(res.status).toBe(502)
     expect((await res.json()).error).toBe('SnowObs down')
