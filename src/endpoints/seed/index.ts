@@ -24,7 +24,11 @@ import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
 import { SeedProviders, seedCourses } from './courses'
 import { getEventsData } from './events'
-import { forecastZonesByTenant, weatherPlatformTenants } from './forecast-zones'
+import {
+  forecastZonesByTenant,
+  nwacWeatherPlatformTenants,
+  weatherPlatformTenants,
+} from './forecast-zones'
 import { getGalleriesData } from './galleries'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
@@ -1152,7 +1156,9 @@ export const seed = async ({
               'Danger Over Time',
               '/forecasts/avalanche/archive/danger-over-time',
             ),
-            ...(weatherPlatformTenants.has(tenant.slug) || tenant.slug === 'nwac'
+            // Matches provisioning, which creates these for `weather || nwac_weather`.
+            ...(weatherPlatformTenants.has(tenant.slug) ||
+            nwacWeatherPlatformTenants.has(tenant.slug)
               ? [
                   builtInPage(tenant, 'Mountain Weather', '/weather/forecast'),
                   builtInPage(

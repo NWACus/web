@@ -1,6 +1,6 @@
 import { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
-import { SeedForecastZone } from './forecast-zones'
+import { nwacWeatherPlatformTenants, SeedForecastZone } from './forecast-zones'
 
 // Pre-existing size; this change only adds a nav item.
 // fallow-ignore-next-line complexity
@@ -138,11 +138,13 @@ export const navigationSeed = (
     weather: {
       options: { displayMode: 'dropdown' },
       items: [
-        // Only NWAC links Mountain Weather (sac and snfac have the page but not the nav item)
-        // and fronts its station pages with a Weather Stations page; others link the map.
+        // Only nwac_weather centers link Mountain Weather; sac and snfac have the page, no nav item.
+        ...(nwacWeatherPlatformTenants.has(tenant.slug)
+          ? [{ link: builtInPageLink({ url: '/weather/forecast' }) }]
+          : []),
+        // NWAC fronts its station pages with a Weather Stations page; others link the map.
         ...(tenant.slug === 'nwac'
           ? [
-              { link: builtInPageLink({ url: '/weather/forecast' }) },
               { link: pageLink({ slug: 'stations', label: 'Weather Stations' }) },
               {
                 link: builtInPageLink({
