@@ -1,4 +1,4 @@
-import type { Media, Tenant } from '@/payload-types'
+import type { Media, StationPage, Tenant } from '@/payload-types'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 import { simpleContent } from '../utilities'
 
@@ -9,7 +9,7 @@ import { simpleContent } from '../utilities'
 export const accumulatedPrecipPage = (
   tenant: Tenant,
   seoImage: Media,
-  stations: { stid: string; source: string }[],
+  stationPages: StationPage[],
 ): RequiredDataFromCollectionSlug<'pages'> => ({
   slug: 'accumulated-precipitation',
   tenant: tenant.id,
@@ -32,7 +32,9 @@ export const accumulatedPrecipPage = (
     {
       blockType: 'precipTable',
       columns: ['1h', '3h', '6h', '12h', '24h', '48h', '72h'],
-      stations,
+      stations: stationPages.flatMap((page) =>
+        (page.stations ?? []).map(({ stid, source }) => ({ stid, source })),
+      ),
     },
   ],
   meta: {

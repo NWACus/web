@@ -1,23 +1,27 @@
-import type { Media, Tenant } from '@/payload-types'
-import type { SeedStationPage } from '@/services/stations/seedStationPages'
-import type { RequiredDataFromCollectionSlug } from 'payload'
+import type { BuiltInPage, Media, Page, StationPage, Tenant } from '@/payload-types'
+import { NWAC_STATION_PAGES, seedStationPages } from '@/services/stations/seedStationPages'
+import type { Payload, RequiredDataFromCollectionSlug } from 'payload'
 import { headingNode, paragraphNode, textNode } from '../utilities'
 
-// Lexical link node wrapping a text child with a custom (URL) target
-const linkNode = (text: string, url: string) => ({
-  type: 'link' as const,
-  version: 3,
-  direction: null,
-  format: '' as const,
-  indent: 0,
-  children: [textNode(text)],
-  fields: { linkType: 'custom' as const, url, newTab: false },
-})
+type LinkTarget =
+  | { relationTo: 'pages'; value: number }
+  | { relationTo: 'builtInPages'; value: number }
+  | { relationTo: 'stationPages'; value: number }
 
-// Paragraph containing a single link
-const linkParagraph = (text: string, url: string) => ({
+// Internal links: the rich-text link field only accepts full URLs for external ones
+const linkParagraph = (text: string, doc: LinkTarget) => ({
   type: 'paragraph' as const,
-  children: [linkNode(text, url)],
+  children: [
+    {
+      type: 'link' as const,
+      version: 3,
+      direction: null,
+      format: '' as const,
+      indent: 0,
+      children: [textNode(text)],
+      fields: { linkType: 'internal' as const, doc, newTab: false },
+    },
+  ],
   direction: 'ltr' as const,
   format: '' as const,
   indent: 0,
@@ -25,39 +29,54 @@ const linkParagraph = (text: string, url: string) => ({
   version: 1,
 })
 
-// Group the three seeded station pages into regions that match NWAC's zones.
-type Region = { heading: string; stations: SeedStationPage[] }
+// The seeded station pages, grouped under NWAC's zones
+const REGIONS = [
+  { heading: 'Olympics', slugs: ['hurricane-ridge'] },
+  { heading: 'Snoqualmie Pass', slugs: ['alpental'] },
+  { heading: 'South Cascades', slugs: ['mt-st-helens'] },
+]
 
-function groupByRegion(stations: SeedStationPage[]): Region[] {
-  const regionMap: Record<string, string> = {
-    'hurricane-ridge': 'Olympics',
-    alpental: 'Snoqualmie Pass',
-    'mt-st-helens': 'South Cascades',
-  }
+const SEEDED_STATION_SLUGS = REGIONS.flatMap((region) => region.slugs)
 
-  const grouped = new Map<string, SeedStationPage[]>()
-  for (const s of stations) {
-    const region = regionMap[s.slug] ?? 'Other'
-    const list = grouped.get(region) ?? []
-    list.push(s)
-    grouped.set(region, list)
-  }
+/**
+ * Seeds a few of the 32 station pages the migration creates (a multi-station, a single-station
+ * and an archived one) and returns them. The migration runs before any tenant exists locally,
+ * so the seed does it here.
+ */
+export async function seedNwacStationPages(
+  payload: Payload,
+  nwac: Tenant | undefined,
+): Promise<StationPage[]> {
+  if (!nwac) return []
 
-  // Stable order: iterate regionMap values in declaration order
-  const seen = new Set<string>()
-  const result: Region[] = []
-  for (const region of Object.values(regionMap)) {
-    if (seen.has(region)) continue
-    seen.add(region)
-    const list = grouped.get(region)
-    if (list?.length) result.push({ heading: region, stations: list })
-  }
-  // Anything left over
-  for (const [region, list] of grouped) {
-    if (!seen.has(region)) result.push({ heading: region, stations: list })
-  }
-  return result
+  payload.logger.info(`— Seeding NWAC station pages...`)
+  const pages = NWAC_STATION_PAGES.filter((page) => SEEDED_STATION_SLUGS.includes(page.slug))
+  const seeded = await seedStationPages(payload, nwac.id, pages)
+  payload.logger.info(seeded, 'station pages seeded')
+
+  const { docs } = await payload.find({
+    collection: 'stationPages',
+    where: { tenant: { equals: nwac.id }, slug: { in: SEEDED_STATION_SLUGS } },
+    depth: 0,
+    limit: SEEDED_STATION_SLUGS.length,
+  })
+  return docs
 }
+
+const stationPageLinks = (stationPages: StationPage[]) =>
+  REGIONS.flatMap(({ heading, slugs }) => {
+    const inRegion = stationPages.filter((page) => slugs.includes(page.slug))
+    if (inRegion.length === 0) return []
+    return [
+      headingNode(heading, 'h3'),
+      ...inRegion.map((page) =>
+        linkParagraph(page.archived ? `${page.displayName} (archived)` : page.displayName, {
+          relationTo: 'stationPages',
+          value: page.id,
+        }),
+      ),
+    ]
+  })
 
 /**
  * A real Weather Stations page for NWAC, modelled after nwac.us/weather/stations.
@@ -66,61 +85,54 @@ function groupByRegion(stations: SeedStationPage[]): Region[] {
 export const weatherStationsPage = (
   tenant: Tenant,
   seoImage: Media,
-  seededStations: SeedStationPage[],
-): RequiredDataFromCollectionSlug<'pages'> => {
-  const regions = groupByRegion(seededStations)
-
-  // Build Lexical children: intro paragraph, then region sections, then data viz
-  const children: { type: string; version: number; [k: string]: unknown }[] = [
-    paragraphNode(
-      'NWAC maintains a network of automated weather stations throughout the Cascade Range ' +
-        'and Olympic Mountains. Select a station below to view current conditions and recent history.',
-    ),
-  ]
-
-  for (const { heading, stations } of regions) {
-    children.push(headingNode(heading, 'h3'))
-    for (const s of stations) {
-      const label = s.archived ? `${s.displayName} (archived)` : s.displayName
-      children.push(linkParagraph(label, `/weather/stations/${s.slug}`))
-    }
-  }
-
-  children.push(headingNode('Additional data visualizations', 'h3'))
-  children.push(linkParagraph('Weather Stations Map', '/weather/stations/map'))
-  children.push(linkParagraph('Accumulated Precipitation', '/accumulated-precipitation'))
-
-  return {
-    slug: 'stations',
-    tenant: tenant.id,
-    _status: 'published',
-    publishedAt: new Date().toISOString(),
-    layout: [
-      {
-        backgroundColor: 'white',
-        layout: '1_1',
-        columns: [
-          {
-            richText: {
-              root: {
-                type: 'root',
-                children,
-                direction: 'ltr' as const,
-                format: '' as const,
-                indent: 0,
-                version: 1,
-              },
+  stationPages: StationPage[],
+  stationMap: BuiltInPage,
+  precipPage: Page,
+): RequiredDataFromCollectionSlug<'pages'> => ({
+  slug: 'stations',
+  tenant: tenant.id,
+  _status: 'published',
+  publishedAt: new Date().toISOString(),
+  layout: [
+    {
+      backgroundColor: 'white',
+      layout: '1_1',
+      columns: [
+        {
+          richText: {
+            root: {
+              type: 'root',
+              children: [
+                paragraphNode(
+                  'NWAC maintains a network of automated weather stations throughout the Cascade Range ' +
+                    'and Olympic Mountains. Select a station below to view current conditions and recent history.',
+                ),
+                ...stationPageLinks(stationPages),
+                headingNode('Additional data visualizations', 'h3'),
+                linkParagraph('Weather Stations Map', {
+                  relationTo: 'builtInPages',
+                  value: stationMap.id,
+                }),
+                linkParagraph('Accumulated Precipitation', {
+                  relationTo: 'pages',
+                  value: precipPage.id,
+                }),
+              ],
+              direction: 'ltr' as const,
+              format: '' as const,
+              indent: 0,
+              version: 1,
             },
           },
-        ],
-        blockType: 'content',
-      },
-    ],
-    meta: {
-      description:
-        'Current conditions and history from the NWAC weather station network across the Pacific Northwest.',
-      image: seoImage.id,
+        },
+      ],
+      blockType: 'content',
     },
-    title: 'Weather Stations',
-  }
-}
+  ],
+  meta: {
+    description:
+      'Current conditions and history from the NWAC weather station network across the Pacific Northwest.',
+    image: seoImage.id,
+  },
+  title: 'Weather Stations',
+})
