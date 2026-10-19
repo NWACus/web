@@ -1277,6 +1277,11 @@ sig = "e28333fc41d2d9ba"
 
 [[bindings]]
 doc = "docs/decisions/026-tenant-scoped-media-folders.md"
+target = "src/collections/Folders/filter.ts"
+sig = "69df5eabd18337aa"
+
+[[bindings]]
+doc = "docs/decisions/026-tenant-scoped-media-folders.md"
 target = "src/collections/Folders/hooks/keepFolderTenant.ts"
 sig = "c73e9fd5db7a7195"
 
@@ -1288,7 +1293,7 @@ sig = "172ace6635826bdf"
 [[bindings]]
 doc = "docs/decisions/026-tenant-scoped-media-folders.md"
 target = "src/collections/Folders/index.ts"
-sig = "99a487884f03a550"
+sig = "9222104d4ec4c6ae"
 
 [[bindings]]
 doc = "docs/decisions/026-tenant-scoped-media-folders.md"
