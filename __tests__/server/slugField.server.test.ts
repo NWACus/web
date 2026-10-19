@@ -1,4 +1,5 @@
-import { slugField } from '@/fields/slug'
+import { slugField, withReservedSlugs } from '@/fields/slug'
+import { validateSlug } from '@/utilities/validateSlug'
 
 describe('slugField descriptions', () => {
   it('explains auto-generation from the source field and date when enabled', () => {
@@ -26,5 +27,54 @@ describe('slugField descriptions', () => {
       'Auto-generated from name. Must be unique; lowercase letters, numbers, and hyphens only.',
     )
     expect(field.required).toBe(true)
+  })
+})
+
+// Minimal args stub — validateSlug only inspects `value`, not the rest of the args
+const stubArgs = {} as Parameters<typeof validateSlug>[1]
+
+describe('withReservedSlugs', () => {
+  const validate = withReservedSlugs(['map', 'station'])
+
+  it('rejects an exact reserved slug', () => {
+    expect(validate('map', stubArgs)).toMatch(/reserved/)
+    expect(validate('station', stubArgs)).toMatch(/reserved/)
+  })
+
+  it('rejects reserved slugs case-insensitively', () => {
+    expect(validate('Map', stubArgs)).toMatch(/reserved/)
+    expect(validate('STATION', stubArgs)).toMatch(/reserved/)
+  })
+
+  it('allows slugs that are not reserved', () => {
+    expect(validate('alpental', stubArgs)).toBe(true)
+    expect(validate('paradise', stubArgs)).toBe(true)
+  })
+
+  it('still applies the base validateSlug rules for invalid characters', () => {
+    expect(validate('has spaces', stubArgs)).toMatch(/Invalid slug/)
+    expect(validate('has/slash', stubArgs)).toMatch(/cannot contain/)
+  })
+
+  it('still allows null/undefined to be caught by the base validator', () => {
+    expect(validate(null, stubArgs)).toMatch(/must not be blank/)
+    expect(validate(undefined, stubArgs)).toMatch(/must not be blank/)
+  })
+})
+
+describe('slugField with reservedSlugs option', () => {
+  it('uses the reserved-slug validator when reservedSlugs is provided', () => {
+    const field = slugField('displayName', { reservedSlugs: ['map', 'station'] })
+    // The validate function should reject reserved slugs
+    const validate = field.validate!
+    expect(validate('map', stubArgs)).toMatch(/reserved/)
+    expect(validate('alpental', stubArgs)).toBe(true)
+  })
+
+  it('uses the standard validator when no reservedSlugs are provided', () => {
+    const field = slugField('displayName')
+    const validate = field.validate!
+    // "map" is a valid slug when not reserved
+    expect(validate('map', stubArgs)).toBe(true)
   })
 })

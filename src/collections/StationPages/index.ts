@@ -56,7 +56,10 @@ export const StationPages: CollectionConfig<'stationPages'> = {
       type: 'text',
       required: true,
     },
-    slugField('displayName'),
+    slugField('displayName', {
+      // "map" and "station" are static Next.js routes under /weather/stations/
+      reservedSlugs: ['map', 'station'],
+    }),
     stationsField({
       name: 'stations',
       label: 'Stations',
