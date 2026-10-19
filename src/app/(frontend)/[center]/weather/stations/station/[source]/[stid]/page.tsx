@@ -3,7 +3,10 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationAreaLinks } from '@/components/WeatherStations/StationAreaLinks'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
-import type { StationViewSubject } from '@/components/WeatherStations/stationTabViews'
+import type {
+  StationViewSubject,
+  TableRangeParams,
+} from '@/components/WeatherStations/stationTabViews'
 import { loadStationMeta, resolveTabView } from '@/components/WeatherStations/stationTabViews'
 import { TrackedStationDetails } from '@/components/WeatherStations/TrackedStationDetails'
 import { stationDetailPath } from '@/services/snowobs/stationKey'
@@ -28,7 +31,7 @@ type PathArgs = { center: string; source: string; stid: string }
 
 type Args = {
   params: Promise<PathArgs>
-  searchParams: Promise<{ range?: string; period?: string }>
+  searchParams: Promise<{ range?: string } & TableRangeParams>
 }
 
 async function loadTrackedStation({ center, source, stid }: PathArgs): Promise<TrackedStation> {
@@ -46,7 +49,7 @@ function displayName(station: TrackedStation): string {
 export default async function Page({ params, searchParams }: Args) {
   const pathArgs = await params
   const { center } = pathArgs
-  const { range: rangeParam, period: periodParam } = await searchParams
+  const { range: rangeParam, ...tableParams } = await searchParams
   const station = await loadTrackedStation(pathArgs)
   const ref = { source: station.source, stid: station.stid }
   const path = stationDetailPath(ref)
@@ -63,7 +66,7 @@ export default async function Page({ params, searchParams }: Args) {
   const timeZone = centerTimezone(center)
   const csv = { action: `${path}/csv`, filePrefix: station.source }
   const [view, { notes }] = await Promise.all([
-    resolveTabView({ center, subject, pages, timeZone, csv }, rangeParam, periodParam),
+    resolveTabView({ center, subject, pages, timeZone, csv }, rangeParam, tableParams),
     loadStationMeta(center, subject.stations),
   ])
 

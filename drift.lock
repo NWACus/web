@@ -943,7 +943,7 @@ sig = "e60ed523ee08908d"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/stations/station/[source]/[stid]/page.tsx"
-sig = "798708ba03d8564d"
+sig = "2d18beaa52c43ae2"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -973,7 +973,7 @@ sig = "8364b5c2c9c54525"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/collections/StationPages/index.ts"
-sig = "192e43b71fe52ef2"
+sig = "b02a34b6b594bea6"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -983,12 +983,27 @@ sig = "ff3681ee4cfc577f"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationGraphs.tsx"
-sig = "22c66b7cef29079d"
+sig = "b42c7443791bc007"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/StationRangePicker.tsx"
+sig = "370d9498e51c4b1c"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/stationPeriods.ts"
+sig = "b931610a09e8835f"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/stationRangeDraft.ts"
+sig = "3be616b30d19eef1"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationTabViews.tsx"
-sig = "82ff3de3564805b6"
+sig = "eeca99141c22714b"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
