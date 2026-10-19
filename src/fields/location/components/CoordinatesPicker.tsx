@@ -2,7 +2,7 @@
 
 import type { AddressParts, GeocodeResult } from '@/services/geocodio'
 import { isRecord } from '@/utilities/isRecord'
-import { Button, FieldDescription, FieldLabel, toast, useField } from '@payloadcms/ui'
+import { Button, FieldDescription, FieldLabel, toast, useField, useForm } from '@payloadcms/ui'
 import dynamic from 'next/dynamic'
 import type { UIFieldClientComponent } from 'payload'
 import { useMemo, useState } from 'react'
@@ -69,12 +69,22 @@ async function requestGeocode(parts: AddressParts): Promise<GeocodeResult> {
   }
 }
 
-function describeStatus(status: GeocodeStatus | null, placed: boolean) {
-  if (status) return STATUS_TEXT[status]
-  return placed
-    ? 'Drag the pin or click the map to adjust.'
-    : 'Saving places the pin from the address. You can also click the map.'
+// A cleared point keeps its old status until saved, so only `failed` still describes no pin.
+const UNPLACED_TEXT = 'No pin. Click the map or use “Find from address” to place one.'
+
+const DESCRIPTION: Record<'placed' | 'unplaced', Record<GeocodeStatus | 'none', string>> = {
+  placed: { ...STATUS_TEXT, none: 'Drag the pin or click the map to adjust.' },
+  unplaced: {
+    geocoded: UNPLACED_TEXT,
+    approximate: UNPLACED_TEXT,
+    manual: UNPLACED_TEXT,
+    failed: STATUS_TEXT.failed,
+    none: 'Saving places the pin from the address. You can also click the map.',
+  },
 }
+
+const describeStatus = (status: GeocodeStatus | null, placed: boolean) =>
+  DESCRIPTION[placed ? 'placed' : 'unplaced'][status ?? 'none']
 
 function FindButton(props: { finding: boolean; disabled: boolean; onClick: () => void }) {
   return (
@@ -106,7 +116,9 @@ export const CoordinatesPicker: UIFieldClientComponent = ({
   const state = useField<string>({ path: join(location, 'state') })
   const zip = useField<string>({ path: join(location, 'zip') })
 
-  const readOnly = Boolean(readOnlyFromProps) || latitude.disabled
+  // A ui field's props are rendered once; the form's `disabled` follows take-overs and permissions.
+  const { disabled: formDisabled } = useForm()
+  const readOnly = Boolean(readOnlyFromProps) || formDisabled || latitude.disabled
   const [finding, setFinding] = useState(false)
   const [focus, setFocus] = useState<Point | null>(null)
 
