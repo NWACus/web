@@ -998,7 +998,7 @@ sig = "3be616b30d19eef1"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationTabViews.tsx"
-sig = "c25d847068e3e558"
+sig = "b76dfed3aee40431"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

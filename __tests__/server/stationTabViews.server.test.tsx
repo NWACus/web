@@ -43,6 +43,7 @@ describe('the Table tab', () => {
       expect.objectContaining({
         start: new Date('2026-01-03T08:00:00Z'),
         end: new Date('2026-01-10T07:59:00Z'),
+        revalidate: 86400,
       }),
     )
   })

@@ -32,6 +32,9 @@ const METADATA_REVALIDATE = 600
 // SnowObs caches each response for 60s, so holding the table's for as long
 // costs no freshness and spares a function waiting on it per view.
 const TABLE_REVALIDATE = 60
+// A custom range that ended before today holds readings that won't change, so hold it a day.
+// Responses over the data cache's 2 MB limit (long ranges of many stations) aren't cached at all.
+const PAST_RANGE_REVALIDATE = 24 * 60 * 60
 
 /** What the views show: a station page, or one tracked station assembled on the fly. */
 export type StationViewSubject = {
@@ -142,10 +145,12 @@ function tableWindow(
   timeZone: string,
   now: Date,
 ) {
-  if (!custom) return { windowHours: period.hoursBack(now, timeZone) }
+  if (!custom) return { windowHours: period.hoursBack(now, timeZone), revalidate: TABLE_REVALIDATE }
   const { from, to } = customRangeBounds(custom, timeZone, now)
   // A range ending today leaves `end` unset so the fetch keeps its cache bucket.
-  return to ? { start: from, end: to } : { start: from }
+  return to
+    ? { start: from, end: to, revalidate: PAST_RANGE_REVALIDATE }
+    : { start: from, revalidate: TABLE_REVALIDATE }
 }
 
 async function tableTabView(
@@ -158,7 +163,6 @@ async function tableTabView(
   const response = await fetchStationTimeseries(center, subject.stations, {
     ...tableWindow(period, custom, timeZone, now),
     rawData: true,
-    revalidate: TABLE_REVALIDATE,
   })
   const table = buildStationTable(center, response, resolveColumns(response, subject))
   return {
