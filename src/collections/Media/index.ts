@@ -2,6 +2,7 @@ import { type CollectionConfig } from 'payload'
 
 import { accessByTenantRoleWithPermissiveRead } from '@/access/byTenantRole'
 import { filterByTenantID } from '@/access/filterByTenant'
+import { FOLDER_FIELD_NAME } from '@/collections/Folders/constants'
 import { validateFolderTenant } from '@/collections/Folders/hooks/validateFolderTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
@@ -25,7 +26,7 @@ export const Media: CollectionConfig = {
     group: 'Content',
     hidden: ({ user }) =>
       !hasGlobalOrTenantRolePermission({ method: 'read', collection: 'media', user }),
-    defaultColumns: ['filename', 'alt', 'url', 'width', 'height'],
+    defaultColumns: ['filename', 'alt', FOLDER_FIELD_NAME, 'url', 'width', 'height'],
   },
   fields: [
     tenantField(),
