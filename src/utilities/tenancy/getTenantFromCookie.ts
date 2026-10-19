@@ -1,5 +1,5 @@
 import { isValidTenantSlug, ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
-import { parseCookies } from 'payload'
+import { parseCookies, type PayloadRequest } from 'payload'
 
 /**
  * Returns the tenant slug from the 'payload-tenant' cookie.
@@ -14,4 +14,26 @@ export function getTenantSlugFromCookie(headers: Headers): ValidTenantSlug | nul
   }
 
   return null
+}
+
+/**
+ * Returns the ID of the tenant selected by the 'payload-tenant' cookie, or null when no tenant is
+ * selected or the slug has no tenant document.
+ */
+export async function getTenantIDFromCookie(req: PayloadRequest): Promise<number | null> {
+  const tenantSlug = getTenantSlugFromCookie(req.headers)
+  if (!tenantSlug) {
+    return null
+  }
+
+  const { docs } = await req.payload.find({
+    collection: 'tenants',
+    where: { slug: { equals: tenantSlug } },
+    limit: 1,
+    depth: 0,
+    select: {},
+    req,
+  })
+
+  return docs[0]?.id ?? null
 }
