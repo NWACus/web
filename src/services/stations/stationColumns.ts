@@ -1,18 +1,62 @@
-import { SENSOR_LABELS } from '@/services/snowobs/constants'
+import { READING_NAMES, SENSOR_LABELS } from '@/services/snowobs/constants'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
 
 // Kept free of the Payload config so the admin's column pickers can import it.
 
-/** A station on a page; `columns` are the readings its table shows, or absent for all it reports. */
-export type StationEntry = StationRef & { columns?: string[] }
+/** A station on a page. `columns` lists the only readings its table shows; without it, every
+ * reading it reports shows except those in `hidden`, new ones included. */
+export type StationEntry = StationRef & { columns?: string[]; hidden?: string[] }
 
 /** One table column in a page's chosen order. */
 export type ColumnOrderEntry = StationRef & { variable: string }
 
 export function readingLabel(variable: string): string {
   return SENSOR_LABELS[variable] ?? variable
+}
+
+export function readingName(variable: string): string {
+  return READING_NAMES[variable] ?? variable
+}
+
+/** How the stations table sums up a station's readings: one wide pill, or a pill per reading. */
+export function readingsSummary(
+  station: StationEntry,
+  choices: string[],
+): { all: boolean; labels: string[] } {
+  if (station.columns) {
+    const shown = choices.filter((v) => station.columns?.includes(v)).map(readingLabel)
+    return { all: false, labels: shown.length > 0 ? shown : ['None'] }
+  }
+  if (station.hidden?.length) {
+    return { all: true, labels: [`All except ${station.hidden.map(readingLabel).join(', ')}`] }
+  }
+  return {
+    all: true,
+    labels: [choices.length > 0 ? `All readings · ${choices.length}` : 'All readings'],
+  }
+}
+
+export function showsReading(station: StationEntry, variable: string): boolean {
+  if (station.columns) return station.columns.includes(variable)
+  return !station.hidden?.includes(variable)
+}
+
+/**
+ * The station showing exactly `shown` of `choices`. While new readings show, it stores what is
+ * hidden, so readings missing from `choices` (a later sensor, a timeseries-only one) still show.
+ */
+export function withShownReadings(
+  station: StationEntry,
+  choices: string[],
+  shown: ReadonlySet<string>,
+  showNew: boolean,
+): StationEntry {
+  const ref = { stid: station.stid, source: station.source }
+  if (!showNew) return { ...ref, columns: choices.filter((v) => shown.has(v)) }
+  const hidden = choices.filter((v) => !shown.has(v))
+  return hidden.length > 0 ? { ...ref, hidden } : ref
 }
 
 export function columnKey(station: StationRef, variable: string): string {
@@ -40,15 +84,15 @@ export function toColumnOrder(value: unknown): ColumnOrderEntry[] {
     : []
 }
 
-// Drops the readings a station has not chosen; a station without a choice keeps all of them.
+// Drops the readings each station doesn't show.
 export function selectColumns(
   columns: StationColumnConfig[],
   stations: StationEntry[],
 ): StationColumnConfig[] {
-  const chosen = new Map(stations.map((s) => [stationKey(s), s.columns]))
+  const byKey = new Map(stations.map((s) => [stationKey(s), s]))
   return columns.filter(({ station, variable }) => {
-    const columns = chosen.get(stationKey(station))
-    return columns === undefined || columns.includes(variable)
+    const entry = byKey.get(stationKey(station))
+    return entry === undefined || showsReading(entry, variable)
   })
 }
 
@@ -85,17 +129,15 @@ export function validateColumnOrder(value: unknown): true | string {
   return repeat ? `${repeat} is listed twice.` : true
 }
 
-// Drops entries for a station no longer on the page or a reading its station no longer shows.
+// Drops entries for a station no longer on the page or a reading its station doesn't show.
 export function pruneColumnOrder(
   order: ColumnOrderEntry[],
   stations: StationEntry[],
 ): ColumnOrderEntry[] {
-  const onPage = new Map(stations.map((s) => [stationKey(s), s.columns]))
+  const onPage = new Map(stations.map((s) => [stationKey(s), s]))
   return order.filter((o) => {
-    const key = stationKey(o)
-    if (!onPage.has(key)) return false
-    const columns = onPage.get(key)
-    return columns === undefined || columns.includes(o.variable)
+    const station = onPage.get(stationKey(o))
+    return station !== undefined && showsReading(station, o.variable)
   })
 }
 
@@ -131,13 +173,13 @@ export function orderToSave(
   stored: ColumnOrderEntry[],
   stations: StationEntry[],
 ): ColumnOrderEntry[] {
+  const merged = mergeOrder(stored, next, stations)
   const isDefault =
-    next.length === defaults.length &&
-    next.every(
-      (c, i) =>
-        columnKey(c.station, c.variable) === columnKey(defaults[i].station, defaults[i].variable),
+    merged.length === defaults.length &&
+    merged.every(
+      (o, i) => columnKey(o, o.variable) === columnKey(defaults[i].station, defaults[i].variable),
     )
-  return isDefault ? [] : mergeOrder(stored, next, stations)
+  return isDefault ? [] : merged
 }
 
 export function toColumnOrderEntries(columns: StationColumnConfig[]): ColumnOrderEntry[] {

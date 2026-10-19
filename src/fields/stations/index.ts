@@ -19,15 +19,20 @@ function isColumnList(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((v) => typeof v === 'string')
 }
 
+function readingChoice(entry: StationRef): Pick<StationEntry, 'columns' | 'hidden'> {
+  const columns = 'columns' in entry ? entry.columns : undefined
+  if (isColumnList(columns)) return { columns }
+  const hidden = 'hidden' in entry ? entry.hidden : undefined
+  return isColumnList(hidden) ? { hidden } : {}
+}
+
 // The stored shape: an ordered list of SnowObs references, each with the
-// readings its table shows when a station page has chosen them.
+// readings a station page chose to show or hide for it.
 export function toStationEntries(value: unknown): StationEntry[] {
   return Array.isArray(value)
-    ? value.filter(isStationRef).map((entry) => {
-        const columns = 'columns' in entry ? entry.columns : undefined
-        const ref = { stid: entry.stid, source: entry.source }
-        return isColumnList(columns) ? { ...ref, columns } : ref
-      })
+    ? value
+        .filter(isStationRef)
+        .map((entry) => ({ stid: entry.stid, source: entry.source, ...readingChoice(entry) }))
     : []
 }
 
@@ -41,8 +46,10 @@ export function validateStations(value: unknown): true | string {
   if (!Array.isArray(value) || !value.every(isStationRef)) {
     return 'Each station needs a SnowObs id and source.'
   }
-  if (value.some((s) => 'columns' in s && !isColumnList(s.columns))) {
-    return "A station's table columns must be a list of readings."
+  const badList = (s: StationRef) =>
+    ('columns' in s && !isColumnList(s.columns)) || ('hidden' in s && !isColumnList(s.hidden))
+  if (value.some(badList)) {
+    return "A station's shown or hidden readings must be a list of readings."
   }
   const keys = value.map((s) => `${s.source}:${s.stid}`)
   const repeat = keys.find((key, i) => keys.indexOf(key) !== i)
@@ -101,6 +108,7 @@ export function stationsField({
                 stid: { type: 'string' },
                 source: { type: 'string' },
                 columns: { type: 'array', items: { type: 'string' } },
+                hidden: { type: 'array', items: { type: 'string' } },
               },
               required: ['stid', 'source'],
               additionalProperties: false,

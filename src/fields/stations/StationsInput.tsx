@@ -204,6 +204,11 @@ function StationRow({
   )
 }
 
+// TableHead's cells; the drawer row spans all but the first.
+function headCount(perStationColumns?: boolean): number {
+  return perStationColumns ? 10 : 9
+}
+
 function TableHead({ perStationColumns }: { perStationColumns?: boolean }) {
   return (
     <thead>
@@ -246,14 +251,8 @@ function StationsTable({
       else next.add(k)
       return next
     })
-  const setColumns = (index: number, columns: string[] | undefined) =>
-    onChange(
-      refs.map((entry, i) =>
-        i === index
-          ? { stid: entry.stid, source: entry.source, ...(columns && { columns }) }
-          : entry,
-      ),
-    )
+  const setEntry = (index: number, next: StationEntry) =>
+    onChange(refs.map((entry, i) => (i === index ? next : entry)))
   const rows = refs.map((entry, index) => {
     const k = key(entry)
     const reported = reportedVariables(entry, tracked)
@@ -274,7 +273,8 @@ function StationsTable({
             id={`${path}-${k}`}
             entry={entry}
             reported={reported}
-            onChange={(columns) => setColumns(index, columns)}
+            span={headCount(perStationColumns) - 1}
+            onChange={(next) => setEntry(index, next)}
           />
         )}
       </Fragment>
@@ -288,7 +288,12 @@ function StationsTable({
     moveToIndex: number
   }) => onChange(moved(refs, moveFromIndex, moveToIndex))
   return (
-    <DraggableSortable ids={refs.map(key)} onDragEnd={onDragEnd}>
+    <DraggableSortable
+      ids={refs.map(key)}
+      onDragEnd={onDragEnd}
+      // An open drawer is its own row and wouldn't move with the station being dragged.
+      onDragStart={() => setOpen(new Set())}
+    >
       <table className="stations-table">
         <TableHead perStationColumns={perStationColumns} />
         <tbody>{rows}</tbody>

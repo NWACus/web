@@ -42,10 +42,25 @@ function readingsByPage(rows: { parent_id: number; value: string | null }[]) {
   return byPage
 }
 
-// A page's chosen readings move onto each of its stations. The old field also
-// ordered the readings, so a page that reordered them gets the same order as
-// one column-order entry per station and reading; entries for a reading a
-// station doesn't report are ignored when the table is built.
+// A page's readings move onto each station; a reordering becomes one order entry per station and
+// reading. Exported for tests.
+export function moveReadings(stationsJson: string | null, readings: string[]) {
+  const stations = parseStations(stationsJson).map(({ stid, source }) => ({
+    stid,
+    source,
+    columns: READING_ORDER.filter((r) => readings.includes(r)),
+  }))
+  const inDefaultOrder = readings.every(
+    (r, i) => i === 0 || READING_ORDER.indexOf(readings[i - 1]) < READING_ORDER.indexOf(r),
+  )
+  const columnOrder = inDefaultOrder
+    ? []
+    : readings.flatMap((variable) =>
+        stations.map(({ stid, source }) => ({ stid, source, variable })),
+      )
+  return { stations, columnOrder }
+}
+
 export async function up({ db }: MigrateUpArgs): Promise<void> {
   await db.run(sql`ALTER TABLE \`station_pages\` ADD \`column_order\` text DEFAULT '[]';`)
 
@@ -61,19 +76,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   for (const page of pages) {
     const readings = chosen.get(page.id)
     if (!readings) continue
-    const stations = parseStations(page.stations).map(({ stid, source }) => ({
-      stid,
-      source,
-      columns: READING_ORDER.filter((r) => readings.includes(r)),
-    }))
-    const inDefaultOrder = readings.every(
-      (r, i) => i === 0 || READING_ORDER.indexOf(readings[i - 1]) < READING_ORDER.indexOf(r),
-    )
-    const columnOrder = inDefaultOrder
-      ? []
-      : readings.flatMap((variable) =>
-          stations.map(({ stid, source }) => ({ stid, source, variable })),
-        )
+    const { stations, columnOrder } = moveReadings(page.stations, readings)
     await db.run(
       sql`UPDATE \`station_pages\` SET \`stations\` = ${JSON.stringify(stations)}, \`column_order\` = ${JSON.stringify(columnOrder)} WHERE \`id\` = ${page.id};`,
     )

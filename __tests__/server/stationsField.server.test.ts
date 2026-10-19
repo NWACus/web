@@ -21,6 +21,10 @@ describe('validateStations', () => {
     expect(validate([{ stid: '1', source: 'nwac', columns: 'air_temp' }])).toMatch(
       /list of readings/,
     )
+    expect(validate([{ stid: '1', source: 'nwac', hidden: ['wind_gust'] }])).toBe(true)
+    expect(validate([{ stid: '1', source: 'nwac', hidden: 'wind_gust' }])).toMatch(
+      /list of readings/,
+    )
   })
 
   it('rejects the same station twice', () => {
@@ -43,6 +47,18 @@ describe('toStationRefs', () => {
 })
 
 describe('toStationEntries', () => {
+  it('keeps hidden readings unless the station lists its readings', () => {
+    expect(
+      toStationEntries([
+        { stid: '1', source: 'nwac', hidden: ['wind_gust'] },
+        { stid: '2', source: 'nwac', columns: ['air_temp'], hidden: ['wind_gust'] },
+      ]),
+    ).toEqual([
+      { stid: '1', source: 'nwac', hidden: ['wind_gust'] },
+      { stid: '2', source: 'nwac', columns: ['air_temp'] },
+    ])
+  })
+
   it("keeps a station's chosen readings and drops anything else", () => {
     expect(
       toStationEntries([

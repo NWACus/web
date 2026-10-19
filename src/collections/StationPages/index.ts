@@ -89,7 +89,10 @@ export const StationPages: CollectionConfig<'stationPages'> = {
         description:
           "Every column the table shows, one per station and reading, in table order. Drag a column to move it. Columns are listed from each station's latest SnowObs report, so a reading it sends only now and then may be missing here; on the page it goes after the others for its reading, as does a column added later.",
         components: {
-          Field: '@/collections/StationPages/components/ColumnOrderInput#ColumnOrderInput',
+          Field: {
+            path: '@/collections/StationPages/components/ColumnOrderInput#ColumnOrderInput',
+            clientProps: { stationsPath: 'stations' },
+          },
         },
       },
       typescriptSchema: [

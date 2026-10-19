@@ -3,8 +3,12 @@ import {
   orderToSave,
   pruneColumnOrder,
   readingLabel,
+  readingsSummary,
+  selectColumns,
+  showsReading,
   toColumnOrder,
   validateColumnOrder,
+  withShownReadings,
 } from '@/services/stations/stationColumns'
 
 describe('toColumnOrder', () => {
@@ -33,10 +37,11 @@ describe('readingLabel', () => {
 
 const col = (stid: string, variable: string) => ({ station: { stid, source: 'nwac' }, variable })
 const entry = (stid: string, variable: string) => ({ stid, source: 'nwac', variable })
-const station = (stid: string, columns?: string[]) => ({
+const station = (stid: string, columns?: string[], hidden?: string[]) => ({
   stid,
   source: 'nwac',
   ...(columns && { columns }),
+  ...(hidden && { hidden }),
 })
 
 describe('orderToSave', () => {
@@ -119,5 +124,86 @@ describe('validateColumnOrder', () => {
     expect(validateColumnOrder([entry('1', 'air_temp'), entry('1', 'air_temp')])).toMatch(
       /listed twice/,
     )
+  })
+})
+
+describe('orderToSave with columns the admin cannot show', () => {
+  it('keeps a custom order when only the shown columns are back in default order', () => {
+    const defaults = [col('1', 'air_temp'), col('2', 'air_temp')]
+    expect(
+      orderToSave(
+        defaults,
+        defaults,
+        [entry('3', 'snow_depth'), ...defaults.map((c) => entry(c.station.stid, c.variable))],
+        [station('1'), station('2'), station('3')],
+      ),
+    ).toEqual([entry('3', 'snow_depth'), entry('1', 'air_temp'), entry('2', 'air_temp')])
+  })
+})
+
+describe('hidden readings', () => {
+  const hiding = station('1', undefined, ['wind_gust'])
+
+  it('shows every reading but the hidden ones, new ones included', () => {
+    expect(showsReading(hiding, 'wind_speed')).toBe(true)
+    expect(showsReading(hiding, 'brand_new_sensor')).toBe(true)
+    expect(showsReading(hiding, 'wind_gust')).toBe(false)
+  })
+
+  it('is ignored once a station lists its readings', () => {
+    expect(showsReading(station('1', ['air_temp'], ['air_temp']), 'air_temp')).toBe(true)
+  })
+
+  it('drops hidden columns from the table and the stored order', () => {
+    expect(selectColumns([col('1', 'wind_speed'), col('1', 'wind_gust')], [hiding])).toEqual([
+      col('1', 'wind_speed'),
+    ])
+    expect(pruneColumnOrder([entry('1', 'wind_gust'), entry('1', 'air_temp')], [hiding])).toEqual([
+      entry('1', 'air_temp'),
+    ])
+  })
+})
+
+describe('withShownReadings', () => {
+  const choices = ['air_temp', 'wind_speed', 'wind_gust']
+
+  it('stores what is hidden while new readings show', () => {
+    expect(
+      withShownReadings(station('1'), choices, new Set(['air_temp', 'wind_speed']), true),
+    ).toEqual({ stid: '1', source: 'nwac', hidden: ['wind_gust'] })
+    expect(
+      withShownReadings(station('1', undefined, ['wind_gust']), choices, new Set(choices), true),
+    ).toEqual({ stid: '1', source: 'nwac' })
+  })
+
+  it('stores the shown list when new readings stay hidden', () => {
+    expect(withShownReadings(station('1'), choices, new Set(['air_temp']), false)).toEqual({
+      stid: '1',
+      source: 'nwac',
+      columns: ['air_temp'],
+    })
+  })
+})
+
+describe('readingsSummary', () => {
+  const choices = ['air_temp', 'wind_speed', 'wind_gust']
+
+  it('sums up a station on all its readings, with or without hidden ones', () => {
+    expect(readingsSummary(station('1'), choices)).toEqual({
+      all: true,
+      labels: ['All readings · 3'],
+    })
+    expect(readingsSummary(station('1', undefined, ['wind_gust']), choices)).toEqual({
+      all: true,
+      labels: ['All except Gust'],
+    })
+  })
+
+  it('lists the readings of a station that chose them, or None', () => {
+    expect(readingsSummary(station('1', ['wind_speed', 'air_temp']), choices)).toEqual({
+      all: false,
+      labels: ['Temp', 'Spd'],
+    })
+    expect(readingsSummary(station('1', []), choices)).toEqual({ all: false, labels: ['None'] })
   })
 })

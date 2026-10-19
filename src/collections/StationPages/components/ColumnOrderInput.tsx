@@ -22,7 +22,6 @@ import {
   Button,
   DraggableSortable,
   DraggableSortableItem,
-  DragHandleIcon,
   FieldDescription,
   FieldError,
   FieldLabel,
@@ -30,20 +29,26 @@ import {
   XIcon,
 } from '@payloadcms/ui'
 import type { JSONFieldClientProps } from 'payload'
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 
 type Ref = { stid: string; source: string }
+
+export type ColumnOrderInputClientProps = { stationsPath: string }
 
 // When the stations change under a custom order, save the order as shown, so a
 // ticked reading keeps its place even if the column it sits after goes quiet.
 function useSyncCustomOrder(stationsKey: string, ready: boolean, sync: () => void) {
   const seen = useRef<string | null>(null)
+  const latestSync = useRef(sync)
+  useLayoutEffect(() => {
+    latestSync.current = sync
+  })
   useEffect(() => {
     if (!ready) return
     const previous = seen.current
     seen.current = stationsKey
-    if (previous !== null && previous !== stationsKey) sync()
-  }, [stationsKey, ready, sync])
+    if (previous !== null && previous !== stationsKey) latestSync.current()
+  }, [stationsKey, ready])
 }
 
 function ColumnChips({
@@ -58,6 +63,7 @@ function ColumnChips({
   onRemove: (column: StationColumnConfig) => void
 }) {
   const ids = columns.map((c) => columnKey(c.station, c.variable))
+  if (ids.length === 0) return null
   return (
     <DraggableSortable
       ids={ids}
@@ -71,6 +77,9 @@ function ColumnChips({
             <div
               {...attributes}
               {...listeners}
+              // dnd-kit makes the chip a button; a group can hold the remove button.
+              role="group"
+              aria-label={`${readingLabel(column.variable)}, ${name(column.station)}, column ${i + 1}`}
               ref={setNodeRef}
               style={{ ...attributes.style, transform, transition }}
               className={cn(
@@ -79,7 +88,6 @@ function ColumnChips({
               )}
               title={`${column.station.stid} · ${column.variable}`}
             >
-              <DragHandleIcon className="column-order-input__handle" />
               <span className="column-order-input__n">{i + 1}</span>
               {readingLabel(column.variable)}
               <span className="column-order-input__station">{name(column.station)}</span>
@@ -114,14 +122,14 @@ function SilentNote({ names }: { names: string[] }) {
   )
 }
 
-// Why there are no chips to show, or null when there are.
-function statusNote(tracked: TrackedStations, hasColumns: boolean): string | null {
+// Why there are no chips to show, or null when there are (or the stations simply have none).
+function statusNote(tracked: TrackedStations, hasStations: boolean): string | null {
   if (tracked.status === 'error') {
     return `Could not load the SnowObs list (${tracked.message}), so the columns cannot be shown or reordered until it is back.`
   }
   const notes = {
     loading: 'Loading readings from SnowObs…',
-    ready: hasColumns ? null : 'Add a station to see its columns here.',
+    ready: hasStations ? null : 'Add a station to see its columns here.',
   }
   return notes[tracked.status]
 }
@@ -170,13 +178,15 @@ function useColumnOrder(value: unknown, stationsValue: unknown) {
   }
 }
 
-// The page's table columns, one per station and reading, as sortable chips.
-// Which columns exist comes from the stations field and SnowObs's latest
-// reports; this field only stores their order, and stores nothing while it is
-// the default.
-export function ColumnOrderInput({ path, field }: JSONFieldClientProps) {
+// The table's columns as sortable chips. Only their order is stored, and nothing while it's the
+// default; which columns exist comes from the stations field (see ADR 021).
+export function ColumnOrderInput({
+  path,
+  field,
+  stationsPath,
+}: JSONFieldClientProps & ColumnOrderInputClientProps) {
   const { value, setValue, showError, errorMessage } = useField<unknown>({ path })
-  const stationsField = useField<unknown>({ path: 'stations' })
+  const stationsField = useField<unknown>({ path: stationsPath })
   const { tracked, entries, live, stored, columns, isCustom, name, silent, reported } =
     useColumnOrder(value, stationsField.value)
   const removeColumn = ({ station, variable }: StationColumnConfig) =>
@@ -185,11 +195,15 @@ export function ColumnOrderInput({ path, field }: JSONFieldClientProps) {
         stationKey(e) === stationKey(station) ? withoutReading(e, reported(e), variable) : e,
       ),
     )
-  useSyncCustomOrder(JSON.stringify(entries), tracked.status === 'ready', () => {
+  const stationsKey = useMemo(
+    () => JSON.stringify(toStationEntries(stationsField.value)),
+    [stationsField.value],
+  )
+  useSyncCustomOrder(stationsKey, tracked.status === 'ready', () => {
     if (isCustom) setValue(mergeOrder(stored, columns, entries))
   })
 
-  const note = statusNote(tracked, columns.length > 0)
+  const note = statusNote(tracked, entries.length > 0)
   return (
     <div className="field-type json column-order-input mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
