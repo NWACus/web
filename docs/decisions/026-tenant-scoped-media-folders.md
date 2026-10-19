@@ -21,7 +21,7 @@ We dropped `@payloadcms/plugin-multi-tenant` in [ADR 010](010-remove-multi-tenan
 
 1. **Folders are a tenant-scoped collection, assembled in `collectionOverrides`** (`src/collections/Folders/index.ts`): `tenantField()`, a base filter, tenant access, and two `beforeValidate` guards. Payload's own fields and hooks (reparenting, subfolder deletion, `folderType`) are kept.
 
-2. **Folder-enabled collections filter by tenant ID.** Folders and Media use `filterByTenantID`, which resolves the selected tenant's ID once and constrains `tenant` by ID, so the same filter works in list views and inside folder joins.
+2. **Folder-enabled collections filter by tenant ID.** Folders and Media use `filterByTenantID`, which resolves the selected tenant's ID once and constrains `tenant` by ID, so the same filter works in list views and inside folder joins. Folders go one step further with `filterFoldersByTenant`: with no tenant selected they match nothing, because a folder card shows only its name and every center's same-named folders would look identical.
 
 3. **Folder access is narrower than `byTenantRole`.** Folders use Media's permissions, because they exist to organize media. When `byTenantRole` grants `true` and a tenant is selected, read, update and delete become `{ tenant: { equals: <selected tenant ID> } }`, so the REST API matches what the folder views show. This applies to folders only. The same gap exists in every collection that uses `accessByTenantRole`, and closing it there is a separate change.
 
@@ -31,7 +31,7 @@ We dropped `@payloadcms/plugin-multi-tenant` in [ADR 010](010-remove-multi-tenan
 
 ## Consequences
 
-- Enabling folders on another collection (Documents is the obvious next one) means `folders: true`, `baseListFilter: filterByTenantID`, and `validateFolderTenant` in its `beforeValidate` hooks. `__tests__/server/folders.server.test.ts` asserts this for Media only.
+- Enabling folders on another collection (Documents is the obvious next one) means `folders: true`, `baseListFilter: filterByTenantID`, and `validateFolderTenant` in its `beforeValidate` hooks. `__tests__/server/folders.server.test.ts` asserts this for Media only. The root `browseByFolder` view and its nav button are off while Media is the only folder-enabled collection; with a second one, turning it back on gives a cross-collection folder view.
 - Folders are beta upstream. A Payload upgrade can change the generated collection's shape or the folder views' queries. `__tests__/server/folders.server.test.ts` covers our override against a stand-in, not Payload's real generated collection, so re-check folder browsing in the admin after Payload upgrades.
 - Creating a folder through REST with an explicit `tenant` the user has no role in is not blocked, the same as every other collection using `tenantField()`. The admin UI always sends the selected tenant.
 - Folders are excluded from the MCP server: they are admin-only organization.

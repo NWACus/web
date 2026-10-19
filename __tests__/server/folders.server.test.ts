@@ -1,9 +1,9 @@
 // Media's hooks import the Payload config, which jest cannot load
 jest.mock('../../src/payload.config', () => ({}))
 
-import { filterByTenantID } from '@/access/filterByTenant'
 import { folders } from '@/collections/Folders'
 import { FOLDERS_SLUG } from '@/collections/Folders/constants'
+import { filterFoldersByTenant } from '@/collections/Folders/filter'
 import { keepFolderTenant } from '@/collections/Folders/hooks/keepFolderTenant'
 import { validateFolderTenant } from '@/collections/Folders/hooks/validateFolderTenant'
 import { Media } from '@/collections/Media'
@@ -147,7 +147,7 @@ describe('folders config', () => {
 
   it('filters folder views by the selected tenant, keeping the generated admin options', async () => {
     const { admin } = await overridden()
-    expect(admin?.baseListFilter).toBe(filterByTenantID)
+    expect(admin?.baseListFilter).toBe(filterFoldersByTenant)
     expect(admin?.useAsTitle).toBe('name')
     expect(admin?.hidden).toBe(true)
   })
