@@ -6,6 +6,7 @@ export const TENANT_SCOPED_COLLECTIONS = [
   'builtInPages',
   'settings',
   'pages',
+  'stationPages',
   'posts',
   'events',
   'eventGroups',
@@ -15,9 +16,11 @@ export const TENANT_SCOPED_COLLECTIONS = [
   'teams',
   'biographies',
   'documents',
+  'galleries',
   'media',
   'redirects',
   'roleAssignments',
+  'form-submissions',
   'forms',
 ] as const
 
