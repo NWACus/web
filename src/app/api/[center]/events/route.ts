@@ -1,3 +1,6 @@
+// False positive shared with the sibling `api/[center]` routes: route groups keep
+// `(payload)/api/[...slug]` and `api/[center]` apart (see `danger-map/route.ts`).
+// fallow-ignore-file dynamic-segment-name-conflicts
 import { MAX_EVENTS_LIMIT } from '@/constants/defaults'
 import { parseBoxParam } from '@/utilities/geo/boxParam'
 import { parseNearParam } from '@/utilities/geo/nearParam'
