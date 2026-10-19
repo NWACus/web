@@ -60,7 +60,7 @@ export default async function Page({ params, searchParams }: Args) {
     slug: null,
     archived: false,
     stations: [ref],
-    columns: [],
+    columnOrder: [],
     tabs: toStationTabs(undefined),
   }
   const timeZone = centerTimezone(center)

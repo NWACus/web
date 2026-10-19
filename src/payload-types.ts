@@ -1475,27 +1475,13 @@ export interface StationPage {
   stations?: {
     stid: string;
     source: string;
+    hidden?: string[];
   }[];
-  /**
-   * Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.
-   */
-  columns?:
-    | (
-        | 'air_temp'
-        | 'relative_humidity'
-        | 'wind_speed_min'
-        | 'wind_speed'
-        | 'wind_gust'
-        | 'wind_direction'
-        | 'precip_accum_one_hour'
-        | 'snow_depth_24h'
-        | 'snow_depth'
-        | 'intermittent_snow'
-        | 'solar_radiation'
-        | 'pressure'
-        | 'equip_temperature'
-      )[]
-    | null;
+  columnOrder?: {
+    stid: string;
+    source: string;
+    variable: string;
+  }[];
   /**
    * Which views the page shows. An archived page shows only Download.
    */
@@ -4277,7 +4263,7 @@ export interface StationPagesSelect<T extends boolean = true> {
   displayName?: T;
   slug?: T;
   stations?: T;
-  columns?: T;
+  columnOrder?: T;
   tabs?:
     | T
     | {

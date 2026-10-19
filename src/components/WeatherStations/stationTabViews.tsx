@@ -19,7 +19,7 @@ import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
 import { buildStationTable, stationNotes, stationSummaries } from '@/services/snowobs/tableHelpers'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
-import type { StationColumn } from '@/services/stations/stationColumns'
+import type { ColumnOrderEntry, StationEntry } from '@/services/stations/stationColumns'
 import type { StationTabKey } from '@/services/stations/stationTabs'
 import { resolveStationTab } from '@/services/stations/stationTabs'
 import type { ReactNode } from 'react'
@@ -41,9 +41,10 @@ export type StationViewSubject = {
   /** The station page's slug; null for a station no page lists. */
   slug: string | null
   archived: boolean
-  stations: StationRef[]
-  /** The readings the table shows; empty means all reported. */
-  columns: StationColumn[]
+  /** Each with the readings it shows; no `columns` means all it reports. */
+  stations: StationEntry[]
+  /** The table's columns in order; empty means the default order. */
+  columnOrder: ColumnOrderEntry[]
   /** The tabs it shows, in order. */
   tabs: StationTabKey[]
 }
