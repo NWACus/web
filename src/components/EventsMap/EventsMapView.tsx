@@ -7,7 +7,7 @@ import { eventTypesData } from '@/constants/eventTypes'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { formatBoxParam, parseBoxParam } from '@/utilities/geo/boxParam'
-import type { BoundingBox } from '@/utilities/geo/distance'
+import type { BoundingBox, LatLng } from '@/utilities/geo/distance'
 import type { GetEventsResult } from '@/utilities/queries/getEvents'
 import { isValidRelationship } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
@@ -47,8 +47,11 @@ const SIDE_BY_SIDE = '(min-width: 1280px)'
 
 type Loaded = { events: Event[]; total: number; error: null } | { events: null; error: string }
 
-/** The last events loaded stay up while the next set loads, so pins and cards don't flash away. */
-type EventsState = (Loaded | { events: null; error: null }) & { loading: boolean }
+/**
+ * The last events loaded stay up while the next set loads, so pins and cards don't flash away.
+ * `near` is the origin they were sorted from.
+ */
+type EventsState = (Loaded | { events: null; error: null }) & { loading: boolean; near: string }
 
 const NO_EVENTS: Event[] = []
 
@@ -63,27 +66,37 @@ async function loadEvents(url: string, signal: AbortSignal): Promise<Loaded | nu
   }
 }
 
-/** Every event matching the page's filters, unpaginated, nearest first when sorted by distance. */
-function useAllFilteredEvents(center: string, origin: NearOrigin | null): EventsState {
-  const searchParams = useSearchParams()
+/** The events API query: the page's filters, the origin to sort from, and one load's ceiling. */
+function eventsQuery(searchParams: Pick<URLSearchParams, 'get'>, near: string): string {
   const query = new URLSearchParams()
   for (const key of FILTER_KEYS) {
     const value = searchParams.get(key)
     if (value) query.set(key, value)
   }
-  if (origin) query.set('near', origin.query)
+  if (near) query.set('near', near)
   query.set('limit', String(MAP_EVENTS_LIMIT))
-  const queryString = query.toString()
+  return query.toString()
+}
 
-  const [state, setState] = useState<EventsState>({ events: null, error: null, loading: true })
+/** Every event matching the page's filters, unpaginated, nearest first when sorted by distance. */
+function useAllFilteredEvents(center: string, origin: NearOrigin | null): EventsState {
+  const near = origin?.query ?? ''
+  const queryString = eventsQuery(useSearchParams(), near)
+
+  const [state, setState] = useState<EventsState>({
+    events: null,
+    error: null,
+    loading: true,
+    near: '',
+  })
   useEffect(() => {
     const controller = new AbortController()
     setState((previous) => ({ ...previous, loading: true }))
     loadEvents(`/api/${center}/events?${queryString}`, controller.signal).then((next) => {
-      if (next) setState({ ...next, loading: false })
+      if (next) setState({ ...next, loading: false, near })
     })
     return () => controller.abort()
-  }, [center, queryString])
+  }, [center, queryString, near])
 
   return state
 }
@@ -132,10 +145,15 @@ function useSelection(
   }
 }
 
-function eventMeta(event: Event, origin: NearOrigin | null): string {
+/** Where the cards measure distance from: only once the events on screen were sorted from there. */
+function distanceOrigin(state: EventsState, origin: NearOrigin | null): LatLng | null {
+  return origin && state.near === origin.query ? origin.point : null
+}
+
+function eventMeta(event: Event, from: LatLng | null): string {
   const typeLabel = eventTypesData.find((type) => type.value === event.type)?.label
   const when = formatDateTime(event.startDate, event.startDate_tz, 'EEE, MMM d · h:mm a')
-  const distance = distanceLabel(event, origin?.point ?? null)
+  const distance = distanceLabel(event, from)
   return [typeLabel, when, distance].filter(Boolean).join(' · ')
 }
 
@@ -222,9 +240,10 @@ function DetailsToggle({
   )
 }
 
-function EventMapCard({ event, selection }: { event: Event; selection: Selection }) {
+type CardsProps = { selection: Selection; distanceFrom: LatLng | null }
+
+function EventMapCard({ event, selection, distanceFrom }: CardsProps & { event: Event }) {
   const key = placeKeyFor(event)
-  const origin = useNearOrigin()
   const detailsId = useId()
   const [expanded, setExpanded] = useState(false)
 
@@ -242,7 +261,7 @@ function EventMapCard({ event, selection }: { event: Event; selection: Selection
     >
       <EventThumbnail event={event} />
       <div className="min-w-0 flex-1">
-        <div className="text-xs text-muted-foreground">{eventMeta(event, origin)}</div>
+        <div className="text-xs text-muted-foreground">{eventMeta(event, distanceFrom)}</div>
         <Link
           href={`/events/${event.slug}`}
           className="font-semibold leading-tight hover:underline"
@@ -266,24 +285,24 @@ function EventMapCard({ event, selection }: { event: Event; selection: Selection
   )
 }
 
-function EventCards({ events, selection }: { events: Event[]; selection: Selection }) {
+function EventCards({ events, ...cardProps }: CardsProps & { events: Event[] }) {
   return (
     <ul className="flex flex-col gap-3">
       {events.map((event) => (
-        <EventMapCard key={event.id} event={event} selection={selection} />
+        <EventMapCard key={event.id} event={event} {...cardProps} />
       ))}
     </ul>
   )
 }
 
 /** Virtual and never-placed events still belong in the list, just not on the map. */
-function UnplacedEvents({ events, selection }: { events: Event[]; selection: Selection }) {
+function UnplacedEvents({ events, ...cardProps }: CardsProps & { events: Event[] }) {
   const unplaced = events.filter((event) => !pointOf(event))
   if (unplaced.length === 0) return null
   return (
     <>
       <h3 className="mt-6 mb-2 text-sm font-semibold text-muted-foreground">Not on the map</h3>
-      <EventCards events={unplaced} selection={selection} />
+      <EventCards events={unplaced} {...cardProps} />
     </>
   )
 }
@@ -310,11 +329,10 @@ function NoEvents({ searchingArea }: { searchingArea: boolean }) {
 function EventsMapList({
   state,
   searchingArea,
-  selection,
-}: {
+  ...cardProps
+}: CardsProps & {
   state: EventsState
   searchingArea: boolean
-  selection: Selection
 }) {
   if (state.error) return <p className="text-destructive">{state.error}</p>
   if (!state.events) {
@@ -329,8 +347,8 @@ function EventsMapList({
   return (
     <>
       <CappedNotice shown={state.events.length} total={state.total} />
-      <EventCards events={state.events.filter(pointOf)} selection={selection} />
-      <UnplacedEvents events={state.events} selection={selection} />
+      <EventCards events={state.events.filter(pointOf)} {...cardProps} />
+      <UnplacedEvents events={state.events} {...cardProps} />
     </>
   )
 }
@@ -397,13 +415,12 @@ function ListPane({
   state,
   searchedBox,
   listRef,
-  selection,
   onClearArea,
-}: {
+  ...cardProps
+}: CardsProps & {
   state: EventsState
   searchedBox: BoundingBox | null
   listRef: RefObject<HTMLDivElement | null>
-  selection: Selection
   onClearArea: () => void
 }) {
   return (
@@ -412,7 +429,7 @@ function ListPane({
       {searchedBox && <SearchedAreaBar loading={state.loading} onClear={onClearArea} />}
       {/* Dimmed while the next set loads; the last set stays up until it arrives. */}
       <div className={cn('transition-opacity', state.loading && 'opacity-60')}>
-        <EventsMapList state={state} searchingArea={searchedBox !== null} selection={selection} />
+        <EventsMapList state={state} searchingArea={searchedBox !== null} {...cardProps} />
       </div>
     </div>
   )
@@ -462,6 +479,7 @@ export function EventsMapView({
         searchedBox={searchedBox}
         listRef={listRef}
         selection={selection}
+        distanceFrom={distanceOrigin(state, origin)}
         onClearArea={() => setBboxParam(null)}
       />
     </div>

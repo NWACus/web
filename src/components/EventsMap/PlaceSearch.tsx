@@ -10,22 +10,27 @@ export type PickedPlace = { label: string; point: LatLng }
 
 const SUGGEST_DELAY_MS = 250
 
+/** Suggestions, and the text they were found for. */
+type Suggestions = { query: string; list: PlaceSuggestion[] }
+
+const NO_SUGGESTIONS: Suggestions = { query: '', list: [] }
+
 function usePlaceSuggestions(query: string, sessionToken: string) {
-  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([])
+  const [results, setResults] = useState<Suggestions>(NO_SUGGESTIONS)
   const [failed, setFailed] = useState(false)
+  const trimmed = query.trim()
 
   useEffect(() => {
-    const trimmed = query.trim()
     if (trimmed.length < 2) {
-      setSuggestions([])
+      setResults({ query: trimmed, list: [] })
       setFailed(false)
       return
     }
     const controller = new AbortController()
     const timer = setTimeout(() => {
       suggestPlaces(trimmed, sessionToken, controller.signal)
-        .then((next) => {
-          setSuggestions(next)
+        .then((list) => {
+          setResults({ query: trimmed, list })
           setFailed(false)
         })
         .catch(() => setFailed(!controller.signal.aborted))
@@ -34,9 +39,25 @@ function usePlaceSuggestions(query: string, sessionToken: string) {
       clearTimeout(timer)
       controller.abort()
     }
-  }, [query, sessionToken])
+  }, [trimmed, sessionToken])
 
-  return { suggestions, failed }
+  // The last list stays up while the next one loads, but it's only `current` once it matches the
+  // text, so Enter can't pick a place found for what the reader typed before.
+  return { suggestions: results.list, current: results.query === trimmed, failed }
+}
+
+/** The highlighted suggestion, back to none whenever the list changes so it never points past it. */
+function useActiveSuggestion(suggestions: PlaceSuggestion[]) {
+  const [state, setState] = useState({ suggestions, index: -1 })
+  const index = state.suggestions === suggestions ? state.index : -1
+  const moveTo = (next: number) =>
+    setState({ suggestions, index: Math.max(-1, Math.min(next, suggestions.length - 1)) })
+  return {
+    index,
+    next: () => moveTo(index + 1),
+    previous: () => moveTo(index - 1),
+    reset: () => moveTo(-1),
+  }
 }
 
 /** The box's text. A prefilled place isn't a search, so it opens no suggestions or billed session. */
@@ -107,9 +128,9 @@ export function PlaceSearch({
   // One Mapbox billing session per time the sort menu opens.
   const [sessionToken] = useState(() => crypto.randomUUID())
   const placeQuery = usePlaceQuery(currentPlace)
-  const [active, setActive] = useState(-1)
   const [lookupFailed, setLookupFailed] = useState(false)
-  const { suggestions, failed } = usePlaceSuggestions(placeQuery.searchText, sessionToken)
+  const { suggestions, current, failed } = usePlaceSuggestions(placeQuery.searchText, sessionToken)
+  const active = useActiveSuggestion(suggestions)
 
   const pick = (suggestion: PlaceSuggestion) =>
     retrievePlace(suggestion.id, sessionToken)
@@ -117,10 +138,10 @@ export function PlaceSearch({
       .catch(() => setLookupFailed(true))
 
   const keyActions: Record<string, () => void> = {
-    ArrowDown: () => setActive((index) => Math.min(index + 1, suggestions.length - 1)),
-    ArrowUp: () => setActive((index) => Math.max(index - 1, -1)),
+    ArrowDown: active.next,
+    ArrowUp: active.previous,
     Enter: () => {
-      const suggestion = suggestions[active] ?? suggestions[0]
+      const suggestion = current && (suggestions[active.index] ?? suggestions[0])
       if (suggestion) pick(suggestion)
     },
   }
@@ -137,7 +158,7 @@ export function PlaceSearch({
         aria-expanded={suggestions.length > 0}
         aria-controls={listId}
         aria-autocomplete="list"
-        aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
+        aria-activedescendant={active.index >= 0 ? `${listId}-${active.index}` : undefined}
         autoComplete="off"
         placeholder="Town, trailhead or ZIP"
         // iOS Safari zooms the page into any input under 16px.
@@ -146,7 +167,7 @@ export function PlaceSearch({
         onFocus={(event) => placeQuery.selectPrefilled(event.target)}
         onChange={(event) => {
           placeQuery.change(event.target.value)
-          setActive(-1)
+          active.reset()
           setLookupFailed(false)
         }}
         onKeyDown={(event) => {
@@ -156,7 +177,7 @@ export function PlaceSearch({
           action()
         }}
       />
-      <SuggestionList id={listId} suggestions={suggestions} active={active} onPick={pick} />
+      <SuggestionList id={listId} suggestions={suggestions} active={active.index} onPick={pick} />
       {(failed || lookupFailed) && (
         <p role="alert" className="mt-2 text-sm text-destructive">
           Place search isn’t working right now. Try again, or use your location.

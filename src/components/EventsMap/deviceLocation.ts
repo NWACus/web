@@ -15,19 +15,24 @@ const CHANGE_EVENT = 'events:device-location-change'
 // ever stored or sent to the server.
 const round = (degrees: number) => Math.round(degrees * 100) / 100
 
+// Read when session storage is off (some private modes), so the location still lasts until the
+// next reload.
+let memoryCopy: string | null = null
+
 function read(): string | null {
   try {
-    return window.sessionStorage.getItem(STORAGE_KEY)
+    return window.sessionStorage.getItem(STORAGE_KEY) ?? memoryCopy
   } catch {
-    return null
+    return memoryCopy
   }
 }
 
 export function saveDeviceLocation({ latitude, longitude }: LatLng): void {
+  memoryCopy = `${round(latitude)},${round(longitude)}`
   try {
-    window.sessionStorage.setItem(STORAGE_KEY, `${round(latitude)},${round(longitude)}`)
+    window.sessionStorage.setItem(STORAGE_KEY, memoryCopy)
   } catch {
-    // Storage can be off (private modes); the location then lasts only until the next reload.
+    // Storage is off; `memoryCopy` stands in for it.
   }
   window.dispatchEvent(new Event(CHANGE_EVENT))
 }

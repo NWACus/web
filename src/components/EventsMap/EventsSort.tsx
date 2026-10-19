@@ -8,6 +8,7 @@ import { ArrowUpDown, Calendar, Check, Loader2, LocateFixed, MapPin, X } from 'l
 import { useQueryStates } from 'nuqs'
 import { useId, useRef, useState, type RefObject } from 'react'
 import { requestDeviceLocation, saveDeviceLocation } from './deviceLocation'
+import { placeSearchAvailable } from './mapboxPlaces'
 import { PlaceSearch, type PickedPlace } from './PlaceSearch'
 import { DEVICE_NEAR, nearParams, useNearOrigin, type NearOrigin } from './useNearOrigin'
 
@@ -19,20 +20,30 @@ type Locating = { busy: boolean; error: string | null }
 /** "Use my location": asks only on this click, then keeps the answer in the session. */
 function useLocateMe(onLocated: () => void, onFailed: () => void) {
   const [state, setState] = useState<Locating>({ busy: false, error: null })
+  // Bumped by each request and by `cancel`, so an answer that arrives too late is dropped.
+  const requestRef = useRef(0)
   const locate = () => {
+    const request = ++requestRef.current
+    const isCurrent = () => request === requestRef.current
     setState({ busy: true, error: null })
     requestDeviceLocation()
       .then((point) => {
+        if (!isCurrent()) return
         saveDeviceLocation(point)
         setState({ busy: false, error: null })
         onLocated()
       })
       .catch((error: Error) => {
+        if (!isCurrent()) return
         setState({ busy: false, error: error.message })
         onFailed()
       })
   }
-  return { ...state, locate }
+  const cancel = () => {
+    requestRef.current++
+    setState({ busy: false, error: null })
+  }
+  return { ...state, locate, cancel }
 }
 
 /** Marks the sort in effect, at the end of its row. */
@@ -176,7 +187,9 @@ function NearestOptions({
       </div>
       {/* Indented to the option text, so both controls read as part of "Nearest first". */}
       <div className="flex flex-col gap-2 pr-2 pb-1 pl-8">
-        <PlaceSearch inputRef={placeInputRef} currentPlace={inUse.place} onPick={onPickPlace} />
+        {placeSearchAvailable && (
+          <PlaceSearch inputRef={placeInputRef} currentPlace={inUse.place} onPick={onPickPlace} />
+        )}
         <UseMyLocationButton locating={locating} inUse={inUse.device} />
       </div>
     </>
@@ -198,8 +211,14 @@ export function EventsSort() {
     () => sortBy(DEVICE_NEAR, null),
     () => placeInputRef.current?.focus(),
   )
-  const sortSoonest = () => sortBy(null, null)
-  const sortNearPlace = ({ label, point }: PickedPlace) => sortBy(formatNearParam(point), label)
+  // Picked while the location request is pending, a sort wins over its late answer.
+  const sortInstead = (near: string | null, nearLabel: string | null) => {
+    locating.cancel()
+    sortBy(near, nearLabel)
+  }
+  const sortSoonest = () => sortInstead(null, null)
+  const sortNearPlace = ({ label, point }: PickedPlace) =>
+    sortInstead(formatNearParam(point), label)
 
   return (
     <div className="flex min-w-0 items-center gap-1">
