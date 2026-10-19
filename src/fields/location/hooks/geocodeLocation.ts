@@ -56,8 +56,14 @@ const NO_COORDINATES: Required<Coordinates> = {
 }
 
 /** A partial API update only sends the keys it changes; the rest keep their saved values. */
-const withPrevious = (value: unknown, previousValue: unknown) =>
-  isRecord(previousValue) && isRecord(value) ? { ...previousValue, ...value } : value
+function withPrevious(value: unknown, previousValue: unknown) {
+  if (!isRecord(previousValue) || !isRecord(value)) return value
+  const merged = { ...previousValue, ...value }
+  if (isRecord(previousValue.coordinates) && isRecord(value.coordinates)) {
+    merged.coordinates = { ...previousValue.coordinates, ...value.coordinates }
+  }
+  return merged
+}
 
 const addressOf = ({ address, city, state, zip }: Location) => [address, city, state, zip].join('|')
 
@@ -91,7 +97,10 @@ export function coordinatesFromResult(
   result: GeocodeResult,
   previous?: Coordinates | null,
 ): Coordinates | null {
-  if (result.status === 'unavailable') return null
+  // A geocoded point belongs to the old address; dropping it lets the next save try again.
+  if (result.status === 'unavailable') {
+    return hasPoint(previous) && previous?.geocodeStatus !== 'manual' ? NO_COORDINATES : null
+  }
   if (result.status === 'found') {
     return {
       latitude: result.latitude,

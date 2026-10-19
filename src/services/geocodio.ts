@@ -62,11 +62,14 @@ export async function geocodeAddress(
   url.searchParams.set('q', query)
   url.searchParams.set('country', 'US')
   url.searchParams.set('limit', '1')
-  url.searchParams.set('api_key', apiKey)
 
   let response: Response
   try {
-    response = await fetch(url, { signal: AbortSignal.timeout(5000) })
+    // A header rather than `api_key=`, so the key stays out of logged request URLs.
+    response = await fetch(url, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      signal: AbortSignal.timeout(5000),
+    })
   } catch (error) {
     return {
       status: 'unavailable',

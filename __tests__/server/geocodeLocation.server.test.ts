@@ -111,6 +111,14 @@ describe('planGeocode', () => {
     expect(planGeocode(found, saved)).toBe('keep')
   })
 
+  it('marks API-sent coordinates as manual, even when only one of them is sent', () => {
+    const failed = { ...address, coordinates: { geocodeStatus: 'failed' as const } }
+    expect(planGeocode({ coordinates: { latitude: 47.6, longitude: -121.7 } }, failed)).toBe(
+      'mark-manual',
+    )
+    expect(planGeocode({ coordinates: { latitude: 47.6 } }, saved)).toBe('mark-manual')
+  })
+
   it('reads a partial update against the saved location', () => {
     expect(planGeocode({ placeName: 'Community Hall' }, saved)).toBe('keep')
     const virtual = { ...address, isVirtual: true }
@@ -150,7 +158,17 @@ describe('coordinatesFromResult', () => {
     expect(coordinatesFromResult({ status: 'no-match' }, manual)).toBe(manual)
   })
 
-  it('changes nothing when the geocoder is unavailable', () => {
-    expect(coordinatesFromResult({ status: 'unavailable', reason: 'x' }, geocodedPoint)).toBeNull()
+  it('drops a geocoded point when the geocoder is unavailable, so the next save tries again', () => {
+    expect(coordinatesFromResult({ status: 'unavailable', reason: 'x' }, geocodedPoint)).toEqual({
+      latitude: null,
+      longitude: null,
+      geocodeStatus: null,
+    })
+  })
+
+  it('changes nothing else when the geocoder is unavailable', () => {
+    const manual = { ...geocodedPoint, geocodeStatus: 'manual' as const }
+    expect(coordinatesFromResult({ status: 'unavailable', reason: 'x' }, manual)).toBeNull()
+    expect(coordinatesFromResult({ status: 'unavailable', reason: 'x' }, {})).toBeNull()
   })
 })
