@@ -70,12 +70,16 @@ function useFitToPlaces(map: mapboxgl.Map | null, places: EventPlace[], searchin
     .join('|')
   const placesRef = useRef(places)
   placesRef.current = places
+  // Read, not a dependency: clearing the area refits once its wider results land, not first on
+  // the in-area pins still showing.
+  const searchingRef = useRef(searching)
+  searchingRef.current = searching
 
   useEffect(() => {
     const bounds = boundsOf(placesRef.current)
-    if (!map || searching || !bounds) return
+    if (!map || searchingRef.current || !bounds) return
     map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: FOCUS_ZOOM, duration: 0 })
-  }, [map, placesKey, searching])
+  }, [map, placesKey])
 }
 
 function boundsOf(places: EventPlace[]): mapboxgl.LngLatBounds | null {
@@ -203,9 +207,21 @@ function panToShow(map: mapboxgl.Map, popupElement: HTMLElement) {
 
 function usePanIntoView(map: mapboxgl.Map, popupRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
-    const popup = popupRef.current
-    // A pin split out of a cluster isn't on the map yet, so its popup has no position to read.
-    if (popup?.isConnected) panToShow(map, popup)
+    const show = () => {
+      const popup = popupRef.current
+      // A pin split out of a cluster isn't on the map until its marker is added.
+      if (popup?.isConnected) panToShow(map, popup)
+    }
+    // A frame later, "Show on map" has started its fly to the pin, which would cancel a pan now:
+    // pan once it lands instead.
+    const frame = requestAnimationFrame(() => {
+      if (map.isMoving()) map.once('moveend', show)
+      else show()
+    })
+    return () => {
+      cancelAnimationFrame(frame)
+      map.off('moveend', show)
+    }
   }, [map, popupRef])
 }
 
@@ -248,7 +264,8 @@ function useClosePopup(map: mapboxgl.Map | null, selectedKey: string | null, onC
   useEffect(() => {
     if (!open) return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onCloseRef.current()
+      // Already handled by an open popover, such as the sort menu, which closes instead.
+      if (event.key === 'Escape' && !event.defaultPrevented) onCloseRef.current()
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)

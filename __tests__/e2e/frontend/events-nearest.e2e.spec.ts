@@ -52,7 +52,11 @@ test.describe('Events sorted by distance', () => {
   test('a typed place in the URL sorts on the server, with online events last', async ({
     page,
   }) => {
-    await page.goto(`${TENANT_BASE_URL}/events?near=47.5951,-120.6624&nearLabel=Leavenworth`)
+    // Only the "event" type, whose seed includes an online event that's always upcoming (the
+    // "Hydration Test Event"), so there's an online event to find at the end of the list.
+    await page.goto(
+      `${TENANT_BASE_URL}/events?types=event&near=47.5951,-120.6624&nearLabel=Leavenworth`,
+    )
 
     await expect(page.getByRole('button', { name: 'Nearest to Leavenworth' })).toBeVisible()
     expect(isAscending(await listedMiles(page))).toBe(true)
@@ -67,13 +71,15 @@ test.describe('Events sorted by distance', () => {
     )
     await page.keyboard.press('Escape')
 
+    // Online events sort after every placed one, so scroll until more loads bring them in.
     const onlineHeading = page.getByRole('heading', { name: 'Online & no location' })
-    if (await onlineHeading.count()) {
-      const followingDistances = page.locator('h3:has-text("Online & no location") ~ div', {
-        hasText: /mi away$/,
-      })
-      await expect(followingDistances).toHaveCount(0)
-    }
+    await expect(async () => {
+      await page.mouse.wheel(0, 10_000)
+      await expect(onlineHeading).toBeVisible({ timeout: 1_000 })
+    }).toPass()
+    const afterHeading = page.locator('h3:has-text("Online & no location") ~ div')
+    await expect(afterHeading.filter({ hasText: 'Hydration Test Event' })).toHaveCount(1)
+    await expect(afterHeading.getByText(/mi away$/)).toHaveCount(0)
 
     await page.getByRole('button', { name: 'Sort soonest first instead' }).click()
     await expect(page).not.toHaveURL(/near=/)

@@ -26,9 +26,13 @@ const retrieveResponse = z.object({
     .rest(z.unknown()),
 })
 
+const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
+
+/** Whether there's a token to search with; without one, Mapbox turns every lookup away. */
+export const placeSearchAvailable = TOKEN !== ''
+
 function searchUrl(path: string, params: Record<string, string>): string {
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
-  return `${SEARCH_API}/${path}?${new URLSearchParams({ ...params, access_token: token })}`
+  return `${SEARCH_API}/${path}?${new URLSearchParams({ ...params, access_token: TOKEN })}`
 }
 
 export async function suggestPlaces(
