@@ -7,32 +7,25 @@
 
 jest.mock('../../src/payload.config', () => ({}))
 
-import type { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
 import { navigationSeed } from '@/endpoints/seed/navigation'
+import type { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
 import type { Payload } from 'payload'
+import { buildBuiltInPage, buildPage, buildTenant } from '../builders'
 
-// Minimal stubs — navigationSeed only uses payload.logger.warn
-
-const mockPayload = {
+const mockPayload: Payload = {
+  // @ts-expect-error - partial mock of pino Logger; navigationSeed only warns
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
-} as unknown as Payload
-
-function makeTenant(slug: string, id = 1): Tenant {
-  return { id, slug, name: slug.toUpperCase() } as Tenant
 }
 
-function makePage(slug: string, title: string, id = 100): Page {
-  return { id, slug, title } as Page
-}
+const makePage = (slug: string, title: string, id = 100) => buildPage({ id, slug, title })
 
-function makeBuiltInPage(url: string, title: string, id = 200): BuiltInPage {
-  return { id, url, title } as BuiltInPage
-}
+const makeBuiltInPage = (url: string, title: string, id = 200) =>
+  buildBuiltInPage({ id, url, title })
 
 type NavItem = NonNullable<NonNullable<Navigation['weather']>['items']>[number]
 
 function itemLabel(item: NavItem): string | undefined {
-  return 'link' in item ? item.link?.label ?? undefined : item.label ?? undefined
+  return 'link' in item ? (item.link?.label ?? undefined) : (item.label ?? undefined)
 }
 
 function itemRefId(item: NavItem): number | undefined {
@@ -49,10 +42,10 @@ describe('navigationSeed — Weather tab', () => {
   const weatherToolsPage = makePage('weather-tools', 'Weather Tools', 402)
 
   function buildNav(
-    tenantSlug: string,
+    tenantSlug: Tenant['slug'],
     opts: { includeWeatherForecast?: boolean; includeStationsPage?: boolean } = {},
   ) {
-    const tenant = makeTenant(tenantSlug)
+    const tenant = buildTenant({ slug: tenantSlug, name: tenantSlug.toUpperCase() })
     const pages: Record<string, Record<string, Page>> = {
       [tenantSlug]: {
         'weather-tools': weatherToolsPage,
@@ -123,24 +116,21 @@ describe('navigationSeed — Weather tab', () => {
     const nav = buildNav('nwac', { includeStationsPage: true })
     const items = nav.weather?.items ?? []
     const wsItem = items.find((i) => itemLabel(i) === 'Weather Stations')
-    expect(wsItem).toBeDefined()
-    expect(itemRefId(wsItem!)).toBe(stationsPage.id)
+    expect(wsItem && itemRefId(wsItem)).toBe(stationsPage.id)
   })
 
   it('labels the station map "Weather Stations Map" for NWAC', () => {
     const nav = buildNav('nwac', { includeStationsPage: true })
     const items = nav.weather?.items ?? []
     const mapItem = items.find((i) => itemLabel(i) === 'Weather Stations Map')
-    expect(mapItem).toBeDefined()
-    expect(itemRefId(mapItem!)).toBe(stationMapBIP.id)
+    expect(mapItem && itemRefId(mapItem)).toBe(stationMapBIP.id)
   })
 
   it('links Weather Stations directly to the map for non-NWAC tenants', () => {
     const nav = buildNav('dvac')
     const items = nav.weather?.items ?? []
     const wsItem = items.find((i) => itemLabel(i) === 'Weather Stations')
-    expect(wsItem).toBeDefined()
-    expect(itemRefId(wsItem!)).toBe(stationMapBIP.id)
+    expect(wsItem && itemRefId(wsItem)).toBe(stationMapBIP.id)
   })
 
   it('does not include a "Weather Stations Map" item for non-NWAC tenants', () => {
