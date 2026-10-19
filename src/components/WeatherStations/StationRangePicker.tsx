@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/utilities/ui'
-import { addDays, format, isValid, max, min, parse, parseISO, subDays, subMonths } from 'date-fns'
+import { format, parseISO, subMonths } from 'date-fns'
 import { CalendarDays, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
@@ -19,48 +19,22 @@ import {
   EARLIEST_CUSTOM_DATE,
   formatRangeLabel,
   presetRange,
-  rangeDays,
   todayInZone,
   toIsoDate,
 } from './stationPeriods'
+import {
+  applicableRange,
+  FIELD_FORMAT,
+  nextDraft,
+  parseTyped,
+  selectableBounds,
+  toDraft,
+} from './stationRangeDraft'
 
 /** How a preset is picked: by navigating to its link, or through a callback. */
 type PeriodTarget =
   | { periodHref: (key: string) => string; onSelectPeriod?: never }
   | { onSelectPeriod: (key: string) => void; periodHref?: never }
-
-function toDraft(range: DateRange | null): DayPickerRange | undefined {
-  return range ? { from: parseISO(range.from), to: parseISO(range.to) } : undefined
-}
-
-// The first click picks the start, the second the end (either order); a third starts over.
-// DayPicker's own rule closes the range on the first click, which reads as a one-day pick.
-function nextDraft(draft: DayPickerRange | undefined, day: Date): DayPickerRange {
-  if (!draft?.from || draft.to) return { from: day, to: undefined }
-  return day < draft.from ? { from: day, to: draft.from } : { from: draft.from, to: day }
-}
-
-// Once a start is picked, days that would push the range past `maxDays` go grey.
-function selectableBounds(draft: DayPickerRange | undefined, today: Date, maxDays: number) {
-  const earliest = parseISO(EARLIEST_CUSTOM_DATE)
-  if (!draft?.from || draft.to) return { earliest, latest: today }
-  return {
-    earliest: max([earliest, subDays(draft.from, maxDays - 1)]),
-    latest: min([today, addDays(draft.from, maxDays - 1)]),
-  }
-}
-
-/** The draft as a range to apply, or null when it is incomplete or out of bounds. */
-function applicableRange(
-  draft: DayPickerRange | undefined,
-  maxDays: number,
-  today: string,
-): DateRange | null {
-  if (!draft?.from) return null
-  const range = { from: toIsoDate(draft.from), to: toIsoDate(draft.to ?? draft.from) }
-  const inBounds = range.from >= EARLIEST_CUSTOM_DATE && range.to <= today
-  return inBounds && range.from <= range.to && rangeDays(range) <= maxDays ? range : null
-}
 
 function PeriodList({
   periods,
@@ -147,21 +121,10 @@ function RangeCalendar({
   )
 }
 
-const FIELD_FORMAT = 'MMM d, yyyy'
-// Typed dates: the field's own format, then numeric US and ISO dates.
-const TYPED_FORMATS = [FIELD_FORMAT, 'MMM d yyyy', 'M/d/yyyy', 'yyyy-MM-dd', 'MMM d, yy', 'M/d/yy']
-
-function parseTyped(text: string): Date | null {
-  const trimmed = text.trim()
-  for (const pattern of TYPED_FORMATS) {
-    const date = parse(trimmed, pattern, new Date())
-    // A `yyyy` pattern reads "26" as the year 26, so leave short years to the `yy` patterns.
-    if (isValid(date) && date.getFullYear() >= 1000) return date
-  }
-  return null
-}
-
-/** Shows a date as "Oct 10, 2026"; a typed date takes effect on blur or Enter. */
+/**
+ * Shows a date as "Oct 10, 2026". A typed date updates the draft on blur, so a reader can tab on
+ * to the other end, and applies a complete range on Enter.
+ */
 function DateField({
   label,
   value,
@@ -171,16 +134,16 @@ function DateField({
   label: string
   value: Date | undefined
   today: string
-  onChange: (date: Date) => void
+  onChange: (date: Date, apply: boolean) => void
 }) {
   const shown = value ? format(value, FIELD_FORMAT) : ''
   const [text, setText] = useState(shown)
   useEffect(() => setText(shown), [shown])
 
-  const commit = () => {
+  const commit = (apply: boolean) => {
     const date = parseTyped(text)
     const iso = date && toIsoDate(date)
-    if (date && iso && iso >= EARLIEST_CUSTOM_DATE && iso <= today) onChange(date)
+    if (date && iso && iso >= EARLIEST_CUSTOM_DATE && iso <= today) onChange(date, apply)
     else setText(shown)
   }
 
@@ -191,9 +154,9 @@ function DateField({
       placeholder="Oct 1, 2026"
       value={text}
       onChange={(event) => setText(event.target.value)}
-      onBlur={commit}
+      onBlur={() => commit(false)}
       onKeyDown={(event) => {
-        if (event.key === 'Enter') commit()
+        if (event.key === 'Enter') commit(true)
       }}
       className="h-9 w-full sm:w-36"
     />
@@ -208,8 +171,8 @@ function RangeFields({
 }: {
   draft: DayPickerRange | undefined
   today: string
-  onFromChange: (date: Date) => void
-  onToChange: (date: Date) => void
+  onFromChange: (date: Date, apply: boolean) => void
+  onToChange: (date: Date, apply: boolean) => void
 }) {
   return (
     <div className="flex flex-col gap-2 border-t p-3">
@@ -222,8 +185,9 @@ function RangeFields({
   )
 }
 
-// The draft opens on the range in view and is applied the moment an edit completes it, so an
-// untouched preset never turns into the whole days it touches.
+// The draft opens on the range in view and is applied when an edit completes it (a second
+// calendar click, or Enter in a date field), so an untouched preset never turns into the whole
+// days it touches.
 function useRangeDraft({
   value,
   today,
@@ -241,9 +205,9 @@ function useRangeDraft({
   // Shows the draft's start, with the month after it beside it when there is room.
   const showFrom = (from: Date | undefined) =>
     setMonth(from ?? (narrow ? today : subMonths(today, 1)))
-  const edit = (next: DayPickerRange) => {
+  const edit = (next: DayPickerRange, apply = true) => {
     setDraftState(next)
-    const range = next.to ? applicableRange(next, maxDays, toIsoDate(today)) : null
+    const range = apply && next.to ? applicableRange(next, maxDays, toIsoDate(today)) : null
     if (range) onComplete(range)
   }
   const reset = () => {
@@ -251,12 +215,12 @@ function useRangeDraft({
     setDraftState(next)
     showFrom(next?.from)
   }
-  const setFrom = (from: Date) => {
-    edit({ from, to: draft?.to && draft.to >= from ? draft.to : undefined })
+  const setFrom = (from: Date, apply: boolean) => {
+    edit({ from, to: draft?.to && draft.to >= from ? draft.to : undefined }, apply)
     showFrom(from)
   }
-  const setTo = (to: Date) => {
-    edit({ from: draft?.from && draft.from <= to ? draft.from : to, to })
+  const setTo = (to: Date, apply: boolean) => {
+    edit({ from: draft?.from && draft.from <= to ? draft.from : to, to }, apply)
     setMonth(narrow ? to : subMonths(to, 1))
   }
   return { draft, edit, month, setMonth, reset, setFrom, setTo }
@@ -304,7 +268,7 @@ function RangeBody({
       <div className="flex flex-col items-center sm:items-stretch">
         <RangeCalendar
           draft={range.draft}
-          onDraftChange={range.edit}
+          onDraftChange={(next) => range.edit(next)}
           month={range.month}
           onMonthChange={range.setMonth}
           maxDays={maxDays}
