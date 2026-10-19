@@ -1475,7 +1475,6 @@ export interface StationPage {
   stations?: {
     stid: string;
     source: string;
-    columns?: string[];
     hidden?: string[];
   }[];
   columnOrder?: {

@@ -10,7 +10,6 @@ import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
 import {
   columnKey,
-  mergeOrder,
   orderColumns,
   orderToSave,
   readingLabel,
@@ -30,27 +29,10 @@ import {
   XIcon,
 } from '@payloadcms/ui'
 import type { JSONFieldClientProps } from 'payload'
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 
 type Ref = { stid: string; source: string }
 
 export type ColumnOrderInputClientProps = { stationsPath: string }
-
-// When the stations change under a custom order, save the order as shown, so a
-// ticked reading keeps its place even if the column it sits after goes quiet.
-function useSyncCustomOrder(stationsKey: string, ready: boolean, sync: () => void) {
-  const seen = useRef<string | null>(null)
-  const latestSync = useRef(sync)
-  useLayoutEffect(() => {
-    latestSync.current = sync
-  })
-  useEffect(() => {
-    if (!ready) return
-    const previous = seen.current
-    seen.current = stationsKey
-    if (previous !== null && previous !== stationsKey) latestSync.current()
-  }, [stationsKey, ready])
-}
 
 function ColumnChips({
   columns,
@@ -96,7 +78,7 @@ function ColumnChips({
                 type="button"
                 className="column-order-input__remove"
                 aria-label={`Remove ${readingLabel(column.variable)} for ${name(column.station)}`}
-                title="Remove this column (unticks the reading on its station)"
+                title="Hide this reading on its station"
                 // Keep a press on the button from starting a drag of the chip.
                 onMouseDown={(e) => e.stopPropagation()}
                 onKeyDown={(e) => e.stopPropagation()}
@@ -175,11 +157,10 @@ function useColumnOrder(value: unknown, stationsValue: unknown) {
     readings,
     entries,
     live,
-    stored,
     columns: orderColumns(live, stored),
     isCustom: stored.length > 0,
     name: (ref: Ref) => byKey.get(stationKey(ref))?.name ?? ref.stid,
-    silent: entries.filter((e) => !e.columns && readings.of(e).length === 0),
+    silent: entries.filter((e) => readings.of(e).length === 0),
   }
 }
 
@@ -192,7 +173,7 @@ export function ColumnOrderInput({
 }: JSONFieldClientProps & ColumnOrderInputClientProps) {
   const { value, setValue, showError, errorMessage } = useField<unknown>({ path })
   const stationsField = useField<unknown>({ path: stationsPath })
-  const { readings, entries, live, stored, columns, isCustom, name, silent } = useColumnOrder(
+  const { readings, entries, live, columns, isCustom, name, silent } = useColumnOrder(
     value,
     stationsField.value,
   )
@@ -202,13 +183,6 @@ export function ColumnOrderInput({
         stationKey(e) === stationKey(station) ? withoutReading(e, readings.of(e), variable) : e,
       ),
     )
-  const stationsKey = useMemo(
-    () => JSON.stringify(toStationEntries(stationsField.value)),
-    [stationsField.value],
-  )
-  useSyncCustomOrder(stationsKey, readings.status === 'ready', () => {
-    if (isCustom) setValue(mergeOrder(stored, columns, entries))
-  })
 
   const note = statusNote(readings, entries.length > 0, columns.length > 0)
   return (
@@ -222,9 +196,7 @@ export function ColumnOrderInput({
             columns={columns}
             name={name}
             onRemove={removeColumn}
-            onMove={(from, to) =>
-              setValue(orderToSave(arrayMove(columns, from, to), live, stored, entries))
-            }
+            onMove={(from, to) => setValue(orderToSave(arrayMove(columns, from, to), live))}
           />
           <OrderMeta count={columns.length} isCustom={isCustom} onReset={() => setValue([])} />
           <SilentNote names={silent.map(name)} />

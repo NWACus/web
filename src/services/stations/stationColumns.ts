@@ -5,9 +5,8 @@ import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
 
 // Kept free of the Payload config so the admin's column pickers can import it.
 
-/** A station on a page. `columns` lists the only readings its table shows; without it, every
- * reading it reports shows except those in `hidden`, new ones included. */
-export type StationEntry = StationRef & { columns?: string[]; hidden?: string[] }
+/** A station on a page: every reading it reports shows, new ones included, except `hidden`. */
+export type StationEntry = StationRef & { hidden?: string[] }
 
 /** One table column in a page's chosen order. */
 export type ColumnOrderEntry = StationRef & { variable: string }
@@ -20,42 +19,21 @@ export function readingName(variable: string): string {
   return READING_NAMES[variable] ?? variable
 }
 
-/** How the stations table sums up a station's readings: one wide pill, or a pill per reading. */
-export function readingsSummary(
-  station: StationEntry,
-  choices: string[],
-): { all: boolean; labels: string[] } {
-  if (station.columns) {
-    const shown = choices.filter((v) => station.columns?.includes(v)).map(readingLabel)
-    return { all: false, labels: shown.length > 0 ? shown : ['None'] }
-  }
-  if (station.hidden?.length) {
-    return { all: true, labels: [`All except ${station.hidden.map(readingLabel).join(', ')}`] }
-  }
-  return {
-    all: true,
-    labels: [choices.length > 0 ? `All readings · ${choices.length}` : 'All readings'],
-  }
+/** How the stations table sums up a station's readings. */
+export function readingsSummary(station: StationEntry, choices: string[]): string {
+  const hidden = station.hidden ?? []
+  if (hidden.length === 0)
+    return choices.length > 0 ? `All readings · ${choices.length}` : 'All readings'
+  if (choices.every((v) => hidden.includes(v))) return 'None'
+  return `All except ${hidden.map(readingLabel).join(', ')}`
 }
 
 export function showsReading(station: StationEntry, variable: string): boolean {
-  if (station.columns) return station.columns.includes(variable)
   return !station.hidden?.includes(variable)
 }
 
-/**
- * The station showing exactly `shown` of `choices`. While new readings show, it stores what is
- * hidden, so readings missing from `choices` (a later sensor, a timeseries-only one) still show.
- */
-export function withShownReadings(
-  station: StationEntry,
-  choices: string[],
-  shown: ReadonlySet<string>,
-  showNew: boolean,
-): StationEntry {
+export function withHiddenReadings(station: StationEntry, hidden: string[]): StationEntry {
   const ref = { stid: station.stid, source: station.source }
-  if (!showNew) return { ...ref, columns: choices.filter((v) => shown.has(v)) }
-  const hidden = choices.filter((v) => !shown.has(v))
   return hidden.length > 0 ? { ...ref, hidden } : ref
 }
 
@@ -98,7 +76,7 @@ export function selectColumns(
 
 /**
  * The columns in the page's chosen order. A column the order does not list, such as a reading
- * just ticked or a sensor that started reporting, goes after the last column for its reading, or
+ * just shown again or a sensor that started reporting, goes after the last column for its reading, or
  * at the end if there is none; an order entry with no column behind it is ignored.
  */
 export function orderColumns(
@@ -141,45 +119,16 @@ export function pruneColumnOrder(
   })
 }
 
-/**
- * The order to store for the columns as arranged. Entries the arrangement can't show, such as a
- * reading missing from a station's latest report, keep their place after the entry they followed.
- */
-export function mergeOrder(
-  stored: ColumnOrderEntry[],
-  shown: StationColumnConfig[],
-  stations: StationEntry[],
-): ColumnOrderEntry[] {
-  const merged = toColumnOrderEntries(shown)
-  const keyOf = (o: ColumnOrderEntry) => columnKey(o, o.variable)
-  const kept = new Set(merged.map(keyOf))
-  const unseen = new Set(pruneColumnOrder(stored, stations).map(keyOf))
-  stored.forEach((entry, i) => {
-    if (kept.has(keyOf(entry)) || !unseen.has(keyOf(entry))) return
-    const before = stored
-      .slice(0, i)
-      .reverse()
-      .find((o) => kept.has(keyOf(o)))
-    merged.splice(before ? merged.findIndex((o) => keyOf(o) === keyOf(before)) + 1 : 0, 0, entry)
-    kept.add(keyOf(entry))
-  })
-  return merged
-}
-
 // What the column order field stores for an arrangement: nothing while it is the default.
 export function orderToSave(
   next: StationColumnConfig[],
   defaults: StationColumnConfig[],
-  stored: ColumnOrderEntry[],
-  stations: StationEntry[],
 ): ColumnOrderEntry[] {
-  const merged = mergeOrder(stored, next, stations)
-  const isDefault =
-    merged.length === defaults.length &&
-    merged.every(
-      (o, i) => columnKey(o, o.variable) === columnKey(defaults[i].station, defaults[i].variable),
-    )
-  return isDefault ? [] : merged
+  const isDefault = next.every(
+    (c, i) =>
+      columnKey(c.station, c.variable) === columnKey(defaults[i].station, defaults[i].variable),
+  )
+  return isDefault ? [] : toColumnOrderEntries(next)
 }
 
 export function toColumnOrderEntries(columns: StationColumnConfig[]): ColumnOrderEntry[] {

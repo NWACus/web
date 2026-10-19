@@ -16,11 +16,7 @@ describe('validateStations', () => {
     expect(validate('1,2')).toMatch(/needs a SnowObs id and source/)
   })
 
-  it("accepts a station's chosen readings and rejects a malformed list", () => {
-    expect(validate([{ stid: '1', source: 'nwac', columns: ['air_temp'] }])).toBe(true)
-    expect(validate([{ stid: '1', source: 'nwac', columns: 'air_temp' }])).toMatch(
-      /list of readings/,
-    )
+  it("accepts a station's hidden readings and rejects a malformed list", () => {
     expect(validate([{ stid: '1', source: 'nwac', hidden: ['wind_gust'] }])).toBe(true)
     expect(validate([{ stid: '1', source: 'nwac', hidden: 'wind_gust' }])).toMatch(
       /list of readings/,
@@ -47,32 +43,20 @@ describe('toStationRefs', () => {
 })
 
 describe('toStationEntries', () => {
-  it('keeps hidden readings unless the station lists its readings', () => {
+  it("keeps a station's hidden readings and drops anything else", () => {
     expect(
       toStationEntries([
-        { stid: '1', source: 'nwac', hidden: ['wind_gust'] },
-        { stid: '2', source: 'nwac', columns: ['air_temp'], hidden: ['wind_gust'] },
+        { stid: '1', source: 'nwac', hidden: ['wind_gust'], columns: ['air_temp'], extra: 1 },
+        { stid: '2', source: 'nwac', hidden: 'bogus' },
       ]),
     ).toEqual([
       { stid: '1', source: 'nwac', hidden: ['wind_gust'] },
-      { stid: '2', source: 'nwac', columns: ['air_temp'] },
-    ])
-  })
-
-  it("keeps a station's chosen readings and drops anything else", () => {
-    expect(
-      toStationEntries([
-        { stid: '1', source: 'nwac', columns: ['air_temp'], extra: 1 },
-        { stid: '2', source: 'nwac', columns: 'bogus' },
-      ]),
-    ).toEqual([
-      { stid: '1', source: 'nwac', columns: ['air_temp'] },
       { stid: '2', source: 'nwac' },
     ])
   })
 
   it('reduces entries to bare references for toStationRefs', () => {
-    expect(toStationRefs([{ stid: '1', source: 'nwac', columns: [] }])).toEqual([
+    expect(toStationRefs([{ stid: '1', source: 'nwac', hidden: [] }])).toEqual([
       { stid: '1', source: 'nwac' },
     ])
   })

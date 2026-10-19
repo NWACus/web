@@ -3,6 +3,7 @@
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
 import { useEffect, useState } from 'react'
+import { createFetchOnce } from './fetchOnce'
 
 type Readings = Record<string, string[]>
 
@@ -14,28 +15,11 @@ export type ReportedReadings = {
 }
 
 // One request per set of stations, shared by the stations table and the column order field.
-const cache = new Map<string, Promise<Readings>>()
-
-async function load(center: string, keys: string): Promise<Readings> {
-  const response = await fetch(
-    `/api/stationPages/reported-readings?center=${encodeURIComponent(center)}&stations=${encodeURIComponent(keys)}`,
-    { credentials: 'include' },
-  )
-  const body = await response.json()
-  if (!response.ok) throw new Error(body.error ?? `SnowObs lookup failed (${response.status})`)
-  return body.readings
-}
+const fetchReadings = createFetchOnce<Readings>('readings')
 
 function fetchOnce(center: string, keys: string): Promise<Readings> {
-  const id = `${center}|${keys}`
-  const cached = cache.get(id)
-  if (cached) return cached
-  const pending = load(center, keys).catch((error) => {
-    cache.delete(id)
-    throw error
-  })
-  cache.set(id, pending)
-  return pending
+  const query = `center=${encodeURIComponent(center)}&stations=${encodeURIComponent(keys)}`
+  return fetchReadings(`/api/stationPages/reported-readings?${query}`)
 }
 
 /** The readings the public table's default view shows for each station; skipped until enabled. */

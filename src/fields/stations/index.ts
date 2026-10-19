@@ -15,24 +15,19 @@ function isStationRef(value: unknown): value is StationRef {
   )
 }
 
-function isColumnList(value: unknown): value is string[] {
+function isReadingList(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((v) => typeof v === 'string')
 }
 
-function readingChoice(entry: StationRef): Pick<StationEntry, 'columns' | 'hidden'> {
-  const columns = 'columns' in entry ? entry.columns : undefined
-  if (isColumnList(columns)) return { columns }
-  const hidden = 'hidden' in entry ? entry.hidden : undefined
-  return isColumnList(hidden) ? { hidden } : {}
-}
-
-// The stored shape: an ordered list of SnowObs references, each with the
-// readings a station page chose to show or hide for it.
+// The stored shape: an ordered list of SnowObs references, each with the readings a
+// station page hides for it.
 export function toStationEntries(value: unknown): StationEntry[] {
   return Array.isArray(value)
-    ? value
-        .filter(isStationRef)
-        .map((entry) => ({ stid: entry.stid, source: entry.source, ...readingChoice(entry) }))
+    ? value.filter(isStationRef).map((entry) => {
+        const hidden = 'hidden' in entry ? entry.hidden : undefined
+        const ref = { stid: entry.stid, source: entry.source }
+        return isReadingList(hidden) ? { ...ref, hidden } : ref
+      })
     : []
 }
 
@@ -46,10 +41,8 @@ export function validateStations(value: unknown): true | string {
   if (!Array.isArray(value) || !value.every(isStationRef)) {
     return 'Each station needs a SnowObs id and source.'
   }
-  const badList = (s: StationRef) =>
-    ('columns' in s && !isColumnList(s.columns)) || ('hidden' in s && !isColumnList(s.hidden))
-  if (value.some(badList)) {
-    return "A station's shown or hidden readings must be a list of readings."
+  if (value.some((s) => 'hidden' in s && !isReadingList(s.hidden))) {
+    return "A station's hidden readings must be a list of readings."
   }
   const keys = value.map((s) => `${s.source}:${s.stid}`)
   const repeat = keys.find((key, i) => keys.indexOf(key) !== i)
@@ -70,7 +63,7 @@ export type StationsInputClientProps = {
  * An ordered list of SnowObs stations, picked from what the center tracks.
  * Stored as JSON rather than an array field so the admin can render it as a
  * table with its own add control; the value is only ever `(source, stid)` pairs,
- * plus a station's chosen `columns` when `perStationColumns` is on.
+ * plus a station's `hidden` readings when `perStationColumns` is on.
  */
 export function stationsField({
   name,
@@ -107,7 +100,6 @@ export function stationsField({
               properties: {
                 stid: { type: 'string' },
                 source: { type: 'string' },
-                columns: { type: 'array', items: { type: 'string' } },
                 hidden: { type: 'array', items: { type: 'string' } },
               },
               required: ['stid', 'source'],

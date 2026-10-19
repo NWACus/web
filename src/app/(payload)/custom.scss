@@ -156,7 +156,6 @@
     text-decoration: underline;
   }
 
-  &__new,
   &__list label {
     display: flex;
     align-items: center;
@@ -181,12 +180,6 @@
 
   &__quiet {
     font-style: italic;
-  }
-
-  &__summary {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: calc(var(--base) * 0.2);
   }
 
   &__pill {

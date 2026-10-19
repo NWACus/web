@@ -83,19 +83,13 @@ describe('resolveColumns', () => {
     ])
   })
 
-  it("keeps only a station's chosen readings, leaving the others on all of theirs", () => {
+  it("drops a station's hidden readings, leaving the others on all of theirs", () => {
     expect(
       resolveColumns(two, {
-        stations: [{ ...ref('1'), columns: ['snow_depth', 'humidity_not_reported'] }, ref('2')],
+        stations: [{ ...ref('1'), hidden: ['air_temp', 'wind_speed'] }, ref('2')],
         columnOrder: [],
       }),
     ).toEqual([col('2', 'air_temp'), col('2', 'wind_speed'), col('1', 'snow_depth')])
-  })
-
-  it('shows nothing for a station that chose no readings', () => {
-    expect(
-      resolveColumns(two, { stations: [{ ...ref('1'), columns: [] }], columnOrder: [] }),
-    ).toEqual([])
   })
 
   it('puts the columns in the chosen order, whatever their reading', () => {
@@ -137,7 +131,7 @@ describe('resolveColumns', () => {
   it('ignores an order entry with no column behind it', () => {
     expect(
       resolveColumns(two, {
-        stations: [{ ...ref('1'), columns: ['air_temp'] }],
+        stations: [{ ...ref('1'), hidden: ['wind_speed', 'snow_depth'] }],
         columnOrder: order(['9', 'air_temp'], ['1', 'snow_depth'], ['1', 'air_temp']),
       }),
     ).toEqual([col('1', 'air_temp')])

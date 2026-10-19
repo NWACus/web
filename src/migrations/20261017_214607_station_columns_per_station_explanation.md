@@ -4,14 +4,14 @@ Drops the `station_pages_columns` table (the page-level "Table columns" select) 
 
 ## What caused these changes
 
-A station page now chooses table readings per station, stored as an optional `columns` list on each entry of the existing `stations` JSON, and orders the resulting columns with the new `columnOrder` JSON field (one `{ source, stid, variable }` entry per column). The old select both filtered and ordered readings for every station at once.
+A station page now hides readings per station, stored as an optional `hidden` list on each entry of the existing `stations` JSON, and orders its columns with the new `columnOrder` JSON field (one `{ source, stid, variable }` entry per column). The old select filtered and ordered readings for every station at once.
 
 ## Data
 
-Before the drop, `up` copies each page's chosen readings onto every one of its stations as `columns`. If the page had put the readings in a non-default order, it also writes a `column_order` with one entry per reading and station in that order, so the public table is unchanged. Pages that chose no readings are untouched: every station stays on "all readings" and the order stays default.
+The old selection is not carried over. A "show only these readings" list can't become a per-station `hidden` list without knowing what each station reports, and every station now shows new readings automatically. After deploying, a page that used the select shows every reading its stations report, in the default order, until an editor hides readings per station. `hidden` lives inside the existing `stations` JSON, so it needs no schema change.
 
-`down` is lossy: it recreates the table with every reading any station chose, in the default order, and strips `columns` from the stations.
+`down` recreates the empty table and drops `column_order`.
 
 ## Conclusion
 
-`migrate:check` flags the `DROP TABLE`. It is intended, and runs only after the table's rows have been copied into `stations` and `column_order`.
+`migrate:check` flags the `DROP TABLE`. It is intended: the old selection is deliberately not migrated, as above.

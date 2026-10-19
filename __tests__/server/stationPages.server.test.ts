@@ -40,23 +40,23 @@ describe('assembleStationPages', () => {
     expect(pages.find((p) => p.slug === 'alpental')?.tabs).toEqual(['table', 'csv'])
   })
 
-  it("carries each station's chosen readings and the column order, or none", () => {
+  it("carries each station's hidden readings and the column order, or none", () => {
     const pages = assembleStationPages([
       pageDoc({
         slug: 'a',
-        stations: [{ ...ref('1'), columns: ['air_temp'] }, ref('2')],
+        stations: [{ ...ref('1'), hidden: ['air_temp'] }, ref('2')],
         columnOrder: [{ ...ref('2'), variable: 'snow_depth' }],
       }),
       pageDoc({ slug: 'b', columnOrder: undefined }),
     ])
-    expect(pages[0].stations).toEqual([{ ...ref('1'), columns: ['air_temp'] }, ref('2')])
+    expect(pages[0].stations).toEqual([{ ...ref('1'), hidden: ['air_temp'] }, ref('2')])
     expect(pages[0].columnOrder).toEqual([{ ...ref('2'), variable: 'snow_depth' }])
     expect(pages[1].columnOrder).toEqual([])
   })
 
-  it('leaves the chosen readings out of the page summaries', () => {
+  it('leaves the hidden readings out of the page summaries', () => {
     const [page] = assembleStationPages([
-      pageDoc({ slug: 'a', stations: [{ ...ref('1'), columns: ['air_temp'] }] }),
+      pageDoc({ slug: 'a', stations: [{ ...ref('1'), hidden: ['air_temp'] }] }),
     ])
     expect(toPageSummaries([page])[0].stations).toEqual([ref('1')])
   })
