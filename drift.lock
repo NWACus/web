@@ -1108,7 +1108,7 @@ sig = "6ec05c29260eebd3"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/reportedReadings.ts"
-sig = "2cdb6ed5baf73003"
+sig = "a83c435e031b5185"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

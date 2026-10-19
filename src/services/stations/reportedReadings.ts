@@ -11,16 +11,19 @@ import { subHours } from 'date-fns'
 export type StationReadings = {
   /** Each station's table readings, by `source:stid`. */
   readings: Record<string, string[]>
-  /** When a station silent for the table's default window last reported, by `source:stid`. */
+  /** When a recently silent station last reported, by `source:stid`. */
   lastReported: Record<string, string>
 }
 
 // A past day doesn't change; an hour matches the tracking feed that dates it.
 const PAST_DAY_REVALIDATE = 3600
+// Long enough for a once-a-day station between reports; a station quiet longer is down, and lists
+// nothing until it reports again.
+const RECENT_REPORT_HOURS = 48
 
 /**
  * The readings the admin lists for a page's stations: the table's default view (same fetch, so it
- * shares the cache), or for a station silent that long, the last day it reported.
+ * shares the cache), or for a station that reported recently but not in it, its last day.
  */
 export async function fetchReportedReadings(
   center: string,
@@ -42,6 +45,7 @@ export async function fetchReportedReadings(
       const observedAt = current.get(stationKey(station))?.observedAt
       if (!observedAt) return
       const end = new Date(observedAt)
+      if (end < subHours(new Date(), RECENT_REPORT_HOURS)) return
       // One station's old data failing shouldn't hide every other station's readings.
       const lastDay = await fetchStationTimeseries(center, [station], {
         start: subHours(end, 24),
