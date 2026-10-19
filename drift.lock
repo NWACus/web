@@ -1563,7 +1563,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "f82ebebf169b2a73"
+sig = "689157bc85f34804"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"
