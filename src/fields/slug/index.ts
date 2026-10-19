@@ -15,7 +15,6 @@ export const withReservedSlugs = (reserved: string[]): TextFieldSingleValidation
   const lower = new Set(reserved.map((s) => s.toLowerCase()))
   return (value, args) => {
     if (typeof value === 'string' && lower.has(value.toLowerCase())) {
-      // e.g. "map" and "station" are static Next.js routes that shadow this dynamic segment
       return `"${value}" is reserved — it conflicts with a static route and cannot be used as a slug.`
     }
     return validateSlug(value, args)
@@ -61,7 +60,9 @@ export const slugField = (
         }),
       ],
     },
-    validate: options.reservedSlugs?.length ? withReservedSlugs(options.reservedSlugs) : validateSlug,
+    validate: options.reservedSlugs?.length
+      ? withReservedSlugs(options.reservedSlugs)
+      : validateSlug,
     admin: {
       position: 'sidebar',
       description: autoGenerate
