@@ -1152,7 +1152,7 @@ export const seed = async ({
               'Danger Over Time',
               '/forecasts/avalanche/archive/danger-over-time',
             ),
-            ...(weatherPlatformTenants.has(tenant.slug)
+            ...(weatherPlatformTenants.has(tenant.slug) || tenant.slug === 'nwac'
               ? [
                   builtInPage(tenant, 'Mountain Weather', '/weather/forecast'),
                   builtInPage(
@@ -1218,7 +1218,7 @@ export const seed = async ({
       payload,
       Object.values(tenants).find((tenant) => tenant.slug === 'nwac'),
     )
-    const weatherDataPages = await upsert(
+    const accumulatedPrecipPages = await upsert(
       'pages',
       payload,
       incremental,
@@ -1429,7 +1429,7 @@ export const seed = async ({
                   images[tenant.slug]['image2'],
                   nwacStationPages,
                   builtInPages[tenant.slug]['/weather/stations/map'],
-                  weatherDataPages[tenant.slug]['accumulated-precipitation'],
+                  accumulatedPrecipPages[tenant.slug]['accumulated-precipitation'],
                 ),
               ]
             : []),

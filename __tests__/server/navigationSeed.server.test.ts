@@ -1,6 +1,6 @@
 /**
  * Validates the Weather tab structure produced by navigationSeed, covering:
- * - Mountain Weather appears as the first Weather item for weather-platform tenants
+ * - Mountain Weather is the first Weather item for NWAC only
  * - NWAC gets "Weather Stations" → stations page, then "Weather Stations Map" → map
  * - Non-NWAC tenants get "Weather Stations" → map (no separate stations page)
  */
@@ -97,16 +97,18 @@ describe('navigationSeed — Weather tab', () => {
     return navigationSeed(mockPayload, pages, builtInPages, tenant)
   }
 
-  it('includes Mountain Weather as first Weather item for weather-platform tenant (sac)', () => {
-    const nav = buildNav('sac', { includeWeatherForecast: true })
+  it('includes Mountain Weather as the first Weather item for NWAC', () => {
+    const nav = buildNav('nwac', { includeWeatherForecast: true, includeStationsPage: true })
     const items = nav.weather?.items ?? []
     expect(items.length).toBeGreaterThanOrEqual(2)
     expect(itemLabel(items[0])).toBe('Mountain Weather')
     expect(itemRefId(items[0])).toBe(weatherForecastBIP.id)
   })
 
-  it('omits Mountain Weather for non-weather-platform tenants', () => {
-    const nav = buildNav('dvac')
+  const nonNwacSlugs: Tenant['slug'][] = ['dvac', 'sac', 'snfac']
+
+  it.each(nonNwacSlugs)('omits Mountain Weather for %s', (slug) => {
+    const nav = buildNav(slug, { includeWeatherForecast: true })
     const items = nav.weather?.items ?? []
     const labels = items.map(itemLabel)
     expect(labels).not.toContain('Mountain Weather')
