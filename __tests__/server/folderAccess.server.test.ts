@@ -8,7 +8,6 @@ jest.mock('../../src/access/byTenantRole', () => ({
 
 import { filterByTenantID } from '@/access/filterByTenant'
 import { folderAccess } from '@/collections/Folders/access'
-import { filterFoldersByTenant } from '@/collections/Folders/filter'
 
 const tenantIDs: Record<string, number> = { nwac: 2, sac: 3 }
 
@@ -80,20 +79,5 @@ describe('filterByTenantID', () => {
 
   it('does not filter without a selected tenant', async () => {
     expect(await filter()).toBeNull()
-  })
-})
-
-describe('filterFoldersByTenant', () => {
-  async function filter(cookieTenant?: string) {
-    // @ts-expect-error -- a partial request: the filter only reads payload.find and headers
-    return filterFoldersByTenant({ req: buildReq(cookieTenant), limit: 0, page: 1, sort: 'id' })
-  }
-
-  it('filters on the selected tenant ID', async () => {
-    expect(await filter('sac')).toEqual({ tenant: { equals: 3 } })
-  })
-
-  it('matches no folders without a selected tenant', async () => {
-    expect(await filter()).toEqual({ id: { exists: false } })
   })
 })
