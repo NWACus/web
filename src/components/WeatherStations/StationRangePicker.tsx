@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/utilities/ui'
-import { format, parseISO, subMonths } from 'date-fns'
+import { differenceInCalendarDays, format, parseISO, subMonths } from 'date-fns'
 import { CalendarDays, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
@@ -114,6 +114,8 @@ function RangeCalendar({
       startMonth={parseISO(EARLIEST_CUSTOM_DATE)}
       endMonth={today}
       disabled={{ before: earliest, after: latest }}
+      // Marks today in the center's zone, the last day that can be picked.
+      today={today}
       captionLayout="dropdown"
       // Two months side by side would otherwise highlight the same days twice.
       showOutsideDays={false}
@@ -163,14 +165,20 @@ function DateField({
   )
 }
 
+function capLabel(maxDays: number): string {
+  return maxDays > 366 ? `${Math.round(maxDays / 365)} years` : `${maxDays} days`
+}
+
 function RangeFields({
   draft,
   today,
+  maxDays,
   onFromChange,
   onToChange,
 }: {
   draft: DayPickerRange | undefined
   today: string
+  maxDays: number
   onFromChange: (date: Date, apply: boolean) => void
   onToChange: (date: Date, apply: boolean) => void
 }) {
@@ -181,6 +189,12 @@ function RangeFields({
         <span aria-hidden="true">–</span>
         <DateField label="End date" value={draft?.to} today={today} onChange={onToChange} />
       </div>
+      {/* Typed dates can overshoot the cap the calendar greys out, so say why nothing applied. */}
+      {draft?.from && draft.to && differenceInCalendarDays(draft.to, draft.from) >= maxDays && (
+        <p role="alert" className="text-xs text-destructive">
+          Pick a range of up to {capLabel(maxDays)}.
+        </p>
+      )}
     </div>
   )
 }
@@ -277,6 +291,7 @@ function RangeBody({
         <RangeFields
           draft={range.draft}
           today={todayIso}
+          maxDays={maxDays}
           onFromChange={range.setFrom}
           onToChange={range.setTo}
         />

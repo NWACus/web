@@ -60,10 +60,11 @@ describe('StationRangePicker', () => {
     expect(onApplyCustom).toHaveBeenCalledWith({ from: '2026-09-01', to: '2026-09-30' })
   })
 
-  it('does not apply a typed range past the cap', () => {
+  it('does not apply a typed range past the cap, and says why', () => {
     const { onApplyCustom } = renderPicker()
     fireEvent.keyDown(typeInto('Start date', '1/1/26'), { key: 'Enter' })
     expect(onApplyCustom).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent('Pick a range of up to 92 days.')
   })
 
   it('reverts text that is not a date', () => {
