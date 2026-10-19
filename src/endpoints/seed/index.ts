@@ -32,9 +32,11 @@ import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageMountain } from './image-mountain'
 import { navigationSeed } from './navigation'
+import { accumulatedPrecipPage } from './pages/accumulated-precip-page'
 import { allBlocksPage } from './pages/all-blocks-page'
 import { contact as contactPageData } from './pages/contact-page'
 import { lexicalBlocksPage } from './pages/lexical-blocks-page'
+import { weatherStationsPage } from './pages/weather-stations-page'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
@@ -1212,6 +1214,12 @@ export const seed = async ({
         .flat(),
     )
 
+    // The subset of NWAC stations the seed creates — used to build the Weather
+    // Stations page content so every link resolves locally.
+    const nwacSeededStations = NWAC_STATION_PAGES.filter((p) =>
+      ['alpental', 'hurricane-ridge', 'mt-st-helens'].includes(p.slug),
+    )
+
     const pages = await upsert(
       'pages',
       payload,
@@ -1402,15 +1410,16 @@ export const seed = async ({
             'A list of weather links.',
             'weather-tools',
           ),
-          // Only NWAC has station pages; this one fronts them at /weather/stations.
+          // Only NWAC has station pages; these front them at /weather/stations.
           ...(tenant.slug === 'nwac'
             ? [
-                page(
+                weatherStationsPage(tenant, images[tenant.slug]['image2'], nwacSeededStations),
+                accumulatedPrecipPage(
                   tenant,
                   images[tenant.slug]['image2'],
-                  'Weather Data',
-                  'Current conditions and history from the NWAC weather station network.',
-                  'stations',
+                  nwacSeededStations.flatMap((s) =>
+                    s.stids.map((stid) => ({ stid, source: 'nwac' })),
+                  ),
                 ),
               ]
             : []),
@@ -1422,13 +1431,8 @@ export const seed = async ({
     // tenant exists locally, so the seed does it here.
     const nwac = Object.values(tenants).find((tenant) => tenant.slug === 'nwac')
     if (nwac) {
-      // A few of the 32 the migration creates: a multi-station page, a
-      // single-station page and an archived one.
-      const pages = NWAC_STATION_PAGES.filter((page) =>
-        ['alpental', 'hurricane-ridge', 'mt-st-helens'].includes(page.slug),
-      )
       payload.logger.info(`— Seeding NWAC station pages...`)
-      const seeded = await seedStationPages(payload, nwac.id, pages)
+      const seeded = await seedStationPages(payload, nwac.id, nwacSeededStations)
       payload.logger.info(seeded, 'station pages seeded')
     }
 

@@ -141,13 +141,26 @@ export const navigationSeed = (
         ...(weatherPlatformTenants.has(tenant.slug)
           ? [{ link: builtInPageLink({ url: '/weather/forecast' }) }]
           : []),
-        {
-          link: builtInPageLink({
-            url: '/weather/stations/map',
-            label: 'Weather Stations',
-          }),
-        },
-        ...(tenant.slug === 'nwac' ? [{ link: pageLink({ slug: 'stations' }) }] : []),
+        // NWAC has a dedicated Weather Stations page fronting its station pages;
+        // other tenants link "Weather Stations" directly to the station map.
+        ...(tenant.slug === 'nwac'
+          ? [
+              { link: pageLink({ slug: 'stations', label: 'Weather Stations' }) },
+              {
+                link: builtInPageLink({
+                  url: '/weather/stations/map',
+                  label: 'Weather Stations Map',
+                }),
+              },
+            ]
+          : [
+              {
+                link: builtInPageLink({
+                  url: '/weather/stations/map',
+                  label: 'Weather Stations',
+                }),
+              },
+            ]),
         {
           link: pageLink({
             slug: 'weather-tools',
