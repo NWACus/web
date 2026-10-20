@@ -130,7 +130,8 @@ export function NACWidget({
       controlledMount: true,
       ...(widget === 'media' && { mode: mediaMode }),
       ...(widget === 'map' && { height: mapHeight }),
-      ...(widget === 'observations' && { zoom: observationsMapZoom }),
+      ...(widget === 'observations' &&
+        observationsMapZoom !== undefined && { zoom: observationsMapZoom }),
     }
 
     window[widgetDataKey] = widgetData

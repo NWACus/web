@@ -10,6 +10,7 @@ import { useAvalancheCenter } from '@/providers/AvalancheCenterProvider'
 import { useTenant } from '@/providers/TenantProvider'
 import { cn } from '@/utilities/ui'
 import * as Sentry from '@sentry/nextjs'
+import { useEffect } from 'react'
 import { DEFAULT_OBSERVATIONS_HEADING } from './config'
 import { observationsBlockMapZoom } from './mapZoom'
 import { observationsWidgetPath } from './widgetPath'
@@ -36,10 +37,11 @@ function useObservationsCenter(): string | null {
 
   const center = typeof tenant === 'object' && tenant !== null ? tenant.slug : null
 
-  if (!center) {
-    Sentry.captureException('ObservationsWidgetBlock: center not defined')
-    return null
-  }
+  useEffect(() => {
+    if (!center) Sentry.captureMessage('ObservationsWidgetBlock: center not defined', 'error')
+  }, [center])
+
+  if (!center) return null
 
   // Without the observations platform, /observations and the widget's links into it 404
   return platforms?.obs ? center : null

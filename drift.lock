@@ -643,7 +643,7 @@ sig = "b3dd8b3c14b678af"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/blocks/ObservationsWidget/Component.tsx"
-sig = "c82d70ef63697c9a"
+sig = "eb24f127761f7a4d"
 
 [[bindings]]
 doc = "docs/coding-guide.md"

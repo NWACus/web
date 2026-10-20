@@ -30,7 +30,7 @@ jest.mock('next/script', () => ({
   default: () => null,
 }))
 
-jest.mock('@sentry/nextjs', () => ({ captureException: jest.fn() }))
+jest.mock('@sentry/nextjs', () => ({ captureMessage: jest.fn() }))
 
 const config = { version: '1.0.0', baseUrl: 'https://widgets.example.com', devMode: false }
 
