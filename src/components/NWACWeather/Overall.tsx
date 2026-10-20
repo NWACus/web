@@ -262,7 +262,7 @@ function sumOf(values: (number | null | undefined)[]): number | null {
 
 /** One period's (or the total's) water equivalent then snow, the pair shaded by the snow. */
 function precipSnowPair(qpf: number | null | undefined, snow: number | null, shade: boolean) {
-  const some = snow != null && snow >= 0.5
+  const some = snow != null && snow > 0
   // A dry period reads as one muted 0, not two.
   const dry = qpf != null && qpf <= 0 && !some
   const fill = shade ? snowFill(snow) : undefined

@@ -99,12 +99,12 @@ function PointSnow({
   period: NWACWeatherPeriod
 }) {
   const snow = pointSnow(issuance, point.code, period.key)
-  return <SnowValue text={snowRange(snow)} some={snow != null && snow >= 0.5} />
+  return <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
 }
 
 /**
  * The points behind a zone's snow, when there is more than one: the zone row is their mean in a
- * 2-inch band, so each point's own amount sits beneath it.
+ * public range, so each point's own amount sits beneath it.
  */
 function snowPoints(issuance: NWACWeatherIssuance, zone: NWACWeatherZone) {
   const points = zonePoints(issuance, zone.id)

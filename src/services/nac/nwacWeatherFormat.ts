@@ -61,11 +61,11 @@ export function fmtSnowAmount(snow: number | null): string {
   return `${Math.round(snow)}"`
 }
 
-/** Water equivalent in inches to the hundredth, as the forecasters asked; none reads as 0. */
+/** Water equivalent in inches exactly as the forecaster entered it; none reads as 0. */
 export function fmtQpf(qpf: number | null | undefined): string {
   if (qpf == null) return DASH
   if (qpf <= 0) return '0'
-  return qpf.toFixed(2)
+  return String(qpf)
 }
 
 export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
@@ -74,15 +74,32 @@ export function fmtWind(cell: { dir: string | null; speed: number | null } | und
   return `${cell.dir ?? ''} ${cell.speed}`.trim()
 }
 
-/**
- * The public reads wind as a 10 mph band around the entered speed (25 → 20–30, 12 → 5–15);
- * calm stays "Calm". A first cut at the bands, to be tuned with the forecasters.
- */
+/** Each band's top forecast speed (mph) and the range the public reads, from the forecasters' table. */
+const WIND_RANGES: [number, string][] = [
+  [4, '0–5'],
+  [10, '5–10'],
+  [13, '10–15'],
+  [17, '10–20'],
+  [22, '15–25'],
+  [27, '20–30'],
+  [32, '25–35'],
+  [37, '30–40'],
+  [43, '35–45'],
+  [50, '40–55'],
+  [56, '45–60'],
+  [62, '50–70'],
+  [67, '55–75'],
+  [72, '60–80'],
+  [77, '65–85'],
+  [84, '70–90'],
+  [110, '85–110'],
+]
+
+/** The public reads wind as the forecasters' range for the entered speed (25 → 20–30). */
 export function windRange(speed: number | null | undefined): string | null {
   if (speed == null) return null
-  if (speed <= 0) return 'Calm'
-  const lo = Math.max(0, Math.round(speed / 5) * 5 - 5)
-  return `${lo}–${lo + 10}`
+  const mph = Math.round(speed)
+  return WIND_RANGES.find(([top]) => mph <= top)?.[1] ?? '110+'
 }
 
 const COMPASS = [
@@ -215,22 +232,30 @@ export function blockDate(issuance: NWACWeatherIssuance, block: NWACWeatherBlock
   return issuance.periods.find((p) => p.key === block.period)?.date ?? null
 }
 
-/** A zone's snow for one period: the mean over its points, printed in 2-inch bands. */
+/** How far either side of the rounded amount a snow range reaches, widening with the amount. */
+function snowHalfWidth(snow: number): number {
+  if (snow < 6.5) return 1
+  if (snow < 14.5) return 2
+  if (snow < 19.5) return 3
+  if (snow < 24.5) return 4
+  if (snow < 33.5) return 5
+  return 6
+}
+
 /**
- * The public reads snow as a range, never the exact derived amount (the forecasters' spec:
- * "translated into a prescribed non-editable snow range"). A first cut at the bands, to be tuned
- * with the forecasters: 2-inch steps to 8, then 8–12, 12–18, 18–24, 24+. Under half an inch is 0.
+ * The public reads snow as a range, never the exact derived amount, per the forecasters' table:
+ * T for a trace, then a range centred on the whole inch that widens with the amount (3.0 → 2–4").
  */
-export const SNOW_RANGE_EDGES = [2, 4, 6, 8, 12, 18, 24]
 export function snowRange(snow: number | null | undefined): string {
   if (snow == null || !Number.isFinite(snow)) return DASH
-  if (snow < 0.5) return '0'
-  let lo = 0
-  for (const edge of SNOW_RANGE_EDGES) {
-    if (snow < edge) return `${lo}–${edge}"`
-    lo = edge
-  }
-  return `${lo}+"`
+  const tenths = Math.round(snow * 10) / 10
+  if (tenths <= 0) return '0'
+  if (tenths <= 0.7) return 'T–1"'
+  if (tenths <= 1.4) return '0.5–2"'
+  if (tenths > 40) return '36–50"'
+  const mid = Math.round(tenths)
+  const half = snowHalfWidth(tenths)
+  return `${mid - half}–${mid + half}"`
 }
 export function rangeBucket(value: number | null): string {
   return snowRange(value)
