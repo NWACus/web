@@ -67,7 +67,10 @@ export const Users: CollectionConfig = {
         defaultColumns: ['globalRole'],
       },
       access: {
-        read: byGlobalRole('read', 'globalRoles'),
+        // Self-read keeps the user's own assignments on the user that admin views get (Payload 3.90+ applies field read access to it)
+        read: (args) =>
+          (!!args.req.user && args.doc?.id === args.req.user.id) ||
+          byGlobalRole('read', 'globalRoles')(args),
       },
     },
     {
