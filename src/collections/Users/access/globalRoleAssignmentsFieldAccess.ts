@@ -1,7 +1,8 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
 import type { FieldAccess } from 'payload'
 
-// Self-read keeps the user's own assignments on the user that admin views get (Payload 3.90+ applies field read access to it)
+// Users can always read their own assignments. Since Payload 3.90 the logged-in user passes
+// through this check before admin views see it, and the admin UI's permission checks need them.
 export const globalRoleAssignmentsFieldAccess: FieldAccess = (args) =>
   (!!args.req.user && args.doc?.id === args.req.user.id) ||
   byGlobalRole('read', 'globalRoles')(args)
