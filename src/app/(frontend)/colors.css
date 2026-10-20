@@ -85,6 +85,8 @@
   --secondary: hsl(8 61% 45%);
   --secondary-hover: hsla(8 61% 45% / 0.9);
 
+  --link: hsl(8 61% 44%);
+
   --callout: hsl(66 83% 35%);
   --callout-hover: hsla(66 83% 35% / 0.8);
   --callout-foreground: hsl(0 0% 100%);
@@ -100,7 +102,7 @@
   --secondary: hsl(193 42% 74%);
   --secondary-hover: hsla(193 42% 74% / 0.8);
 
-  --link: hsl(193 100% 82%);
+  --link: hsl(193 100% 28%);
 
   --header: hsl(217 62% 21%);
   --header-foreground: hsl(193 42% 74%);
@@ -136,6 +138,8 @@
 
   --secondary: var(--moonstone);
   --secondary-hover: hsla(185 73% 44% / 0.8);
+
+  --link: var(--sapphire);
 
   --header: var(--oxford);
   --header-foreground: var(--ice-blue);
@@ -185,6 +189,8 @@
   --secondary-hover: hsl(200 75% 38%);
   --secondary-foreground: var(--brand-50);
 
+  --link: hsl(200 75% 31%);
+
   --callout: var(--brand-300);
   --callout-hover: hsla(178 75% 38%);
   --callout-foreground: var(--brand-50);
@@ -231,6 +237,7 @@
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(193 55% 45%);
   --secondary-hover: hsla(193 55% 45% / 0.85);
+  --link: hsl(193 55% 32%);
   --secondary-foreground: hsl(0 0% 100%);
   --header: hsl(199 70% 16%);
   --header-foreground: hsl(193 45% 77%);
@@ -259,6 +266,8 @@
   --secondary-hover: hsla(358 85% 52% / 0.8);
   --secondary-foreground: hsl(0 0% 100%);
 
+  --link: hsl(358 85% 43%);
+
   --header: var(--mountain-slate);
   --header-foreground: var(--couloir-blue);
   --header-foreground-highlight: hsl(0 0% 100%);
@@ -273,4 +282,23 @@
 
   --accent: var(--couloir-blue);
   --accent-foreground: var(--mountain-slate);
+}
+
+/* --link must pass on white and brand-100/200; darker shades use the block's
+   own contrasting text color. Rich-text links stay underlined either way. */
+:is(
+  .bg-brand-300,
+  .bg-brand-400,
+  .bg-brand-500,
+  .bg-brand-600,
+  .bg-brand-700,
+  .bg-brand-800,
+  .bg-brand-900,
+  .bg-brand-950
+) {
+  --link: currentColor;
+}
+
+.nwac :is(.bg-brand-600, .bg-brand-700, .bg-brand-800, .bg-brand-900, .bg-brand-950) {
+  --link: hsl(193 100% 82%);
 }
