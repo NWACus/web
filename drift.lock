@@ -48,7 +48,7 @@ sig = "82d1359c10cc2a6a"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/decisions/README.md"
-sig = "ead71e9bf17f2dfd"
+sig = "0459c5082793c9ae"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1423,7 +1423,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "967d359895148221"
+sig = "892095583289b720"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -1733,7 +1733,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "689157bc85f34804"
+sig = "a6dc877b37d5d614"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"
