@@ -1,10 +1,10 @@
 import type { CollectionConfig } from 'payload'
 
-import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
 import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPasswordEmail'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
+import { globalRoleAssignmentsFieldAccess } from './access/globalRoleAssignmentsFieldAccess'
 import { beforeValidatePassword } from './hooks/beforeValidatePassword'
 import { posthogIdentifyAfterLogin } from './hooks/posthogIdentifyAfterLogin'
 import { setLastLogin } from './hooks/setLastLogin'
@@ -67,7 +67,7 @@ export const Users: CollectionConfig = {
         defaultColumns: ['globalRole'],
       },
       access: {
-        read: byGlobalRole('read', 'globalRoles'),
+        read: globalRoleAssignmentsFieldAccess,
       },
     },
     {

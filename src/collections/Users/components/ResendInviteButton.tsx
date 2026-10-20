@@ -7,7 +7,7 @@ import { checkExpiredInviteAction, resendInviteAction } from './resendInviteActi
 export function ResendInviteButton() {
   const { savedDocumentData, docConfig } = useDocumentInfo()
   const [hasExpiredInvite, setHasExpiredInvite] = useState<boolean | null>(null)
-  const [inviteToken, setInviteToken] = useState<string | null>(null)
+  const [hasPendingInvite, setHasPendingInvite] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
@@ -17,9 +17,7 @@ export function ResendInviteButton() {
           const result = await checkExpiredInviteAction(savedDocumentData.id)
           if (!result.error) {
             setHasExpiredInvite(result.hasExpiredInvite)
-            if (result.inviteToken) {
-              setInviteToken(result.inviteToken)
-            }
+            setHasPendingInvite(result.hasPendingInvite)
           }
         } catch (err) {
           toast.error(err instanceof Error ? err.message : 'Failed to check invite status')
@@ -41,9 +39,7 @@ export function ResendInviteButton() {
         toast.success('Invite resent successfully')
         const checkResult = await checkExpiredInviteAction(savedDocumentData.id)
         setHasExpiredInvite(checkResult.hasExpiredInvite)
-        if (checkResult.inviteToken) {
-          setInviteToken(checkResult.inviteToken)
-        }
+        setHasPendingInvite(checkResult.hasPendingInvite)
       } else {
         toast.error(result.error || 'Failed to resend invite')
       }
@@ -58,7 +54,7 @@ export function ResendInviteButton() {
     return null
   }
 
-  if (!inviteToken) {
+  if (!hasPendingInvite) {
     return null
   }
 

@@ -92,7 +92,7 @@ export async function inviteUserAction({
       payload,
     } as PayloadRequest
 
-    const canInvite = byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
+    const canInvite = await byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
       req: mockedPayloadReq,
     })
 
@@ -132,7 +132,7 @@ export async function inviteUserAction({
 
     // Validate provider assignments for users with global provider permissions (not provider managers)
     if (!isManager && providers.length > 0) {
-      const canAssign = await canManageProviders(payload, loggedInUser)
+      const canAssign = await canManageProviders(payload, loggedInUser, isManager)
       if (!canAssign) {
         throw new ValidationError({
           errors: [
