@@ -192,6 +192,9 @@
       "esbuild",
       "sharp",
       "unrs-resolver"
-    ]
+    ],
+    "patchedDependencies": {
+      "@payloadcms/ui@3.90.2": "patches/@payloadcms__ui@3.90.2.patch"
+    }
   }
 }
