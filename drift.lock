@@ -1422,8 +1422,13 @@ sig = "a297a2987507bfa3"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/EventsMapList.tsx"
+sig = "20fe5b69ea6d9ea9"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMapView.tsx"
-sig = "8bea5a04b8d5702e"
+sig = "6cd232243422eca9"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1454,6 +1459,11 @@ sig = "b1118f86a57a7486"
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/mapboxPlaces.ts"
 sig = "6f6c8cb0223b8346"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/useAllFilteredEvents.ts"
+sig = "653e7794920d012c"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
