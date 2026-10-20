@@ -28,7 +28,7 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
       return globalAccess
     }
 
-    // Provider managers invite provider users; inviteUserAction limits them to providers they belong to
+    // Provider managers invite provider users; inviteUserAction rejects any role or global role they assign
     if (method === 'create' && (await isProviderManager(args.req.payload, args.req.user))) {
       return true
     }

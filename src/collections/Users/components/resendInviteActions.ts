@@ -49,52 +49,59 @@ function extractPayloadErrorMessage(error: unknown): string {
   return 'Failed to resend invite.'
 }
 
+// Invite rights are checked broadly (any tenant), so the target is loaded with the caller's own
+// read access to keep them to users they can already see
+async function findInviteTargetForCaller(userId: string) {
+  const payload = await getPayload({ config })
+  const headersList = await headers()
+
+  const { user: loggedInUser } = await payload.auth({ headers: headersList })
+
+  if (!loggedInUser) {
+    throw new Error('You are not allowed to perform that action.')
+  }
+
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const mockedPayloadReq = {
+    user: loggedInUser,
+    payload,
+  } as PayloadRequest
+
+  const canInvite = await byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
+    req: mockedPayloadReq,
+  })
+
+  if (!canInvite) {
+    throw new Error('You are not allowed to perform that action.')
+  }
+
+  const user = await payload.findByID({
+    collection: 'users',
+    id: userId,
+    depth: 0,
+    showHiddenFields: true,
+    overrideAccess: false,
+    user: loggedInUser,
+  })
+
+  return { payload, headersList, user }
+}
+
 export async function checkExpiredInviteAction(
   userId: string,
-): Promise<{ hasExpiredInvite: boolean; inviteToken?: string | null; error?: string }> {
+): Promise<{ hasExpiredInvite: boolean; hasPendingInvite: boolean; error?: string }> {
   try {
-    const payload = await getPayload({ config })
-    const headersList = await headers()
-
-    const { user: loggedInUser } = await payload.auth({ headers: headersList })
-
-    if (!loggedInUser) {
-      throw new Error('You are not allowed to perform that action.')
-    }
-
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const mockedPayloadReq = {
-      user: loggedInUser,
-      payload,
-    } as PayloadRequest
-
-    const canInvite = await byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
-      req: mockedPayloadReq,
-    })
-
-    if (!canInvite) {
-      throw new Error('You are not allowed to perform that action.')
-    }
-
-    const user = await payload.findByID({
-      collection: 'users',
-      id: userId,
-      showHiddenFields: true,
-    })
-
-    if (!user) {
-      throw new Error('User not found.')
-    }
+    const { user } = await findInviteTargetForCaller(userId)
 
     const hasExpiredInvite = Boolean(
       user.inviteExpiration && new Date(user.inviteExpiration) < new Date(),
     )
 
-    return { hasExpiredInvite, inviteToken: user.inviteToken }
+    return { hasExpiredInvite, hasPendingInvite: Boolean(user.inviteToken) }
   } catch (error) {
     return {
       hasExpiredInvite: false,
-      inviteToken: null,
+      hasPendingInvite: false,
       error: extractPayloadErrorMessage(error),
     }
   }
@@ -104,37 +111,11 @@ export async function resendInviteAction(
   userId: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const payload = await getPayload({ config })
-    const headersList = await headers()
+    const { payload, headersList, user } = await findInviteTargetForCaller(userId)
 
-    const { user: loggedInUser } = await payload.auth({ headers: headersList })
-
-    if (!loggedInUser) {
-      throw new Error('You are not allowed to perform that action.')
-    }
-
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const mockedPayloadReq = {
-      user: loggedInUser,
-      payload,
-    } as PayloadRequest
-
-    const canInvite = await byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
-      req: mockedPayloadReq,
-    })
-
-    if (!canInvite) {
-      throw new Error('You are not allowed to perform that action.')
-    }
-
-    const user = await payload.findByID({
-      collection: 'users',
-      id: userId,
-      showHiddenFields: true,
-    })
-
-    if (!user) {
-      throw new Error('User not found.')
+    // Rotating the token on an active account would give it a working password-set link
+    if (!user.inviteToken) {
+      throw new Error('This user has already accepted their invite.')
     }
 
     const newInviteToken = crypto.randomBytes(20).toString('hex')
