@@ -1,5 +1,6 @@
 /**
- * The root landing page: a directory of the avalanche centers that run their sites on AvyWeb.
+ * The root landing page: Avy's mission, a directory of the avalanche centers that run their sites
+ * on AvyWeb, and what the Avy team builds.
  *
  * Only production tenants are listed — the ones routed to their custom domain via
  * `PRODUCTION_TENANTS` — so a center that is provisioned but not yet launched stays out of sight.
@@ -13,6 +14,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { AvalancheOrgSection } from '@/components/landing/AvalancheOrgSection'
+import { AvyProductsSection } from '@/components/landing/AvyProductsSection'
 import { CenterDirectory } from '@/components/landing/CenterDirectory'
 import { LandingFooter } from '@/components/landing/LandingFooter'
 import { LandingHeader } from '@/components/landing/LandingHeader'
@@ -86,6 +88,7 @@ export default async function LandingPage() {
     <div className="bg-white text-[#14213d]">
       <LandingHeader />
       <CenterDirectory centers={centers} />
+      <AvyProductsSection />
       <AvalancheOrgSection />
       <LandingFooter />
     </div>

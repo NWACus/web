@@ -56,11 +56,13 @@ test.describe('Frontend pages load correctly', () => {
     )
     const errors = await loadPage(page, '/')
 
-    await expect(page.getByRole('heading', { name: 'AvyWeb', level: 1 })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Avy', exact: true, level: 1 })).toBeVisible()
     // Should list at least one avalanche center, linked to its own site
     await expect(
       page.getByRole('region', { name: 'Avalanche centers on AvyWeb' }).getByRole('link').first(),
     ).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Download Avy on the App Store' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Get Avy on Google Play' })).toBeVisible()
 
     expect(errors).toEqual([])
   })
