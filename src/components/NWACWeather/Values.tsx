@@ -7,6 +7,7 @@ import {
   fmtWind,
   windBearing,
   windRange,
+  windWording,
   type LevelTrend,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
@@ -134,20 +135,25 @@ export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
   if (!cell?.speed) return <span className="text-muted-foreground">{fmtWind(cell)}</span>
   const bearing = windBearing(cell.dir)
   return (
-    <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap tabular-nums">
-      {bearing != null && (
-        // Points to where the wind comes from: from the north is an up arrow.
-        <ArrowUp
-          aria-hidden="true"
-          className="size-4 shrink-0 text-primary"
-          style={{ transform: `rotate(${bearing}deg)` }}
-        />
-      )}
-      <span className="text-xs text-muted-foreground">{cell.dir}</span>
-      <span
-        className={cn(cell.speed >= 25 ? 'font-bold' : cell.speed >= 15 ? 'font-semibold' : '')}
-      >
-        {windRange(cell.speed)}
+    <span className="inline-flex flex-col items-center">
+      <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap tabular-nums">
+        {bearing != null && (
+          // Points to where the wind comes from: from the north is an up arrow.
+          <ArrowUp
+            aria-hidden="true"
+            className="size-4 shrink-0 text-primary"
+            style={{ transform: `rotate(${bearing}deg)` }}
+          />
+        )}
+        <span className="text-xs text-muted-foreground">{cell.dir}</span>
+        <span
+          className={cn(cell.speed >= 25 ? 'font-bold' : cell.speed >= 15 ? 'font-semibold' : '')}
+        >
+          {windRange(cell.speed)}
+        </span>
+      </span>
+      <span className="text-center text-xs leading-tight text-muted-foreground">
+        {windWording(cell.speed)}
       </span>
     </span>
   )

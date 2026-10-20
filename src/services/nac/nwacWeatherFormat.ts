@@ -74,32 +74,43 @@ export function fmtWind(cell: { dir: string | null; speed: number | null } | und
   return `${cell.dir ?? ''} ${cell.speed}`.trim()
 }
 
-/** Each band's top forecast speed (mph) and the range the public reads, from the forecasters' table. */
-const WIND_RANGES: [number, string][] = [
-  [4, '0–5'],
-  [10, '5–10'],
-  [13, '10–15'],
-  [17, '10–20'],
-  [22, '15–25'],
-  [27, '20–30'],
-  [32, '25–35'],
-  [37, '30–40'],
-  [43, '35–45'],
-  [50, '40–55'],
-  [56, '45–60'],
-  [62, '50–70'],
-  [67, '55–75'],
-  [72, '60–80'],
-  [77, '65–85'],
-  [84, '70–90'],
-  [110, '85–110'],
+/** Each band's top forecast speed (mph), the range the public reads and its sensible wording. */
+const WIND_BANDS: { top: number; range: string; wording: string }[] = [
+  { top: 4, range: '0–5', wording: 'Calm' },
+  { top: 10, range: '5–10', wording: 'Light' },
+  { top: 13, range: '10–15', wording: 'Light to occasionally Moderate' },
+  { top: 17, range: '10–20', wording: 'Light to Moderate' },
+  { top: 22, range: '15–25', wording: 'Moderate' },
+  { top: 27, range: '20–30', wording: 'Moderate to Strong' },
+  { top: 32, range: '25–35', wording: 'Strong' },
+  { top: 37, range: '30–40', wording: 'Strong' },
+  { top: 43, range: '35–45', wording: 'Strong to Extreme' },
+  { top: 50, range: '40–55', wording: 'Extreme' },
+  { top: 56, range: '45–60', wording: 'Extreme' },
+  { top: 62, range: '50–70', wording: 'Extreme' },
+  { top: 67, range: '55–75', wording: 'Extreme' },
+  { top: 72, range: '60–80', wording: 'Extreme' },
+  { top: 77, range: '65–85', wording: 'Extreme' },
+  { top: 84, range: '70–90', wording: 'Extreme' },
+  { top: 110, range: '85–110', wording: 'Extreme' },
 ]
+const TOP_BAND = { top: Infinity, range: '110+', wording: 'Extreme' }
+
+/** The forecasters' band for an entered speed; null when there is none. */
+function windBand(speed: number | null | undefined) {
+  if (speed == null) return null
+  const mph = Math.round(speed)
+  return WIND_BANDS.find((band) => mph <= band.top) ?? TOP_BAND
+}
 
 /** The public reads wind as the forecasters' range for the entered speed (25 → 20–30). */
 export function windRange(speed: number | null | undefined): string | null {
-  if (speed == null) return null
-  const mph = Math.round(speed)
-  return WIND_RANGES.find(([top]) => mph <= top)?.[1] ?? '110+'
+  return windBand(speed)?.range ?? null
+}
+
+/** The sensible-weather word for the entered speed (25 → Moderate to Strong). */
+export function windWording(speed: number | null | undefined): string | null {
+  return windBand(speed)?.wording ?? null
 }
 
 const COMPASS = [

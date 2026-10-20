@@ -15,6 +15,7 @@ import {
   windBearing,
   windBlocks,
   windRange,
+  windWording,
 } from '@/services/nac/nwacWeatherFormat'
 import {
   mapV3NWACWeatherForecastDay,
@@ -134,6 +135,12 @@ describe('nwacWeatherFormat', () => {
     expect(windRange(110)).toBe('85–110')
     expect(windRange(111)).toBe('110+')
     expect(windRange(null)).toBeNull()
+    expect(windWording(0)).toBe('Calm')
+    expect(windWording(12)).toBe('Light to occasionally Moderate')
+    expect(windWording(25)).toBe('Moderate to Strong')
+    expect(windWording(40)).toBe('Strong to Extreme')
+    expect(windWording(120)).toBe('Extreme')
+    expect(windWording(null)).toBeNull()
     expect(fmtCalendarDate('2026-09-14')).toBe('Mon Sep 14')
   })
 
