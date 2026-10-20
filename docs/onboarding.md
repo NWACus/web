@@ -76,7 +76,7 @@ Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend
 | `--callout-foreground` | Callout text color |
 | `--nav-underline` | Active navigation underline color |
 | `--brand-50` through `--brand-950` | Brand color range used for block backgrounds |
-| `--brand-foreground-50` through `--brand-foreground-950` | Text colors for each brand background |
+| `--brand-foreground-50` through `--brand-foreground-950` | Text colors for each brand background. If you override `--brand-*`, set these too: each must reach 4.5:1 (WCAG AA) against its shade |
 
 ### Configuring a custom domain in production
 

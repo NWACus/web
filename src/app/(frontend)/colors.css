@@ -169,6 +169,19 @@
   --brand-800: hsl(212 78% 26%);
   --brand-900: var(--deep-blue);
   --brand-950: var(--oxford);
+
+  --brand-foreground-50: hsl(222 47% 11%);
+  --brand-foreground-100: hsl(222 47% 11%);
+  --brand-foreground-200: hsl(222 47% 11%);
+  --brand-foreground-300: hsl(222 47% 11%);
+  /* sky-blue only clears 4.5:1 against pure white */
+  --brand-foreground-400: hsl(0 0% 100%);
+  --brand-foreground-500: hsl(0 0% 100%);
+  --brand-foreground-600: hsl(0 0% 100%);
+  --brand-foreground-700: hsl(0 0% 100%);
+  --brand-foreground-800: hsl(0 0% 100%);
+  --brand-foreground-900: hsl(0 0% 100%);
+  --brand-foreground-950: hsl(0 0% 100%);
 }
 
 /* Sawtooth Avalanche Center */
@@ -184,6 +197,18 @@
   --brand-800: hsl(210 4% 22%);
   --brand-900: hsl(210 4% 16%);
   --brand-950: hsl(210 4% 12%);
+
+  --brand-foreground-50: hsl(222 47% 11%);
+  --brand-foreground-100: hsl(222 47% 11%);
+  --brand-foreground-200: hsl(222 47% 11%);
+  --brand-foreground-300: hsl(222 47% 11%);
+  --brand-foreground-400: hsl(222 47% 11%);
+  --brand-foreground-500: hsl(222 47% 11%);
+  --brand-foreground-600: hsl(222 47% 11%);
+  --brand-foreground-700: hsl(210 40% 98%);
+  --brand-foreground-800: hsl(210 40% 98%);
+  --brand-foreground-900: hsl(210 40% 98%);
+  --brand-foreground-950: hsl(210 40% 98%);
 
   --secondary: hsl(200 75% 42%);
   --secondary-hover: hsl(200 75% 38%);
@@ -225,7 +250,7 @@
   --brand-foreground-200: hsl(240 10% 3.9%);
   --brand-foreground-300: hsl(240 10% 3.9%);
   --brand-foreground-400: hsl(240 10% 3.9%);
-  --brand-foreground-500: hsl(0 0% 100%);
+  --brand-foreground-500: hsl(240 10% 3.9%);
   --brand-foreground-600: hsl(0 0% 100%);
   --brand-foreground-700: hsl(0 0% 100%);
   --brand-foreground-800: hsl(0 0% 100%);
