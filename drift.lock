@@ -8,7 +8,7 @@ sig = "47d841a70f1a75f0"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "befd232286043c26"
+sig = "7b2e734af67c4f0f"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -627,13 +627,28 @@ sig = "93856d4c3ca3e5cd"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
+target = "src/app/(frontend)/[center]/blog/[slug]/page.tsx"
+sig = "00ac0fccf4640f0e"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
 target = "src/app/(frontend)/[center]/theme-preview/page.tsx"
 sig = "092a1be704297a39"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
+target = "src/app/(frontend)/globals.css"
+sig = "b3dd8b3c14b678af"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "src/blocks/ObservationsWidget/Component.tsx"
+sig = "eb24f127761f7a4d"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
 target = "src/blocks/RenderBlocks.tsx"
-sig = "fefbe64af15c5fc2"
+sig = "f43871fb7d3ff5cf"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -648,7 +663,7 @@ sig = "e4dc2b4ccd50dcc4"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/components/RichText/index.tsx"
-sig = "9e28753f888be7e1"
+sig = "bdee95c6ea9c78b7"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -798,7 +813,7 @@ sig = "ef162015be100d91"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/HomePages/index.tsx"
-sig = "27c3cda2b8786abe"
+sig = "149248bba9393561"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -1143,7 +1158,7 @@ sig = "ca5cf38382269b19"
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
 target = "src/utilities/clearLayoutRelationships.ts"
-sig = "5056989806c9df98"
+sig = "e16ff47b3c70164e"
 
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"
@@ -1328,7 +1343,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "e413516f0db9d497"
+sig = "967d359895148221"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

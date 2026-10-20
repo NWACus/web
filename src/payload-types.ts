@@ -308,6 +308,7 @@ export interface HomePage {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | ObservationsWidgetBlock
     | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
@@ -419,6 +420,7 @@ export interface Page {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | ObservationsWidgetBlock
     | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
@@ -1693,6 +1695,27 @@ export interface NACMediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'nacMediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ObservationsWidgetBlock".
+ */
+export interface ObservationsWidgetBlock {
+  showHeader?: boolean | null;
+  heading?: string | null;
+  tab?: ('observations' | 'avalanches') | null;
+  avalanchesObservedOnly?: boolean | null;
+  /**
+   * Ranges count back from the day someone views the page; a past season always shows that whole season. Links and bookmarks keep the dates from the day they were copied or saved.
+   */
+  dateRange: string;
+  /**
+   * Leave empty to show every zone.
+   */
+  zones?: string[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'observationsWidget';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3867,6 +3890,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        observationsWidget?: T | ObservationsWidgetBlockSelect<T>;
         precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
@@ -4135,6 +4159,20 @@ export interface NACMediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ObservationsWidgetBlock_select".
+ */
+export interface ObservationsWidgetBlockSelect<T extends boolean = true> {
+  showHeader?: T;
+  heading?: T;
+  tab?: T;
+  avalanchesObservedOnly?: T;
+  dateRange?: T;
+  zones?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "PrecipTableBlock_select".
  */
 export interface PrecipTableBlockSelect<T extends boolean = true> {
@@ -4230,6 +4268,7 @@ export interface PagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        observationsWidget?: T | ObservationsWidgetBlockSelect<T>;
         precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;

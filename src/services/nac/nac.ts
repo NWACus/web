@@ -19,7 +19,9 @@ import { productListSchema } from './types/productListSchemas'
 import {
   allAvalancheCenterCapabilitiesSchema,
   avalancheCenterSchema,
+  combinedObsZonesSchema,
   mapLayerSchema,
+  type CombinedObsZone,
 } from './types/schemas'
 import { zoneSlugFromUrl } from './zoneSlug'
 
@@ -65,6 +67,7 @@ type Options = {
   noStore?: boolean
   // An origin other than `NAC_HOST`; the v3 layer passes its own (`sources/v3/fetch.ts`).
   host?: string
+  headers?: HeadersInit
 }
 
 const DEFAULT_CACHED_TIME_SECONDS = 24 * 60 * 60
@@ -89,7 +92,7 @@ export async function nacFetch(path: string, options: Options = {}) {
   const url = `${options.host ?? nacApiHost}/${normalizedPath}`
 
   try {
-    const res = await fetch(url, fetchInit(options))
+    const res = await fetch(url, { ...fetchInit(options), headers: options.headers })
 
     if (!res.ok) {
       throw new NACError(`NAC API request failed with status ${res.status}`, null, {
@@ -98,6 +101,8 @@ export async function nacFetch(path: string, options: Options = {}) {
         statusText: res.statusText,
       })
     }
+
+    if (res.status === 204) return null
 
     const data = await res.json()
     return data
@@ -222,6 +227,29 @@ export async function getAvalancheCenterMetadata(centerSlug: string) {
   if (!parsed.success) {
     const errors = parsed.error.message
     throw new Error(`Failed to parse nac avalanche center metadata response: ${errors}`)
+  }
+
+  return parsed.data
+}
+
+// The obs API answers 401 to requests without an allowed Origin, which a server fetch lacks.
+// avy-fx.org is on its allowlist, the same origin SnowObs requests send (`snowObsFetch`).
+const OBS_API_ORIGIN = 'https://avy-fx.org'
+
+// The center's zones as the observations widget lists them: forecast zones plus any
+// observation-only zones. Empty when the center has none (the API answers 204).
+export async function getCombinedObsZones(centerSlug: string): Promise<CombinedObsZone[]> {
+  const centerId = normalizeCenterSlug(centerSlug).toUpperCase()
+  const data = await nacFetch(`/obs/v1/public/obs_zone/combined_zones/?center_id=${centerId}`, {
+    headers: { origin: OBS_API_ORIGIN },
+    // Every zone carries its outline, too heavy to keep in the data cache for an admin lookup
+    noStore: true,
+  })
+
+  const parsed = combinedObsZonesSchema.safeParse(data ?? [])
+
+  if (!parsed.success) {
+    throw new Error(`Failed to parse obs combined zones response: ${parsed.error.message}`)
   }
 
   return parsed.data
