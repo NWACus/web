@@ -1,5 +1,5 @@
 import { MediaSlide } from '@/components/forecast/MediaSlide'
-import { ExternalMediaType, MediaType, type MediaItem } from '@/services/nac/model/forecast'
+import { MediaType, type MediaItem } from '@/services/nac/model/forecast'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 
@@ -28,17 +28,6 @@ const youTube = (): MediaItem => ({
     video_id: 'dQw4w9WgXcQ',
   },
   caption: 'Avalanche footage',
-})
-
-const pdf = (): MediaItem => ({
-  type: MediaType.PDF,
-  url: { original: 'https://example.test/report.pdf' },
-})
-
-const external = (): MediaItem => ({
-  type: MediaType.External,
-  url: { external_link: 'https://example.test/article', external_type: ExternalMediaType.Video },
-  caption: 'An article',
 })
 
 describe('MediaSlide', () => {
@@ -73,21 +62,6 @@ describe('MediaSlide', () => {
     const img = document.querySelector('img[src="https://example.test/photo.jpg"]')
     expect(img).toBeInTheDocument()
     expect(img).toHaveAttribute('alt', 'Storm slab')
-  })
-
-  it('renders a PDF as an outbound link', () => {
-    render(<MediaSlide item={pdf()} isActive />)
-    expect(screen.getByRole('link', { name: 'Open PDF' })).toHaveAttribute(
-      'href',
-      'https://example.test/report.pdf',
-    )
-  })
-
-  it('renders external media as an outbound link', () => {
-    render(<MediaSlide item={external()} isActive />)
-    const link = screen.getByRole('link', { name: 'Open external media' })
-    expect(link).toHaveAttribute('href', 'https://example.test/article')
-    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
   it('falls back to a message for media it cannot display', () => {

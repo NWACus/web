@@ -230,6 +230,8 @@ export const pdfMediaSchema = z.object({
   url: z.object({
     original: z.string().url(),
   }),
+  // The uploaded filename, which the Media grid's tile shows.
+  title: z.string().nullable().optional(),
 })
 
 const unknownMediaSchema = z.object({

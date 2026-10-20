@@ -17,18 +17,9 @@ const dangerDay = (
 })
 
 describe('dangerHeadings', () => {
-  it('falls back to Today/Tomorrow for the compact card, which passes no published time', () => {
-    expect(dangerHeadings(undefined, 'America/Los_Angeles')).toEqual({
-      dated: false,
-      today: 'Today',
-      tomorrow: 'Tomorrow',
-    })
-  })
-
-  it('uses real valid dates when a published time is supplied', () => {
+  it('heads each day with its valid date', () => {
     // 08:00 local is before the noon cutover, so the product is for the same day.
     expect(dangerHeadings('2026-04-14T08:00:00-07:00', 'America/Los_Angeles')).toEqual({
-      dated: true,
       today: 'Tuesday, April 14, 2026',
       tomorrow: 'Wednesday, April 15, 2026',
     })
@@ -41,9 +32,8 @@ describe('dangerHeadings', () => {
     })
   })
 
-  it('still reads as dated, with fallback labels, for an unparseable timestamp', () => {
+  it('falls back to Today/Tomorrow for an unparseable timestamp', () => {
     expect(dangerHeadings('not-a-date', 'America/Los_Angeles')).toEqual({
-      dated: true,
       today: 'Today',
       tomorrow: 'Tomorrow',
     })

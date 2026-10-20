@@ -75,6 +75,20 @@ const TARGETS = [
     blocks:
       'The desktop travel-advice column that stands in for a missing outlook (Forecast-67). Every SNFAC, SAC and NWAC forecast carries a tomorrow entry, even a blank one, so the shape is set up on staging.',
   },
+  {
+    file: 'v2_public_product_forecast_media_links.json',
+    // BTAC Tetons 2025-12-08: two YouTube links and a PDF among its photos. No SNFAC, SAC or NWAC
+    // product this season carries either, so the suite serves this one at NWAC West Slopes North.
+    path: '/v2/public/product/175072',
+    upstreamCase: 'not yet filed',
+    expect: (body) =>
+      Array.isArray(body.media) &&
+      body.media.some((item) => item?.type === 'pdf') &&
+      body.media.some((item) => item?.type === 'external'),
+    expectation: 'a forecast whose media carries a PDF and an external link',
+    blocks:
+      "The Media grid's PDF and link tiles, which open in a new tab rather than the lightbox (Forecast-125, Forecast-131).",
+  },
 ]
 
 const EMAIL = /[\w.+-]+@[\w-]+\.[\w.-]+/g

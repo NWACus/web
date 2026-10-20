@@ -23,6 +23,23 @@ export const SENSOR_LABELS: Record<string, string> = {
   equip_temperature: 'EqTemp',
 }
 
+// Full names for the admin's reading picker; SnowObs's own long names arrive only with a timeseries.
+export const READING_NAMES: Record<string, string> = {
+  air_temp: 'Air temperature',
+  relative_humidity: 'Relative humidity',
+  wind_speed_min: 'Wind speed minimum',
+  wind_speed: 'Wind speed',
+  wind_gust: 'Wind gust',
+  wind_direction: 'Wind direction',
+  precip_accum_one_hour: 'Hourly precipitation',
+  snow_depth_24h: '24-hour snowfall',
+  snow_depth: 'Snow depth',
+  intermittent_snow: 'Intermittent snow',
+  solar_radiation: 'Solar radiation',
+  pressure: 'Barometric pressure',
+  equip_temperature: 'Equipment temperature',
+}
+
 // Display-friendly unit labels keyed by the raw unit SnowObs returns in `UNITS`.
 export const UNIT_LABELS: Record<string, string> = {
   fahrenheit: '°F',

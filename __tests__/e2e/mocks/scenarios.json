@@ -81,6 +81,14 @@
       "scenario": "no outlook — danger has only a current entry, set up on staging (product 165008, staging's Snoqualmie Pass); the desktop column shows today's travel advice (Forecast-67)"
     },
     {
+      "center": "NWAC",
+      "zone": 1646,
+      "zoneSlug": "west-slopes-north",
+      "type": "forecast",
+      "fixture": "v2_public_product_forecast_media_links.json",
+      "scenario": "media links — BTAC's Tetons forecast of 2025-12-08 (product 175072), whose Media grid carries two YouTube links and a PDF; they open in a new tab, outside the lightbox (Forecast-125, Forecast-131)"
+    },
+    {
       "center": "SNFAC",
       "zone": 2906,
       "type": "warning",
@@ -148,6 +156,11 @@
       "status": 404,
       "blockedOn": "product_weather_SNFAC_populated",
       "note": "Weather product pointed at by v2_public_forecast_with_problems.json."
+    },
+    {
+      "match": "product/175073",
+      "status": 404,
+      "note": "BTAC's weather product, pointed at by provisional/v2_public_product_forecast_media_links.json. That fixture is there for its media; its Mountain Weather card isn't needed."
     }
   ],
   "tenants": {
