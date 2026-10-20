@@ -1,10 +1,10 @@
 import type { CollectionConfig } from 'payload'
 
-import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
 import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPasswordEmail'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
+import { globalRoleAssignmentsFieldAccess } from './access/globalRoleAssignmentsFieldAccess'
 import { beforeValidatePassword } from './hooks/beforeValidatePassword'
 import { posthogIdentifyAfterLogin } from './hooks/posthogIdentifyAfterLogin'
 import { setLastLogin } from './hooks/setLastLogin'
@@ -67,10 +67,7 @@ export const Users: CollectionConfig = {
         defaultColumns: ['globalRole'],
       },
       access: {
-        // Self-read keeps the user's own assignments on the user that admin views get (Payload 3.90+ applies field read access to it)
-        read: (args) =>
-          (!!args.req.user && args.doc?.id === args.req.user.id) ||
-          byGlobalRole('read', 'globalRoles')(args),
+        read: globalRoleAssignmentsFieldAccess,
       },
     },
     {
