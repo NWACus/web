@@ -24,6 +24,8 @@ const EventsMap = dynamic(() => import('./EventsMap.client').then((mod) => mod.E
 // The list and map sit side by side from Tailwind's `xl` up.
 const SIDE_BY_SIDE = '(min-width: 1280px)'
 
+export const LIST_COLUMN_WIDTH = 'xl:w-[400px]'
+
 const NO_EVENTS: Event[] = []
 
 type Selection = {
@@ -104,7 +106,7 @@ function ListPane({
   onClearArea: () => void
 }) {
   return (
-    <div ref={listRef} className="xl:order-1 xl:w-[380px] shrink-0">
+    <div ref={listRef} className={cn('xl:order-1 shrink-0', LIST_COLUMN_WIDTH)}>
       <ResultsStatus state={state} searchingArea={searchedBox !== null} />
       {searchedBox && <SearchedAreaBar loading={state.loading} onClear={onClearArea} />}
       {/* Dimmed while the next set loads; the last set stays up until it arrives. */}

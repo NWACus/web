@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 
 import { EventsResults } from '@/components/EventsMap/EventsResults'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
+import { modeOfTravelOptions } from '@/fields/modeOfTravelField'
 import { centerRouteMetadata } from '@/utilities/centerRoutePage'
 import { parseNearParam } from '@/utilities/geo/nearParam'
 import { getEventGroups } from '@/utilities/queries/getEventGroups'
@@ -13,7 +14,9 @@ import { getEventTags } from '@/utilities/queries/getEventTags'
 import { getEventTypes } from '@/utilities/queries/getEventTypes'
 import { notFound } from 'next/navigation'
 import { createLoader, parseAsArrayOf, parseAsString, SearchParams } from 'nuqs/server'
+import { EventsFilterMenus } from './EventsFilterBar'
 import { EventsFilters } from './EventsFilters'
+import { EventsFiltersColumn } from './EventsFiltersColumn'
 import { EventsMobileFilters } from './EventsMobileFilters'
 
 const eventsSearchParams = {
@@ -75,6 +78,13 @@ export default async function Page({ params, searchParams }: Args) {
   const { eventGroups } = await getEventGroups({ center })
   const { eventTags } = await getEventTags({ center })
 
+  const filterOptions = {
+    types: eventTypes,
+    modesOfTravel: modeOfTravelOptions,
+    groups: eventGroups,
+    tags: eventTags,
+  }
+
   const hasActiveFilters = Boolean(types || groups || tags || modesOfTravel || startDate || endDate)
 
   return (
@@ -99,10 +109,11 @@ export default async function Page({ params, searchParams }: Args) {
               initialHasMore={hasMore}
               initialError={error}
               center={center}
+              filterMenus={<EventsFilterMenus options={filterOptions} />}
             />
           </div>
 
-          <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] xl:w-[300px] order-1 md:order-2">
+          <EventsFiltersColumn>
             {/* Stays in view as the page scrolls; the offsets center the first heading on the List/Map
                 buttons. Filters taller than the window scroll on their own. */}
             <div className="-mt-1.5 sticky top-2.5 max-h-[calc(100dvh-1.25rem)] overflow-y-auto -mx-1 px-1">
@@ -114,7 +125,7 @@ export default async function Page({ params, searchParams }: Args) {
                 tags={eventTags}
               />
             </div>
-          </div>
+          </EventsFiltersColumn>
         </div>
       </div>
     </FiltersTotalProvider>
