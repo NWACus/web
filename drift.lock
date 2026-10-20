@@ -58,7 +58,7 @@ sig = "ff5d3fe541e1dfad"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "3e090e74064f9da9"
+sig = "4922794a61e25873"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1267,8 +1267,23 @@ sig = "e3dde955e6e1147b"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/app/(frontend)/[center]/events/EventsFilterBar.tsx"
+sig = "153d5ad3d2465469"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/app/(frontend)/[center]/events/EventsFilters.tsx"
+sig = "614c746152311165"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/app/(frontend)/[center]/events/EventsFiltersColumn.tsx"
+sig = "1ca00f8a87f072d7"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/app/(frontend)/[center]/events/page.tsx"
-sig = "69f642fa4a2d904f"
+sig = "9e75c6b14b361a9f"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1343,12 +1358,12 @@ sig = "3635ee990c6d137b"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMapView.tsx"
-sig = "0c37dde7a21ed478"
+sig = "c7436b44eae886aa"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsResults.tsx"
-sig = "48a072f1a1576a73"
+sig = "c60b8c874577ca6b"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
