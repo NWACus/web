@@ -37,6 +37,14 @@
       "blocks": "The desktop travel-advice column that stands in for a missing outlook (Forecast-67). Every SNFAC, SAC and NWAC forecast carries a tomorrow entry, even a blank one, so the shape is set up on staging.",
       "url": "https://staging-api.avalanche.org/v2/public/product/165008",
       "capturedAt": "2026-10-12"
+    },
+    {
+      "file": "v2_public_product_forecast_media_links.json",
+      "path": "/v2/public/product/175072",
+      "upstreamCase": "not yet filed",
+      "blocks": "The Media grid's PDF and link tiles, which open in a new tab rather than the lightbox (Forecast-125, Forecast-131).",
+      "url": "https://api.avalanche.org/v2/public/product/175072",
+      "capturedAt": "2026-10-15"
     }
   ]
 }

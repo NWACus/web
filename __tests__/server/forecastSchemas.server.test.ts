@@ -232,6 +232,17 @@ describe('mediaItemSchema', () => {
     expect(result.type).toBe(MediaType.PDF)
   })
 
+  // Forecast-131: the PDF's tile shows its filename, which the API sends as the title.
+  it("keeps a PDF media item's title", () => {
+    const result = mediaItemSchema.parse({
+      type: 'pdf',
+      url: { original: 'https://example.com/20251206-Glory-NE-Ridge.pdf' },
+      title: '20251206-Glory-NE-Ridge.pdf',
+      caption: '',
+    })
+    expect(result).toMatchObject({ type: MediaType.PDF, title: '20251206-Glory-NE-Ridge.pdf' })
+  })
+
   it('falls back to unknown for unrecognized media types', () => {
     const item = {
       type: 'hologram',

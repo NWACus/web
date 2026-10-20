@@ -2,9 +2,11 @@ import {
   displayableMedia,
   getCaption,
   getFullUrl,
+  getMediaLink,
   getPosterUrl,
   getThumbnailUrl,
   getYouTubeVideoId,
+  mediaGridTiles,
   resolveMediaSlide,
 } from '@/components/forecast/mediaItem'
 import { ExternalMediaType, MediaType, type MediaItem } from '@/services/nac/model/forecast'
@@ -40,18 +42,20 @@ const youTubeItem = (): MediaItem => ({
   caption: 'A video',
 })
 
-const externalItem = (): MediaItem => ({
+const externalItem = (title?: string): MediaItem => ({
   type: MediaType.External,
   url: {
     external_link: 'https://example.test/article',
     external_type: ExternalMediaType.Video,
   },
+  title,
   caption: 'An external link',
 })
 
-const pdfItem = (): MediaItem => ({
+const pdfItem = (title?: string | null): MediaItem => ({
   type: MediaType.PDF,
   url: { original: 'https://example.test/report.pdf' },
+  title,
 })
 
 describe('getThumbnailUrl', () => {
@@ -192,24 +196,64 @@ describe('resolveMediaSlide', () => {
     })
   })
 
-  it('renders external media as an outbound link', () => {
-    expect(resolveMediaSlide(externalItem())).toEqual({
-      kind: 'link',
-      href: 'https://example.test/article',
-      label: 'Open external media',
-    })
-  })
-
-  it('renders a PDF as an outbound link', () => {
-    expect(resolveMediaSlide(pdfItem())).toEqual({
-      kind: 'link',
-      href: 'https://example.test/report.pdf',
-      label: 'Open PDF',
-    })
+  // Forecast-125: they open in a new tab from their tile instead.
+  it('leaves external media and PDFs out of the lightbox', () => {
+    expect(resolveMediaSlide(externalItem())).toEqual({ kind: 'unsupported' })
+    expect(resolveMediaSlide(pdfItem())).toEqual({ kind: 'unsupported' })
   })
 
   it('reports an undisplayable item as unsupported', () => {
     // The schema collapses anything it can't recognise to `unknown`.
     expect(resolveMediaSlide({ type: MediaType.Unknown })).toEqual({ kind: 'unsupported' })
+  })
+})
+
+// Forecast-125, Forecast-131
+describe('getMediaLink', () => {
+  it('links external media and PDFs out, with their titles', () => {
+    expect(getMediaLink(externalItem('Mt. Glory Snowpit Video'))).toEqual({
+      kind: 'external',
+      href: 'https://example.test/article',
+      title: 'Mt. Glory Snowpit Video',
+    })
+    expect(getMediaLink(pdfItem('report.pdf'))).toEqual({
+      kind: 'pdf',
+      href: 'https://example.test/report.pdf',
+      title: 'report.pdf',
+    })
+  })
+
+  it('reads a blank title as none', () => {
+    expect(getMediaLink(pdfItem(''))).toMatchObject({ title: null })
+    expect(getMediaLink(pdfItem())).toMatchObject({ title: null })
+    expect(getMediaLink(externalItem('  '))).toMatchObject({ title: null })
+  })
+
+  it('leaves images and videos to the lightbox', () => {
+    expect(getMediaLink(imageItem())).toBeNull()
+    expect(getMediaLink(youTubeItem())).toBeNull()
+  })
+})
+
+describe('mediaGridTiles', () => {
+  it("keeps the product's order, and numbers the lightbox past the links", () => {
+    const media = [imageItem(), pdfItem(), youTubeItem(), externalItem(), photoItem()].map(
+      (item) => ({ item }),
+    )
+
+    const { tiles, lightbox } = mediaGridTiles(media)
+
+    expect(tiles.map((tile) => (tile.kind === 'link' ? tile.link.kind : tile.index))).toEqual([
+      0,
+      'pdf',
+      1,
+      'external',
+      2,
+    ])
+    expect(lightbox.map(({ item }) => item.type)).toEqual([
+      MediaType.Image,
+      MediaType.Video,
+      MediaType.Photo,
+    ])
   })
 })
