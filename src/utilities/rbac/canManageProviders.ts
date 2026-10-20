@@ -12,10 +12,9 @@ import { ruleMatches } from './ruleMatches'
 export const canManageProviders = async (
   payload: Payload,
   user: User | ClientUser,
+  isManager?: boolean,
 ): Promise<boolean> => {
-  // Check if user is a provider manager
-  const isManager = await isProviderManager(payload, user)
-  if (isManager) {
+  if (isManager ?? (await isProviderManager(payload, user))) {
     return true
   }
 

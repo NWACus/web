@@ -68,7 +68,7 @@ export async function checkExpiredInviteAction(
       payload,
     } as PayloadRequest
 
-    const canInvite = byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
+    const canInvite = await byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
       req: mockedPayloadReq,
     })
 
@@ -119,7 +119,7 @@ export async function resendInviteAction(
       payload,
     } as PayloadRequest
 
-    const canInvite = byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
+    const canInvite = await byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
       req: mockedPayloadReq,
     })
 

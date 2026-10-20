@@ -39,7 +39,7 @@ export async function InviteUser({ payload, user }: BeforeListServerProps) {
   const isManager = await isProviderManager(payload, user)
 
   // Check if user can manage providers (either through provider manager role or global role permissions)
-  const canAssignProviders = await canManageProviders(payload, user)
+  const canAssignProviders = await canManageProviders(payload, user, isManager)
 
   return (
     <InviteUserDrawer

@@ -233,10 +233,6 @@ export const seed = async ({
               collections: ['providers'],
               actions: ['*'],
             },
-            {
-              collections: ['users'],
-              actions: ['create', 'read', 'update'],
-            },
           ],
         },
         {
