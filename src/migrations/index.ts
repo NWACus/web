@@ -71,7 +71,7 @@ import * as migration_20261017_214607_station_columns_per_station from './202610
 import * as migration_20261019_120000_add_display_as_to_document_block from './20261019_120000_add_display_as_to_document_block'
 import * as migration_20261020_035907_add_observations_widget_block from './20261020_035907_add_observations_widget_block'
 import * as migration_20261027_230050_add_provider_curriculum from './20261027_230050_add_provider_curriculum'
-import * as migration_20261015_171317_add_event_location_coordinates from './20261015_171317_add_event_location_coordinates'
+import * as migration_20261020_041504_add_event_location_coordinates from './20261020_041504_add_event_location_coordinates'
 
 export const migrations = [
   {
@@ -440,8 +440,8 @@ export const migrations = [
     name: '20261027_230050_add_provider_curriculum',
   },
   {
-    up: migration_20261015_171317_add_event_location_coordinates.up,
-    down: migration_20261015_171317_add_event_location_coordinates.down,
-    name: '20261015_171317_add_event_location_coordinates',
+    up: migration_20261020_041504_add_event_location_coordinates.up,
+    down: migration_20261020_041504_add_event_location_coordinates.down,
+    name: '20261020_041504_add_event_location_coordinates',
   },
 ]
