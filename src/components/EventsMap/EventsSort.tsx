@@ -15,6 +15,12 @@ import { DEVICE_NEAR, nearParams, useNearOrigin, type NearOrigin } from './useNe
 // Matches the List/Map toggle's icons.
 const ICON_SIZE = '[&_svg]:size-4 [&_svg]:shrink-0'
 
+/** The phone map view's buttons float over the map as pills. */
+export const FLOATING_BUTTON = cn(
+  'h-10 gap-2 rounded-full border-0 bg-background shadow-md',
+  ICON_SIZE,
+)
+
 type Locating = { busy: boolean; error: string | null }
 
 /** "Use my location": asks only on this click, then keeps the answer in the session. */
@@ -127,13 +133,21 @@ function UseMyLocationButton({
   )
 }
 
-function ClearSortButton({ shown, onClick }: { shown: boolean; onClick: () => void }) {
+function ClearSortButton({
+  shown,
+  floating,
+  onClick,
+}: {
+  shown: boolean
+  floating: boolean
+  onClick: () => void
+}) {
   if (!shown) return null
   return (
     <Button
       variant="ghost"
       size="sm"
-      className={ICON_SIZE}
+      className={cn(ICON_SIZE, floating && cn(FLOATING_BUTTON, 'w-10 hover:bg-background'))}
       aria-label="Sort soonest first instead"
       onClick={onClick}
     >
@@ -144,11 +158,15 @@ function ClearSortButton({ shown, onClick }: { shown: boolean; onClick: () => vo
 
 const TRIGGER_ICONS = { device: LocateFixed, place: MapPin }
 
-function SortTrigger({ origin }: { origin: NearOrigin | null }) {
+function SortTrigger({ origin, floating }: { origin: NearOrigin | null; floating: boolean }) {
   const Icon = origin ? TRIGGER_ICONS[origin.source] : ArrowUpDown
   return (
     <PopoverTrigger asChild>
-      <Button variant="outline" size="sm" className={cn('min-w-0 gap-2', ICON_SIZE)}>
+      <Button
+        variant="outline"
+        size="sm"
+        className={cn('min-w-0 gap-2', ICON_SIZE, floating && FLOATING_BUTTON)}
+      >
         <Icon />
         <span className="truncate">{origin ? `Nearest to ${origin.label}` : 'Soonest first'}</span>
       </Button>
@@ -197,7 +215,7 @@ function NearestOptions({
 }
 
 /** Soonest first, or nearest to a typed place or the device location. */
-export function EventsSort() {
+export function EventsSort({ floating = false }: { floating?: boolean }) {
   const [, setNear] = useQueryStates(nearParams)
   const origin = useNearOrigin()
   const [open, setOpen] = useState(false)
@@ -223,8 +241,14 @@ export function EventsSort() {
   return (
     <div className="flex min-w-0 items-center gap-1">
       <Popover open={open} onOpenChange={setOpen}>
-        <SortTrigger origin={origin} />
-        <PopoverContent align="start" aria-labelledby={titleId} className="w-80 p-2">
+        <SortTrigger origin={origin} floating={floating} />
+        {/* Full width on phones, where the place box needs the room. */}
+        <PopoverContent
+          align="start"
+          collisionPadding={12}
+          aria-labelledby={titleId}
+          className="w-[calc(100vw-1.5rem)] p-2 sm:w-80"
+        >
           <h2 id={titleId} className="px-2 pt-1 pb-2 font-semibold">
             Sort events
           </h2>
@@ -239,7 +263,7 @@ export function EventsSort() {
           />
         </PopoverContent>
       </Popover>
-      <ClearSortButton shown={origin !== null} onClick={sortSoonest} />
+      <ClearSortButton shown={origin !== null} floating={floating} onClick={sortSoonest} />
     </div>
   )
 }

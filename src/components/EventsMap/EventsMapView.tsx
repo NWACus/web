@@ -7,10 +7,12 @@ import { cn } from '@/utilities/ui'
 import dynamic from 'next/dynamic'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { groupEventsByPlace } from './eventPlaces'
 import type { FocusRequest } from './EventsMap.client'
 import { EventsMapList, ResultsStatus, SearchedAreaBar, type CardsProps } from './EventsMapList'
-import { groupEventsByPlace } from './eventPlaces'
+import { PhoneMapView } from './PhoneMapView'
 import { distanceOrigin, useAllFilteredEvents, type EventsState } from './useAllFilteredEvents'
+import { useIsPhone } from './useIsPhone'
 import { useNearOrigin } from './useNearOrigin'
 
 // mapbox-gl touches `window` when imported, so the map only loads in the browser.
@@ -113,13 +115,18 @@ function ListPane({
   )
 }
 
-/** The events beside a map of the same events: pins and list items select each other. */
+/**
+ * The events beside a map of the same events: pins and list items select each other. On a phone,
+ * the map fills the screen and the list scrolls up over it instead (`PhoneMapView`).
+ */
 export function EventsMapView({
   center,
   revealOnMount,
+  onShowList,
 }: {
   center: string
   revealOnMount: boolean
+  onShowList: () => void
 }) {
   const origin = useNearOrigin()
   const state = useAllFilteredEvents(center, origin)
@@ -131,6 +138,21 @@ export function EventsMapView({
   const mapRef = useRef<HTMLDivElement>(null)
   const selection = useSelection(listRef, mapRef)
   useRevealOnMount(mapRef, revealOnMount)
+  const isPhone = useIsPhone()
+
+  if (isPhone) {
+    return (
+      <PhoneMapView
+        state={state}
+        places={places}
+        origin={origin}
+        searchedBox={searchedBox}
+        onSearchArea={(box) => setBboxParam(formatBoxParam(box))}
+        onClearArea={() => setBboxParam(null)}
+        onShowList={onShowList}
+      />
+    )
+  }
 
   return (
     <div className="flex flex-col xl:flex-row xl:items-start gap-4">

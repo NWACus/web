@@ -58,7 +58,7 @@ sig = "a7f6555ce616e30f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "103de32f469b7b3c"
+sig = "3e090e74064f9da9"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -428,7 +428,7 @@ sig = "9a46386ccf33f485"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/map/mapbox.ts"
-sig = "64ba5d87d671aa70"
+sig = "6f4e37ad53a3f1d8"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -1418,27 +1418,32 @@ sig = "7116d846ce543ffc"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMap.client.tsx"
-sig = "a297a2987507bfa3"
+sig = "03075d1e5eb17f9f"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMapList.tsx"
-sig = "20fe5b69ea6d9ea9"
+sig = "3635ee990c6d137b"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsMapView.tsx"
-sig = "6cd232243422eca9"
+sig = "0c37dde7a21ed478"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsResults.tsx"
-sig = "107d6577254c8a1d"
+sig = "48a072f1a1576a73"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/EventsSort.tsx"
-sig = "c362abf06c0b33a0"
+sig = "bc6200e795276b45"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/PhoneMapView.tsx"
+sig = "44e6433b49f82038"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1457,6 +1462,11 @@ sig = "b1118f86a57a7486"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/filtersDrawerOpen.ts"
+sig = "9a3fc9a64d1e24cf"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/mapboxPlaces.ts"
 sig = "6f6c8cb0223b8346"
 
@@ -1464,6 +1474,11 @@ sig = "6f6c8cb0223b8346"
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsMap/useAllFilteredEvents.ts"
 sig = "653e7794920d012c"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/components/EventsMap/useIsPhone.ts"
+sig = "e5af0ca33d96b6e2"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

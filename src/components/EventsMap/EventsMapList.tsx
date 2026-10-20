@@ -52,7 +52,7 @@ function ShowOnMapButton({
   )
 }
 
-function EventThumbnail({ event }: { event: Event }) {
+export function EventThumbnail({ event }: { event: Event }) {
   if (!isValidRelationship(event.thumbnailImage)) return null
   return (
     // The title links to the same page, so this one stays out of the tab order.
@@ -112,6 +112,25 @@ function DetailsToggle({
   )
 }
 
+/** An event's type, date and distance, its linked title, and where it is. */
+export function EventSummary({
+  event,
+  distanceFrom,
+}: {
+  event: Event
+  distanceFrom: LatLng | null
+}) {
+  return (
+    <>
+      <div className="text-xs text-muted-foreground">{eventMeta(event, distanceFrom)}</div>
+      <Link href={`/events/${event.slug}`} className="font-semibold leading-tight hover:underline">
+        {event.title}
+      </Link>
+      <div className="text-sm text-muted-foreground">{describeWhere(event.location)}</div>
+    </>
+  )
+}
+
 export type CardsProps = { selection: CardSelection; distanceFrom: LatLng | null }
 
 function EventMapCard({ event, selection, distanceFrom }: CardsProps & { event: Event }) {
@@ -133,14 +152,7 @@ function EventMapCard({ event, selection, distanceFrom }: CardsProps & { event: 
     >
       <EventThumbnail event={event} />
       <div className="min-w-0 flex-1">
-        <div className="text-xs text-muted-foreground">{eventMeta(event, distanceFrom)}</div>
-        <Link
-          href={`/events/${event.slug}`}
-          className="font-semibold leading-tight hover:underline"
-        >
-          {event.title}
-        </Link>
-        <div className="text-sm text-muted-foreground">{describeWhere(event.location)}</div>
+        <EventSummary event={event} distanceFrom={distanceFrom} />
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
           <ShowOnMapButton placeKey={key} title={event.title} selection={selection} />
           <DetailsToggle
@@ -244,7 +256,7 @@ export function SearchedAreaBar({ loading, onClear }: { loading: boolean; onClea
   )
 }
 
-const eventCount = (shown: number, total: number) =>
+export const eventCount = (shown: number, total: number) =>
   total > shown ? `${shown} of ${total} events` : `${shown} ${shown === 1 ? 'event' : 'events'}`
 
 function countMessage(state: EventsState, searchingArea: boolean): string {

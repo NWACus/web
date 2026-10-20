@@ -30,12 +30,19 @@ interface EventsMapProps {
   onSelect: (key: string) => void
   onClear: () => void
   onSearchArea: (box: BoundingBox) => void
+  /**
+   * Set when the map fills a phone's screen: how far the controls along its top and the list or
+   * card along its bottom reach over it. The selected place shows in that card, not a popup.
+   */
+  insets?: Insets
 }
+
+export type Insets = { top: number; bottom: number }
 
 const FIT_PADDING = 48
 const FOCUS_ZOOM = 11
 
-function useEventsMapInstance(containerRef: RefObject<HTMLDivElement | null>) {
+function useEventsMapInstance(containerRef: RefObject<HTMLDivElement | null>, fullScreen: boolean) {
   const [map, setMap] = useState<mapboxgl.Map | null>(null)
 
   useEffect(() => {
@@ -47,13 +54,14 @@ function useEventsMapInstance(containerRef: RefObject<HTMLDivElement | null>) {
       token,
       { center: [-114, 44], zoom: 3.5 },
       'Events map',
+      { fullScreen },
     )
     setMap(instance)
     return () => {
       setMap(null)
       remove()
     }
-  }, [containerRef])
+  }, [containerRef, fullScreen])
 
   return map
 }
@@ -62,7 +70,12 @@ function useEventsMapInstance(containerRef: RefObject<HTMLDivElement | null>) {
  * Frames every pin whenever the set of pins changes, i.e. when the filters change. Not while an
  * area search is on: the reader chose that view, so it stays put as the results come in.
  */
-function useFitToPlaces(map: mapboxgl.Map | null, places: EventPlace[], searching: boolean) {
+function useFitToPlaces(
+  map: mapboxgl.Map | null,
+  places: EventPlace[],
+  searching: boolean,
+  insets: Insets | undefined,
+) {
   // Sorted, so the same pins in a new order (a change of sort) don't refit the map.
   const placesKey = places
     .map((place) => place.key)
@@ -74,12 +87,25 @@ function useFitToPlaces(map: mapboxgl.Map | null, places: EventPlace[], searchin
   // the in-area pins still showing.
   const searchingRef = useRef(searching)
   searchingRef.current = searching
+  const paddingRef = useRef(fitPadding(insets))
+  paddingRef.current = fitPadding(insets)
 
   useEffect(() => {
     const bounds = boundsOf(placesRef.current)
     if (!map || searchingRef.current || !bounds) return
-    map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: FOCUS_ZOOM, duration: 0 })
+    map.fitBounds(bounds, { padding: paddingRef.current, maxZoom: FOCUS_ZOOM, duration: 0 })
   }, [map, placesKey])
+}
+
+/** Full screen, the pins are framed in the part of the map nothing is laid over. */
+function fitPadding(insets: Insets | undefined): number | mapboxgl.PaddingOptions {
+  if (!insets) return FIT_PADDING
+  return {
+    top: insets.top + FIT_PADDING,
+    bottom: insets.bottom + FIT_PADDING,
+    left: FIT_PADDING,
+    right: FIT_PADDING,
+  }
 }
 
 function boundsOf(places: EventPlace[]): mapboxgl.LngLatBounds | null {
@@ -160,10 +186,13 @@ function viewBox(map: mapboxgl.Map): BoundingBox {
 function SearchAreaButton({
   map,
   shown,
+  top,
   onSearch,
 }: {
   map: mapboxgl.Map | null
   shown: boolean
+  /** Below whatever floats along the map's top. */
+  top: number
   onSearch: (box: BoundingBox) => void
 }) {
   if (!map || !shown) return null
@@ -172,12 +201,15 @@ function SearchAreaButton({
       size="sm"
       variant="outline"
       onClick={() => onSearch(viewBox(map))}
-      className="absolute top-3 left-1/2 -translate-x-1/2 z-10 rounded-full shadow-md"
+      style={{ top: top + SEARCH_AREA_GAP }}
+      className="absolute left-1/2 -translate-x-1/2 z-10 rounded-full shadow-md"
     >
       <Search /> Search this area
     </Button>
   )
 }
+
+const SEARCH_AREA_GAP = 12
 
 // How far a popup stays from the map's edges.
 const POPUP_MARGIN = 12
@@ -286,6 +318,83 @@ function useFlyToFocus(map: mapboxgl.Map | null, places: EventPlace[], focus: Fo
   }, [map, focus])
 }
 
+/** The camera move that centres a place, and for "Show on map" zooms in, clear of the insets. */
+function insetMove(
+  map: mapboxgl.Map,
+  insets: Insets,
+  place: EventPlace | undefined,
+  zoomIn: boolean,
+): mapboxgl.EasingOptions {
+  const padding = { ...insets, left: 0, right: 0 }
+  if (!place) return { padding }
+  const center: [number, number] = [place.longitude, place.latitude]
+  return zoomIn
+    ? { padding, center, zoom: Math.max(map.getZoom(), FOCUS_ZOOM) }
+    : { padding, center }
+}
+
+/**
+ * Full screen, the list or a card covers the bottom of the map. One move keeps the selected pin
+ * centred in what still shows and, for "Show on map", zooms in to it: the card opening changes
+ * the insets mid-flight, and a second move would cancel the first.
+ */
+function useInsetCamera(
+  map: mapboxgl.Map | null,
+  places: EventPlace[],
+  insets: Insets | undefined,
+  selectedKey: string | null,
+  focus: FocusRequest | null,
+) {
+  const placesRef = useRef(places)
+  placesRef.current = places
+  const insetsRef = useRef(insets)
+  insetsRef.current = insets
+  // The insets are a fresh object each render; only a change in size should move the camera.
+  const insetsKey = insets && `${insets.top},${insets.bottom}`
+  const zoomIn = focus?.key === selectedKey
+  const requestedAt = focus?.requestedAt
+  useEffect(() => {
+    const current = insetsRef.current
+    if (!map || !current) return
+    const place = placesRef.current.find((candidate) => candidate.key === selectedKey)
+    map.easeTo(insetMove(map, current, place, zoomIn))
+  }, [map, insetsKey, selectedKey, zoomIn, requestedAt])
+}
+
+/** Keeps the Mapbox logo, attribution and zoom buttons above the list or card covering the map. */
+function useLiftBottomControls(map: mapboxgl.Map | null, bottom: number | undefined) {
+  useEffect(() => {
+    if (!map || bottom === undefined) return
+    const corners = map
+      .getContainer()
+      .querySelectorAll<HTMLElement>('.mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl-bottom-right')
+    for (const corner of corners) corner.style.bottom = `${bottom}px`
+  }, [map, bottom])
+}
+
+/**
+ * Where the camera goes: framing the pins, or a searched area. Embedded, "Show on map" flies to the
+ * pin and the selected place opens a popup. Full screen (`insets` set), the camera keeps the
+ * selection clear of the list or card, which shows the place instead.
+ */
+function useCamera(
+  map: mapboxgl.Map | null,
+  { places, searchedBox, insets, selectedKey, focus }: CameraInputs,
+) {
+  useFitToPlaces(map, places, searchedBox !== null, insets)
+  useOpenOnSearchedBox(map, searchedBox)
+  useFlyToFocus(map, places, insets ? null : focus)
+  useInsetCamera(map, places, insets, selectedKey, focus)
+  useLiftBottomControls(map, insets?.bottom)
+  if (!insets) return { popupKey: selectedKey, searchTop: 0 }
+  return { popupKey: null, searchTop: insets.top }
+}
+
+type CameraInputs = Pick<
+  EventsMapProps,
+  'places' | 'searchedBox' | 'insets' | 'selectedKey' | 'focus'
+>
+
 /** The point the list is sorted from, drawn like a "you are here" dot so it reads apart from pins. */
 function OriginDot({ map, point }: { map: mapboxgl.Map; point: LatLng }) {
   const lngLat = useMemo<[number, number]>(
@@ -370,10 +479,12 @@ interface PinsProps {
   selectedKey: string | null
   hoveredKey: string | null
   onSelect: (key: string) => void
+  /** The place whose popup is open: the selected one, unless a card shows it instead. */
+  popupKey: string | null
 }
 
 /** A pin per place, with places that would overlap at this zoom merged into clusters. */
-function Pins({ map, places, selectedKey, hoveredKey, onSelect }: PinsProps) {
+function Pins({ map, places, selectedKey, hoveredKey, onSelect, popupKey }: PinsProps) {
   const zoom = useZoomLevel(map)
   const clusters = useMemo(() => clusterPlaces(places, selectedKey), [places, selectedKey])
   const items = useMemo(() => mapItemsAt(clusters, zoom), [clusters, zoom])
@@ -391,7 +502,7 @@ function Pins({ map, places, selectedKey, hoveredKey, onSelect }: PinsProps) {
         key={item.place.key}
         map={map}
         place={item.place}
-        selected={item.place.key === selectedKey}
+        selected={item.place.key === popupKey}
         active={item.place.key === selectedKey || item.place.key === hoveredKey}
         onSelect={onSelect}
       />
@@ -409,14 +520,17 @@ export function EventsMap({
   onSelect,
   onClear,
   onSearchArea,
+  insets,
 }: EventsMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const map = useEventsMapInstance(containerRef)
-  useFitToPlaces(map, places, searchedBox !== null)
-  useOpenOnSearchedBox(map, searchedBox)
+  const map = useEventsMapInstance(containerRef, insets !== undefined)
+  const view = useCamera(map, { places, searchedBox, insets, selectedKey, focus })
   useClosePopup(map, selectedKey, onClear)
-  useFlyToFocus(map, places, focus)
   const movedByReader = useMovedByReader(map)
+  const searchArea = (box: BoundingBox) => {
+    movedByReader.reset()
+    onSearchArea(box)
+  }
 
   if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
     return (
@@ -435,16 +549,15 @@ export function EventsMap({
           selectedKey={selectedKey}
           hoveredKey={hoveredKey}
           onSelect={onSelect}
+          popupKey={view.popupKey}
         />
         <OriginMarker map={map} origin={origin} />
       </div>
       <SearchAreaButton
         map={map}
         shown={movedByReader.moved}
-        onSearch={(box) => {
-          movedByReader.reset()
-          onSearchArea(box)
-        }}
+        top={view.searchTop}
+        onSearch={searchArea}
       />
     </div>
   )

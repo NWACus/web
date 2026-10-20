@@ -59,6 +59,9 @@ export function createProductMap(
   token: string,
   view: { center: [number, number]; zoom: number },
   label?: string,
+  // Filling a phone's screen, a map has no page scroll to share gestures with, so it pans with one
+  // finger, and its zoom buttons move down out from under the controls floating along its top.
+  { fullScreen = false }: { fullScreen?: boolean } = {},
 ): { map: MapboxMap; remove: () => void } {
   mapboxgl.accessToken = token
   const container = wrapper.appendChild(document.createElement('div'))
@@ -67,12 +70,15 @@ export function createProductMap(
   const map = new mapboxgl.Map({
     container,
     style: MAP_STYLE,
-    cooperativeGestures: true,
+    cooperativeGestures: !fullScreen,
     locale,
     ...view,
   })
   disableRotation(map)
-  map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
+  map.addControl(
+    new mapboxgl.NavigationControl({ showCompass: false }),
+    fullScreen ? 'bottom-right' : 'top-right',
+  )
   return {
     map,
     remove: () => {
