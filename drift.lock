@@ -1348,7 +1348,7 @@ sig = "d1db39fc498441a7"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/EventsList.tsx"
-sig = "7116d846ce543ffc"
+sig = "81971e70e6f37cd8"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1528,7 +1528,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "967d359895148221"
+sig = "f03217c26935787a"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
