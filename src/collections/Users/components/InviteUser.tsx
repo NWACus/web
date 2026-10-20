@@ -19,7 +19,7 @@ export async function InviteUser({ payload, user }: BeforeListServerProps) {
     payload,
   } as PayloadRequest
 
-  const canInvite = byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
+  const canInvite = await byGlobalRoleOrTenantRoleAssignmentOrDomain('create')({
     req: mockedPayloadReq,
   })
 
