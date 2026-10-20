@@ -2,7 +2,9 @@
 
 import { EventInfo } from '@/components/EventInfo'
 import { EventActions } from '@/components/EventPreview/EventActions'
+import { LocationAddress } from '@/components/EventPreview/LocationPopover'
 import { ImageMedia } from '@/components/Media/ImageMedia'
+import { Badge } from '@/components/ui/badge'
 import { eventTypesData } from '@/constants/eventTypes'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
@@ -67,7 +69,15 @@ export function EventThumbnail({ event }: { event: Event }) {
   )
 }
 
-/** The rest of what the list view shows: subtitle, description, full dates and skill level. */
+function hasAddress(location: Event['location']): location is NonNullable<Event['location']> {
+  if (!location || location.isVirtual) return false
+  return Boolean(location.address || location.city || location.state || location.zip)
+}
+
+/**
+ * The rest of what the list view shows: subtitle, description, full dates, skill level, and the
+ * address with Copy and Open in Maps.
+ */
 function EventDetails({ event, id }: { event: Event; id: string }) {
   return (
     <div id={id} className="mt-2 flex flex-col gap-2 text-sm">
@@ -82,6 +92,11 @@ function EventDetails({ event, id }: { event: Event; id: string }) {
         skillLevel={event.skillLevel}
         className="flex flex-col gap-1"
       />
+      {hasAddress(event.location) && (
+        <div className="text-muted-foreground">
+          <LocationAddress location={event.location} />
+        </div>
+      )}
     </div>
   )
 }
@@ -120,13 +135,28 @@ export function EventSummary({
   event: Event
   distanceFrom: LatLng | null
 }) {
+  // Badged as in the list view, which a past dates filter fills with them.
+  const isPast = new Date(event.startDate) < new Date()
   return (
     <>
-      <div className="text-xs text-muted-foreground">{eventMeta(event, distanceFrom)}</div>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span className="text-xs text-muted-foreground">{eventMeta(event, distanceFrom)}</span>
+        {isPast && (
+          <Badge variant="secondary" className="whitespace-nowrap">
+            Past Event
+          </Badge>
+        )}
+      </div>
       <Link href={`/events/${event.slug}`} className="font-semibold leading-tight hover:underline">
         {event.title}
       </Link>
-      <div className="text-sm text-muted-foreground">{describeWhere(event.location)}</div>
+      {event.location?.isVirtual ? (
+        <Badge variant="outline" className="mt-1 w-fit whitespace-nowrap">
+          Virtual Event
+        </Badge>
+      ) : (
+        <div className="text-sm text-muted-foreground">{describeWhere(event.location)}</div>
+      )}
     </>
   )
 }
