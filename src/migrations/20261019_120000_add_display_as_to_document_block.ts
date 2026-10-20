@@ -19,10 +19,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-// Sets displayAs: 'embed' on every Document block in a Lexical tree; returns whether any changed.
-function embedDocumentBlocks(node: unknown): boolean {
+// The block's upload field holds a bare ID, or a populated document if saved at depth.
+function documentID(value: unknown): string {
+  return String(isRecord(value) ? value.id : value)
+}
+
+// Sets displayAs on every Document block in a Lexical tree that has none: 'embed' for PDFs, which
+// is how they rendered before this migration, 'download' for anything validateDisplayAs would
+// reject. Returns whether any block changed.
+function backfillDocumentBlocks(node: unknown, pdfIDs: ReadonlySet<string>): boolean {
   if (Array.isArray(node)) {
-    return node.map(embedDocumentBlocks).some(Boolean)
+    return node.map((child) => backfillDocumentBlocks(child, pdfIDs)).some(Boolean)
   }
   if (!isRecord(node)) return false
 
@@ -30,11 +37,11 @@ function embedDocumentBlocks(node: unknown): boolean {
   const { fields } = node
   if (node.type === 'block' && isRecord(fields) && fields.blockType === 'documentBlock') {
     if (fields.displayAs === undefined || fields.displayAs === null) {
-      fields.displayAs = 'embed'
+      fields.displayAs = pdfIDs.has(documentID(fields.document)) ? 'embed' : 'download'
       changed = true
     }
   }
-  return embedDocumentBlocks(Object.values(node)) || changed
+  return backfillDocumentBlocks(Object.values(node), pdfIDs) || changed
 }
 
 export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
@@ -51,11 +58,23 @@ export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
     sql`ALTER TABLE \`_pages_v_blocks_document_block\` ADD \`display_as\` text DEFAULT 'download';`,
   )
 
-  // Every Document block that predates this migration rendered as an iframe; keep it that way.
-  await db.run(sql`UPDATE \`home_pages_blocks_document_block\` SET \`display_as\` = 'embed';`)
-  await db.run(sql`UPDATE \`_home_pages_v_blocks_document_block\` SET \`display_as\` = 'embed';`)
-  await db.run(sql`UPDATE \`pages_blocks_document_block\` SET \`display_as\` = 'embed';`)
-  await db.run(sql`UPDATE \`_pages_v_blocks_document_block\` SET \`display_as\` = 'embed';`)
+  // Every Document block that predates this migration rendered as an iframe. Keep PDFs that way;
+  // other types stay on the 'download' default, since validateDisplayAs only allows embedding PDFs.
+  const pdfDocuments = sql`SELECT \`id\` FROM \`documents\` WHERE \`mime_type\` = 'application/pdf'`
+  for (const table of [
+    'home_pages_blocks_document_block',
+    '_home_pages_v_blocks_document_block',
+    'pages_blocks_document_block',
+    '_pages_v_blocks_document_block',
+  ]) {
+    await db.run(
+      sql`UPDATE ${sql.identifier(table)} SET \`display_as\` = 'embed' WHERE \`document_id\` IN (${pdfDocuments});`,
+    )
+  }
+
+  const pdfIDs = new Set(
+    (await db.all<{ id: number }>(pdfDocuments)).map((document) => String(document.id)),
+  )
 
   for (const [table, column] of RICH_TEXT_COLUMNS) {
     // Cheap pre-filter: only rows whose JSON mentions the block at all.
@@ -65,7 +84,7 @@ export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
     let updated = 0
     for (const row of rows) {
       const tree: unknown = JSON.parse(row.json)
-      if (!embedDocumentBlocks(tree)) continue
+      if (!backfillDocumentBlocks(tree, pdfIDs)) continue
       updated++
       await db.run(
         sql`UPDATE ${sql.identifier(table)} SET ${sql.identifier(column)} = ${JSON.stringify(tree)} WHERE id = ${row.id}`,
