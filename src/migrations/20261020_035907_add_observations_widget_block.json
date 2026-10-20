@@ -444,6 +444,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "display_as": {
+          "name": "display_as",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'download'"
+        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -3611,6 +3619,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "display_as": {
+          "name": "display_as",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'download'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -6903,6 +6919,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "display_as": {
+          "name": "display_as",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'download'"
+        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -9940,6 +9964,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "display_as": {
+          "name": "display_as",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'download'"
         },
         "_uuid": {
           "name": "_uuid",
