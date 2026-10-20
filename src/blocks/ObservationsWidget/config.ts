@@ -6,6 +6,7 @@ export const DEFAULT_OBSERVATIONS_HEADING = 'Recent Observations'
 export const ObservationsWidgetBlock: Block = {
   slug: 'observationsWidget',
   interfaceName: 'ObservationsWidgetBlock',
+  imageURL: '/thumbnail/ObservationsWidgetThumbnail.jpg',
   labels: {
     singular: 'Observations Widget',
     plural: 'Observations Widgets',
