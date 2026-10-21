@@ -184,10 +184,15 @@ export const TenantSelectionProviderClient = ({
           })),
         )
 
+        const cookieSlug = getTenantCookie()
         if (result.docs.length === 1) {
           const firstSlug = result.docs[0].slug
           setSelectedTenantSlug(firstSlug)
           setTenantCookie({ value: firstSlug })
+        } else if (result.docs.some((doc: Record<string, string>) => doc.slug === cookieSlug)) {
+          // On a tenant subdomain the middleware has already set the cookie; without this the
+          // selection stays empty and "global" docs fall back to the first tenant.
+          setSelectedTenantSlug(cookieSlug)
         }
       }
     } catch (e) {
@@ -236,13 +241,19 @@ export const TenantSelectionProviderClient = ({
    * A cookie with no matching initial value is stale (unknown slug, or one this
    * user can't access): clear it and refresh. With no cookie there is nothing to
    * clear, and the refresh would re-render the edit view's server state and wipe
-   * whatever the user has typed in the meantime.
+   * whatever the user has typed in the meantime. `initialValue` is computed while
+   * logged out on the login page, so after login the current options decide.
    */
   useEffect(() => {
-    if (!initialValue && getTenantCookie()) {
+    const cookieSlug = getTenantCookie()
+    if (
+      !initialValue &&
+      cookieSlug &&
+      !tenantOptions.some((option) => option.value === cookieSlug)
+    ) {
       setTenant({ slug: undefined, refresh: true })
     }
-  }, [initialValue, setTenant])
+  }, [initialValue, setTenant, tenantOptions])
 
   /**
    * If there is no selected tenant slug and the entity type is 'global', set the first tenant as selected.
