@@ -1,6 +1,12 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
-import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
-import { fmtQpf } from '@/services/nac/nwacWeatherFormat'
+import {
+  Overall,
+  OverallSectionTabs,
+  ZoneOverall,
+  overallParts,
+} from '@/components/NWACWeather/Overall'
+import { levelFill } from '@/components/NWACWeather/Values'
+import { fmtQpf, zoneIssuance } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
@@ -172,8 +178,7 @@ describe('Overall table descriptions', () => {
       ),
     ).toHaveLength(2)
     expect(screen.getByText(/is the high \/ low$/)).toBeInTheDocument()
-    expect(screen.getByText('Points to where the wind comes from')).toBeInTheDocument()
-    expect(screen.getByText('Higher or lower than the previous period')).toBeInTheDocument()
+    expect(screen.getByText('Points the way the wind blows')).toBeInTheDocument()
   })
 })
 
@@ -250,5 +255,29 @@ describe('IssuanceSwitch anchors', () => {
     )
     expect(screen.getByText('AM body')).toBeVisible()
     expect(screen.getByText('PM body')).not.toBeVisible()
+  })
+})
+
+describe('levelFill', () => {
+  it('is blue below 5000 ft, neutral at 5000 ft and red above', () => {
+    expect(levelFill(1500)).toContain('bg-blue-300')
+    expect(levelFill(4500)).toContain('bg-blue-50')
+    expect(levelFill(5000)).toContain('bg-stone-100')
+    expect(levelFill(5500)).toContain('bg-red-50')
+    expect(levelFill(9000)).toContain('bg-red-300')
+  })
+})
+
+describe('ZoneOverall', () => {
+  it("shows only the zone's rows, without the synopsis or the precipitation total", () => {
+    const zoneId = afternoon.zones[0].avalancheZoneId
+    if (zoneId == null) throw new Error('fixture zone has no avalanche zone')
+    const narrowed = zoneIssuance(afternoon, zoneId)
+    render(<ZoneOverall issuance={narrowed} />)
+    expect(narrowed.zones.length).toBeLessThan(afternoon.zones.length)
+    expect(screen.queryByText('Weather Synopsis')).toBeNull()
+    expect(screen.queryByText('Total')).toBeNull()
+    const other = afternoon.zones.find((z) => !narrowed.zones.includes(z))
+    if (other) expect(screen.queryByText(other.name)).toBeNull()
   })
 })

@@ -85,11 +85,12 @@ describe('convertStationTable', () => {
 })
 
 describe('formatStationValue', () => {
-  it('reads precipitation to hundredths and the snow fields to tenths', () => {
+  it('reads precipitation to hundredths, snow depth to tenths and 24-hour snow whole', () => {
     expect(formatStationValue('precip_accum_one_hour', 0.034, 'imperial')).toBe('0.03')
     expect(formatStationValue('precip_cumsum', 1.5, 'imperial')).toBe('1.50')
     expect(formatStationValue('snow_depth', 74.51, 'imperial')).toBe('74.5')
-    expect(formatStationValue('snow_depth_24h', 2.46, 'imperial')).toBe('2.5')
+    expect(formatStationValue('snow_depth_24h', 2.46, 'imperial')).toBe('2')
+    expect(formatStationValue('snow_depth_24h', 2.5, 'imperial')).toBe('3')
     expect(formatStationValue('intermittent_snow', 1, 'imperial')).toBe('1.0')
   })
 

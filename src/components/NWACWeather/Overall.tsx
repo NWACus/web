@@ -21,7 +21,6 @@ import {
   fmtCalendarDate,
   fmtQpf,
   levelKind,
-  levelTrend,
   periodDateGroups,
   precipPeriods,
   snowLevelBlocks,
@@ -35,7 +34,6 @@ import { PrecipHoursPanel, PrecipHoursSwitch, PrecipHoursToggle } from './Precip
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import {
   DayNightDate,
-  SNOW_LEVEL_FILL,
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
@@ -43,6 +41,7 @@ import {
   TempValue,
   WindLegend,
   WindValue,
+  levelFill,
 } from './Values'
 import { WeatherSummary, type SensibleDay, type SensibleRow } from './WeatherSummary.client'
 
@@ -149,8 +148,8 @@ function blockColumn(issuance: NWACWeatherIssuance, b: NWACWeatherBlock): Column
 }
 
 /**
- * A zone's snow and freezing levels: the snow levels' cells filled light blue, so the fill takes the
- * whole cell rather than a pill inside it, and each with its trend from the block before.
+ * A zone's snow and freezing levels, each cell filled by its elevation, so the fill takes the whole
+ * cell rather than a pill inside it.
  */
 function levelRow(
   zone: { id: string; name: string },
@@ -159,16 +158,10 @@ function levelRow(
   return {
     key: zone.id,
     label: zone.name,
-    cells: cells.map((c, i) => (
-      <SnowLevelValue
-        key={c.key}
-        level={c.level}
-        snow={c.snow}
-        trend={levelTrend(cells[i - 1]?.level, c.level)}
-        pill={false}
-      />
+    cells: cells.map((c) => (
+      <SnowLevelValue key={c.key} level={c.level} snow={c.snow} pill={false} />
     )),
-    fills: cells.map((c) => (c.snow && c.level != null ? SNOW_LEVEL_FILL : undefined)),
+    fills: cells.map((c) => (c.level != null ? levelFill(c.level) : undefined)),
   }
 }
 
@@ -260,16 +253,19 @@ function sumOf(values: (number | null | undefined)[]): number | null {
   return known.length ? known.reduce((a, b) => a + b, 0) : null
 }
 
+/** A sum of hundredths back to hundredths, dropping float noise (0.1 + 0.2 → 0.3). */
+function hundredths(value: number | null): number | null {
+  return value == null ? null : Math.round(value * 100) / 100
+}
+
 /** One period's (or the total's) water equivalent then snow, the pair shaded by the snow. */
-function precipSnowPair(qpf: number | null | undefined, snow: number | null, shade: boolean) {
+function precipSnowPair(qpf: number | null | undefined, snow: number | null) {
   const some = snow != null && snow > 0
-  // A dry period reads as one muted 0, not two.
-  const dry = qpf != null && qpf <= 0 && !some
-  const fill = shade ? snowFill(snow) : undefined
+  const fill = snowFill(snow)
   return {
     cells: [
       <span key="we" className="tabular-nums text-muted-foreground">
-        {dry ? '' : fmtQpf(qpf)}
+        {fmtQpf(qpf)}
       </span>,
       <SnowValue key="snow" text={snowRange(snow)} some={some} />,
     ],
@@ -326,20 +322,19 @@ function precipSlots(issuance: NWACWeatherIssuance, hours: PrecipHours): PrecipS
 
 /**
  * Water equivalent and the new snow it makes, by station, the stations grouped under their zones:
- * each 12 or 24 hours split in two, then the whole window's total.
+ * each 12 or 24 hours split in two, then the whole window's total unless `total` is off.
  */
-function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Table {
+function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours, total = true): Table {
   const slots = precipSlots(issuance, hours)
   const periods = precipPeriods(issuance)
   const row = (p: NWACWeatherIssuance['points'][number]): Row => {
     const cell = (period: NWACWeatherPeriod) => issuance.precip[p.code]?.[period.key]
     const totalOf = (of: NWACWeatherPeriod[]) =>
       precipSnowPair(
-        sumOf(of.map((period) => cell(period)?.qpf)),
+        hundredths(sumOf(of.map((period) => cell(period)?.qpf))),
         sumOf(of.map((period) => deriveSnow(cell(period)?.qpf, cell(period)?.density))),
-        of !== periods,
       )
-    const pairs = [...slots.map((s) => totalOf(s.periods)), totalOf(periods)]
+    const pairs = [...slots.map((s) => totalOf(s.periods)), ...(total ? [totalOf(periods)] : [])]
     return {
       key: p.code,
       label: p.name,
@@ -359,7 +354,9 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Tab
     nav: 'Precipitation & snow',
     title: 'Precipitation and Snow',
     unit: 'in',
-    note: 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.',
+    note: total
+      ? 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.'
+      : 'Precipitation (liquid, in) and new snow by station.',
     detail: PRECIP_DETAIL,
     legend: <SnowFillLegend />,
     aside: <PrecipHoursToggle />,
@@ -367,7 +364,9 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Tab
     groupColumn: 'Zone',
     columns: [
       ...slots.map((s) => s.column).flatMap(split),
-      ...split({ key: 'total', date: 'Total', sub: null, group: 'total', total: true }),
+      ...(total
+        ? split({ key: 'total', date: 'Total', sub: null, group: 'total', total: true })
+        : []),
     ],
     groups: stationGroups(issuance, row),
   }
@@ -984,6 +983,44 @@ function sensibleDays(issuance: NWACWeatherIssuance) {
   return { days, rows: any ? rows : [] }
 }
 
+/** The precipitation, snow level, temperature and wind tables, in the order both views show them. */
+function VariableTables({
+  anchor,
+  precipSnow,
+  snowLevel,
+  temps,
+  wind,
+}: {
+  anchor: string
+  precipSnow: Record<PrecipHours, Table>
+  snowLevel: Table
+  temps: Table
+  wind: Table
+}) {
+  const tempsOrWind = hasContent(temps) || hasContent(wind)
+  return (
+    <>
+      {hasContent(precipSnow['12']) && (
+        <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
+          <PrecipHoursPanel hours="12">
+            <GridTable table={precipSnow['12']} anchor={anchor} />
+          </PrecipHoursPanel>
+          <PrecipHoursPanel hours="24">
+            <GridTable table={precipSnow['24']} anchor={anchor} />
+          </PrecipHoursPanel>
+        </PrecipHoursSwitch>
+      )}
+      <MaybeTable table={snowLevel} anchor={anchor} />
+      {tempsOrWind && (
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <MaybeTable table={temps} anchor={anchor} />
+          <MaybeTable table={wind} anchor={anchor} />
+        </div>
+      )}
+    </>
+  )
+}
+
 /** Everything the issuance's card shows, built once for the section tabs and the body. */
 export interface OverallParts {
   issuance: NWACWeatherIssuance
@@ -1036,7 +1073,6 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
   const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, precipSnow, ext } = parts
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
-  const tempsOrWind = hasContent(temps) || hasContent(wind)
   const zoneLinks = zoneLinksOf(issuance, zonePaths)
 
   return (
@@ -1057,25 +1093,47 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
           )
         }
       />
-      {hasContent(precipSnow['12']) && (
-        <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
-          <PrecipHoursPanel hours="12">
-            <GridTable table={precipSnow['12']} anchor={anchor} />
-          </PrecipHoursPanel>
-          <PrecipHoursPanel hours="24">
-            <GridTable table={precipSnow['24']} anchor={anchor} />
-          </PrecipHoursPanel>
-        </PrecipHoursSwitch>
-      )}
-      <MaybeTable table={snowLevel} anchor={anchor} />
-      {tempsOrWind && (
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-          <MaybeTable table={temps} anchor={anchor} />
-          <MaybeTable table={wind} anchor={anchor} />
-        </div>
-      )}
+      <VariableTables
+        anchor={anchor}
+        precipSnow={precipSnow}
+        snowLevel={snowLevel}
+        temps={temps}
+        wind={wind}
+      />
       <ExtendedSection anchor={anchor} extended={extended} table={ext} />
       {zoneLinks.length > 0 && <ZoneLinks links={zoneLinks} headingId={`${anchor}-zone-links`} />}
+    </div>
+  )
+}
+
+/**
+ * The region-wide view narrowed to the zones under one avalanche forecast (pass an issuance
+ * already narrowed, see `zoneIssuance`): the weather summary and tables, without the synopsis,
+ * the extended outlook or the precipitation total.
+ */
+export function ZoneOverall({ issuance }: { issuance: NWACWeatherIssuance }) {
+  const [snowLevel, temps, wind] = zoneTables(issuance)
+  const sensible = sensibleDays(issuance)
+  const anchor = `zone-${issuance.type}`
+  return (
+    <div className="space-y-8">
+      {sensible.rows.length > 0 && (
+        <WeatherSummary
+          headingId={`${anchor}-sensible`}
+          days={sensible.days}
+          rows={sensible.rows}
+        />
+      )}
+      <VariableTables
+        anchor={anchor}
+        precipSnow={{
+          '12': precipSnowTable(issuance, '12', false),
+          '24': precipSnowTable(issuance, '24', false),
+        }}
+        snowLevel={snowLevel}
+        temps={temps}
+        wind={wind}
+      />
     </div>
   )
 }

@@ -5,7 +5,8 @@ import type { StationTable } from '@/services/snowobs/tableHelpers'
 const FEET_TO_METERS = 0.3048
 
 // Display precision per sensor, matching the legacy NOW tables: precipitation
-// reads to hundredths and the snow fields to tenths, everything else whole.
+// reads to hundredths and the snow fields to tenths, everything else whole,
+// 24-hour snow included (forecasters read it to the nearest inch).
 // Metric drops precipitation to one decimal — 0.01in is a quarter of a
 // millimetre, so hundredths there would be precision the gauge doesn't have.
 type Decimals = Record<UnitSystem, number>
@@ -22,8 +23,8 @@ const DECIMALS_BY_VARIABLE: Record<string, Decimals> = {
   snow_water_equiv: PRECIP,
   snow_water_equiv_24hr: PRECIP,
   snow_depth: DEPTH,
-  snow_depth_24h: DEPTH,
-  snow_depth_24hr: DEPTH,
+  snow_depth_24h: WHOLE,
+  snow_depth_24hr: WHOLE,
   intermittent_snow: DEPTH,
 }
 

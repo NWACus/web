@@ -31,14 +31,6 @@ export function levelKind(
   return wet ? 'snow' : 'freezing'
 }
 
-/** Up or down from the level before; null for the first, an unknown or an unchanged one. */
-export type LevelTrend = 'up' | 'down' | null
-
-export function levelTrend(before: number | null | undefined, level: number | null): LevelTrend {
-  if (before == null || level == null || before === level) return null
-  return level > before ? 'up' : 'down'
-}
-
 /** New snow in inches from water equivalent and snow-to-liquid ratio (density 10 → 10:1). */
 export function deriveSnow(qpf: number | null | undefined, density: number | null | undefined) {
   if (qpf == null || density == null || density <= 0) return null
@@ -268,40 +260,24 @@ export function snowRange(snow: number | null | undefined): string {
   const half = snowHalfWidth(tenths)
   return `${mid - half}–${mid + half}"`
 }
-export function rangeBucket(value: number | null): string {
-  return snowRange(value)
-}
-
-/** One point's snow for one period, from its water amount and density. */
-export function pointSnow(
-  issuance: NWACWeatherIssuance,
-  pointCode: string,
-  periodKey: string,
-): number | null {
-  const cell = issuance.precip[pointCode]?.[periodKey]
-  return deriveSnow(cell?.qpf, cell?.density)
-}
-
-/** The points that forecast a zone's snow, in the issuance's order. */
-export function zonePoints(issuance: NWACWeatherIssuance, zoneId: string) {
-  return issuance.points.filter((p) => p.zoneId === zoneId)
-}
-
-export function zoneSnow(
-  issuance: NWACWeatherIssuance,
-  zoneId: string,
-  periodKey: string,
-): number | null {
-  const snows = zonePoints(issuance, zoneId)
-    .map((p) => pointSnow(issuance, p.code, periodKey))
-    .filter((s): s is number => s != null)
-  if (snows.length === 0) return null
-  return Math.round((snows.reduce((a, b) => a + b, 0) / snows.length) * 10) / 10
-}
 
 /** The zones an issuance measured, narrowed to one avalanche zone when the page has one. */
 export function zonesFor(issuance: NWACWeatherIssuance, avalancheZoneId?: number | null) {
   if (avalancheZoneId == null) return issuance.zones
   const match = issuance.zones.filter((z) => z.avalancheZoneId === avalancheZoneId)
   return match
+}
+
+/** The issuance narrowed to one avalanche zone's weather zones and their points. */
+export function zoneIssuance(
+  issuance: NWACWeatherIssuance,
+  avalancheZoneId: number,
+): NWACWeatherIssuance {
+  const zones = zonesFor(issuance, avalancheZoneId)
+  const ids = new Set(zones.map((z) => z.id))
+  return {
+    ...issuance,
+    zones,
+    points: issuance.points.filter((p) => p.zoneId != null && ids.has(p.zoneId)),
+  }
 }

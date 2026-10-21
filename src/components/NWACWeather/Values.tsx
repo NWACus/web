@@ -1,5 +1,5 @@
 /** How one Mountain Weather value draws in a table cell. */
-import { ArrowUp, Moon, Snowflake, Sun, TrendingDown, TrendingUp } from 'lucide-react'
+import { ArrowUp, Moon, Snowflake, Sun } from 'lucide-react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import {
@@ -8,12 +8,26 @@ import {
   windBearing,
   windRange,
   windWording,
-  type LevelTrend,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
-/** A snow level's light blue, on its pill or its table cell. */
-export const SNOW_LEVEL_FILL = 'bg-sky-100 text-sky-950'
+/** Level fills by elevation: blue (colder) below 5000', red (warmer) above, 5000' neutral. */
+const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
+  { below: 2000, fill: 'bg-blue-300 text-blue-950', label: "<2,000'" },
+  { below: 3000, fill: 'bg-blue-200 text-blue-950', label: "2,000'" },
+  { below: 4000, fill: 'bg-blue-100 text-blue-950', label: "3,000'" },
+  { below: 5000, fill: 'bg-blue-50 text-blue-950', label: "4,000'" },
+  { below: 5500, fill: 'bg-stone-100 text-stone-900', label: "5,000'" },
+  { below: 6500, fill: 'bg-red-50 text-red-950', label: "5,500'" },
+  { below: 7500, fill: 'bg-red-100 text-red-950', label: "6,500'" },
+  { below: 8500, fill: 'bg-red-200 text-red-950', label: "7,500'" },
+  { below: Infinity, fill: 'bg-red-300 text-red-950', label: "8,500'+" },
+]
+
+/** A snow or freezing level's fill, on its pill or its table cell. */
+export function levelFill(level: number): string {
+  return LEVEL_FILLS.find((f) => level < f.below)?.fill ?? ''
+}
 
 /** Any snow in bold, so the few periods with some stand out from the muted zeros. */
 export function SnowValue({ text, some }: { text: string; some: boolean }) {
@@ -37,35 +51,18 @@ export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
   )
 }
 
-/** A level's trend from the block before, as an icon; empty when unchanged or the first. */
-function LevelTrendIcon({ trend }: { trend: LevelTrend }) {
-  if (trend === null) return null
-  const Icon = trend === 'up' ? TrendingUp : TrendingDown
-  return <Icon aria-hidden="true" className="size-4 text-muted-foreground" />
-}
-
-/** What a sighted reader takes from the icons, for a screen reader. */
-function levelSpokenAs(snow: boolean, trend: LevelTrend) {
-  const kind = snow ? ' snow level' : ' freezing level'
-  if (trend === null) return kind
-  return `${kind}, ${trend === 'up' ? 'rising' : 'falling'}`
-}
-
 /**
- * A block's snow or freezing level: a snow level on light blue with a snowflake, a freezing level
- * (a dry block) plain, and a trending arrow for the change from the block before. Fixed slots
- * (snowflake, number, arrow) line the numbers up down a column whether or not a cell has the icons.
+ * A block's snow or freezing level, filled by elevation; a snow level carries a snowflake, a
+ * freezing level (a dry block) none. A fixed snowflake slot lines the numbers up down a column.
  */
 export function SnowLevelValue({
   level,
   snow,
-  trend,
   pill = true,
 }: {
   level: number | null
   snow: boolean
-  trend: LevelTrend
-  /** Off where the table fills the cell itself (`SNOW_LEVEL_FILL`). */
+  /** Off where the table fills the cell itself (`levelFill`). */
   pill?: boolean
 }) {
   if (level == null) return <span className="block text-center text-muted-foreground">{DASH}</span>
@@ -73,17 +70,14 @@ export function SnowLevelValue({
     <span
       className={cn(
         'flex justify-center whitespace-nowrap rounded px-1 py-1 font-semibold tabular-nums',
-        snow && pill && SNOW_LEVEL_FILL,
+        pill && levelFill(level),
       )}
     >
-      <span className="grid grid-cols-[0.875rem_3.25rem_1rem] items-center gap-1.5">
+      <span className="grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5">
         <span>{snow && <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />}</span>
         <span className="text-right">
           {level.toLocaleString('en-US')}&apos;
-          <span className="sr-only">{levelSpokenAs(snow, trend)}</span>
-        </span>
-        <span>
-          <LevelTrendIcon trend={trend} />
+          <span className="sr-only">{snow ? ' snow level' : ' freezing level'}</span>
         </span>
       </span>
     </span>
@@ -94,15 +88,16 @@ export function SnowLevelValue({
 export function SnowLevelLegend() {
   return (
     <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-      <span className={cn('inline-flex items-center gap-1 rounded px-2 py-0.5', SNOW_LEVEL_FILL)}>
-        <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
-        Snow level
-      </span>
-      <span>Freezing level (dry)</span>
       <span className="inline-flex items-center gap-1">
-        <TrendingUp aria-hidden="true" className="size-4" />
-        <TrendingDown aria-hidden="true" className="size-4" />
-        Higher or lower than the previous period
+        <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
+        Snow level; without it, freezing level (dry)
+      </span>
+      <span className="inline-flex flex-wrap items-center gap-0.5">
+        {LEVEL_FILLS.map((f) => (
+          <span key={f.label} className={cn('rounded-sm px-1.5 py-0.5', f.fill)}>
+            {f.label}
+          </span>
+        ))}
       </span>
     </p>
   )
@@ -124,7 +119,7 @@ export function WindLegend() {
     <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
       <span className="inline-flex items-center gap-1">
         <ArrowUp aria-hidden="true" className="size-4 text-primary" />
-        Points to where the wind comes from
+        Points the way the wind blows
       </span>
       <span>VAR: variable</span>
     </p>
@@ -138,11 +133,11 @@ export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
     <span className="inline-flex flex-col items-center">
       <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap tabular-nums">
         {bearing != null && (
-          // Points to where the wind comes from: from the north is an up arrow.
+          // Points the way the wind blows: a north wind is a down arrow.
           <ArrowUp
             aria-hidden="true"
             className="size-4 shrink-0 text-primary"
-            style={{ transform: `rotate(${bearing}deg)` }}
+            style={{ transform: `rotate(${bearing + 180}deg)` }}
           />
         )}
         <span className="text-xs text-muted-foreground">{cell.dir}</span>

@@ -7,7 +7,6 @@ import {
   fmtSnowAmount,
   fmtWind,
   levelKind,
-  levelTrend,
   periodDateGroups,
   precipPeriods,
   snowLevelBlocks,
@@ -195,16 +194,6 @@ describe('levelKind', () => {
   it('takes the forecaster’s pick over the precipitation', () => {
     expect(levelKind(withPrecip(0, 'snow'), zone, block)).toBe('snow')
     expect(levelKind(withPrecip(0.5, 'freezing'), zone, block)).toBe('freezing')
-  })
-})
-
-describe('levelTrend', () => {
-  it('says up or down from the level before, nothing when unchanged or unknown', () => {
-    expect(levelTrend(3000, 3500)).toBe('up')
-    expect(levelTrend(3500, 3000)).toBe('down')
-    expect(levelTrend(3000, 3000)).toBeNull()
-    expect(levelTrend(undefined, 3000)).toBeNull()
-    expect(levelTrend(3000, null)).toBeNull()
   })
 })
 

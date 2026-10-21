@@ -60,7 +60,9 @@ describe('WidgetZoneWeather', () => {
       return found
     })
     expect(within(mount).getByText('Mountain Weather')).toBeInTheDocument()
-    expect(within(mount).getByRole('radio', { name: /Morning/ })).toBeInTheDocument()
+    expect(within(mount).queryByRole('radio')).toBeNull()
+    expect(within(mount).queryByText('Weather Synopsis')).toBeNull()
+    expect(within(mount).queryByText('Total')).toBeNull()
   })
 
   it("takes over the Weather Forecast tab: the widget's own content hidden, the same section shown", async () => {
