@@ -2,14 +2,20 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
-import { stationsField } from '@/fields/stations'
+import { stationsField, toStationEntries } from '@/fields/stations'
 import { tenantField } from '@/fields/tenantField'
 import {
   revalidateStationPages,
   revalidateStationPagesDelete,
 } from '@/services/stations/revalidate'
-import { STATION_COLUMNS } from '@/services/stations/stationColumns'
+import {
+  pruneColumnOrder,
+  toColumnOrder,
+  validateColumnOrder,
+} from '@/services/stations/stationColumns'
+import { stationTabFields } from '@/services/stations/stationTabs'
 import { CollectionConfig } from 'payload'
+import { reportedReadings } from './endpoints/reportedReadings'
 import { trackedStations } from './endpoints/trackedStations'
 
 // A page under /weather/stations. Not a station: 17 of NWAC's 32 cover more
@@ -20,21 +26,37 @@ import { trackedStations } from './endpoints/trackedStations'
 // which stations it shows, in what order -- and nothing SnowObs can. A station
 // is only ever a (source, stid) reference; its name, elevation and coordinates
 // are read live from SnowObs, both here (the picker) and on the public page.
-// The table's columns follow what those stations report unless the page
-// lists its own.
-export const StationPages: CollectionConfig = {
+// The table's columns follow what those stations report unless a station
+// chooses its own readings or the page reorders them.
+export const StationPages: CollectionConfig<'stationPages'> = {
   slug: 'stationPages',
   access: accessByTenantRole('stationPages'),
+  defaultPopulate: {
+    displayName: true,
+    slug: true,
+  },
   admin: {
     baseListFilter: filterByTenant,
     group: 'Content',
     defaultColumns: ['displayName', 'slug', 'archived'],
     useAsTitle: 'displayName',
+    components: {
+      edit: {
+        SaveButton:
+          '@/collections/StationPages/components/PublishChangesButton#PublishChangesButton',
+        beforeDocumentControls: [
+          '@/collections/StationPages/components/ViewStationPageButton#ViewStationPageButton',
+        ],
+      },
+    },
     description:
-      'The weather station pages. Each lists the SnowObs stations it shows, in order; the table columns follow what those stations report unless the page chooses its own.',
+      'A public weather page for a group of SnowObs stations as a table, graphs and CSV download.',
   },
   defaultSort: 'displayName',
-  endpoints: [{ path: '/tracked-stations', method: 'get', handler: trackedStations }],
+  endpoints: [
+    { path: '/tracked-stations', method: 'get', handler: trackedStations },
+    { path: '/reported-readings', method: 'get', handler: reportedReadings },
+  ],
   fields: [
     tenantField(),
     {
@@ -42,21 +64,69 @@ export const StationPages: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    slugField('displayName'),
+    slugField('displayName', {
+      // "map" and "station" are static Next.js routes under /weather/stations/
+      reservedSlugs: ['map', 'station'],
+    }),
     stationsField({
       name: 'stations',
       label: 'Stations',
+      description:
+        'The SnowObs stations this page shows, in this order, on its table, graphs and download. Drag to reorder, or search below to add one. Edit a station’s table columns to choose which of its readings the table shows.',
+      perStationColumns: true,
     }),
     {
-      name: 'columns',
-      type: 'select',
-      label: 'Table columns',
-      hasMany: true,
-      options: STATION_COLUMNS,
+      name: 'columnOrder',
+      type: 'json',
+      label: 'Column order',
+      defaultValue: [],
+      validate: (value) => validateColumnOrder(value),
+      hooks: {
+        // A removed station's entries would otherwise come back if it were re-added. Runs before
+        // `validate`, so a malformed value passes through untouched for validation to reject.
+        beforeChange: [
+          ({ value, siblingData, originalDoc }) => {
+            const stations = siblingData.stations ?? originalDoc?.stations
+            if (stations === undefined || validateColumnOrder(value) !== true) return value
+            return pruneColumnOrder(toColumnOrder(value), toStationEntries(stations))
+          },
+        ],
+      },
       admin: {
         description:
-          'Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.',
+          "Every column the table shows, one per station and reading, in table order. Drag a column to move it. Columns are listed from the stations' last 24 hours, the table's default view; a reading that appears only over a longer range goes after the others for its reading, as does a column added later.",
+        components: {
+          Field: {
+            path: '@/collections/StationPages/components/ColumnOrderInput#ColumnOrderInput',
+            clientProps: { stationsPath: 'stations' },
+          },
+        },
       },
+      typescriptSchema: [
+        () => ({
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              stid: { type: 'string' },
+              source: { type: 'string' },
+              variable: { type: 'string' },
+            },
+            required: ['stid', 'source', 'variable'],
+            additionalProperties: false,
+          },
+        }),
+      ],
+    },
+    {
+      name: 'tabs',
+      type: 'group',
+      label: 'Tabs',
+      admin: {
+        position: 'sidebar',
+        description: 'Which views the page shows. An archived page shows only Download.',
+      },
+      fields: stationTabFields,
     },
     {
       name: 'archived',

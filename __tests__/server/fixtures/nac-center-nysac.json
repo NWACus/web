@@ -1,0 +1,97 @@
+{
+  "id": "NYSAC",
+  "name": "New York State Avalanche Center",
+  "url": null,
+  "center_point": null,
+  "off_season": true,
+  "state": "NY",
+  "wkb_geometry": null,
+  "timezone": "America/New_York",
+  "city": "Albany",
+  "email": "contact@example.gov",
+  "phone": null,
+  "config": {
+    "expires_time": null,
+    "published_time": null,
+    "blog": false,
+    "blog_title": "Conditions Blog",
+    "weather_table": []
+  },
+  "type": "state",
+  "widget_config": {
+    "forecast": {
+      "tabs": [],
+      "color": "",
+      "glossary": true,
+      "start_year": 2020,
+      "elevInfoUrl": ""
+    },
+    "stations": {
+      "zoom": 9,
+      "token": "7882dd74ce815760a9179eb2c94d8560779f",
+      "units": "english",
+      "center": {
+        "lat": 44.19,
+        "lng": -73.96
+      },
+      "within": 180,
+      "sources": ["mesowest", "snotel"],
+      "timezone": "local",
+      "center_id": "NYSAC",
+      "saturation": -50,
+      "color_rules": true,
+      "source_legend": false,
+      "alternate_zones": null,
+      "source_marker_color": true,
+      "external_modal_links": []
+    },
+    "danger_map": {
+      "zoom": 6,
+      "advice": true,
+      "center": {
+        "lat": 43.347033459262,
+        "lng": -73.31217681500326
+      },
+      "height": 500,
+      "search": true,
+      "geolocate": true,
+      "allCenters": false,
+      "saturation": -100
+    },
+    "observation_viewer": {
+      "color": "17a2b8",
+      "obs_tab": false,
+      "map_zoom": 7,
+      "map_center": {
+        "lat": 43.347033459262,
+        "lng": -73.31217681500326
+      },
+      "obs_form_url": null,
+      "obs_view_url": null,
+      "obs_start_year": 2026,
+      "show_all_zones": true,
+      "require_approval": false,
+      "show_zone_filter": true
+    }
+  },
+  "created_at": "2026-07-22 21:07:04.676435",
+  "zones": [
+    {
+      "id": 3017,
+      "name": "Adirondack Park",
+      "url": "https://dec.ny.gov/things-to-do/hiking/adirondack-backcountry/backcountry-information-for-adirondack-park",
+      "zone_id": "adirondack_park",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "active",
+      "rank": null
+    }
+  ],
+  "nws_zones": [],
+  "nws_offices": []
+}

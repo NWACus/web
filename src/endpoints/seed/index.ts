@@ -17,23 +17,29 @@ import invariant from 'tiny-invariant'
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
-import { NWAC_STATION_PAGES, seedStationPages } from '@/services/stations/seedStationPages'
+import { seedGlossaryTerms } from '@/services/glossary/seedGlossaryTerms'
 import { getAnnouncementsData } from './announcements'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
 import { SeedProviders, seedCourses } from './courses'
 import { getEventsData } from './events'
-import { forecastZonesByTenant } from './forecast-zones'
+import {
+  forecastZonesByTenant,
+  nwacWeatherPlatformTenants,
+  weatherPlatformTenants,
+} from './forecast-zones'
 import { getGalleriesData } from './galleries'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageMountain } from './image-mountain'
 import { navigationSeed } from './navigation'
+import { accumulatedPrecipPage } from './pages/accumulated-precip-page'
 import { allBlocksPage } from './pages/all-blocks-page'
 import { contact as contactPageData } from './pages/contact-page'
 import { lexicalBlocksPage } from './pages/lexical-blocks-page'
+import { seedNwacStationPages, weatherStationsPage } from './pages/weather-stations-page'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
@@ -65,6 +71,7 @@ const collections: CollectionSlug[] = [
   'eventGroups',
   'eventTags',
   'sharedMedia',
+  'glossaryTerms',
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -72,6 +79,40 @@ const defaultNacWidgetsConfig = {
     baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
     devMode: false,
   },
+}
+
+/**
+ * Control 1 (native product pages vs the embedded NAC widget), fixed per tenant so a seeded
+ * database carries both branches at once. The E2E suite reads both without writing either — a test
+ * that flipped a shared tenant's flag would race the other Playwright workers, and would not reach
+ * an already-prerendered page anyway.
+ *
+ * A native tenant gets every native product its center publishes through the AFP, so seeded content
+ * exercises the whole feature rather than the forecast alone. snfac is native because the AFP golden
+ * corpus the E2E mocks are built from is SNFAC-centric. nwac's weather stays off: NWAC authors its
+ * own Mountain Weather Forecast rather than the AFP weather product.
+ *
+ * dvac and nwac are the same upstream center — dvac is normalised to nwac at every NAC/AFP call
+ * site — so whichever of the two is native, the pair is the proof that Control 1 is per tenant and
+ * not per center. nwac holds the native side and dvac the widget side, which also puts the widget's
+ * own dvac→nwac fallback under test. sac is the second widget tenant, on its own upstream center.
+ * The station map is the exception: every tenant but dvac renders it natively, sac included, so the
+ * one center whose alternate-zones KML the e2e mocks serve is on the native side.
+ * Kept in step with `__tests__/e2e/mocks/scenarios.json` by __tests__/server/e2eMocks.server.test.ts.
+ */
+const nativeProductsByTenant: Record<
+  string,
+  {
+    forecast: boolean
+    warning: boolean
+    dangerMap: boolean
+    weather: boolean
+    stationMap: boolean
+  }
+> = {
+  snfac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
+  nwac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
+  sac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: true },
 }
 
 // Next.js revalidation errors are normal when seeding the database without a server running
@@ -198,7 +239,7 @@ export const seed = async ({
           name: 'Shared Content Editor',
           rules: [
             {
-              collections: ['sharedMedia'],
+              collections: ['sharedMedia', 'glossaryTerms'],
               actions: ['*'],
             },
           ],
@@ -546,6 +587,13 @@ export const seed = async ({
         return {
           tenant: tenant.id,
           description: data.description,
+          nativeProducts: nativeProductsByTenant[tenant.slug] ?? {
+            forecast: false,
+            warning: false,
+            dangerMap: false,
+            weather: false,
+            stationMap: false,
+          },
           footerForm: {
             type: 'none',
           },
@@ -797,6 +845,11 @@ export const seed = async ({
         ])
         .flat(),
     )
+
+    // The migration seeds all 82 on a deployed environment; push mode never runs it locally.
+    payload.logger.info(`— Seeding glossary terms...`)
+    const glossary = await seedGlossaryTerms(payload)
+    payload.logger.info(glossary, 'glossary terms seeded')
 
     payload.logger.info(`— Seeding the shared library...`)
 
@@ -1097,6 +1150,24 @@ export const seed = async ({
                 ]
           return [
             ...zonePages,
+            builtInPage(tenant, 'Forecast Archive', '/forecasts/avalanche/archive'),
+            builtInPage(
+              tenant,
+              'Danger Over Time',
+              '/forecasts/avalanche/archive/danger-over-time',
+            ),
+            // Matches provisioning, which creates these for `weather || nwac_weather`.
+            ...(weatherPlatformTenants.has(tenant.slug) ||
+            nwacWeatherPlatformTenants.has(tenant.slug)
+              ? [
+                  builtInPage(tenant, 'Mountain Weather', '/weather/forecast'),
+                  builtInPage(
+                    tenant,
+                    'Mountain Weather Archive',
+                    '/forecasts/avalanche/archive/mountain-weather',
+                  ),
+                ]
+              : []),
             builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
             builtInPage(tenant, 'Recent Observations', '/observations'),
             builtInPage(tenant, 'Submit Observations', '/observations/submit'),
@@ -1146,6 +1217,24 @@ export const seed = async ({
           ),
         )
         .flat(),
+    )
+
+    // Created ahead of the other pages so the Weather Stations page can link to them.
+    const nwacStationPages = await seedNwacStationPages(
+      payload,
+      Object.values(tenants).find((tenant) => tenant.slug === 'nwac'),
+    )
+    const accumulatedPrecipPages = await upsert(
+      'pages',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .filter((tenant) => tenant.slug === 'nwac')
+        .map((tenant) =>
+          accumulatedPrecipPage(tenant, images[tenant.slug]['image2'], nwacStationPages),
+        ),
     )
 
     const pages = await upsert(
@@ -1341,32 +1430,18 @@ export const seed = async ({
           // Only NWAC has station pages; this one fronts them at /weather/stations.
           ...(tenant.slug === 'nwac'
             ? [
-                page(
+                weatherStationsPage(
                   tenant,
                   images[tenant.slug]['image2'],
-                  'Weather Data',
-                  'Current conditions and history from the NWAC weather station network.',
-                  'stations',
+                  nwacStationPages,
+                  builtInPages[tenant.slug]['/weather/stations/map'],
+                  accumulatedPrecipPages[tenant.slug]['accumulated-precipitation'],
                 ),
               ]
             : []),
         ])
         .flat(),
     )
-
-    // The migration that seeds these on a deployed environment runs before any
-    // tenant exists locally, so the seed does it here.
-    const nwac = Object.values(tenants).find((tenant) => tenant.slug === 'nwac')
-    if (nwac) {
-      // A few of the 32 the migration creates: a multi-station page, a
-      // single-station page and an archived one.
-      const pages = NWAC_STATION_PAGES.filter((page) =>
-        ['alpental', 'hurricane-ridge', 'mt-st-helens'].includes(page.slug),
-      )
-      payload.logger.info(`— Seeding NWAC station pages...`)
-      const seeded = await seedStationPages(payload, nwac.id, pages)
-      payload.logger.info(seeded, 'station pages seeded')
-    }
 
     payload.logger.info(`— Updating home page quick links...`)
     for (const tenant of Object.values(tenants)) {

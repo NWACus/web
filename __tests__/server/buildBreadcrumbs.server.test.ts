@@ -157,4 +157,15 @@ describe('buildBreadcrumbs', () => {
       expect(items[1].name).toBe('iPhone tips - part-one')
     })
   })
+
+  it('leaves a crumb the page says has no page of its own unlinked', () => {
+    // A retired zone's dated forecast: the zone has no live page to link to.
+    const items = buildBreadcrumbs({
+      center: 'fac',
+      path: '/forecasts/avalanche/whitefish-range/2024-01-05',
+      pathsWithoutPages: ['/forecasts/avalanche/whitefish-range'],
+    })
+
+    expect(items.map((item) => item.href)).toEqual([null, '/forecasts/avalanche', null, null])
+  })
 })

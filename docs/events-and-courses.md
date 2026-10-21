@@ -44,6 +44,10 @@ Individual event page showing:
 - Rich text content
 - Redirects to `externalEventUrl` if set
 
+### Dates and Timezones
+
+Event times render in the event's own timezone (`startDate_tz`, defaulted to the center's) with the zone abbreviation, e.g. `Sep 28, 2026, 11:00 AM - 1:00 PM PDT`. They go through `ZonedDateTime` (`src/components/ZonedDateTime.tsx`), which follows the time with the viewer's local equivalent in parentheses when their browser is in a zone that disagrees, e.g. `1:00 PM PDT (2:00 PM MDT)`. A multi-day range gets one parenthetical beside each day's time, e.g. `Oct 19, 5:00 PM (6:00 PM MDT) - Oct 20, 2026, 1:00 PM PDT (2:00 PM MDT)`. A parenthetical adds a date only where the viewer's clock lands on a different day than the reader would assume from the event text. It is added after hydration, so server markup never depends on the viewer's timezone, and it fades in unless the viewer has asked for reduced motion (`prefers-reduced-motion`). Because it is plain text rather than a button or popover, it is safe inside links and clickable rows.
+
 ## Blocks
 
 ### SingleEvent Block

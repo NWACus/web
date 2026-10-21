@@ -1,4 +1,4 @@
-import { stationNotes } from '../../src/services/snowobs/tableHelpers'
+import { stationNotes, stationSummaries } from '../../src/services/snowobs/tableHelpers'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
 
 function station(stid: string, name: string, notes: unknown[]): unknown {
@@ -96,5 +96,31 @@ describe('stationNotes', () => {
       ]),
     ])
     expect(stationNotes(response.STATION).map((n) => n.note)).toEqual(['New.', 'Old.', 'Undated.'])
+  })
+})
+
+describe('stationSummaries', () => {
+  const ref = (stid: string) => ({ stid, source: 'nwac' })
+  const logger = (stid: string, name: string, elevation: number) => ({
+    id: stid,
+    stid,
+    source: 'nwac',
+    name,
+    elevation,
+    observations: {},
+  })
+
+  it('names stations in page order, with elevation when SnowObs has it', () => {
+    const response = responseWith([logger('2', 'Mid', 4350), logger('1', 'Summit', 5470)])
+    expect(stationSummaries([ref('1'), ref('2')], response.STATION)).toEqual([
+      { key: 'nwac:1', name: 'Summit', elevation: 5470 },
+      { key: 'nwac:2', name: 'Mid', elevation: 4350 },
+    ])
+  })
+
+  it('falls back to the stid for a station SnowObs did not return', () => {
+    expect(stationSummaries([ref('9')], [])).toEqual([
+      { key: 'nwac:9', name: '9', elevation: null },
+    ])
   })
 })

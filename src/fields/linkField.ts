@@ -1,8 +1,9 @@
+import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
 import { clearIrrelevantLinkValues } from '@/utilities/clearIrrelevantLinkValues'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { isRecord } from '@/utilities/isRecord'
 import { validateExternalUrl } from '@/utilities/validateUrl'
-import { Field, FieldHook, NamedGroupField, TextFieldSingleValidation } from 'payload'
+import { Condition, Field, FieldHook, NamedGroupField, TextFieldSingleValidation } from 'payload'
 import { text } from 'payload/shared'
 
 const validateLabel: TextFieldSingleValidation = (val, args) => {
@@ -23,6 +24,32 @@ const clearNewTabForInternalLink: FieldHook = ({ siblingData, value }) => {
   if (isRecord(siblingData) && siblingData.type === 'internal' && siblingData.reference) return null
   return value
 }
+
+/** The page/post picker shared by linkField and the rich-text link drawer, which store it under different names. */
+export const linkReferenceField = ({
+  name,
+  condition,
+}: {
+  name: string
+  condition: Condition
+}): Field => ({
+  name,
+  type: 'relationship',
+  admin: {
+    condition,
+    sortOptions: {
+      pages: 'title',
+      builtInPages: 'title',
+      posts: 'title',
+      stationPages: 'displayName',
+    },
+    width: '50%',
+  },
+  label: 'Select page or post',
+  relationTo: LINK_ENABLED_COLLECTIONS,
+  required: true,
+  filterOptions: getTenantFilter,
+})
 
 type LinkFieldsOptions = {
   includeLabel?: boolean
@@ -68,19 +95,10 @@ const buildLinkFields = ({
     label: 'Open in new tab',
   }
 
-  const referenceField: Field = {
+  const referenceField = linkReferenceField({
     name: 'reference',
-    type: 'relationship',
-    admin: {
-      condition: (_, siblingData) => siblingData?.type === 'internal',
-      sortOptions: { pages: 'title', builtInPages: 'title', posts: 'title' },
-      width: '50%',
-    },
-    label: 'Select page or post',
-    relationTo: ['pages', 'builtInPages', 'posts'],
-    required: true,
-    filterOptions: getTenantFilter,
-  }
+    condition: (_, siblingData) => siblingData?.type === 'internal',
+  })
 
   const urlField: Field = {
     name: 'url',

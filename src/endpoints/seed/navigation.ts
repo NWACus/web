@@ -1,6 +1,6 @@
 import { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
-import { SeedForecastZone } from './forecast-zones'
+import { nwacWeatherPlatformTenants, SeedForecastZone } from './forecast-zones'
 
 // Pre-existing size; this change only adds a nav item.
 // fallow-ignore-next-line complexity
@@ -94,6 +94,7 @@ export const navigationSeed = (
                   label: 'Avalanche Forecast',
                 }),
               },
+              { link: builtInPageLink({ url: '/forecasts/avalanche/archive' }) },
             ],
           }
         : {
@@ -114,6 +115,7 @@ export const navigationSeed = (
                   }),
                 })),
               },
+              { link: builtInPageLink({ url: '/forecasts/avalanche/archive' }) },
             ],
           },
     observations: {
@@ -136,13 +138,29 @@ export const navigationSeed = (
     weather: {
       options: { displayMode: 'dropdown' },
       items: [
-        {
-          link: builtInPageLink({
-            url: '/weather/stations/map',
-            label: 'Weather Stations',
-          }),
-        },
-        ...(tenant.slug === 'nwac' ? [{ link: pageLink({ slug: 'stations' }) }] : []),
+        // Only nwac_weather centers link Mountain Weather; sac and snfac have the page, no nav item.
+        ...(nwacWeatherPlatformTenants.has(tenant.slug)
+          ? [{ link: builtInPageLink({ url: '/weather/forecast' }) }]
+          : []),
+        // NWAC fronts its station pages with a Weather Stations page; others link the map.
+        ...(tenant.slug === 'nwac'
+          ? [
+              { link: pageLink({ slug: 'stations', label: 'Weather Stations' }) },
+              {
+                link: builtInPageLink({
+                  url: '/weather/stations/map',
+                  label: 'Weather Stations Map',
+                }),
+              },
+            ]
+          : [
+              {
+                link: builtInPageLink({
+                  url: '/weather/stations/map',
+                  label: 'Weather Stations',
+                }),
+              },
+            ]),
         {
           link: pageLink({
             slug: 'weather-tools',

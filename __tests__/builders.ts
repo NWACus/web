@@ -1,4 +1,4 @@
-import { BuiltInPage, Page, Post, Tenant } from '@/payload-types'
+import { BuiltInPage, Page, Post, StationPage, Tenant } from '@/payload-types'
 
 /**
  * Factory helpers that provide defaults for all required fields,
@@ -42,6 +42,18 @@ export function buildPost(fields: Partial<Post>): Post {
     content: {
       root: { type: 'root', children: [], direction: null, format: '', indent: 0, version: 1 },
     },
+    slug: '',
+    updatedAt: '',
+    createdAt: '',
+    ...fields,
+  }
+}
+
+export function buildStationPage(fields: Partial<StationPage>): StationPage {
+  return {
+    id: 0,
+    tenant: 0,
+    displayName: '',
     slug: '',
     updatedAt: '',
     createdAt: '',

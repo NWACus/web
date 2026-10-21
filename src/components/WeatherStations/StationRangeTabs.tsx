@@ -1,3 +1,5 @@
+import type { StationTabKey } from '@/services/stations/stationTabs'
+import { STATION_TABS } from '@/services/stations/stationTabs'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 
@@ -30,12 +32,18 @@ function TabLink({
   )
 }
 
-export function StationRangeTabs({ activeKey }: { activeKey: string }) {
+export function StationRangeTabs({
+  activeKey,
+  tabs,
+}: {
+  activeKey: string
+  tabs: StationTabKey[]
+}) {
   return (
     <nav className="flex gap-1 border-b" aria-label="Station views">
-      <TabLink tabKey="table" label="Table" activeKey={activeKey} />
-      <TabLink tabKey="graphs" label="Graphs" activeKey={activeKey} />
-      <TabLink tabKey="csv" label="Download" activeKey={activeKey} />
+      {STATION_TABS.filter((tab) => tabs.includes(tab.key)).map((tab) => (
+        <TabLink key={tab.key} tabKey={tab.key} label={tab.label} activeKey={activeKey} />
+      ))}
     </nav>
   )
 }

@@ -3,7 +3,6 @@ import {
   DefaultNodeTypes,
   SerializedBlockNode,
   SerializedInlineBlockNode,
-  SerializedLinkNode,
 } from '@payloadcms/richtext-lexical'
 import { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import {
@@ -23,14 +22,13 @@ import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageTextBlockComponent } from '@/blocks/ImageText/Component'
 import { InlineMediaComponent } from '@/blocks/InlineMedia/Component'
+import { ObservationsWidgetBlockComponent } from '@/blocks/ObservationsWidget/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
 import { VideoEmbedBlockComponent } from '@/blocks/VideoEmbed/Component'
-import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
 import type {
   BlogListBlock as BlogListBlockProps,
-  BuiltInPage,
   ButtonBlock as ButtonBlockProps,
   CalloutBlock as CalloutBlockProps,
   DocumentBlock as DocumentBlockProps,
@@ -42,40 +40,14 @@ import type {
   ImageTextBlock as ImageTextBlockProps,
   InlineMediaBlock as InlineMediaBlockProps,
   MediaBlock as MediaBlockProps,
-  Page,
-  Post,
+  ObservationsWidgetBlock as ObservationsWidgetBlockProps,
   SingleBlogPostBlock as SingleBlogPostBlockProps,
   SingleEventBlock as SingleEventBlockProps,
   SponsorsBlock as SponsorsBlockProps,
   VideoEmbedBlock as VideoEmbedBlockProps,
 } from '@/payload-types'
-import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { cn } from '@/utilities/ui'
-
-type LinkDocRelationTo = (typeof LINK_ENABLED_COLLECTIONS)[number]
-type LinkDocValue = BuiltInPage | Page | Post
-
-type ResolvedLinkDoc = {
-  relationTo: LinkDocRelationTo
-  value: LinkDocValue
-}
-
-// Type guard to validate and narrow link doc type
-function isResolvedLinkDoc(doc: unknown): doc is ResolvedLinkDoc {
-  if (!doc || typeof doc !== 'object') {
-    return false
-  }
-  if (!('relationTo' in doc) || !('value' in doc)) {
-    return false
-  }
-  const { relationTo, value } = doc
-  if (typeof value !== 'object' || value === null) {
-    return false
-  }
-  // Check relationTo is one of the enabled collections
-  const enabledCollections: readonly string[] = LINK_ENABLED_COLLECTIONS
-  return typeof relationTo === 'string' && enabledCollections.includes(relationTo)
-}
+import { internalDocToHref } from './internalDocToHref'
 
 type NodeTypes =
   | DefaultNodeTypes
@@ -91,33 +63,13 @@ type NodeTypes =
       | HeaderBlockProps
       | ImageTextBlockProps
       | MediaBlockProps
+      | ObservationsWidgetBlockProps
       | SingleBlogPostBlockProps
       | SingleEventBlockProps
       | SponsorsBlockProps
       | VideoEmbedBlockProps
     >
   | SerializedInlineBlockNode<InlineMediaBlockProps>
-
-const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
-  const { linkType, doc, url } = linkNode.fields
-
-  if (linkType === 'internal') {
-    if (!isResolvedLinkDoc(doc)) {
-      throw new Error('Expected doc to be a resolved link document')
-    }
-    return (
-      handleReferenceURL({
-        url,
-        type: linkType,
-        reference: {
-          relationTo: doc.relationTo,
-          value: doc.value,
-        },
-      }) || '/'
-    )
-  }
-  return url || '/'
-}
 
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
   ...defaultConverters,
@@ -146,6 +98,9 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         isLayoutBlock={false}
         captionClassName="mx-auto max-w-[48rem]"
       />
+    ),
+    observationsWidget: ({ node }) => (
+      <ObservationsWidgetBlockComponent {...node.fields} isLayoutBlock={false} />
     ),
     singleBlogPost: ({ node }) => (
       <SingleBlogPostBlockComponent {...node.fields} isLayoutBlock={false} />

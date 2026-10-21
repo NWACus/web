@@ -27,3 +27,8 @@ export function parseStationKeys(value: string | null, max: number): StationRef[
     ? stations
     : 'stations must be source:stid pairs'
 }
+
+/** The detail page for any one station the center tracks, whether or not a station page lists it. */
+export function stationDetailPath(ref: StationRef): string {
+  return `/weather/stations/station/${encodeURIComponent(ref.source)}/${encodeURIComponent(ref.stid)}`
+}

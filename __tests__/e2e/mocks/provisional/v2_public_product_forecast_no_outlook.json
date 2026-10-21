@@ -1,0 +1,42 @@
+{
+  "id": 165008,
+  "published_time": "2026-10-11T01:00:00+00:00",
+  "expires_time": "2026-10-12T01:00:00+00:00",
+  "created_at": "2026-10-12T23:51:40+00:00",
+  "updated_at": "2026-10-12T23:54:54+00:00",
+  "author": "Test Author A",
+  "product_type": "forecast",
+  "bottom_line": "<p>Test</p>",
+  "hazard_discussion": null,
+  "weather_discussion": null,
+  "announcement": null,
+  "status": "published",
+  "media": [],
+  "weather_data": null,
+  "avalanche_center": {
+    "id": "NWAC",
+    "name": "Northwest Avalanche Center",
+    "url": "https://www.nwac.us/",
+    "city": "Seattle",
+    "state": "WA"
+  },
+  "forecast_avalanche_problems": [],
+  "danger": [
+    {
+      "lower": 1,
+      "upper": 3,
+      "middle": 2,
+      "valid_day": "current"
+    }
+  ],
+  "forecast_zone": [
+    {
+      "id": 2168,
+      "name": "Snoqualmie Pass",
+      "url": "http://www.nwac.us/avalanche-forecast/#/snoqualmie-pass",
+      "state": "WA",
+      "zone_id": "3",
+      "config": null
+    }
+  ]
+}

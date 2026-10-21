@@ -64,11 +64,21 @@ describe('StationNotes', () => {
     expect(screen.getByText('+2 notes')).toBeInTheDocument()
   })
 
-  it('shows a lone note without a disclosure', () => {
+  it('shows a lone note that fits without an expand control', () => {
     render(<StationNotes notes={[ACTIVE]} timeZone={TZ} />)
-    expect(document.querySelector('details')).toBeNull()
     expect(screen.getByText(/Disregard all values/)).toBeInTheDocument()
     expect(screen.queryByText(/^\+\d/)).toBeNull()
+    expect(document.querySelector('details')).toBeNull()
+  })
+
+  it('lets a lone note that runs past one line expand', () => {
+    // jsdom has no layout, so report the text as wider than its box.
+    const scrollWidth = jest.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(500)
+    const clientWidth = jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(200)
+    render(<StationNotes notes={[ACTIVE]} timeZone={TZ} />)
+    expect(summary().querySelector('.lucide-chevron-down')).not.toBeNull()
+    scrollWidth.mockRestore()
+    clientWidth.mockRestore()
   })
 
   it('follows a note with its start date', () => {
