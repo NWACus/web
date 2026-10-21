@@ -16,6 +16,9 @@
   --secondary-hover: hsla(240, 25%, 39%, 0.8);
   --secondary-foreground: hsl(240 5.9% 10%);
 
+  /* passes AAA (7:1) on white and brand-100/200 */
+  --link: hsl(221 83% 37%);
+
   --nav-underline: hsl(280, 63%, 17%);
 
   --muted: hsl(240 4.8% 95.9%);

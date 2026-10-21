@@ -64,7 +64,7 @@ Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend
 | `--primary-hover` | Hover state for primary |
 | `--secondary` | Secondary brand color |
 | `--secondary-hover` | Hover state for secondary |
-| `--link` | Rich-text link color on white and `brand-100`/`200` (defaults to `--secondary`); must pass 4.5:1 on all three. Darker shades use the block's text color |
+| `--link` | Rich-text link color on white and `brand-100`/`200` (defaults to `hsl(221 83% 37%)`); must pass 4.5:1 on all three. Darker shades use the block's text color |
 | `--header` | Header background |
 | `--header-foreground` | Header text color |
 | `--header-foreground-highlight` | Header highlighted/active text |
