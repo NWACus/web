@@ -708,7 +708,7 @@ sig = "56f57a66f0b3f375"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/(frontend)/colors.css"
-sig = "96d0175e5980610e"
+sig = "a917862348b59ee8"
 
 [[bindings]]
 doc = "docs/onboarding.md"

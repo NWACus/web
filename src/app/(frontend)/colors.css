@@ -81,20 +81,47 @@
   --error: hsl(10 100% 86%);
 }
 
+/* DVAC: desert palette (sand, terracotta, canyon) */
 .dvac {
-  --primary: hsl(240, 23%, 39%);
-  --primary-hover: hsl(240, 24%, 51%);
+  --primary: hsl(18 45% 30%);
+  --primary-hover: hsla(18 45% 30% / 0.85);
+  --primary-foreground: hsl(40 60% 97%);
 
-  --secondary: hsl(8 61% 45%);
-  --secondary-hover: hsla(8 61% 45% / 0.9);
+  --secondary: hsl(16 60% 45%);
+  --secondary-hover: hsla(16 60% 45% / 0.9);
+  --secondary-foreground: hsl(0 0% 100%);
 
-  --link: hsl(8 61% 44%);
+  --link: hsl(14 60% 36%);
 
-  --callout: hsl(66 83% 35%);
-  --callout-hover: hsla(66 83% 35% / 0.8);
+  --callout: hsl(85 25% 36%);
+  --callout-hover: hsla(85 25% 36% / 0.85);
   --callout-foreground: hsl(0 0% 100%);
 
-  --header-foreground-highlight: hsl(240 3.8% 35.3%);
+  --header-foreground-highlight: hsl(18 38% 29%);
+
+  --brand-50: hsl(40 60% 97%);
+  --brand-100: hsl(38 55% 92%);
+  --brand-200: hsl(34 50% 83%);
+  --brand-300: hsl(30 45% 71%);
+  --brand-400: hsl(24 55% 58%);
+  --brand-500: hsl(16 55% 45%);
+  --brand-600: hsl(12 52% 37%);
+  --brand-700: hsl(18 38% 29%);
+  --brand-800: hsl(22 32% 20%);
+  --brand-900: hsl(24 32% 13%);
+  --brand-950: hsl(25 35% 8%);
+
+  --brand-foreground-50: hsl(25 35% 10%);
+  --brand-foreground-100: hsl(25 35% 10%);
+  --brand-foreground-200: hsl(25 35% 10%);
+  --brand-foreground-300: hsl(25 35% 10%);
+  --brand-foreground-400: hsl(25 35% 10%);
+  --brand-foreground-500: hsl(40 60% 97%);
+  --brand-foreground-600: hsl(40 60% 97%);
+  --brand-foreground-700: hsl(40 60% 97%);
+  --brand-foreground-800: hsl(40 60% 97%);
+  --brand-foreground-900: hsl(40 60% 97%);
+  --brand-foreground-950: hsl(40 60% 97%);
 }
 
 /* Northwest Avalanche Center */
