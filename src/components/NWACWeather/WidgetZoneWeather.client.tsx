@@ -1,22 +1,8 @@
 'use client'
 
 /**
- * NWAC's Mountain Weather inside the legacy forecast widget, the way nwac.us puts it there: the
- * widget fires `nac-loaded` on `window` each time it renders a forecast (the current one, or an
- * archived one opened in place), and leaves an empty `#nac-additional-content` beneath its own
- * Mountain Weather section for the host page to fill. This listens for that event, fetches the
- * day the forecast is valid for, and portals the zone section into that element.
- *
- * It also takes over NWAC's "Weather Forecast" tab. The widget builds that tab from the center's
- * config (`widget_config.forecast.tabs`) and owns its button and `#/<zone>/weather-forecast` route,
- * but fills it by fetching a URL that pointed at nwac.us, which no longer answers. So the page hides
- * what the widget loaded there and renders the same zone section in its place, or says the day has
- * no forecast.
- *
- * The section renders inside a shadow root. The widget's stylesheet reverts every table, heading,
- * paragraph and button under `#nac-app` (`all: revert`, at id specificity), which no Tailwind class
- * can beat; the shadow boundary keeps those rules out, and a copy of the page's own stylesheets
- * lets the section look the way it does on a native page.
+ * NWAC's Mountain Weather inside the legacy forecast widget, mounted in shadow roots on its
+ * `nac-loaded` event. Why and how: docs/afp-products/architecture.md, "NWAC's weather".
  */
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -37,6 +23,8 @@ interface Slots {
   tab: HTMLElement | null
   day: NWACWeatherForecastDay | null
   zoneId: number
+  /** The read failed, so the tab can't say whether the day had a forecast. */
+  failed: boolean
 }
 
 const SLOT_ID = 'nac-additional-content'
@@ -98,7 +86,7 @@ async function fetchZoneDay(
 ): Promise<NWACWeatherForecastDay | null> {
   const params = new URLSearchParams({ zone: String(zoneId), published })
   const res = await fetch(`/api/${center}/nwac-weather-zone?${params}`, { signal })
-  if (!res.ok) return null
+  if (!res.ok) throw new Error(`nwac-weather-zone answered ${res.status}`)
   const body: { day: NWACWeatherForecastDay | null } = await res.json()
   return body.day
 }
@@ -130,10 +118,19 @@ export function WidgetZoneWeather({
       fetchZoneDay(center, zoneId, published, current.signal)
         .then((day) => {
           if (current.signal.aborted) return
-          setSlots({ forecast: day && forecastMount(), tab: tabMount(), day, zoneId })
+          setSlots({
+            forecast: day && forecastMount(),
+            tab: tabMount(),
+            day,
+            zoneId,
+            failed: false,
+          })
         })
-        // No weather is the fallback for a failed read; the forecast itself is unaffected.
-        .catch(() => {})
+        // The forecast itself is unaffected; only the tab says the weather didn't load.
+        .catch(() => {
+          if (current.signal.aborted) return
+          setSlots({ forecast: null, tab: tabMount(), day: null, zoneId, failed: true })
+        })
     }
 
     window.addEventListener('nac-loaded', onLoaded)
@@ -158,7 +155,7 @@ export function WidgetZoneWeather({
           day ? (
             <ZoneSummary day={day} avalancheZoneId={zoneId} timezone={timezone} />
           ) : (
-            <NoWeather />
+            <NoWeather failed={slots.failed} />
           ),
           slots.tab,
         )}
@@ -166,10 +163,12 @@ export function WidgetZoneWeather({
   )
 }
 
-function NoWeather() {
+function NoWeather({ failed }: { failed: boolean }) {
   return (
     <p className="text-muted-foreground">
-      No Mountain Weather Forecast was issued for this day.{' '}
+      {failed
+        ? "The Mountain Weather Forecast couldn't be loaded."
+        : 'No Mountain Weather Forecast was issued for this day.'}{' '}
       <Link href="/weather/forecast" className="text-secondary underline">
         See the latest Mountain Weather Forecast
       </Link>

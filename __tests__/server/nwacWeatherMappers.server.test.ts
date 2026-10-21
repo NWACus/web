@@ -11,6 +11,7 @@ import {
   precipPeriods,
   snowLevelBlocks,
   snowRange,
+  snowTier,
   windBearing,
   windBlocks,
   windRange,
@@ -125,6 +126,11 @@ describe('nwacWeatherFormat', () => {
     expect(snowRange(33.5)).toBe('28–40"')
     expect(snowRange(40)).toBe('34–46"')
     expect(snowRange(40.1)).toBe('36–50"')
+    expect(snowTier(0)).toBeNull()
+    expect(snowTier(0.1)).toBe(0)
+    expect(snowTier(1.5)).toBe(1)
+    expect(snowTier(6.5)).toBe(2)
+    expect(snowTier(14.5)).toBe(3)
     expect(windRange(0)).toBe('0–5')
     expect(windRange(5)).toBe('5–10')
     expect(windRange(12)).toBe('10–15')

@@ -98,7 +98,7 @@ sig = "7e4e7ec173ca97ed"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/troubleshooting.md"
-sig = "af8ab0633a65b33f"
+sig = "35b066e2442fa252"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -583,7 +583,7 @@ sig = "c66f35f989fb2339"
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/mocks/scenarios.json"
-sig = "0bd04373e939a51d"
+sig = "fc666419b1874b16"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
@@ -1663,7 +1663,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "a803560876045a0a"
+sig = "689157bc85f34804"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"

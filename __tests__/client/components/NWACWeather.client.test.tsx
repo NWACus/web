@@ -279,5 +279,6 @@ describe('ZoneOverall', () => {
     expect(screen.queryByText('Total')).toBeNull()
     const other = afternoon.zones.find((z) => !narrowed.zones.includes(z))
     if (other) expect(screen.queryByText(other.name)).toBeNull()
+    if (narrowed.zones.length === 1) expect(screen.queryByRole('tablist')).toBeNull()
   })
 })

@@ -179,7 +179,7 @@
       "stationMap": false
     },
     "nwac": {
-      "forecast": false,
+      "forecast": true,
       "warning": true,
       "dangerMap": true,
       "weather": true,

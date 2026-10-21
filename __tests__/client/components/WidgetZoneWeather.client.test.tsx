@@ -38,6 +38,18 @@ function shadowMount(
 
 const TAB_HOST = '#nac-weather-forecast + div'
 
+/** Renders the widget, announces a forecast and waits for the tab's section. */
+async function loadedTab() {
+  const { container } = renderInWidget()
+  fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+  const tab = await waitFor(() => {
+    const found = shadowMount(container, TAB_HOST)
+    if (!found) throw new Error('no message in the tab yet')
+    return found
+  })
+  return { container, tab }
+}
+
 describe('WidgetZoneWeather', () => {
   const fetchMock = jest.fn()
 
@@ -100,15 +112,16 @@ describe('WidgetZoneWeather', () => {
 
   it('says so in the tab, and adds nothing to the forecast, when the zone has no weather that day', async () => {
     fetchMock.mockResolvedValue({ ok: true, json: async () => ({ day: null }) })
-    const { container } = renderInWidget()
-    fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
-
-    const tab = await waitFor(() => {
-      const found = shadowMount(container, TAB_HOST)
-      if (!found) throw new Error('no message in the tab yet')
-      return found
-    })
+    const { container, tab } = await loadedTab()
     expect(shadowMount(container)).toBeNull()
     expect(within(tab).getByText(/No Mountain Weather Forecast was issued/)).toBeInTheDocument()
+  })
+
+  it("says the weather couldn't be loaded, not that none was issued, when the read fails", async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 502, json: async () => ({}) })
+    const { container, tab } = await loadedTab()
+    expect(shadowMount(container)).toBeNull()
+    expect(within(tab).getByText(/couldn't be loaded/)).toBeInTheDocument()
+    expect(within(tab).queryByText(/was issued/)).toBeNull()
   })
 })

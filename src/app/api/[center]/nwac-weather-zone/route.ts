@@ -11,12 +11,8 @@ import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
- * The Mountain Weather the legacy forecast widget shows under a zone's forecast, the AvyWeb
- * counterpart of nwac.us's `/weather-forecast-summary/`. The widget announces each forecast it
- * renders with a `nac-loaded` event (zone id + published time); WidgetZoneWeather asks here for the
- * day that forecast is valid for, narrowed to the issuances that cover the zone. The synopsis and
- * outlook are sanitized here, since the section renders in the browser. `{ day: null }` when
- * there is nothing for the zone that day.
+ * The day's Mountain Weather for one zone, for WidgetZoneWeather; `{ day: null }` when none.
+ * Authored HTML is sanitized here, since the section renders in the browser.
  */
 export async function GET(
   request: NextRequest,

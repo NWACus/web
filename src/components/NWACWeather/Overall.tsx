@@ -14,6 +14,7 @@ import type {
 import {
   DASH,
   SENSIBLE_SLOTS,
+  SNOW_TIER_LABELS,
   blockDate,
   dayGroups,
   deriveSnow,
@@ -25,6 +26,7 @@ import {
   precipPeriods,
   snowLevelBlocks,
   snowRange,
+  snowTier,
   tempPeriods,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
@@ -235,16 +237,12 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   ]
 }
 
-/** Snow fills, deepening with the amount; none under half an inch. */
+/** Snow fills by `snowTier`, deepening with the amount; none without snow. */
 const SNOW_FILLS = ['bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300']
-const SNOW_FILL_LEGEND = ['1–3"', '3–6"', '6–10"', '10"+']
 
 function snowFill(snow: number | null): string | undefined {
-  if (snow == null || snow < 0.5) return undefined
-  if (snow <= 3) return SNOW_FILLS[0]
-  if (snow <= 6) return SNOW_FILLS[1]
-  if (snow <= 10) return SNOW_FILLS[2]
-  return SNOW_FILLS[3]
+  const tier = snowTier(snow)
+  return tier == null ? undefined : SNOW_FILLS[tier]
 }
 
 /** The sum of the values given, or null when there are none. */
@@ -277,7 +275,7 @@ function SnowFillLegend() {
   return (
     <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
       Fill deepens with snow:
-      {SNOW_FILL_LEGEND.map((label, i) => (
+      {SNOW_TIER_LABELS.map((label, i) => (
         <span
           key={label}
           className={cn('rounded-sm border px-2 py-0.5 text-foreground', SNOW_FILLS[i])}

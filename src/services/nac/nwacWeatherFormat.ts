@@ -261,6 +261,21 @@ export function snowRange(snow: number | null | undefined): string {
   return `${mid - half}–${mid + half}"`
 }
 
+/**
+ * Which of four shading steps a snow amount's range falls in, on the same tenths `snowRange` reads
+ * (trace to 1.4", to 6.4", to 14.4", then more); null for none or not forecast.
+ */
+export const SNOW_TIER_LABELS = ['T–2"', '1–7"', '5–16"', '12"+']
+export function snowTier(snow: number | null | undefined): number | null {
+  if (snow == null || !Number.isFinite(snow)) return null
+  const tenths = Math.round(snow * 10) / 10
+  if (tenths <= 0) return null
+  if (tenths < 1.5) return 0
+  if (tenths < 6.5) return 1
+  if (tenths < 14.5) return 2
+  return 3
+}
+
 /** The zones an issuance measured, narrowed to one avalanche zone when the page has one. */
 export function zonesFor(issuance: NWACWeatherIssuance, avalancheZoneId?: number | null) {
   if (avalancheZoneId == null) return issuance.zones

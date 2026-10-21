@@ -127,6 +127,18 @@ export function WeatherSummary({
   const id = useId()
   const row = rows[zone] ?? rows[0]
 
+  // One zone (a zone page's widget) needs no picker.
+  if (rows.length === 1) {
+    return (
+      <section aria-labelledby={headingId} className="space-y-3">
+        <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
+          Weather Summary
+        </h3>
+        <ZoneDays row={rows[0]} days={days} />
+      </section>
+    )
+  }
+
   return (
     <section aria-labelledby={headingId} className="space-y-3">
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
