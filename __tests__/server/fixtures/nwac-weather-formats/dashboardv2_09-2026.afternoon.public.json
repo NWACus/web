@@ -1,0 +1,707 @@
+{
+  "available": true,
+  "id": 2,
+  "issuedAt": "2026-12-01T22:00:00+00:00",
+  "type": "afternoon",
+  "serviceDate": "2026-12-01",
+  "author": "Example Forecaster",
+  "format": {
+    "id": 1,
+    "name": "Example format",
+    "template": "dashboardv2_09-2026",
+    "startsAt": "2026-11-01T08:00:00+00:00"
+  },
+  "template": {
+    "label": "dashboard-v2",
+    "sections": [
+      {
+        "id": "sensible",
+        "grid": "sensible",
+        "rows": "zones",
+        "axis": "sensibleSlots"
+      },
+      {
+        "id": "precip",
+        "grid": "precip",
+        "rows": "points",
+        "axis": "precipPeriods"
+      },
+      {
+        "id": "snowLevel",
+        "grid": "snowLevel",
+        "rows": "zones",
+        "axis": "snowLevelBlocks"
+      },
+      {
+        "id": "temps",
+        "grid": "temp",
+        "rows": "zones",
+        "axis": "tempPeriods"
+      },
+      {
+        "id": "wind",
+        "grid": "wind",
+        "rows": "zones",
+        "axis": "windBlocks"
+      },
+      {
+        "id": "extendedSnowLevel",
+        "grid": "extendedSnowLevel",
+        "rows": "zones",
+        "axis": "extendedBlocks"
+      }
+    ]
+  },
+  "synopsis": "<p>An example synopsis.</p>",
+  "extendedOutlook": "<p>An example extended outlook.</p>",
+  "zones": [
+    {
+      "id": "2",
+      "slug": "stevens-pass",
+      "name": "Stevens Pass",
+      "avalancheZoneId": 1649,
+      "extendedSnowLevel": true
+    },
+    {
+      "id": "3",
+      "slug": "snoqualmie-pass",
+      "name": "Snoqualmie Pass",
+      "avalancheZoneId": 1653,
+      "extendedSnowLevel": false
+    },
+    {
+      "id": "10",
+      "slug": "mt-hood",
+      "name": "Mt Hood",
+      "avalancheZoneId": 1657,
+      "extendedSnowLevel": true
+    }
+  ],
+  "points": [
+    {
+      "id": "1",
+      "code": "STS40",
+      "name": "Stevens Pass",
+      "zoneId": "2",
+      "avalancheZoneId": 1649
+    },
+    {
+      "id": "2",
+      "code": "SNO30",
+      "name": "Snoqualmie Pass",
+      "zoneId": "3",
+      "avalancheZoneId": 1653
+    },
+    {
+      "id": "3",
+      "code": "ALP31",
+      "name": "Alpental",
+      "zoneId": "3",
+      "avalancheZoneId": 1653
+    },
+    {
+      "id": "4",
+      "code": "MHM54",
+      "name": "Mt Hood Meadows",
+      "zoneId": "10",
+      "avalancheZoneId": 1657
+    }
+  ],
+  "extendedZones": ["2", "10"],
+  "periods": [
+    {
+      "key": "n1",
+      "label": "Night 1",
+      "short": "N1",
+      "kind": "night",
+      "date": "2026-12-01"
+    },
+    {
+      "key": "d2",
+      "label": "Day 2",
+      "short": "D2",
+      "kind": "day",
+      "date": "2026-12-02"
+    },
+    {
+      "key": "n2",
+      "label": "Night 2",
+      "short": "N2",
+      "kind": "night",
+      "date": "2026-12-02"
+    },
+    {
+      "key": "d3",
+      "label": "Day 3",
+      "short": "D3",
+      "kind": "day",
+      "date": "2026-12-03"
+    }
+  ],
+  "blocks": [
+    {
+      "key": "ev1",
+      "label": "Eve 1",
+      "part": "Evening",
+      "period": "n1"
+    },
+    {
+      "key": "nt1",
+      "label": "Night 1",
+      "part": "Night",
+      "period": "n1"
+    },
+    {
+      "key": "am2",
+      "label": "AM 2",
+      "part": "Morning",
+      "period": "d2"
+    },
+    {
+      "key": "pm2",
+      "label": "PM 2",
+      "part": "Afternoon",
+      "period": "d2"
+    },
+    {
+      "key": "ev2",
+      "label": "Eve 2",
+      "part": "Evening",
+      "period": "n2"
+    },
+    {
+      "key": "nt2",
+      "label": "Night 2",
+      "part": "Night",
+      "period": "n2"
+    },
+    {
+      "key": "am3",
+      "label": "AM 3",
+      "part": "Morning",
+      "period": "d3"
+    },
+    {
+      "key": "pm3",
+      "label": "PM 3",
+      "part": "Afternoon",
+      "period": "d3"
+    }
+  ],
+  "extendedBlocks": [
+    {
+      "key": "nt3",
+      "label": "Night",
+      "part": "Night",
+      "date": "2026-12-03"
+    },
+    {
+      "key": "am4",
+      "label": "Morning",
+      "part": "Morning",
+      "date": "2026-12-04"
+    },
+    {
+      "key": "nt4",
+      "label": "Night",
+      "part": "Night",
+      "date": "2026-12-04"
+    },
+    {
+      "key": "day5",
+      "label": "Day",
+      "part": "Day",
+      "date": "2026-12-05"
+    }
+  ],
+  "sensibleSlots": [
+    {
+      "key": "morning",
+      "label": "Tonight",
+      "period": "n1",
+      "date": "2026-12-01"
+    },
+    {
+      "key": "afternoon",
+      "label": "Tomorrow",
+      "period": "d2",
+      "date": "2026-12-02"
+    }
+  ],
+  "axes": {
+    "precipPeriods": ["n1", "d2", "n2", "d3"],
+    "tempPeriods": ["n1", "d2"],
+    "windBlocks": ["ev1", "nt1", "am2", "pm2"],
+    "snowLevelBlocks": ["ev1", "nt1", "am2", "pm2", "ev2", "nt2", "am3", "pm3"],
+    "extendedBlocks": ["nt3", "am4", "nt4", "day5"],
+    "sensibleSlots": ["morning", "afternoon"]
+  },
+  "precip": [
+    {
+      "point": "1",
+      "period": "n1",
+      "qpf": 0.0,
+      "density": null
+    },
+    {
+      "point": "1",
+      "period": "d2",
+      "qpf": 0.15,
+      "density": 9
+    },
+    {
+      "point": "1",
+      "period": "n2",
+      "qpf": 0.3,
+      "density": 10
+    },
+    {
+      "point": "1",
+      "period": "d3",
+      "qpf": 0.45,
+      "density": 11
+    },
+    {
+      "point": "2",
+      "period": "n1",
+      "qpf": 0.15,
+      "density": 9
+    },
+    {
+      "point": "2",
+      "period": "d2",
+      "qpf": 0.3,
+      "density": 10
+    },
+    {
+      "point": "2",
+      "period": "n2",
+      "qpf": 0.45,
+      "density": 11
+    },
+    {
+      "point": "2",
+      "period": "d3",
+      "qpf": 0.6,
+      "density": 12
+    },
+    {
+      "point": "3",
+      "period": "n1",
+      "qpf": 0.3,
+      "density": 10
+    },
+    {
+      "point": "3",
+      "period": "d2",
+      "qpf": 0.45,
+      "density": 11
+    },
+    {
+      "point": "3",
+      "period": "n2",
+      "qpf": 0.6,
+      "density": 12
+    },
+    {
+      "point": "3",
+      "period": "d3",
+      "qpf": 0.0,
+      "density": null
+    },
+    {
+      "point": "4",
+      "period": "n1",
+      "qpf": 0.45,
+      "density": 11
+    },
+    {
+      "point": "4",
+      "period": "d2",
+      "qpf": 0.6,
+      "density": 12
+    },
+    {
+      "point": "4",
+      "period": "n2",
+      "qpf": 0.0,
+      "density": null
+    },
+    {
+      "point": "4",
+      "period": "d3",
+      "qpf": 0.15,
+      "density": 14
+    }
+  ],
+  "temp": [
+    {
+      "zone": "2",
+      "period": "n1",
+      "high": 34,
+      "low": 24
+    },
+    {
+      "zone": "2",
+      "period": "d2",
+      "high": 35,
+      "low": 25
+    },
+    {
+      "zone": "3",
+      "period": "n1",
+      "high": 32,
+      "low": 22
+    },
+    {
+      "zone": "3",
+      "period": "d2",
+      "high": 33,
+      "low": 23
+    },
+    {
+      "zone": "10",
+      "period": "n1",
+      "high": 30,
+      "low": 20
+    },
+    {
+      "zone": "10",
+      "period": "d2",
+      "high": 31,
+      "low": 21
+    }
+  ],
+  "wind": [
+    {
+      "zone": "2",
+      "block": "ev1",
+      "dir": "W",
+      "speed": 0
+    },
+    {
+      "zone": "2",
+      "block": "nt1",
+      "dir": "SW",
+      "speed": 5
+    },
+    {
+      "zone": "2",
+      "block": "am2",
+      "dir": "WNW",
+      "speed": 10
+    },
+    {
+      "zone": "2",
+      "block": "pm2",
+      "dir": "S",
+      "speed": 15
+    },
+    {
+      "zone": "3",
+      "block": "ev1",
+      "dir": "SW",
+      "speed": 5
+    },
+    {
+      "zone": "3",
+      "block": "nt1",
+      "dir": "WNW",
+      "speed": 10
+    },
+    {
+      "zone": "3",
+      "block": "am2",
+      "dir": "S",
+      "speed": 15
+    },
+    {
+      "zone": "3",
+      "block": "pm2",
+      "dir": "E",
+      "speed": 20
+    },
+    {
+      "zone": "10",
+      "block": "ev1",
+      "dir": "WNW",
+      "speed": 10
+    },
+    {
+      "zone": "10",
+      "block": "nt1",
+      "dir": "S",
+      "speed": 15
+    },
+    {
+      "zone": "10",
+      "block": "am2",
+      "dir": "E",
+      "speed": 20
+    },
+    {
+      "zone": "10",
+      "block": "pm2",
+      "dir": "W",
+      "speed": 25
+    }
+  ],
+  "snowLevel": [
+    {
+      "zone": "2",
+      "block": "ev1",
+      "freezing": 3000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "nt1",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "am2",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "pm2",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "ev2",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "nt2",
+      "freezing": 5500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "am3",
+      "freezing": 3000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "pm3",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "3",
+      "block": "ev1",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "3",
+      "block": "nt1",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "3",
+      "block": "am2",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "3",
+      "block": "pm2",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "3",
+      "block": "ev2",
+      "freezing": 5500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "3",
+      "block": "nt2",
+      "freezing": 3000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "3",
+      "block": "am3",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "3",
+      "block": "pm3",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "ev1",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "nt1",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "am2",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "pm2",
+      "freezing": 5500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "ev2",
+      "freezing": 3000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "nt2",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "am3",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "pm3",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "nt3",
+      "freezing": 3500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "am4",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "nt4",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "2",
+      "block": "day5",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "nt3",
+      "freezing": 4000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "am4",
+      "freezing": 4500,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "nt4",
+      "freezing": 5000,
+      "drop": 1000,
+      "mode": "auto"
+    },
+    {
+      "zone": "10",
+      "block": "day5",
+      "freezing": 5500,
+      "drop": 1000,
+      "mode": "auto"
+    }
+  ],
+  "sensible": [
+    {
+      "zone": "2",
+      "slot": "morning",
+      "text": "Example morning conditions for zone 2."
+    },
+    {
+      "zone": "2",
+      "slot": "afternoon",
+      "text": "Example afternoon conditions for zone 2."
+    },
+    {
+      "zone": "3",
+      "slot": "morning",
+      "text": "Example morning conditions for zone 3."
+    },
+    {
+      "zone": "3",
+      "slot": "afternoon",
+      "text": "Example afternoon conditions for zone 3."
+    },
+    {
+      "zone": "10",
+      "slot": "morning",
+      "text": "Example morning conditions for zone 10."
+    },
+    {
+      "zone": "10",
+      "slot": "afternoon",
+      "text": "Example afternoon conditions for zone 10."
+    }
+  ]
+}
