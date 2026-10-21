@@ -1,5 +1,5 @@
 /** How one Mountain Weather value draws in a table cell. */
-import { ArrowUp, Moon, Snowflake, Sun } from 'lucide-react'
+import { Moon, Navigation2, Snowflake, Sun } from 'lucide-react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import {
@@ -118,7 +118,7 @@ export function WindLegend() {
   return (
     <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
       <span className="inline-flex items-center gap-1">
-        <ArrowUp aria-hidden="true" className="size-4 text-primary" />
+        <Navigation2 aria-hidden="true" className="size-4 text-primary" />
         Points the way the wind blows
       </span>
       <span>VAR: variable</span>
@@ -133,8 +133,8 @@ export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
     <span className="inline-flex flex-col items-center">
       <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap tabular-nums">
         {bearing != null && (
-          // Points the way the wind blows: a north wind is a down arrow.
-          <ArrowUp
+          // Points the way the wind blows: a north wind points down.
+          <Navigation2
             aria-hidden="true"
             className="size-4 shrink-0 text-primary"
             style={{ transform: `rotate(${bearing + 180}deg)` }}
