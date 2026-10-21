@@ -20,6 +20,8 @@ import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b
 import { UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { default as default_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
+import { DateRangeField as DateRangeField_1d446883378a099477d310d9fe2f0813 } from '@/blocks/ObservationsWidget/DateRangeField'
+import { ZonesField as ZonesField_77b8df4c40d764f3c3941ef759d922e0 } from '@/blocks/ObservationsWidget/ZonesField'
 import { StationsInput as StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd } from '@/fields/stations/StationsInput'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
@@ -28,6 +30,7 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
 import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
+import { ColumnOrderInput as ColumnOrderInput_2b454a78a7ebeada3fba7b318a527fba } from '@/collections/StationPages/components/ColumnOrderInput'
 import { ToggleField as ToggleField_371a8655e7a5f0cef03f5ca5077a64ce } from '@/components/ToggleField'
 import { ViewStationPageButton as ViewStationPageButton_4e6b34efa94959a825a191dd4faa5e47 } from '@/collections/StationPages/components/ViewStationPageButton'
 import { PublishChangesButton as PublishChangesButton_733c9fec647d0760a6b62cbe16c0e231 } from '@/collections/StationPages/components/PublishChangesButton'
@@ -96,6 +99,8 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnorderedListFeatureClient": UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/ColumnLayoutPicker#default": default_923dc5ccc0b72de4298251644cbfe39e,
   "@/blocks/Content/components/DefaultColumnAdder#DefaultColumnAdder": DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01,
+  "@/blocks/ObservationsWidget/DateRangeField#DateRangeField": DateRangeField_1d446883378a099477d310d9fe2f0813,
+  "@/blocks/ObservationsWidget/ZonesField#ZonesField": ZonesField_77b8df4c40d764f3c3941ef759d922e0,
   "@/fields/stations/StationsInput#StationsInput": StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -104,6 +109,7 @@ export const importMap = {
   "@/fields/slug/SlugComponent#SlugComponent": SlugComponent_92cc057d0a2abb4f6cf0307edf59f986,
   "@/collections/Pages/components/ViewPageButton#ViewPageButton": ViewPageButton_5587abba969d5f30cb1f479b0a70bb80,
   "@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor": DuplicatePageFor_8f1d8961a356bec6784e5c591c016925,
+  "@/collections/StationPages/components/ColumnOrderInput#ColumnOrderInput": ColumnOrderInput_2b454a78a7ebeada3fba7b318a527fba,
   "@/components/ToggleField#ToggleField": ToggleField_371a8655e7a5f0cef03f5ca5077a64ce,
   "@/collections/StationPages/components/ViewStationPageButton#ViewStationPageButton": ViewStationPageButton_4e6b34efa94959a825a191dd4faa5e47,
   "@/collections/StationPages/components/PublishChangesButton#PublishChangesButton": PublishChangesButton_733c9fec647d0760a6b62cbe16c0e231,

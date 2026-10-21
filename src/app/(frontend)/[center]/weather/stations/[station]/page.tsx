@@ -2,6 +2,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
+import type { TableRangeParams } from '@/components/WeatherStations/stationTabViews'
 import { loadStationMeta, resolveTabView } from '@/components/WeatherStations/stationTabViews'
 import { fetchLastReported } from '@/services/snowobs/lastReported'
 import {
@@ -15,7 +16,7 @@ import { notFound } from 'next/navigation'
 
 type Args = {
   params: Promise<{ center: string; station: string }>
-  searchParams: Promise<{ range?: string; period?: string }>
+  searchParams: Promise<{ range?: string } & TableRangeParams>
 }
 
 export async function generateStaticParams() {
@@ -24,7 +25,7 @@ export async function generateStaticParams() {
 
 export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
-  const { range: rangeParam, period: periodParam } = await searchParams
+  const { range: rangeParam, ...tableParams } = await searchParams
 
   const pages = await getStationPages(center)
   const page = pages.find((p) => p.slug === station)
@@ -38,7 +39,7 @@ export default async function Page({ params, searchParams }: Args) {
     resolveTabView(
       { center, subject: page, pages: toPageSummaries(pages), timeZone, csv },
       rangeParam,
-      periodParam,
+      tableParams,
     ),
     loadStationMeta(center, page.stations),
     page.archived ? fetchLastReported(center, page.stations) : null,

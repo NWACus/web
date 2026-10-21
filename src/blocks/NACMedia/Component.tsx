@@ -6,6 +6,7 @@ import { useTenant } from '@/providers/TenantProvider'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import * as Sentry from '@sentry/nextjs'
+import { useEffect } from 'react'
 
 export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
   const { backgroundColor, mode } = props
@@ -13,13 +14,14 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
 
   const center = typeof tenant === 'object' && tenant !== null ? tenant.slug : null
 
+  useEffect(() => {
+    if (!center) Sentry.captureMessage('NACMediaWidget: center not defined', 'error')
+  }, [center])
+
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
-  if (!center) {
-    Sentry.captureException('NACMediaWidget: center not defined')
-    return null
-  }
+  if (!center) return null
 
   return (
     <div className={cn(bgColorClass)}>

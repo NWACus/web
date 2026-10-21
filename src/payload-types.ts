@@ -308,6 +308,7 @@ export interface HomePage {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | ObservationsWidgetBlock
     | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
@@ -365,9 +366,11 @@ export interface Tenant {
     | 'msac'
     | 'mwac'
     | 'nwac'
+    | 'nysac'
     | 'pac'
     | 'sac'
     | 'snfac'
+    | 'soaix'
     | 'tac'
     | 'vac'
     | 'wac'
@@ -419,6 +422,7 @@ export interface Page {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | ObservationsWidgetBlock
     | PrecipTableBlock
     | SingleBlogPostBlock
     | SingleEventBlock
@@ -703,6 +707,10 @@ export interface ContentBlock {
  */
 export interface DocumentBlock {
   document: number | Document;
+  /**
+   * Only PDFs can be embedded. Use Download Link for other file types.
+   */
+  displayAs: 'download' | 'embed';
   id?: string | null;
   blockName?: string | null;
   blockType: 'documentBlock';
@@ -1475,27 +1483,13 @@ export interface StationPage {
   stations?: {
     stid: string;
     source: string;
+    hidden?: string[];
   }[];
-  /**
-   * Which readings the table shows, in this order, for every station on the page. Drag to reorder. Clearing every reading shows all the stations report.
-   */
-  columns?:
-    | (
-        | 'air_temp'
-        | 'relative_humidity'
-        | 'wind_speed_min'
-        | 'wind_speed'
-        | 'wind_gust'
-        | 'wind_direction'
-        | 'precip_accum_one_hour'
-        | 'snow_depth_24h'
-        | 'snow_depth'
-        | 'intermittent_snow'
-        | 'solar_radiation'
-        | 'pressure'
-        | 'equip_temperature'
-      )[]
-    | null;
+  columnOrder?: {
+    stid: string;
+    source: string;
+    variable: string;
+  }[];
   /**
    * Which views the page shows. An archived page shows only Download.
    */
@@ -1703,6 +1697,27 @@ export interface NACMediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'nacMediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ObservationsWidgetBlock".
+ */
+export interface ObservationsWidgetBlock {
+  showHeader?: boolean | null;
+  heading?: string | null;
+  tab?: ('observations' | 'avalanches') | null;
+  avalanchesObservedOnly?: boolean | null;
+  /**
+   * Ranges count back from the day someone views the page; a past season always shows that whole season. Links and bookmarks keep the dates from the day they were copied or saved.
+   */
+  dateRange: string;
+  /**
+   * Leave empty to show every zone.
+   */
+  zones?: string[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'observationsWidget';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3309,15 +3324,15 @@ export interface Setting {
     } | null;
   };
   /**
-   * Recommended: Use square (1:1) aspect ratio images for optimal display. Images with aspect ratios close to square are also acceptable.
+   * Used in the footer. Recommended: a square (1:1) image, at least 512x512 pixels, with a transparent background.
    */
   logo: number | Media;
   /**
-   * Used as the browser tab icon. Recommended: Use a compressed, 96x96 pixel, square aspect ratio image.
+   * Used as the browser tab icon. Recommended: a square (1:1) image, at least 96x96 pixels, simple enough to read at 16 pixels.
    */
   icon: number | Media;
   /**
-   * Used in the header of your website next to the USFS logo if added.
+   * Used in the header of your website next to the USFS logo if added, and in link previews. Recommended: a horizontal image, at least 160 pixels tall (300 is ideal), with a transparent background.
    */
   banner: number | Media;
   usfsLogo?: (number | null) | Media;
@@ -3877,6 +3892,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        observationsWidget?: T | ObservationsWidgetBlockSelect<T>;
         precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
@@ -3944,6 +3960,7 @@ export interface ContentBlockSelect<T extends boolean = true> {
  */
 export interface DocumentBlockSelect<T extends boolean = true> {
   document?: T;
+  displayAs?: T;
   id?: T;
   blockName?: T;
 }
@@ -4144,6 +4161,20 @@ export interface NACMediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ObservationsWidgetBlock_select".
+ */
+export interface ObservationsWidgetBlockSelect<T extends boolean = true> {
+  showHeader?: T;
+  heading?: T;
+  tab?: T;
+  avalanchesObservedOnly?: T;
+  dateRange?: T;
+  zones?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "PrecipTableBlock_select".
  */
 export interface PrecipTableBlockSelect<T extends boolean = true> {
@@ -4239,6 +4270,7 @@ export interface PagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        observationsWidget?: T | ObservationsWidgetBlockSelect<T>;
         precipTable?: T | PrecipTableBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
@@ -4277,7 +4309,7 @@ export interface StationPagesSelect<T extends boolean = true> {
   displayName?: T;
   slug?: T;
   stations?: T;
-  columns?: T;
+  columnOrder?: T;
   tabs?:
     | T
     | {

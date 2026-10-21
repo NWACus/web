@@ -2,13 +2,16 @@
  * All-zones forecast grid: fetches and renders compact forecast cards
  * for every active zone in a center, in parallel.
  */
+import { elevationBandsUrl } from '@/services/nac/dangerScale'
 import { forecastFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
 import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/nac/nac'
+import { allZonesTitle } from '@/services/nac/productTypeTitle'
 import { getForecastSource, getWarningSource } from '@/services/nac/sources'
 
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
 import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 
+import { ForecastDisclaimer } from './ForecastDisclaimer'
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ZoneForecastCard } from './ZoneForecastCard'
 
@@ -54,25 +57,33 @@ export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
     forecastFreshnessEndpoint(centerSlug, slug, forecast, warning),
   )
 
+  const title = allZonesTitle(results.flatMap(({ forecast }) => forecast?.product_type ?? []))
+
   // Each card's bottom line is marked, as the widget's all-zones view did.
   return (
     <ForecastGlossary center={metadata}>
-      <div className="container space-y-16 py-6">
-        {results.map(({ slug, zone, forecast, warning }) => (
-          <ForecastErrorBoundary
-            key={zone.id}
-            fallbackMessage={`Unable to display forecast for ${zone.name}`}
-          >
-            <ZoneForecastCard
-              zoneName={zone.name}
-              zoneSlug={slug}
-              forecast={forecast}
-              warning={warning}
-              elevationBandNames={zone.config.elevation_band_names}
-              timezone={metadata.timezone}
-            />
-          </ForecastErrorBoundary>
-        ))}
+      <div className="container py-6">
+        {title && <h1 className="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>}
+        <div className="space-y-16">
+          {results.map(({ slug, zone, forecast, warning }) => (
+            <ForecastErrorBoundary
+              key={zone.id}
+              fallbackMessage={`Unable to display forecast for ${zone.name}`}
+            >
+              <ZoneForecastCard
+                zoneName={zone.name}
+                zoneSlug={slug}
+                forecast={forecast}
+                warning={warning}
+                elevationBandNames={zone.config.elevation_band_names}
+                elevationBandsUrl={elevationBandsUrl(metadata)}
+                timezone={metadata.timezone}
+              />
+            </ForecastErrorBoundary>
+          ))}
+        </div>
+        {/* No single product to name the provider, so it comes from the center, as in the widget. */}
+        <ForecastDisclaimer centerType={metadata.type} centerName={metadata.name} />
         <RevalidateOnView endpoints={freshnessEndpoints} />
       </div>
     </ForecastGlossary>

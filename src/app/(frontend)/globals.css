@@ -25,3 +25,11 @@
     @apply bg-background text-foreground min-h-[100vh] flex flex-col max-w-[100vw] overflow-x-clip;
   }
 }
+
+@layer utilities {
+  /* Widens a block in a narrow column (a post's text) out to its nearest `@container`, normally
+     the page's .container. min(0px, …) leaves it alone when the column is already that wide. */
+  .breakout {
+    margin-inline: min(0px, calc(50% - 50cqw));
+  }
+}

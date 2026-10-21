@@ -1,9 +1,9 @@
-import { toStationRefs } from '@/fields/stations'
+import { toStationEntries } from '@/fields/stations'
 import type { StationPage } from '@/payload-types'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
-import type { StationColumn } from './stationColumns'
-import { toStationColumns } from './stationColumns'
+import type { ColumnOrderEntry, StationEntry } from './stationColumns'
+import { toColumnOrder } from './stationColumns'
 import type { StationTabKey } from './stationTabs'
 import { toStationTabs } from './stationTabs'
 
@@ -11,9 +11,9 @@ export type AssembledStationPage = {
   slug: string
   displayName: string
   archived: boolean
-  stations: StationRef[]
-  /** The readings the table shows, for every station; empty means all reported. */
-  columns: StationColumn[]
+  stations: StationEntry[]
+  /** The table's columns in order; empty means the default order. */
+  columnOrder: ColumnOrderEntry[]
   tabs: StationTabKey[]
 }
 
@@ -24,7 +24,7 @@ export type StationPageSummary = Pick<
 
 type PageRow = Pick<
   StationPage,
-  'slug' | 'displayName' | 'archived' | 'stations' | 'columns' | 'tabs'
+  'slug' | 'displayName' | 'archived' | 'stations' | 'columnOrder' | 'tabs'
 >
 
 // A flat, alphabetical list: with a dropdown to jump between pages, headings
@@ -36,13 +36,13 @@ function byName(a: AssembledStationPage, b: AssembledStationPage): number {
 export function assembleStationPages(pages: PageRow[]): AssembledStationPage[] {
   return pages
     .map((page): AssembledStationPage => {
-      const stations = toStationRefs(page.stations)
+      const stations = toStationEntries(page.stations)
       return {
         slug: page.slug,
         displayName: page.displayName,
         archived: page.archived ?? false,
         stations,
-        columns: toStationColumns(page.columns),
+        columnOrder: toColumnOrder(page.columnOrder),
         // A retired station reports nothing, so only its download is useful.
         tabs: page.archived ? ['csv'] : toStationTabs(page.tabs),
       }
@@ -55,7 +55,7 @@ export function toPageSummaries(pages: AssembledStationPage[]): StationPageSumma
     slug,
     displayName,
     archived,
-    stations,
+    stations: stations.map(({ stid, source }) => ({ stid, source })),
   }))
 }
 

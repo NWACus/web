@@ -11,7 +11,7 @@ import Link from 'next/link'
 
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import type { Forecast, ForecastResult, WarningProduct } from '@/services/nac/model/forecast'
+import type { ForecastResult, WarningProduct } from '@/services/nac/model/forecast'
 import { ProductType } from '@/services/nac/model/forecast'
 import type { ElevationBandNames } from '@/services/nac/types/schemas'
 import { cn } from '@/utilities/ui'
@@ -30,22 +30,18 @@ interface ZoneForecastCardProps {
   forecast: ForecastResult | null
   warning: WarningProduct | null
   elevationBandNames: ElevationBandNames
+  /** The center's elevation-band explainer, linked under the ratings when it has one. */
+  elevationBandsUrl: string | null
   timezone: string | null | undefined
 }
 
-export function ZoneForecastCard({
-  zoneName,
-  zoneSlug,
-  forecast,
-  warning,
-  elevationBandNames,
-  timezone,
-}: ZoneForecastCardProps) {
+export function ZoneForecastCard({ zoneSlug, forecast, ...rest }: ZoneForecastCardProps) {
+  const { zoneName } = rest
   const href = `/forecasts/avalanche/${zoneSlug}`
 
   return (
     <div
-      // Every visible string in a card ("The Bottom Line", "Today", "Issued") repeats once per
+      // Every visible string in a card ("The Bottom Line", "Avalanche Danger", "Issued") repeats once per
       // zone, so the grid's E2E coverage has no other way to scope an assertion to one card.
       data-testid={`zone-card-${zoneSlug}`}
       className="space-y-4"
@@ -56,14 +52,7 @@ export function ZoneForecastCard({
         </Link>
       </h2>
       {forecast ? (
-        <ZoneForecastCardBody
-          href={href}
-          zoneName={zoneName}
-          forecast={forecast}
-          warning={warning}
-          elevationBandNames={elevationBandNames}
-          timezone={timezone}
-        />
+        <ZoneForecastCardBody href={href} forecast={forecast} {...rest} />
       ) : (
         <p className="text-sm text-muted-foreground">Forecast data unavailable.</p>
       )}
@@ -81,14 +70,11 @@ function ZoneForecastCardBody({
   forecast,
   warning,
   elevationBandNames,
+  elevationBandsUrl,
   timezone,
-}: {
+}: Omit<ZoneForecastCardProps, 'zoneSlug' | 'forecast'> & {
   href: string
-  zoneName: string
   forecast: ForecastResult
-  warning: WarningProduct | null
-  elevationBandNames: ElevationBandNames
-  timezone: string | null | undefined
 }) {
   const isForecast = forecast.product_type === ProductType.Forecast
 
@@ -110,9 +96,12 @@ function ZoneForecastCardBody({
 
       <ZoneBottomLine forecast={forecast} />
 
-      {isForecast && (
-        <ZoneDangerPanel danger={forecast.danger} elevationBandNames={elevationBandNames} />
-      )}
+      <ZoneDangerPanel
+        forecast={forecast}
+        elevationBandNames={elevationBandNames}
+        elevationBandsUrl={elevationBandsUrl}
+        timezone={timezone}
+      />
 
       <ZoneCardButton
         href={href}
@@ -123,19 +112,35 @@ function ZoneForecastCardBody({
   )
 }
 
-/** The danger in a panel of its own, as the widget's all-zones view set it. */
+/**
+ * Today's danger section as the zone page draws it, in a panel of its own as the widget's all-zones
+ * view set it, today alone across the full width.
+ */
 function ZoneDangerPanel({
-  danger,
+  forecast,
   elevationBandNames,
+  elevationBandsUrl,
+  timezone,
 }: {
-  danger: Forecast['danger']
+  forecast: ForecastResult
   elevationBandNames: ElevationBandNames
+  elevationBandsUrl: string | null
+  timezone: string | null | undefined
 }) {
+  if (forecast.product_type !== ProductType.Forecast) return null
+
   return (
     <Card>
       <CardContent className="px-4 py-8 sm:px-6">
         <ForecastErrorBoundary fallbackMessage="Unable to display danger rating">
-          <DangerRating danger={danger} elevationBandNames={elevationBandNames} />
+          <DangerRating
+            danger={forecast.danger}
+            elevationBandNames={elevationBandNames}
+            publishedTime={forecast.published_time}
+            timezone={timezone}
+            elevationBandsUrl={elevationBandsUrl}
+            todayOnly
+          />
         </ForecastErrorBoundary>
       </CardContent>
     </Card>

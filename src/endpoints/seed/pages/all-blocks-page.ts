@@ -14,6 +14,7 @@ import { imageText } from '../blocks/image-text'
 import { linkPreview } from '../blocks/link-preview'
 import { mediaBlocks } from '../blocks/media-blocks'
 import { nacMediaBlocks } from '../blocks/nac-media'
+import { observationsWidgetBlocks } from '../blocks/observations-widget'
 import { singleBlogPostBlock } from '../blocks/single-blog-post'
 import { singleEventBlock } from '../blocks/single-event'
 import { sponsorsBlock } from '../blocks/sponsors'
@@ -80,6 +81,8 @@ export const allBlocksPage = ({
       ...videoEmbed,
       sectionLabel('NAC Media Block'),
       ...nacMediaBlocks,
+      sectionLabel('Observations Widget'),
+      ...observationsWidgetBlocks,
       sectionLabel('Blog List (Dynamic)'),
       {
         ...blogListBlock,

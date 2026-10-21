@@ -80,7 +80,7 @@ interface NativeForecastViewProps {
 /** One prop, so the view's signature doesn't grow with each setting it reads from the center. */
 interface ForecastCenterDetails {
   /** Avalanche center type, for the scope disclaimer's provider wording (USFS vs center name). */
-  type: AvalancheCenterType
+  type: AvalancheCenterType | null
   /** The center's elevation-band explainer page, or null when it has none. */
   elevationBandsUrl: string | null
 }

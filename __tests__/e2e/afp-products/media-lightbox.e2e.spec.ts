@@ -77,3 +77,32 @@ test.describe('Media lightbox', () => {
     }).toPass({ timeout: 15000 })
   })
 })
+
+// Served at NWAC West Slopes North: BTAC's Tetons forecast of 2025-12-08, twelve photos, two
+// YouTube links and a PDF.
+const MEDIA_LINKS_URL = `${tenant('nwac')}/forecasts/avalanche/${zoneSlug(1646)}`
+
+// Forecast-125, Forecast-131
+test.describe('Media links', () => {
+  test('a PDF or link tile opens in a new tab, titled, and stays out of the lightbox', async ({
+    page,
+  }) => {
+    await loadPage(page, MEDIA_LINKS_URL)
+
+    const pdf = page.getByRole('link', { name: /^20251206-Glory-NE-Ridge\.pdf/ })
+    await expect(pdf).toHaveAttribute('target', '_blank')
+    await expect(pdf).toHaveAttribute('href', /20251206-Glory-NE-Ridge_\w+\.pdf$/)
+    const video = page.getByRole('link', { name: /^Mt\. Glory Snowpit Video 20251206/ })
+    await expect(video).toHaveAttribute('href', /^https:\/\/youtu\.be\//)
+    await expect(video).toHaveAttribute('target', '_blank')
+
+    // Keyboard reachable as a plain link.
+    await pdf.focus()
+    await expect(pdf).toBeFocused()
+
+    // Only the twelve photos make up the lightbox's sequence.
+    const dialog = page.getByRole('dialog', { name: 'Media viewer' })
+    await clickUntil(page.getByRole('button', { name: 'Open media 12 of 12' }), dialog)
+    await expect(dialog.getByText('12 / 12')).toBeVisible()
+  })
+})
