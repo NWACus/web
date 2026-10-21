@@ -17,3 +17,9 @@ export const afpApiHost = process.env.AFP_HOST || 'https://forecasts.avalanche.o
 // products-api's v3 reads. Its own var so a local or staging products-api can serve them while
 // v2 stays remote.
 export const v3ApiHost = process.env.NAC_V3_HOST || nacApiHost
+
+/**
+ * The `Origin` server-side requests send to APIs that only answer allowlisted sites: NAC's obs
+ * API (401 without one) and SnowObs (which caches Origin-less responses without CORS headers).
+ */
+export const ALLOWLISTED_ORIGIN = 'https://avy-fx.org'

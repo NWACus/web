@@ -12,16 +12,46 @@ import {
 } from '@/services/nac/archiveDates'
 import { elevationBandsUrl } from '@/services/nac/dangerScale'
 import { forecastFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
+import type { ForecastResult } from '@/services/nac/model/forecast'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource, getWarningSource } from '@/services/nac/sources'
 import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
+import { showsZoneObservationTabs } from '@/services/nac/zoneObservations'
+import type { ComponentProps } from 'react'
 
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
 import { ForecastGlossary } from '@/components/glossary/ForecastGlossary'
 
 import { ForecastUnavailable } from './ForecastUnavailable'
 import { NativeForecastView } from './NativeForecastView'
+import { ZoneTabs } from './zoneObservations/ZoneTabs.client'
+import { forecastTabLabel, zoneObservationsEndpoint } from './zoneObservations/zoneTabs'
+
+/**
+ * Forecast-9: the zone's Observations and Avalanches tabs around the bottom line and panel, on
+ * the live page only, as in the widget; undefined where the center has them off.
+ */
+async function zoneTabsFor(
+  centerSlug: string,
+  zoneSlug: string,
+  zoneName: string,
+  forecastResult: ForecastResult,
+): Promise<ComponentProps<typeof NativeForecastView>['zoneTabs']> {
+  if (!(await showsZoneObservationTabs(centerSlug))) return undefined
+
+  return function renderZoneTabs({ bottomLine, panel }) {
+    return (
+      <ZoneTabs
+        endpoint={zoneObservationsEndpoint(centerSlug, zoneSlug)}
+        zoneName={zoneName}
+        forecastLabel={forecastTabLabel(forecastResult.product_type)}
+        bottomLine={bottomLine}
+        panel={panel}
+      />
+    )
+  }
+}
 
 interface NativeForecastPageProps {
   centerSlug: string
@@ -80,6 +110,8 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
   ])
   const initialDates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 
+  const zoneTabs = await zoneTabsFor(centerSlug, zoneSlug, zone.zone.name, forecastResult)
+
   return (
     <>
       <ForecastGlossary center={metadata}>
@@ -97,6 +129,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
           pickerSettings={forecastPickerSettings(metadata)}
           centerDetails={{ type: metadata.type, elevationBandsUrl: elevationBandsUrl(metadata) }}
           weather={weather}
+          zoneTabs={zoneTabs}
         />
       </ForecastGlossary>
       {/* Revalidate-on-view: catches a correction/retraction published after this (ISR) page was

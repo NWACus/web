@@ -75,6 +75,8 @@ interface NativeForecastViewProps {
   centerDetails: ForecastCenterDetails
   /** The separately-issued weather product, when one is available (live page only). */
   weather?: Weather | null
+  /** Wraps the bottom line and panel in the zone's tabs (Forecast-9); the live page passes it. */
+  zoneTabs?: (parts: { bottomLine: ReactNode; panel: ReactNode }) => ReactNode
 }
 
 /** One prop, so the view's signature doesn't grow with each setting it reads from the center. */
@@ -99,7 +101,29 @@ export function NativeForecastView({
   pickerSettings,
   centerDetails,
   weather,
+  zoneTabs,
 }: NativeForecastViewProps) {
+  const bottomLine = forecastResult.bottom_line && (
+    <div data-print-section="bottomLine">
+      <ForecastErrorBoundary fallbackMessage="Unable to display the bottom line">
+        <BottomLine
+          html={forecastResult.bottom_line}
+          dangerLevel={bottomLineDangerLevel(forecastResult)}
+        />
+      </ForecastErrorBoundary>
+    </div>
+  )
+  const panel = (
+    <ForecastPanel
+      forecastResult={forecastResult}
+      weather={weather}
+      elevationBandNames={zone.zone.config.elevation_band_names}
+      zoneId={zone.zone.zone_id}
+      timezone={timezone}
+      elevationBandsUrl={centerDetails.elevationBandsUrl}
+    />
+  )
+
   return (
     // `print:py-0` / `print:space-y-4`: the @page margin already frames the sheet, and screen
     // rhythm costs about three quarters of an inch before the bottom line — enough to decide
@@ -136,25 +160,14 @@ export function NativeForecastView({
 
       {/* `data-print-section` marks what the print dialog's checkboxes toggle; the print
           stylesheet in print.css hides any section the reader left unchecked. */}
-      {forecastResult.bottom_line && (
-        <div data-print-section="bottomLine">
-          <ForecastErrorBoundary fallbackMessage="Unable to display the bottom line">
-            <BottomLine
-              html={forecastResult.bottom_line}
-              dangerLevel={bottomLineDangerLevel(forecastResult)}
-            />
-          </ForecastErrorBoundary>
-        </div>
+      {zoneTabs ? (
+        zoneTabs({ bottomLine, panel })
+      ) : (
+        <>
+          {bottomLine}
+          {panel}
+        </>
       )}
-
-      <ForecastPanel
-        forecastResult={forecastResult}
-        weather={weather}
-        elevationBandNames={zone.zone.config.elevation_band_names}
-        zoneId={zone.zone.zone_id}
-        timezone={timezone}
-        elevationBandsUrl={centerDetails.elevationBandsUrl}
-      />
 
       {/* Scope disclaimer — safety/scope language shown under every afp product */}
       <ForecastDisclaimer

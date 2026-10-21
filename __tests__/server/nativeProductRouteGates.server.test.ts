@@ -9,6 +9,8 @@ jest.mock('../../src/services/nac/nac', () => ({
   getAvalancheCenterMetadata: (...a: unknown[]) => mockUpstream('metadata', ...a),
   fetchProductArchive: (...a: unknown[]) => mockUpstream('archive', ...a),
   fetchProductArchiveOrThrow: (...a: unknown[]) => mockUpstream('archive', ...a),
+  getAvalancheCenterPlatforms: (...a: unknown[]) => mockUpstream('platforms', ...a),
+  logNacError: jest.fn(),
 }))
 jest.mock('../../src/services/nac/resolveZone', () => ({
   resolveZoneFromSlug: (...a: unknown[]) => mockUpstream('zone', ...a),
@@ -34,6 +36,7 @@ import { GET as forecastArchiveAdjacent } from '@/app/api/[center]/forecast-arch
 import { GET as forecastArchive } from '@/app/api/[center]/forecast-archive/route'
 import { GET as forecastCurrentDate } from '@/app/api/[center]/forecast-current-date/[zone]/route'
 import { GET as stationMap } from '@/app/api/[center]/station-map/route'
+import { GET as zoneObservations } from '@/app/api/[center]/zone-observations/route'
 import { NextRequest } from 'next/server'
 
 const params = Promise.resolve({ center: 'nwac' })
@@ -80,6 +83,14 @@ describe.each([
     () =>
       forecastCurrentDate(new Request('http://x/api/nwac/forecast-current-date/z'), {
         params: Promise.resolve({ center: 'nwac', zone: 'z' }),
+      }),
+  ],
+  [
+    'zone-observations',
+    'forecast',
+    () =>
+      zoneObservations(new NextRequest('http://x/api/nwac/zone-observations?zone=z'), {
+        params,
       }),
   ],
 ])('%s', (_route, product, call) => {
