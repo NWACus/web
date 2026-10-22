@@ -10,12 +10,12 @@ import type { ReactNode } from 'react'
 import { ForecastHeader } from '@/components/forecast/ForecastHeader'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import type { NWACWeatherForecastDay, NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
-import { issuanceLabel, issueTime, zonesFor } from '@/services/nac/nwacWeatherFormat'
+import { issuanceLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
 
 import { Overall, overallParts } from './Overall'
 import { ZoneTable } from './ZoneTable'
 
-/** The Mountain Weather page's heading row and metadata, naming the one issuance shown. */
+/** The heading, naming the one issuance shown, and the Mountain Weather page's metadata row. */
 function IssuanceHeader({
   issuance,
   timezone,
@@ -23,16 +23,12 @@ function IssuanceHeader({
   issuance: NWACWeatherIssuance
   timezone: string | null | undefined
 }) {
-  const time = issueTime(issuance.issuedAt, timezone)
   return (
     <>
-      <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-        <CardTitle>Mountain Weather</CardTitle>
-        <p className="whitespace-nowrap text-sm">
-          <span className="font-semibold">{issuanceLabel(issuance.type)}</span>
-          {time && <span className="text-muted-foreground"> · {time}</span>}
-        </p>
-      </header>
+      <CardTitle>
+        Mountain Weather
+        <span className="font-normal text-muted-foreground"> · {issuanceLabel(issuance.type)}</span>
+      </CardTitle>
       <ForecastHeader
         forecast={{
           published_time: issuance.issuedAt,

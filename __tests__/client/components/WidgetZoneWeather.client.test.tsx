@@ -74,7 +74,7 @@ describe('WidgetZoneWeather', () => {
     expect(within(mount).getByText('Mountain Weather')).toBeInTheDocument()
     expect(within(mount).queryByRole('radio')).toBeNull()
     expect(within(mount).getByText('Issued')).toBeInTheDocument()
-    expect(within(mount).getByText(/^(Morning|Afternoon) Forecast$/)).toBeInTheDocument()
+    expect(within(mount).getByText(/^· (Morning|Afternoon) Forecast$/)).toBeInTheDocument()
     expect(within(mount).queryByText('Weather Synopsis')).toBeNull()
     expect(within(mount).queryByText('Total')).toBeNull()
   })
