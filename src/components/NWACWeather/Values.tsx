@@ -5,28 +5,50 @@ import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/mo
 import {
   DASH,
   fmtWind,
+  SNOW_TIER_LABELS,
+  snowTier,
   windBearing,
   windRange,
   windWording,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
-/** Level fills by elevation: blue (colder) below 5000', red (warmer) above, 5000' neutral. */
+/** Level fills by elevation, grey darkening with height, so blue stays the snow amounts'. */
 const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
-  { below: 2000, fill: 'bg-blue-300 text-blue-950', label: "<2,000'" },
-  { below: 3000, fill: 'bg-blue-200 text-blue-950', label: "2,000'" },
-  { below: 4000, fill: 'bg-blue-100 text-blue-950', label: "3,000'" },
-  { below: 5000, fill: 'bg-blue-50 text-blue-950', label: "4,000'" },
-  { below: 5500, fill: 'bg-stone-100 text-stone-900', label: "5,000'" },
-  { below: 6500, fill: 'bg-red-50 text-red-950', label: "5,500'" },
-  { below: 7500, fill: 'bg-red-100 text-red-950', label: "6,500'" },
-  { below: 8500, fill: 'bg-red-200 text-red-950', label: "7,500'" },
-  { below: Infinity, fill: 'bg-red-300 text-red-950', label: "8,500'+" },
+  { below: 3000, fill: 'bg-stone-50 text-stone-900', label: "<3,000'" },
+  { below: 4000, fill: 'bg-stone-100 text-stone-900', label: "3,000'" },
+  { below: 5000, fill: 'bg-stone-200 text-stone-950', label: "4,000'" },
+  { below: 6000, fill: 'bg-stone-300 text-stone-950', label: "5,000'" },
+  { below: Infinity, fill: 'bg-stone-400 text-stone-950', label: "6,000'+" },
 ]
 
 /** A snow or freezing level's fill, on its pill or its table cell. */
 export function levelFill(level: number): string {
   return LEVEL_FILLS.find((f) => level < f.below)?.fill ?? ''
+}
+
+/** Snow fills by `snowTier`, deepening with the amount; none without snow. */
+const SNOW_FILLS = ['bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300']
+
+export function snowFill(snow: number | null): string | undefined {
+  const tier = snowTier(snow)
+  return tier == null ? undefined : SNOW_FILLS[tier]
+}
+
+export function SnowFillLegend() {
+  return (
+    <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+      Fill deepens with snow:
+      {SNOW_TIER_LABELS.map((label, i) => (
+        <span
+          key={label}
+          className={cn('rounded-sm border px-2 py-0.5 text-foreground', SNOW_FILLS[i])}
+        >
+          {label}
+        </span>
+      ))}
+    </p>
+  )
 }
 
 /** Any snow in bold, so the few periods with some stand out from the muted zeros. */

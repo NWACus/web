@@ -14,7 +14,6 @@ import type {
 import {
   DASH,
   SENSIBLE_SLOTS,
-  SNOW_TIER_LABELS,
   blockDate,
   dayGroups,
   deriveSnow,
@@ -26,7 +25,6 @@ import {
   precipPeriods,
   snowLevelBlocks,
   snowRange,
-  snowTier,
   tempPeriods,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
@@ -36,6 +34,7 @@ import { PrecipHoursPanel, PrecipHoursSwitch, PrecipHoursToggle } from './Precip
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import {
   DayNightDate,
+  SnowFillLegend,
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
@@ -44,6 +43,7 @@ import {
   WindLegend,
   WindValue,
   levelFill,
+  snowFill,
 } from './Values'
 import { WeatherSummary, type SensibleDay, type SensibleRow } from './WeatherSummary.client'
 
@@ -237,14 +237,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   ]
 }
 
-/** Snow fills by `snowTier`, deepening with the amount; none without snow. */
-const SNOW_FILLS = ['bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300']
-
-function snowFill(snow: number | null): string | undefined {
-  const tier = snowTier(snow)
-  return tier == null ? undefined : SNOW_FILLS[tier]
-}
-
 /** The sum of the values given, or null when there are none. */
 function sumOf(values: (number | null | undefined)[]): number | null {
   const known = values.filter((v): v is number => v != null)
@@ -269,22 +261,6 @@ function precipSnowPair(qpf: number | null | undefined, snow: number | null) {
     ],
     fills: [fill, fill],
   }
-}
-
-function SnowFillLegend() {
-  return (
-    <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-      Fill deepens with snow:
-      {SNOW_TIER_LABELS.map((label, i) => (
-        <span
-          key={label}
-          className={cn('rounded-sm border px-2 py-0.5 text-foreground', SNOW_FILLS[i])}
-        >
-          {label}
-        </span>
-      ))}
-    </p>
-  )
 }
 
 /**
@@ -751,7 +727,6 @@ function TableTitle({
           ))}
         </div>
       )}
-      {t.legend && <div className="pt-2">{t.legend}</div>}
     </div>
   )
 }
@@ -819,6 +794,7 @@ function GridTable({
       ) : (
         <TableBox table={t} />
       )}
+      {t.legend}
     </section>
   )
 }

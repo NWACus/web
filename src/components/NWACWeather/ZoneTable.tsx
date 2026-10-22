@@ -8,7 +8,6 @@ import type {
   NWACWeatherBlock,
   NWACWeatherIssuance,
   NWACWeatherPeriod,
-  NWACWeatherPoint,
   NWACWeatherWindCell,
   NWACWeatherZone,
 } from '@/services/nac/model/nwacWeather'
@@ -31,11 +30,13 @@ import type { ReactNode } from 'react'
 import { DayTabs } from './DayTabs.client'
 import {
   DayNightDate,
+  SnowFillLegend,
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
   TempValue,
   WindValue,
+  snowFill,
 } from './Values'
 
 const HEAD = 'border-b border-l p-2 text-center font-semibold'
@@ -79,30 +80,11 @@ function periodViews(issuance: NWACWeatherIssuance, zone: NWACWeatherZone): Peri
   }))
 }
 
-function ZoneSnow({
-  issuance,
-  zone,
-  period,
-}: {
-  issuance: NWACWeatherIssuance
-  zone: NWACWeatherZone
-  period: NWACWeatherPeriod
-}) {
-  const snow = zoneSnow(issuance, zone.id, period.key)
-  return <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
-}
-
-function PointSnow({
-  issuance,
-  point,
-  period,
-}: {
-  issuance: NWACWeatherIssuance
-  point: NWACWeatherPoint
-  period: NWACWeatherPeriod
-}) {
-  const snow = pointSnow(issuance, point.code, period.key)
-  return <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
+/** A snow amount as its public range; `chip` carries the snow fill itself, off a table cell. */
+function SnowAmount({ snow, chip = false }: { snow: number | null; chip?: boolean }) {
+  const value = <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
+  const fill = chip ? snowFill(snow) : undefined
+  return fill ? <span className={cn('rounded px-1.5 py-0.5', fill)}>{value}</span> : value
 }
 
 /**
@@ -218,6 +200,7 @@ function PeriodRow({
   unit,
   periods,
   cell,
+  fill,
   covered = periods.length,
   sub = false,
 }: {
@@ -225,6 +208,8 @@ function PeriodRow({
   unit?: string
   periods: PeriodView[]
   cell: (p: PeriodView) => ReactNode
+  /** A cell's background (the snow fills). */
+  fill?: (p: PeriodView) => string | undefined
   covered?: number
   /** A point under the zone's row: indented, lighter and not bold. */
   sub?: boolean
@@ -236,7 +221,7 @@ function PeriodRow({
         {unit && <Unit>{unit}</Unit>}
       </th>
       {periods.slice(0, covered).map((p) => (
-        <td key={p.period.key} className="border-l border-t p-2 text-center">
+        <td key={p.period.key} className={cn('border-l border-t p-2 text-center', fill?.(p))}>
           {cell(p)}
         </td>
       ))}
@@ -315,7 +300,8 @@ function PeriodTable({
             label="Snow"
             unit="in"
             periods={periods}
-            cell={(p) => <ZoneSnow issuance={issuance} zone={zone} period={p.period} />}
+            cell={(p) => <SnowAmount snow={zoneSnow(issuance, zone.id, p.period.key)} />}
+            fill={(p) => snowFill(zoneSnow(issuance, zone.id, p.period.key))}
           />
           {snowPoints(issuance, zone).map((point) => (
             <PeriodRow
@@ -323,7 +309,8 @@ function PeriodTable({
               label={point.name}
               periods={periods}
               sub
-              cell={(p) => <PointSnow issuance={issuance} point={point} period={p.period} />}
+              cell={(p) => <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} />}
+              fill={(p) => snowFill(pointSnow(issuance, point.code, p.period.key))}
             />
           ))}
           <PeriodRow
@@ -424,11 +411,11 @@ function CardSummary({
   return (
     <dl className="divide-y border-t">
       <CardLine label="Snow" unit="in">
-        <ZoneSnow issuance={issuance} zone={zone} period={p.period} />
+        <SnowAmount snow={zoneSnow(issuance, zone.id, p.period.key)} chip />
       </CardLine>
       {snowPoints(issuance, zone).map((point) => (
         <CardLine key={point.code} label={point.name} sub>
-          <PointSnow issuance={issuance} point={point} period={p.period} />
+          <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} chip />
         </CardLine>
       ))}
       <CardLine label="5000' Temperatures" unit="°F">
@@ -578,9 +565,10 @@ export function ZoneTable({
       {heading && <h3 className="text-lg font-semibold">{zone.name}</h3>}
       <SensibleCards issuance={issuance} zone={zone} />
       <div className="space-y-2">
-        <SnowLevelLegend />
         <PeriodTable issuance={issuance} zone={zone} periods={periods} />
         <PeriodCards issuance={issuance} zone={zone} periods={periods} />
+        <SnowFillLegend />
+        <SnowLevelLegend />
       </div>
     </section>
   )
