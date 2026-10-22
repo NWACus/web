@@ -12,12 +12,12 @@ import type {
   NWACWeatherZone,
 } from '@/services/nac/model/nwacWeather'
 import {
-  SENSIBLE_SLOTS,
   deriveSnowLevel,
   fmtCalendarDate,
   levelKind,
   periodDateGroups,
   pointSnow,
+  sensibleSlots,
   snowRange,
   tempPeriods,
   windBlocks,
@@ -80,6 +80,16 @@ function periodViews(issuance: NWACWeatherIssuance, zone: NWACWeatherZone): Peri
   }))
 }
 
+/** A snow row's cells and their fills, each period's amount worked out once. */
+function snowCells(periods: PeriodView[], snowOf: (periodKey: string) => number | null) {
+  const snow = new Map(periods.map((p) => [p.period.key, snowOf(p.period.key)]))
+  const of = (p: PeriodView) => snow.get(p.period.key) ?? null
+  return {
+    cell: (p: PeriodView) => <SnowAmount snow={of(p)} />,
+    fill: (p: PeriodView) => snowFill(of(p)),
+  }
+}
+
 /** A snow amount as its public range; `chip` carries the snow fill itself, off a table cell. */
 function SnowAmount({ snow, chip = false }: { snow: number | null; chip?: boolean }) {
   const value = <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
@@ -96,7 +106,7 @@ function snowPoints(issuance: NWACWeatherIssuance, zone: NWACWeatherZone) {
   return points.length > 1 ? points : []
 }
 
-/** Today / Tonight under the first date, Tomorrow under the second. */
+/** The zone's sensible weather, one card per day it has text for. */
 function SensibleCards({
   issuance,
   zone,
@@ -105,12 +115,9 @@ function SensibleCards({
   zone: NWACWeatherZone
 }) {
   const sensible = issuance.sensible[zone.id] ?? {}
-  const dates = periodDateGroups(issuance.periods)
-  const cards = SENSIBLE_SLOTS.map((slot, i) => ({
-    ...slot,
-    date: dates[i]?.date,
-    text: sensible[slot.key]?.trim(),
-  })).filter((c) => c.text)
+  const cards = sensibleSlots(issuance)
+    .map((slot) => ({ ...slot, text: sensible[slot.key]?.trim() }))
+    .filter((c) => c.text)
   if (cards.length === 0) return null
   return (
     <div className="grid gap-3 sm:grid-cols-2">
@@ -300,8 +307,7 @@ function PeriodTable({
             label="Snow"
             unit="in"
             periods={periods}
-            cell={(p) => <SnowAmount snow={zoneSnow(issuance, zone.id, p.period.key)} />}
-            fill={(p) => snowFill(zoneSnow(issuance, zone.id, p.period.key))}
+            {...snowCells(periods, (key) => zoneSnow(issuance, zone.id, key))}
           />
           {snowPoints(issuance, zone).map((point) => (
             <PeriodRow
@@ -309,8 +315,7 @@ function PeriodTable({
               label={point.name}
               periods={periods}
               sub
-              cell={(p) => <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} />}
-              fill={(p) => snowFill(pointSnow(issuance, point.code, p.period.key))}
+              {...snowCells(periods, (key) => pointSnow(issuance, point.code, key))}
             />
           ))}
           <PeriodRow

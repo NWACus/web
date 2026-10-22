@@ -13,7 +13,6 @@ import type {
 } from '@/services/nac/model/nwacWeather'
 import {
   DASH,
-  SENSIBLE_SLOTS,
   blockDate,
   dayGroups,
   deriveSnow,
@@ -21,8 +20,8 @@ import {
   fmtCalendarDate,
   fmtQpf,
   levelKind,
-  periodDateGroups,
   precipPeriods,
+  sensibleSlots,
   snowLevelBlocks,
   snowRange,
   tempPeriods,
@@ -932,15 +931,9 @@ function ExtendedSection({
 
 /** Each sensible-weather day with its date, and each zone's text by day; empty when none. */
 function sensibleDays(issuance: NWACWeatherIssuance) {
-  const dates = periodDateGroups(issuance.periods)
-  // An afternoon issuance's first date is only its night, so "Today / Tonight" reads "Tonight".
-  const firstIsNight = issuance.periods
-    .filter((p) => p.date === dates[0]?.date)
-    .every((p) => p.kind === 'night')
-  const days: SensibleDay[] = SENSIBLE_SLOTS.map((s, i) => ({
-    key: s.key,
-    label: i === 0 && firstIsNight ? 'Tonight' : s.label,
-    date: dates[i] ? fmtCalendarDate(dates[i].date) : null,
+  const days: SensibleDay[] = sensibleSlots(issuance).map((s) => ({
+    ...s,
+    date: s.date ? fmtCalendarDate(s.date) : null,
   }))
   const rows: SensibleRow[] = issuance.zones.map((z) => ({
     key: z.id,

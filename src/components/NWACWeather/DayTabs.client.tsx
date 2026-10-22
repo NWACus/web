@@ -5,9 +5,11 @@
  * time. The panels are rendered by the caller; this only picks which shows. Arrow keys move
  * between tabs, as a tablist's do.
  */
-import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 
 import { cn } from '@/utilities/ui'
+
+import { useTabListKeys } from './useTabListKeys'
 
 export interface DayTab {
   key: string
@@ -21,16 +23,7 @@ export interface DayTab {
 export function DayTabs({ days }: { days: DayTab[] }) {
   const [active, setActive] = useState(0)
   const id = useId()
-  const tabs = useRef<(HTMLButtonElement | null)[]>([])
-
-  function onKeyDown(event: KeyboardEvent) {
-    const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
-    if (step === 0) return
-    event.preventDefault()
-    const next = (active + step + days.length) % days.length
-    setActive(next)
-    tabs.current[next]?.focus()
-  }
+  const { onKeyDown, tabRef } = useTabListKeys(days.length, active, setActive)
 
   return (
     <div className="space-y-3">
@@ -44,9 +37,7 @@ export function DayTabs({ days }: { days: DayTab[] }) {
         {days.map((d, i) => (
           <button
             key={d.key}
-            ref={(el) => {
-              tabs.current[i] = el
-            }}
+            ref={tabRef(i)}
             type="button"
             role="tab"
             id={`${id}-tab-${i}`}

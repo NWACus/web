@@ -9,6 +9,7 @@ import {
   levelKind,
   periodDateGroups,
   precipPeriods,
+  sensibleSlots,
   snowLevelBlocks,
   snowRange,
   snowTier,
@@ -225,5 +226,12 @@ describe('dayGroups', () => {
       ['n1-d2', null],
       ['n2', 'Night only'],
     ])
+  })
+})
+
+describe('sensibleSlots', () => {
+  it("labels an afternoon issuance's first day Tonight and a morning one's Today / Tonight", () => {
+    expect(sensibleSlots(afternoon).map((s) => s.label)).toEqual(['Tonight', 'Tomorrow'])
+    expect(sensibleSlots(morning).map((s) => s.label)).toEqual(['Today / Tonight', 'Tomorrow'])
   })
 })

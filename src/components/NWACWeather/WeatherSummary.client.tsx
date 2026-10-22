@@ -6,9 +6,11 @@
  * tablist's do.
  */
 import Link from 'next/link'
-import { useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useId, useState } from 'react'
 
 import { cn } from '@/utilities/ui'
+
+import { useTabListKeys } from './useTabListKeys'
 
 export interface SensibleDay {
   key: string
@@ -69,16 +71,7 @@ function ZoneList({
   onPick: (index: number) => void
   id: string
 }) {
-  const tabs = useRef<(HTMLButtonElement | null)[]>([])
-  function onKeyDown(event: KeyboardEvent) {
-    const back = event.key === 'ArrowUp' || event.key === 'ArrowLeft'
-    const forward = event.key === 'ArrowDown' || event.key === 'ArrowRight'
-    if (!back && !forward) return
-    event.preventDefault()
-    const next = (active + (forward ? 1 : -1) + rows.length) % rows.length
-    onPick(next)
-    tabs.current[next]?.focus()
-  }
+  const { onKeyDown, tabRef } = useTabListKeys(rows.length, active, onPick, true)
   return (
     <div
       role="tablist"
@@ -90,9 +83,7 @@ function ZoneList({
       {rows.map((r, i) => (
         <button
           key={r.key}
-          ref={(el) => {
-            tabs.current[i] = el
-          }}
+          ref={tabRef(i)}
           type="button"
           role="tab"
           id={`${id}-tab-${i}`}

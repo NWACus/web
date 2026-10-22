@@ -206,10 +206,27 @@ export function fmtCalendarDate(ymd: string): string {
   return `${DOW[d.getDay()]} ${MON[d.getMonth()]} ${d.getDate()}`
 }
 
-export const SENSIBLE_SLOTS = [
+const SENSIBLE_SLOTS = [
   { key: 'morning', label: 'Today / Tonight' },
   { key: 'afternoon', label: 'Tomorrow' },
 ] as const
+
+/**
+ * The sensible-weather days an issuance writes, each with its label and date (null when the
+ * issuance has none for it). An afternoon issuance's first date is only its night, so its first
+ * day reads "Tonight".
+ */
+export function sensibleSlots(issuance: NWACWeatherIssuance) {
+  const dates = periodDateGroups(issuance.periods)
+  const firstIsNight = issuance.periods
+    .filter((p) => p.date === dates[0]?.date)
+    .every((p) => p.kind === 'night')
+  return SENSIBLE_SLOTS.map((s, i) => ({
+    key: s.key,
+    label: i === 0 && firstIsNight ? 'Tonight' : s.label,
+    date: dates[i]?.date ?? null,
+  }))
+}
 
 export function issuanceLabel(type: NWACWeatherIssuance['type']): string {
   return type === 'morning' ? 'Morning Forecast' : 'Afternoon Forecast'
