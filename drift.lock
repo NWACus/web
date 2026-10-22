@@ -48,7 +48,7 @@ sig = "82d1359c10cc2a6a"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/decisions/README.md"
-sig = "77fbc4e4c4015d91"
+sig = "ead71e9bf17f2dfd"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1249,6 +1249,11 @@ sig = "6032ba50c3ac85a7"
 doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
 target = "src/services/nac/types/schemas.ts"
 sig = "5ad98e5b9a901950"
+
+[[bindings]]
+doc = "docs/decisions/025-admin-served-only-from-the-apex.md"
+target = "src/middleware.ts"
+sig = "fd722c55fdb3239d"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
