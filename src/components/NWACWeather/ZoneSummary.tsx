@@ -1,17 +1,17 @@
 /**
- * The zone's Mountain Weather under its avalanche forecast: the latest issuance only, as the
- * Mountain Weather page's Overall view narrowed to the zone (no synopsis, extended outlook or
- * precipitation total). Rendered in the browser (it goes into the widget, see WidgetZoneWeather).
+ * The zone's Mountain Weather under its avalanche forecast: the latest issuance only, as the zone's
+ * sensible weather and table, without the synopsis or extended outlook. Rendered in the browser
+ * (it goes into the widget, see WidgetZoneWeather).
  */
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
-import { issuanceLabel, zoneIssuance, zonesFor } from '@/services/nac/nwacWeatherFormat'
+import { issuanceLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
 
 import { IssuedMeta } from './Issued'
-import { ZoneOverall } from './Overall'
+import { ZoneTable } from './ZoneTable'
 
 interface ZoneSummaryProps {
   day: NWACWeatherForecastDay
@@ -23,6 +23,7 @@ export function ZoneSummary({ day, avalancheZoneId, timezone }: ZoneSummaryProps
   // The day's issuances come newest first.
   const latest = day.issuances.find((i) => zonesFor(i, avalancheZoneId).length > 0)
   if (!latest) return null
+  const zones = zonesFor(latest, avalancheZoneId)
 
   return (
     <Card
@@ -35,7 +36,9 @@ export function ZoneSummary({ day, avalancheZoneId, timezone }: ZoneSummaryProps
           <p className="text-sm font-medium">{issuanceLabel(latest.type)}</p>
           <IssuedMeta issuance={latest} timezone={timezone} />
         </header>
-        <ZoneOverall issuance={zoneIssuance(latest, avalancheZoneId)} />
+        {zones.map((zone) => (
+          <ZoneTable key={zone.id} issuance={latest} zone={zone} heading={zones.length > 1} />
+        ))}
         <div className="flex justify-end print:hidden">
           <Link
             href="/weather/forecast"

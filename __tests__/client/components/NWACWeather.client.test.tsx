@@ -1,12 +1,7 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
-import {
-  Overall,
-  OverallSectionTabs,
-  ZoneOverall,
-  overallParts,
-} from '@/components/NWACWeather/Overall'
+import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
 import { levelFill } from '@/components/NWACWeather/Values'
-import { fmtQpf, zoneIssuance } from '@/services/nac/nwacWeatherFormat'
+import { fmtQpf } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
@@ -265,20 +260,5 @@ describe('levelFill', () => {
     expect(levelFill(5000)).toContain('bg-stone-100')
     expect(levelFill(5500)).toContain('bg-red-50')
     expect(levelFill(9000)).toContain('bg-red-300')
-  })
-})
-
-describe('ZoneOverall', () => {
-  it("shows only the zone's rows, without the synopsis or the precipitation total", () => {
-    const zoneId = afternoon.zones[0].avalancheZoneId
-    if (zoneId == null) throw new Error('fixture zone has no avalanche zone')
-    const narrowed = zoneIssuance(afternoon, zoneId)
-    render(<ZoneOverall issuance={narrowed} />)
-    expect(narrowed.zones.length).toBeLessThan(afternoon.zones.length)
-    expect(screen.queryByText('Weather Synopsis')).toBeNull()
-    expect(screen.queryByText('Total')).toBeNull()
-    const other = afternoon.zones.find((z) => !narrowed.zones.includes(z))
-    if (other) expect(screen.queryByText(other.name)).toBeNull()
-    if (narrowed.zones.length === 1) expect(screen.queryByRole('tablist')).toBeNull()
   })
 })

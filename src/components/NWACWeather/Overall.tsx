@@ -320,9 +320,9 @@ function precipSlots(issuance: NWACWeatherIssuance, hours: PrecipHours): PrecipS
 
 /**
  * Water equivalent and the new snow it makes, by station, the stations grouped under their zones:
- * each 12 or 24 hours split in two, then the whole window's total unless `total` is off.
+ * each 12 or 24 hours split in two, then the whole window's total.
  */
-function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours, total = true): Table {
+function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Table {
   const slots = precipSlots(issuance, hours)
   const periods = precipPeriods(issuance)
   const row = (p: NWACWeatherIssuance['points'][number]): Row => {
@@ -332,7 +332,7 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours, tota
         hundredths(sumOf(of.map((period) => cell(period)?.qpf))),
         sumOf(of.map((period) => deriveSnow(cell(period)?.qpf, cell(period)?.density))),
       )
-    const pairs = [...slots.map((s) => totalOf(s.periods)), ...(total ? [totalOf(periods)] : [])]
+    const pairs = [...slots.map((s) => totalOf(s.periods)), totalOf(periods)]
     return {
       key: p.code,
       label: p.name,
@@ -352,9 +352,7 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours, tota
     nav: 'Precipitation & snow',
     title: 'Precipitation and Snow',
     unit: 'in',
-    note: total
-      ? 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.'
-      : 'Precipitation (liquid, in) and new snow by station.',
+    note: 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.',
     detail: PRECIP_DETAIL,
     legend: <SnowFillLegend />,
     aside: <PrecipHoursToggle />,
@@ -362,9 +360,7 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours, tota
     groupColumn: 'Zone',
     columns: [
       ...slots.map((s) => s.column).flatMap(split),
-      ...(total
-        ? split({ key: 'total', date: 'Total', sub: null, group: 'total', total: true })
-        : []),
+      ...split({ key: 'total', date: 'Total', sub: null, group: 'total', total: true }),
     ],
     groups: stationGroups(issuance, row),
   }
@@ -1100,38 +1096,6 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
       />
       <ExtendedSection anchor={anchor} extended={extended} table={ext} />
       {zoneLinks.length > 0 && <ZoneLinks links={zoneLinks} headingId={`${anchor}-zone-links`} />}
-    </div>
-  )
-}
-
-/**
- * The region-wide view narrowed to the zones under one avalanche forecast (pass an issuance
- * already narrowed, see `zoneIssuance`): the weather summary and tables, without the synopsis,
- * the extended outlook or the precipitation total.
- */
-export function ZoneOverall({ issuance }: { issuance: NWACWeatherIssuance }) {
-  const [snowLevel, temps, wind] = zoneTables(issuance)
-  const sensible = sensibleDays(issuance)
-  const anchor = `zone-${issuance.type}`
-  return (
-    <div className="space-y-8">
-      {sensible.rows.length > 0 && (
-        <WeatherSummary
-          headingId={`${anchor}-sensible`}
-          days={sensible.days}
-          rows={sensible.rows}
-        />
-      )}
-      <VariableTables
-        anchor={anchor}
-        precipSnow={{
-          '12': precipSnowTable(issuance, '12', false),
-          '24': precipSnowTable(issuance, '24', false),
-        }}
-        snowLevel={snowLevel}
-        temps={temps}
-        wind={wind}
-      />
     </div>
   )
 }
