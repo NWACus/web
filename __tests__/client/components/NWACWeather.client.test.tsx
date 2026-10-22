@@ -1,6 +1,6 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
-import { WindValue, levelFill } from '@/components/NWACWeather/Values'
+import { SnowLevelLegend, WindValue, levelFill } from '@/components/NWACWeather/Values'
 import { fmtQpf } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
@@ -268,5 +268,15 @@ describe('WindValue', () => {
   it("reads the forecasters' calm band as Calm alone, as 0 does", () => {
     const { container } = render(<WindValue cell={{ dir: 'S', speed: 3 }} />)
     expect(container).toHaveTextContent(/^Calm$/)
+  })
+})
+
+describe('SnowLevelLegend', () => {
+  it('names every step for screen readers and on hover, under a ten-step bar', () => {
+    const { container } = render(<SnowLevelLegend />)
+    expect(screen.getByText(/<2,000'.*10,000'\+/)).toHaveClass('sr-only')
+    const steps = container.querySelectorAll('[title]')
+    expect(steps).toHaveLength(10)
+    expect(steps[4]).toHaveAttribute('title', "5,000'")
   })
 })

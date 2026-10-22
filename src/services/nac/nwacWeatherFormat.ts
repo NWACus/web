@@ -1,4 +1,5 @@
 /** How Mountain Weather values read on the page, matching the dashboard preview. Pure. */
+import { formatDateTime } from '@/utilities/formatDateTime'
 import type {
   NWACWeatherBlock,
   NWACWeatherGrid,
@@ -230,6 +231,11 @@ export function sensibleSlots(issuance: NWACWeatherIssuance) {
 
 export function issuanceLabel(type: NWACWeatherIssuance['type']): string {
   return type === 'morning' ? 'Morning Forecast' : 'Afternoon Forecast'
+}
+
+/** An issuance's time of day ("2:30 PM") in the center's timezone; null for a bad timestamp. */
+export function issueTime(iso: string, timezone: string | null | undefined): string | null {
+  return isNaN(new Date(iso).getTime()) ? null : formatDateTime(iso, timezone, 'h:mm a')
 }
 
 export function issuanceShortLabel(type: NWACWeatherIssuance['type']): string {

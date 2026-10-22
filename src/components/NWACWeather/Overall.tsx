@@ -738,8 +738,8 @@ function TableTitle({
 const LABEL_VARS = '[--group:5.5rem] [--label:7.5rem] md:[--group:8rem] md:[--label:12rem]'
 /** A data column of a grouped table, which is sized to its columns rather than stretched. */
 const GROUPED_COL_REM = 5.5
-/** A split table's value column, half a period: room for a two-decimal amount. */
-const SPLIT_COL_REM = 4
+/** A split table's value column, half a period: room for a total like 12.34" with its mark. */
+const SPLIT_COL_REM = 4.5
 /** The narrowest a data column of a stretched table gets before the table scrolls instead. */
 const MIN_COL_REM = 5
 

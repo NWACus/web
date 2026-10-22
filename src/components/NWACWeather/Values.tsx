@@ -40,27 +40,33 @@ export function snowFill(snow: number | null): string | undefined {
   return tier == null ? undefined : SNOW_FILLS[tier]
 }
 
-const LEVEL_KEY_LABELS = [null, '2k', null, '4k', null, '6k', null, '8k', null, "10k+'"]
+const LEVEL_KEY_LABELS = [null, "2k'", null, "4k'", null, "6k'", null, "8k'", null, "10k'+"]
 
-/** Fills as one bar, each segment labeled under it where `labels` has one. */
+/**
+ * Fills as one bar, each segment labeled under it where `labels` has one. `names` gives every
+ * segment its full name, as a hover title and as text for screen readers.
+ */
 function SegmentedBar({
   fills,
+  names,
   labels,
   cols,
 }: {
   fills: string[]
-  labels: (string | null)[]
+  names: readonly string[]
+  labels: readonly (string | null)[]
   /** The grid's column count as a static class (`grid-cols-4`), so Tailwind sees it. */
   cols: string
 }) {
   return (
     <span className="inline-flex w-56 shrink-0 flex-col gap-0.5">
-      <span className={cn('grid h-2.5 overflow-hidden rounded-sm', cols)}>
+      <span className="sr-only">{names.join(', ')}</span>
+      <span aria-hidden="true" className={cn('grid h-2.5 overflow-hidden rounded-sm', cols)}>
         {fills.map((fill, i) => (
-          <span key={i} className={fill} />
+          <span key={i} title={names[i]} className={fill} />
         ))}
       </span>
-      <span className={cn('grid text-[10px] leading-none', cols)}>
+      <span aria-hidden="true" className={cn('grid text-[10px] leading-none', cols)}>
         {labels.map((label, i) => (
           <span key={i}>{label}</span>
         ))}
@@ -76,7 +82,12 @@ export function SnowFillLegend() {
   return (
     <p className={cn(KEY_LINE, 'text-muted-foreground')}>
       Snow
-      <SegmentedBar fills={SNOW_FILLS} labels={SNOW_TIER_LABELS} cols="grid-cols-4" />
+      <SegmentedBar
+        fills={SNOW_FILLS}
+        names={SNOW_TIER_LABELS}
+        labels={SNOW_TIER_LABELS}
+        cols="grid-cols-4"
+      />
     </p>
   )
 }
@@ -146,6 +157,7 @@ export function SnowLevelLegend() {
       </span>
       <SegmentedBar
         fills={LEVEL_FILLS.map((f) => f.fill)}
+        names={LEVEL_FILLS.map((f) => f.label)}
         labels={LEVEL_KEY_LABELS}
         cols="grid-cols-10"
       />

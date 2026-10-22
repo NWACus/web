@@ -303,7 +303,7 @@ sig = "2e85ab4272af86fd"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/NWACWeather/ZoneSummary.tsx"
-sig = "5e5a167f61c679e5"
+sig = "5989edf0b6c7eab8"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
