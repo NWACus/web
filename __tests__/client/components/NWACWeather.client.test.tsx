@@ -254,10 +254,11 @@ describe('IssuanceSwitch anchors', () => {
 })
 
 describe('levelFill', () => {
-  it('runs from blue low through green and yellow to orange at 8,000 ft and red at 10,000 ft+', () => {
+  it('runs from blue low through a neutral 5,000 ft to orange at 8,000 ft and red at 10,000 ft+', () => {
     expect(levelFill(1500)).toContain('bg-blue-200')
-    expect(levelFill(4500)).toContain('bg-emerald-100')
-    expect(levelFill(6500)).toContain('bg-yellow-100')
+    expect(levelFill(4500)).toContain('bg-emerald-50')
+    expect(levelFill(5500)).toContain('bg-stone-100')
+    expect(levelFill(6500)).toContain('bg-yellow-50')
     expect(levelFill(8000)).toContain('bg-orange-200')
     expect(levelFill(10500)).toContain('bg-red-300')
   })

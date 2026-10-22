@@ -13,15 +13,15 @@ import {
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
-/** Muted level fills: blue low through green and yellow, orange from 8,000', red at 10,000'+. */
+/** Level fills: blue low, faint tints around a neutral 5,000', orange from 8,000', red 10,000'+. */
 const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
   { below: 2000, fill: 'bg-blue-200 text-stone-900', label: "<2,000'" },
   { below: 3000, fill: 'bg-sky-100 text-stone-900', label: "2,000'" },
-  { below: 4000, fill: 'bg-teal-100 text-stone-900', label: "3,000'" },
-  { below: 5000, fill: 'bg-emerald-100 text-stone-900', label: "4,000'" },
-  { below: 6000, fill: 'bg-lime-100 text-stone-900', label: "5,000'" },
-  { below: 7000, fill: 'bg-yellow-100 text-stone-900', label: "6,000'" },
-  { below: 8000, fill: 'bg-amber-100 text-stone-900', label: "7,000'" },
+  { below: 4000, fill: 'bg-teal-50 text-stone-900', label: "3,000'" },
+  { below: 5000, fill: 'bg-emerald-50 text-stone-900', label: "4,000'" },
+  { below: 6000, fill: 'bg-stone-100 text-stone-900', label: "5,000'" },
+  { below: 7000, fill: 'bg-yellow-50 text-stone-900', label: "6,000'" },
+  { below: 8000, fill: 'bg-amber-50 text-stone-900', label: "7,000'" },
   { below: 9000, fill: 'bg-orange-200 text-stone-900', label: "8,000'" },
   { below: 10000, fill: 'bg-orange-300 text-stone-900', label: "9,000'" },
   { below: Infinity, fill: 'bg-red-300 text-stone-900', label: "10,000'+" },
