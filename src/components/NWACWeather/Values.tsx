@@ -13,17 +13,18 @@ import {
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
-/** Level fills by elevation: blue (colder) below 5000', red (warmer) above, 5000' neutral. */
+/** Muted level fills: blue low through green and yellow, orange from 8,000', red at 10,000'+. */
 const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
-  { below: 2000, fill: 'bg-blue-300 text-blue-950', label: "<2,000'" },
-  { below: 3000, fill: 'bg-blue-200 text-blue-950', label: "2,000'" },
-  { below: 4000, fill: 'bg-blue-100 text-blue-950', label: "3,000'" },
-  { below: 5000, fill: 'bg-blue-50 text-blue-950', label: "4,000'" },
-  { below: 5500, fill: 'bg-stone-100 text-stone-900', label: "5,000'" },
-  { below: 6500, fill: 'bg-red-50 text-red-950', label: "5,500'" },
-  { below: 7500, fill: 'bg-red-100 text-red-950', label: "6,500'" },
-  { below: 8500, fill: 'bg-red-200 text-red-950', label: "7,500'" },
-  { below: Infinity, fill: 'bg-red-300 text-red-950', label: "8,500'+" },
+  { below: 2000, fill: 'bg-blue-200 text-stone-900', label: "<2,000'" },
+  { below: 3000, fill: 'bg-sky-100 text-stone-900', label: "2,000'" },
+  { below: 4000, fill: 'bg-teal-100 text-stone-900', label: "3,000'" },
+  { below: 5000, fill: 'bg-emerald-100 text-stone-900', label: "4,000'" },
+  { below: 6000, fill: 'bg-lime-100 text-stone-900', label: "5,000'" },
+  { below: 7000, fill: 'bg-yellow-100 text-stone-900', label: "6,000'" },
+  { below: 8000, fill: 'bg-amber-100 text-stone-900', label: "7,000'" },
+  { below: 9000, fill: 'bg-orange-200 text-stone-900', label: "8,000'" },
+  { below: 10000, fill: 'bg-orange-300 text-stone-900', label: "9,000'" },
+  { below: Infinity, fill: 'bg-red-300 text-stone-900', label: "10,000'+" },
 ]
 
 /** A snow or freezing level's fill, on its pill or its table cell. */
