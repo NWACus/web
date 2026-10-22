@@ -91,6 +91,8 @@ describe('formatStationValue', () => {
     expect(formatStationValue('snow_depth', 74.51, 'imperial')).toBe('74.5')
     expect(formatStationValue('snow_depth_24h', 2.46, 'imperial')).toBe('2')
     expect(formatStationValue('snow_depth_24h', 2.5, 'imperial')).toBe('3')
+    expect(formatStationValue('snow_depth_24h', -0.4, 'imperial')).toBe('0')
+    expect(formatStationValue('snow_depth', -0.04, 'imperial')).toBe('0.0')
     expect(formatStationValue('intermittent_snow', 1, 'imperial')).toBe('1.0')
   })
 

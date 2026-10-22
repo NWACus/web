@@ -6,7 +6,7 @@ export function formatIssued(iso: string, timezone: string | null | undefined, p
   return isNaN(new Date(iso).getTime()) ? null : formatDateTime(iso, timezone, pattern)
 }
 
-/** The line under a Mountain Weather heading: the switch beside it already names the issuance. */
+/** Who issued the forecast and when, the line under a Mountain Weather heading. */
 export function IssuedMeta({
   issuance,
   timezone,

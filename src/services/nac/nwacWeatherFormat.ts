@@ -218,9 +218,9 @@ const SENSIBLE_SLOTS = [
  */
 export function sensibleSlots(issuance: NWACWeatherIssuance) {
   const dates = periodDateGroups(issuance.periods)
-  const firstIsNight = issuance.periods
-    .filter((p) => p.date === dates[0]?.date)
-    .every((p) => p.kind === 'night')
+  const firstIsNight =
+    dates.length > 0 &&
+    issuance.periods.filter((p) => p.date === dates[0].date).every((p) => p.kind === 'night')
   return SENSIBLE_SLOTS.map((s, i) => ({
     key: s.key,
     label: i === 0 && firstIsNight ? 'Tonight' : s.label,

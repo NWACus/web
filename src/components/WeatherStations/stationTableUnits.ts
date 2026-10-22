@@ -29,7 +29,9 @@ const DECIMALS_BY_VARIABLE: Record<string, Decimals> = {
 }
 
 export function formatStationValue(variable: string, value: number, system: UnitSystem): string {
-  return value.toFixed((DECIMALS_BY_VARIABLE[variable] ?? WHOLE)[system])
+  const text = value.toFixed((DECIMALS_BY_VARIABLE[variable] ?? WHOLE)[system])
+  // A small negative (24-hour snow settling) rounds to "-0"; it reads as plain 0.
+  return Number(text) === 0 ? text.replace('-', '') : text
 }
 
 // The table is fed unrounded SnowObs values and stays unrounded through the

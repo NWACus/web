@@ -14,17 +14,20 @@ import {
 import { cn } from '@/utilities/ui'
 
 /** Level fills by elevation, grey darkening with height, so blue stays the snow amounts'. */
-const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
-  { below: 3000, fill: 'bg-stone-50 text-stone-900', label: "<3,000'" },
-  { below: 4000, fill: 'bg-stone-100 text-stone-900', label: "3,000'" },
-  { below: 5000, fill: 'bg-stone-200 text-stone-950', label: "4,000'" },
-  { below: 6000, fill: 'bg-stone-300 text-stone-950', label: "5,000'" },
-  { below: Infinity, fill: 'bg-stone-400 text-stone-950', label: "6,000'+" },
+// `flake` keeps the snowflake at 3:1 contrast or better on its fill.
+const LEVEL_FILLS: { below: number; fill: string; flake: string; label: string }[] = [
+  { below: 3000, fill: 'bg-stone-50 text-stone-900', flake: 'text-sky-700', label: "<3,000'" },
+  { below: 4000, fill: 'bg-stone-100 text-stone-900', flake: 'text-sky-700', label: "3,000'" },
+  { below: 5000, fill: 'bg-stone-200 text-stone-950', flake: 'text-sky-700', label: "4,000'" },
+  { below: 6000, fill: 'bg-stone-300 text-stone-950', flake: 'text-sky-700', label: "5,000'" },
+  { below: Infinity, fill: 'bg-stone-400 text-stone-950', flake: 'text-sky-900', label: "6,000'+" },
 ]
+
+const levelStep = (level: number) => LEVEL_FILLS.find((f) => level < f.below)
 
 /** A snow or freezing level's fill, on its pill or its table cell. */
 export function levelFill(level: number): string {
-  return LEVEL_FILLS.find((f) => level < f.below)?.fill ?? ''
+  return levelStep(level)?.fill ?? ''
 }
 
 /** Snow fills by `snowTier`, deepening with the amount; none without snow. */
@@ -96,7 +99,11 @@ export function SnowLevelValue({
       )}
     >
       <span className="grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5">
-        <span>{snow && <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />}</span>
+        <span>
+          {snow && (
+            <Snowflake aria-hidden="true" className={cn('size-3.5', levelStep(level)?.flake)} />
+          )}
+        </span>
         <span className="text-right">
           {level.toLocaleString('en-US')}&apos;
           <span className="sr-only">{snow ? ' snow level' : ' freezing level'}</span>
@@ -106,7 +113,7 @@ export function SnowLevelValue({
   )
 }
 
-/** What the snow and freezing level cells mean, over the table. */
+/** What the snow and freezing level cells mean, under the table. */
 export function SnowLevelLegend() {
   return (
     <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -125,7 +132,7 @@ export function SnowLevelLegend() {
   )
 }
 
-/** How to read the temperature cells, over the table. */
+/** How to read the temperature cells, under the table. */
 export function TempLegend() {
   return (
     <p className="text-xs text-muted-foreground">
@@ -135,7 +142,7 @@ export function TempLegend() {
   )
 }
 
-/** How to read the wind cells, over the table. */
+/** How to read the wind cells, under the table. */
 export function WindLegend() {
   return (
     <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -150,6 +157,8 @@ export function WindLegend() {
 
 export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
   if (!cell?.speed) return <span className="text-muted-foreground">{fmtWind(cell)}</span>
+  // The forecasters' calm band (0–4 mph) reads as Calm alone, as 0 does.
+  if (windWording(cell.speed) === 'Calm') return <span className="text-muted-foreground">Calm</span>
   const bearing = windBearing(cell.dir)
   return (
     <span className="inline-flex flex-col items-center">

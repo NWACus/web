@@ -1,8 +1,6 @@
 /**
- * One zone's forecast the way a zone page reads it: the sensible-weather text first, then one
- * table by period: snow (the zone's, then each point it comes from), snow level, temps and
- * ridgeline wind. Snow and temps run on the 12h periods, snow level and wind on the 6h blocks
- * beneath. The table from `md` up and on paper; on a phone, a tab per date of labeled cards.
+ * One zone's forecast: its sensible weather, then one table by 12h period (6h snow level and wind
+ * inside), or on a phone a tab per date of labeled cards.
  */
 import type {
   NWACWeatherBlock,
@@ -276,10 +274,8 @@ function blocksPast(periods: PeriodView[], count: number) {
 }
 
 /**
- * The zone's numbers from `md` up and on paper, one column per 12h period: snow (the zone's,
- * then each point's when several), snow level, temps and ridgeline wind. Snow level and wind are
- * 6h values, so their cells hold both halves of the period. Temps and wind stop sooner than the
- * snow level does; past that they read as not forecast.
+ * The zone's table from `md` up and on paper, one column per 12h period; temps and wind past
+ * their coverage read as not forecast.
  */
 function PeriodTable({
   issuance,
@@ -392,10 +388,6 @@ function CardLine({
   )
 }
 
-/**
- * One 12h period on a phone, every value labeled: snow (each point's under the zone's), temps,
- * then the snow level and ridgeline wind for each of its 6h blocks.
- */
 /** A phone card's labeled lines: the zone's snow, each point's under it, the temps. */
 function CardSummary({
   issuance,
@@ -512,11 +504,7 @@ function PeriodCard({
   )
 }
 
-/**
- * The phone layout, in place of the table: a tab per date, each holding that date's periods as
- * labeled cards (a morning issuance's first date has its day and night; an afternoon's, only its
- * night).
- */
+/** The phone layout, in place of the table: a tab per date of that date's period cards. */
 function PeriodCards({
   issuance,
   zone,

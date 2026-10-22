@@ -1,6 +1,6 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
-import { levelFill } from '@/components/NWACWeather/Values'
+import { WindValue, levelFill } from '@/components/NWACWeather/Values'
 import { fmtQpf } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
@@ -260,5 +260,12 @@ describe('levelFill', () => {
     expect(levelFill(4500)).toContain('bg-stone-200')
     expect(levelFill(5000)).toContain('bg-stone-300')
     expect(levelFill(9000)).toContain('bg-stone-400')
+  })
+})
+
+describe('WindValue', () => {
+  it("reads the forecasters' calm band as Calm alone, as 0 does", () => {
+    const { container } = render(<WindValue cell={{ dir: 'S', speed: 3 }} />)
+    expect(container).toHaveTextContent(/^Calm$/)
   })
 })

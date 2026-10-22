@@ -946,44 +946,6 @@ function sensibleDays(issuance: NWACWeatherIssuance) {
   return { days, rows: any ? rows : [] }
 }
 
-/** The precipitation, snow level, temperature and wind tables, in the order both views show them. */
-function VariableTables({
-  anchor,
-  precipSnow,
-  snowLevel,
-  temps,
-  wind,
-}: {
-  anchor: string
-  precipSnow: Record<PrecipHours, Table>
-  snowLevel: Table
-  temps: Table
-  wind: Table
-}) {
-  const tempsOrWind = hasContent(temps) || hasContent(wind)
-  return (
-    <>
-      {hasContent(precipSnow['12']) && (
-        <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
-          <PrecipHoursPanel hours="12">
-            <GridTable table={precipSnow['12']} anchor={anchor} />
-          </PrecipHoursPanel>
-          <PrecipHoursPanel hours="24">
-            <GridTable table={precipSnow['24']} anchor={anchor} />
-          </PrecipHoursPanel>
-        </PrecipHoursSwitch>
-      )}
-      <MaybeTable table={snowLevel} anchor={anchor} />
-      {tempsOrWind && (
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-          <MaybeTable table={temps} anchor={anchor} />
-          <MaybeTable table={wind} anchor={anchor} />
-        </div>
-      )}
-    </>
-  )
-}
-
 /** Everything the issuance's card shows, built once for the section tabs and the body. */
 export interface OverallParts {
   issuance: NWACWeatherIssuance
@@ -1036,6 +998,7 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
   const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, precipSnow, ext } = parts
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
+  const tempsOrWind = hasContent(temps) || hasContent(wind)
   const zoneLinks = zoneLinksOf(issuance, zonePaths)
 
   return (
@@ -1056,13 +1019,23 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
           )
         }
       />
-      <VariableTables
-        anchor={anchor}
-        precipSnow={precipSnow}
-        snowLevel={snowLevel}
-        temps={temps}
-        wind={wind}
-      />
+      {hasContent(precipSnow['12']) && (
+        <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
+          <PrecipHoursPanel hours="12">
+            <GridTable table={precipSnow['12']} anchor={anchor} />
+          </PrecipHoursPanel>
+          <PrecipHoursPanel hours="24">
+            <GridTable table={precipSnow['24']} anchor={anchor} />
+          </PrecipHoursPanel>
+        </PrecipHoursSwitch>
+      )}
+      <MaybeTable table={snowLevel} anchor={anchor} />
+      {tempsOrWind && (
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <MaybeTable table={temps} anchor={anchor} />
+          <MaybeTable table={wind} anchor={anchor} />
+        </div>
+      )}
       <ExtendedSection anchor={anchor} extended={extended} table={ext} />
       {zoneLinks.length > 0 && <ZoneLinks links={zoneLinks} headingId={`${anchor}-zone-links`} />}
     </div>
