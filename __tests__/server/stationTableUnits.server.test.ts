@@ -85,15 +85,15 @@ describe('convertStationTable', () => {
 })
 
 describe('formatStationValue', () => {
-  it('reads precipitation to hundredths, snow depth to tenths and 24-hour snow whole', () => {
+  it('reads precipitation to hundredths and snow to whole inches', () => {
     expect(formatStationValue('precip_accum_one_hour', 0.034, 'imperial')).toBe('0.03')
     expect(formatStationValue('precip_cumsum', 1.5, 'imperial')).toBe('1.50')
-    expect(formatStationValue('snow_depth', 74.51, 'imperial')).toBe('74.5')
+    expect(formatStationValue('snow_depth', 74.51, 'imperial')).toBe('75')
     expect(formatStationValue('snow_depth_24h', 2.46, 'imperial')).toBe('2')
     expect(formatStationValue('snow_depth_24h', 2.5, 'imperial')).toBe('3')
     expect(formatStationValue('snow_depth_24h', -0.4, 'imperial')).toBe('0')
-    expect(formatStationValue('snow_depth', -0.04, 'imperial')).toBe('0.0')
-    expect(formatStationValue('intermittent_snow', 1, 'imperial')).toBe('1.0')
+    expect(formatStationValue('snow_depth', -0.04, 'imperial')).toBe('0')
+    expect(formatStationValue('intermittent_snow', 1.4, 'imperial')).toBe('1')
   })
 
   it('rounds everything else to whole numbers', () => {
@@ -104,7 +104,7 @@ describe('formatStationValue', () => {
 
   it('drops precipitation to one decimal in metric, where 0.01in is noise', () => {
     expect(formatStationValue('precip_accum_one_hour', 0.762, 'metric')).toBe('0.8')
-    expect(formatStationValue('snow_depth', 189.23, 'metric')).toBe('189.2')
+    expect(formatStationValue('snow_depth', 189.23, 'metric')).toBe('189')
     expect(formatStationValue('air_temp', -0.6, 'metric')).toBe('-1')
   })
 })
