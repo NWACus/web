@@ -75,12 +75,13 @@ function SegmentedBar({
   )
 }
 
-const KEY_LINE = 'flex flex-nowrap items-center gap-3 overflow-x-auto whitespace-nowrap text-xs'
+// Labels sit level with their bars' tops, so the tick labels hang below the line.
+const KEY_LINE =
+  'flex flex-nowrap items-start gap-3 overflow-x-auto whitespace-nowrap text-xs leading-3 text-muted-foreground'
 
-/** The snow shading's key under a table, on one line. */
-export function SnowFillLegend() {
+function SnowFillKey() {
   return (
-    <p className={cn(KEY_LINE, 'text-muted-foreground')}>
+    <>
       Snow
       <SegmentedBar
         fills={SNOW_FILLS}
@@ -88,6 +89,46 @@ export function SnowFillLegend() {
         labels={SNOW_TIER_LABELS}
         cols="grid-cols-4"
       />
+    </>
+  )
+}
+
+function SnowLevelKey() {
+  return (
+    <>
+      <span className="inline-flex items-center gap-1">
+        <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
+        Snow level; none, freezing level
+      </span>
+      <SegmentedBar
+        fills={LEVEL_FILLS.map((f) => f.fill)}
+        names={LEVEL_FILLS.map((f) => f.label)}
+        labels={LEVEL_KEY_LABELS}
+        cols="grid-cols-10"
+      />
+    </>
+  )
+}
+
+/** The snow shading's key under a table, on one line. */
+export function SnowFillLegend() {
+  return (
+    <p className={KEY_LINE}>
+      <SnowFillKey />
+    </p>
+  )
+}
+
+/** Both snow keys on one line, under a table that shows snow and snow levels together. */
+export function SnowKeys() {
+  return (
+    <p className={cn(KEY_LINE, 'gap-x-6')}>
+      <span className="inline-flex items-start gap-3">
+        <SnowFillKey />
+      </span>
+      <span className="inline-flex items-start gap-3">
+        <SnowLevelKey />
+      </span>
     </p>
   )
 }
@@ -150,17 +191,8 @@ export function SnowLevelValue({
 /** What the snow and freezing level cells mean, under a table, on one line. */
 export function SnowLevelLegend() {
   return (
-    <p className={cn(KEY_LINE, 'items-start text-muted-foreground')}>
-      <span className="inline-flex items-center gap-1">
-        <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
-        Snow level; none, freezing level
-      </span>
-      <SegmentedBar
-        fills={LEVEL_FILLS.map((f) => f.fill)}
-        names={LEVEL_FILLS.map((f) => f.label)}
-        labels={LEVEL_KEY_LABELS}
-        cols="grid-cols-10"
-      />
+    <p className={KEY_LINE}>
+      <SnowLevelKey />
     </p>
   )
 }
