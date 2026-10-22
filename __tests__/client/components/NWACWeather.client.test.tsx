@@ -141,8 +141,8 @@ describe('Overall weather summary', () => {
 describe('fmtQpf', () => {
   it('prints water equivalent exactly as entered', () => {
     expect(fmtQpf(0)).toBe('0')
-    expect(fmtQpf(0.05)).toBe('0.05')
-    expect(fmtQpf(0.4)).toBe('0.4')
+    expect(fmtQpf(0.05)).toBe('0.05"')
+    expect(fmtQpf(0.4)).toBe('0.4"')
     expect(fmtQpf(null)).toBe('—')
   })
 })

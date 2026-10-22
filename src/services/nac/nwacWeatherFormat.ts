@@ -53,11 +53,11 @@ export function fmtSnowAmount(snow: number | null): string {
   return `${Math.round(snow)}"`
 }
 
-/** Water equivalent in inches exactly as the forecaster entered it; none reads as 0. */
+/** Water equivalent in inches exactly as the forecaster entered it (0.4"); none reads as 0. */
 export function fmtQpf(qpf: number | null | undefined): string {
   if (qpf == null) return DASH
   if (qpf <= 0) return '0'
-  return String(qpf)
+  return `${qpf}"`
 }
 
 export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
