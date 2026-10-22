@@ -73,7 +73,6 @@ export const nwacWeatherLevelRowSchema = z.object({
   zone: z.string(),
   block: z.string(),
   freezing: nullableNumber.optional(),
-  drop: nullableNumber.optional(),
   mode: z.string().nullable().optional(),
 })
 

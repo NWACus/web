@@ -1,5 +1,7 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
+import { SnowLevelLegend, WindValue, levelFill } from '@/components/NWACWeather/Values'
+import { fmtQpf } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
@@ -14,16 +16,16 @@ describe('Overall', () => {
   it('renders one table per variable, stations and zones down the rows', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     for (const title of [
-      'Snow (in)',
+      'Precipitation and Snow (in)',
       "5000' Temperatures (°F)",
-      'Snow Level (ft)',
+      'Snow and Freezing Level (ft)',
       'Snow Levels (ft)',
       'Ridgeline Winds (mph)',
-      'Sensible Weather',
+      'Weather Summary by Zone',
     ]) {
       expect(screen.getByRole('heading', { name: title })).toBeInTheDocument()
     }
-    expect(screen.getByText('Hurricane Ridge')).toBeInTheDocument()
+    expect(screen.getAllByText('Hurricane Ridge').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Olympics').length).toBeGreaterThan(0)
     // 53 / 47 °F for Olympics on Night 1, as entered.
     const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
@@ -31,7 +33,7 @@ describe('Overall', () => {
     expect(olympics).toHaveTextContent('53 / 47')
   })
 
-  it('leads with sensible weather and links each zone to its forecast page', () => {
+  it('puts the weather summary beside the synopsis, then precipitation and snow, the zone links last, and links each zone to its forecast page', () => {
     render(
       <Overall
         parts={overallParts(afternoon)}
@@ -39,26 +41,77 @@ describe('Overall', () => {
       />,
     )
     const headings = screen.getAllByRole('heading').map((h) => h.textContent)
-    expect(headings.indexOf('Sensible Weather')).toBeLessThan(headings.indexOf('Snow Level (ft)'))
+    const at = (name: string) => headings.indexOf(name)
+    expect(at('Weather Synopsis')).toBeLessThan(at('Weather Summary by Zone'))
+    expect(at('Weather Summary by Zone')).toBeLessThan(at('Precipitation and Snow (in)'))
+    expect(at('Extended')).toBeLessThan(at('Looking for weather by zone?'))
     expect(screen.getByRole('link', { name: 'Olympics' })).toHaveAttribute(
       'href',
       '/forecasts/avalanche/olympics#mountain-weather',
     )
+    // The picked zone's summary links to its forecast too.
+    const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
+    expect(
+      within(summary).getByRole('link', {
+        name: 'avalanche forecast',
+      }),
+    ).toHaveAttribute('href', '/forecasts/avalanche/olympics#mountain-weather')
   })
 
-  it('gives the synopsis the full width when no zone has a forecast page to link to', () => {
+  it('puts the weather summary beside the synopsis, and leaves out the zone links when no zone has a page', () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
-    expect(screen.queryByRole('complementary', { name: 'Weather by zone' })).toBeNull()
+    expect(screen.queryByRole('complementary', { name: 'Looking for weather by zone?' })).toBeNull()
+    const synopsis = screen.getByRole('heading', { name: 'Weather Synopsis' }).closest('section')
+    const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
+    expect(synopsis?.parentElement).toHaveClass('grid')
+    expect(summary.parentElement).toBe(synopsis?.parentElement)
+  })
+
+  it('gives the synopsis the full width when there is no weather summary', () => {
+    render(<Overall parts={overallParts({ ...afternoon, sensible: {} })} />)
     const synopsis = screen.getByRole('heading', { name: 'Weather Synopsis' }).closest('section')
     expect(synopsis?.parentElement).not.toHaveClass('grid')
   })
 
-  it('groups snow stations under their zones', () => {
+  it('groups snow stations under their zones: a zone column, and heading rows for a phone', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const snow = screen.getByRole('region', { name: 'Snow (in)' })
-    expect(within(snow).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
-    expect(within(snow).getByRole('rowheader', { name: 'Hurricane Ridge' })).toBeInTheDocument()
+    const snow = screen.getByRole('region', { name: 'Precipitation and Snow (in)' })
+    const [wide, phone] = within(snow).getAllByRole('table')
+    expect(within(wide).getByRole('columnheader', { name: 'Zone' })).toBeInTheDocument()
+    expect(within(phone).queryByRole('columnheader', { name: 'Zone' })).toBeNull()
+    for (const table of [wide, phone]) {
+      expect(within(table).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
+      expect(within(table).getByRole('rowheader', { name: 'Hurricane Ridge' })).toBeInTheDocument()
+    }
+  })
+
+  it('splits each period into water equivalent then snow, and ends on the total', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const region = screen.getByRole('region', { name: 'Precipitation and Snow (in)' })
+    const [wide] = within(region).getAllByRole('table')
+    const parts = within(wide)
+      .getAllByRole('columnheader')
+      .map((h) => h.textContent)
+      .filter((text) => text === 'Precip' || text === 'Snow')
+    expect(parts.slice(0, 2)).toEqual(['Precip', 'Snow'])
+    expect(within(wide).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
+    const row = within(wide).getByRole('rowheader', { name: 'Hurricane Ridge' }).closest('tr')
+    // A WE and a snow cell per period, plus the total's two.
+    expect(row?.querySelectorAll('td')).toHaveLength(parts.length)
+  })
+
+  it('switches precipitation and snow between 12 and 24 hours', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const twelve = screen.getByRole('button', { name: '12 hours' })
+    const twentyFour = screen.getByRole('button', { name: '24 hours' })
+    expect(twelve).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.queryByRole('columnheader', { name: 'Night + Day' })).toBeNull()
+
+    fireEvent.click(twentyFour)
+    expect(twentyFour).toHaveAttribute('aria-pressed', 'true')
+    // An afternoon issuance's nights pair with the days after them.
+    expect(screen.getAllByRole('columnheader', { name: 'Night + Day' }).length).toBeGreaterThan(0)
   })
 
   it('has no extended table on a morning issuance', () => {
@@ -67,20 +120,30 @@ describe('Overall', () => {
   })
 })
 
-describe('Overall sensible weather', () => {
-  it('shows one day at a time and switches to the other', () => {
+describe('Overall weather summary', () => {
+  it('lists the zones beside the picked zone’s two days, arrow keys moving down the list', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const sensible = screen.getByRole('region', { name: 'Sensible Weather' })
-    // An afternoon issuance opens on a night, so its first day is Tonight; each carries its date.
-    const [today, tomorrow] = within(sensible).getAllByRole('radio')
-    expect(today).toHaveTextContent(/^[A-Z][a-z]{2} [A-Z][a-z]{2} \d+Tonight$/)
-    expect(tomorrow).toHaveTextContent(/Tomorrow$/)
-    expect(today).toHaveAttribute('aria-checked', 'true')
-    expect(within(sensible).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
+    const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
+    const list = within(summary).getByRole('tablist', { name: 'Zone' })
+    const tabs = within(list).getAllByRole('tab')
+    expect(tabs.map((t) => t.textContent)).toEqual(afternoon.zones.map((z) => z.name))
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+    // An afternoon issuance opens on a night, so its first day is Tonight.
+    expect(within(summary).getByRole('heading', { name: /^Tonight/ })).toBeInTheDocument()
+    expect(within(summary).getByRole('heading', { name: /^Tomorrow/ })).toBeInTheDocument()
 
-    fireEvent.click(tomorrow)
-    expect(tomorrow).toHaveAttribute('aria-checked', 'true')
-    expect(today).toHaveAttribute('aria-checked', 'false')
+    fireEvent.keyDown(tabs[0], { key: 'ArrowDown' })
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'false')
+  })
+})
+
+describe('fmtQpf', () => {
+  it('prints water equivalent exactly as entered', () => {
+    expect(fmtQpf(0)).toBe('0')
+    expect(fmtQpf(0.05)).toBe('0.05"')
+    expect(fmtQpf(0.4)).toBe('0.4"')
+    expect(fmtQpf(null)).toBe('—')
   })
 })
 
@@ -94,21 +157,23 @@ describe('Overall extended section', () => {
 })
 
 describe('Overall table descriptions', () => {
-  it('continues each short note with the legacy page’s explanation', () => {
+  it('explains each table, with a legend where its cells need one', () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
+    // The main and extended snow level tables share their explanation.
+    expect(screen.getAllByText(/^The general snow level over each 6 hours/)).toHaveLength(2)
+    expect(screen.getByText(/^The high and low at 5000’ within each 12 hours/)).toBeInTheDocument()
     expect(
-      screen.getByText(/^Where rain turns to snow\. Darker is higher\. The snow level forecast/),
+      screen.getByText(/^The average speed and direction over each 6 hours/),
     ).toBeInTheDocument()
-    expect(screen.getByText(/^High \/ low\. The 5000’ temperature forecast/)).toBeInTheDocument()
+    // The 12 and 24 hour tables both carry it; one is hidden.
     expect(
-      screen.getByText(/^Arrows point the way the wind blows\. Ridgeline winds are the average/),
-    ).toBeInTheDocument()
-    expect(screen.getByText(/16-point compass rose\.$/)).toBeInTheDocument()
-    // The extended snow levels have no note of their own, only the explanation.
-    expect(screen.getByText(/^The snow level forecast represents/)).toBeInTheDocument()
-    // The snow table has only its note.
-    expect(screen.getByText('New snow by station.')).toBeInTheDocument()
+      screen.getAllByText(
+        /^Precipitation \(liquid, in\) and new snow by station; .* \(light, dry snow\)\.$/,
+      ),
+    ).toHaveLength(2)
+    expect(screen.getByText(/is the high \/ low$/)).toBeInTheDocument()
+    expect(screen.getByText('Points the way the wind blows')).toBeInTheDocument()
   })
 })
 
@@ -116,7 +181,7 @@ describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
     render(<OverallSectionTabs parts={overallParts(afternoon)} />)
     const nav = screen.getByRole('navigation', { name: 'Forecast sections' })
-    expect(within(nav).getByRole('link', { name: 'Sensible weather' })).toHaveAttribute(
+    expect(within(nav).getByRole('link', { name: 'Weather summary' })).toHaveAttribute(
       'href',
       '#afternoon-sensible',
     )
@@ -185,5 +250,33 @@ describe('IssuanceSwitch anchors', () => {
     )
     expect(screen.getByText('AM body')).toBeVisible()
     expect(screen.getByText('PM body')).not.toBeVisible()
+  })
+})
+
+describe('levelFill', () => {
+  it('runs from blue low through a neutral 5,000 ft to orange at 8,000 ft and red at 10,000 ft+', () => {
+    expect(levelFill(1500)).toContain('bg-blue-200')
+    expect(levelFill(4500)).toContain('bg-emerald-50')
+    expect(levelFill(5500)).toContain('bg-stone-100')
+    expect(levelFill(6500)).toContain('bg-yellow-50')
+    expect(levelFill(8000)).toContain('bg-orange-200')
+    expect(levelFill(10500)).toContain('bg-red-300')
+  })
+})
+
+describe('WindValue', () => {
+  it("reads the forecasters' calm band as Calm alone, as 0 does", () => {
+    const { container } = render(<WindValue cell={{ dir: 'S', speed: 3 }} />)
+    expect(container).toHaveTextContent(/^Calm$/)
+  })
+})
+
+describe('SnowLevelLegend', () => {
+  it('names every step for screen readers and on hover, under a ten-step bar', () => {
+    const { container } = render(<SnowLevelLegend />)
+    expect(screen.getByText(/<2,000'.*10,000'\+/)).toHaveClass('sr-only')
+    const steps = container.querySelectorAll('[title]')
+    expect(steps).toHaveLength(10)
+    expect(steps[4]).toHaveAttribute('title', "5,000'")
   })
 })

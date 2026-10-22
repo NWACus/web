@@ -17,6 +17,7 @@ import {
   forecastPickerSettings,
   initialArchiveWindow,
   validDateForProduct,
+  widgetArchiveAddress,
   type ZoneArchiveDate,
 } from '@/services/nac/archiveDates'
 import {
@@ -65,10 +66,11 @@ type PathArgs = {
 }
 
 /**
- * 404 unless this is a well-formed date on a center that publishes forecasts natively — the dated
- * history view is native-only, since the legacy widget keeps its own archive.
+ * 404 unless this is a well-formed date on a center that publishes forecasts. Whether the center
+ * is on the native pages or the legacy widget is the caller's to act on: the dated history view is
+ * native-only, and on the widget the address hands over to the widget's own archive.
  */
-async function assertDatedForecastAvailable(center: string, date: string) {
+async function assertDatedForecastAvailable(center: string, date: string): Promise<boolean> {
   if (!DATE_PATTERN.test(date)) {
     notFound()
   }
@@ -78,10 +80,38 @@ async function assertDatedForecastAvailable(center: string, date: string) {
     notFound()
   }
 
-  const useNative = await getNativeProductFlag(center, 'forecast')
-  if (!useNative) {
-    notFound()
-  }
+  return getNativeProductFlag(center, 'forecast')
+}
+
+/**
+ * A dated address on a center still on the widget, which keeps its own archive under the zone
+ * page's hash routes: hands over to the widget's address for that day's forecast, so links built
+ * from a date (the Mountain Weather page's zone links, a bookmark) work in either mode. Only an
+ * active zone has a widget page to open it in.
+ */
+async function redirectToWidgetArchive(
+  center: string,
+  zone: DatedForecastZone,
+  date: string,
+): Promise<never> {
+  if (!zone.active) notFound()
+  const { timezone } = await getAvalancheCenterMetadata(center)
+  const archive = await fetchProductArchive(center, initialArchiveWindow(date))
+  const dates = buildZoneArchiveDates(archive, zone.zone.id, timezone)
+  redirect(
+    widgetArchiveAddress({ slug: zone.slug, zoneId: zone.zone.zone_id }, dates, date, timezone),
+  )
+}
+
+/** The dated page's zone, 404ing an unknown one; on a widget center, the hand-over instead. */
+async function datedZoneOrHandOver(center: string, zone: string, date: string) {
+  const [useNative, resolvedZone] = await Promise.all([
+    assertDatedForecastAvailable(center, date),
+    resolveDatedZoneFromSlug(center, zone),
+  ])
+  if (!resolvedZone) notFound()
+  if (!useNative) return redirectToWidgetArchive(center, resolvedZone, date)
+  return resolvedZone
 }
 
 /**
@@ -166,16 +196,10 @@ export default async function Page({ params }: Args) {
   const { center, zone: zoneParam, date } = await params
   const zone = zoneSlugFromParam(zoneParam)
 
-  await assertDatedForecastAvailable(center, date)
-
   const [resolvedZone, metadata] = await Promise.all([
-    resolveDatedZoneFromSlug(center, zone),
+    datedZoneOrHandOver(center, zone, date),
     getAvalancheCenterMetadata(center),
   ])
-
-  if (!resolvedZone) {
-    notFound()
-  }
 
   // The picker window is anchored on the viewed date; older months lazy-load client-side.
   const window = initialArchiveWindow(date)
