@@ -13,21 +13,22 @@ import {
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
-/** Level fills by elevation, grey darkening with height, so blue stays the snow amounts'. */
-// `flake` keeps the snowflake at 3:1 contrast or better on its fill.
-const LEVEL_FILLS: { below: number; fill: string; flake: string; label: string }[] = [
-  { below: 3000, fill: 'bg-stone-50 text-stone-900', flake: 'text-sky-700', label: "<3,000'" },
-  { below: 4000, fill: 'bg-stone-100 text-stone-900', flake: 'text-sky-700', label: "3,000'" },
-  { below: 5000, fill: 'bg-stone-200 text-stone-950', flake: 'text-sky-700', label: "4,000'" },
-  { below: 6000, fill: 'bg-stone-300 text-stone-950', flake: 'text-sky-700', label: "5,000'" },
-  { below: Infinity, fill: 'bg-stone-400 text-stone-950', flake: 'text-sky-900', label: "6,000'+" },
+/** Level fills by elevation: blue (colder) below 5000', red (warmer) above, 5000' neutral. */
+const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
+  { below: 2000, fill: 'bg-blue-300 text-blue-950', label: "<2,000'" },
+  { below: 3000, fill: 'bg-blue-200 text-blue-950', label: "2,000'" },
+  { below: 4000, fill: 'bg-blue-100 text-blue-950', label: "3,000'" },
+  { below: 5000, fill: 'bg-blue-50 text-blue-950', label: "4,000'" },
+  { below: 5500, fill: 'bg-stone-100 text-stone-900', label: "5,000'" },
+  { below: 6500, fill: 'bg-red-50 text-red-950', label: "5,500'" },
+  { below: 7500, fill: 'bg-red-100 text-red-950', label: "6,500'" },
+  { below: 8500, fill: 'bg-red-200 text-red-950', label: "7,500'" },
+  { below: Infinity, fill: 'bg-red-300 text-red-950', label: "8,500'+" },
 ]
-
-const levelStep = (level: number) => LEVEL_FILLS.find((f) => level < f.below)
 
 /** A snow or freezing level's fill, on its pill or its table cell. */
 export function levelFill(level: number): string {
-  return levelStep(level)?.fill ?? ''
+  return LEVEL_FILLS.find((f) => level < f.below)?.fill ?? ''
 }
 
 /** Snow fills by `snowTier`, deepening with the amount; none without snow. */
@@ -99,11 +100,7 @@ export function SnowLevelValue({
       )}
     >
       <span className="grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5">
-        <span>
-          {snow && (
-            <Snowflake aria-hidden="true" className={cn('size-3.5', levelStep(level)?.flake)} />
-          )}
-        </span>
+        <span>{snow && <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />}</span>
         <span className="text-right">
           {level.toLocaleString('en-US')}&apos;
           <span className="sr-only">{snow ? ' snow level' : ' freezing level'}</span>

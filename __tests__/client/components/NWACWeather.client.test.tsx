@@ -254,12 +254,12 @@ describe('IssuanceSwitch anchors', () => {
 })
 
 describe('levelFill', () => {
-  it('is grey, darkening with elevation', () => {
-    expect(levelFill(1500)).toContain('bg-stone-50')
-    expect(levelFill(3500)).toContain('bg-stone-100')
-    expect(levelFill(4500)).toContain('bg-stone-200')
-    expect(levelFill(5000)).toContain('bg-stone-300')
-    expect(levelFill(9000)).toContain('bg-stone-400')
+  it('is blue below 5000 ft, neutral at 5000 ft and red above', () => {
+    expect(levelFill(1500)).toContain('bg-blue-300')
+    expect(levelFill(4500)).toContain('bg-blue-50')
+    expect(levelFill(5000)).toContain('bg-stone-100')
+    expect(levelFill(5500)).toContain('bg-red-50')
+    expect(levelFill(9000)).toContain('bg-red-300')
   })
 })
 

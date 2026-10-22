@@ -49,6 +49,9 @@ describe('ZoneTable', () => {
 
     const key = screen.getByText(/Fill deepens with snow/)
     expect(table.compareDocumentPosition(key) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(table.querySelector('[class*="bg-stone-"]')).not.toBeNull()
+    const levelRow = within(table)
+      .getByRole('rowheader', { name: /^Snow level/ })
+      .closest('tr')
+    expect(levelRow?.querySelector('[class*="bg-"]')).not.toBeNull()
   })
 })
