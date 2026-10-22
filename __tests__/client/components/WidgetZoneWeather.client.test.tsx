@@ -77,17 +77,18 @@ describe('WidgetZoneWeather', () => {
     expect(within(mount).queryByText('Total')).toBeNull()
   })
 
-  it("takes over the Weather Forecast tab: the widget's own content hidden, the same section shown", async () => {
-    const { container } = renderInWidget()
-    fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+  it("takes over the Weather Forecast tab: the widget's own content hidden, the Overall view shown", async () => {
+    const { container, tab } = await loadedTab()
+    expect(within(tab).getByText('Mountain Weather')).toBeInTheDocument()
+    expect(within(tab).getAllByText(/Total covers the whole forecast/).length).toBeGreaterThan(0)
+    expect(container.querySelector('#nac-weather-forecast')).not.toBeVisible()
 
-    const tab = await waitFor(() => {
-      const found = shadowMount(container, TAB_HOST)
-      if (!found) throw new Error('no section in the tab yet')
+    const zone = await waitFor(() => {
+      const found = shadowMount(container)
+      if (!found) throw new Error('no zone section yet')
       return found
     })
-    expect(within(tab).getByText('Mountain Weather')).toBeInTheDocument()
-    expect(container.querySelector('#nac-weather-forecast')).not.toBeVisible()
+    expect(within(zone).queryByText(/Total covers the whole forecast/)).toBeNull()
   })
 
   it("replaces the last forecast's tab content when the widget renders another", async () => {

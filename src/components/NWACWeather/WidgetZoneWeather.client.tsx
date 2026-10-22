@@ -11,7 +11,7 @@ import { z } from 'zod'
 
 import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 
-import { ZoneSummary } from './ZoneSummary'
+import { OverallSummary, ZoneSummary } from './ZoneSummary'
 
 /** The part of the widget's `ForecastProduct` event detail this needs. */
 const nacLoadedDetailSchema = z.object({ zone_id: z.number(), published: z.string() })
@@ -153,7 +153,7 @@ export function WidgetZoneWeather({
       {slots.tab &&
         createPortal(
           day ? (
-            <ZoneSummary day={day} avalancheZoneId={zoneId} timezone={timezone} />
+            <OverallSummary day={day} avalancheZoneId={zoneId} timezone={timezone} />
           ) : (
             <NoWeather failed={slots.failed} />
           ),
