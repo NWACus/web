@@ -1,3 +1,4 @@
+import { ALLOWLISTED_ORIGIN } from '@/services/nac/hosts'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 
 // Free of the Payload config so collection code can import it without a cycle.
@@ -7,7 +8,7 @@ export const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
 // Origin-less responses without CORS headers, breaking the legacy widget.
 export function snowObsFetch(url: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers)
-  headers.set('origin', 'https://avy-fx.org')
+  headers.set('origin', ALLOWLISTED_ORIGIN)
   return fetch(url, { ...init, headers })
 }
 
