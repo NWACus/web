@@ -16,11 +16,11 @@ import {
   issuanceShortLabel,
 } from '@/services/nac/nwacWeatherFormat'
 import { getNWACWeatherSource } from '@/services/nac/sources'
-import { formatDateTime } from '@/utilities/formatDateTime'
 import { addMonths, endOfMonth, format, parseISO } from 'date-fns'
 
 import { DatePicker } from './DatePicker.client'
 import { IssuanceSwitch } from './IssuanceSwitch.client'
+import { issueTime } from './Issued'
 import { Overall, OverallSectionTabs, overallParts, type ZonePaths } from './Overall'
 import { sanitizeIssuance } from './sanitizeIssuance'
 
@@ -33,10 +33,6 @@ async function zonePathsOf(centerSlug: string, date: string | undefined) {
     paths[zone.id] = date ? `/forecasts/avalanche/${slug}/${date}` : `/forecasts/avalanche/${slug}`
   }
   return paths
-}
-
-function issueTime(iso: string, timezone: string | null | undefined): string | null {
-  return isNaN(new Date(iso).getTime()) ? null : formatDateTime(iso, timezone, 'h:mm a')
 }
 
 function pickerWindow(anchor: string, today: string) {

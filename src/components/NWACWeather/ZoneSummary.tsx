@@ -7,13 +7,47 @@ import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 
+import { ForecastHeader } from '@/components/forecast/ForecastHeader'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import type { NWACWeatherForecastDay, NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
-import { issuanceLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
+import { issuanceShortLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
 
-import { IssuedMeta } from './Issued'
+import { issueTime } from './Issued'
 import { Overall, overallParts } from './Overall'
 import { ZoneTable } from './ZoneTable'
+
+/** The Mountain Weather page's heading row and metadata, the issuance as its switch's pick. */
+function IssuanceHeader({
+  issuance,
+  timezone,
+}: {
+  issuance: NWACWeatherIssuance
+  timezone: string | null | undefined
+}) {
+  return (
+    <>
+      <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+        <CardTitle>Mountain Weather</CardTitle>
+        <span className="inline-flex rounded-md bg-muted p-1">
+          <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-sm bg-background px-3 py-1 text-sm font-semibold shadow-sm">
+            {issuanceShortLabel(issuance.type)}
+            <span className="font-normal text-muted-foreground">
+              {issueTime(issuance.issuedAt, timezone)}
+            </span>
+          </span>
+        </span>
+      </header>
+      <ForecastHeader
+        forecast={{
+          published_time: issuance.issuedAt,
+          expires_time: null,
+          author: issuance.author,
+        }}
+        timezone={timezone}
+      />
+    </>
+  )
+}
 
 function WeatherCard({
   issuance,
@@ -30,11 +64,7 @@ function WeatherCard({
       className="scroll-mt-24 rounded-none border-0 bg-transparent pb-8 shadow-none"
     >
       <CardContent className="space-y-6 p-0">
-        <header className="space-y-1">
-          <CardTitle>Mountain Weather</CardTitle>
-          <p className="text-sm font-medium">{issuanceLabel(issuance.type)}</p>
-          <IssuedMeta issuance={issuance} timezone={timezone} />
-        </header>
+        <IssuanceHeader issuance={issuance} timezone={timezone} />
         {children}
         <div className="flex justify-end print:hidden">
           <Link
