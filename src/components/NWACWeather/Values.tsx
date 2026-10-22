@@ -40,18 +40,72 @@ export function snowFill(snow: number | null): string | undefined {
   return tier == null ? undefined : SNOW_FILLS[tier]
 }
 
+const LEVEL_KEY_LABELS = [null, '2k', null, '4k', null, '6k', null, '8k', null, "10k+'"]
+
+/** Fills as one bar, each segment labeled under it where `labels` has one. */
+function SegmentedBar({
+  fills,
+  labels,
+  cols,
+}: {
+  fills: string[]
+  labels: (string | null)[]
+  /** The grid's column count as a static class (`grid-cols-4`), so Tailwind sees it. */
+  cols: string
+}) {
+  return (
+    <span className="inline-flex w-56 shrink-0 flex-col gap-0.5">
+      <span className={cn('grid h-2.5 overflow-hidden rounded-sm', cols)}>
+        {fills.map((fill, i) => (
+          <span key={i} className={fill} />
+        ))}
+      </span>
+      <span className={cn('grid text-[10px] leading-none', cols)}>
+        {labels.map((label, i) => (
+          <span key={i}>{label}</span>
+        ))}
+      </span>
+    </span>
+  )
+}
+
+/** A scale's fills as a short unlabeled strip. */
+function Strip({ fills, className }: { fills: string[]; className: string }) {
+  return (
+    <span className={cn('inline-flex h-2 overflow-hidden rounded-sm', className)}>
+      {fills.map((fill, i) => (
+        <span key={i} className={cn('flex-1', fill)} />
+      ))}
+    </span>
+  )
+}
+
+const KEY_LINE = 'flex flex-nowrap items-center gap-3 overflow-x-auto whitespace-nowrap text-xs'
+
+/** The snow shading's key under the Overall view's precipitation table, on one line. */
 export function SnowFillLegend() {
   return (
-    <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-      Fill deepens with snow:
-      {SNOW_TIER_LABELS.map((label, i) => (
-        <span
-          key={label}
-          className={cn('rounded-sm border px-2 py-0.5 text-foreground', SNOW_FILLS[i])}
-        >
-          {label}
-        </span>
-      ))}
+    <p className={cn(KEY_LINE, 'text-muted-foreground')}>
+      Snow
+      <SegmentedBar fills={SNOW_FILLS} labels={SNOW_TIER_LABELS} cols="grid-cols-4" />
+    </p>
+  )
+}
+
+/** The zone table's one-line key: both scales as strips, and the snowflake. */
+export function ZoneKey() {
+  return (
+    <p className={cn(KEY_LINE, 'text-muted-foreground')}>
+      <span className="inline-flex items-center gap-1">
+        Snow <Strip fills={SNOW_FILLS} className="w-12" /> more
+      </span>
+      <span className="inline-flex items-center gap-1">
+        Snow level <Strip fills={LEVEL_FILLS.map((f) => f.fill)} className="w-20" /> higher
+      </span>
+      <span className="inline-flex items-center gap-1">
+        <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
+        snow level, none freezing
+      </span>
     </p>
   )
 }
@@ -111,21 +165,19 @@ export function SnowLevelValue({
   )
 }
 
-/** What the snow and freezing level cells mean, under the table. */
+/** What the snow and freezing level cells mean, under the Overall table, on one line. */
 export function SnowLevelLegend() {
   return (
-    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+    <p className={cn(KEY_LINE, 'items-start text-muted-foreground')}>
       <span className="inline-flex items-center gap-1">
         <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
-        Snow level; without it, freezing level (dry)
+        Snow level; none, freezing level
       </span>
-      <span className="inline-flex flex-wrap items-center gap-0.5">
-        {LEVEL_FILLS.map((f) => (
-          <span key={f.label} className={cn('rounded-sm px-1.5 py-0.5', f.fill)}>
-            {f.label}
-          </span>
-        ))}
-      </span>
+      <SegmentedBar
+        fills={LEVEL_FILLS.map((f) => f.fill)}
+        labels={LEVEL_KEY_LABELS}
+        cols="grid-cols-10"
+      />
     </p>
   )
 }

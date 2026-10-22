@@ -28,12 +28,11 @@ import type { ReactNode } from 'react'
 import { DayTabs } from './DayTabs.client'
 import {
   DayNightDate,
-  SnowFillLegend,
-  SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
   TempValue,
   WindValue,
+  ZoneKey,
   snowFill,
 } from './Values'
 
@@ -560,8 +559,7 @@ export function ZoneTable({
       <div className="space-y-2">
         <PeriodTable issuance={issuance} zone={zone} periods={periods} />
         <PeriodCards issuance={issuance} zone={zone} periods={periods} />
-        <SnowFillLegend />
-        <SnowLevelLegend />
+        <ZoneKey />
       </div>
     </section>
   )
