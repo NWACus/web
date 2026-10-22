@@ -197,6 +197,11 @@ sig = "a03f04eb361a053c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/[center]/mountain-weather-forecast/current-tab/route.ts"
+sig = "08e077fcc7ba8b0a"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/weather/forecast/page.tsx"
 sig = "d4fa6cff0bc55e12"
 

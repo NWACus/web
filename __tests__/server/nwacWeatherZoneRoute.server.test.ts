@@ -25,10 +25,15 @@ function ask(query: string, center = 'nwac') {
   return GET(new NextRequest(url), { params: Promise.resolve({ center }) })
 }
 
+// The fixture is 2026-09-14: a morning issuance at 7 am PDT and an afternoon one at 3 pm PDT.
+function dayOf(date: string) {
+  return date === '2026-09-14' ? day : null
+}
+
 beforeEach(() => {
   jest.useFakeTimers({ now: new Date('2026-09-15T15:00:00Z') })
   mockGetDay.mockReset()
-  mockGetDay.mockResolvedValue(day)
+  mockGetDay.mockImplementation(async (date: string) => dayOf(date))
   mockGetAvalancheCenterMetadata.mockReset()
   mockGetAvalancheCenterMetadata.mockResolvedValue({ timezone: 'America/Los_Angeles' })
 })
@@ -37,23 +42,44 @@ afterEach(() => {
   jest.useRealTimers()
 })
 
-describe('nwac-weather-zone route', () => {
-  it("reads the day an evening forecast is valid for, the next one, as today's", async () => {
-    // 6 pm PDT on the 14th: past the noon cutover, so valid for the 15th.
-    const res = await ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)
+async function issuanceTypes(query: string) {
+  const body = await (await ask(query)).json()
+  return body.day?.issuances.map((i: { type: string }) => i.type) ?? null
+}
 
-    expect(res.status).toBe(200)
-    expect(mockGetDay).toHaveBeenCalledWith('2026-09-15', { historical: false })
-    expect(res.headers.get('Cache-Control')).toBe(
-      'public, s-maxage=300, stale-while-revalidate=600',
-    )
+describe('nwac-weather-zone route', () => {
+  it('reads the publish date and the day before it', async () => {
+    await ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)
+
+    expect(mockGetDay).toHaveBeenCalledWith('2026-09-14', { historical: true })
+    expect(mockGetDay).toHaveBeenCalledWith('2026-09-13', { historical: true })
   })
 
-  it('reads a past forecast as historical, cached long', async () => {
-    const res = await ask(`?zone=${OLYMPICS}&published=2026-09-01T15:00:00Z`)
+  it('picks the newest issuance published before the forecast, as nwac.us did', async () => {
+    // 6 pm PDT: the afternoon issuance, not the next day's morning one.
+    expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)).toEqual([
+      'afternoon',
+    ])
+    // 1 pm PDT: the morning issuance; the afternoon one isn't out yet.
+    expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-14T20:00:00Z`)).toEqual([
+      'morning',
+    ])
+  })
 
-    expect(mockGetDay).toHaveBeenCalledWith('2026-09-01', { historical: true })
-    expect(res.headers.get('Cache-Control')).toBe(
+  it('finds nothing before the first issuance or more than a day after the last', async () => {
+    // 6 am PDT on the 14th, before its morning issuance.
+    expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-14T13:00:00Z`)).toBeNull()
+    // 4 pm PDT on the 15th: the 14th's afternoon issuance is 25 hours old.
+    expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-15T23:00:00Z`)).toBeNull()
+  })
+
+  it('caches a forecast from today briefly and one from a past day long', async () => {
+    const today = await ask(`?zone=${OLYMPICS}&published=2026-09-15T14:30:00Z`)
+    expect(today.headers.get('Cache-Control')).toBe(
+      'public, s-maxage=300, stale-while-revalidate=600',
+    )
+    const past = await ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)
+    expect(past.headers.get('Cache-Control')).toBe(
       'public, s-maxage=86400, stale-while-revalidate=604800',
     )
   })
@@ -68,17 +94,18 @@ describe('nwac-weather-zone route', () => {
     )
   })
 
-  it('keeps only the issuances covering the zone, their authored HTML sanitized', async () => {
+  it("sanitizes the picked issuance's authored HTML", async () => {
     if (!day) throw new Error('fixture should map to a forecast day')
     const [first, ...rest] = day.issuances
-    mockGetDay.mockResolvedValue({
+    const dirty = {
       ...day,
       issuances: [{ ...first, synopsis: '<p>Rain</p><script>alert(1)</script>' }, ...rest],
-    })
+    }
+    mockGetDay.mockImplementation(async (date: string) => (date === '2026-09-14' ? dirty : null))
 
     const body = await (await ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)).json()
 
-    expect(body.day.issuances).toHaveLength(day.issuances.length)
+    expect(body.day.issuances).toHaveLength(1)
     expect(body.day.issuances[0].synopsis).toBe('<p>Rain</p>')
   })
 
