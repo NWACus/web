@@ -47,7 +47,7 @@ describe('ZoneTable', () => {
       if (fill) expect(td).toHaveClass(fill)
     })
 
-    const key = screen.getByText(/none freezing/)
+    const key = screen.getByText(/none, freezing level/)
     expect(table.compareDocumentPosition(key) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const levelRow = within(table)
       .getByRole('rowheader', { name: /^Snow level/ })

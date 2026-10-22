@@ -374,6 +374,7 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
     title: 'Snow Levels',
     unit: 'ft',
     detail: SNOW_LEVEL_DETAIL,
+    legend: <SnowLevelLegend />,
     rowLabel: 'Zone',
     columns: blocks.map((b) => ({
       key: b.key,
