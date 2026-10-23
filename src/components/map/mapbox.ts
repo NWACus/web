@@ -8,6 +8,7 @@
  * lockdown — lives here so the two cannot drift.
  */
 import type { IControl, Map as MapboxMap } from 'mapbox-gl'
+import mapboxgl from 'mapbox-gl'
 
 /** The `avalanche-org` "AFP Custom" style, shared with afp-public-widgets and dashboard-v2. */
 export const MAP_STYLE = 'mapbox://styles/avalanche-org/cmg1bsw48002301pshwzoen5y'
@@ -45,4 +46,44 @@ export function isLive(map: MapboxMap): boolean {
 /** A source is there to take down only while the map is live — see `isLive`. */
 export function hasSource(map: MapboxMap, sourceId: string): boolean {
   return isLive(map) && map.getSource(sourceId) !== undefined
+}
+
+/**
+ * A product map inside `wrapper`: the shared style, cooperative gestures, no rotation, zoom buttons.
+ * Mapbox gets a fresh child element each time, because dev's double-mounted effects would otherwise
+ * hand it one a previous map used. `remove` tears down both. `label` names the map region for
+ * screen readers in place of Mapbox's generic "Map".
+ */
+export function createProductMap(
+  wrapper: HTMLElement,
+  token: string,
+  view: { center: [number, number]; zoom: number },
+  label?: string,
+  // Filling a phone's screen, a map has no page scroll to share gestures with, so it pans with one
+  // finger, and its zoom buttons move down out from under the controls floating along its top.
+  { fullScreen = false }: { fullScreen?: boolean } = {},
+): { map: MapboxMap; remove: () => void } {
+  mapboxgl.accessToken = token
+  const container = wrapper.appendChild(document.createElement('div'))
+  container.className = 'h-full w-full'
+  const locale = label ? { 'Map.Title': label } : undefined
+  const map = new mapboxgl.Map({
+    container,
+    style: MAP_STYLE,
+    cooperativeGestures: !fullScreen,
+    locale,
+    ...view,
+  })
+  disableRotation(map)
+  map.addControl(
+    new mapboxgl.NavigationControl({ showCompass: false }),
+    fullScreen ? 'bottom-right' : 'top-right',
+  )
+  return {
+    map,
+    remove: () => {
+      map.remove()
+      container.remove()
+    },
+  }
 }

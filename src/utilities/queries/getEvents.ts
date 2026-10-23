@@ -1,9 +1,11 @@
 import { EVENTS_LIMIT } from '@/constants/defaults'
 import type { Event } from '@/payload-types'
 import config from '@/payload.config'
+import { nearestFirst, type BoundingBox, type LatLng } from '@/utilities/geo/distance'
+import { withinBoxWhere } from '@/utilities/geo/where'
 import * as Sentry from '@sentry/nextjs'
 import { format } from 'date-fns'
-import type { Where } from 'payload'
+import type { Payload, Where } from 'payload'
 import { getPayload } from 'payload'
 
 export interface GetEventsParams {
@@ -15,6 +17,10 @@ export interface GetEventsParams {
   groups?: string[] | null
   tags?: string[] | null
   modesOfTravel?: string[] | null
+  /** Only events held inside this box, e.g. the map area a reader searched. */
+  box?: BoundingBox | null
+  /** Sorts the events nearest this point first, with virtual and unplaced events last. */
+  near?: LatLng | null
   center: string
 }
 
@@ -25,14 +31,54 @@ export interface GetEventsResult {
   error?: string
 }
 
+/** Where an event is held, or nothing for a virtual event, which never goes on the map. */
+const placeOf = (event: Pick<Event, 'location'>) =>
+  event.location?.isVirtual ? null : event.location?.coordinates
+
+/**
+ * The database can't sort by distance on SQLite, so this loads every matching event's location,
+ * sorts them here, and only fully loads the page being shown.
+ */
+async function findNearestEvents(
+  payload: Payload,
+  where: Where,
+  near: LatLng,
+  offset: number,
+  limit: number,
+): Promise<GetEventsResult> {
+  const { docs: located } = await payload.find({
+    collection: 'events',
+    where,
+    pagination: false,
+    sort: 'startDate',
+    depth: 0,
+    select: { location: { isVirtual: true, coordinates: true } },
+  })
+  const pageIds = nearestFirst(located, near, placeOf)
+    .slice(offset, offset + limit)
+    .map((event) => event.id)
+  const { docs } = await payload.find({
+    collection: 'events',
+    where: { id: { in: pageIds } },
+    pagination: false,
+    depth: 2,
+  })
+  const byId = new Map(docs.map((event) => [event.id, event]))
+  return {
+    events: pageIds.flatMap((id) => byId.get(id) ?? []),
+    hasMore: offset + limit < located.length,
+    total: located.length,
+  }
+}
+
 export async function getEvents(params: GetEventsParams): Promise<GetEventsResult> {
   const payload = await getPayload({ config })
 
   try {
-    const { types, startDate, endDate, groups, tags, modesOfTravel, center } = params
+    const { types, startDate, endDate, groups, tags, modesOfTravel, box, near, center } = params
 
-    const offset = params.offset || 0
-    const limit = Math.floor(Number(params.limit)) || EVENTS_LIMIT
+    const offset = Math.max(0, Math.floor(Number(params.offset)) || 0)
+    const limit = Math.max(0, Math.floor(Number(params.limit))) || EVENTS_LIMIT
 
     const conditions: Where[] = [
       {
@@ -106,7 +152,16 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
       })
     }
 
+    if (box) {
+      // Saving as virtual clears the point; this also covers rows written around the hook.
+      conditions.push(withinBoxWhere('location.coordinates', box), {
+        'location.isVirtual': { not_equals: true },
+      })
+    }
+
     const where: Where = conditions.length > 0 ? { and: conditions } : {}
+
+    if (near) return await findNearestEvents(payload, where, near, offset, limit)
 
     const result = await payload.find({
       collection: 'events',

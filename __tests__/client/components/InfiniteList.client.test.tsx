@@ -13,6 +13,11 @@ jest.mock('../../../src/components/EventPreview', () => ({
   EventPreview: ({ event }: { event: { title: string } }) => <p>{event.title}</p>,
 }))
 jest.mock('../../../src/components/PostPreview', () => ({ PostPreview: () => null }))
+let mockOrigin: { point: { latitude: number; longitude: number }; query: string } | null = null
+jest.mock('../../../src/components/EventsMap/useNearOrigin', () => ({
+  ...jest.requireActual('../../../src/components/EventsMap/useNearOrigin'),
+  useNearOrigin: () => mockOrigin,
+}))
 jest.mock('../../../src/components/CoursePreviewSmallRow', () => ({
   CoursePreviewSmallRow: () => null,
 }))
@@ -34,6 +39,7 @@ const fetchedUrl = (call: number) => new URL(mockFetch.mock.calls[call][0], 'htt
 beforeEach(() => {
   mockSearchParams = new URLSearchParams()
   mockInView = true
+  mockOrigin = null
   mockFetch = jest.fn(() => page(emptyPage))
   // defineProperty rather than assignment: jsdom has no fetch to spy on.
   Object.defineProperty(globalThis, 'fetch', {
@@ -175,6 +181,35 @@ describe('InfiniteList', () => {
     expect(await screen.findByText('Three')).toBeInTheDocument()
     expect(screen.getAllByText('Two')).toHaveLength(1)
     expect(fetchedUrl(1).searchParams.get('offset')).toBe('2')
+  })
+
+  it('refetches events sorted from the device location, which the server never sees', async () => {
+    mockInView = false
+    mockSearchParams = new URLSearchParams('near=me')
+    mockOrigin = { point: { latitude: 47.61, longitude: -122.33 }, query: '47.61,-122.33' }
+    render(withTotal(<EventsList initialEvents={[]} initialHasMore center="nwac" />))
+
+    await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1))
+    expect(fetchedUrl(0).searchParams.get('near')).toBe('47.61,-122.33')
+    expect(fetchedUrl(0).searchParams.get('offset')).toBe('0')
+  })
+
+  it('lists unplaced events under their own heading once sorted by distance', async () => {
+    mockInView = false
+    mockSearchParams = new URLSearchParams('near=47.6,-120.66')
+    mockOrigin = { point: { latitude: 47.6, longitude: -120.66 }, query: '47.6000,-120.6600' }
+    const events = [
+      { id: 1, title: 'Trailhead', location: { coordinates: { latitude: 47.5, longitude: -121 } } },
+      { id: 2, title: 'Webinar', location: { isVirtual: true } },
+    ]
+    // @ts-expect-error the stub events carry only what the list and mocked preview read
+    render(withTotal(<EventsList initialEvents={events} initialHasMore center="nwac" />))
+
+    const heading = screen.getByRole('heading', { name: 'Online & no location' })
+    expect(screen.getByText('Trailhead').compareDocumentPosition(heading)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(mockFetch).not.toHaveBeenCalled()
   })
 
   it('names the list in its error state', async () => {

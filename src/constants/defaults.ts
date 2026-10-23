@@ -44,4 +44,6 @@ export const DEFAULT_BLOCKS = [
 
 export const POSTS_LIMIT: number = 10
 export const EVENTS_LIMIT: number = 10
+/** The most events one request may load, the map view's page size. */
+export const MAX_EVENTS_LIMIT: number = 200
 export const COURSES_LIMIT: number = 10

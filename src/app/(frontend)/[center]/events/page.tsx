@@ -3,16 +3,20 @@ import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload } from 'payload'
 
-import { EventsList } from '@/components/EventsList'
+import { EventsResults } from '@/components/EventsMap/EventsResults'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
+import { modeOfTravelOptions } from '@/fields/modeOfTravelField'
 import { centerRouteMetadata } from '@/utilities/centerRoutePage'
+import { parseNearParam } from '@/utilities/geo/nearParam'
 import { getEventGroups } from '@/utilities/queries/getEventGroups'
 import { getEvents } from '@/utilities/queries/getEvents'
 import { getEventTags } from '@/utilities/queries/getEventTags'
 import { getEventTypes } from '@/utilities/queries/getEventTypes'
 import { notFound } from 'next/navigation'
 import { createLoader, parseAsArrayOf, parseAsString, SearchParams } from 'nuqs/server'
+import { EventsFilterMenus } from './EventsFilterBar'
 import { EventsFilters } from './EventsFilters'
+import { EventsFiltersColumn } from './EventsFiltersColumn'
 import { EventsMobileFilters } from './EventsMobileFilters'
 
 const eventsSearchParams = {
@@ -22,6 +26,8 @@ const eventsSearchParams = {
   groups: parseAsArrayOf(parseAsString),
   tags: parseAsArrayOf(parseAsString),
   modesOfTravel: parseAsArrayOf(parseAsString),
+  // A typed place sorts on the server; `me` (the device location) only sorts in the browser.
+  near: parseAsString,
 }
 
 const loadEventsSearchParams = createLoader(eventsSearchParams)
@@ -35,7 +41,7 @@ type Args = {
 
 export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
-  const { types, startDate, endDate, groups, tags, modesOfTravel } =
+  const { types, startDate, endDate, groups, tags, modesOfTravel, near } =
     await loadEventsSearchParams(searchParams)
 
   const payload = await getPayload({ config: configPromise })
@@ -63,6 +69,7 @@ export default async function Page({ params, searchParams }: Args) {
     groups,
     tags,
     modesOfTravel,
+    near: parseNearParam(near),
     center,
   }
 
@@ -71,13 +78,20 @@ export default async function Page({ params, searchParams }: Args) {
   const { eventGroups } = await getEventGroups({ center })
   const { eventTags } = await getEventTags({ center })
 
+  const filterOptions = {
+    types: eventTypes,
+    modesOfTravel: modeOfTravelOptions,
+    groups: eventGroups,
+    tags: eventTags,
+  }
+
   const hasActiveFilters = Boolean(types || groups || tags || modesOfTravel || startDate || endDate)
 
   return (
     <FiltersTotalProvider initialTotal={total}>
       <Breadcrumbs center={center} path="/events" />
       <div className="pt-4">
-        <div className="container md:max-xl:max-w-none mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
+        <div className="container md:max-xl:max-w-none mb-16 flex flex-col md:flex-row flex-1 gap-6">
           <div className="md:hidden">
             <EventsMobileFilters
               types={eventTypes}
@@ -89,24 +103,29 @@ export default async function Page({ params, searchParams }: Args) {
             />
           </div>
 
-          <div className="grow order-2 md:order-1">
-            <EventsList
+          <div className="grow min-w-0 order-2 md:order-1">
+            <EventsResults
               initialEvents={events}
               initialHasMore={hasMore}
               initialError={error}
               center={center}
+              filterMenus={<EventsFilterMenus options={filterOptions} />}
             />
           </div>
 
-          <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] xl:w-[300px] order-1 md:order-2">
-            <EventsFilters
-              startDate={startDate}
-              endDate={endDate}
-              types={eventTypes}
-              groups={eventGroups}
-              tags={eventTags}
-            />
-          </div>
+          <EventsFiltersColumn>
+            {/* Stays in view as the page scrolls; the offsets center the first heading on the List/Map
+                buttons. Filters taller than the window scroll on their own. */}
+            <div className="-mt-1.5 sticky top-2.5 max-h-[calc(100dvh-1.25rem)] overflow-y-auto -mx-1 px-1">
+              <EventsFilters
+                startDate={startDate}
+                endDate={endDate}
+                types={eventTypes}
+                groups={eventGroups}
+                tags={eventTags}
+              />
+            </div>
+          </EventsFiltersColumn>
         </div>
       </div>
     </FiltersTotalProvider>
