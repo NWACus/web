@@ -94,7 +94,7 @@ Displays a paginated, filterable list of upcoming avalanche courses with infinit
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `title` | string | none | Optional header title |
-| `showFilters` | boolean | `false` | Show/hide the filter sidebar (desktop) and filter drawer (mobile) |
+| `showFilters` | boolean | `false` | Show/hide the filter sidebar (desktop) and filter panel that opens under the Filters button (mobile) |
 | `types` | string | none | Filter by course types (comma-separated values) |
 | `providers` | string | none | Filter by provider slugs (comma-separated) |
 | `states` | string | none | Filter by location states (comma-separated state codes) |
@@ -226,7 +226,7 @@ src/app/(embeds)/
     └── courses/
         ├── page.tsx              # Courses embed
         ├── CoursesFilters.tsx    # Desktop filter sidebar
-        └── CoursesMobileFilters.tsx  # Mobile filter drawer
+        └── CoursesMobileFilters.tsx  # Mobile filter panel
 ```
 
 ### Related Components
