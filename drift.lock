@@ -3,7 +3,7 @@ version = 1
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/a3-embeds.md"
-sig = "47d841a70f1a75f0"
+sig = "7366c712f9e0df32"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -113,7 +113,7 @@ sig = "d68a6a972aed9b7d"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/app/(embeds)/embeds/courses/CoursesMobileFilters.tsx"
-sig = "bdf7803a6ae13e1f"
+sig = "ac96289058f0b6e9"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"

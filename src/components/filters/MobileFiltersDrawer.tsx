@@ -1,8 +1,8 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Filter, FilterX } from 'lucide-react'
 import { useState } from 'react'
+import { FiltersButton } from './FiltersButton'
 
 /**
  * The bottom filter drawer the list pages share below their desktop breakpoint. It doesn't hide
@@ -35,17 +35,11 @@ export const MobileFiltersDrawer = ({
 
   return (
     <>
-      <Button
-        variant="outline"
+      <FiltersButton
+        hasActiveFilters={hasActiveFilters}
         onClick={() => setIsOpen(true)}
         aria-label="Open filters"
-        className="w-full"
-      >
-        <div className="flex items-center gap-2">
-          <span>Filters</span>
-          {hasActiveFilters ? <FilterX width={16} /> : <Filter width={16} />}
-        </div>
-      </Button>
+      />
 
       {isOpen && (
         <div
