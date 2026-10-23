@@ -66,6 +66,16 @@ describe('WarningBanner', () => {
     expect(screen.getByText(/Heavy snow and strong wind/)).toBeInTheDocument()
   })
 
+  it('says when the alert is in effect in the expanded detail', () => {
+    render(<WarningBanner warning={warningFixture(ProductType.Warning)} timezone={TZ} />)
+
+    const when = screen.getByText('When:').parentElement
+    expect(when).toHaveTextContent(
+      'When: In effect from Thursday, January 8, 2026 at 6:00 AM PST to Thursday, January 8, 2026 at 6:00 PM PST',
+    )
+    expect(when?.closest('summary')).toBeNull()
+  })
+
   it('sanitizes the hazard discussion', () => {
     render(
       <WarningBanner
@@ -94,6 +104,7 @@ describe('WarningBanner', () => {
     const alert = screen.getByRole('alert')
     expect(alert.tagName).toBe('DIV')
     expect(screen.queryByText('Read more')).not.toBeInTheDocument()
+    expect(screen.queryByText('When:')).not.toBeInTheDocument()
     expect(screen.getByText('Avalanche Warning in Effect')).toBeInTheDocument()
   })
 })
