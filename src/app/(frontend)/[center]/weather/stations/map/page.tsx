@@ -1,5 +1,4 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
-import { getStationPages } from '@/services/stations/getStationPages'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
@@ -54,7 +53,6 @@ async function NativeStationMap({ center }: { center: string }) {
 
 export default async function Page({ params }: Args) {
   const { center } = await params
-  const hasStationsIndex = (await getStationPages(center)).length > 0
 
   // The AFP's capability gate sits above our rollout flag: no stations, no page, native or not.
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
@@ -67,11 +65,7 @@ export default async function Page({ params }: Args) {
   return (
     <>
       {!useNative && <WidgetRouterHandler initialPath="/" widgetPageKey="weather-stations" />}
-      <Breadcrumbs
-        center={center}
-        path="/weather/stations/map"
-        hasStationsIndex={hasStationsIndex}
-      />
+      <Breadcrumbs center={center} path="/weather/stations/map" />
       <div className="flex flex-col gap-2 sm:gap-4">
         {/* The map is sized against what's left of the viewport, so the title is the one heading
             on the site that gives ground on a phone: a full-size one wraps to two lines and
