@@ -97,7 +97,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@react-email/components": "1.0.11",
     "@react-email/render": "^2.0.4",
-    "@sentry/nextjs": "^9.47.1",
+    "@sentry/nextjs": "^9.47.2",
     "@types/lodash.merge": "^4.6.9",
     "@vercel/blob": "^2.3.3",
     "@vercel/og": "^0.11.1",
