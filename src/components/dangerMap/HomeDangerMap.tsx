@@ -15,8 +15,7 @@
 import { NACWidget } from '@/components/NACWidget'
 import { DangerScale } from '@/components/forecast/DangerScale'
 import { resolveDangerMapSettings } from '@/services/nac/dangerMap/dangerMapSettings'
-import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { isInfoExchange } from '@/services/nac/types/schemas'
+import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 
 import { DangerMapLoader } from './DangerMapLoader.client'
@@ -33,13 +32,6 @@ const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
 
 interface HomeDangerMapProps {
   centerSlug: string
-}
-
-/** An info exchange issues no ratings, so like the widget it gets no scale. */
-async function HomeDangerScale({ centerSlug }: HomeDangerMapProps) {
-  const platforms = await getAvalancheCenterPlatforms(centerSlug).catch(() => null)
-  if (platforms && isInfoExchange(platforms)) return null
-  return <DangerScale />
 }
 
 export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
@@ -75,7 +67,7 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
 
       {/* Server-rendered, both so it holds its own space from the first paint and so
           `sanitize-html` stays out of the client bundle. */}
-      <HomeDangerScale centerSlug={centerSlug} />
+      <DangerScale />
     </div>
   )
 }

@@ -156,15 +156,15 @@ describe('infoExchangeCenterIds', () => {
     expect(infoExchangeCenterIds(['NWAC', 'EWYAIX'], feed)).toEqual(new Set(['EWYAIX']))
   })
 
-  // The feed outranks the id: an AIX center that starts forecasting stops being an exchange.
-  it('trusts the feed over the AIX suffix', () => {
+  // EWYAIX forecasts now; the id suffix no longer says anything.
+  it('ignores the AIX suffix', () => {
     expect(infoExchangeCenterIds(['SOAIX'], new Map([['SOAIX', platforms(true, true)]]))).toEqual(
       new Set(),
     )
   })
 
-  it('falls back to the AIX suffix for a center the feed does not describe', () => {
-    expect(infoExchangeCenterIds(['SOAIX', 'NWAC'], new Map())).toEqual(new Set(['SOAIX']))
+  it('treats a center the feed does not describe as an ordinary center', () => {
+    expect(infoExchangeCenterIds(['SOAIX', 'NWAC'], new Map())).toEqual(new Set())
   })
 })
 
@@ -246,11 +246,14 @@ describe('zonePopup', () => {
       expect(popup.headline).toBe('3 - Considerable')
     })
 
-    it('defers to the off-season notice', () => {
+    // An exchange has no forecasts to end, so the season ending doesn't change what it offers.
+    it('outranks the off-season notice', () => {
       const popup = zonePopup(exchangeZone({ off_season: true }), settings)
 
-      expect(popup.infoExchange).toBe(false)
-      expect(popup.headline).toBe('Forecasts ended for the season')
+      expect(popup.infoExchange).toBe(true)
+      expect(popup.offSeason).toBe(false)
+      expect(popup.headline).toBe('View Observations')
+      expect(popup.publishedText).toBeNull()
     })
   })
 

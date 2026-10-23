@@ -167,8 +167,8 @@ function resolveHref(
 
 /**
  * Which centers are information exchanges, from the avalanche-centers platforms feed — the same
- * read the widget makes. A center the feed doesn't describe falls back to the legacy `AIX` id
- * suffix, as the widget does.
+ * read the widget makes. There is no fallback on the `AIX` id suffix: the feed covers every such
+ * center, and the suffix is wrong for EWYAIX, which now forecasts.
  */
 export function infoExchangeCenterIds(
   centerIds: Iterable<string>,
@@ -177,7 +177,7 @@ export function infoExchangeCenterIds(
   const ids = new Set<string>()
   for (const id of centerIds) {
     const platforms = platformsById.get(id)
-    if (platforms ? isInfoExchange(platforms) : id.endsWith('AIX')) ids.add(id)
+    if (platforms && isInfoExchange(platforms)) ids.add(id)
   }
   return ids
 }
@@ -208,13 +208,14 @@ export function zonePopup(
   const dangerLevel = popupDangerLevel(properties)
   const unrated = dangerLevel === DangerLevel.None || dangerKey(properties) === 'no rating'
   // A zone with a live rating is never framed as an exchange: its fill already shows the rating.
-  const infoExchange =
-    !offSeason && dangerLevel === DangerLevel.None && Boolean(properties.infoExchange)
+  // Otherwise the exchange framing outranks off-season — an exchange has no forecasts to end.
+  const infoExchange = dangerLevel === DangerLevel.None && Boolean(properties.infoExchange)
+  const seasonEnded = offSeason && !infoExchange
 
   return {
     zoneName: properties.name,
     centerName: settings.allCenters ? (properties.center ?? null) : null,
-    offSeason,
+    offSeason: seasonEnded,
     infoExchange,
     hasWarning: hasActiveWarning(properties),
     dangerLevel,

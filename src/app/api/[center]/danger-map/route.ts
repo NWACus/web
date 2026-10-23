@@ -30,7 +30,7 @@ function requestedDay(request: NextRequest): string | undefined {
 
 /**
  * The map's centers that are information exchanges. The platforms feed failing is not fatal: every
- * center then falls back to the `AIX` id suffix, as the widget does.
+ * zone then gets the ordinary popup, as in the widget.
  */
 async function infoExchangeIdsFor(features: ZoneFeature[]): Promise<Set<string>> {
   const centerIds = new Set(features.map((feature) => feature.properties.center_id))
