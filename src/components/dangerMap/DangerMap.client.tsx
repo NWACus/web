@@ -14,7 +14,7 @@
 import type { RefObject } from 'react'
 import { useCallback, useMemo, useRef } from 'react'
 
-import { mapboxZoomFor, type DangerMapSettings } from '@/services/nac/dangerMap/dangerMapSettings'
+import type { DangerMapSettings } from '@/services/nac/dangerMap/dangerMapSettings'
 import { featuresToFit, zoneBounds } from '@/services/nac/dangerMap/dangerMapZones'
 
 import { DangerMapControls } from './DangerMapControls'
@@ -47,6 +47,16 @@ const SEARCH_BOX_LAYOUT = [
   '[&_.mapboxgl-ctrl-top-left_>_*]:!mx-auto',
   '[&_.mapboxgl-ctrl-top-left_>_*]:block',
   '[&_.mapboxgl-ctrl-top-left_>_*]:max-w-[400px]',
+  // The search box pins itself to 300px; the widget lets it fill the slot up to 400px.
+  '[&_.mapboxgl-ctrl-top-left_>_*]:!w-full',
+  '[&_.mapboxgl-ctrl-top-left_[class$="--SearchBox"]]:!w-full',
+].join(' ')
+
+/** The widget sizes Mapbox's 29px control buttons up to 40px, with icons at 75% of the button. */
+const CONTROL_SIZING = [
+  '[&_.mapboxgl-ctrl-group_button]:!h-10',
+  '[&_.mapboxgl-ctrl-group_button]:!w-10',
+  '[&_.mapboxgl-ctrl-icon]:![background-size:75%]',
 ].join(' ')
 
 /** Padding for fitBounds — extra on top so the search box doesn't cover the northernmost zone. */
@@ -66,27 +76,15 @@ export function DangerMap({ centerSlug, centerId, settings }: DangerMapProps) {
 
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
   const { zones, failed } = useZoneData(centerSlug, settings.allCenters)
-  const mapRef = useMapInstance(containerRef, recenterRef, token, settings)
+  const mapRef = useMapInstance(containerRef, recenterRef, token)
 
-  /** Return to the configured viewport, or to a view that fits the center's own zones. */
+  /** Fit the center's own zones, as the widget does on AvyWeb, where its embed sets no viewport. */
   const recenter = useCallback(
     (animate: boolean) => {
-      const map = mapRef.current
-      if (!map) return
-
-      if (settings.center) {
-        map.flyTo({
-          center: [settings.center.lng, settings.center.lat],
-          zoom: mapboxZoomFor(settings.zoom),
-          animate,
-        })
-        return
-      }
-
       const bounds = zoneBounds(featuresToFit(zones, centerId))
-      if (bounds) map.fitBounds(bounds, { padding: FIT_PADDING, animate })
+      if (bounds) mapRef.current?.fitBounds(bounds, { padding: FIT_PADDING, animate })
     },
-    [mapRef, centerId, settings.center, settings.zoom, zones],
+    [mapRef, centerId, zones],
   )
 
   useZoneLayers(mapRef, zones, () => recenter(false))
@@ -106,7 +104,7 @@ export function DangerMap({ centerSlug, centerId, settings }: DangerMapProps) {
 
   return (
     // Fills the height its server-rendered parent already reserved, so there is nothing to shift.
-    <div className={`relative h-full w-full ${SEARCH_BOX_LAYOUT}`}>
+    <div className={`relative h-full w-full ${SEARCH_BOX_LAYOUT} ${CONTROL_SIZING}`}>
       <div ref={containerRef} className="h-full w-full" />
 
       <DangerMapControls recenterRef={recenterRef} onRecenter={() => recenter(true)} />

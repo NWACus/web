@@ -123,6 +123,16 @@ describe('decorateZoneFeatures', () => {
     expect(plain.properties.hasWarning).toBe(false)
     expect(warned.properties.hasWarning).toBe(true)
   })
+
+  it('marks the zones of information exchanges', () => {
+    const [nwac, soaix] = decorateZoneFeatures(
+      [feature({}, 1), feature({ center_id: 'SOAIX' }, 2)],
+      new Set(['SOAIX']),
+    )
+
+    expect(nwac.properties.infoExchange).toBe(false)
+    expect(soaix.properties.infoExchange).toBe(true)
+  })
 })
 
 describe('hasActiveWarning', () => {
@@ -149,7 +159,7 @@ describe('popupDangerLevel', () => {
 })
 
 describe('zonePopup', () => {
-  const settings = { advice: true, allCenters: false, centerId: 'NWAC' }
+  const settings = { allCenters: false, centerId: 'NWAC' }
 
   it('headlines a rated zone with the numbered danger level', () => {
     const popup = zonePopup(zone(), settings)
@@ -180,6 +190,40 @@ describe('zonePopup', () => {
     expect(popup.advice).toBeNull()
   })
 
+  describe('an information exchange', () => {
+    const exchangeZone = (overrides: Partial<ZoneProperties> = {}) => ({
+      ...zone({ center_id: 'SOAIX', danger: 'no rating', danger_level: -1, ...overrides }),
+      infoExchange: true,
+    })
+
+    it('points an unrated zone at observations instead of a rating', () => {
+      const popup = zonePopup(exchangeZone(), settings)
+
+      expect(popup.infoExchange).toBe(true)
+      expect(popup.headline).toBe('View Observations')
+      expect(popup.subhead).toBe('Avalanche Info Exchange')
+      expect(popup.advice).toBeNull()
+    })
+
+    // Its fill already shows the rating, so the popup shouldn't contradict it.
+    it('still describes a zone that carries a live rating', () => {
+      const popup = zonePopup(exchangeZone({ danger: 'considerable', danger_level: 3 }), settings)
+
+      expect(popup.infoExchange).toBe(false)
+      expect(popup.headline).toBe('3 - Considerable')
+    })
+
+    // An exchange has no forecasts to end, so the season ending doesn't change what it offers.
+    it('outranks the off-season notice', () => {
+      const popup = zonePopup(exchangeZone({ off_season: true }), settings)
+
+      expect(popup.infoExchange).toBe(true)
+      expect(popup.offSeason).toBe(false)
+      expect(popup.headline).toBe('View Observations')
+      expect(popup.publishedText).toBeNull()
+    })
+  })
+
   it('flags an active warning', () => {
     expect(zonePopup(zone({ warning: { product: 'warning' } }), settings).hasWarning).toBe(true)
   })
@@ -192,12 +236,6 @@ describe('zonePopup', () => {
 
       expect(popup.advice).toContain('Dangerous avalanche conditions.')
       expect(popup.advice).not.toContain('Something else entirely.')
-    })
-
-    it('is omitted when the center turned advice off', () => {
-      expect(
-        zonePopup(zone(), { advice: false, allCenters: false, centerId: 'NWAC' }).advice,
-      ).toBeNull()
     })
   })
 
@@ -233,7 +271,7 @@ describe('zonePopup', () => {
 
   describe('the center name', () => {
     it('is shown when the map is drawing every center', () => {
-      const popup = zonePopup(zone(), { advice: true, allCenters: true, centerId: 'NWAC' })
+      const popup = zonePopup(zone(), { allCenters: true, centerId: 'NWAC' })
 
       expect(popup.centerName).toBe('Northwest Avalanche Center')
     })
@@ -334,7 +372,7 @@ describe('zoneBounds', () => {
 })
 
 describe('zonePopup — where a zone links to', () => {
-  const settings = { advice: true, allCenters: true, centerId: 'NWAC' }
+  const settings = { allCenters: true, centerId: 'NWAC' }
 
   // Upstream always hands back the center's own website. On AvyWeb that would walk the reader off
   // the site and past the native forecast page, so our own zones are rewritten to their route.

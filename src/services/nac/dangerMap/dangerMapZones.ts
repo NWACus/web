@@ -116,9 +116,11 @@ export interface ZonePopup {
   /** The zone's avalanche center, shown only on an all-centers map where zones differ. */
   centerName: string | null
   offSeason: boolean
+  /** An unrated zone of an information exchange, which points readers at observations instead. */
+  infoExchange: boolean
   hasWarning: boolean
   dangerLevel: DangerLevel
-  /** Popup title: the season-ended notice, or the zone's rating. */
+  /** Popup title: the season-ended notice, the info-exchange prompt, or the zone's rating. */
   headline: string
   /** Qualifier under the headline; absent off-season, where the headline says it all. */
   subhead: string | null
@@ -133,7 +135,6 @@ export interface ZonePopup {
 }
 
 export interface ZonePopupSettings {
-  advice: boolean
   allCenters: boolean
   /** This site's avalanche center id, e.g. `NWAC` — decides which zones are our own. */
   centerId: string
@@ -162,28 +163,49 @@ function resolveHref(
   return { href: link, isExternal: true }
 }
 
-export function zonePopup(properties: ZoneProperties, settings: ZonePopupSettings): ZonePopup {
+/** The popup's headline and subhead, in order of precedence. */
+function popupTitle({
+  infoExchange,
+  offSeason,
+  unrated,
+  dangerLevel,
+}: {
+  infoExchange: boolean
+  offSeason: boolean
+  unrated: boolean
+  dangerLevel: DangerLevel
+}): Pick<ZonePopup, 'headline' | 'subhead'> {
+  if (infoExchange) return { headline: 'View Observations', subhead: 'Avalanche Info Exchange' }
+  if (offSeason) return { headline: 'Forecasts ended for the season', subhead: null }
+  if (unrated) return { headline: 'No Rating', subhead: 'Information Available' }
+  return { headline: dangerLevelLabel(dangerLevel), subhead: 'Avalanche Danger' }
+}
+
+export function zonePopup(
+  properties: ZoneProperties & { infoExchange?: boolean },
+  settings: ZonePopupSettings,
+): ZonePopup {
   const offSeason = Boolean(properties.off_season)
   const dangerLevel = popupDangerLevel(properties)
   const unrated = dangerLevel === DangerLevel.None || dangerKey(properties) === 'no rating'
+  // A zone with a live rating is never framed as an exchange: its fill already shows the rating.
+  // Otherwise the exchange framing outranks off-season — an exchange has no forecasts to end.
+  const infoExchange = dangerLevel === DangerLevel.None && Boolean(properties.infoExchange)
+  const seasonEnded = offSeason && !infoExchange
 
   return {
     zoneName: properties.name,
     centerName: settings.allCenters ? (properties.center ?? null) : null,
-    offSeason,
+    offSeason: seasonEnded,
+    infoExchange,
     hasWarning: hasActiveWarning(properties),
     dangerLevel,
-    headline: offSeason
-      ? 'Forecasts ended for the season'
-      : unrated
-        ? 'No Rating'
-        : dangerLevelLabel(dangerLevel),
-    subhead: offSeason ? null : unrated ? 'Information Available' : 'Avalanche Danger',
+    ...popupTitle({ infoExchange, offSeason, unrated, dangerLevel }),
     // Off-season the window would describe a forecast that ended months ago, so it is suppressed
     // rather than shown stale — the same call the widget makes.
     publishedText: offSeason ? null : formatValidity(properties.start_date, properties.timezone),
     expiresText: offSeason ? null : formatValidity(properties.end_date, properties.timezone),
-    advice: offSeason || !settings.advice ? null : travelAdvice(dangerLevel),
+    advice: offSeason || infoExchange ? null : travelAdvice(dangerLevel),
     ...resolveHref(properties, settings.centerId),
   }
 }
@@ -199,6 +221,8 @@ export function zonePopup(properties: ZoneProperties, settings: ZonePopupSetting
  */
 export interface ZoneRenderProperties extends ZoneProperties, ZoneStyle {
   hasWarning: boolean
+  /** The zone's center is an information exchange (see `infoExchangeCenters.ts`). */
+  infoExchange: boolean
 }
 
 export interface ZoneRenderFeature extends Omit<ZoneFeature, 'properties'> {
@@ -206,13 +230,17 @@ export interface ZoneRenderFeature extends Omit<ZoneFeature, 'properties'> {
 }
 
 /** Attach each zone's computed style to its feature, ready to hand to Mapbox as a source. */
-export function decorateZoneFeatures(features: ZoneFeature[]): ZoneRenderFeature[] {
+export function decorateZoneFeatures(
+  features: ZoneFeature[],
+  infoExchangeIds: ReadonlySet<string> = new Set(),
+): ZoneRenderFeature[] {
   return features.map((feature) => ({
     ...feature,
     properties: {
       ...feature.properties,
       ...zoneStyle(feature.properties),
       hasWarning: hasActiveWarning(feature.properties),
+      infoExchange: infoExchangeIds.has(feature.properties.center_id),
     },
   }))
 }

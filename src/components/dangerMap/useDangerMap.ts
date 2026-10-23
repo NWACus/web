@@ -18,7 +18,6 @@ import type { RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { asControl, disableRotation, hasSource, isLive, MAP_STYLE } from '@/components/map/mapbox'
-import { mapboxZoomFor, type DangerMapSettings } from '@/services/nac/dangerMap/dangerMapSettings'
 import type { ZonePopup, ZoneRenderFeature } from '@/services/nac/dangerMap/dangerMapZones'
 import { zonePopup, type ZonePopupSettings } from '@/services/nac/dangerMap/dangerMapZones'
 
@@ -33,6 +32,7 @@ import {
 
 /** Roughly the centre of the western US — only ever seen before the zones arrive. */
 const FALLBACK_CENTER: [number, number] = [-114.7, 44]
+const FALLBACK_ZOOM = 7
 
 export interface ZoneCollection {
   type: 'FeatureCollection'
@@ -61,24 +61,18 @@ export interface HoveredZone {
   y: number
 }
 
-/**
- * Build the Mapbox map once, into `containerRef`, and tear it down on unmount.
- *
- * Settings are read at construction: a center's viewport and controls are editorial config that
- * changes between deploys, not between renders, so the map is not rebuilt when they change.
- */
+/** Build the Mapbox map once, into `containerRef`, and tear it down on unmount. */
 export function useMapInstance(
   containerRef: RefObject<HTMLDivElement | null>,
   recenterRef: RefObject<HTMLDivElement | null>,
   token: string | undefined,
-  settings: DangerMapSettings,
 ): MapRef {
   const mapRef = useRef<MapboxMap | null>(null)
 
   useEffect(() => {
     if (!containerRef.current || !token) return
 
-    const map = buildMap(containerRef.current, token, settings)
+    const map = buildMap(containerRef.current, token)
     mapRef.current = map
 
     // Added after the built-in controls, so Mapbox stacks it underneath them.
@@ -94,18 +88,15 @@ export function useMapInstance(
   return mapRef
 }
 
-function buildMap(
-  container: HTMLDivElement,
-  token: string,
-  settings: DangerMapSettings,
-): MapboxMap {
+/** Search and geolocate are always on: the widget ignores the dashboard's toggles for them. */
+function buildMap(container: HTMLDivElement, token: string): MapboxMap {
   mapboxgl.accessToken = token
 
   const map = new mapboxgl.Map({
     container,
     style: MAP_STYLE,
-    center: settings.center ? [settings.center.lng, settings.center.lat] : FALLBACK_CENTER,
-    zoom: mapboxZoomFor(settings.zoom),
+    center: FALLBACK_CENTER,
+    zoom: FALLBACK_ZOOM,
     // Scroll-zoom only with a modifier, so the map never hijacks a page scroll.
     cooperativeGestures: true,
   })
@@ -113,20 +104,15 @@ function buildMap(
   disableRotation(map)
   map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
 
-  if (settings.geolocate) {
-    map.addControl(
-      new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccuracy: true } }),
-      'top-right',
-    )
-  }
+  map.addControl(
+    new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccuracy: true } }),
+    'top-right',
+  )
 
-  if (settings.search) {
-    // Mapbox mounts it; SEARCH_BOX_LAYOUT in the component re-positions the corner it lands in.
-    // Letting Mapbox own the mounting sidesteps @mapbox/search-js-web's element type, which
-    // narrows addEventListener in a way that makes it unassignable to `Node` (so `appendChild`
-    // rejects it).
-    map.addControl(buildSearchBox(map, token), 'top-left')
-  }
+  // Mapbox mounts it; SEARCH_BOX_LAYOUT in the component re-positions the corner it lands in.
+  // Letting Mapbox own the mounting sidesteps @mapbox/search-js-web's element type, which narrows
+  // addEventListener in a way that makes it unassignable to `Node` (so `appendChild` rejects it).
+  map.addControl(buildSearchBox(map, token), 'top-left')
 
   return map
 }
@@ -210,6 +196,16 @@ export function useZoneLayers(mapRef: MapRef, zones: ZoneCollection | null, onRe
   }, [mapRef, zones])
 }
 
+/**
+ * Triangle wave between the min and max opacity — ramp up for half a cycle, down for the other
+ * half, which is what the widget's ±0.05-per-50ms stepping amounts to.
+ */
+function flashOpacityAt(elapsed: number): number {
+  const phase = (elapsed % FLASH_CYCLE_MS) / FLASH_CYCLE_MS
+  const ramp = phase < 0.5 ? phase * 2 : (1 - phase) * 2
+  return FLASH_MIN_OPACITY + ramp * (FLASH_MAX_OPACITY - FLASH_MIN_OPACITY)
+}
+
 /** Pulse the fill of any zone with an avalanche warning in effect. */
 export function useWarningFlash(mapRef: MapRef, zones: ZoneCollection | null) {
   useEffect(() => {
@@ -231,13 +227,10 @@ export function useWarningFlash(mapRef: MapRef, zones: ZoneCollection | null) {
       const elapsed = now - start
       if (elapsed - lastStep < FLASH_STEP_MS) return
       lastStep = elapsed
+      // The zones usually arrive before the style loads, so the source may not exist yet.
+      if (!hasSource(map, SOURCE_ID)) return
 
-      // Triangle wave between the min and max opacity — ramp up for half a cycle, down for the
-      // other half, which is what the widget's ±0.05-per-50ms stepping amounts to.
-      const phase = (elapsed % FLASH_CYCLE_MS) / FLASH_CYCLE_MS
-      const ramp = phase < 0.5 ? phase * 2 : (1 - phase) * 2
-      const flashOpacity = FLASH_MIN_OPACITY + ramp * (FLASH_MAX_OPACITY - FLASH_MIN_OPACITY)
-
+      const flashOpacity = flashOpacityAt(elapsed)
       for (const id of warnedIds) {
         map.setFeatureState({ source: SOURCE_ID, id }, { flashOpacity })
       }
