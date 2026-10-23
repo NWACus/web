@@ -16,6 +16,9 @@
   --secondary-hover: hsla(240, 25%, 39%, 0.8);
   --secondary-foreground: hsl(240 5.9% 10%);
 
+  /* passes AAA (7:1) on white and brand-100/200 */
+  --link: hsl(221 83% 37%);
+
   --nav-underline: hsl(280, 63%, 17%);
 
   --muted: hsl(240 4.8% 95.9%);
@@ -78,18 +81,47 @@
   --error: hsl(10 100% 86%);
 }
 
+/* DVAC: desert palette (sand, terracotta, canyon) */
 .dvac {
-  --primary: hsl(240, 23%, 39%);
-  --primary-hover: hsl(240, 24%, 51%);
+  --primary: hsl(18 45% 30%);
+  --primary-hover: hsla(18 45% 30% / 0.85);
+  --primary-foreground: hsl(40 60% 97%);
 
-  --secondary: hsl(8 61% 45%);
-  --secondary-hover: hsla(8 61% 45% / 0.9);
+  --secondary: hsl(16 60% 45%);
+  --secondary-hover: hsla(16 60% 45% / 0.9);
+  --secondary-foreground: hsl(0 0% 100%);
 
-  --callout: hsl(66 83% 35%);
-  --callout-hover: hsla(66 83% 35% / 0.8);
+  --link: hsl(14 60% 36%);
+
+  --callout: hsl(85 25% 36%);
+  --callout-hover: hsla(85 25% 36% / 0.85);
   --callout-foreground: hsl(0 0% 100%);
 
-  --header-foreground-highlight: hsl(240 3.8% 35.3%);
+  --header-foreground-highlight: hsl(18 38% 29%);
+
+  --brand-50: hsl(40 60% 97%);
+  --brand-100: hsl(38 55% 92%);
+  --brand-200: hsl(34 50% 83%);
+  --brand-300: hsl(30 45% 71%);
+  --brand-400: hsl(24 55% 58%);
+  --brand-500: hsl(16 55% 45%);
+  --brand-600: hsl(12 52% 37%);
+  --brand-700: hsl(18 38% 29%);
+  --brand-800: hsl(22 32% 20%);
+  --brand-900: hsl(24 32% 13%);
+  --brand-950: hsl(25 35% 8%);
+
+  --brand-foreground-50: hsl(25 35% 10%);
+  --brand-foreground-100: hsl(25 35% 10%);
+  --brand-foreground-200: hsl(25 35% 10%);
+  --brand-foreground-300: hsl(25 35% 10%);
+  --brand-foreground-400: hsl(25 35% 10%);
+  --brand-foreground-500: hsl(40 60% 97%);
+  --brand-foreground-600: hsl(40 60% 97%);
+  --brand-foreground-700: hsl(40 60% 97%);
+  --brand-foreground-800: hsl(40 60% 97%);
+  --brand-foreground-900: hsl(40 60% 97%);
+  --brand-foreground-950: hsl(40 60% 97%);
 }
 
 /* Northwest Avalanche Center */
@@ -99,6 +131,8 @@
 
   --secondary: hsl(193 42% 74%);
   --secondary-hover: hsla(193 42% 74% / 0.8);
+
+  --link: hsl(193 100% 28%);
 
   --header: hsl(217 62% 21%);
   --header-foreground: hsl(193 42% 74%);
@@ -135,6 +169,8 @@
   --secondary: var(--moonstone);
   --secondary-hover: hsla(185 73% 44% / 0.8);
 
+  --link: var(--sapphire);
+
   --header: var(--oxford);
   --header-foreground: var(--ice-blue);
   --header-foreground-highlight: hsl(0 0% 100%);
@@ -163,6 +199,19 @@
   --brand-800: hsl(212 78% 26%);
   --brand-900: var(--deep-blue);
   --brand-950: var(--oxford);
+
+  --brand-foreground-50: hsl(222 47% 11%);
+  --brand-foreground-100: hsl(222 47% 11%);
+  --brand-foreground-200: hsl(222 47% 11%);
+  --brand-foreground-300: hsl(222 47% 11%);
+  /* sky-blue only clears 4.5:1 against pure white */
+  --brand-foreground-400: hsl(0 0% 100%);
+  --brand-foreground-500: hsl(0 0% 100%);
+  --brand-foreground-600: hsl(0 0% 100%);
+  --brand-foreground-700: hsl(0 0% 100%);
+  --brand-foreground-800: hsl(0 0% 100%);
+  --brand-foreground-900: hsl(0 0% 100%);
+  --brand-foreground-950: hsl(0 0% 100%);
 }
 
 /* Sawtooth Avalanche Center */
@@ -179,9 +228,23 @@
   --brand-900: hsl(210 4% 16%);
   --brand-950: hsl(210 4% 12%);
 
+  --brand-foreground-50: hsl(222 47% 11%);
+  --brand-foreground-100: hsl(222 47% 11%);
+  --brand-foreground-200: hsl(222 47% 11%);
+  --brand-foreground-300: hsl(222 47% 11%);
+  --brand-foreground-400: hsl(222 47% 11%);
+  --brand-foreground-500: hsl(222 47% 11%);
+  --brand-foreground-600: hsl(222 47% 11%);
+  --brand-foreground-700: hsl(210 40% 98%);
+  --brand-foreground-800: hsl(210 40% 98%);
+  --brand-foreground-900: hsl(210 40% 98%);
+  --brand-foreground-950: hsl(210 40% 98%);
+
   --secondary: hsl(200 75% 42%);
   --secondary-hover: hsl(200 75% 38%);
   --secondary-foreground: var(--brand-50);
+
+  --link: hsl(200 75% 31%);
 
   --callout: var(--brand-300);
   --callout-hover: hsla(178 75% 38%);
@@ -217,7 +280,7 @@
   --brand-foreground-200: hsl(240 10% 3.9%);
   --brand-foreground-300: hsl(240 10% 3.9%);
   --brand-foreground-400: hsl(240 10% 3.9%);
-  --brand-foreground-500: hsl(0 0% 100%);
+  --brand-foreground-500: hsl(240 10% 3.9%);
   --brand-foreground-600: hsl(0 0% 100%);
   --brand-foreground-700: hsl(0 0% 100%);
   --brand-foreground-800: hsl(0 0% 100%);
@@ -229,6 +292,7 @@
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(193 55% 45%);
   --secondary-hover: hsla(193 55% 45% / 0.85);
+  --link: hsl(193 55% 32%);
   --secondary-foreground: hsl(0 0% 100%);
   --header: hsl(199 70% 16%);
   --header-foreground: hsl(193 45% 77%);
@@ -257,6 +321,8 @@
   --secondary-hover: hsla(358 85% 52% / 0.8);
   --secondary-foreground: hsl(0 0% 100%);
 
+  --link: hsl(358 85% 43%);
+
   --header: var(--mountain-slate);
   --header-foreground: var(--couloir-blue);
   --header-foreground-highlight: hsl(0 0% 100%);
@@ -271,4 +337,23 @@
 
   --accent: var(--couloir-blue);
   --accent-foreground: var(--mountain-slate);
+}
+
+/* --link must pass on white and brand-100/200; darker shades use the block's
+   own contrasting text color. Rich-text links stay underlined either way. */
+:is(
+  .bg-brand-300,
+  .bg-brand-400,
+  .bg-brand-500,
+  .bg-brand-600,
+  .bg-brand-700,
+  .bg-brand-800,
+  .bg-brand-900,
+  .bg-brand-950
+) {
+  --link: currentColor;
+}
+
+.nwac :is(.bg-brand-600, .bg-brand-700, .bg-brand-800, .bg-brand-900, .bg-brand-950) {
+  --link: hsl(193 100% 82%);
 }

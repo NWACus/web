@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "4d127e84480f92ff"
+sig = "a454c0646c93fdd9"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -588,7 +588,7 @@ sig = "74700f712c8c87a1"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "tailwind.config.mjs"
-sig = "1b87a3bc406a8469"
+sig = "88be75a45f196c00"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
@@ -1418,7 +1418,7 @@ sig = "8aa0db8af527ff49"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/(frontend)/colors.css"
-sig = "a7a704bdd1a14052"
+sig = "a917862348b59ee8"
 
 [[bindings]]
 doc = "docs/onboarding.md"
