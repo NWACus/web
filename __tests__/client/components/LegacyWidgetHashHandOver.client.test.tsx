@@ -107,6 +107,16 @@ describe('LegacyWidgetHashHandOverClient', () => {
     expect(global.fetch).not.toHaveBeenCalled()
   })
 
+  it('hands over a widget link opened from the same page, which only changes the hash', async () => {
+    global.fetch = jest.fn()
+    renderAt('')
+
+    window.history.replaceState(null, '', '/forecasts/avalanche#/all')
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/forecasts/avalanche'))
+  })
+
   it('does nothing without a widget hash', async () => {
     global.fetch = jest.fn()
 

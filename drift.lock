@@ -358,7 +358,7 @@ sig = "2fc6d01b927f646f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/LegacyWidgetHashHandOver.client.tsx"
-sig = "7ce93461ce748c67"
+sig = "3e70b462299db39a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

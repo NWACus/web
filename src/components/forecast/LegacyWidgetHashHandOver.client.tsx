@@ -29,16 +29,21 @@ export function LegacyWidgetHashHandOverClient({
   const router = useRouter()
 
   useEffect(() => {
-    const target = widgetHashTarget(window.location.hash, { zones, weatherArchive })
-    if (!target) return
-
     let cancelled = false
-    void addressFor(center, target).then((address) => {
-      if (!cancelled) router.replace(address)
-    })
+    const handOver = () => {
+      const target = widgetHashTarget(window.location.hash, { zones, weatherArchive })
+      if (!target) return
+      void addressFor(center, target).then((address) => {
+        if (!cancelled) router.replace(address)
+      })
+    }
 
+    handOver()
+    // A widget link opened from this same page changes only the hash, without a reload.
+    window.addEventListener('hashchange', handOver)
     return () => {
       cancelled = true
+      window.removeEventListener('hashchange', handOver)
     }
   }, [center, zones, weatherArchive, router])
 
