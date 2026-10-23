@@ -47,12 +47,7 @@ export default async function Page({ params, searchParams }: Args) {
 
   return (
     <>
-      <Breadcrumbs
-        center={center}
-        path={stationPagePath(station)}
-        title={page.displayName}
-        hasStationsIndex
-      />
+      <Breadcrumbs center={center} path={stationPagePath(station)} title={page.displayName} />
       <StationPageView
         page={page}
         pages={toPageSummaries(pages)}

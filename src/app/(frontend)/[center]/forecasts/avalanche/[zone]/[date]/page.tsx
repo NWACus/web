@@ -180,11 +180,6 @@ async function redirectToCoveringProduct(search: CoveringSearch, zoneSlug: strin
   notFound()
 }
 
-/** A retired zone has no live page for its breadcrumb to link to. */
-function zonePathsWithoutPages(zone: DatedForecastZone): string[] {
-  return zone.active ? [] : [`/forecasts/avalanche/${zone.slug}`]
-}
-
 export default async function Page({ params }: Args) {
   const { center, zone: zoneParam, date } = await params
   const zone = zoneSlugFromParam(zoneParam)
@@ -252,7 +247,6 @@ export default async function Page({ params }: Args) {
         // The zone's real name, not the slug: a derived crumb is lowercase in the DOM and only
         // looks capitalized through CSS, so assistive tech reads it as the reader never sees it.
         labels={{ [`/forecasts/avalanche/${zone}`]: resolvedZone.zone.name }}
-        pathsWithoutPages={zonePathsWithoutPages(resolvedZone)}
       />
       <ForecastGlossary center={metadata}>
         <NativeForecastView
