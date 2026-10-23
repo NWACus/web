@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "4d127e84480f92ff"
+sig = "18856a7e4d88a01c"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -468,7 +468,7 @@ sig = "f7426538fbbeab4b"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/resolveZone.ts"
-sig = "3c74e21c62185ecd"
+sig = "66d38bce68863061"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
