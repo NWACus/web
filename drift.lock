@@ -218,7 +218,7 @@ sig = "f13da0ab1d56b040"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/danger-map/route.ts"
-sig = "3217136b888718ec"
+sig = "be5f332282ea542b"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

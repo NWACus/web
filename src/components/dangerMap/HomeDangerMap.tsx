@@ -3,9 +3,10 @@
  *
  * - the per-tenant native rollout flag (Control 1) chooses the native map over the legacy `map`
  *   widget, so a tenant can be rolled back instantly;
- * - the center's own danger-map settings (controls, viewport, all-centers) come from the NAC
- *   dashboard, so a forecaster who configured their embed sees the same map here. Height is the
- *   exception: both maps render at DANGER_MAP_HEIGHT, so the flag flip doesn't change the layout.
+ * - the center's own danger-map settings (controls, all-centers) come from the NAC dashboard, so a
+ *   forecaster who configured their embed sees the same map here. Height and viewport are the
+ *   exceptions: both maps render at DANGER_MAP_HEIGHT, and both fit the center's zones because
+ *   AvyWeb's widget embed passes no lat/lng/zoom — so the flag flip doesn't change what's shown.
  *
  * Unlike the warnings slot there is no upstream capability gate: the legacy widget renders for
  * every tenant regardless of platform, and gating only the native path would make the flag flip a
@@ -14,7 +15,8 @@
 import { NACWidget } from '@/components/NACWidget'
 import { DangerScale } from '@/components/forecast/DangerScale'
 import { resolveDangerMapSettings } from '@/services/nac/dangerMap/dangerMapSettings'
-import { getAvalancheCenterMetadata } from '@/services/nac/nac'
+import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { isInfoExchange } from '@/services/nac/types/schemas'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 
 import { DangerMapLoader } from './DangerMapLoader.client'
@@ -33,6 +35,13 @@ interface HomeDangerMapProps {
   centerSlug: string
 }
 
+/** An info exchange issues no ratings, so like the widget it gets no scale. */
+async function HomeDangerScale({ centerSlug }: HomeDangerMapProps) {
+  const platforms = await getAvalancheCenterPlatforms(centerSlug).catch(() => null)
+  if (platforms && isInfoExchange(platforms)) return null
+  return <DangerScale />
+}
+
 export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
   const useNative = await getNativeProductFlag(centerSlug, 'dangerMap')
 
@@ -48,7 +57,10 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
   }
 
   const metadata = await getAvalancheCenterMetadata(centerSlug)
-  const settings = resolveDangerMapSettings(metadata?.widget_config?.danger_map)
+  const settings = {
+    ...resolveDangerMapSettings(metadata?.widget_config?.danger_map),
+    center: null,
+  }
 
   return (
     <div className="space-y-2">
@@ -63,7 +75,7 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
 
       {/* Server-rendered, both so it holds its own space from the first paint and so
           `sanitize-html` stays out of the client bundle. */}
-      <DangerScale />
+      <HomeDangerScale centerSlug={centerSlug} />
     </div>
   )
 }

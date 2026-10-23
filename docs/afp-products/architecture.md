@@ -102,6 +102,8 @@ The map layer is the product closest to being ready to flip — dashboard-v2 alr
 
 `platforms.*` is the AFP's per-center capability feed (`forecasts`, `warnings`, `stations`, `obs`, `weather`), read via `getAvalancheCenterPlatforms`. It gates **above** both of ours — `HomeWarnings` returns `null` on `!platforms.warnings` before any of our logic runs, and tenant provisioning consults it to decide whether a center gets a Mountain Weather page at all.
 
+The danger map's endpoint reads the feed too, for every center on the map at once (`getAllAvalancheCenterCapabilities`), but only to word popups, not to gate anything: an unrated zone of an information exchange points readers at observations instead of saying it has no rating, as the widget's popup does. If that read fails, every zone gets the ordinary popup.
+
 The consequence that surprises people: **NWAC's `platforms.weather` is hard-coded `false`**, because NWAC forecasts weather in-house rather than through the AFP. Any native mountain-weather work has to account for that gate before it accounts for ours.
 
 Some `widget_config` flags switch a feature on a page rather than the page itself, and the native pages honor them the same way. `widget_config.forecast.glossary` decides whether a center's forecast and weather prose gets glossary tooltips ([ADR 018](../decisions/018-forecast-glossary.md)); NWAC and SAC have it on, SNFAC off, and DVAC follows NWAC's data. Off, the glossary's client island never mounts.

@@ -3,8 +3,13 @@
 // production build, where these routes answer and the Payload catch-all still resolves. The
 // sibling freshness routes, in production since #1129, trip the same check.
 // fallow-ignore-file dynamic-segment-name-conflicts
-import { decorateZoneFeatures } from '@/services/nac/dangerMap/dangerMapZones'
+import {
+  decorateZoneFeatures,
+  infoExchangeCenterIds,
+} from '@/services/nac/dangerMap/dangerMapZones'
 import { getZoneMapLayer } from '@/services/nac/dangerMap/mapLayer'
+import type { ZoneFeature } from '@/services/nac/model/mapLayer'
+import { getAllAvalancheCenterCapabilities } from '@/services/nac/nac'
 import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
@@ -21,6 +26,18 @@ const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/
 function requestedDay(request: NextRequest): string | undefined {
   const day = request.nextUrl.searchParams.get('day')
   return day && ISO_DAY.test(day) ? day : undefined
+}
+
+/**
+ * The map's centers that are information exchanges. The platforms feed failing is not fatal: every
+ * center then falls back to the `AIX` id suffix, as the widget does.
+ */
+async function infoExchangeIdsFor(features: ZoneFeature[]): Promise<Set<string>> {
+  const centerIds = new Set(features.map((feature) => feature.properties.center_id))
+  const platformsById = await getAllAvalancheCenterCapabilities()
+    .then(({ centers }) => new Map(centers.map((center) => [center.id, center.platforms])))
+    .catch(() => new Map())
+  return infoExchangeCenterIds(centerIds, platformsById)
 }
 
 /**
@@ -48,9 +65,13 @@ export async function GET(
 
   try {
     const mapLayer = await getZoneMapLayer(center, { day: requestedDay(request), allCenters })
+    const infoExchangeIds = await infoExchangeIdsFor(mapLayer.features)
 
     return NextResponse.json(
-      { type: 'FeatureCollection', features: decorateZoneFeatures(mapLayer.features) },
+      {
+        type: 'FeatureCollection',
+        features: decorateZoneFeatures(mapLayer.features, infoExchangeIds),
+      },
       // Matches the upstream cache window so a burst of viewers shares one upstream request,
       // while still being far fresher than the host page's revalidate window.
       { headers: { 'Cache-Control': 'public, max-age=0, s-maxage=300' } },

@@ -210,6 +210,16 @@ export function useZoneLayers(mapRef: MapRef, zones: ZoneCollection | null, onRe
   }, [mapRef, zones])
 }
 
+/**
+ * Triangle wave between the min and max opacity — ramp up for half a cycle, down for the other
+ * half, which is what the widget's ±0.05-per-50ms stepping amounts to.
+ */
+function flashOpacityAt(elapsed: number): number {
+  const phase = (elapsed % FLASH_CYCLE_MS) / FLASH_CYCLE_MS
+  const ramp = phase < 0.5 ? phase * 2 : (1 - phase) * 2
+  return FLASH_MIN_OPACITY + ramp * (FLASH_MAX_OPACITY - FLASH_MIN_OPACITY)
+}
+
 /** Pulse the fill of any zone with an avalanche warning in effect. */
 export function useWarningFlash(mapRef: MapRef, zones: ZoneCollection | null) {
   useEffect(() => {
@@ -231,13 +241,10 @@ export function useWarningFlash(mapRef: MapRef, zones: ZoneCollection | null) {
       const elapsed = now - start
       if (elapsed - lastStep < FLASH_STEP_MS) return
       lastStep = elapsed
+      // The zones usually arrive before the style loads, so the source may not exist yet.
+      if (!hasSource(map, SOURCE_ID)) return
 
-      // Triangle wave between the min and max opacity — ramp up for half a cycle, down for the
-      // other half, which is what the widget's ±0.05-per-50ms stepping amounts to.
-      const phase = (elapsed % FLASH_CYCLE_MS) / FLASH_CYCLE_MS
-      const ramp = phase < 0.5 ? phase * 2 : (1 - phase) * 2
-      const flashOpacity = FLASH_MIN_OPACITY + ramp * (FLASH_MAX_OPACITY - FLASH_MIN_OPACITY)
-
+      const flashOpacity = flashOpacityAt(elapsed)
       for (const id of warnedIds) {
         map.setFeatureState({ source: SOURCE_ID, id }, { flashOpacity })
       }

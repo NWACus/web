@@ -4,6 +4,7 @@ import {
   decorateZoneFeatures,
   featuresToFit,
   hasActiveWarning,
+  infoExchangeCenterIds,
   popupDangerLevel,
   zoneBounds,
   zonePopup,
@@ -11,6 +12,7 @@ import {
 } from '@/services/nac/dangerMap/dangerMapZones'
 import { NO_RATING_ADVICE } from '@/services/nac/dangerScale'
 import type { ZoneFeature, ZoneGeometry, ZoneProperties } from '@/services/nac/model/mapLayer'
+import type { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 
 /** A mid-winter Considerable zone — the ordinary case the map spends the season rendering. */
 function zone(overrides: Partial<ZoneProperties> = {}): ZoneProperties {
@@ -123,6 +125,47 @@ describe('decorateZoneFeatures', () => {
     expect(plain.properties.hasWarning).toBe(false)
     expect(warned.properties.hasWarning).toBe(true)
   })
+
+  it('marks the zones of information exchanges', () => {
+    const [nwac, soaix] = decorateZoneFeatures(
+      [feature({}, 1), feature({ center_id: 'SOAIX' }, 2)],
+      new Set(['SOAIX']),
+    )
+
+    expect(nwac.properties.infoExchange).toBe(false)
+    expect(soaix.properties.infoExchange).toBe(true)
+  })
+})
+
+describe('infoExchangeCenterIds', () => {
+  const platforms = (forecasts: boolean, obs: boolean): AvalancheCenterPlatforms => ({
+    warnings: false,
+    forecasts,
+    stations: false,
+    obs,
+    weather: false,
+    nwac_weather: false,
+  })
+
+  it('reads exchanges from the platforms feed: observations without forecasts', () => {
+    const feed = new Map([
+      ['NWAC', platforms(true, true)],
+      ['EWYAIX', platforms(false, true)],
+    ])
+
+    expect(infoExchangeCenterIds(['NWAC', 'EWYAIX'], feed)).toEqual(new Set(['EWYAIX']))
+  })
+
+  // The feed outranks the id: an AIX center that starts forecasting stops being an exchange.
+  it('trusts the feed over the AIX suffix', () => {
+    expect(infoExchangeCenterIds(['SOAIX'], new Map([['SOAIX', platforms(true, true)]]))).toEqual(
+      new Set(),
+    )
+  })
+
+  it('falls back to the AIX suffix for a center the feed does not describe', () => {
+    expect(infoExchangeCenterIds(['SOAIX', 'NWAC'], new Map())).toEqual(new Set(['SOAIX']))
+  })
 })
 
 describe('hasActiveWarning', () => {
@@ -178,6 +221,37 @@ describe('zonePopup', () => {
     expect(popup.publishedText).toBeNull()
     expect(popup.expiresText).toBeNull()
     expect(popup.advice).toBeNull()
+  })
+
+  describe('an information exchange', () => {
+    const exchangeZone = (overrides: Partial<ZoneProperties> = {}) => ({
+      ...zone({ center_id: 'SOAIX', danger: 'no rating', danger_level: -1, ...overrides }),
+      infoExchange: true,
+    })
+
+    it('points an unrated zone at observations instead of a rating', () => {
+      const popup = zonePopup(exchangeZone(), settings)
+
+      expect(popup.infoExchange).toBe(true)
+      expect(popup.headline).toBe('View Observations')
+      expect(popup.subhead).toBe('Avalanche Info Exchange')
+      expect(popup.advice).toBeNull()
+    })
+
+    // Its fill already shows the rating, so the popup shouldn't contradict it.
+    it('still describes a zone that carries a live rating', () => {
+      const popup = zonePopup(exchangeZone({ danger: 'considerable', danger_level: 3 }), settings)
+
+      expect(popup.infoExchange).toBe(false)
+      expect(popup.headline).toBe('3 - Considerable')
+    })
+
+    it('defers to the off-season notice', () => {
+      const popup = zonePopup(exchangeZone({ off_season: true }), settings)
+
+      expect(popup.infoExchange).toBe(false)
+      expect(popup.headline).toBe('Forecasts ended for the season')
+    })
   })
 
   it('flags an active warning', () => {
