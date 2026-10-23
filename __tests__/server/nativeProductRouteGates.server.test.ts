@@ -11,6 +11,7 @@ jest.mock('../../src/services/nac/nac', () => ({
   fetchProductArchiveOrThrow: (...a: unknown[]) => mockUpstream('archive', ...a),
   getAvalancheCenterPlatforms: (...a: unknown[]) => mockUpstream('platforms', ...a),
   afpFetch: (...a: unknown[]) => mockUpstream('afp', ...a),
+  fetchProductById: (...a: unknown[]) => mockUpstream('product', ...a),
   logNacError: jest.fn(),
 }))
 jest.mock('../../src/services/nac/resolveZone', () => ({
@@ -33,6 +34,7 @@ jest.mock('../../src/services/stations/getStationPages', () => ({
 }))
 
 import { GET as dangerMap } from '@/app/api/[center]/danger-map/route'
+import { GET as forecastAddress } from '@/app/api/[center]/forecast-address/route'
 import { GET as forecastArchiveAdjacent } from '@/app/api/[center]/forecast-archive/adjacent/route'
 import { GET as forecastArchive } from '@/app/api/[center]/forecast-archive/route'
 import { GET as forecastCurrentDate } from '@/app/api/[center]/forecast-current-date/[zone]/route'
@@ -77,6 +79,14 @@ describe.each([
         ),
         { params },
       ),
+  ],
+  [
+    'forecast-address',
+    'forecast',
+    () =>
+      forecastAddress(new NextRequest('http://x/api/nwac/forecast-address?id=1&zone=1'), {
+        params,
+      }),
   ],
   [
     'forecast-current-date',

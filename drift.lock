@@ -168,7 +168,7 @@ sig = "2edb0b1e2fa7784f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/[zone]/page.tsx"
-sig = "57a2dad357b65ad7"
+sig = "cc43b3340a45518f"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -193,7 +193,7 @@ sig = "179550e45d6f965c"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/page.tsx"
-sig = "a03f04eb361a053c"
+sig = "23f73e62d318dae5"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -352,6 +352,11 @@ sig = "2fc6d01b927f646f"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/LegacyWidgetHashHandOver.client.tsx"
+sig = "7ce93461ce748c67"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/NativeForecastPage.tsx"
 sig = "00f9a2eee63b1a78"
 
@@ -389,6 +394,11 @@ sig = "9f9aca44832d4ccb"
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/forecastPrintSections.ts"
 sig = "e941f75d5b07309b"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/legacyWidgetHash.ts"
+sig = "5203dc2313c8fb24"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -444,6 +454,11 @@ sig = "809c1a4a467d7a04"
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/datedForecast.ts"
 sig = "21def7236a5e5d8a"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/forecastAddress.ts"
+sig = "58c66acea2416f9b"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

@@ -3,6 +3,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
 import { AllZonesForecast } from '@/components/forecast/AllZonesForecast'
+import { LegacyWidgetHashHandOver } from '@/components/forecast/LegacyWidgetHashHandOver'
 import {
   assertCenterPlatform,
   centerRouteMetadata,
@@ -30,6 +31,7 @@ export default async function Page({ params }: CenterRouteArgs) {
       <>
         <Breadcrumbs center={center} path="/forecasts/avalanche" />
         <AllZonesForecast centerSlug={center} />
+        <LegacyWidgetHashHandOver center={center} />
       </>
     )
   }
