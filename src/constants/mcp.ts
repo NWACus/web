@@ -38,6 +38,7 @@ export const MCP_COLLECTIONS: Record<CollectionSlug, McpExposure> = {
   globalRoles: { excluded: 'Low risk, but only useful for debugging RBAC' },
   'form-submissions': { excluded: 'Whatever the public typed into forms' },
   'payload-mcp-api-keys': { excluded: 'The MCP API keys themselves' },
+  'payload-folders': { excluded: 'Admin-only organization of Media' },
   'payload-kv': { excluded: 'Payload internal' },
   'payload-locked-documents': { excluded: 'Payload internal' },
   'payload-preferences': { excluded: 'Payload internal' },
