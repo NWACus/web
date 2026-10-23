@@ -18,7 +18,7 @@ export const validateZipCode: TextFieldSingleValidation = (value, args) => {
     return text(value, args)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return error.errors[0]?.message || 'Invalid ZIP code'
+      return error.issues[0]?.message || 'Invalid ZIP code'
     }
     return 'Invalid ZIP code'
   }

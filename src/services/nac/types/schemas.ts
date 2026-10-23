@@ -165,7 +165,7 @@ export const avalancheCenterStationsWidgetConfigurationSchema = z.object({
   sources: z.array(z.string()).optional(),
   within: z.union([z.string(), z.number()]).optional(),
   external_modal_links: z
-    .union([z.record(externalModalLinkSchema), z.array(externalModalLinkSchema)])
+    .union([z.record(z.string(), externalModalLinkSchema), z.array(externalModalLinkSchema)])
     .optional(),
   token: z.string().optional(),
 })
