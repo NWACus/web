@@ -19,7 +19,6 @@ import { format } from 'date-fns/format'
 import { dangerLevelFromRating, dangerLevelLabel, travelAdvice } from '../dangerScale'
 import type { ZoneFeature, ZoneProperties } from '../model/mapLayer'
 import { DangerLevel } from '../types/forecastSchemas'
-import { isInfoExchange, type AvalancheCenterPlatforms } from '../types/schemas'
 import { nativeZonePath } from '../zoneSlug'
 
 export interface ZoneStyle {
@@ -165,23 +164,6 @@ function resolveHref(
   return { href: link, isExternal: true }
 }
 
-/**
- * Which centers are information exchanges, from the avalanche-centers platforms feed — the same
- * read the widget makes. There is no fallback on the `AIX` id suffix: the feed covers every such
- * center, and the suffix is wrong for EWYAIX, which now forecasts.
- */
-export function infoExchangeCenterIds(
-  centerIds: Iterable<string>,
-  platformsById: ReadonlyMap<string, AvalancheCenterPlatforms>,
-): Set<string> {
-  const ids = new Set<string>()
-  for (const id of centerIds) {
-    const platforms = platformsById.get(id)
-    if (platforms && isInfoExchange(platforms)) ids.add(id)
-  }
-  return ids
-}
-
 /** The popup's headline and subhead, in order of precedence. */
 function popupTitle({
   infoExchange,
@@ -240,7 +222,7 @@ export function zonePopup(
  */
 export interface ZoneRenderProperties extends ZoneProperties, ZoneStyle {
   hasWarning: boolean
-  /** The zone's center is an information exchange (see `infoExchangeCenterIds`). */
+  /** The zone's center is an information exchange (see `infoExchangeCenters.ts`). */
   infoExchange: boolean
 }
 

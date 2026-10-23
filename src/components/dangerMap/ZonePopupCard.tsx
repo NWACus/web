@@ -2,9 +2,10 @@
  * The card shown when a reader hovers a zone on the danger map.
  *
  * Content, ordering and styling follow the legacy danger-map widget's popup: a grey header stating
- * the rating (or that the season has ended) with the danger icon overhanging its right edge, a
- * warning strip when one is in effect, the zone name, the publication window, and the danger
- * scale's travel advice. All of it is derived by `zonePopup`; this only renders.
+ * the rating (or that the season has ended, or that an info exchange has observations instead)
+ * with the danger icon overhanging its right edge, a warning strip when one is in effect, the zone
+ * name, the publication window, and the danger scale's travel advice. All of it is derived by
+ * `zonePopup`; this only renders.
  */
 import { AlertTriangle } from 'lucide-react'
 import Image from 'next/image'
@@ -12,9 +13,10 @@ import Image from 'next/image'
 import type { ZonePopup } from '@/services/nac/dangerMap/dangerMapZones'
 import { dangerColor, dangerIconSize, dangerIconUrl, dangerName } from '@/services/nac/dangerScale'
 
-/** The widget's header grey (its `$gray-300`) and muted-text grey (`$gray-light`). */
+/** The widget's header grey (its `$gray-300`). */
 const HEADER_GREY = '#e8ecee'
-const MUTED_GREY = '#797f84'
+/** A shade under the widget's `$gray-light` (#797d80), which misses WCAG AA on white at 0.8rem. */
+const MUTED_GREY = '#737373'
 
 /**
  * The widget's solid alert octagon. Lucide's `OctagonAlert` paints the octagon after the "!", so

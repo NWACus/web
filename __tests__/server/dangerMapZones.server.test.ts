@@ -4,7 +4,6 @@ import {
   decorateZoneFeatures,
   featuresToFit,
   hasActiveWarning,
-  infoExchangeCenterIds,
   popupDangerLevel,
   zoneBounds,
   zonePopup,
@@ -12,7 +11,6 @@ import {
 } from '@/services/nac/dangerMap/dangerMapZones'
 import { NO_RATING_ADVICE } from '@/services/nac/dangerScale'
 import type { ZoneFeature, ZoneGeometry, ZoneProperties } from '@/services/nac/model/mapLayer'
-import type { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 
 /** A mid-winter Considerable zone — the ordinary case the map spends the season rendering. */
 function zone(overrides: Partial<ZoneProperties> = {}): ZoneProperties {
@@ -134,37 +132,6 @@ describe('decorateZoneFeatures', () => {
 
     expect(nwac.properties.infoExchange).toBe(false)
     expect(soaix.properties.infoExchange).toBe(true)
-  })
-})
-
-describe('infoExchangeCenterIds', () => {
-  const platforms = (forecasts: boolean, obs: boolean): AvalancheCenterPlatforms => ({
-    warnings: false,
-    forecasts,
-    stations: false,
-    obs,
-    weather: false,
-    nwac_weather: false,
-  })
-
-  it('reads exchanges from the platforms feed: observations without forecasts', () => {
-    const feed = new Map([
-      ['NWAC', platforms(true, true)],
-      ['EWYAIX', platforms(false, true)],
-    ])
-
-    expect(infoExchangeCenterIds(['NWAC', 'EWYAIX'], feed)).toEqual(new Set(['EWYAIX']))
-  })
-
-  // EWYAIX forecasts now; the id suffix no longer says anything.
-  it('ignores the AIX suffix', () => {
-    expect(infoExchangeCenterIds(['SOAIX'], new Map([['SOAIX', platforms(true, true)]]))).toEqual(
-      new Set(),
-    )
-  })
-
-  it('treats a center the feed does not describe as an ordinary center', () => {
-    expect(infoExchangeCenterIds(['SOAIX', 'NWAC'], new Map())).toEqual(new Set())
   })
 })
 

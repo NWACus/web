@@ -3,13 +3,12 @@
 // production build, where these routes answer and the Payload catch-all still resolves. The
 // sibling freshness routes, in production since #1129, trip the same check.
 // fallow-ignore-file dynamic-segment-name-conflicts
+import { decorateZoneFeatures } from '@/services/nac/dangerMap/dangerMapZones'
 import {
-  decorateZoneFeatures,
+  getPlatformsByCenterId,
   infoExchangeCenterIds,
-} from '@/services/nac/dangerMap/dangerMapZones'
+} from '@/services/nac/dangerMap/infoExchangeCenters'
 import { getZoneMapLayer } from '@/services/nac/dangerMap/mapLayer'
-import type { ZoneFeature } from '@/services/nac/model/mapLayer'
-import { getAllAvalancheCenterCapabilities } from '@/services/nac/nac'
 import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
@@ -29,15 +28,12 @@ function requestedDay(request: NextRequest): string | undefined {
 }
 
 /**
- * The map's centers that are information exchanges. The platforms feed failing is not fatal: every
- * zone then gets the ordinary popup, as in the widget.
+ * Matches the upstream cache window so a burst of viewers shares one upstream request, while still
+ * being far fresher than the host page's revalidate window. A map that lost its info exchanges to
+ * a platforms-feed failure is cached briefly instead, so it recovers soon after the feed does.
  */
-async function infoExchangeIdsFor(features: ZoneFeature[]): Promise<Set<string>> {
-  const centerIds = new Set(features.map((feature) => feature.properties.center_id))
-  const platformsById = await getAllAvalancheCenterCapabilities()
-    .then(({ centers }) => new Map(centers.map((center) => [center.id, center.platforms])))
-    .catch(() => new Map())
-  return infoExchangeCenterIds(centerIds, platformsById)
+function cacheControl(platformsLoaded: boolean): string {
+  return `public, max-age=0, s-maxage=${platformsLoaded ? 300 : 60}`
 }
 
 /**
@@ -64,17 +60,19 @@ export async function GET(
   const allCenters = request.nextUrl.searchParams.get('allCenters') === 'true'
 
   try {
-    const mapLayer = await getZoneMapLayer(center, { day: requestedDay(request), allCenters })
-    const infoExchangeIds = await infoExchangeIdsFor(mapLayer.features)
+    const [mapLayer, platformsById] = await Promise.all([
+      getZoneMapLayer(center, { day: requestedDay(request), allCenters }),
+      getPlatformsByCenterId(),
+    ])
+    const centerIds = mapLayer.features.map((feature) => feature.properties.center_id)
+    const infoExchangeIds = infoExchangeCenterIds(centerIds, platformsById)
 
     return NextResponse.json(
       {
         type: 'FeatureCollection',
         features: decorateZoneFeatures(mapLayer.features, infoExchangeIds),
       },
-      // Matches the upstream cache window so a burst of viewers shares one upstream request,
-      // while still being far fresher than the host page's revalidate window.
-      { headers: { 'Cache-Control': 'public, max-age=0, s-maxage=300' } },
+      { headers: { 'Cache-Control': cacheControl(platformsById !== null) } },
     )
   } catch {
     // The map renders its own error state; there is nothing useful to say beyond "not available".

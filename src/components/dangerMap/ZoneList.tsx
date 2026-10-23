@@ -45,6 +45,7 @@ function ZoneListItem({ popup }: { popup: ZonePopup }) {
       <ZoneName popup={popup} />
       {': '}
       {popup.headline}
+      {popup.infoExchange && ` (${popup.subhead})`}
       {popup.hasWarning && ' — Avalanche Warning in effect'}
     </li>
   )
