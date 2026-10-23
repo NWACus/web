@@ -70,7 +70,6 @@ import * as migration_20261008_002426_add_station_page_tabs from './20261008_002
 import * as migration_20261017_214607_station_columns_per_station from './20261017_214607_station_columns_per_station'
 import * as migration_20261019_120000_add_display_as_to_document_block from './20261019_120000_add_display_as_to_document_block'
 import * as migration_20261020_035907_add_observations_widget_block from './20261020_035907_add_observations_widget_block'
-import * as migration_20261015_120000_temp_db_diff_expectations_demo from './20261015_120000_temp_db_diff_expectations_demo'
 
 export const migrations = [
   {
@@ -432,10 +431,5 @@ export const migrations = [
     up: migration_20261020_035907_add_observations_widget_block.up,
     down: migration_20261020_035907_add_observations_widget_block.down,
     name: '20261020_035907_add_observations_widget_block',
-  },
-  {
-    up: migration_20261015_120000_temp_db_diff_expectations_demo.up,
-    down: migration_20261015_120000_temp_db_diff_expectations_demo.down,
-    name: '20261015_120000_temp_db_diff_expectations_demo',
   },
 ]
