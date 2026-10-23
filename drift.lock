@@ -1528,7 +1528,7 @@ sig = "d22b1ef080899d7d"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/components/Header/utils.ts"
-sig = "61fad0d43fefe660"
+sig = "e01046e121fd931f"
 
 [[bindings]]
 doc = "docs/revalidation.md"
