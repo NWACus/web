@@ -18,15 +18,24 @@ type DateRangeFilterProps = {
   showBottomBorder?: boolean
 }
 
-export const DateRangeFilter = ({
-  startDate: initialStartDate,
-  endDate: initialEndDate,
-  quickFilters,
-  title = 'Date Range',
-  titleClassName,
-  defaultOpen = true,
-  showBottomBorder = true,
-}: DateRangeFilterProps) => {
+const QUICK_FILTER_ORDER = [
+  'upcoming',
+  'this-week',
+  'next-week',
+  'this-month',
+  'next-month',
+  'past',
+]
+
+const matchQuickFilter = (quickFilters: QuickDateFilter[], start: string, end: string) =>
+  quickFilters.find((filter) => filter.startDate() === start && (filter.endDate() || '') === end)
+    ?.id ?? 'custom'
+
+function useDateRange(
+  quickFilters: QuickDateFilter[],
+  initialStartDate: string,
+  initialEndDate: string,
+) {
   const [{ startDate, endDate }, setDateParams] = useQueryStates(
     {
       startDate: parseAsString.withDefault(''),
@@ -39,7 +48,6 @@ export const DateRangeFilter = ({
   )
 
   const [quickFilter, setQuickFilter] = useState('')
-  const [isOpen, setIsOpen] = useState(defaultOpen)
   const isInitialMount = useRef(true)
 
   const updateDateSelection = useCallback(
@@ -60,29 +68,13 @@ export const DateRangeFilter = ({
     (filterKey: string, options?: Options) => {
       const filter = quickFilters.find((f) => f.id === filterKey)
       if (filter) {
-        const start = filter.startDate()
-        const end = filter.endDate() || ''
-        updateDateSelection(filterKey, start, end, options)
+        updateDateSelection(filterKey, filter.startDate(), filter.endDate() || '', options)
       } else {
         updateDateSelection(filterKey, startDate, endDate, options)
       }
     },
     [endDate, startDate, quickFilters, updateDateSelection],
   )
-
-  const renderQuickFilterButton = (id: string) => {
-    const filter = quickFilters.find((f) => f.id === id)
-    if (!filter) return null
-    return (
-      <Button
-        onClick={() => handleQuickFilter(filter.id)}
-        variant={quickFilter === filter.id ? 'default' : 'outline'}
-        className="flex-1"
-      >
-        {filter.label}
-      </Button>
-    )
-  }
 
   useEffect(
     function determineMatchingQuickFilter() {
@@ -101,19 +93,7 @@ export const DateRangeFilter = ({
 
       if (isInitialMount.current) {
         if (currentStart) {
-          // Try to match against quick filters
-          const matchingFilter = quickFilters.find((filter) => {
-            const filterStart = filter.startDate()
-            const filterEnd = filter.endDate() || ''
-            return filterStart === currentStart && filterEnd === currentEnd
-          })
-
-          if (matchingFilter) {
-            setQuickFilter(matchingFilter.id)
-          } else {
-            // No match found, must be custom
-            setQuickFilter('custom')
-          }
+          setQuickFilter(matchQuickFilter(quickFilters, currentStart, currentEnd))
         }
         isInitialMount.current = false
       }
@@ -121,68 +101,140 @@ export const DateRangeFilter = ({
     [endDate, handleQuickFilter, initialEndDate, initialStartDate, quickFilters, startDate],
   )
 
+  return { startDate, endDate, quickFilter, updateDateSelection, handleQuickFilter }
+}
+
+const QuickFilterButtons = ({
+  quickFilters,
+  quickFilter,
+  onSelect,
+}: {
+  quickFilters: QuickDateFilter[]
+  quickFilter: string
+  onSelect: (filterKey: string) => void
+}) => (
+  <div className="mb-4 grid grid-cols-2 gap-2">
+    {QUICK_FILTER_ORDER.map((id) => {
+      const filter = quickFilters.find((f) => f.id === id)
+      if (!filter) return null
+      return (
+        <Button
+          key={filter.id}
+          onClick={() => onSelect(filter.id)}
+          variant={quickFilter === filter.id ? 'default' : 'outline'}
+          className="flex-1"
+        >
+          {filter.label}
+        </Button>
+      )
+    })}
+  </div>
+)
+
+const DateRangeOptions = ({
+  quickFilters,
+  range: { startDate, endDate, quickFilter, updateDateSelection, handleQuickFilter },
+}: {
+  quickFilters: QuickDateFilter[]
+  range: ReturnType<typeof useDateRange>
+}) => (
+  <div className="pb-4">
+    <QuickFilterButtons
+      quickFilters={quickFilters}
+      quickFilter={quickFilter}
+      onSelect={handleQuickFilter}
+    />
+
+    <Button
+      onClick={() => handleQuickFilter('custom')}
+      variant={quickFilter === 'custom' ? 'default' : 'outline'}
+      className="w-full"
+    >
+      Custom date range
+    </Button>
+
+    {quickFilter === 'custom' && (
+      <div className="flex gap-4 mt-4">
+        <DatePickerField
+          label="Start Date"
+          value={startDate}
+          id="customStart"
+          onChange={(date) => updateDateSelection('custom', date, endDate)}
+        />
+        <DatePickerField
+          label="End Date"
+          value={endDate}
+          id="customEnd"
+          onChange={(date) => updateDateSelection('custom', startDate, date)}
+        />
+      </div>
+    )}
+  </div>
+)
+
+const DateRangeHeader = ({
+  title,
+  titleClassName,
+  isOpen,
+  onToggle,
+  showClear,
+  onClear,
+}: {
+  title: string
+  titleClassName?: string
+  isOpen: boolean
+  onToggle: () => void
+  showClear: boolean
+  onClear: () => void
+}) => (
+  <div
+    onClick={onToggle}
+    className="w-full flex items-center justify-between py-3 cursor-pointer transition-colors"
+  >
+    <h3 className={cn('font-semibold', titleClassName)}>{title}</h3>
+    <div className="flex items-center gap-2">
+      {showClear && (
+        <Button
+          onClick={(e) => {
+            e.stopPropagation()
+            onClear()
+          }}
+          variant="ghost"
+          className="underline text-sm h-auto p-0"
+        >
+          Clear
+        </Button>
+      )}
+      <ChevronDown className={`h-5 w-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+    </div>
+  </div>
+)
+
+export const DateRangeFilter = ({
+  startDate: initialStartDate,
+  endDate: initialEndDate,
+  quickFilters,
+  title = 'Date Range',
+  titleClassName,
+  defaultOpen = true,
+  showBottomBorder = true,
+}: DateRangeFilterProps) => {
+  const range = useDateRange(quickFilters, initialStartDate, initialEndDate)
+  const { quickFilter, handleQuickFilter } = range
+  const [isOpen, setIsOpen] = useState(defaultOpen)
+
   return (
     <div className={showBottomBorder ? 'border-b' : ''}>
       <div>
-        <div
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between py-3 cursor-pointer transition-colors"
-        >
-          <h3 className={cn('font-semibold', titleClassName)}>{title}</h3>
-          <div className="flex items-center gap-2">
-            {quickFilter && quickFilter !== 'upcoming' && (
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleQuickFilter('upcoming')
-                }}
-                variant="ghost"
-                className="underline text-sm h-auto p-0"
-              >
-                Clear
-              </Button>
-            )}
-            <ChevronDown className={`h-5 w-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-          </div>
-        </div>
-        {isOpen && (
-          <div className="pb-4">
-            <div className="mb-4 grid grid-cols-2 gap-2">
-              {renderQuickFilterButton('upcoming')}
-              {renderQuickFilterButton('this-week')}
-              {renderQuickFilterButton('next-week')}
-              {renderQuickFilterButton('this-month')}
-              {renderQuickFilterButton('next-month')}
-              {renderQuickFilterButton('past')}
-            </div>
-
-            <Button
-              onClick={() => handleQuickFilter('custom')}
-              variant={quickFilter === 'custom' ? 'default' : 'outline'}
-              className="w-full"
-            >
-              Custom date range
-            </Button>
-
-            {/* Custom Date Range */}
-            {quickFilter === 'custom' && (
-              <div className="flex gap-4 mt-4">
-                <DatePickerField
-                  label="Start Date"
-                  value={startDate}
-                  id="customStart"
-                  onChange={(date) => updateDateSelection('custom', date, endDate)}
-                />
-                <DatePickerField
-                  label="End Date"
-                  value={endDate}
-                  id="customEnd"
-                  onChange={(date) => updateDateSelection('custom', startDate, date)}
-                />
-              </div>
-            )}
-          </div>
-        )}
+        <DateRangeHeader
+          title={title}
+          titleClassName={titleClassName}
+          isOpen={isOpen}
+          onToggle={() => setIsOpen(!isOpen)}
+          showClear={Boolean(quickFilter) && quickFilter !== 'upcoming'}
+          onClear={() => handleQuickFilter('upcoming')}
+        />
+        {isOpen && <DateRangeOptions quickFilters={quickFilters} range={range} />}
       </div>
     </div>
   )
