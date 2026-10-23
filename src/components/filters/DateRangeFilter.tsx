@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { QuickDateFilter } from '@/utilities/createQuickDateFilters'
 import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
-import { parseAsString, useQueryStates } from 'nuqs'
+import { Options, parseAsString, useQueryStates } from 'nuqs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 type DateRangeFilterProps = {
@@ -43,25 +43,28 @@ export const DateRangeFilter = ({
   const isInitialMount = useRef(true)
 
   const updateDateSelection = useCallback(
-    (filter: string, start: string, end: string) => {
+    (filter: string, start: string, end: string, options?: Options) => {
       setQuickFilter(filter)
-      setDateParams({
-        startDate: start || null,
-        endDate: end || null,
-      })
+      setDateParams(
+        {
+          startDate: start || null,
+          endDate: end || null,
+        },
+        options,
+      )
     },
     [setDateParams],
   )
 
   const handleQuickFilter = useCallback(
-    (filterKey: string) => {
+    (filterKey: string, options?: Options) => {
       const filter = quickFilters.find((f) => f.id === filterKey)
       if (filter) {
         const start = filter.startDate()
         const end = filter.endDate() || ''
-        updateDateSelection(filterKey, start, end)
+        updateDateSelection(filterKey, start, end, options)
       } else {
-        updateDateSelection(filterKey, startDate, endDate)
+        updateDateSelection(filterKey, startDate, endDate, options)
       }
     },
     [endDate, startDate, quickFilters, updateDateSelection],
@@ -89,8 +92,9 @@ export const DateRangeFilter = ({
       if (!currentStart && !currentEnd) {
         // No dates set, set start date and set quick filter to upcoming
         // setTimeout needed to avoid hydration race condition with nuqs
+        // replace: the default isn't a user step, and an iframe's push lands in the host page's history
         setTimeout(() => {
-          handleQuickFilter('upcoming')
+          handleQuickFilter('upcoming', { history: 'replace' })
         }, 0)
         return
       }
