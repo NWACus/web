@@ -4,7 +4,12 @@ import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
-import { extractAllInternalUrls, findNavigationItemBySlug, topLevelNavItem } from './utils-pure'
+import {
+  extractAllInternalUrls,
+  findNavigationItemBySlug,
+  hiddenTabUrls,
+  topLevelNavItem,
+} from './utils-pure'
 
 export {
   convertToNavLink,
@@ -57,7 +62,7 @@ export const getTopLevelNavItems = async ({
 }: {
   navigation: Navigation
   avalancheCenterPlatforms: AvalancheCenterPlatforms
-}): Promise<{ topLevelNavItems: TopLevelNavItem[] }> => {
+}): Promise<{ topLevelNavItems: TopLevelNavItem[]; hiddenTabUrls: string[] }> => {
   const topLevelNavItems: TopLevelNavItem[] = [
     ...(avalancheCenterPlatforms.forecasts
       ? topLevelNavItem({ tab: navigation.forecasts, label: 'Forecasts' })
@@ -88,12 +93,12 @@ export const getTopLevelNavItems = async ({
     }
   }
 
-  return { topLevelNavItems }
+  return { topLevelNavItems, hiddenTabUrls: hiddenTabUrls(navigation) }
 }
 
 export const getCachedTopLevelNavItems = (center: string, draft: boolean = false) =>
   unstable_cache(
-    async (): Promise<{ topLevelNavItems: TopLevelNavItem[] }> => {
+    async (): Promise<{ topLevelNavItems: TopLevelNavItem[]; hiddenTabUrls: string[] }> => {
       const payload = await getPayload({ config: configPromise })
 
       const navigationRes = await payload.find({
