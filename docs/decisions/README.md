@@ -33,15 +33,16 @@ Each record loosely follows the [ADR format](https://adr.github.io/) (Context, D
 | [022](022-shared-content.md)                   | Shared Content: no owning Tenant, written by Global Role, readable by every center | 2026-09-21 | accepted           |
 | [023](023-document-upload-restrictions.md)      | Document upload restrictions and response headers   | 2026-10-15 | accepted                                           |
 | [024](024-info-exchange-derived-from-nac-platforms.md) | Info exchanges are derived from NAC platforms, not stored on the tenant | 2026-09-29 | accepted |
+| [025](025-admin-served-only-from-the-apex.md)  | Admin is served only from the apex                  | 2026-10-22 | accepted                                           |
 
-> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `025`.
+> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `026`.
 
 ## Related reading
 
 These decisions are expanded on in the topic docs:
 
 - RBAC and the hybrid permission model → [004](004-rbac.md), [012](012-non-rbac-access-patterns.md), [022](022-shared-content.md)
-- Tenant resolution → [007](007-dynamic-tenants-middleware.md), [008](008-edge-config-tenant-lookup.md), [013](013-hardcoded-tenant-lookup.md), [020](020-center-timezone-is-a-hardcoded-fact.md)
+- Tenant resolution → [007](007-dynamic-tenants-middleware.md), [008](008-edge-config-tenant-lookup.md), [013](013-hardcoded-tenant-lookup.md), [020](020-center-timezone-is-a-hardcoded-fact.md), [025](025-admin-served-only-from-the-apex.md)
 - ISR / revalidation → [011](011-incremental-static-regeneration.md) and [`../revalidation.md`](../revalidation.md)
 - Built-in pages & navigation → [009](009-built-in-pages.md), [014](014-built-in-pages-drive-navigation.md)
 - Upstream-owned data (AFP, NAC, SnowObs) → [014](014-built-in-pages-drive-navigation.md), [020](020-center-timezone-is-a-hardcoded-fact.md), [021](021-weather-station-pages.md), [024](024-info-exchange-derived-from-nac-platforms.md)
