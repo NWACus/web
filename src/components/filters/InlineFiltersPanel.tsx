@@ -47,7 +47,7 @@ export const InlineFiltersPanel = ({
         role="region"
         aria-label="Filters"
         hidden={!isOpen}
-        className="mt-2 rounded border bg-background"
+        className="mt-2 rounded border"
       >
         <div className="px-4">{children}</div>
         <div className="border-t p-3">
