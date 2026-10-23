@@ -1,6 +1,6 @@
 import { waybackUrl, type NotFoundReport } from './notFoundReport'
 
-/** Columns of `redirects.csv`. The redirect importer reads `from` and `to`; the rest is context. */
+/** Columns of `redirects.csv`. Staff fill in `to`; each `from`/`to` pair becomes a Redirect. */
 const COLUMNS = ['from', 'to', 'notes', 'visits', 'archived_page'] as const
 
 // Quotes a field containing a comma, quote or line break, doubling any quotes inside it
