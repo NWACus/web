@@ -5,6 +5,11 @@
  * `avalancheCenterSchema`, or its timezone differs. AFP centers we don't list are reported as
  * candidates, not failures. Run with `pnpm check:centers` when adding or changing a center.
  */
+// First, so .env is loaded before hosts.ts reads NAC_HOST and AFP_HOST at module load
+import 'dotenv/config'
+
+import { nacCenterId } from '@/services/nac/centerSlug'
+import { afpApiHost, nacApiHost } from '@/services/nac/hosts'
 import {
   allAvalancheCenterCapabilitiesSchema,
   avalancheCenterSchema,
@@ -15,14 +20,7 @@ import {
   VALID_TENANT_SLUGS,
   type ValidTenantSlug,
 } from '@/utilities/tenancy/avalancheCenters'
-import 'dotenv/config'
 import type { z } from 'zod'
-
-const nacHost = process.env.NAC_HOST || 'https://api.avalanche.org'
-const afpHost = process.env.AFP_HOST || 'https://forecasts.avalanche.org'
-
-// DVAC is the template tenant and shares NWAC's upstream data.
-const nacCenterId = (slug: string) => (slug === 'dvac' ? 'NWAC' : slug.toUpperCase())
 
 async function fetchJson(url: string): Promise<unknown> {
   const res = await fetch(url)
@@ -33,7 +31,7 @@ async function fetchJson(url: string): Promise<unknown> {
 }
 
 async function fetchAfpCenters(): Promise<AvalancheCenterCapabilities[]> {
-  const data = await fetchJson(`${afpHost}?rest_route=/v1/public/avalanche-centers`)
+  const data = await fetchJson(`${afpApiHost}?rest_route=/v1/public/avalanche-centers`)
   return allAvalancheCenterCapabilitiesSchema.parse(data).centers
 }
 
@@ -46,7 +44,7 @@ function describeIssues(error: z.ZodError): string {
 }
 
 async function fetchMetadata(centerId: string) {
-  const data = await fetchJson(`${nacHost}/v2/public/avalanche-center/${centerId}`)
+  const data = await fetchJson(`${nacApiHost}/v2/public/avalanche-center/${centerId}`)
   return avalancheCenterSchema.safeParse(data)
 }
 
