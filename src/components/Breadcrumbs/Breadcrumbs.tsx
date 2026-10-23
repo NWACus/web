@@ -2,11 +2,13 @@ import { extractAllInternalUrls, getCachedTopLevelNavItems } from '@/components/
 import { BreadcrumbsList } from './BreadcrumbsList.client'
 import { buildBreadcrumbs, type BuildBreadcrumbsArgs } from './buildBreadcrumbs'
 
-// The paths the center's nav links to; with no nav to read, no intermediate crumb links
+// The paths the center's nav links to, including tabs hidden from the menu, whose pages stay
+// live; with no nav to read, no intermediate crumb links
 const navPathsFor = async (center: string) => {
   try {
-    const { topLevelNavItems } = await getCachedTopLevelNavItems(center)()
-    return extractAllInternalUrls(topLevelNavItems)
+    // Defaulted: nav cached before hiddenTabUrls existed doesn't carry it
+    const { topLevelNavItems, hiddenTabUrls = [] } = await getCachedTopLevelNavItems(center)()
+    return [...extractAllInternalUrls(topLevelNavItems), ...hiddenTabUrls]
   } catch (error) {
     console.warn(`Breadcrumbs couldn't read the navigation for ${center}:`, error)
     return []
