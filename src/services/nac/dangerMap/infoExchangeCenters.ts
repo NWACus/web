@@ -1,14 +1,28 @@
 /**
  * Which of the danger map's centers are information exchanges, read from the avalanche-centers
- * platforms feed as the widget does (afp-public-widgets#308).
+ * platforms feed as the widget does (NationalAvalancheCenter/afp-public-widgets#308).
  *
  * Server-only, and kept out of `dangerMapZones.ts` on purpose: the map imports that module in the
  * browser, and this one pulls in the zod schemas.
  */
-import { getAllAvalancheCenterCapabilities, logNacError } from '../nac'
-import { isInfoExchange, type AvalancheCenterPlatforms } from '../types/schemas'
+import { z } from 'zod'
 
-export type PlatformsByCenterId = ReadonlyMap<string, AvalancheCenterPlatforms>
+import { afpFetch, logNacError } from '../nac'
+import { isInfoExchange } from '../types/schemas'
+
+/**
+ * Only the two switches the exchange rule reads, checked row by row: one malformed center skips
+ * that center rather than failing the whole feed and hiding every exchange, as in the widget.
+ * The shared capabilities parser is stricter and all-or-nothing, so it isn't used here.
+ */
+const centerRowSchema = z.object({
+  id: z.string(),
+  platforms: z.object({ forecasts: z.boolean(), obs: z.boolean() }),
+})
+const feedSchema = z.object({ centers: z.array(z.unknown()) })
+
+type CenterRow = z.infer<typeof centerRowSchema>
+export type PlatformsByCenterId = ReadonlyMap<string, CenterRow['platforms']>
 
 /** The widget gives up on this feed after 5s and paints the zones regardless; so do we, sooner. */
 export const PLATFORMS_TIMEOUT_MS = 4000
@@ -31,8 +45,13 @@ export function infoExchangeCenterIds(
 
 async function fetchPlatformsByCenterId(): Promise<PlatformsByCenterId | null> {
   try {
-    const { centers } = await getAllAvalancheCenterCapabilities()
-    return new Map(centers.map((center) => [center.id, center.platforms]))
+    const { centers } = feedSchema.parse(await afpFetch('/v1/public/avalanche-centers'))
+    const platformsById = new Map<string, CenterRow['platforms']>()
+    for (const row of centers) {
+      const parsed = centerRowSchema.safeParse(row)
+      if (parsed.success) platformsById.set(parsed.data.id, parsed.data.platforms)
+    }
+    return platformsById
   } catch (err) {
     await logNacError(err, 'Danger map: platforms feed unavailable')
     return null

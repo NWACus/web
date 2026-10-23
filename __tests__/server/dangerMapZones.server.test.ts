@@ -159,7 +159,7 @@ describe('popupDangerLevel', () => {
 })
 
 describe('zonePopup', () => {
-  const settings = { advice: true, allCenters: false, centerId: 'NWAC' }
+  const settings = { allCenters: false, centerId: 'NWAC' }
 
   it('headlines a rated zone with the numbered danger level', () => {
     const popup = zonePopup(zone(), settings)
@@ -237,12 +237,6 @@ describe('zonePopup', () => {
       expect(popup.advice).toContain('Dangerous avalanche conditions.')
       expect(popup.advice).not.toContain('Something else entirely.')
     })
-
-    it('is omitted when the center turned advice off', () => {
-      expect(
-        zonePopup(zone(), { advice: false, allCenters: false, centerId: 'NWAC' }).advice,
-      ).toBeNull()
-    })
   })
 
   describe('the validity window', () => {
@@ -277,7 +271,7 @@ describe('zonePopup', () => {
 
   describe('the center name', () => {
     it('is shown when the map is drawing every center', () => {
-      const popup = zonePopup(zone(), { advice: true, allCenters: true, centerId: 'NWAC' })
+      const popup = zonePopup(zone(), { allCenters: true, centerId: 'NWAC' })
 
       expect(popup.centerName).toBe('Northwest Avalanche Center')
     })
@@ -378,7 +372,7 @@ describe('zoneBounds', () => {
 })
 
 describe('zonePopup — where a zone links to', () => {
-  const settings = { advice: true, allCenters: true, centerId: 'NWAC' }
+  const settings = { allCenters: true, centerId: 'NWAC' }
 
   // Upstream always hands back the center's own website. On AvyWeb that would walk the reader off
   // the site and past the native forecast page, so our own zones are rewritten to their route.

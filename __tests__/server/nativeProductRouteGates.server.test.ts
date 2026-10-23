@@ -10,7 +10,7 @@ jest.mock('../../src/services/nac/nac', () => ({
   fetchProductArchive: (...a: unknown[]) => mockUpstream('archive', ...a),
   fetchProductArchiveOrThrow: (...a: unknown[]) => mockUpstream('archive', ...a),
   getAvalancheCenterPlatforms: (...a: unknown[]) => mockUpstream('platforms', ...a),
-  getAllAvalancheCenterCapabilities: (...a: unknown[]) => mockUpstream('capabilities', ...a),
+  afpFetch: (...a: unknown[]) => mockUpstream('afp', ...a),
   logNacError: jest.fn(),
 }))
 jest.mock('../../src/services/nac/resolveZone', () => ({

@@ -3,10 +3,10 @@ jest.mock('../../src/services/nac/dangerMap/mapLayer', () => ({
   getZoneMapLayer: (...a: unknown[]) => mockGetZoneMapLayer(...a),
 }))
 
-const mockGetCapabilities = jest.fn()
+const mockAfpFetch = jest.fn()
 const mockLogNacError = jest.fn()
 jest.mock('../../src/services/nac/nac', () => ({
-  getAllAvalancheCenterCapabilities: (...a: unknown[]) => mockGetCapabilities(...a),
+  afpFetch: (...a: unknown[]) => mockAfpFetch(...a),
   logNacError: (...a: unknown[]) => mockLogNacError(...a),
 }))
 
@@ -70,6 +70,13 @@ async function infoExchangeByCenter(res: Response): Promise<Record<string, boole
   )
 }
 
+/** With the feed read, SOAIX's zone is the exchange and the response takes the full cache window. */
+async function expectSoaixMarkedCachedFully(res: Response) {
+  expect(res.status).toBe(200)
+  expect(res.headers.get('Cache-Control')).toBe('public, max-age=0, s-maxage=300')
+  expect(await infoExchangeByCenter(res)).toEqual({ NWAC: false, SOAIX: true })
+}
+
 /** Without the feed the zones still come back, none framed as an exchange, on a short cache. */
 async function expectOrdinaryZonesCachedBriefly(res: Response) {
   expect(res.status).toBe(200)
@@ -83,7 +90,7 @@ beforeEach(() => {
     type: 'FeatureCollection',
     features: [feature(1, 'NWAC'), feature(2, 'SOAIX')],
   })
-  mockGetCapabilities.mockResolvedValue({
+  mockAfpFetch.mockResolvedValue({
     centers: [
       { id: 'NWAC', platforms: platforms(true, true) },
       { id: 'SOAIX', platforms: platforms(false, true) },
@@ -97,15 +104,23 @@ afterEach(() => {
 
 describe('danger-map route — information exchanges', () => {
   it('marks the zones of centers the platforms feed describes as exchanges', async () => {
-    const res = await GET(request(), { params })
+    await expectSoaixMarkedCachedFully(await GET(request(), { params }))
+  })
 
-    expect(res.status).toBe(200)
-    expect(res.headers.get('Cache-Control')).toBe('public, max-age=0, s-maxage=300')
-    expect(await infoExchangeByCenter(res)).toEqual({ NWAC: false, SOAIX: true })
+  // The widget reads the feed row by row; one bad row must not hide every exchange.
+  it('skips a malformed center row and still marks the others', async () => {
+    mockAfpFetch.mockResolvedValue({
+      centers: [
+        { id: 'NWAC', platforms: { forecasts: true } },
+        { id: 'SOAIX', platforms: platforms(false, true) },
+      ],
+    })
+
+    await expectSoaixMarkedCachedFully(await GET(request(), { params }))
   })
 
   it('still serves the zones when the feed fails, logs it, and caches briefly', async () => {
-    mockGetCapabilities.mockRejectedValue(new Error('feed down'))
+    mockAfpFetch.mockRejectedValue(new Error('feed down'))
 
     const res = await GET(request(), { params })
 
@@ -115,7 +130,7 @@ describe('danger-map route — information exchanges', () => {
 
   it('stops waiting on a hung feed so the zones are not held back', async () => {
     jest.useFakeTimers()
-    mockGetCapabilities.mockReturnValue(new Promise(() => {}))
+    mockAfpFetch.mockReturnValue(new Promise(() => {}))
 
     const pending = GET(request(), { params })
     await jest.advanceTimersByTimeAsync(PLATFORMS_TIMEOUT_MS)

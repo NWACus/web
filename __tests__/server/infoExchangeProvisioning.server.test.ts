@@ -30,7 +30,8 @@ const platforms = {
 
 describe('isInfoExchange', () => {
   it('is true for a center with obs but no forecasts', () => {
-    expect(isInfoExchange({ ...platforms, obs: true, stations: true })).toBe(true)
+    const obsAndStations = { ...platforms, obs: true, stations: true }
+    expect(isInfoExchange(obsAndStations)).toBe(true)
   })
 
   it('is false for a forecast center', () => {

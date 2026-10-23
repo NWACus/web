@@ -135,7 +135,6 @@ export interface ZonePopup {
 }
 
 export interface ZonePopupSettings {
-  advice: boolean
   allCenters: boolean
   /** This site's avalanche center id, e.g. `NWAC` — decides which zones are our own. */
   centerId: string
@@ -206,7 +205,7 @@ export function zonePopup(
     // rather than shown stale — the same call the widget makes.
     publishedText: offSeason ? null : formatValidity(properties.start_date, properties.timezone),
     expiresText: offSeason ? null : formatValidity(properties.end_date, properties.timezone),
-    advice: offSeason || infoExchange || !settings.advice ? null : travelAdvice(dangerLevel),
+    advice: offSeason || infoExchange ? null : travelAdvice(dangerLevel),
     ...resolveHref(properties, settings.centerId),
   }
 }

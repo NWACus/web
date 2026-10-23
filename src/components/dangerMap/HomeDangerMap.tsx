@@ -3,10 +3,10 @@
  *
  * - the per-tenant native rollout flag (Control 1) chooses the native map over the legacy `map`
  *   widget, so a tenant can be rolled back instantly;
- * - the center's own danger-map settings (controls, all-centers) come from the NAC dashboard, so a
- *   forecaster who configured their embed sees the same map here. Height and viewport are the
- *   exceptions: both maps render at DANGER_MAP_HEIGHT, and both fit the center's zones because
- *   AvyWeb's widget embed passes no lat/lng/zoom — so the flag flip doesn't change what's shown.
+ * - the NAC dashboard's all-centers setting is the only one either map reads; both show search,
+ *   geolocate and travel advice, fit the center's zones and render at DANGER_MAP_HEIGHT whatever
+ *   else the dashboard says (see `dangerMapSettings.ts`), so the flag flip doesn't change what's
+ *   shown.
  *
  * Unlike the warnings slot there is no upstream capability gate: the legacy widget renders for
  * every tenant regardless of platform, and gating only the native path would make the flag flip a
@@ -49,10 +49,7 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
   }
 
   const metadata = await getAvalancheCenterMetadata(centerSlug)
-  const settings = {
-    ...resolveDangerMapSettings(metadata?.widget_config?.danger_map),
-    center: null,
-  }
+  const settings = resolveDangerMapSettings(metadata?.widget_config?.danger_map)
 
   return (
     <div className="space-y-2">

@@ -438,7 +438,7 @@ sig = "bc09f4e9ef0b2a29"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/dangerMap/infoExchangeCenters.ts"
-sig = "70c6d470c12f72c1"
+sig = "809c1a4a467d7a04"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -1263,7 +1263,7 @@ sig = "6032ba50c3ac85a7"
 [[bindings]]
 doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
 target = "src/services/nac/types/schemas.ts"
-sig = "9ecacc4840967d63"
+sig = "a5ad3b592de08694"
 
 [[bindings]]
 doc = "docs/decisions/025-admin-served-only-from-the-apex.md"
@@ -1508,7 +1508,7 @@ sig = "8eb97b822b21e97b"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/services/nac/types/schemas.ts"
-sig = "9ecacc4840967d63"
+sig = "a5ad3b592de08694"
 
 [[bindings]]
 doc = "docs/onboarding.md"
