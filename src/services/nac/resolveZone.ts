@@ -1,3 +1,4 @@
+import { normalizeCenterSlug } from './centerSlug'
 import {
   getActiveForecastZones,
   getAvalancheCenterMetadata,
@@ -15,7 +16,7 @@ export async function resolveZoneFromSlug(
   centerSlug: string,
   zoneSlug: string,
 ): Promise<ActiveForecastZoneWithSlug | null> {
-  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const centerSlugToUse = normalizeCenterSlug(centerSlug)
 
   const zones = await getActiveForecastZones(centerSlugToUse)
 
