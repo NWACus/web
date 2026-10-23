@@ -34,6 +34,7 @@ import {
   getAvalancheCenterMetadata,
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
+import { getNWACWeatherForForecast } from '@/services/nac/nwacWeatherForForecast'
 import { productTabLabel } from '@/services/nac/productTypeTitle'
 import { resolveDatedZoneFromSlug, type DatedForecastZone } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
@@ -237,13 +238,16 @@ export default async function Page({ params }: Args) {
 
   const currentDate = liveProductDate(currentProduct, metadata.timezone)
   // The weather that was current when this forecast was issued — by the id it points at, or for
-  // the pointerless SNFAC archive, by its published day.
-  const weather = await getWeatherForForecast(
-    center,
-    resolvedZone.zone.id,
-    forecastResult,
-    metadata.timezone,
-  )
+  // the pointerless SNFAC archive, by its published day; NWAC's own by its publish time.
+  const [weather, nwacWeather] = await Promise.all([
+    getWeatherForForecast(center, resolvedZone.zone.id, forecastResult, metadata.timezone),
+    getNWACWeatherForForecast(
+      center,
+      resolvedZone.zone.id,
+      forecastResult.published_time,
+      metadata.timezone,
+    ),
+  ])
 
   return (
     <>
@@ -273,6 +277,7 @@ export default async function Page({ params }: Args) {
           pickerSettings={forecastPickerSettings(metadata)}
           centerDetails={{ type: metadata.type, elevationBandsUrl: elevationBandsUrl(metadata) }}
           weather={weather}
+          nwacWeather={nwacWeather}
         />
       </ForecastGlossary>
       {/* The live product's own date opens the live page — decided on view, not cached here. */}
