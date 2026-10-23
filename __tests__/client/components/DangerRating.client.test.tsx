@@ -122,4 +122,39 @@ describe('DangerRating', () => {
     renderDated([unrated], null, true)
     expect(line()).not.toHaveClass('lg:hidden')
   })
+
+  // Forecast-75
+  it("opens each band's travel advice from its icon, today's and the outlook's", () => {
+    renderDated()
+
+    const moderate = screen.getAllByRole('button', { name: 'Travel advice for 2 - Moderate' })
+    // Today's lower band, then the outlook's upper and middle on desktop and in the phone's row.
+    expect(moderate).toHaveLength(5)
+    expect(
+      screen.getAllByRole('button', { name: 'Travel advice for 3 - Considerable' }),
+    ).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: 'Travel advice for 1 - Low' })).toHaveLength(2)
+
+    fireEvent.click(moderate[0])
+    expect(screen.getByRole('dialog')).toHaveTextContent(
+      /^Heightened avalanche conditions on specific terrain features\./,
+    )
+  })
+
+  it('gives an unrated band the No Rating explanation as its advice', () => {
+    renderDated([{ ...today, lower: DangerLevel.None }], null, true)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Travel advice for 0 - No Rating' }))
+
+    expect(screen.getByRole('dialog')).toHaveTextContent(
+      /^Insufficient data for issuing of danger ratings/,
+    )
+  })
+
+  it("leaves the danger scale legend's icons alone", () => {
+    renderDated([today], null, true)
+
+    // Today's three bands, and nothing from the legend.
+    expect(screen.getAllByRole('button', { name: /^Travel advice for/ })).toHaveLength(3)
+  })
 })
