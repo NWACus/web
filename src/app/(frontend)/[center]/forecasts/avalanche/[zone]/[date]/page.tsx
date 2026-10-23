@@ -17,7 +17,7 @@ import {
   forecastPickerSettings,
   initialArchiveWindow,
   validDateForProduct,
-  widgetArchiveAddress,
+  widgetForecastAddressEndpoint,
   type ZoneArchiveDate,
 } from '@/services/nac/archiveDates'
 import {
@@ -88,20 +88,12 @@ async function assertDatedForecastAvailable(center: string, date: string): Promi
  * A dated address on a center still on the widget, which keeps its own archive under the zone
  * page's hash routes: hands over to the widget's address for that day's forecast, so links built
  * from a date (the Mountain Weather page's zone links, a bookmark) work in either mode. Only an
- * active zone has a widget page to open it in.
+ * active zone has a widget page to open it in. Whether that forecast is the live one changes
+ * daily and this redirect is cached with the page, so a dynamic route decides where it goes.
  */
-async function redirectToWidgetArchive(
-  center: string,
-  zone: DatedForecastZone,
-  date: string,
-): Promise<never> {
+function redirectToWidgetArchive(center: string, zone: DatedForecastZone, date: string): never {
   if (!zone.active) notFound()
-  const { timezone } = await getAvalancheCenterMetadata(center)
-  const archive = await fetchProductArchive(center, initialArchiveWindow(date))
-  const dates = buildZoneArchiveDates(archive, zone.zone.id, timezone)
-  redirect(
-    widgetArchiveAddress({ slug: zone.slug, zoneId: zone.zone.zone_id }, dates, date, timezone),
-  )
+  redirect(widgetForecastAddressEndpoint(center, zone.slug, date))
 }
 
 /** The dated page's zone, 404ing an unknown one; on a widget center, the hand-over instead. */
