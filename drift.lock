@@ -1258,7 +1258,7 @@ sig = "6032ba50c3ac85a7"
 [[bindings]]
 doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
 target = "src/services/nac/types/schemas.ts"
-sig = "5ad98e5b9a901950"
+sig = "9ecacc4840967d63"
 
 [[bindings]]
 doc = "docs/decisions/025-admin-served-only-from-the-apex.md"
@@ -1463,7 +1463,7 @@ sig = "cf2a77a3852fcde8"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/services/nac/types/schemas.ts"
-sig = "5ad98e5b9a901950"
+sig = "9ecacc4840967d63"
 
 [[bindings]]
 doc = "docs/onboarding.md"
