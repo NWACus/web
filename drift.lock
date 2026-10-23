@@ -883,7 +883,7 @@ sig = "3a4a1c19633a00ba"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/components/EmbedFrame/index.tsx"
-sig = "c5f9231be4439e83"
+sig = "4305f1a6cd2061e8"
 
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
