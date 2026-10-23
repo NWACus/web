@@ -90,7 +90,7 @@ For recording a migration's expected changes, or debugging a warning. Run from t
    NODE_ENV=production pnpm migrate
    pnpm db:diff after .context/db-diff
    ```
-   It prints the summary CI would post, and each `::warning` line is a warning CI would raise. `.context/db-diff/report.md` adds row ids and errors; `report.json` has every id.
+   It prints the summary CI would post; in CI, each finding also becomes a warning annotation on the run. Locally the output adds row ids and errors, and `.context/db-diff/report.json` has every id.
 4. **Record expectations:**
    ```bash
    pnpm db:diff expect .context/db-diff [migration name]

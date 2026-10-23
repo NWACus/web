@@ -359,7 +359,13 @@ describe('formatReport', () => {
     expect(markdown).toContain(
       'No existing rows, tables, columns, constraints or indexes were removed or changed',
     )
-    expect(markdown).toContain('| `pages` | 2 | 3 | +1 | 0 | 0 |')
+    expect(markdown).toContain(
+      [
+        '| Table   | Before | After | Added | Deleted | Changed |',
+        '| ------- | -----: | ----: | ----: | ------: | ------: |',
+        '| `pages` |      2 |     3 |    +1 |       0 |       0 |',
+      ].join('\n'),
+    )
   })
 
   it('lists findings with a capped sample of row ids', () => {
@@ -391,7 +397,7 @@ describe('formatReport', () => {
     const markdown = formatReport(report, { detailed: false })
 
     expect(markdown).toContain('`pages_rels`: 1 row deleted')
-    expect(markdown).toContain('| `pages_rels` | +0 | 1 | 0 |')
+    expect(markdown).toContain('| `pages_rels` |    +0 |       1 |       0 |')
     expect(markdown).not.toContain('deleted ids')
     expect(markdown).not.toContain('Before')
     expect(markdown).not.toContain('secret detail')

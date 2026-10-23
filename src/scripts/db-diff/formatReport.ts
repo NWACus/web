@@ -224,18 +224,40 @@ function rowDeltas(diff: TableDiff): string[] {
   return [`+${Math.max(delta, 0)}`, `${Math.max(-delta, 0)}`, '—']
 }
 
+/** Pads every column to one width so the table reads in a terminal as well as rendered. */
+function markdownTable(header: string[], body: string[][], rightAligned: boolean[]): string[] {
+  const rows = [header, ...body]
+  const widths = header.map((_, column) => Math.max(3, ...rows.map((row) => row[column].length)))
+  const pad = (cell: string, column: number) =>
+    rightAligned[column] ? cell.padStart(widths[column]) : cell.padEnd(widths[column])
+  const line = (cells: string[]) => `| ${cells.map(pad).join(' | ')} |`
+  const rule = widths.map((width, column) =>
+    rightAligned[column] ? `${'-'.repeat(width - 1)}:` : '-'.repeat(width),
+  )
+  return [line(header), `| ${rule.join(' | ')} |`, ...body.map(line)]
+}
+
 function rowCountSection(report: DbDiffReport, detailed: boolean): string[] {
   if (!report.tables.length) return []
   const totals = (diff: TableDiff) => (detailed ? [`${diff.rowsBefore}`, `${diff.rowsAfter}`] : [])
-  const header = detailed ? ['Table', 'Before', 'After'] : ['Table']
-  const line = (cells: string[]) => `| ${cells.join(' | ')} |`
+  const header = [
+    ...(detailed ? ['Table', 'Before', 'After'] : ['Table']),
+    'Added',
+    'Deleted',
+    'Changed',
+  ]
+  const body = report.tables.map((diff) => [
+    `\`${diff.table}\``,
+    ...totals(diff),
+    ...rowDeltas(diff),
+  ])
   return [
     '### Tables with changes',
     '',
-    line([...header, 'Added', 'Deleted', 'Changed']),
-    line(['---', ...Array(header.length + 2).fill('--:')]),
-    ...report.tables.map((diff) =>
-      line([`\`${diff.table}\``, ...totals(diff), ...rowDeltas(diff)]),
+    ...markdownTable(
+      header,
+      body,
+      header.map((_, column) => column > 0),
     ),
     ...(report.tables.every((diff) => diff.rowsCompared)
       ? []
@@ -252,16 +274,15 @@ export function formatReport(
   { detailed, expectations = NO_EXPECTATIONS }: { detailed: boolean; expectations?: Expectations },
 ): string {
   const migrations = report.migrations.map((name) => `\`${name}\``).join(', ')
-  return [
-    '## Database diff across migrations',
-    '',
-    `Migrations pending before the run: ${migrations || 'none'}`,
-    '',
-    ...findingsSection(report, detailed, expectations),
-    '',
-    ...schemaSection(report),
-    '',
-    ...rowCountSection(report, detailed),
-    '',
-  ].join('\n')
+  const sections = [
+    ['## Database diff across migrations'],
+    [`Migrations pending before the run: ${migrations || 'none'}`],
+    findingsSection(report, detailed, expectations),
+    schemaSection(report),
+    rowCountSection(report, detailed),
+  ]
+  return `${sections
+    .filter((section) => section.length)
+    .map((section) => section.join('\n'))
+    .join('\n\n')}\n`
 }

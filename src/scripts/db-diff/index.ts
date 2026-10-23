@@ -19,8 +19,10 @@ import type { DbDiffReport, DbSnapshot } from './types'
 
 const MIGRATION_DIR = path.resolve(process.cwd(), 'src/migrations')
 
+const inCI = process.env.GITHUB_ACTIONS === 'true'
+
 /** CI output on this public repo is world-readable, so row ids, table sizes and error text stay local. */
-const detailed = process.env.GITHUB_ACTIONS !== 'true'
+const detailed = !inCI
 
 function connect() {
   const url = process.env.DATABASE_URI
@@ -33,8 +35,11 @@ function connect() {
 const escapeCommand = (text: string) =>
   text.replaceAll('%', '%25').replaceAll('\r', '%0D').replaceAll('\n', '%0A')
 
+/** In CI, a workflow command that GitHub shows as an annotation on the run; locally, plain text. */
 const warn = (message: string) =>
-  console.log(`::warning title=Database diff::${escapeCommand(message)}`)
+  console.log(
+    inCI ? `::warning title=Database diff::${escapeCommand(message)}` : `Warning: ${message}`,
+  )
 
 async function timed<T>(label: string, run: () => Promise<T>): Promise<T> {
   const start = Date.now()
@@ -84,7 +89,8 @@ async function after(dir: string) {
   )
   console.log(markdown)
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdown)
-  findingsFor(report, expectations).forEach(warn)
+  // Locally the findings are already in the summary above.
+  if (inCI) findingsFor(report, expectations).forEach(warn)
 }
 
 function pickMigration(report: DbDiffReport, migration?: string): string {

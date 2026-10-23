@@ -68,7 +68,7 @@ sig = "93e588f55d89ff59"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/migration-safety.md"
-sig = "e68be92a65240ec8"
+sig = "c4c30da0f62fadb6"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1168,12 +1168,12 @@ sig = "ec73303b59a18041"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/scripts/db-diff/formatReport.ts"
-sig = "c3defd5ab19fcaa9"
+sig = "05159fa770f4684a"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/scripts/db-diff/index.ts"
-sig = "09bc0706d5285326"
+sig = "1c5ff70dbb09049b"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
