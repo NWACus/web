@@ -6,7 +6,7 @@ import { QuickDateFilter } from '@/utilities/createQuickDateFilters'
 import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
 import { Options, parseAsString, useQueryStates } from 'nuqs'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 
 type DateRangeFilterProps = {
   startDate: string
@@ -27,9 +27,25 @@ const QUICK_FILTER_ORDER = [
   'past',
 ]
 
+type Selection = { id: string; startDate: string; endDate: string }
+
+const subscribe = () => () => {}
+
 const matchQuickFilter = (quickFilters: QuickDateFilter[], start: string, end: string) =>
   quickFilters.find((filter) => filter.startDate() === start && (filter.endDate() || '') === end)
     ?.id ?? 'custom'
+
+// The user's own pick wins while the URL still holds its dates, so "Custom" can sit on quick-filter dates
+const resolveQuickFilter = (
+  quickFilters: QuickDateFilter[],
+  selection: Selection | null,
+  start: string,
+  end: string,
+) => {
+  if (!start && !end) return ''
+  if (selection?.startDate === start && selection.endDate === end) return selection.id
+  return matchQuickFilter(quickFilters, start, end)
+}
 
 function useDateRange(
   quickFilters: QuickDateFilter[],
@@ -47,12 +63,23 @@ function useDateRange(
     },
   )
 
-  const [quickFilter, setQuickFilter] = useState('')
-  const isInitialMount = useRef(true)
+  const [selection, setSelection] = useState<Selection | null>(null)
+  // Quick filters compute "today" in the runtime's timezone, so only match once hydrated
+  const hydrated = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  )
+  // nuqs updates before the server props catch up, so the highlight reads nuqs alone
+  const quickFilter = hydrated
+    ? resolveQuickFilter(quickFilters, selection, startDate, endDate)
+    : ''
+  const currentStart = startDate || initialStartDate
+  const currentEnd = endDate || initialEndDate
 
   const updateDateSelection = useCallback(
     (filter: string, start: string, end: string, options?: Options) => {
-      setQuickFilter(filter)
+      setSelection({ id: filter, startDate: start, endDate: end })
       setDateParams(
         {
           startDate: start || null,
@@ -70,35 +97,24 @@ function useDateRange(
       if (filter) {
         updateDateSelection(filterKey, filter.startDate(), filter.endDate() || '', options)
       } else {
-        updateDateSelection(filterKey, startDate, endDate, options)
+        // Switching to the custom pickers keeps the current dates, so there's nothing to write
+        setSelection({ id: filterKey, startDate, endDate })
       }
     },
     [endDate, startDate, quickFilters, updateDateSelection],
   )
 
   useEffect(
-    function determineMatchingQuickFilter() {
-      const currentStart = startDate || initialStartDate
-      const currentEnd = endDate || initialEndDate
-
-      if (!currentStart && !currentEnd) {
-        // No dates set, set start date and set quick filter to upcoming
-        // setTimeout needed to avoid hydration race condition with nuqs
-        // replace: the default isn't a user step, and an iframe's push lands in the host page's history
-        setTimeout(() => {
-          handleQuickFilter('upcoming', { history: 'replace' })
-        }, 0)
-        return
-      }
-
-      if (isInitialMount.current) {
-        if (currentStart) {
-          setQuickFilter(matchQuickFilter(quickFilters, currentStart, currentEnd))
-        }
-        isInitialMount.current = false
-      }
+    function fillDefaultDates() {
+      if (currentStart || currentEnd) return
+      // setTimeout needed to avoid hydration race condition with nuqs
+      // replace: the default isn't a user step, and an iframe's push lands in the host page's history
+      const timeout = setTimeout(() => {
+        handleQuickFilter('upcoming', { history: 'replace' })
+      }, 0)
+      return () => clearTimeout(timeout)
     },
-    [endDate, handleQuickFilter, initialEndDate, initialStartDate, quickFilters, startDate],
+    [currentEnd, currentStart, handleQuickFilter],
   )
 
   return { startDate, endDate, quickFilter, updateDateSelection, handleQuickFilter }
@@ -122,6 +138,7 @@ const QuickFilterButtons = ({
           key={filter.id}
           onClick={() => onSelect(filter.id)}
           variant={quickFilter === filter.id ? 'default' : 'outline'}
+          aria-pressed={quickFilter === filter.id}
           className="flex-1"
         >
           {filter.label}
@@ -148,6 +165,7 @@ const DateRangeOptions = ({
     <Button
       onClick={() => handleQuickFilter('custom')}
       variant={quickFilter === 'custom' ? 'default' : 'outline'}
+      aria-pressed={quickFilter === 'custom'}
       className="w-full"
     >
       Custom date range
