@@ -42,7 +42,12 @@ export async function GET(
 ) {
   const { center } = await params
   if (!isValidTenantSlug(center)) return unknownCenterResponse()
-  if (!(await getNativeProductFlag(center, 'dangerMap'))) return productDisabledResponse()
+  // The root landing page lists every production center with a live map, whether or not the
+  // center's own site has switched to the native map yet — so the directory skips the rollout flag.
+  const directory = request.nextUrl.searchParams.get('directory') === 'true'
+  if (!directory && !(await getNativeProductFlag(center, 'dangerMap'))) {
+    return productDisabledResponse()
+  }
 
   const allCenters = request.nextUrl.searchParams.get('allCenters') === 'true'
 
