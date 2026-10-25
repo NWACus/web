@@ -7,6 +7,7 @@
  *
  * Pure and dependency-light so the client component and its tests share it.
  */
+import { parseZoneTab } from '@/components/forecast/zoneObservations/zoneTabs'
 import {
   ARCHIVE_DANGER_PATH,
   ARCHIVE_PATH,
@@ -64,7 +65,7 @@ export function widgetHashTarget(
     case 'weather':
       return weatherTarget(second, context)
     default:
-      return zoneTarget(first, context)
+      return zoneTarget(first, second, context)
   }
 }
 
@@ -78,13 +79,21 @@ function weatherTarget(
 }
 
 /**
- * `#/<zone>/`, the zone's name lowercased with hyphens for spaces. That isn't always AvyWeb's slug,
- * which comes from the zone's URL, so match by name, as the widget did.
+ * `#/<zone>/[<tab>]`, the zone's name lowercased with hyphens for spaces. That isn't always AvyWeb's
+ * slug, which comes from the zone's URL, so match by name, as the widget did. Observations and
+ * Avalanches keep their tab; the widget's other tabs are sections of the native page or absent.
  */
-function zoneTarget(param: string, context: WidgetHashContext): WidgetHashTarget | null {
+function zoneTarget(
+  param: string,
+  tab: string | undefined,
+  context: WidgetHashContext,
+): WidgetHashTarget | null {
   const name = widgetZoneName(param)
   const zone = context.zones.find((z) => z.name.toLowerCase() === name)
-  return zone ? { address: `${FORECASTS_PATH}/${zone.slug}` } : null
+  if (!zone) return null
+  const address = `${FORECASTS_PATH}/${zone.slug}`
+  const zoneTab = parseZoneTab(tab ?? null)
+  return { address: zoneTab === 'forecast' ? address : `${address}?tab=${zoneTab}` }
 }
 
 /** The widget's own reading of a zone segment: hyphens back to spaces, lowercased. */
@@ -105,6 +114,15 @@ function decodeSegment(segment: string): string {
 export function forecastAddressEndpoint(centerSlug: string, productId: number, zoneId: string) {
   const query = new URLSearchParams({ id: String(productId), zone: zoneId })
   return `/api/${centerSlug}/forecast-address?${query}`
+}
+
+/**
+ * Whether the hand-over has to load the address afresh: the zone tabs read `?tab=` once on mount,
+ * and a soft navigation that changes only the query keeps them mounted on the old tab.
+ */
+export function needsFullLoad(address: string, current: string): boolean {
+  const next = new URL(address, current)
+  return next.pathname === new URL(current).pathname && next.search !== ''
 }
 
 /** Where an archived product the server can't place goes: the archive, never the live page. */

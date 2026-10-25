@@ -2,7 +2,11 @@ const mockReplace = jest.fn()
 jest.mock('next/navigation', () => ({ useRouter: () => ({ replace: mockReplace }) }))
 
 import { LegacyWidgetHashHandOverClient } from '@/components/forecast/LegacyWidgetHashHandOver.client'
-import { widgetHashTarget, type WidgetHashContext } from '@/components/forecast/legacyWidgetHash'
+import {
+  needsFullLoad,
+  widgetHashTarget,
+  type WidgetHashContext,
+} from '@/components/forecast/legacyWidgetHash'
 import { render, waitFor } from '@testing-library/react'
 
 const context: WidgetHashContext = {
@@ -22,7 +26,13 @@ describe('widgetHashTarget', () => {
     ['#/forecast/2/123/observations', { productId: 123, zoneId: '2' }],
     ['#/all', { address: '/forecasts/avalanche' }],
     ['#/stevens-pass/', { address: '/forecasts/avalanche/stevens-pass' }],
-    ['#/stevens-pass/observations', { address: '/forecasts/avalanche/stevens-pass' }],
+    [
+      '#/stevens-pass/observations',
+      { address: '/forecasts/avalanche/stevens-pass?tab=observations' },
+    ],
+    ['#/stevens-pass/avalanches', { address: '/forecasts/avalanche/stevens-pass?tab=avalanches' }],
+    ['#/stevens-pass/weather', { address: '/forecasts/avalanche/stevens-pass' }],
+    ['#/stevens-pass/Observations', { address: '/forecasts/avalanche/stevens-pass' }],
     ['#/presidential-range/', { address: '/forecasts/avalanche/presidential' }],
     [
       '#/galena-summit-%26-eastern-mtns/',
@@ -59,6 +69,19 @@ describe('widgetHashTarget', () => {
     expect(widgetHashTarget('#/weather/456', { ...context, weatherArchive: false })).toEqual({
       address: '/forecasts/avalanche/archive',
     })
+  })
+})
+
+describe('needsFullLoad', () => {
+  const page = 'http://nwac.localhost/forecasts/avalanche/stevens-pass#/stevens-pass/observations'
+
+  it('loads a tab on the same page afresh, since the zone tabs read it on mount', () => {
+    expect(needsFullLoad('/forecasts/avalanche/stevens-pass?tab=observations', page)).toBe(true)
+  })
+
+  it('navigates softly to another page, or to this one without a query', () => {
+    expect(needsFullLoad('/forecasts/avalanche/olympics?tab=observations', page)).toBe(false)
+    expect(needsFullLoad('/forecasts/avalanche/stevens-pass', page)).toBe(false)
   })
 })
 

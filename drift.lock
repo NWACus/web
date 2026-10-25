@@ -358,7 +358,7 @@ sig = "2fc6d01b927f646f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/LegacyWidgetHashHandOver.client.tsx"
-sig = "3e70b462299db39a"
+sig = "d67585e2659b52e7"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -403,7 +403,7 @@ sig = "e941f75d5b07309b"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/legacyWidgetHash.ts"
-sig = "987c4293da6ba861"
+sig = "e868073346953883"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

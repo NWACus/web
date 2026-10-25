@@ -12,6 +12,7 @@ import { useEffect } from 'react'
 import {
   UNPLACED_PRODUCT_ADDRESS,
   forecastAddressEndpoint,
+  needsFullLoad,
   widgetHashTarget,
   type WidgetHashContext,
   type WidgetHashTarget,
@@ -34,7 +35,9 @@ export function LegacyWidgetHashHandOverClient({
       const target = widgetHashTarget(window.location.hash, { zones, weatherArchive })
       if (!target) return
       void addressFor(center, target).then((address) => {
-        if (!cancelled) router.replace(address)
+        if (cancelled) return
+        if (needsFullLoad(address, window.location.href)) window.location.replace(address)
+        else router.replace(address)
       })
     }
 
