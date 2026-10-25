@@ -38,21 +38,23 @@ describe('getNWACWeatherForForecast', () => {
     expect(mockGetDay).not.toHaveBeenCalled()
   })
 
-  it('costs only the weather when a day cannot be read', async () => {
+  it('throws when a day cannot be read, rather than answering none', async () => {
     mockGetDay.mockRejectedValue(new Error('upstream down'))
 
-    expect(await getNWACWeatherForForecast('nwac', OLYMPICS, '2026-09-15T01:00:00Z', TZ)).toBeNull()
+    await expect(
+      getNWACWeatherForForecast('nwac', OLYMPICS, '2026-09-15T01:00:00Z', TZ),
+    ).rejects.toThrow('upstream down')
   })
 
-  it('still finds the issuance when only the day before can be read', async () => {
+  // Without the 15th, the 14th's afternoon issuance would stand in for the 15th's own.
+  it('throws when only one of the two days can be read', async () => {
     mockGetDay.mockImplementation(async (date: string) => {
       if (date === '2026-09-14') return day
       throw new Error('upstream down')
     })
 
-    // 6 am PDT on the 15th: the 14th's afternoon issuance, 15 hours old.
-    const found = await getNWACWeatherForForecast('nwac', OLYMPICS, '2026-09-15T13:00:00Z', TZ)
-
-    expect(found?.issuances.map((i) => i.type)).toEqual(['afternoon'])
+    await expect(
+      getNWACWeatherForForecast('nwac', OLYMPICS, '2026-09-15T13:00:00Z', TZ),
+    ).rejects.toThrow('upstream down')
   })
 })

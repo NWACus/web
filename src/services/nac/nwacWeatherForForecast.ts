@@ -22,7 +22,7 @@ const DAY_MS = 24 * 60 * 60 * 1000
 /**
  * The newest issuance covering the avalanche zone (its numeric id) published at or before the
  * forecast and within a day of it, as a one-issuance day with its authored HTML sanitized. Null
- * on any center but NWAC, and when there is none or it can't be read.
+ * on any center but NWAC, and when there is none. Throws when either day can't be read.
  */
 export async function getNWACWeatherForForecast(
   centerSlug: string,
@@ -37,13 +37,9 @@ export async function getNWACWeatherForForecast(
   // An issuance up to a day before the forecast sits on its publish date or the one before.
   const today = todayInTimezone(timezone)
   const dates = [date, format(subDays(parseISO(date), 1), 'yyyy-MM-dd')]
-  // A failed read is already logged, and only costs the weather: the forecast still shows.
+  // Either day failing throws: with one day missing, the other's issuance can be the wrong one.
   const days = await Promise.all(
-    dates.map((day) =>
-      getNWACWeatherSource()
-        .getDay(day, { historical: day < today })
-        .catch(() => null),
-    ),
+    dates.map((day) => getNWACWeatherSource().getDay(day, { historical: day < today })),
   )
   return newestBefore(days, avalancheZoneId, new Date(publishedTime).getTime())
 }

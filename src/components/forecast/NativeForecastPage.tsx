@@ -109,12 +109,13 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
   const [archive, weather, nwacWeather] = await Promise.all([
     fetchProductArchive(centerSlug, window),
     getWeatherForForecast(centerSlug, zone.zone.id, forecastResult, metadata.timezone),
+    // A failed read is already logged, and only costs the weather: the forecast still shows.
     getNWACWeatherForForecast(
       centerSlug,
       zone.zone.id,
       forecastResult.published_time,
       metadata.timezone,
-    ),
+    ).catch(() => null),
   ])
   const initialDates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 

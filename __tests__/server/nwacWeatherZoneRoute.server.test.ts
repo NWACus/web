@@ -109,6 +109,16 @@ describe('nwac-weather-zone route', () => {
     expect(body.day.issuances[0].synopsis).toBe('<p>Rain</p>')
   })
 
+  // The widget then says the forecast couldn't be loaded, not that none was issued, and nothing
+  // caches the failure.
+  it('fails rather than answering no day when upstream cannot be read', async () => {
+    mockGetDay.mockRejectedValue(new Error('upstream down'))
+
+    await expect(ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)).rejects.toThrow(
+      'upstream down',
+    )
+  })
+
   it("answers no day for a zone none of the day's issuances covers", async () => {
     const body = await (await ask('?zone=999999&published=2026-09-15T01:00:00Z')).json()
 

@@ -233,12 +233,13 @@ export default async function Page({ params }: Args) {
   // the pointerless SNFAC archive, by its published day; NWAC's own by its publish time.
   const [weather, nwacWeather] = await Promise.all([
     getWeatherForForecast(center, resolvedZone.zone.id, forecastResult, metadata.timezone),
+    // A failed read only costs the weather, as `fetchWeatherProduct`'s does.
     getNWACWeatherForForecast(
       center,
       resolvedZone.zone.id,
       forecastResult.published_time,
       metadata.timezone,
-    ),
+    ).catch(() => null),
   ])
 
   return (
