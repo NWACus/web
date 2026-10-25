@@ -57,7 +57,7 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
         </div>
         <div
           className={cn(
-            'grid gap-4 lg:gap-6 not-prose max-h-[400px] overflow-y-auto',
+            'grid gap-4 lg:gap-6 not-prose',
             posts.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
           )}
         >
