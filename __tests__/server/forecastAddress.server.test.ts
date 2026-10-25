@@ -5,14 +5,15 @@ jest.mock('../../src/utilities/getNativeProductFlag', () => ({
 const mockFetchProductById = jest.fn()
 jest.mock('../../src/services/nac/nac', () => ({
   fetchProductById: (...a: unknown[]) => mockFetchProductById(...a),
-  getAvalancheCenterMetadata: async () => ({
-    timezone: 'America/Los_Angeles',
-    zones: [
-      { id: 1645, url: 'https://nwac.us/avalanche-forecast/#/olympics' },
-      { id: 1646, url: 'https://nwac.us/avalanche-forecast/#/stevens-pass' },
-      { id: 9000, url: 'https://nwac.us/avalanche-forecast/' },
-    ],
-  }),
+  getAvalancheCenterMetadata: () => mockGetMetadata(),
+}))
+const mockGetMetadata = jest.fn(async () => ({
+  timezone: 'America/Los_Angeles',
+  zones: [
+    { id: 1645, url: 'https://nwac.us/avalanche-forecast/#/olympics' },
+    { id: 1646, url: 'https://nwac.us/avalanche-forecast/#/stevens-pass' },
+    { id: 9000, url: 'https://nwac.us/avalanche-forecast/' },
+  ],
 }))
 
 const mockResolveDatedZone = jest.fn()
@@ -103,7 +104,7 @@ describe('GET /api/[center]/forecast-address', () => {
   })
 
   it('answers nothing, uncached, when upstream fails', async () => {
-    mockFetchProductById.mockRejectedValue(new Error('NAC down'))
+    mockGetMetadata.mockRejectedValueOnce(new Error('NAC down'))
 
     const { res, body } = await addressFor('?id=123&zone=1')
 

@@ -34,6 +34,11 @@ describe('widgetHashTarget', () => {
     ['#/archive/weather', { address: '/forecasts/avalanche/archive/mountain-weather' }],
     ['#/archive/post', { address: '/forecasts/avalanche/archive' }],
     ['#/weather/456', { address: '/forecasts/avalanche/archive/mountain-weather/456' }],
+    ['#/archive/constructor', { address: '/forecasts/avalanche/archive' }],
+    ['#/All', { address: '/forecasts/avalanche' }],
+    ['#/Archive/Visual', { address: '/forecasts/avalanche/archive/danger-over-time' }],
+    ['#/Forecast/2/123', { productId: 123, zoneId: '2' }],
+    ['#/Stevens-Pass/', { address: '/forecasts/avalanche/stevens-pass' }],
   ])('hands %s over', (hash, target) => {
     expect(widgetHashTarget(hash, context)).toEqual(target)
   })

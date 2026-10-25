@@ -27,11 +27,11 @@ export interface WidgetHashContext {
 export type WidgetHashTarget = { address: string } | { productId: number; zoneId: string }
 
 /** The widget's archive tabs, and the native archive's. Its Posts tab has no native counterpart. */
-const ARCHIVE_TABS: Record<string, string> = {
-  forecast: ARCHIVE_PATH,
-  visual: ARCHIVE_DANGER_PATH,
-  weather: ARCHIVE_WEATHER_PATH,
-}
+const ARCHIVE_TABS = new Map([
+  ['forecast', ARCHIVE_PATH],
+  ['visual', ARCHIVE_DANGER_PATH],
+  ['weather', ARCHIVE_WEATHER_PATH],
+])
 
 // A product id, as the widget's archive links carry it: digits only.
 const ID_PATTERN = /^\d+$/
@@ -49,13 +49,14 @@ export function widgetHashTarget(
   const segments = hash.slice(2).split('?')[0].split('/').filter(Boolean).map(decodeSegment)
   const [first, second, third] = segments
 
-  switch (first) {
+  // The widget's router matched its route names in any case.
+  switch (first?.toLowerCase()) {
     case undefined:
       return null
     case 'all':
       return { address: FORECASTS_PATH }
     case 'archive':
-      return { address: ARCHIVE_TABS[second] ?? ARCHIVE_PATH }
+      return { address: ARCHIVE_TABS.get(second?.toLowerCase()) ?? ARCHIVE_PATH }
     case 'forecast':
       return second && third && ID_PATTERN.test(third)
         ? { productId: Number(third), zoneId: second }
