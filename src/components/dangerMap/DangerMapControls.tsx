@@ -10,7 +10,7 @@
  * search box and shove it out of the centre. The re-center button has no such constraint, so it
  * does go through `addControl` and stacks under zoom and geolocate.
  */
-import { RotateCw } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import Image from 'next/image'
 import type { RefObject } from 'react'
 
@@ -38,8 +38,7 @@ export function DangerMapControls({ recenterRef, onRecenter }: DangerMapControls
         rel="noopener noreferrer"
         // `overflow-hidden` keeps the hover fill inside the rounded corners — without it the
         // background paints square over them.
-        // 40px to match the map's control buttons, which the widget sizes up from Mapbox's 29px.
-        className={`absolute left-2.5 top-2.5 z-10 h-10 w-10 overflow-hidden rounded p-[0.3rem] shadow-[0_0_0_2px_rgba(0,0,0,0.1)] ${BUTTON_CHROME}`}
+        className={`absolute left-2.5 top-2.5 z-10 h-[29px] w-[29px] overflow-hidden rounded shadow-[0_0_0_2px_rgba(0,0,0,0.1)] ${BUTTON_CHROME}`}
         title="View the national danger map on Avalanche.org"
       >
         <Image
@@ -47,7 +46,7 @@ export function DangerMapControls({ recenterRef, onRecenter }: DangerMapControls
           alt=""
           width={512}
           height={512}
-          className="h-full w-full"
+          className="h-[19px] w-[19px]"
           aria-hidden="true"
         />
         <span className="sr-only">View the national danger map on Avalanche.org</span>
@@ -62,7 +61,7 @@ export function DangerMapControls({ recenterRef, onRecenter }: DangerMapControls
           className={`h-full w-full ${BUTTON_CHROME}`}
           title="Re-center the map"
         >
-          <RotateCw className="h-6 w-6 shrink-0" aria-hidden="true" />
+          <RotateCcw className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span className="sr-only">Re-center the map</span>
         </button>
       </div>

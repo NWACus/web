@@ -52,13 +52,6 @@ const SEARCH_BOX_LAYOUT = [
   '[&_.mapboxgl-ctrl-top-left_[class$="--SearchBox"]]:!w-full',
 ].join(' ')
 
-/** The widget sizes Mapbox's 29px control buttons up to 40px, with icons at 75% of the button. */
-const CONTROL_SIZING = [
-  '[&_.mapboxgl-ctrl-group_button]:!h-10',
-  '[&_.mapboxgl-ctrl-group_button]:!w-10',
-  '[&_.mapboxgl-ctrl-icon]:![background-size:75%]',
-].join(' ')
-
 /** Padding for fitBounds — extra on top so the search box doesn't cover the northernmost zone. */
 const FIT_PADDING = { top: 60, bottom: 20, left: 20, right: 20 }
 
@@ -104,7 +97,7 @@ export function DangerMap({ centerSlug, centerId, settings }: DangerMapProps) {
 
   return (
     // Fills the height its server-rendered parent already reserved, so there is nothing to shift.
-    <div className={`relative h-full w-full ${SEARCH_BOX_LAYOUT} ${CONTROL_SIZING}`}>
+    <div className={`relative h-full w-full ${SEARCH_BOX_LAYOUT}`}>
       <div ref={containerRef} className="h-full w-full" />
 
       <DangerMapControls recenterRef={recenterRef} onRecenter={() => recenter(true)} />
