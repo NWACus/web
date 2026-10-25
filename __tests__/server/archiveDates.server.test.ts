@@ -9,6 +9,8 @@ import {
   forecastPickerSettings,
   parseArchiveWindowQuery,
   validDateForProduct,
+  widgetArchiveAddress,
+  widgetArchiveHandOverPath,
   type ArchiveProductSummary,
 } from '@/services/nac/archiveDates'
 
@@ -311,5 +313,64 @@ describe('forecastPickerSettings', () => {
 
     expect(forecastPickerSettings(single).showZoneName).toBe(false)
     expect(forecastPickerSettings(several).showZoneName).toBe(true)
+  })
+})
+
+describe('widgetArchiveAddress', () => {
+  const zone = { slug: 'snoqualmie-pass', zoneId: '3' }
+  const day = (date: string, productId: number, expiresTime: string | null) => ({
+    date,
+    productId,
+    productType: 'forecast',
+    dangerRating: 2,
+    dangerLevelText: null,
+    danger: null,
+    expiresTime,
+  })
+  // Newest first, as buildZoneArchiveDates returns them.
+  const dates = [
+    day('2026-10-14', 165010, '2026-10-15T01:00:00+00:00'),
+    day('2026-10-13', 165011, '2026-10-14T01:00:00+00:00'),
+  ]
+
+  it("opens the day's product at the widget's archived-forecast address, by the zone's short id", () => {
+    expect(widgetArchiveAddress(zone, dates, '2026-10-13', TZ)).toBe(
+      '/forecasts/avalanche/snoqualmie-pass#/forecast/3/165011',
+    )
+  })
+
+  it('opens the covering product on a day without its own', () => {
+    const summary = [day('2026-10-10', 164900, '2026-10-16T01:00:00+00:00')]
+    expect(widgetArchiveAddress(zone, summary, '2026-10-12', TZ)).toBe(
+      '/forecasts/avalanche/snoqualmie-pass#/forecast/3/164900',
+    )
+  })
+
+  it('falls back to the zone page when nothing covers the day', () => {
+    expect(widgetArchiveAddress(zone, dates, '2026-09-01', TZ)).toBe(
+      '/forecasts/avalanche/snoqualmie-pass',
+    )
+  })
+
+  // Forecast-242: the widget would label the live product "archived".
+  it('opens the zone page when the product is the live one, on its own day or one it covers', () => {
+    expect(widgetArchiveAddress(zone, dates, '2026-10-14', TZ, 165010)).toBe(
+      '/forecasts/avalanche/snoqualmie-pass',
+    )
+    const summary = [day('2026-10-10', 164900, '2026-10-16T01:00:00+00:00')]
+    expect(widgetArchiveAddress(zone, summary, '2026-10-12', TZ, 164900)).toBe(
+      '/forecasts/avalanche/snoqualmie-pass',
+    )
+    expect(widgetArchiveAddress(zone, dates, '2026-10-13', TZ, 165010)).toBe(
+      '/forecasts/avalanche/snoqualmie-pass#/forecast/3/165011',
+    )
+  })
+})
+
+describe('widgetArchiveHandOverPath', () => {
+  it("is the dated address's per-request hand-over page", () => {
+    expect(widgetArchiveHandOverPath('banner-summit', '2026-01-05')).toBe(
+      '/forecasts/avalanche/banner-summit/2026-01-05/widget',
+    )
   })
 })

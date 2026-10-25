@@ -5,8 +5,10 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { ogImageUrlForZone } from '@/app/api/[center]/og/buildOgImageUrl'
-import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
+import { LegacyWidgetHashHandOver } from '@/components/forecast/LegacyWidgetHashHandOver'
 import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
+import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
+import { WidgetZoneWeatherSlot } from '@/components/NWACWeather/WidgetZoneWeatherSlot'
 import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
 import { zoneOgImageVersion } from '@/services/nac/forecastFingerprint'
 import { ProductType, type ForecastResult } from '@/services/nac/model/forecast'
@@ -103,6 +105,7 @@ export default async function Page({ params }: Args) {
           title={resolvedZone.zone.name}
         />
         <NativeForecastPage centerSlug={center} zoneSlug={zone} />
+        <LegacyWidgetHashHandOver center={center} />
       </>
     )
   }
@@ -114,6 +117,7 @@ export default async function Page({ params }: Args) {
         path={`/forecasts/avalanche/${zone}`}
         title={resolvedZone.zone.name}
       />
+      <WidgetZoneWeatherSlot center={center} />
     </ForecastWidget>
   )
 }

@@ -19,11 +19,13 @@ import {
   type WarningProduct,
   type Weather,
 } from '@/services/nac/model/forecast'
+import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 import { productTypeTitle } from '@/services/nac/productTypeTitle'
 import type { ForecastZoneFacts } from '@/services/nac/resolveZone'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 import { MapPin } from 'lucide-react'
 
+import { ZoneSummary } from '@/components/NWACWeather/ZoneSummary'
 import { Card, CardContent } from '@/components/ui/card'
 
 import { AvalancheProblemCard } from './AvalancheProblemCard'
@@ -49,7 +51,7 @@ import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
 import { WeatherSummary } from './WeatherSummary'
 import { bottomLineDangerLevel } from './zoneCardDanger'
-import { zoneWeather } from './zoneWeather'
+import { hasMountainWeather } from './zoneWeather'
 
 interface NativeForecastViewProps {
   center: string
@@ -75,6 +77,10 @@ interface NativeForecastViewProps {
   centerDetails: ForecastCenterDetails
   /** The separately-issued weather product, when one is available (live page only). */
   weather?: Weather | null
+  /** NWAC's own Mountain Weather issuance for this forecast, which NWAC has in place of `weather`. */
+  nwacWeather?: NWACWeatherForecastDay | null
+  /** Wraps the bottom line and panel in the zone's tabs (Forecast-9); the live page passes it. */
+  zoneTabs?: (parts: { bottomLine: ReactNode; panel: ReactNode }) => ReactNode
 }
 
 /** One prop, so the view's signature doesn't grow with each setting it reads from the center. */
@@ -99,7 +105,32 @@ export function NativeForecastView({
   pickerSettings,
   centerDetails,
   weather,
+  nwacWeather,
+  zoneTabs,
 }: NativeForecastViewProps) {
+  const bottomLine = forecastResult.bottom_line && (
+    <div data-print-section="bottomLine">
+      <ForecastErrorBoundary fallbackMessage="Unable to display the bottom line">
+        <BottomLine
+          html={forecastResult.bottom_line}
+          dangerLevel={bottomLineDangerLevel(forecastResult)}
+        />
+      </ForecastErrorBoundary>
+    </div>
+  )
+  const panel = (
+    <ForecastPanel
+      forecastResult={forecastResult}
+      weather={weather}
+      nwacWeather={nwacWeather}
+      elevationBandNames={zone.zone.config.elevation_band_names}
+      zoneId={zone.zone.zone_id}
+      avalancheZoneId={zone.zone.id}
+      timezone={timezone}
+      elevationBandsUrl={centerDetails.elevationBandsUrl}
+    />
+  )
+
   return (
     // `print:py-0` / `print:space-y-4`: the @page margin already frames the sheet, and screen
     // rhythm costs about three quarters of an inch before the bottom line — enough to decide
@@ -128,6 +159,7 @@ export function NativeForecastView({
         zone={zone}
         forecastResult={forecastResult}
         weather={weather}
+        nwacWeather={nwacWeather}
         currentDate={currentDate}
         selectedDate={selectedDate}
       />
@@ -136,25 +168,14 @@ export function NativeForecastView({
 
       {/* `data-print-section` marks what the print dialog's checkboxes toggle; the print
           stylesheet in print.css hides any section the reader left unchecked. */}
-      {forecastResult.bottom_line && (
-        <div data-print-section="bottomLine">
-          <ForecastErrorBoundary fallbackMessage="Unable to display the bottom line">
-            <BottomLine
-              html={forecastResult.bottom_line}
-              dangerLevel={bottomLineDangerLevel(forecastResult)}
-            />
-          </ForecastErrorBoundary>
-        </div>
+      {zoneTabs ? (
+        zoneTabs({ bottomLine, panel })
+      ) : (
+        <>
+          {bottomLine}
+          {panel}
+        </>
       )}
-
-      <ForecastPanel
-        forecastResult={forecastResult}
-        weather={weather}
-        elevationBandNames={zone.zone.config.elevation_band_names}
-        zoneId={zone.zone.zone_id}
-        timezone={timezone}
-        elevationBandsUrl={centerDetails.elevationBandsUrl}
-      />
 
       {/* Scope disclaimer — safety/scope language shown under every afp product */}
       <ForecastDisclaimer
@@ -252,11 +273,12 @@ function ForecastTitleRow({
   zone,
   forecastResult,
   weather,
+  nwacWeather,
   currentDate,
   selectedDate,
 }: Pick<
   NativeForecastViewProps,
-  'center' | 'zone' | 'forecastResult' | 'weather' | 'currentDate' | 'selectedDate'
+  'center' | 'zone' | 'forecastResult' | 'weather' | 'nwacWeather' | 'currentDate' | 'selectedDate'
 >) {
   return (
     <div className="flex items-start justify-between gap-4">
@@ -273,7 +295,12 @@ function ForecastTitleRow({
 
       <ForecastErrorBoundary fallbackMessage="Unable to display the print control">
         <ForecastPrint
-          availableSections={availablePrintSections(forecastResult, weather, zone.zone.zone_id)}
+          availableSections={availablePrintSections(
+            forecastResult,
+            weather,
+            zone.zone.zone_id,
+            nwacWeather,
+          )}
           filename={forecastPrintFilename({
             centerSlug: center,
             zoneName: zone.zone.name,
@@ -316,9 +343,12 @@ function ForecastMasthead({
 interface ForecastPanelProps {
   forecastResult: ForecastResult
   weather: Weather | null | undefined
+  nwacWeather: NWACWeatherForecastDay | null | undefined
   elevationBandNames: ElevationBandNames
   /** The zone's short `zone_id` string, which picks its Mountain Weather table. */
   zoneId: string
+  /** The zone's numeric id, which picks its tables in NWAC's Mountain Weather. */
+  avalancheZoneId: number
   timezone: string | null | undefined
   elevationBandsUrl: string | null
 }
@@ -344,12 +374,17 @@ function ForecastPanel(props: ForecastPanelProps) {
   )
 }
 
-function hasPanelContent({ forecastResult, weather, zoneId }: ForecastPanelProps): boolean {
+function hasPanelContent({
+  forecastResult,
+  weather,
+  nwacWeather,
+  zoneId,
+}: ForecastPanelProps): boolean {
   return (
     forecastResult.product_type === ProductType.Forecast ||
     Boolean(forecastResult.hazard_discussion) ||
     hasMedia(forecastResult) ||
-    zoneWeather(weather, zoneId) !== null
+    hasMountainWeather(weather, zoneId, nwacWeather)
   )
 }
 
@@ -423,16 +458,38 @@ function MediaPanelSection({ forecastResult }: ForecastPanelProps) {
   )
 }
 
-function WeatherPanelSection({ weather, zoneId, timezone }: ForecastPanelProps) {
-  if (!weather) return null
+function WeatherPanelSection(props: ForecastPanelProps) {
+  if (!hasMountainWeather(props.weather, props.zoneId, props.nwacWeather)) return null
 
   return (
     <PanelSection printSection="weather">
       <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
-        <WeatherSummary weather={weather} zoneId={zoneId} timezone={timezone} />
+        <MountainWeather {...props} />
       </ForecastErrorBoundary>
     </PanelSection>
   )
+}
+
+/** NWAC's own weather where it has it, otherwise the AFP weather product the forecast points at. */
+function MountainWeather({
+  weather,
+  nwacWeather,
+  zoneId,
+  avalancheZoneId,
+  timezone,
+}: ForecastPanelProps) {
+  if (nwacWeather) {
+    return (
+      <ZoneSummary
+        day={nwacWeather}
+        avalancheZoneId={avalancheZoneId}
+        timezone={timezone}
+        inPanel
+      />
+    )
+  }
+  if (!weather) return null
+  return <WeatherSummary weather={weather} zoneId={zoneId} timezone={timezone} />
 }
 
 /**

@@ -4,6 +4,7 @@
  * agree with it about whether there is anything to show.
  */
 import type { Weather, WeatherTable } from '@/services/nac/model/forecast'
+import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 
 export interface ZoneWeather {
   table: WeatherTable | null
@@ -29,4 +30,16 @@ export function zoneWeather(
   const discussion = weather.weather_discussion?.trim() ? weather.weather_discussion : null
 
   return table || discussion ? { table, discussion } : null
+}
+
+/**
+ * Whether the Mountain Weather section has anything for the zone: the AFP product's table or
+ * discussion, or NWAC's own issuance (`getNWACWeatherForForecast` returns one only for the zone).
+ */
+export function hasMountainWeather(
+  weather: Weather | null | undefined,
+  zoneId: string,
+  nwacWeather: NWACWeatherForecastDay | null | undefined,
+): boolean {
+  return Boolean(nwacWeather) || zoneWeather(weather, zoneId) !== null
 }

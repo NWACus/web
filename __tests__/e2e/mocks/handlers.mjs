@@ -71,6 +71,28 @@ export const PROBE_PATH = '/__e2e-mock-probe'
 
 const fixtureCache = new Map()
 
+/** The obs API's recorded week (`scripts/e2e/capture-obs-week.mjs`), read once per process. */
+function obsWeek() {
+  if (!fixtureCache.has('obs/week')) {
+    fixtureCache.set('obs/week', JSON.parse(readFileSync(join(mocksDir, 'obs/week.json'), 'utf8')))
+  }
+  return fixtureCache.get('obs/week')
+}
+
+/** A REST list page of the recorded records in the request's `zone_id[in]` zones. */
+function obsList(request, records) {
+  const zones = (new URL(request.url).searchParams.get('zone_id[in]') ?? '').split(',')
+  const results = records.filter((r) => zones.includes(r.zone_id))
+  return HttpResponse.json({
+    total: results.length,
+    pages: 1,
+    current_page: 1,
+    next_url: null,
+    prev_url: null,
+    results,
+  })
+}
+
 function fixture(name) {
   if (!fixtureCache.has(name)) {
     const vendored = join(mocksDir, 'afp-golden', name)
@@ -252,6 +274,17 @@ export function buildHandlers() {
       HttpResponse.text(snowObsFixture('webcams.json'), {
         headers: { 'content-type': 'application/json' },
       }),
+    ),
+
+    // The obs API's REST lists, behind the forecast page's Observations and Avalanches tabs
+    // (Forecast-9). No golden corpus either: one recorded week of two SNFAC zones, scrubbed to what
+    // the cards read, served whatever center and dates are asked. The zone filter is the API's, so
+    // the handler applies it, and a zone with no recorded records gets an empty list.
+    http.get(`${mockNacHost}/obs/v1/public/observation/list/`, ({ request }) =>
+      obsList(request, obsWeek().observations),
+    ),
+    http.get(`${mockNacHost}/obs/v1/public/avalanche_observation/list/`, ({ request }) =>
+      obsList(request, obsWeek().avalanches),
     ),
 
     // SAC's alternate station-map zones: the KML its center metadata fixture points at, served

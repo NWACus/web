@@ -35,7 +35,7 @@ function seriesFor(
     color,
     yAxisIndex,
     data: meanPoints(s),
-    ...(symbolsOnly ? directionTooltip() : unitTooltip(s.unit)),
+    ...(symbolsOnly ? directionTooltip() : unitTooltip(s.unit, tooltipDecimals(s.variable))),
   }
   if (preset.bar) {
     return { ...base, type: 'bar', itemStyle: dashed ? { opacity: 0.6 } : undefined }
@@ -229,13 +229,20 @@ function directionTooltip(): object {
   }
 }
 
-// Tooltip values as "31.3 °F": one decimal everywhere, the series' unit appended.
-function unitTooltip(unit: string): object {
+// Snow reads to the whole inch, as in the station tables.
+const WHOLE_SNOW = new Set(['snow_depth', 'snow_depth_24h', 'snow_depth_24hr', 'intermittent_snow'])
+
+function tooltipDecimals(variable: string): number {
+  return WHOLE_SNOW.has(variable) ? 0 : 1
+}
+
+// Tooltip values as "31.3 °F" (snow "75 in"), the series' unit appended.
+function unitTooltip(unit: string, decimals: number): object {
   return {
     tooltip: {
       valueFormatter: (value: unknown) =>
         typeof value === 'number' && Number.isFinite(value)
-          ? `${value.toFixed(1)}${unit ? ` ${unit}` : ''}`
+          ? `${value.toFixed(decimals)}${unit ? ` ${unit}` : ''}`
           : '–',
     },
   }

@@ -160,6 +160,11 @@ describe('buildChartOption precision and bar rendering', () => {
     expect(tooltipFormat(buildChartOption(data, TEMP_PRESET), Number.NaN)).toBe('–')
   })
 
+  it('formats snow tooltips to the whole inch, as the tables do', () => {
+    const snow: GraphData = { ...data, series: [series('1', 'snow_depth')] }
+    expect(tooltipFormat(buildChartOption(snow, TEMP_PRESET), 74.51)).toBe('75 °F')
+  })
+
   it('formats the tooltip date header human-readably', () => {
     const t = new Date(2026, 0, 10, 14, 30).getTime()
     expect(dateHeaderFormat(buildChartOption(data, TEMP_PRESET), t)).toBe('Sat Jan 10, 14:30')

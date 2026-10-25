@@ -3,7 +3,6 @@
  * periods or blocks across), then the extended outlook.
  */
 import { DiscussionBody } from '@/components/forecast/DiscussionBody'
-import { sanitizeHtml } from '@/components/forecast/sanitizeHtml'
 import Link from 'next/link'
 import { Fragment, type ReactNode } from 'react'
 
@@ -14,24 +13,38 @@ import type {
 } from '@/services/nac/model/nwacWeather'
 import {
   DASH,
-  SENSIBLE_SLOTS,
   blockDate,
+  dayGroups,
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
-  fmtSnowAmount,
-  periodDateGroups,
+  fmtQpf,
+  levelKind,
   precipPeriods,
+  sensibleSlots,
   snowLevelBlocks,
-  snowLevelTones,
+  snowRange,
   tempPeriods,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
+import { PrecipHoursPanel, PrecipHoursSwitch, PrecipHoursToggle } from './PrecipHours.client'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
-import { SensibleDays, type SensibleDay, type SensibleRow } from './SensibleDays.client'
-import { DayNightDate, LevelValue, SnowValue, TempValue, WindValue } from './Values'
+import {
+  DayNightDate,
+  SnowFillLegend,
+  SnowLevelLegend,
+  SnowLevelValue,
+  SnowValue,
+  TempLegend,
+  TempValue,
+  WindLegend,
+  WindValue,
+  levelFill,
+  snowFill,
+} from './Values'
+import { WeatherSummary, type SensibleDay, type SensibleRow } from './WeatherSummary.client'
 
 interface Column {
   key: string
@@ -43,11 +56,21 @@ interface Column {
   night?: boolean
   /** Its sun or moon goes by the sub-label (a date's Day / Night), not the date. */
   dayNightOnSub?: boolean
+  /**
+   * A third header row under the sub-label, for a period split into several values ("Precip",
+   * "Snow"); columns sharing a `split` sit under one sub-label.
+   */
+  part?: string
+  split?: string
+  /** Set off from the columns before it by a heavier rule (a total). */
+  total?: boolean
 }
 interface Row {
   key: string
   label: string
   cells: ReactNode[]
+  /** A background class per cell, for values shaded by amount. */
+  fills?: (string | undefined)[]
 }
 interface Group {
   key: string
@@ -60,6 +83,8 @@ interface Table {
   /** The section link's text. */
   nav: string
   title: string
+  /** Shown quietly after the title, in parentheses. */
+  unit?: string
   note?: string
   /** Paragraphs that continue the note: the legacy page's info-bubble text for this table. */
   detail?: string[]
@@ -70,6 +95,10 @@ interface Table {
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
+  /** Beside the title, bottom-aligned: a control for the table. */
+  aside?: ReactNode
+  /** After the description, over the table: what the shading means. */
+  legend?: ReactNode
 }
 
 /** Avalanche zone id → the path of that zone's forecast page. */
@@ -77,17 +106,18 @@ export type ZonePaths = Record<number, string>
 
 const STICKY = 'sticky left-0 z-10'
 
-// The wording of the info bubbles on NWAC's legacy Mountain Weather Forecast page.
+// Condensed from the info bubbles on NWAC's legacy Mountain Weather Forecast page.
+const PRECIP_DETAIL = [
+  'Precip is the liquid equivalent of all precipitation (rain, snow, ice pellets), to the hundredth of an inch. To estimate snow, start at 10:1 (1" of precip ≈ 10" of snow); near freezing gives less (heavy, wet snow), very cold more (light, dry snow).',
+]
 const SNOW_LEVEL_DETAIL = [
-  'The snow level forecast represents the general snow level over a 6 hr time period. Freezing levels are forecast when precipitation is not expected.',
+  'The general snow level over each 6 hours; a freezing level instead when no precipitation is expected.',
 ]
 const TEMPS_DETAIL = [
-  'The 5000’ temperature forecast does not imply a trend over the 12 hr period and only represents the max and min temperatures within a 12 hr period in the zone. The 6-hr snow level forecast, the forecast discussion, and weather forecast sections may add detail regarding temperature trends.',
+  'The high and low at 5000’ within each 12 hours, not a trend. The snow level, synopsis and weather summary say more about how temperatures change.',
 ]
 const WIND_DETAIL = [
-  'Ridgeline winds are the average wind speed and direction over a 6 hr time period.',
-  'The wind forecast represents an elevation range instead of a single elevation slice. The elevation range overlaps with the near and above treeline elevation bands in the avalanche forecast and differs per zone.',
-  'Wind direction indicates the direction the wind originates or comes from on the 16-point compass rose.',
+  'The average speed and direction over each 6 hours, from the 16-point compass direction the wind comes from. Ridgeline winds cover a range of elevations, differing by zone, that overlaps the near and above treeline bands of the avalanche forecast.',
 ]
 
 // Grouped like the block tables: one date over its periods, Day or Night (with its sun or moon)
@@ -101,7 +131,7 @@ const periodColumn = (p: NWACWeatherPeriod): Column => ({
   dayNightOnSub: true,
 })
 
-/** Forecaster-authored HTML, or null when blank. */
+/** Forecaster-authored HTML, or null when blank. Already sanitized: see `sanitizeIssuance`. */
 function authoredOrNull(html: string | null | undefined): string | null {
   return html?.trim() ? html : null
 }
@@ -118,13 +148,22 @@ function blockColumn(issuance: NWACWeatherIssuance, b: NWACWeatherBlock): Column
   }
 }
 
-/** Shades levels against the whole table so zones compare. */
-function shadedLevels(levels: (number | null)[][]): ReactNode[][] {
-  const width = levels[0]?.length ?? 0
-  const tones = snowLevelTones(levels.flat())
-  return levels.map((row, r) =>
-    row.map((level, c) => <LevelValue key={c} level={level} tone={tones[r * width + c]} />),
-  )
+/**
+ * A zone's snow and freezing levels, each cell filled by its elevation, so the fill takes the whole
+ * cell rather than a pill inside it.
+ */
+function levelRow(
+  zone: { id: string; name: string },
+  cells: { key: string; level: number | null; snow: boolean }[],
+): Row {
+  return {
+    key: zone.id,
+    label: zone.name,
+    cells: cells.map((c) => (
+      <SnowLevelValue key={c.key} level={c.level} snow={c.snow} pill={false} />
+    )),
+    fills: cells.map((c) => (c.level != null ? levelFill(c.level) : undefined)),
+  }
 }
 
 function zoneTables(issuance: NWACWeatherIssuance): Table[] {
@@ -133,15 +172,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     issuance.zones.map((z) => ({ key: z.id, label: z.name, cells: cells(z.id) }))
 
   const levelBlocks = snowLevelBlocks(issuance)
-  const levels = shadedLevels(
-    issuance.zones.map((z) =>
-      levelBlocks.map((b) => {
-        const cell = issuance.snowLevel[z.id]?.[b.key]
-        return deriveSnowLevel(cell?.freezing, cell?.drop)
-      }),
-    ),
-  )
-  const levelsByZone = new Map(issuance.zones.map((z, i) => [z.id, levels[i]]))
 
   const temps = tempPeriods(issuance)
   const winds = windBlocks(issuance)
@@ -149,21 +179,37 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   return [
     {
       id: 'snow-level',
-      nav: 'Snow level',
-      title: 'Snow Level (ft)',
-      note: 'Where rain turns to snow. Darker is higher.',
+      nav: 'Snow & freezing level',
+      title: 'Snow and Freezing Level',
+      unit: 'ft',
       detail: SNOW_LEVEL_DETAIL,
+      legend: <SnowLevelLegend />,
       rowLabel: 'Zone',
       columns: levelBlocks.map((b) => blockColumn(issuance, b)),
-      groups: flat(zoneRows((id) => levelsByZone.get(id) ?? [])),
+      groups: flat(
+        issuance.zones.map((z) =>
+          levelRow(
+            z,
+            levelBlocks.map((b) => {
+              const cell = issuance.snowLevel[z.id]?.[b.key]
+              return {
+                key: b.key,
+                level: deriveSnowLevel(cell?.freezing),
+                snow: levelKind(issuance, z.id, b) === 'snow',
+              }
+            }),
+          ),
+        ),
+      ),
       filled: true,
     },
     {
       id: 'temps',
       nav: "5000' temps",
-      title: "5000' Temperatures (°F)",
-      note: 'High / low.',
+      title: "5000' Temperatures",
+      unit: '°F',
       detail: TEMPS_DETAIL,
+      legend: <TempLegend />,
       rowLabel: 'Zone',
       columns: temps.map(periodColumn),
       groups: flat(
@@ -175,9 +221,10 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     {
       id: 'wind',
       nav: 'Ridgeline winds',
-      title: 'Ridgeline Winds (mph)',
-      note: 'Arrows point the way the wind blows.',
+      title: 'Ridgeline Winds',
+      unit: 'mph',
       detail: WIND_DETAIL,
+      legend: <WindLegend />,
       rowLabel: 'Zone',
       columns: winds.map((b) => blockColumn(issuance, b)),
       groups: flat(
@@ -189,20 +236,116 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   ]
 }
 
-/** New snow by station, the stations grouped under their zones in zone order. */
-function snowTable(issuance: NWACWeatherIssuance): Table {
+/** The sum of the values given, or null when there are none. */
+function sumOf(values: (number | null | undefined)[]): number | null {
+  const known = values.filter((v): v is number => v != null)
+  return known.length ? known.reduce((a, b) => a + b, 0) : null
+}
+
+/** A sum of hundredths back to hundredths, dropping float noise (0.1 + 0.2 → 0.3). */
+function hundredths(value: number | null): number | null {
+  return value == null ? null : Math.round(value * 100) / 100
+}
+
+/** One period's (or the total's) water equivalent then snow, the pair shaded by the snow. */
+function precipSnowPair(qpf: number | null | undefined, snow: number | null) {
+  const some = snow != null && snow > 0
+  const fill = snowFill(snow)
+  return {
+    cells: [
+      <span key="we" className="tabular-nums text-muted-foreground">
+        {fmtQpf(qpf)}
+      </span>,
+      <SnowValue key="snow" text={snowRange(snow)} some={some} />,
+    ],
+    fills: [fill, fill],
+  }
+}
+
+/**
+ * Water equivalent and the new snow it makes, by station, the stations grouped under their zones:
+ * each period split in two, then the whole window's total.
+ */
+/** One column pair of the precipitation and snow table: the periods its values add up. */
+interface PrecipSlot {
+  column: Column
+  periods: NWACWeatherPeriod[]
+}
+
+export type PrecipHours = '12' | '24'
+
+/** Each period on its own (12 hours), or folded into nights and the days after (24). */
+function precipSlots(issuance: NWACWeatherIssuance, hours: PrecipHours): PrecipSlot[] {
   const periods = precipPeriods(issuance)
-  const row = (p: NWACWeatherIssuance['points'][number]): Row => ({
-    key: p.code,
-    label: p.name,
-    cells: periods.map((period) => {
-      const cell = issuance.precip[p.code]?.[period.key]
-      const snow = deriveSnow(cell?.qpf, cell?.density)
-      return (
-        <SnowValue key={period.key} text={fmtSnowAmount(snow)} some={snow != null && snow >= 0.5} />
-      )
-    }),
+  if (hours === '12') return periods.map((p) => ({ column: periodColumn(p), periods: [p] }))
+  return dayGroups(periods).map((g) => {
+    const first = fmtCalendarDate(g.periods[0].date)
+    const last = fmtCalendarDate(g.periods[g.periods.length - 1].date)
+    return {
+      column: {
+        key: g.key,
+        date: first === last ? first : `${first} – ${last}`,
+        sub: g.partial ?? 'Night + Day',
+        group: g.key,
+      },
+      periods: g.periods,
+    }
   })
+}
+
+/**
+ * Water equivalent and the new snow it makes, by station, the stations grouped under their zones:
+ * each 12 or 24 hours split in two, then the whole window's total.
+ */
+function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Table {
+  const slots = precipSlots(issuance, hours)
+  const periods = precipPeriods(issuance)
+  const row = (p: NWACWeatherIssuance['points'][number]): Row => {
+    const cell = (period: NWACWeatherPeriod) => issuance.precip[p.code]?.[period.key]
+    const totalOf = (of: NWACWeatherPeriod[]) =>
+      precipSnowPair(
+        hundredths(sumOf(of.map((period) => cell(period)?.qpf))),
+        sumOf(of.map((period) => deriveSnow(cell(period)?.qpf, cell(period)?.density))),
+      )
+    const pairs = [...slots.map((s) => totalOf(s.periods)), totalOf(periods)]
+    return {
+      key: p.code,
+      label: p.name,
+      cells: pairs.flatMap((pair) => pair.cells),
+      fills: pairs.flatMap((pair) => pair.fills),
+    }
+  }
+  const split = (column: Column): Column[] =>
+    ['Precip', 'Snow'].map((part) => ({
+      ...column,
+      key: `${column.key}-${part}`,
+      part,
+      split: column.key,
+    }))
+  return {
+    id: `precip-snow-${hours}`,
+    nav: 'Precipitation & snow',
+    title: 'Precipitation and Snow',
+    unit: 'in',
+    note: 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.',
+    detail: PRECIP_DETAIL,
+    legend: <SnowFillLegend />,
+    aside: <PrecipHoursToggle />,
+    rowLabel: 'Station',
+    groupColumn: 'Zone',
+    columns: [
+      ...slots.map((s) => s.column).flatMap(split),
+      ...split({ key: 'total', date: 'Total', sub: null, group: 'total', total: true }),
+    ],
+    groups: stationGroups(issuance, row),
+  }
+}
+
+/** The stations in zone order, grouped under their zones, each made a row by `row`. */
+function stationGroups(
+  issuance: NWACWeatherIssuance,
+  row: (p: NWACWeatherIssuance['points'][number]) => Row,
+): Group[] {
   const zoneIds = new Set(issuance.zones.map((z) => z.id))
   const groups: Group[] = issuance.zones.map((z) => ({
     key: z.id,
@@ -217,34 +360,21 @@ function snowTable(issuance: NWACWeatherIssuance): Table {
     if (group) group.rows.push(row(p))
     else groups.push({ key, label: p.zoneName || null, rows: [row(p)] })
   }
-  return {
-    id: 'snow',
-    nav: 'Snow',
-    title: 'Snow (in)',
-    note: 'New snow by station.',
-    rowLabel: 'Station',
-    groupColumn: 'Zone',
-    columns: periods.map(periodColumn),
-    groups: groups.filter((g) => g.rows.length > 0),
-  }
+  return groups.filter((g) => g.rows.length > 0)
 }
 
 function extendedTable(issuance: NWACWeatherIssuance): Table {
   const zones = issuance.zones.filter((z) => issuance.extendedSnowLevel[z.id])
   const blocks = issuance.extendedBlocks
-  const levels = shadedLevels(
-    zones.map((z) =>
-      blocks.map((b) => {
-        const cell = issuance.extendedSnowLevel[z.id]?.[b.key]
-        return deriveSnowLevel(cell?.freezing, cell?.drop)
-      }),
-    ),
-  )
+  // No precipitation beyond the main window, so a level is a snow level unless the forecaster
+  // marked it a freezing level.
   return {
     id: 'extended-snow-level',
     nav: 'Extended',
-    title: 'Snow Levels (ft)',
+    title: 'Snow Levels',
+    unit: 'ft',
     detail: SNOW_LEVEL_DETAIL,
+    legend: <SnowLevelLegend />,
     rowLabel: 'Zone',
     columns: blocks.map((b) => ({
       key: b.key,
@@ -256,7 +386,19 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
       {
         key: 'all',
         label: null,
-        rows: zones.map((z, i) => ({ key: z.id, label: z.name, cells: levels[i] })),
+        rows: zones.map((z) =>
+          levelRow(
+            z,
+            blocks.map((b) => {
+              const cell = issuance.extendedSnowLevel[z.id]?.[b.key]
+              return {
+                key: b.key,
+                level: deriveSnowLevel(cell?.freezing),
+                snow: cell?.mode !== 'freezing',
+              }
+            }),
+          ),
+        ),
       },
     ],
     filled: true,
@@ -372,12 +514,97 @@ function GroupedHead({ table: t }: { table: Table }) {
   )
 }
 
-function TableHead({ table: t }: { table: Table }) {
+const isSplit = (t: Table) => t.columns.some((c) => c.part)
+
+/** Runs of columns sharing a split: one period's values. */
+function splitRuns(columns: Column[]) {
+  const out: { first: Column; span: number }[] = []
+  for (const c of columns) {
+    const last = out[out.length - 1]
+    if (last && c.split && last.first.split === c.split) last.span++
+    else out.push({ first: c, span: 1 })
+  }
+  return out
+}
+
+/** The rule before a column: one at each period's first value, heavier before a total. */
+function leftRule(columns: Column[], i: number) {
+  const c = columns[i]
+  if (!c?.split || columns[i - 1]?.split === c.split) return undefined
+  return c.total ? 'border-l-2' : 'border-l'
+}
+
+/**
+ * Three rows for a table whose periods are split: a date over its periods, each period's Day or
+ * Night (with its sun or moon) over its values' labels. A column without a sub-label (the total)
+ * takes the first two rows with its name.
+ */
+function SplitHead({ table: t }: { table: Table }) {
+  const runs = splitRuns(t.columns)
+  const dateRow = columnGroups(t.columns)
+  const ruleAt = (c: Column) => leftRule(t.columns, t.columns.indexOf(c))
   return (
-    <thead>
-      {t.columns.some((c) => c.group) ? <GroupedHead table={t} /> : <FlatHead table={t} />}
-    </thead>
+    <>
+      <tr className="bg-muted">
+        <RowLabelHead table={t} rowSpan={3} />
+        {dateRow.map((g) => (
+          <th
+            key={g.key}
+            scope="colgroup"
+            colSpan={g.span}
+            rowSpan={g.first.sub ? 1 : 2}
+            className={cn(
+              'px-2 pb-0.5 pt-2 text-center font-semibold whitespace-nowrap',
+              !g.first.sub && 'align-bottom',
+              ruleAt(g.first),
+            )}
+          >
+            {g.first.date}
+          </th>
+        ))}
+      </tr>
+      <tr className="bg-muted">
+        {runs
+          .filter((r) => r.first.sub)
+          .map((r) => (
+            <th
+              key={r.first.key}
+              scope="colgroup"
+              colSpan={r.span}
+              className={cn('px-2 py-0.5 text-center', ruleAt(r.first))}
+            >
+              <span className={SUB}>
+                <DayNightDate date={r.first.sub} night={r.first.night} label={false} />
+              </span>
+            </th>
+          ))}
+      </tr>
+      <tr className="bg-muted">
+        {t.columns.map((c, i) => (
+          <th
+            key={c.key}
+            scope="col"
+            className={cn('border-b px-1 pb-2 pt-0.5 text-center', leftRule(t.columns, i))}
+          >
+            <span className="block whitespace-nowrap text-xs font-normal text-muted-foreground">
+              {c.part}
+            </span>
+          </th>
+        ))}
+      </tr>
+    </>
   )
+}
+
+function TableHead({ table: t }: { table: Table }) {
+  const head = isSplit(t) ? (
+    <SplitHead table={t} />
+  ) : t.columns.some((c) => c.group) ? (
+    <GroupedHead table={t} />
+  ) : (
+    <FlatHead table={t} />
+  )
+  return <thead>{head}</thead>
 }
 
 function cellClassOf(t: Table) {
@@ -398,19 +625,19 @@ function GroupColumnBody({ table: t }: { table: Table }) {
                 <th
                   scope="rowgroup"
                   rowSpan={g.rows.length}
-                  className="whitespace-nowrap border-t p-2 pl-3 text-left align-top font-semibold"
+                  className="border-t p-2 pl-3 text-left align-top font-semibold"
                 >
                   {g.label ?? DASH}
                 </th>
               )}
-              <th
-                scope="row"
-                className={cn(STICKY, rule, 'whitespace-nowrap bg-card p-2 text-left font-normal')}
-              >
+              <th scope="row" className={cn(STICKY, rule, 'bg-card p-2 text-left font-normal')}>
                 {r.label}
               </th>
               {r.cells.map((cell, c) => (
-                <td key={t.columns[c]?.key ?? c} className={cn(rule, cellClass)}>
+                <td
+                  key={t.columns[c]?.key ?? c}
+                  className={cn(rule, cellClass, r.fills?.[c], leftRule(t.columns, c))}
+                >
                   {cell}
                 </td>
               ))}
@@ -429,6 +656,18 @@ function TableBody({ table: t }: { table: Table }) {
     <tbody>
       {t.groups.map((g) => (
         <Fragment key={g.key}>
+          {g.label && (
+            <tr>
+              <th
+                scope="rowgroup"
+                colSpan={t.columns.length + 1}
+                className="border-t bg-muted/50 px-3 py-1.5 text-left text-xs font-semibold"
+              >
+                {/* Stays in view while the values scroll sideways under it. */}
+                <span className="sticky left-3">{g.label}</span>
+              </th>
+            </tr>
+          )}
           {g.rows.map((r) => (
             <tr key={r.key}>
               <th
@@ -441,7 +680,10 @@ function TableBody({ table: t }: { table: Table }) {
                 {r.label}
               </th>
               {r.cells.map((cell, i) => (
-                <td key={t.columns[i]?.key ?? i} className={cn('border-t', cellClass)}>
+                <td
+                  key={t.columns[i]?.key ?? i}
+                  className={cn('border-t', cellClass, r.fills?.[i], leftRule(t.columns, i))}
+                >
                   {cell}
                 </td>
               ))}
@@ -465,12 +707,18 @@ function TableTitle({
   const [first, ...rest] = t.detail ?? []
   return (
     <div>
-      <Heading
-        id={headingId}
-        className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
-      >
-        {t.title}
-      </Heading>
+      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+        <Heading
+          id={headingId}
+          className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
+        >
+          {t.title}
+          {t.unit && (
+            <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
+          )}
+        </Heading>
+        {t.aside}
+      </div>
       {(t.note || first) && (
         <div className="space-y-1 text-sm text-muted-foreground">
           <p>{[t.note, first].filter(Boolean).join(' ')}</p>
@@ -480,6 +728,46 @@ function TableTitle({
         </div>
       )}
     </div>
+  )
+}
+
+/**
+ * Label column widths as CSS variables, narrower on a phone so the values get the room: the group
+ * column (a grouped table's zones) and the row labels. Static classes, so Tailwind sees them.
+ */
+const LABEL_VARS = '[--group:5.5rem] [--label:7.5rem] md:[--group:8rem] md:[--label:12rem]'
+/** A data column of a grouped table, which is sized to its columns rather than stretched. */
+const GROUPED_COL_REM = 5.5
+/** A split table's value column, half a period: room for a total like 12.34" with its mark. */
+const SPLIT_COL_REM = 4.5
+/** The narrowest a data column of a stretched table gets before the table scrolls instead. */
+const MIN_COL_REM = 5
+
+function labels(t: Table) {
+  return t.groupColumn ? 'var(--group) + var(--label)' : 'var(--label)'
+}
+
+/**
+ * Fixed layout, so every data column of a table is the same width whatever its values: a grouped
+ * table at exactly its columns' width, the others across the page down to a scrolling minimum.
+ */
+function tableWidth(t: Table) {
+  const n = t.columns.length
+  if (isSplit(t)) return { width: '100%', minWidth: `calc(${labels(t)} + ${n * SPLIT_COL_REM}rem)` }
+  return t.groupColumn
+    ? { width: `calc(${labels(t)} + ${n * GROUPED_COL_REM}rem)` }
+    : { width: '100%', minWidth: `calc(${labels(t)} + ${n * MIN_COL_REM}rem)` }
+}
+
+function TableColumns({ table: t }: { table: Table }) {
+  return (
+    <colgroup>
+      {t.groupColumn && <col style={{ width: 'var(--group)' }} />}
+      <col style={{ width: 'var(--label)' }} />
+      {t.columns.map((c) => (
+        <col key={c.key} />
+      ))}
+    </colgroup>
   )
 }
 
@@ -496,14 +784,42 @@ function GridTable({
   return (
     <section aria-labelledby={headingId} className="min-w-0 space-y-2">
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
-      {/* A grouped table is only as wide as its columns; stretched, its few periods sprawl. */}
-      <div className={cn('overflow-x-auto rounded-md border', t.groupColumn && 'w-fit max-w-full')}>
-        <table className={cn('border-collapse text-sm', !t.groupColumn && 'w-full', 'min-w-max')}>
-          <TableHead table={t} />
-          <TableBody table={t} />
-        </table>
-      </div>
+      {t.groupColumn ? (
+        <>
+          <TableBox table={t} className="hidden md:block" />
+          {/* On a phone the group column would take half the width: its labels become heading
+              rows over their rows instead, and the values get the room. */}
+          <TableBox table={{ ...t, groupColumn: undefined }} className="md:hidden" />
+        </>
+      ) : (
+        <TableBox table={t} />
+      )}
+      {t.legend}
     </section>
+  )
+}
+
+function TableBox({ table: t, className }: { table: Table; className?: string }) {
+  return (
+    /* A grouped table is only as wide as its columns; stretched, its few periods sprawl. */
+    <div
+      className={cn(
+        // `relative` makes the box the containing block of the headers' screen-reader labels
+        // (absolutely positioned), so they are clipped with the table instead of widening the page.
+        'relative overflow-x-auto rounded-md border',
+        t.groupColumn && !isSplit(t) && 'w-fit max-w-full',
+        className,
+      )}
+    >
+      <table
+        className={cn(LABEL_VARS, 'table-fixed border-collapse text-sm')}
+        style={tableWidth(t)}
+      >
+        <TableColumns table={t} />
+        <TableHead table={t} />
+        <TableBody table={t} />
+      </table>
+    </div>
   )
 }
 
@@ -521,13 +837,16 @@ function zoneLinksOf(issuance: NWACWeatherIssuance, zonePaths: ZonePaths): ZoneL
   })
 }
 
-function ZoneLinks({ links }: { links: ZoneLink[] }) {
+// One per issuance panel, so the heading's id takes the issuance's anchor.
+function ZoneLinks({ links, headingId }: { links: ZoneLink[]; headingId: string }) {
   return (
-    <aside aria-label="Weather by zone" className="space-y-3 rounded-lg bg-muted p-4 print:hidden">
-      <div>
-        <h3 className="text-sm font-semibold">Weather by zone</h3>
-        <p className="text-xs text-muted-foreground">
-          Pick a zone to see its forecast with the avalanche forecast.
+    <aside aria-labelledby={headingId} className="space-y-3 border-t pt-6 print:hidden">
+      <div className="space-y-0.5">
+        <h3 id={headingId} className="text-lg font-semibold">
+          Looking for weather by zone?
+        </h3>
+        <p className="text-muted-foreground">
+          Each zone&rsquo;s page has its mountain weather with the avalanche forecast.
         </p>
       </div>
       <ul className="flex flex-wrap gap-2">
@@ -535,7 +854,7 @@ function ZoneLinks({ links }: { links: ZoneLink[] }) {
           <li key={l.id}>
             <Link
               href={l.href}
-              className="inline-flex h-9 items-center rounded-md border bg-background px-3 text-sm font-semibold no-underline hover:bg-accent"
+              className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground no-underline transition-colors hover:bg-primary/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {l.name}
             </Link>
@@ -551,31 +870,31 @@ function MaybeTable({ table, anchor }: { table: Table; anchor: string }) {
   return hasContent(table) ? <GridTable table={table} anchor={anchor} /> : null
 }
 
+/** The synopsis, with the zones' weather summary beside it when there is one. */
 function SynopsisRow({
   issuance,
   synopsis,
-  zonePaths,
+  summary,
 }: {
   issuance: NWACWeatherIssuance
   synopsis: string | null
-  zonePaths: ZonePaths
+  summary: ReactNode
 }) {
   const headingId = `${issuance.type}-synopsis`
-  const links = zoneLinksOf(issuance, zonePaths)
   const text = synopsis && (
     <section aria-labelledby={headingId} className="space-y-1">
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
         Weather Synopsis
       </h3>
-      <DiscussionBody html={sanitizeHtml(synopsis)} />
+      <DiscussionBody html={synopsis} />
     </section>
   )
-  // Without zone links the synopsis takes the full width.
-  if (links.length === 0) return text
+  // Without a summary the synopsis takes the full width.
+  if (!summary) return text
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+    <div className="grid gap-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] xl:items-start">
       {text || <div />}
-      <ZoneLinks links={links} />
+      {summary}
     </div>
   )
 }
@@ -602,7 +921,7 @@ function ExtendedSection({
         {extended && (
           <section className="space-y-2">
             <h4 className="text-base font-semibold">Outlook</h4>
-            <DiscussionBody html={sanitizeHtml(extended)} />
+            <DiscussionBody html={extended} />
           </section>
         )}
         {showTable && <GridTable table={table} anchor={anchor} headingLevel="h4" />}
@@ -613,15 +932,9 @@ function ExtendedSection({
 
 /** Each sensible-weather day with its date, and each zone's text by day; empty when none. */
 function sensibleDays(issuance: NWACWeatherIssuance) {
-  const dates = periodDateGroups(issuance.periods)
-  // An afternoon issuance's first date is only its night, so "Today / Tonight" reads "Tonight".
-  const firstIsNight = issuance.periods
-    .filter((p) => p.date === dates[0]?.date)
-    .every((p) => p.kind === 'night')
-  const days: SensibleDay[] = SENSIBLE_SLOTS.map((s, i) => ({
-    key: s.key,
-    label: i === 0 && firstIsNight ? 'Tonight' : s.label,
-    date: dates[i] ? fmtCalendarDate(dates[i].date) : null,
+  const days: SensibleDay[] = sensibleSlots(issuance).map((s) => ({
+    ...s,
+    date: s.date ? fmtCalendarDate(s.date) : null,
   }))
   const rows: SensibleRow[] = issuance.zones.map((z) => ({
     key: z.id,
@@ -642,7 +955,8 @@ export interface OverallParts {
   snowLevel: Table
   temps: Table
   wind: Table
-  snow: Table
+  /** By the hours each column covers; the toggle shows one. */
+  precipSnow: Record<PrecipHours, Table>
   ext: Table
   sensible: ReturnType<typeof sensibleDays>
 }
@@ -656,7 +970,7 @@ export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
     snowLevel,
     temps,
     wind,
-    snow: snowTable(issuance),
+    precipSnow: { '12': precipSnowTable(issuance, '12'), '24': precipSnowTable(issuance, '24') },
     ext: extendedTable(issuance),
     sensible: sensibleDays(issuance),
   }
@@ -666,10 +980,12 @@ function sectionLinks(p: OverallParts): SectionLink[] {
   const hasExtended = !!p.extended || hasContent(p.ext)
   return [
     ...(p.synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Sensible weather' }] : []),
-    ...[p.snow, p.snowLevel, p.temps, p.wind]
-      .filter(hasContent)
-      .map((t) => ({ id: t.id, label: t.nav })),
+    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Weather summary' }] : []),
+    // The precipitation tables share one anchor, on the wrapper both sit in.
+    ...(hasContent(p.precipSnow['12'])
+      ? [{ id: 'precip-snow', label: p.precipSnow['12'].nav }]
+      : []),
+    ...[p.snowLevel, p.temps, p.wind].filter(hasContent).map((t) => ({ id: t.id, label: t.nav })),
     ...(hasExtended ? [{ id: 'extended', label: 'Extended' }] : []),
   ].map((l) => ({ ...l, id: `${p.issuance.type}-${l.id}` }))
 }
@@ -680,25 +996,40 @@ export function OverallSectionTabs({ parts }: { parts: OverallParts }) {
 }
 
 export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePaths?: ZonePaths }) {
-  const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, snow, ext } = parts
+  const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, precipSnow, ext } = parts
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
   const tempsOrWind = hasContent(temps) || hasContent(wind)
+  const zoneLinks = zoneLinksOf(issuance, zonePaths)
 
   return (
     <div className="space-y-8">
-      <SynopsisRow issuance={issuance} synopsis={synopsis} zonePaths={zonePaths} />
-      {/* Sensible shows one day at a time, so it's narrow enough to share Snow's row. */}
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
-        {sensible.rows.length > 0 && (
-          <SensibleDays
-            headingId={`${anchor}-sensible`}
-            days={sensible.days}
-            rows={sensible.rows}
-          />
-        )}
-        <MaybeTable table={snow} anchor={anchor} />
-      </div>
+      <SynopsisRow
+        issuance={issuance}
+        synopsis={synopsis}
+        summary={
+          sensible.rows.length > 0 && (
+            <WeatherSummary
+              headingId={`${anchor}-sensible`}
+              days={sensible.days}
+              rows={sensible.rows.map((r) => ({
+                ...r,
+                href: zoneLinks.find((l) => l.id === r.key)?.href,
+              }))}
+            />
+          )
+        }
+      />
+      {hasContent(precipSnow['12']) && (
+        <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
+          <PrecipHoursPanel hours="12">
+            <GridTable table={precipSnow['12']} anchor={anchor} />
+          </PrecipHoursPanel>
+          <PrecipHoursPanel hours="24">
+            <GridTable table={precipSnow['24']} anchor={anchor} />
+          </PrecipHoursPanel>
+        </PrecipHoursSwitch>
+      )}
       <MaybeTable table={snowLevel} anchor={anchor} />
       {tempsOrWind && (
         <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
@@ -707,6 +1038,7 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
         </div>
       )}
       <ExtendedSection anchor={anchor} extended={extended} table={ext} />
+      {zoneLinks.length > 0 && <ZoneLinks links={zoneLinks} headingId={`${anchor}-zone-links`} />}
     </div>
   )
 }

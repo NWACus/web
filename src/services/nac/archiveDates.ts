@@ -318,3 +318,30 @@ export function parseDateWindow(
 
   return { from, to }
 }
+
+/**
+ * The legacy widget's own address for the product showing `date`, on the zone's page:
+ * `#/forecast/<zone_id>/<product id>`, `zone_id` being the center's short id for the zone, not its
+ * API id. The day's product, else the one covering it (`findCoveringProductDate`); the plain zone
+ * page when nothing in `archiveDates` does, or when that product is the live one
+ * (`liveProductId`), which the widget would label archived (Forecast-242).
+ */
+export function widgetArchiveAddress(
+  zone: { slug: string; zoneId: string },
+  archiveDates: ZoneArchiveDate[],
+  date: string,
+  timezone: string | null | undefined,
+  liveProductId: number | null = null,
+): string {
+  const page = `/forecasts/avalanche/${zone.slug}`
+  const shown = findCoveringProductDate(archiveDates, date, timezone)
+  const productId = shown ? findProductIdForDate(archiveDates, shown) : null
+  return productId === null || productId === liveProductId
+    ? page
+    : `${page}#/forecast/${zone.zoneId}/${productId}`
+}
+
+/** Where a widget center's dated address hands over, decided per request there. */
+export function widgetArchiveHandOverPath(zoneSlug: string, date: string): string {
+  return `/forecasts/avalanche/${zoneSlug}/${date}/widget`
+}

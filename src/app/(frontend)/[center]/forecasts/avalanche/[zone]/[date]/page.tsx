@@ -17,6 +17,7 @@ import {
   forecastPickerSettings,
   initialArchiveWindow,
   validDateForProduct,
+  widgetArchiveHandOverPath,
   type ZoneArchiveDate,
 } from '@/services/nac/archiveDates'
 import {
@@ -33,6 +34,7 @@ import {
   getAvalancheCenterMetadata,
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
+import { getNWACWeatherForForecast } from '@/services/nac/nwacWeatherForForecast'
 import { productTabLabel } from '@/services/nac/productTypeTitle'
 import { resolveDatedZoneFromSlug, type DatedForecastZone } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
@@ -65,10 +67,11 @@ type PathArgs = {
 }
 
 /**
- * 404 unless this is a well-formed date on a center that publishes forecasts natively — the dated
- * history view is native-only, since the legacy widget keeps its own archive.
+ * 404 unless this is a well-formed date on a center that publishes forecasts. Whether the center
+ * is on the native pages or the legacy widget is the caller's to act on: the dated history view is
+ * native-only, and on the widget the address hands over to the widget's own archive.
  */
-async function assertDatedForecastAvailable(center: string, date: string) {
+async function assertDatedForecastAvailable(center: string, date: string): Promise<boolean> {
   if (!DATE_PATTERN.test(date)) {
     notFound()
   }
@@ -78,10 +81,30 @@ async function assertDatedForecastAvailable(center: string, date: string) {
     notFound()
   }
 
-  const useNative = await getNativeProductFlag(center, 'forecast')
-  if (!useNative) {
-    notFound()
-  }
+  return getNativeProductFlag(center, 'forecast')
+}
+
+/**
+ * A dated address on a center still on the widget, which keeps its own archive under the zone
+ * page's hash routes: hands over to the widget's address for that day's forecast, so links built
+ * from a date (the Mountain Weather page's zone links, a bookmark) work in either mode. Only an
+ * active zone has a widget page to open it in. Whether that forecast is the live one changes
+ * daily and this redirect is cached with the page, so the dynamic `widget` page below decides.
+ */
+function redirectToWidgetArchive(zone: DatedForecastZone, date: string): never {
+  if (!zone.active) notFound()
+  redirect(widgetArchiveHandOverPath(zone.slug, date))
+}
+
+/** The dated page's zone, 404ing an unknown one; on a widget center, the hand-over instead. */
+async function datedZoneOrHandOver(center: string, zone: string, date: string) {
+  const [useNative, resolvedZone] = await Promise.all([
+    assertDatedForecastAvailable(center, date),
+    resolveDatedZoneFromSlug(center, zone),
+  ])
+  if (!resolvedZone) notFound()
+  if (!useNative) return redirectToWidgetArchive(resolvedZone, date)
+  return resolvedZone
 }
 
 /**
@@ -166,16 +189,10 @@ export default async function Page({ params }: Args) {
   const { center, zone: zoneParam, date } = await params
   const zone = zoneSlugFromParam(zoneParam)
 
-  await assertDatedForecastAvailable(center, date)
-
   const [resolvedZone, metadata] = await Promise.all([
-    resolveDatedZoneFromSlug(center, zone),
+    datedZoneOrHandOver(center, zone, date),
     getAvalancheCenterMetadata(center),
   ])
-
-  if (!resolvedZone) {
-    notFound()
-  }
 
   // The picker window is anchored on the viewed date; older months lazy-load client-side.
   const window = initialArchiveWindow(date)
@@ -213,13 +230,17 @@ export default async function Page({ params }: Args) {
 
   const currentDate = liveProductDate(currentProduct, metadata.timezone)
   // The weather that was current when this forecast was issued — by the id it points at, or for
-  // the pointerless SNFAC archive, by its published day.
-  const weather = await getWeatherForForecast(
-    center,
-    resolvedZone.zone.id,
-    forecastResult,
-    metadata.timezone,
-  )
+  // the pointerless SNFAC archive, by its published day; NWAC's own by its publish time.
+  const [weather, nwacWeather] = await Promise.all([
+    getWeatherForForecast(center, resolvedZone.zone.id, forecastResult, metadata.timezone),
+    // A failed read only costs the weather, as `fetchWeatherProduct`'s does.
+    getNWACWeatherForForecast(
+      center,
+      resolvedZone.zone.id,
+      forecastResult.published_time,
+      metadata.timezone,
+    ).catch(() => null),
+  ])
 
   return (
     <>
@@ -249,6 +270,7 @@ export default async function Page({ params }: Args) {
           pickerSettings={forecastPickerSettings(metadata)}
           centerDetails={{ type: metadata.type, elevationBandsUrl: elevationBandsUrl(metadata) }}
           weather={weather}
+          nwacWeather={nwacWeather}
         />
       </ForecastGlossary>
       {/* The live product's own date opens the live page — decided on view, not cached here. */}

@@ -1,16 +1,137 @@
 /** How one Mountain Weather value draws in a table cell. */
-import { ArrowDown, Moon, Sun } from 'lucide-react'
+import { Moon, Navigation2, Snowflake, Sun } from 'lucide-react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
-import { DASH, fmtWind, windBearing } from '@/services/nac/nwacWeatherFormat'
+import {
+  DASH,
+  fmtWind,
+  SNOW_TIER_LABELS,
+  snowTier,
+  windBearing,
+  windRange,
+  windWording,
+} from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
-const TONES = [
-  'bg-sky-50 text-sky-950',
-  'bg-sky-100 text-sky-950',
-  'bg-sky-300 text-sky-950',
-  'bg-sky-700 text-white',
+/** Level fills: blue low, faint tints around a neutral 5,000', orange from 8,000', red 10,000'+. */
+const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
+  { below: 2000, fill: 'bg-blue-200 text-stone-900', label: "<2,000'" },
+  { below: 3000, fill: 'bg-sky-100 text-stone-900', label: "2,000'" },
+  { below: 4000, fill: 'bg-teal-50 text-stone-900', label: "3,000'" },
+  { below: 5000, fill: 'bg-emerald-50 text-stone-900', label: "4,000'" },
+  { below: 6000, fill: 'bg-stone-100 text-stone-900', label: "5,000'" },
+  { below: 7000, fill: 'bg-yellow-50 text-stone-900', label: "6,000'" },
+  { below: 8000, fill: 'bg-amber-50 text-stone-900', label: "7,000'" },
+  { below: 9000, fill: 'bg-orange-200 text-stone-900', label: "8,000'" },
+  { below: 10000, fill: 'bg-orange-300 text-stone-900', label: "9,000'" },
+  { below: Infinity, fill: 'bg-red-300 text-stone-900', label: "10,000'+" },
 ]
+
+/** A snow or freezing level's fill, on its pill or its table cell. */
+export function levelFill(level: number): string {
+  return LEVEL_FILLS.find((f) => level < f.below)?.fill ?? ''
+}
+
+/** Snow fills by `snowTier`, deepening with the amount; none without snow. */
+const SNOW_FILLS = ['bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300']
+
+export function snowFill(snow: number | null): string | undefined {
+  const tier = snowTier(snow)
+  return tier == null ? undefined : SNOW_FILLS[tier]
+}
+
+const LEVEL_KEY_LABELS = [null, "2k'", null, "4k'", null, "6k'", null, "8k'", null, "10k'+"]
+
+/**
+ * Fills as one bar, each segment labeled under it where `labels` has one. `names` gives every
+ * segment its full name, as a hover title and as text for screen readers.
+ */
+function SegmentedBar({
+  fills,
+  names,
+  labels,
+  cols,
+}: {
+  fills: string[]
+  names: readonly string[]
+  labels: readonly (string | null)[]
+  /** The grid's column count as a static class (`grid-cols-4`), so Tailwind sees it. */
+  cols: string
+}) {
+  return (
+    <span className="inline-flex w-56 shrink-0 flex-col gap-0.5">
+      <span className="sr-only">{names.join(', ')}</span>
+      <span aria-hidden="true" className={cn('grid h-2.5 overflow-hidden rounded-sm', cols)}>
+        {fills.map((fill, i) => (
+          <span key={i} title={names[i]} className={fill} />
+        ))}
+      </span>
+      <span aria-hidden="true" className={cn('grid text-[10px] leading-none', cols)}>
+        {labels.map((label, i) => (
+          <span key={i}>{label}</span>
+        ))}
+      </span>
+    </span>
+  )
+}
+
+// Labels sit level with their bars' tops, so the tick labels hang below the line.
+const KEY_LINE =
+  'flex flex-nowrap items-start gap-3 overflow-x-auto whitespace-nowrap text-xs leading-3 text-muted-foreground'
+
+function SnowFillKey() {
+  return (
+    <>
+      Snow
+      <SegmentedBar
+        fills={SNOW_FILLS}
+        names={SNOW_TIER_LABELS}
+        labels={SNOW_TIER_LABELS}
+        cols="grid-cols-4"
+      />
+    </>
+  )
+}
+
+function SnowLevelKey() {
+  return (
+    <>
+      <span className="inline-flex items-center gap-1">
+        <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
+        Snow level; none, freezing level
+      </span>
+      <SegmentedBar
+        fills={LEVEL_FILLS.map((f) => f.fill)}
+        names={LEVEL_FILLS.map((f) => f.label)}
+        labels={LEVEL_KEY_LABELS}
+        cols="grid-cols-10"
+      />
+    </>
+  )
+}
+
+/** The snow shading's key under a table, on one line. */
+export function SnowFillLegend() {
+  return (
+    <p className={KEY_LINE}>
+      <SnowFillKey />
+    </p>
+  )
+}
+
+/** Both snow keys on one line, under a table that shows snow and snow levels together. */
+export function SnowKeys() {
+  return (
+    <p className={cn(KEY_LINE, 'gap-x-6')}>
+      <span className="inline-flex items-start gap-3">
+        <SnowFillKey />
+      </span>
+      <span className="inline-flex items-start gap-3">
+        <SnowLevelKey />
+      </span>
+    </p>
+  )
+}
 
 /** Any snow in bold, so the few periods with some stand out from the muted zeros. */
 export function SnowValue({ text, some }: { text: string; some: boolean }) {
@@ -34,39 +155,96 @@ export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
   )
 }
 
-/** `tone` is the level's shade from `snowLevelTones`. */
-export function LevelValue({ level, tone }: { level: number | null; tone: number | null }) {
+/**
+ * A block's snow or freezing level, filled by elevation; a snow level carries a snowflake, a
+ * freezing level (a dry block) none. A fixed snowflake slot lines the numbers up down a column.
+ */
+export function SnowLevelValue({
+  level,
+  snow,
+  pill = true,
+}: {
+  level: number | null
+  snow: boolean
+  /** Off where the table fills the cell itself (`levelFill`). */
+  pill?: boolean
+}) {
   if (level == null) return <span className="block text-center text-muted-foreground">{DASH}</span>
   return (
     <span
       className={cn(
-        'block whitespace-nowrap rounded px-1 py-1 text-center tabular-nums',
-        TONES[tone ?? 0],
+        'flex justify-center whitespace-nowrap rounded px-1 py-1 font-semibold tabular-nums',
+        pill && levelFill(level),
       )}
     >
-      {level.toLocaleString('en-US')}&apos;
+      <span className="grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5">
+        <span>{snow && <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />}</span>
+        <span className="text-right">
+          {level.toLocaleString('en-US')}&apos;
+          <span className="sr-only">{snow ? ' snow level' : ' freezing level'}</span>
+        </span>
+      </span>
     </span>
+  )
+}
+
+/** What the snow and freezing level cells mean, under a table, on one line. */
+export function SnowLevelLegend() {
+  return (
+    <p className={KEY_LINE}>
+      <SnowLevelKey />
+    </p>
+  )
+}
+
+/** How to read the temperature cells, under the table. */
+export function TempLegend() {
+  return (
+    <p className="text-xs text-muted-foreground">
+      <span className="font-semibold text-foreground">44</span> /{' '}
+      <span className="font-semibold text-foreground">35</span> is the high / low
+    </p>
+  )
+}
+
+/** How to read the wind cells, under the table. */
+export function WindLegend() {
+  return (
+    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      <span className="inline-flex items-center gap-1">
+        <Navigation2 aria-hidden="true" className="size-4 text-primary" />
+        Points the way the wind blows
+      </span>
+      <span>VAR: variable</span>
+    </p>
   )
 }
 
 export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
   if (!cell?.speed) return <span className="text-muted-foreground">{fmtWind(cell)}</span>
+  // The forecasters' calm band (0–4 mph) reads as Calm alone, as 0 does.
+  if (windWording(cell.speed) === 'Calm') return <span className="text-muted-foreground">Calm</span>
   const bearing = windBearing(cell.dir)
   return (
-    <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap tabular-nums">
-      {bearing != null && (
-        // Points the way the wind blows: from the north is a down arrow.
-        <ArrowDown
-          aria-hidden="true"
-          className="size-4 shrink-0 text-primary"
-          style={{ transform: `rotate(${bearing}deg)` }}
-        />
-      )}
-      <span className="text-xs text-muted-foreground">{cell.dir}</span>
-      <span
-        className={cn(cell.speed >= 25 ? 'font-bold' : cell.speed >= 15 ? 'font-semibold' : '')}
-      >
-        {cell.speed}
+    <span className="inline-flex flex-col items-center">
+      <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap tabular-nums">
+        {bearing != null && (
+          // Points the way the wind blows: a north wind points down.
+          <Navigation2
+            aria-hidden="true"
+            className="size-4 shrink-0 text-primary"
+            style={{ transform: `rotate(${bearing + 180}deg)` }}
+          />
+        )}
+        <span className="text-xs text-muted-foreground">{cell.dir}</span>
+        <span
+          className={cn(cell.speed >= 25 ? 'font-bold' : cell.speed >= 15 ? 'font-semibold' : '')}
+        >
+          {windRange(cell.speed)}
+        </span>
+      </span>
+      <span className="text-center text-xs leading-tight text-muted-foreground">
+        {windWording(cell.speed)}
       </span>
     </span>
   )

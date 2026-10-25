@@ -22,7 +22,7 @@ export const validatePhone: TextFieldSingleValidation = (value, args) => {
     return text(value, args)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return error.errors[0]?.message || 'Invalid phone number'
+      return error.issues[0]?.message || 'Invalid phone number'
     }
     return 'Invalid phone number'
   }

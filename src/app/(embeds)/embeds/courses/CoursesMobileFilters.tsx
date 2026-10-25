@@ -1,6 +1,6 @@
 'use client'
 
-import { MobileFiltersDrawer } from '@/components/filters/MobileFiltersDrawer'
+import { InlineFiltersPanel } from '@/components/filters/InlineFiltersPanel'
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import { CoursesFilters, FilterProvider, FilterState } from './CoursesFilters'
 
@@ -22,13 +22,13 @@ export const CoursesMobileFilters = ({
   const { total } = useFiltersTotalContext()
 
   return (
-    <MobileFiltersDrawer docLabel="courses" docCount={total} hasActiveFilters={hasActiveFilters}>
+    <InlineFiltersPanel docLabel="courses" docCount={total} hasActiveFilters={hasActiveFilters}>
       <CoursesFilters
         startDate={startDate}
         endDate={endDate}
         states={states}
         providers={providers}
       />
-    </MobileFiltersDrawer>
+    </InlineFiltersPanel>
   )
 }
