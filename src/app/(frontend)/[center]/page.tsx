@@ -51,8 +51,9 @@ export default async function Page({ params }: Args) {
             <HomeDangerMap centerSlug={center} />
           </div>
           {quickLinks && quickLinks.length > 0 && (
-            // Capped so a long label wraps instead of squeezing the danger map.
-            <div className="flex flex-col gap-4 md:shrink-0 md:max-w-[40%]">
+            // Capped so a long label wraps instead of squeezing the danger map; looser at tablet
+            // width, where the row is too narrow for common labels to fit within 40%.
+            <div className="flex flex-col gap-4 md:shrink-0 md:max-w-[50%] lg:max-w-[40%]">
               <div className="prose md:prose-md dark:prose-invert">
                 <h2>Quick Links</h2>
               </div>
