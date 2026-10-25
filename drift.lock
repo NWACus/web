@@ -1518,7 +1518,7 @@ sig = "57977783926aa724"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/app/(frontend)/[center]/page.tsx"
-sig = "9ad142b6debe1108"
+sig = "7f7fe17acb504552"
 
 [[bindings]]
 doc = "docs/revalidation.md"

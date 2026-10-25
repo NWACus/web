@@ -51,7 +51,7 @@ export default function QuickLinkButton({
       onClick={onClickWithCapture}
       {...newTabProps}
     >
-      <span className="font-medium whitespace-nowrap text-lg">{displayLabel}</span>
+      <span className="font-medium text-lg leading-snug">{displayLabel}</span>
       <ArrowRight className="h-7 w-7 flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1 text-primary" />
     </Link>
   )
