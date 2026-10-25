@@ -134,7 +134,7 @@ function TravelAdvice({ popup }: { popup: ZonePopup }) {
 export function ZonePopupCard({ popup }: { popup: ZonePopup }) {
   return (
     // The widget's 0.8rem body text at `line-height: normal`, inset 0.5rem on every side.
-    <div className="w-[300px] overflow-hidden rounded-sm bg-white p-2 text-left text-[0.8rem] leading-[normal] text-neutral-900 shadow-[0_2px_7px_1px_rgba(0,0,0,0.3)]">
+    <div className="w-[300px] overflow-hidden rounded-md bg-white p-2 text-left text-[0.8rem] leading-[normal] text-neutral-900 shadow-[0_2px_7px_1px_rgba(0,0,0,0.3)]">
       <PopupHeader popup={popup} />
       <WarningStrip popup={popup} />
       <ZoneIdentity popup={popup} />
