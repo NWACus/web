@@ -46,6 +46,14 @@ describe('DateRangeFilter', () => {
     jest.useRealTimers()
   })
 
+  // Mount, let the default date fill in, then forget that write
+  async function renderFilledFilter() {
+    renderFilter()
+    await waitFor(() => expect(window.location.search).toBe(`?startDate=${TODAY}`))
+    pushState.mockClear()
+    replaceState.mockClear()
+  }
+
   async function expectNoHistoryWrites() {
     // Outlast the mount effect's setTimeout and nuqs's 50ms URL-update throttle
     await act(() => new Promise((resolve) => setTimeout(resolve, 100)))
@@ -109,10 +117,7 @@ describe('DateRangeFilter', () => {
   })
 
   it('opens the custom range without writing to history', async () => {
-    renderFilter()
-    await waitFor(() => expect(window.location.search).toBe(`?startDate=${TODAY}`))
-    pushState.mockClear()
-    replaceState.mockClear()
+    await renderFilledFilter()
 
     fireEvent.click(screen.getByRole('button', { name: 'Custom date range' }))
 
@@ -121,6 +126,18 @@ describe('DateRangeFilter', () => {
       'true',
     )
     expect(screen.getByLabelText('Start Date')).toBeInTheDocument()
+    await expectNoHistoryWrites()
+  })
+
+  it('writes nothing when Clear or a lit quick filter leaves the dates unchanged', async () => {
+    await renderFilledFilter()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Upcoming' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Custom date range' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }))
+
+    expect(screen.getByRole('button', { name: 'Upcoming' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.queryByLabelText('Start Date')).not.toBeInTheDocument()
     await expectNoHistoryWrites()
   })
 

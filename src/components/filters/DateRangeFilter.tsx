@@ -80,6 +80,8 @@ function useDateRange(
   const updateDateSelection = useCallback(
     (filter: string, start: string, end: string, options?: Options) => {
       setSelection({ id: filter, startDate: start, endDate: end })
+      // nuqs pushes even when nothing changed, which would leave a Back that goes nowhere
+      if (start === startDate && end === endDate) return
       setDateParams(
         {
           startDate: start || null,
@@ -88,7 +90,7 @@ function useDateRange(
         options,
       )
     },
-    [setDateParams],
+    [endDate, startDate, setDateParams],
   )
 
   const handleQuickFilter = useCallback(
@@ -97,8 +99,7 @@ function useDateRange(
       if (filter) {
         updateDateSelection(filterKey, filter.startDate(), filter.endDate() || '', options)
       } else {
-        // Switching to the custom pickers keeps the current dates, so there's nothing to write
-        setSelection({ id: filterKey, startDate, endDate })
+        updateDateSelection(filterKey, startDate, endDate)
       }
     },
     [endDate, startDate, quickFilters, updateDateSelection],
