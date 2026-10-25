@@ -8,8 +8,7 @@
  * insets, so the two share that edge without colliding — which is why the link is positioned
  * absolutely rather than handed to Mapbox's top-left control stack, where it would sit *under* the
  * search box and shove it out of the centre. The re-center button has no such constraint, so it
- * does go through `addControl` and stacks under zoom and geolocate whether or not a center has
- * geolocate enabled.
+ * does go through `addControl` and stacks under zoom and geolocate.
  */
 import { RotateCcw } from 'lucide-react'
 import Image from 'next/image'

@@ -4,6 +4,10 @@
 // sibling freshness routes, in production since #1129, trip the same check.
 // fallow-ignore-file dynamic-segment-name-conflicts
 import { decorateZoneFeatures } from '@/services/nac/dangerMap/dangerMapZones'
+import {
+  getPlatformsByCenterId,
+  infoExchangeCenterIds,
+} from '@/services/nac/dangerMap/infoExchangeCenters'
 import { getZoneMapLayer } from '@/services/nac/dangerMap/mapLayer'
 import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
@@ -21,6 +25,15 @@ const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/
 function requestedDay(request: NextRequest): string | undefined {
   const day = request.nextUrl.searchParams.get('day')
   return day && ISO_DAY.test(day) ? day : undefined
+}
+
+/**
+ * Matches the upstream cache window so a burst of viewers shares one upstream request, while still
+ * being far fresher than the host page's revalidate window. A map that lost its info exchanges to
+ * a platforms-feed failure is cached briefly instead, so it recovers soon after the feed does.
+ */
+function cacheControl(platformsLoaded: boolean): string {
+  return `public, max-age=0, s-maxage=${platformsLoaded ? 300 : 60}`
 }
 
 /**
@@ -47,13 +60,19 @@ export async function GET(
   const allCenters = request.nextUrl.searchParams.get('allCenters') === 'true'
 
   try {
-    const mapLayer = await getZoneMapLayer(center, { day: requestedDay(request), allCenters })
+    const [mapLayer, platformsById] = await Promise.all([
+      getZoneMapLayer(center, { day: requestedDay(request), allCenters }),
+      getPlatformsByCenterId(),
+    ])
+    const centerIds = mapLayer.features.map((feature) => feature.properties.center_id)
+    const infoExchangeIds = infoExchangeCenterIds(centerIds, platformsById)
 
     return NextResponse.json(
-      { type: 'FeatureCollection', features: decorateZoneFeatures(mapLayer.features) },
-      // Matches the upstream cache window so a burst of viewers shares one upstream request,
-      // while still being far fresher than the host page's revalidate window.
-      { headers: { 'Cache-Control': 'public, max-age=0, s-maxage=300' } },
+      {
+        type: 'FeatureCollection',
+        features: decorateZoneFeatures(mapLayer.features, infoExchangeIds),
+      },
+      { headers: { 'Cache-Control': cacheControl(platformsById !== null) } },
     )
   } catch {
     // The map renders its own error state; there is nothing useful to say beyond "not available".

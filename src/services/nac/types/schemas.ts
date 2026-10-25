@@ -18,8 +18,9 @@ export const avalancheCenterModulesSchema = z.object({
 export type AvalancheCenterPlatforms = z.infer<typeof avalancheCenterPlatformsSchema>
 
 /** An info exchange publishes observations but doesn't issue avalanche forecasts. */
-export const isInfoExchange = (platforms: AvalancheCenterPlatforms): boolean =>
-  !platforms.forecasts && platforms.obs
+export const isInfoExchange = (
+  platforms: Pick<AvalancheCenterPlatforms, 'forecasts' | 'obs'>,
+): boolean => !platforms.forecasts && platforms.obs
 
 export const avalancheCenterCapabilitiesSchema = z.object({
   id: z.string(),
@@ -106,9 +107,10 @@ export const avalancheCenterForecastWidgetConfigurationSchema = z.object({
   start_year: z.number().optional().catch(undefined),
 })
 
-// Written by dashboard-v2's danger-map settings page (`app/utils/dangerMapSettings.js`), which is
-// the contract the native map honors. Everything below `advice` is optional because a center whose
-// forecasters never opened that page has a partial object — NWAC, for one, has no `allCenters`.
+// Written by dashboard-v2's danger-map settings page (`app/utils/dangerMapSettings.js`). Like the
+// widget, the native map reads only `allCenters` (see `dangerMapSettings.ts`); the rest is kept so
+// the shape round-trips. Most fields are optional because a center whose forecasters never opened
+// that page has a partial object — NWAC, for one, has no `allCenters`.
 export const avalancheCenterDangerMapWidgetConfigurationSchema = z.object({
   height: z.union([z.string(), z.number()]),
   // Stored and editable in dashboard-v2, but no Mapbox consumer applies it — see

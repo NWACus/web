@@ -3,9 +3,10 @@
  *
  * - the per-tenant native rollout flag (Control 1) chooses the native map over the legacy `map`
  *   widget, so a tenant can be rolled back instantly;
- * - the center's own danger-map settings (controls, viewport, all-centers) come from the NAC
- *   dashboard, so a forecaster who configured their embed sees the same map here. Height is the
- *   exception: both maps render at DANGER_MAP_HEIGHT, so the flag flip doesn't change the layout.
+ * - the NAC dashboard's all-centers setting is the only one either map reads; both show search,
+ *   geolocate and travel advice, fit the center's zones and render at DANGER_MAP_HEIGHT whatever
+ *   else the dashboard says (see `dangerMapSettings.ts`), so the flag flip doesn't change what's
+ *   shown.
  *
  * Unlike the warnings slot there is no upstream capability gate: the legacy widget renders for
  * every tenant regardless of platform, and gating only the native path would make the flag flip a
