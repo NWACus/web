@@ -403,7 +403,7 @@ sig = "e941f75d5b07309b"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/legacyWidgetHash.ts"
-sig = "e868073346953883"
+sig = "59a6d01aeae29a42"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

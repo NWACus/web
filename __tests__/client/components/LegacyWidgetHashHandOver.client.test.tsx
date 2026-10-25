@@ -44,6 +44,8 @@ describe('widgetHashTarget', () => {
     ['#/archive/weather', { address: '/forecasts/avalanche/archive/mountain-weather' }],
     ['#/archive/post', { address: '/forecasts/avalanche/archive' }],
     ['#/weather/456', { address: '/forecasts/avalanche/archive/mountain-weather/456' }],
+    ['#/weather', { address: '/weather/forecast' }],
+    ['#/weather/', { address: '/weather/forecast' }],
     ['#/archive/constructor', { address: '/forecasts/avalanche/archive' }],
     ['#/All', { address: '/forecasts/avalanche' }],
     ['#/Archive/Visual', { address: '/forecasts/avalanche/archive/danger-over-time' }],

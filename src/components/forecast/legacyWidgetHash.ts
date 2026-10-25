@@ -15,6 +15,7 @@ import {
 } from '@/services/nac/forecastArchive'
 
 const FORECASTS_PATH = '/forecasts/avalanche'
+const WEATHER_FORECAST_PATH = '/weather/forecast'
 
 /** What a native page needs to know to place a widget link. */
 export interface WidgetHashContext {
@@ -69,12 +70,16 @@ export function widgetHashTarget(
   }
 }
 
-/** An archived weather product opens on its own page where the center has one, else the archive. */
+/**
+ * `#/weather`, the center's latest weather, opens the Mountain Weather page. An archived product
+ * opens on its own page where the center has one, else the archive.
+ */
 function weatherTarget(
   id: string | undefined,
   context: WidgetHashContext,
 ): WidgetHashTarget | null {
-  if (!id || !ID_PATTERN.test(id)) return null
+  if (id === undefined) return { address: WEATHER_FORECAST_PATH }
+  if (!ID_PATTERN.test(id)) return null
   return { address: context.weatherArchive ? `${ARCHIVE_WEATHER_PATH}/${id}` : ARCHIVE_PATH }
 }
 
