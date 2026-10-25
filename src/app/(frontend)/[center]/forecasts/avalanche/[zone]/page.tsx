@@ -5,6 +5,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { ogImageUrlForZone } from '@/app/api/[center]/og/buildOgImageUrl'
+import { LegacyWidgetHashHandOver } from '@/components/forecast/LegacyWidgetHashHandOver'
 import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
 import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
 import { WidgetZoneWeatherSlot } from '@/components/NWACWeather/WidgetZoneWeatherSlot'
@@ -104,6 +105,7 @@ export default async function Page({ params }: Args) {
           title={resolvedZone.zone.name}
         />
         <NativeForecastPage centerSlug={center} zoneSlug={zone} />
+        <LegacyWidgetHashHandOver center={center} />
       </>
     )
   }

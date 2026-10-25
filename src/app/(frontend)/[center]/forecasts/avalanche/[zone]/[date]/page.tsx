@@ -17,7 +17,7 @@ import {
   forecastPickerSettings,
   initialArchiveWindow,
   validDateForProduct,
-  widgetArchiveAddress,
+  widgetArchiveHandOverPath,
   type ZoneArchiveDate,
 } from '@/services/nac/archiveDates'
 import {
@@ -34,6 +34,7 @@ import {
   getAvalancheCenterMetadata,
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
+import { getNWACWeatherForForecast } from '@/services/nac/nwacWeatherForForecast'
 import { productTabLabel } from '@/services/nac/productTypeTitle'
 import { resolveDatedZoneFromSlug, type DatedForecastZone } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
@@ -87,20 +88,12 @@ async function assertDatedForecastAvailable(center: string, date: string): Promi
  * A dated address on a center still on the widget, which keeps its own archive under the zone
  * page's hash routes: hands over to the widget's address for that day's forecast, so links built
  * from a date (the Mountain Weather page's zone links, a bookmark) work in either mode. Only an
- * active zone has a widget page to open it in.
+ * active zone has a widget page to open it in. Whether that forecast is the live one changes
+ * daily and this redirect is cached with the page, so the dynamic `widget` page below decides.
  */
-async function redirectToWidgetArchive(
-  center: string,
-  zone: DatedForecastZone,
-  date: string,
-): Promise<never> {
+function redirectToWidgetArchive(zone: DatedForecastZone, date: string): never {
   if (!zone.active) notFound()
-  const { timezone } = await getAvalancheCenterMetadata(center)
-  const archive = await fetchProductArchive(center, initialArchiveWindow(date))
-  const dates = buildZoneArchiveDates(archive, zone.zone.id, timezone)
-  redirect(
-    widgetArchiveAddress({ slug: zone.slug, zoneId: zone.zone.zone_id }, dates, date, timezone),
-  )
+  redirect(widgetArchiveHandOverPath(zone.slug, date))
 }
 
 /** The dated page's zone, 404ing an unknown one; on a widget center, the hand-over instead. */
@@ -110,7 +103,7 @@ async function datedZoneOrHandOver(center: string, zone: string, date: string) {
     resolveDatedZoneFromSlug(center, zone),
   ])
   if (!resolvedZone) notFound()
-  if (!useNative) return redirectToWidgetArchive(center, resolvedZone, date)
+  if (!useNative) return redirectToWidgetArchive(resolvedZone, date)
   return resolvedZone
 }
 
@@ -237,13 +230,17 @@ export default async function Page({ params }: Args) {
 
   const currentDate = liveProductDate(currentProduct, metadata.timezone)
   // The weather that was current when this forecast was issued — by the id it points at, or for
-  // the pointerless SNFAC archive, by its published day.
-  const weather = await getWeatherForForecast(
-    center,
-    resolvedZone.zone.id,
-    forecastResult,
-    metadata.timezone,
-  )
+  // the pointerless SNFAC archive, by its published day; NWAC's own by its publish time.
+  const [weather, nwacWeather] = await Promise.all([
+    getWeatherForForecast(center, resolvedZone.zone.id, forecastResult, metadata.timezone),
+    // A failed read only costs the weather, as `fetchWeatherProduct`'s does.
+    getNWACWeatherForForecast(
+      center,
+      resolvedZone.zone.id,
+      forecastResult.published_time,
+      metadata.timezone,
+    ).catch(() => null),
+  ])
 
   return (
     <>
@@ -273,6 +270,7 @@ export default async function Page({ params }: Args) {
           pickerSettings={forecastPickerSettings(metadata)}
           centerDetails={{ type: metadata.type, elevationBandsUrl: elevationBandsUrl(metadata) }}
           weather={weather}
+          nwacWeather={nwacWeather}
         />
       </ForecastGlossary>
       {/* The live product's own date opens the live page — decided on view, not cached here. */}

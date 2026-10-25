@@ -64,12 +64,25 @@ function AlertBar({
  * The expanded long-form content, on a neutral surface — the solid fill is for the alarm, not
  * for reading a paragraph of hazard discussion against.
  */
-function AlertDetail({ warning, color }: { warning: WarningProduct; color: string }) {
+function AlertDetail({
+  warning,
+  color,
+  timezone,
+}: {
+  warning: WarningProduct
+  color: string
+  timezone: string | null | undefined
+}) {
   return (
     <div
       className="space-y-2 rounded-b-lg border-2 border-t-0 bg-background px-4 pb-4 pt-3"
       style={{ borderColor: color }}
     >
+      <p>
+        <span className="font-semibold">When:</span> In effect from{' '}
+        {formatDateTime(warning.published_time, timezone, DATE_FORMAT)} to{' '}
+        {formatDateTime(warning.expires_time, timezone, DATE_FORMAT)}
+      </p>
       {warning.affected_area && (
         <p>
           <span className="font-semibold">Affected Area:</span> {warning.affected_area}
@@ -96,7 +109,8 @@ export function WarningBanner({ warning, timezone }: WarningBannerProps) {
   const color = warningBannerColor(warning.product_type)
   const hasDetail = Boolean(warning.affected_area || warning.reason || warning.hazard_discussion)
 
-  // Nothing to expand into: render the same bar as a plain, non-interactive alert.
+  // Nothing to expand into: render the same bar as a plain, non-interactive alert. The detail's
+  // When line alone would only repeat the bar's Issued and Expires, so it doesn't count.
   if (!hasDetail) {
     return (
       <div
@@ -124,7 +138,7 @@ export function WarningBanner({ warning, timezone }: WarningBannerProps) {
           />
         </span>
       </summary>
-      <AlertDetail warning={warning} color={color} />
+      <AlertDetail warning={warning} color={color} timezone={timezone} />
     </details>
   )
 }

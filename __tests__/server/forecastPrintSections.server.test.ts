@@ -15,6 +15,9 @@ import {
   type Summary,
   type Weather,
 } from '@/services/nac/model/forecast'
+import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
+import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
+import nwacWeatherFixture from './fixtures/nwac-weather-forecasts.json'
 
 const center = {
   id: 'NWAC',
@@ -133,6 +136,17 @@ describe('availablePrintSections', () => {
     // weather product got a checkbox that silently did nothing.
     expect(availablePrintSections(forecastFixture(), null, ZONE_ID)).not.toContain('weather')
     expect(availablePrintSections(forecastFixture(), weatherFixture, ZONE_ID)).toContain('weather')
+  })
+
+  // Forecast-241: NWAC's forecasts point at no weather product; its own issuance fills the section.
+  it("offers mountain weather for NWAC's own weather", () => {
+    const nwacWeather = mapV3NWACWeatherForecastDay(
+      nwacWeatherForecastsResponseSchema.parse(nwacWeatherFixture),
+    )
+    expect(availablePrintSections(summaryFixture(), null, ZONE_ID, nwacWeather)).toContain(
+      'weather',
+    )
+    expect(availablePrintSections(summaryFixture(), null, ZONE_ID, null)).not.toContain('weather')
   })
 
   it('does not offer mountain weather when the product has nothing for this zone', () => {

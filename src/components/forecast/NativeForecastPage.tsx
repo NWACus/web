@@ -14,6 +14,7 @@ import { elevationBandsUrl } from '@/services/nac/dangerScale'
 import { forecastFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
 import type { ForecastResult } from '@/services/nac/model/forecast'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
+import { getNWACWeatherForForecast } from '@/services/nac/nwacWeatherForForecast'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource, getWarningSource } from '@/services/nac/sources'
 import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
@@ -103,10 +104,18 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
   const currentDate = validDateForProduct(forecastResult.published_time, metadata.timezone)
   const window = initialArchiveWindow(currentDate)
 
-  // The mountain-weather product is issued separately; `getWeatherForForecast` owns how it is found.
-  const [archive, weather] = await Promise.all([
+  // The mountain-weather product is issued separately; `getWeatherForForecast` owns how it is found,
+  // and NWAC's own weather is found by time instead.
+  const [archive, weather, nwacWeather] = await Promise.all([
     fetchProductArchive(centerSlug, window),
     getWeatherForForecast(centerSlug, zone.zone.id, forecastResult, metadata.timezone),
+    // A failed read is already logged, and only costs the weather: the forecast still shows.
+    getNWACWeatherForForecast(
+      centerSlug,
+      zone.zone.id,
+      forecastResult.published_time,
+      metadata.timezone,
+    ).catch(() => null),
   ])
   const initialDates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 
@@ -129,6 +138,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
           pickerSettings={forecastPickerSettings(metadata)}
           centerDetails={{ type: metadata.type, elevationBandsUrl: elevationBandsUrl(metadata) }}
           weather={weather}
+          nwacWeather={nwacWeather}
           zoneTabs={zoneTabs}
         />
       </ForecastGlossary>

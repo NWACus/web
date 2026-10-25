@@ -15,7 +15,7 @@ import {
   dangerIconSize,
   dangerIconUrl,
   dangerLevelLabel,
-  dangerName,
+  travelAdvice,
 } from '@/services/nac/dangerScale'
 import {
   DangerLevel,
@@ -30,6 +30,7 @@ import { DangerScale } from './DangerScale'
 import { DangerTriangle } from './DangerTriangle'
 import { ExternalLink } from './ExternalLink'
 import { HelpHeading } from './HelpHeading'
+import { InfoPopover } from './InfoPopover'
 import { TravelAdviceColumn } from './TravelAdviceColumn'
 import { dangerHeadings, isNoRatingDay, type DangerHeadings } from './dangerRatingLayout'
 import { AVALANCHE_DANGER_HELP } from './forecastHelp'
@@ -210,7 +211,7 @@ function OutlookSummary({
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(band.label) }}
             />
             {dangerLevelLabel(band.level)}
-            <DangerIcon level={band.level} className="h-[30px] w-auto" />
+            <DangerIcon level={band.level} imageClassName="h-[30px] w-auto" />
           </li>
         ))}
       </ul>
@@ -339,22 +340,40 @@ function DangerRow({
       </span>
       <DangerIcon
         level={level}
-        className="absolute left-full top-1/2 z-[1] -ml-5 h-10 w-auto max-w-none -translate-y-1/2 sm:-ml-[25px] sm:h-[50px]"
+        className="absolute left-full top-1/2 z-[1] -ml-5 -translate-y-1/2 sm:-ml-[25px]"
+        imageClassName="h-10 w-auto max-w-none sm:h-[50px]"
       />
     </div>
   )
 }
 
-function DangerIcon({ level, className }: { level: DangerLevel; className: string }) {
+/** The level's icon, opening its travel advice as the widget's does. */
+function DangerIcon({
+  level,
+  className,
+  imageClassName,
+}: {
+  level: DangerLevel
+  /** The trigger's classes, which carry any positioning. */
+  className?: string
+  imageClassName: string
+}) {
   const size = dangerIconSize(level)
 
   return (
-    <Image
-      src={dangerIconUrl(level)}
-      alt={dangerName(level)}
-      width={size.width}
-      height={size.height}
+    <InfoPopover
+      html={travelAdvice(level)}
+      label={`Travel advice for ${dangerLevelLabel(level)}`}
+      hint="Click to learn more"
       className={className}
-    />
+    >
+      <Image
+        src={dangerIconUrl(level)}
+        alt=""
+        width={size.width}
+        height={size.height}
+        className={cn('block', imageClassName)}
+      />
+    </InfoPopover>
   )
 }

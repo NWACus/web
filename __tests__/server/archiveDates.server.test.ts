@@ -10,6 +10,7 @@ import {
   parseArchiveWindowQuery,
   validDateForProduct,
   widgetArchiveAddress,
+  widgetArchiveHandOverPath,
   type ArchiveProductSummary,
 } from '@/services/nac/archiveDates'
 
@@ -348,6 +349,28 @@ describe('widgetArchiveAddress', () => {
   it('falls back to the zone page when nothing covers the day', () => {
     expect(widgetArchiveAddress(zone, dates, '2026-09-01', TZ)).toBe(
       '/forecasts/avalanche/snoqualmie-pass',
+    )
+  })
+
+  // Forecast-242: the widget would label the live product "archived".
+  it('opens the zone page when the product is the live one, on its own day or one it covers', () => {
+    expect(widgetArchiveAddress(zone, dates, '2026-10-14', TZ, 165010)).toBe(
+      '/forecasts/avalanche/snoqualmie-pass',
+    )
+    const summary = [day('2026-10-10', 164900, '2026-10-16T01:00:00+00:00')]
+    expect(widgetArchiveAddress(zone, summary, '2026-10-12', TZ, 164900)).toBe(
+      '/forecasts/avalanche/snoqualmie-pass',
+    )
+    expect(widgetArchiveAddress(zone, dates, '2026-10-13', TZ, 165010)).toBe(
+      '/forecasts/avalanche/snoqualmie-pass#/forecast/3/165011',
+    )
+  })
+})
+
+describe('widgetArchiveHandOverPath', () => {
+  it("is the dated address's per-request hand-over page", () => {
+    expect(widgetArchiveHandOverPath('banner-summit', '2026-01-05')).toBe(
+      '/forecasts/avalanche/banner-summit/2026-01-05/widget',
     )
   })
 })
