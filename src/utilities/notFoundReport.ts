@@ -54,6 +54,7 @@ export const ROUTES_WITHOUT_REDIRECTS = [
   '/forecasts/avalanche',
   '/forecasts/avalanche/:zone',
   '/forecasts/avalanche/:zone/:date',
+  '/forecasts/avalanche/:zone/:date/widget',
   '/forecasts/avalanche/archive',
   '/forecasts/avalanche/archive/danger-over-time',
   '/forecasts/avalanche/archive/mountain-weather',

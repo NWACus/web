@@ -17,7 +17,7 @@ import {
   forecastPickerSettings,
   initialArchiveWindow,
   validDateForProduct,
-  widgetForecastAddressEndpoint,
+  widgetArchiveHandOverPath,
   type ZoneArchiveDate,
 } from '@/services/nac/archiveDates'
 import {
@@ -89,11 +89,11 @@ async function assertDatedForecastAvailable(center: string, date: string): Promi
  * page's hash routes: hands over to the widget's address for that day's forecast, so links built
  * from a date (the Mountain Weather page's zone links, a bookmark) work in either mode. Only an
  * active zone has a widget page to open it in. Whether that forecast is the live one changes
- * daily and this redirect is cached with the page, so a dynamic route decides where it goes.
+ * daily and this redirect is cached with the page, so the dynamic `widget` page below decides.
  */
-function redirectToWidgetArchive(center: string, zone: DatedForecastZone, date: string): never {
+function redirectToWidgetArchive(zone: DatedForecastZone, date: string): never {
   if (!zone.active) notFound()
-  redirect(widgetForecastAddressEndpoint(center, zone.slug, date))
+  redirect(widgetArchiveHandOverPath(zone.slug, date))
 }
 
 /** The dated page's zone, 404ing an unknown one; on a widget center, the hand-over instead. */
@@ -103,7 +103,7 @@ async function datedZoneOrHandOver(center: string, zone: string, date: string) {
     resolveDatedZoneFromSlug(center, zone),
   ])
   if (!resolvedZone) notFound()
-  if (!useNative) return redirectToWidgetArchive(center, resolvedZone, date)
+  if (!useNative) return redirectToWidgetArchive(resolvedZone, date)
   return resolvedZone
 }
 

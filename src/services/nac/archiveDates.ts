@@ -341,15 +341,7 @@ export function widgetArchiveAddress(
     : `${page}#/forecast/${zone.zoneId}/${productId}`
 }
 
-/**
- * Where a widget center's dated address hands over (`api/[center]/widget-forecast-address`). The
- * slug is encoded for `&`.
- */
-export function widgetForecastAddressEndpoint(
-  centerSlug: string,
-  zoneSlug: string,
-  date: string,
-): string {
-  const query = new URLSearchParams({ zone: zoneSlug, date })
-  return `/api/${centerSlug}/widget-forecast-address?${query}`
+/** Where a widget center's dated address hands over, decided per request there. */
+export function widgetArchiveHandOverPath(zoneSlug: string, date: string): string {
+  return `/forecasts/avalanche/${zoneSlug}/${date}/widget`
 }

@@ -10,7 +10,7 @@ import {
   parseArchiveWindowQuery,
   validDateForProduct,
   widgetArchiveAddress,
-  widgetForecastAddressEndpoint,
+  widgetArchiveHandOverPath,
   type ArchiveProductSummary,
 } from '@/services/nac/archiveDates'
 
@@ -367,12 +367,10 @@ describe('widgetArchiveAddress', () => {
   })
 })
 
-describe('widgetForecastAddressEndpoint', () => {
-  it('encodes the slug, so a zone name with `&` stays one value', () => {
-    expect(
-      widgetForecastAddressEndpoint('snfac', 'soldier-&-wood-river-valley-mtns', '2026-01-05'),
-    ).toBe(
-      '/api/snfac/widget-forecast-address?zone=soldier-%26-wood-river-valley-mtns&date=2026-01-05',
+describe('widgetArchiveHandOverPath', () => {
+  it("is the dated address's per-request hand-over page", () => {
+    expect(widgetArchiveHandOverPath('banner-summit', '2026-01-05')).toBe(
+      '/forecasts/avalanche/banner-summit/2026-01-05/widget',
     )
   })
 })
