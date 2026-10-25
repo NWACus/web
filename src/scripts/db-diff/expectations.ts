@@ -31,6 +31,7 @@ const fileSchema = z
   .object({
     tables: z
       .record(
+        z.string(),
         z
           .object({
             dropped: z.literal(true).optional(),

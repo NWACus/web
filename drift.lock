@@ -1433,7 +1433,7 @@ sig = "a671e8e90719c6c0"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/scripts/db-diff/expectations.ts"
-sig = "ec73303b59a18041"
+sig = "64633b1b8a597c04"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
