@@ -89,7 +89,7 @@ Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend
 | `--secondary` | Secondary brand color |
 | `--secondary-hover` | Hover state for secondary |
 | `--link` | Rich-text link color on white and `brand-100`/`200` (`:root` default: `hsl(221 83% 37%)`); must pass 4.5:1 on all three. Darker shades use the block's text color |
-| `--link-on-dark` | Optional link color on `brand-600`–`950` (defaults to the block's text color); must pass 4.5:1 on each of those shades |
+| `--link-on-dark` | Optional link color on `brand-700`–`950` (defaults to the block's text color); must pass 4.5:1 on each of those shades |
 | `--header` | Header background |
 | `--header-foreground` | Header text color |
 | `--header-foreground-highlight` | Header highlighted/active text |
@@ -101,7 +101,7 @@ Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend
 | `--callout-foreground` | Callout text color |
 | `--nav-underline` | Active navigation underline color |
 | `--brand-50` through `--brand-950` | Brand color range used for block backgrounds |
-| `--brand-foreground-50` through `--brand-foreground-950` | Text colors for each brand background. If you override `--brand-*`, set these too: each must reach 4.5:1 (WCAG AA) against its shade |
+| `--brand-foreground-50` through `--brand-foreground-950` | Text colors for each brand background. If you override `--brand-*`, set these too: each must reach 4.5:1 (WCAG AA) against its shade, and `brand-foreground-700`–`950` must be light so `--link-on-dark` works |
 
 ### Configuring a custom domain in production
 
