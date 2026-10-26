@@ -1,5 +1,3 @@
-// fallow-ignore-file unused-export
-// The admin import map references this component by its module path string.
 'use client'
 
 import { BACKGROUND_COLOR_OPTIONS } from '@/fields/color'
@@ -9,7 +7,7 @@ import { FieldLabel, useDocumentInfo, useField } from '@payloadcms/ui'
 import { TextFieldClientProps } from 'payload'
 import { useEffect, useState } from 'react'
 
-const ColorPicker = (props: TextFieldClientProps) => {
+export const ColorPicker = (props: TextFieldClientProps) => {
   const { path, field } = props
   const { data } = useDocumentInfo()
   const { value, setValue } = useField({ path })
@@ -50,5 +48,3 @@ const ColorPicker = (props: TextFieldClientProps) => {
     </div>
   )
 }
-
-export default ColorPicker

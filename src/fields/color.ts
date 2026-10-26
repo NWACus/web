@@ -21,7 +21,7 @@ const colorPickerField: (label: string) => Field = (label) => ({
   validate: (value: unknown) => validateBackgroundColor(value),
   admin: {
     components: {
-      Field: '@/components/ColorPicker',
+      Field: '@/components/ColorPicker#ColorPicker',
     },
   },
 })
