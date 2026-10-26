@@ -8,7 +8,7 @@ sig = "6e9c5357969669d3"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "0e94e2f9882f7e7b"
+sig = "814073af53f285da"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -183,7 +183,7 @@ sig = "f9e8741dfcaf1662"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/components/BackgroundColorWrapper.tsx"
-sig = "6e336af586f5fa9a"
+sig = "6d9f1ffb2e7d0e3a"
 
 [[bindings]]
 doc = "docs/coding-guide.md"

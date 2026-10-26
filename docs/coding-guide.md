@@ -252,7 +252,7 @@ A reusable layout component that wraps content with configurable background colo
 - `containerClassName` - Optional - additional classes for the inner container div
 - `outerClassName` - Optional - additional classes for the outer wrapper div
 
-**Spacing:** `blockSpacing(backgroundColor, isLayoutBlock)`, exported beside the wrapper, is the one rule, and each block contributes half the gap. A layout block with no real background color (`hasBackgroundColor`: not `transparent` or `white`) carries `BLOCK_MARGIN` (`my-3 md:my-5`) on its outer div; those margins collapse, so two plain neighbors sit 12px apart on phones and 20px from `md`. A block with a background carries no margin and instead pads its inner container with `BLOCK_PADDING` (`py-3 md:py-5`), which does not collapse, so two colored blocks touch and their content sits 24px / 40px apart. Inline Lexical blocks get neither. Blocks that don't use the wrapper call `blockSpacing` themselves, or use `BLOCK_MARGIN` when they never take a background.
+**Spacing:** `blockSpacing(backgroundColor, isLayoutBlock)`, exported beside the wrapper, is the one rule. A layout block with no background color (`hasBackgroundColor`: `transparent`) carries `BLOCK_MARGIN` (`my-3 md:my-5`) on its outer div; those margins collapse, so two plain neighbors sit 12px apart on phones and 20px from `md`. A block with any other color, `white` included, carries no margin and instead pads its inner container with `BLOCK_PADDING` (`py-6 md:py-8`), so two colored blocks touch. Inline Lexical blocks get neither. Blocks that don't use the wrapper call `blockSpacing` themselves, or use `BLOCK_MARGIN` when they never take a background.
 
 **Usage:**
 ```tsx

@@ -2,19 +2,18 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
-// Whether a block's background color picker value paints anything. The page is
-// white, so `white` and `transparent` (the picker's default) both read as none.
+// Whether a block's background color picker value is a color. Only `transparent` (the picker's
+// default) reads as none; `white` is a deliberate choice and keeps the padding.
 export function hasBackgroundColor(backgroundColor?: string | null): boolean {
-  return !!backgroundColor && backgroundColor !== 'transparent' && backgroundColor !== 'white'
+  return !!backgroundColor && backgroundColor !== 'transparent'
 }
 
 export const BLOCK_MARGIN = 'my-3 md:my-5'
-export const BLOCK_PADDING = 'py-3 md:py-5'
+export const BLOCK_PADDING = 'py-6 md:py-8'
 
-// Each block contributes half the gap, so any seam involving a background lands on 40px at md. A
-// block with no background carries its half as margin, which collapses with its neighbor's; a block
-// with a background carries it as padding inside the color, so two colored blocks touch and two
-// plain ones end up half as far apart. Inline Lexical blocks get no margin.
+// A block with no background carries margin, which collapses with its neighbor's. A block with a
+// background keeps the full padding inside the color instead, so two colored blocks touch.
+// Inline Lexical blocks get no margin.
 // `bg` is the background class, only when there is one to paint.
 export function blockSpacing(backgroundColor: string | null | undefined, isLayoutBlock: boolean) {
   const hasBg = hasBackgroundColor(backgroundColor)
