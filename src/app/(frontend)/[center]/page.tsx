@@ -47,11 +47,13 @@ export default async function Page({ params }: Args) {
       <HomeWarnings centerSlug={center} />
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
-          <div className="w-full">
+          <div className="w-full md:flex-1 md:min-w-0">
             <HomeDangerMap centerSlug={center} />
           </div>
           {quickLinks && quickLinks.length > 0 && (
-            <div className="flex flex-col gap-4">
+            // Capped so a long label wraps instead of squeezing the danger map; looser at tablet
+            // width, where the row is too narrow for common labels to fit within 40%.
+            <div className="flex flex-col gap-4 md:shrink-0 md:max-w-[50%] lg:max-w-[40%]">
               <div className="prose md:prose-md dark:prose-invert">
                 <h2>Quick Links</h2>
               </div>

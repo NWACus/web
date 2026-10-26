@@ -50,7 +50,7 @@ export const TeamBlockComponent = ({ team }: TeamBlockProps) => {
                       )}
                     </div>
                   </DialogTrigger>
-                  <DialogContent className="max-h-screen max-w-3xl p-10 items-center overflow-y-scroll">
+                  <DialogContent className="max-h-[90dvh] max-w-3xl p-6 sm:p-10 items-center overflow-y-auto">
                     <DialogHeader className="flex flex-col text-left mx-auto">
                       <MediaAvatar
                         resource={member.photo}
