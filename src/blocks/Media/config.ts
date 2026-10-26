@@ -1,6 +1,7 @@
 import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
 import imageSizeField from '@/fields/imageSize'
+import { mediaSourceFields } from '@/fields/mediaSource'
 import {
   AlignFeature,
   BoldFeature,
@@ -20,12 +21,7 @@ const colorAndAlignmentRow: RowField = {
 }
 
 const defaultFields: Field[] = [
-  {
-    name: 'media',
-    type: 'upload',
-    relationTo: 'media',
-    required: true,
-  },
+  ...mediaSourceFields({ name: 'media' }),
   {
     name: 'caption',
     type: 'richText',

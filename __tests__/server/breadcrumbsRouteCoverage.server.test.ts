@@ -15,7 +15,8 @@ import path from 'path'
 const CENTER_DIR = path.join(process.cwd(), 'src/app/(frontend)/[center]')
 
 // Pages that intentionally render no breadcrumbs, relative to CENTER_DIR.
-const ALLOWLIST = new Set(['page.tsx'])
+// The widget hand-over only redirects, so it never renders a trail.
+const ALLOWLIST = new Set(['page.tsx', 'forecasts/avalanche/[zone]/[date]/widget/page.tsx'])
 
 // Matched against the exact module path because the theme preview page imports the
 // `Breadcrumb*` UI primitives, which a looser match would count as coverage.

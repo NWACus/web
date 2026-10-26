@@ -2,6 +2,7 @@
 
 import type { StationRef } from '@/services/snowobs/snowobs'
 import type { TrackedStation } from '@/services/snowobs/stationTracking'
+import type { StationEntry } from '@/services/stations/stationColumns'
 import {
   Button,
   DraggableSortable,
@@ -13,12 +14,15 @@ import {
   Select,
   useField,
 } from '@payloadcms/ui'
-import type { JSONFieldClientProps, StaticDescription } from 'payload'
-import { useState } from 'react'
+import type { JSONFieldClientProps } from 'payload'
+import { Fragment, useState } from 'react'
 import type { RequiredVariable, StationsInputClientProps } from './index'
-import { toStationRefs } from './index'
+import { toStationEntries } from './index'
+import { ColumnsDrawer, ColumnsSummary } from './StationColumnsEditor'
 import type { StationStatus } from './status'
 import { stationStatus, STATUS_LABEL } from './status'
+import type { ReportedReadings } from './useReportedReadings'
+import { useReportedReadings } from './useReportedReadings'
 import type { TrackedStations } from './useTrackedStations'
 import { useCenterSlug, useTrackedStations } from './useTrackedStations'
 
@@ -114,12 +118,16 @@ function trackedView(station: TrackedStation, required?: RequiredVariable): RowV
   }
 }
 
+function trackedStation(entry: StationRef, tracked: TrackedStations): TrackedStation | undefined {
+  return tracked.stations.find((s) => s.stid === entry.stid && s.source === entry.source)
+}
+
 function rowView(
   entry: StationRef,
   tracked: TrackedStations,
   required?: RequiredVariable,
 ): RowView {
-  const station = tracked.stations.find((s) => s.stid === entry.stid && s.source === entry.source)
+  const station = trackedStation(entry, tracked)
   if (station) return trackedView(station, required)
   const note = tracked.status === 'ready' ? ' — not tracked in SnowObs' : ''
   return { name: entry.stid, elevation: '', partner: '', note, status: 'untracked' }
@@ -134,15 +142,20 @@ function NameCell({ view }: { view: RowView }) {
   )
 }
 
+// The row's table-columns cell: a summary of the station's readings and the toggle for its editor.
+type ColumnsCell = { reported: string[]; open: boolean; onToggle: () => void }
+
 function StationRow({
   entry,
   index,
   view,
+  columns,
   onRemove,
 }: {
-  entry: StationRef
+  entry: StationEntry
   index: number
   view: RowView
+  columns?: ColumnsCell
   onRemove: () => void
 }) {
   return (
@@ -158,6 +171,19 @@ function StationRow({
           <td>{entry.source}</td>
           <td>{view.elevation}</td>
           <td>{view.partner}</td>
+          {columns && (
+            <td className="stations-table__columns">
+              <ColumnsSummary entry={entry} reported={columns.reported} />
+              <Button
+                buttonStyle="none"
+                className="stations-columns__toggle"
+                aria-expanded={columns.open}
+                onClick={columns.onToggle}
+              >
+                {columns.open ? 'Done' : 'Edit'}
+              </Button>
+            </td>
+          )}
           <td className="stations-table__status">
             <StatusDot status={view.status} /> {STATUS_LABEL[view.status]}
           </td>
@@ -176,7 +202,12 @@ function StationRow({
   )
 }
 
-function TableHead() {
+// TableHead's cells; the drawer row spans all but the first.
+function headCount(perStationColumns?: boolean): number {
+  return perStationColumns ? 10 : 9
+}
+
+function TableHead({ perStationColumns }: { perStationColumns?: boolean }) {
   return (
     <thead>
       <tr>
@@ -187,6 +218,7 @@ function TableHead() {
         <th>Source</th>
         <th>Elevation</th>
         <th>Partner</th>
+        {perStationColumns && <th>Table columns</th>}
         <th>Status</th>
         <th />
       </tr>
@@ -195,25 +227,60 @@ function TableHead() {
 }
 
 function StationsTable({
+  path,
   refs,
   tracked,
+  readings,
   required,
+  perStationColumns,
   onChange,
 }: {
-  refs: StationRef[]
+  path: string
+  refs: StationEntry[]
   tracked: TrackedStations
+  readings: ReportedReadings
   required?: RequiredVariable
-  onChange: (refs: StationRef[]) => void
+  perStationColumns?: boolean
+  onChange: (refs: StationEntry[]) => void
 }) {
-  const rows = refs.map((entry, index) => (
-    <StationRow
-      key={key(entry)}
-      entry={entry}
-      index={index}
-      view={rowView(entry, tracked, required)}
-      onRemove={() => onChange(refs.filter((_, i) => i !== index))}
-    />
-  ))
+  const [open, setOpen] = useState<ReadonlySet<string>>(new Set())
+  const toggle = (k: string) =>
+    setOpen((prev) => {
+      const next = new Set(prev)
+      if (next.has(k)) next.delete(k)
+      else next.add(k)
+      return next
+    })
+  const setEntry = (index: number, next: StationEntry) =>
+    onChange(refs.map((entry, i) => (i === index ? next : entry)))
+  const rows = refs.map((entry, index) => {
+    const k = key(entry)
+    const reported = readings.of(entry)
+    const cell = perStationColumns
+      ? { reported, open: open.has(k), onToggle: () => toggle(k) }
+      : undefined
+    return (
+      <Fragment key={k}>
+        <StationRow
+          entry={entry}
+          index={index}
+          view={rowView(entry, tracked, required)}
+          columns={cell}
+          onRemove={() => onChange(refs.filter((_, i) => i !== index))}
+        />
+        {cell?.open && (
+          <ColumnsDrawer
+            id={`${path}-${k}`}
+            entry={entry}
+            reported={reported}
+            lastReported={readings.lastReported(entry)}
+            span={headCount(perStationColumns) - 1}
+            onChange={(next) => setEntry(index, next)}
+          />
+        )}
+      </Fragment>
+    )
+  })
   const onDragEnd = ({
     moveFromIndex,
     moveToIndex,
@@ -222,17 +289,22 @@ function StationsTable({
     moveToIndex: number
   }) => onChange(moved(refs, moveFromIndex, moveToIndex))
   return (
-    <DraggableSortable ids={refs.map(key)} onDragEnd={onDragEnd}>
+    <DraggableSortable
+      ids={refs.map(key)}
+      onDragEnd={onDragEnd}
+      // An open drawer is its own row and wouldn't move with the station being dragged.
+      onDragStart={() => setOpen(new Set())}
+    >
       <table className="stations-table">
-        <TableHead />
+        <TableHead perStationColumns={perStationColumns} />
         <tbody>{rows}</tbody>
       </table>
     </DraggableSortable>
   )
 }
 
-// A searchable select over the stations not yet listed; pick one or several,
-// and Add appends them in the order picked.
+// A searchable select over the stations not yet listed; picking one appends
+// it straight away.
 function AddStation({
   path,
   options,
@@ -242,54 +314,41 @@ function AddStation({
   options: Option[]
   onAdd: (refs: StationRef[]) => void
 }) {
-  const [chosen, setChosen] = useState<Option[]>([])
-  const add = () => {
-    if (chosen.length === 0) return
-    onAdd(chosen.map((o) => ({ stid: o.stid, source: o.source })))
-    setChosen([])
-  }
+  // Held empty, so each pick arrives alone and the field stays clear for the next.
   const pick = (picked: unknown) => {
     const values = new Set((Array.isArray(picked) ? picked : []).map((p) => String(p?.value)))
-    setChosen(options.filter((o) => values.has(o.value)))
+    const added = options.filter((o) => values.has(o.value))
+    if (added.length > 0) onAdd(added.map((o) => ({ stid: o.stid, source: o.source })))
   }
   return (
     <div className="stations-table__add">
       <label className="field-label" htmlFor={`${path}-add`}>
         Add station
       </label>
-      <div className="stations-table__add-row">
-        <Select
-          inputId={`${path}-add`}
-          isMulti
-          isSearchable
-          isClearable
-          placeholder="Search by name, id or source…"
-          options={options}
-          value={chosen}
-          onChange={pick}
-          components={{ Option: StatusOption }}
-        />
-        <Button buttonStyle="secondary" disabled={chosen.length === 0} onClick={add}>
-          {chosen.length > 1 ? `Add ${chosen.length}` : 'Add'}
-        </Button>
-      </div>
+      <Select
+        inputId={`${path}-add`}
+        isMulti
+        isSearchable
+        placeholder="Search by name, id or source…"
+        options={options}
+        value={[]}
+        onChange={pick}
+        components={{ Option: StatusOption }}
+      />
     </div>
   )
 }
 
-// Below the table: the add control and the field's own description, or the
-// reason neither is available.
+// Below the table: the add control, or the reason it is unavailable.
 function Footer({
   path,
   tracked,
   options,
-  description,
   onAdd,
 }: {
   path: string
   tracked: TrackedStations
   options: Option[]
-  description?: StaticDescription
   onAdd: (refs: StationRef[]) => void
 }) {
   if (tracked.status === 'error') {
@@ -300,12 +359,7 @@ function Footer({
       />
     )
   }
-  return (
-    <>
-      <AddStation path={path} options={options} onAdd={onAdd} />
-      {description && <FieldDescription path={path} description={description} />}
-    </>
-  )
+  return <AddStation path={path} options={options} onAdd={onAdd} />
 }
 
 // The page's stations as a table, in table order: drag to reorder, remove
@@ -314,10 +368,13 @@ export function StationsInput({
   path,
   field,
   requiredVariable,
+  perStationColumns,
 }: JSONFieldClientProps & StationsInputClientProps) {
   const { value, setValue, showError, errorMessage } = useField<unknown>({ path })
-  const tracked = useTrackedStations(useCenterSlug())
-  const refs = toStationRefs(value)
+  const center = useCenterSlug()
+  const tracked = useTrackedStations(center)
+  const refs = toStationEntries(value)
+  const readings = useReportedReadings(center, refs, perStationColumns)
   const onPage = new Set(refs.map(key))
   // Offer stations that report what the list needs, or have no recent report to
   // judge by, and not ones already on it.
@@ -329,11 +386,17 @@ export function StationsInput({
   return (
     <div className="field-type json stations-input mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
+      {field.admin?.description && (
+        <FieldDescription path={path} description={field.admin.description} />
+      )}
       {refs.length > 0 && (
         <StationsTable
+          path={path}
+          readings={readings}
           refs={refs}
           tracked={tracked}
           required={requiredVariable}
+          perStationColumns={perStationColumns}
           onChange={setValue}
         />
       )}
@@ -341,7 +404,6 @@ export function StationsInput({
         path={path}
         tracked={tracked}
         options={options}
-        description={field.admin?.description}
         onAdd={(added) => setValue([...refs, ...added])}
       />
       <FieldError path={path} message={errorMessage} showError={showError} />

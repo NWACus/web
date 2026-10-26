@@ -12,13 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
@@ -41,9 +35,10 @@ import { CSS } from '@dnd-kit/utilities'
 import { ArrowDown, ArrowUp, GripVertical, SlidersHorizontal, X } from 'lucide-react'
 import type { GraphPreset } from './stationGraphPresets'
 import { MAX_COMPARE_STATIONS } from './stationGraphPresets'
-import type { StationPeriod } from './stationPeriods'
-import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
+import type { DateRange, StationPeriod } from './stationPeriods'
+import { DEFAULT_GRAPH_PERIOD, GRAPH_MAX_CUSTOM_DAYS, GRAPH_PERIODS } from './stationPeriods'
 import { StationSelectItems, stationSelectTriggerClass } from './StationPicker'
+import { StationRangePicker } from './StationRangePicker'
 import { UnitToggle } from './UnitToggle'
 import type { useChartArrangement } from './useChartArrangement'
 
@@ -54,39 +49,45 @@ const sectionLabelClass = 'text-sm font-medium'
 
 export const chipClass = 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm'
 
-export function PeriodSelect({
-  active,
+/** The graphs' window: a preset, or a custom range that overrides it. */
+export type GraphRange = { period: StationPeriod; custom: DateRange | null }
+
+export function GraphRangePicker({
+  value,
   onChange,
+  timeZone,
   className,
 }: {
-  active: StationPeriod
-  onChange: (period: StationPeriod) => void
+  value: GraphRange
+  onChange: (range: GraphRange) => void
+  timeZone: string
   className?: string
 }) {
   return (
-    <Select
-      value={active.key}
-      onValueChange={(key) =>
-        onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)
+    <StationRangePicker
+      periods={GRAPH_PERIODS}
+      activePeriod={value.period}
+      custom={value.custom}
+      onSelectPeriod={(key) =>
+        onChange({
+          period: GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD,
+          custom: null,
+        })
       }
-    >
-      <SelectTrigger
-        aria-label="Date range"
-        className={cn(stationSelectTriggerClass, 'py-1.5', className)}
-      >
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent position="item-aligned">
-        {GRAPH_PERIODS.map((period) => (
-          <SelectItem key={period.key} value={period.key}>
-            {period.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+      onApplyCustom={(custom) => onChange({ ...value, custom })}
+      maxDays={GRAPH_MAX_CUSTOM_DAYS}
+      timeZone={timeZone}
+      className={className}
+    />
   )
 }
 
+/** Whether any live station page besides the current one could join the graphs. */
+function hasComparablePages(pages: StationPageSummary[], currentSlug: string | null): boolean {
+  return pages.some((page) => page.slug !== currentSlug && !page.archived)
+}
+
+// Nothing to offer on a detail page for a center with no station pages.
 export function CompareSelect({
   pages,
   currentSlug,
@@ -95,12 +96,13 @@ export function CompareSelect({
   className,
 }: {
   pages: StationPageSummary[]
-  currentSlug: string
+  currentSlug: string | null
   compareSlugs: string[]
   onCompareChange: (slugs: string[]) => void
   className?: string
 }) {
   const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
+  if (!hasComparablePages(pages, currentSlug)) return null
   return (
     <Select
       value=""
@@ -108,17 +110,17 @@ export function CompareSelect({
       onValueChange={(slug) => onCompareChange([...compareSlugs, slug])}
     >
       <SelectTrigger
-        aria-label="Compare with"
+        aria-label="Add stations"
         className={cn(stationSelectTriggerClass, 'py-1.5', className)}
       >
         <SelectValue
-          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
+          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add stations…'}
         />
       </SelectTrigger>
       <SelectContent position="item-aligned">
         <StationSelectItems
           pages={pages}
-          excludeSlugs={[currentSlug, ...compareSlugs]}
+          excludeSlugs={currentSlug ? [currentSlug, ...compareSlugs] : compareSlugs}
           excludeArchived
         />
       </SelectContent>
@@ -155,15 +157,24 @@ export function CompareChips({
 function MobileViewControls(props: EditViewProps) {
   return (
     <div className="flex flex-col gap-4 sm:hidden">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-2">
         <span className={sectionLabelClass}>Date range</span>
-        <PeriodSelect active={props.graphPeriod} onChange={props.onPeriodChange} />
+        <GraphRangePicker
+          value={props.graphRange}
+          onChange={props.onRangeChange}
+          timeZone={props.timeZone}
+        />
       </div>
       <div className="flex items-center justify-between gap-3">
         <span className={sectionLabelClass}>Units</span>
         <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
       </div>
-      <div className="flex flex-col gap-2">
+      <div
+        className={cn(
+          'flex flex-col gap-2',
+          !hasComparablePages(props.pages, props.currentSlug) && 'hidden',
+        )}
+      >
         <span className={sectionLabelClass}>Compare stations</span>
         <CompareSelect
           pages={props.pages}
@@ -298,11 +309,13 @@ function GraphList({
 
 export type EditViewProps = {
   pages: StationPageSummary[]
-  graphPeriod: StationPeriod
-  onPeriodChange: (period: StationPeriod) => void
+  graphRange: GraphRange
+  onRangeChange: (range: GraphRange) => void
+  timeZone: string
   unitSystem: UnitSystem
   onUnitChange: (system: UnitSystem) => void
-  currentSlug: string
+  /** The station page being viewed; null on a single station's detail page. */
+  currentSlug: string | null
   compareSlugs: string[]
   onCompareChange: (slugs: string[]) => void
   arrangement: ReturnType<typeof useChartArrangement>

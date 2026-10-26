@@ -18,7 +18,7 @@ export const PrecipTableBlock: Block = {
       defaultValue: ALL_PRECIP_COLUMNS,
       admin: {
         description:
-          'Which columns the table shows after the station name. Clearing every column shows them all.',
+          'Which columns the table shows after the station name, in this order. Drag to reorder. Clearing every column shows them all.',
       },
     },
     stationsField({

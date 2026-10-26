@@ -17,12 +17,14 @@ import { tenantField } from '@/fields/tenantField'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
+import { validateLayoutBlocks } from '@/blocks/nacWidgetBlocks'
+import { ObservationsWidgetBlock } from '@/blocks/ObservationsWidget/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import { titleField } from '@/fields/title'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { blocks } from 'payload/shared'
 import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
 
 export const Pages: CollectionConfig<'pages'> = {
@@ -67,7 +69,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [...DEFAULT_BLOCKS, NACMediaBlock].sort((a, b) =>
+              blocks: [...DEFAULT_BLOCKS, NACMediaBlock, ObservationsWidgetBlock].sort((a, b) =>
                 a.slug.localeCompare(b.slug),
               ),
               required: true,
@@ -77,19 +79,7 @@ export const Pages: CollectionConfig<'pages'> = {
                   'This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab.',
               },
 
-              validate: (value, args) => {
-                if (!value || !Array.isArray(value)) return blocks(value, args)
-
-                const nacMediaBlockCount = value.filter(
-                  (block) => block.blockType === 'nacMediaBlock',
-                ).length
-
-                if (nacMediaBlockCount > 1)
-                  throw Error('Only one NACMediaBlock is allowed per page')
-
-                // Do not use default validation because of nacMediaBlock
-                return blocks(value, args)
-              },
+              validate: validateLayoutBlocks,
             },
           ],
         },
@@ -147,9 +137,9 @@ export const Pages: CollectionConfig<'pages'> = {
     },
   ],
   hooks: {
-    afterChange: [revalidatePage],
+    afterChange: [revalidatePage, syncReferenceCounts],
     beforeChange: [populatePublishedAt, populateDocumentReferences],
-    afterDelete: [revalidatePageDelete],
+    afterDelete: [revalidatePageDelete, syncReferenceCountsOnDelete],
   },
   versions: {
     drafts: true,

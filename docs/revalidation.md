@@ -26,7 +26,7 @@ Collections in this system fall into two main categories for revalidation purpos
 
 ### Reference Collections
 **Collections that are referenced by routable collections** but don't have their own frontend routes:
-- Examples: `media`, `teams`, `biographies`, `tags`, `forms`
+- Examples: `media`, `sharedMedia`, `teams`, `biographies`, `tags`, `forms`
 - Characteristics: Only need reference-based revalidation when changed
 - When modified, trigger revalidation of routable collections that reference them
 
@@ -49,6 +49,9 @@ Orchestrates the full reference revalidation flow:
 ### `findDocumentsWithReferences.ts`
 Queries the `documentReferences` JSON field across all collections that have it:
 - Iterates over the `ROUTABLE_COLLECTIONS` array defined in `revalidateDocument.ts`
+- Returns published documents only. Pass `{ includeDrafts: true }` to see unpublished uses too — right for the "Where this is used" panel on a Shared Content document, where an editor is deciding whether a change is safe, and wrong for revalidation, which has no draft path to revalidate. With it set, draft-enabled collections are also queried with `draft: true`, because saving a draft of a published document writes only to the versions table and the main row never sees what that draft added
+- Each result carries `title` and `status` where the collection has them, so a caller can list what it found without a second query per document
+- Pass `req` to run inside a caller's transaction. A hook counting references for the document it is currently saving has to see that save, which has not been committed yet. With `req`, a failed query rejects instead of being logged and skipped: Payload has already rolled back the caller's transaction, so carrying on would let their save look successful
 
 ## Collection Patterns
 
@@ -80,8 +83,17 @@ Collections that are referenced by routable collections but don't have their own
 - Only calls `revalidateDocumentReferences()`
 - No direct path revalidation (reference collections don't generate routes)
 
+#### SharedMedia (`src/collections/SharedMedia/hooks/revalidateSharedMedia.ts`)
+- Same shape as Media: only calls `revalidateDocumentReferences()`, with no direct path revalidation
+- No tenant filter is needed or wanted. A shared document is referenced from every center, and `findDocumentsWithReferences` has no tenant filter, so one save revalidates every center's page that uses it
+- **Known gap**: `findDocumentsWithReferences` drops a referencing document that has no tenant, so a Shared Content document referencing another Shared Content document stops the recursive walk. Nothing hits this today — Pages, HomePages and Posts reference shared photos directly — so it is left until the first such chain exists. See `docs/decisions/022-shared-content.md`
+
 #### Teams, Biographies, Tags
 Similar pattern to Media - only reference-based revalidation since they're reference collections.
+
+#### GlossaryTerms (`src/collections/GlossaryTerms/hooks/revalidateGlossary.ts`)
+- **Tag revalidation only**: `glossary`, which purges the cached read behind `GET /api/glossary` and nothing else
+- Nothing references a term and no page carries the term list: native forecast pages fetch it from the endpoint in the browser, so a glossary edit never revalidates a forecast page. See `docs/decisions/018-forecast-glossary.md`
 
 ### Globals
 #### NACWidgetsConfig (`src/globals/NACWidgetsConfig/hooks/revalidateWidgetPages.ts`)
@@ -130,6 +142,7 @@ One exception: a cached function nested inside another cached function should le
 - **Global data**: `global_{globalSlug}`
 - **Routable collection data**: `{collection}_{slug}` (again, not used at the moment)
 - **Sitemap data**: `{collection}-sitemap-{center}` (for routable collections)
+- **Forecast glossary**: `glossary`
 - **Navigation data**: `navigation-{center}`
 
 ## Context Controls

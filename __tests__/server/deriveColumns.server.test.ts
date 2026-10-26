@@ -66,19 +66,74 @@ describe('deriveColumns', () => {
 })
 
 describe('resolveColumns', () => {
-  const res = response(station('1', ['air_temp', 'wind_speed']))
+  const two = response(
+    station('1', ['air_temp', 'wind_speed', 'snow_depth']),
+    station('2', ['air_temp', 'wind_speed']),
+  )
+  const order = (...cols: [string, string][]) =>
+    cols.map(([stid, variable]) => ({ ...ref(stid), variable }))
 
-  it('keeps only the readings a page chose, in table order', () => {
-    expect(resolveColumns(res, { stations: [ref('1')], columns: ['wind_speed'] })).toEqual([
+  it('derives when no station chose readings and the order is the default', () => {
+    expect(resolveColumns(two, { stations: [ref('1'), ref('2')], columnOrder: [] })).toEqual([
+      col('1', 'air_temp'),
+      col('2', 'air_temp'),
       col('1', 'wind_speed'),
+      col('2', 'wind_speed'),
+      col('1', 'snow_depth'),
     ])
-    expect(resolveColumns(res, { stations: [ref('1')], columns: ['snow_depth'] })).toEqual([])
   })
 
-  it('derives when the page chose none', () => {
-    expect(resolveColumns(res, { stations: [ref('1')], columns: [] })).toEqual([
-      col('1', 'air_temp'),
+  it("drops a station's hidden readings, leaving the others on all of theirs", () => {
+    expect(
+      resolveColumns(two, {
+        stations: [{ ...ref('1'), hidden: ['air_temp', 'wind_speed'] }, ref('2')],
+        columnOrder: [],
+      }),
+    ).toEqual([col('2', 'air_temp'), col('2', 'wind_speed'), col('1', 'snow_depth')])
+  })
+
+  it('puts the columns in the chosen order, whatever their reading', () => {
+    expect(
+      resolveColumns(two, {
+        stations: [ref('1'), ref('2')],
+        columnOrder: order(
+          ['1', 'snow_depth'],
+          ['2', 'air_temp'],
+          ['1', 'wind_speed'],
+          ['1', 'air_temp'],
+          ['2', 'wind_speed'],
+        ),
+      }),
+    ).toEqual([
+      col('1', 'snow_depth'),
+      col('2', 'air_temp'),
       col('1', 'wind_speed'),
+      col('1', 'air_temp'),
+      col('2', 'wind_speed'),
     ])
+  })
+
+  it('places a column the order does not list after the last column for its reading', () => {
+    expect(
+      resolveColumns(two, {
+        stations: [ref('1'), ref('2')],
+        columnOrder: order(['1', 'wind_speed'], ['1', 'air_temp'], ['2', 'air_temp']),
+      }),
+    ).toEqual([
+      col('1', 'wind_speed'),
+      col('2', 'wind_speed'),
+      col('1', 'air_temp'),
+      col('2', 'air_temp'),
+      col('1', 'snow_depth'),
+    ])
+  })
+
+  it('ignores an order entry with no column behind it', () => {
+    expect(
+      resolveColumns(two, {
+        stations: [{ ...ref('1'), hidden: ['wind_speed', 'snow_depth'] }],
+        columnOrder: order(['9', 'air_temp'], ['1', 'snow_depth'], ['1', 'air_temp']),
+      }),
+    ).toEqual([col('1', 'air_temp')])
   })
 })

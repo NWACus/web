@@ -9,6 +9,7 @@ node_modules
 
 # Payload default media upload directory
 public/media/
+public/shared-media/
 public/documents
 
 public/robots.txt
@@ -47,5 +48,12 @@ plans/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Mocked E2E build output and per-run mock state (see docs/afp-products/e2e-mocks.md)
+/.next-e2e
+/.e2e-mocks/
 __tests__/e2e/.auth/
 .beads
+
+# pnpm report:404s output
+/404-reports/

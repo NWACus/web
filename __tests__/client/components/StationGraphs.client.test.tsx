@@ -160,6 +160,11 @@ describe('buildChartOption precision and bar rendering', () => {
     expect(tooltipFormat(buildChartOption(data, TEMP_PRESET), Number.NaN)).toBe('–')
   })
 
+  it('formats snow tooltips to the whole inch, as the tables do', () => {
+    const snow: GraphData = { ...data, series: [series('1', 'snow_depth')] }
+    expect(tooltipFormat(buildChartOption(snow, TEMP_PRESET), 74.51)).toBe('75 °F')
+  })
+
   it('formats the tooltip date header human-readably', () => {
     const t = new Date(2026, 0, 10, 14, 30).getTime()
     expect(dateHeaderFormat(buildChartOption(data, TEMP_PRESET), t)).toBe('Sat Jan 10, 14:30')
@@ -266,7 +271,7 @@ describe('StationGraphs compare picker', () => {
 
   it('excludes the current station from the compare options', () => {
     renderGraphs()
-    openSelect('Compare with')
+    openSelect('Add stations')
     expect(screen.queryByRole('option', { name: current.displayName })).not.toBeInTheDocument()
     expect(screen.getByRole('option', { name: other.displayName })).toBeInTheDocument()
   })
@@ -274,7 +279,7 @@ describe('StationGraphs compare picker', () => {
   function renderWithCompares(...groups: (typeof current)[]) {
     renderGraphs()
     for (const group of groups) {
-      openSelect('Compare with')
+      openSelect('Add stations')
       pickOption(group.displayName)
     }
   }
@@ -305,14 +310,14 @@ describe('StationGraphs compare picker', () => {
 
   it('hides selected stations from the options and disables the select at the cap', () => {
     renderWithCompares(other)
-    const combobox = () => screen.getByRole('combobox', { name: 'Compare with' })
+    const combobox = () => screen.getByRole('combobox', { name: 'Add stations' })
     expect(combobox()).not.toBeDisabled()
 
-    openSelect('Compare with')
+    openSelect('Add stations')
     expect(screen.queryByRole('option', { name: other.displayName })).not.toBeInTheDocument()
     pickOption(third.displayName)
 
-    openSelect('Compare with')
+    openSelect('Add stations')
     pickOption(fourth.displayName)
     expect(combobox()).toBeDisabled()
   })

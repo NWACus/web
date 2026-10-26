@@ -1,0 +1,53 @@
+/**
+ * Zod schema for the NAC v2 product *list* endpoint
+ * (`GET /v2/public/products?avalanche_center_id={CENTER}`).
+ *
+ * This is the lightweight archive index — one entry per published product. It is
+ * intentionally narrower than the full by-id product schema in `forecastSchemas`:
+ * we only keep the fields needed to build a zone's date list and the archive
+ * browser's rows (id, type, published time, danger, author, which zones the
+ * product covers). The endpoint honors `date_start`/`date_end` but ignores every
+ * other narrowing param, so unknown fields are tolerated and only the columns we
+ * use are validated.
+ */
+import { z } from 'zod'
+
+const dangerEntrySchema = z.object({
+  lower: z.number().nullable().optional(),
+  middle: z.number().nullable().optional(),
+  upper: z.number().nullable().optional(),
+  valid_day: z.string().nullable().optional(),
+})
+
+export const productListItemSchema = z
+  .object({
+    id: z.number(),
+    product_type: z.string(),
+    published_time: z.string(),
+    // Top-level overall danger rating (0-5; -1 = general info). Used to color the date picker.
+    danger_rating: z.number().nullable().optional(),
+    // The overall rating in words ("moderate", "no rating"), and the per-elevation danger by day.
+    // Both feed the date picker's day preview only, so a malformed value costs that preview
+    // rather than failing the whole archive.
+    danger_level_text: z.string().nullable().optional().catch(null),
+    danger: z.array(dangerEntrySchema).nullable().optional().catch(null),
+    author: z.string().nullable().optional(),
+    // When the product stops being valid. Lets a dated address with no product of its own find
+    // the one that covers it; caught, so a malformed value just covers nothing.
+    expires_time: z.string().nullable().optional().catch(null),
+    // Null on stub forecasts (NWAC 2019–2020, SAC 2019–2021), which every legacy view hides.
+    // Kept so the native pages can apply the same rule.
+    updated_at: z.string().nullable().optional(),
+    forecast_zone: z.array(
+      z
+        .object({
+          id: z.number(),
+          name: z.string(),
+        })
+        // Tolerate the other zone fields (url, zone_id, config) without validating them.
+        .passthrough(),
+    ),
+  })
+  // Tolerate the many archive columns we don't consume (bottom_line, json_data, ...).
+  .passthrough()
+export const productListSchema = z.array(productListItemSchema)

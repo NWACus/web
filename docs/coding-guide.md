@@ -56,11 +56,11 @@ Start by copying `src/collections/collection-template.ts` into a new file in `sr
 2. **Register it** — Import and add the collection to your Payload config
 3. **Consider revalidation** — If the collection is referenced as a relationship in a block, you need to write revalidation hooks. See `/docs/revalidation.md`
    - **Intermediate collections**: If your collection is **not routable** (has no frontend URL) but has `upload` or `relationship` fields pointing to other collections, AND it is itself referenced by routable collections through blocks or relationships, add `documentReferencesField()` to its `fields` and `populateDocumentReferences` to its `beforeChange` hooks. This enables the recursive revalidation system to follow changes through intermediate collections (e.g., a media image change propagates through a sponsor to the pages displaying that sponsor). See Sponsors, Biographies, or Teams for examples.
-4. **Generate types** — Run `pnpm generate:types` to update TypeScript types
-5. **Add seed data** — Add representative test data to the seed script once the schema is finalized
-6. **Run the seed script** — Verify `pnpm seed` completes without errors
-7. **Generate a migration** — Run `pnpm payload migrate:create <descriptive_name>` and review the output. See `/docs/migration-safety.md` and the [Migrations](#migrations) section below
-8. **Expose via MCP (if appropriate)** — If this collection should be queryable by AI tools, add it to the MCP plugin config in `src/plugins/index.ts`. See `/docs/mcp-server.md` for details
+4. **Decide on MCP exposure** — `pnpm tsc` fails until every collection has an entry in `MCP_COLLECTIONS` (`src/constants/mcp.ts`). Content collections are exposed to AI tools by default (`'find'`); only leave one out for sensitive data (users, permissions, form submissions), as `{ excluded: '<reason>' }`. Do this before generating the migration, since each exposed collection adds a column to the MCP API keys table. If the collection has no `tenant` field, add an exception line to the MCP server instructions. See `/docs/mcp-server.md#adding-a-collection-to-mcp`
+5. **Generate types** — Run `pnpm generate:types` to update TypeScript types
+6. **Add seed data** — Add representative test data to the seed script once the schema is finalized
+7. **Run the seed script** — Verify `pnpm seed` completes without errors
+8. **Generate a migration** — Run `pnpm payload migrate:create <descriptive_name>` and review the output. See `/docs/migration-safety.md` and the [Migrations](#migrations) section below
 
 ## Migrations
 
@@ -109,7 +109,8 @@ import {
   isValidRelationship,
   filterValidRelationships,
   isValidPublishedRelationship,
-  filterValidPublishedRelationships
+  filterValidPublishedRelationships,
+  relationshipID
 } from '@/utilities/relationships'
 ```
 
@@ -134,6 +135,11 @@ export const SponsorsBlock = ({ sponsors }: Props) => {
 Draft-enabled collections:
 ```typescript
 const publishedPosts = filterValidPublishedRelationships(relatedPosts)
+```
+
+Relationship values of unknown shape (e.g. hook `data`), where you only need the ID:
+```typescript
+const providerId = relationshipID(data?.provider) // bare ID or populated doc → ID; otherwise undefined
 ```
 
 Combine with additional filters:
@@ -240,6 +246,12 @@ When creating a new block, you must register it in the following locations:
 **Why the different `isLayoutBlock` values?**
 - Standalone blocks (`RenderBlocks.tsx`) are top-level page layout blocks that need their own container → `isLayoutBlock={true}`
 - Inline Lexical blocks (`RichText/index.tsx`) are embedded inside a rich text field that already provides a container → `isLayoutBlock={false}`
+
+### Wide blocks in posts (`breakout`)
+
+A post's text column is capped at `48rem`, which is too narrow for wide blocks like the Observations Widget. Add the `breakout` class (defined in `src/app/(frontend)/globals.css`) to the block's outer element when `isLayoutBlock` is `false` and it widens to the page's `.container`, centered on the text column. It does nothing when the column is already that wide, e.g. on mobile.
+
+`breakout` measures against the nearest ancestor with `@container` (it uses `cqw` units), so the page that renders the rich text has to mark its `.container` with `@container`; the post page does. Without one, `cqw` falls back to the viewport and the block runs edge to edge. Only use it in a column that is centered in its container, not in a half-width column.
 
 
 ### BackgroundColorWrapper

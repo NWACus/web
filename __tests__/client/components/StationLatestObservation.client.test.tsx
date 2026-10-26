@@ -12,6 +12,7 @@ function buildTable(overrides: Partial<StationTable> = {}): StationTable {
     rows: [{ timestamp: NOW, display: '11/14 12:00', values: {} }],
     timezoneLabel: 'PST',
     latestObservation: NOW,
+    latestDisplay: '11/14 12:00',
     ...overrides,
   }
 }
@@ -39,7 +40,11 @@ describe('StationLatestObservation', () => {
   })
 
   it('shows a fallback when there are no observations', () => {
-    render(<StationLatestObservation table={buildTable({ rows: [], latestObservation: null })} />)
+    render(
+      <StationLatestObservation
+        table={buildTable({ rows: [], latestObservation: null, latestDisplay: null })}
+      />,
+    )
 
     expect(screen.getByText('No recent observations')).toBeInTheDocument()
     expect(screen.queryByText('Data may be stale')).not.toBeInTheDocument()

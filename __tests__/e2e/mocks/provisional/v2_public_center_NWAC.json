@@ -1,0 +1,728 @@
+{
+  "id": "NWAC",
+  "name": "Northwest Avalanche Center",
+  "url": "https://www.nwac.us/",
+  "center_point": null,
+  "off_season": true,
+  "state": "WA",
+  "wkb_geometry": null,
+  "timezone": "America/Los_Angeles",
+  "city": "Seattle",
+  "email": "test@example.com",
+  "phone": "206-526-6164",
+  "config": {
+    "expires_time": 18.5,
+    "published_time": 18.5,
+    "blog": false,
+    "blog_title": "Conditions Blog",
+    "weather_table": [
+      {
+        "autofill": null,
+        "zone_id": "1",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "4",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "5",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "6",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "2",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "11",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "12",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "13",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "3",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "7",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "8",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "9",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      },
+      {
+        "autofill": null,
+        "zone_id": "10",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      }
+    ],
+    "zone_order": [139, 142, 143, 144, 140, 141, 145, 146, 147, 148]
+  },
+  "type": "usfs",
+  "widget_config": {
+    "forecast": {
+      "color": "142D56",
+      "elevInfoUrl": "https://nwac.us/avalanche-forecasts-elevation-bands/",
+      "glossary": true,
+      "start_year": 2020,
+      "tabs": [
+        {
+          "name": "Weather Forecast",
+          "id": "weather-forecast",
+          "url": "https://nwac.us/mountain-weather-forecast/current-tab"
+        }
+      ]
+    },
+    "observation_viewer": {
+      "require_approval": false,
+      "color": "3878A8",
+      "map_center": {
+        "lat": 47.0706,
+        "lng": -122.0585
+      },
+      "map_zoom": 6.1196,
+      "obs_tab": true,
+      "obs_view_url": "https://nwac.us/observations/#/view/observations",
+      "obs_form_url": "https://nwac.us/observations/#/form",
+      "obs_start_year": 2024,
+      "show_zone_filter": true,
+      "show_all_zones": true,
+      "saturation": -100,
+      "alternate_zones": null,
+      "obs_rose_upper_el": 8000,
+      "obs_rose_lower_el": 3000,
+      "obs_rose_interval": 1000
+    },
+    "danger_map": {
+      "height": "650",
+      "saturation": -100,
+      "search": true,
+      "geolocate": true,
+      "advice": true,
+      "center": {
+        "lat": 47.454188397509135,
+        "lng": -121.769123046875
+      },
+      "zoom": 7
+    },
+    "stations": {
+      "center": {
+        "lat": 47.07,
+        "lng": -121.84
+      },
+      "zoom": 7,
+      "center_id": "NWAC",
+      "alternate_zones": null,
+      "units": "english",
+      "timezone": "local",
+      "color_rules": false,
+      "source_legend": true,
+      "sources": ["mesowest", "snotel", "nwac"],
+      "within": 180,
+      "external_modal_links": {
+        "1": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/7/",
+          "area_tables": "https://www.nwac.us/weatherdata/alpental/now/"
+        },
+        "2": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/7/",
+          "area_tables": "https://www.nwac.us/weatherdata/alpental/now/"
+        },
+        "3": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/7/",
+          "area_tables": "https://www.nwac.us/weatherdata/alpental/now/"
+        },
+        "4": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/4/",
+          "area_tables": "https://www.nwac.us/weatherdata/hurricaneridge/now/"
+        },
+        "5": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/5/",
+          "area_tables": "https://www.nwac.us/weatherdata/mtbakerskiarea/now/"
+        },
+        "6": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/5/",
+          "area_tables": "https://www.nwac.us/weatherdata/mtbakerskiarea/now/"
+        },
+        "7": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/4451/",
+          "area_tables": "https://www.nwac.us/weatherdata/mazama/now/"
+        },
+        "8": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/4450/",
+          "area_tables": ""
+        },
+        "9": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/4450/",
+          "area_tables": "https://www.nwac.us/weatherdata/washingtonpass/now/"
+        },
+        "10": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/14/",
+          "area_tables": "https://www.nwac.us/weatherdata/dirtyfacemtn/now/"
+        },
+        "11": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/14/",
+          "area_tables": "https://www.nwac.us/weatherdata/lakewenatchee/now/"
+        },
+        "12": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/21/",
+          "area_tables": "https://www.nwac.us/weatherdata/bernemaintenancestation/now/"
+        },
+        "13": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/21/",
+          "area_tables": "https://www.nwac.us/weatherdata/stevenshwy2/now/"
+        },
+        "15": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/21/",
+          "area_tables": "https://www.nwac.us/weatherdata/brookssnow/now/"
+        },
+        "17": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/21/",
+          "area_tables": "https://www.nwac.us/weatherdata/stevensskiarea/now/"
+        },
+        "18": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/21/",
+          "area_tables": "https://www.nwac.us/weatherdata/stevensskiarea/now/"
+        },
+        "19": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/14/",
+          "area_tables": "https://www.nwac.us/weatherdata/tumwater/now/"
+        },
+        "20": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/1/",
+          "area_tables": "https://www.nwac.us/weatherdata/mtwashington/now/"
+        },
+        "21": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/1/",
+          "area_tables": "https://www.nwac.us/weatherdata/snoqualmiepass/now/"
+        },
+        "22": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/1/",
+          "area_tables": "https://www.nwac.us/weatherdata/snoqualmiepass/now/"
+        },
+        "23": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/1/",
+          "area_tables": "https://www.nwac.us/weatherdata/snoqualmiepass/now/"
+        },
+        "24": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/16/",
+          "area_tables": "https://www.nwac.us/weatherdata/missionridge/now/"
+        },
+        "25": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/16/",
+          "area_tables": "https://www.nwac.us/weatherdata/missionridge/now/"
+        },
+        "26": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/16/",
+          "area_tables": "https://www.nwac.us/weatherdata/missionridge/now/"
+        },
+        "27": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/4969/",
+          "area_tables": "https://www.nwac.us/weatherdata/crystalgrnvalley/now/"
+        },
+        "28": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/9/",
+          "area_tables": "https://www.nwac.us/weatherdata/crystalskiarea/now/"
+        },
+        "29": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/9/",
+          "area_tables": "https://www.nwac.us/weatherdata/crystalskiarea/now/"
+        },
+        "30": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/4448/",
+          "area_tables": "https://www.nwac.us/weatherdata/sunrise/now/"
+        },
+        "31": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/4448/",
+          "area_tables": "https://www.nwac.us/weatherdata/sunrise/now/"
+        },
+        "32": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/11/",
+          "area_tables": "https://www.nwac.us/weatherdata/chinookpass/now/"
+        },
+        "33": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/11/",
+          "area_tables": "https://www.nwac.us/weatherdata/chinookpass/now/"
+        },
+        "34": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/10/",
+          "area_tables": "https://www.nwac.us/weatherdata/campmuir/now/"
+        },
+        "35": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/10/",
+          "area_tables": "https://www.nwac.us/weatherdata/paradise/now/"
+        },
+        "36": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/10/",
+          "area_tables": "https://www.nwac.us/weatherdata/paradise/now/"
+        },
+        "37": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/12/",
+          "area_tables": "https://www.nwac.us/weatherdata/whitepass/now/"
+        },
+        "39": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/12/",
+          "area_tables": "https://www.nwac.us/weatherdata/whitepass/now/"
+        },
+        "40": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/20/",
+          "area_tables": "https://www.nwac.us/weatherdata/mtsthelens/now/"
+        },
+        "41": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/17/",
+          "area_tables": "https://www.nwac.us/weatherdata/cascade_express/now/"
+        },
+        "42": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/17/",
+          "area_tables": "https://www.nwac.us/weatherdata/mthoodmeadows/now/"
+        },
+        "43": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/17/",
+          "area_tables": "https://www.nwac.us/weatherdata/mthoodmeadows/now/"
+        },
+        "44": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/18/",
+          "area_tables": "https://www.nwac.us/weatherdata/timberlinebase/now/"
+        },
+        "45": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/18/",
+          "area_tables": "https://www.nwac.us/weatherdata/timberlineupper/now/"
+        },
+        "46": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/19/",
+          "area_tables": "https://www.nwac.us/weatherdata/skibowlgovtcamp/now/"
+        },
+        "47": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/19/",
+          "area_tables": "https://www.nwac.us/weatherdata/skibowlgovtcamp/now/"
+        },
+        "48": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/15/",
+          "area_tables": "https://www.nwac.us/weatherdata/blewettpass/now/"
+        },
+        "49": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/12/",
+          "area_tables": "https://www.nwac.us/weatherdata/whitepass/now/"
+        },
+        "50": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/21/",
+          "area_tables": "https://www.nwac.us/weatherdata/brookssnow/now/"
+        },
+        "51": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/4556/",
+          "area_tables": "https://www.nwac.us/weatherdata/gracelakes/now/"
+        },
+        "52": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/9/",
+          "area_tables": "https://www.nwac.us/weatherdata/crystalskiarea/now/"
+        },
+        "ST9W1": {
+          "area_plots": "https://www.nwac.us/data-portal/graph/4556/",
+          "area_tables": "https://www.nwac.us/weatherdata/gracelakes/now/"
+        }
+      },
+      "token": "test_token_scrubbed"
+    }
+  },
+  "created_at": "2026-05-30 16:16:46.243737",
+  "zones": [
+    {
+      "id": 1645,
+      "name": "Olympics",
+      "url": "http://www.nwac.us/avalanche-forecast/#/olympics",
+      "zone_id": "1",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br> 4500-3000ft",
+          "middle": "Middle Elevations <br>5500-4500ft",
+          "upper": "Upper Elevations <br>6500-5500ft"
+        }
+      },
+      "status": "active",
+      "rank": 1
+    },
+    {
+      "id": 1646,
+      "name": "West Slopes North",
+      "url": "http://www.nwac.us/avalanche-forecast/#/west-slopes-north",
+      "zone_id": "4",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br> 4500-2500ft",
+          "middle": "Middle Elevations <br> 5500-4500ft",
+          "upper": "Upper Elevations <br> 7500-5500ft"
+        }
+      },
+      "status": "active",
+      "rank": 2
+    },
+    {
+      "id": 1647,
+      "name": "West Slopes Central",
+      "url": "http://www.nwac.us/avalanche-forecast/#/west-slopes-central",
+      "zone_id": "5",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br>4500-2500ft",
+          "middle": "Middle Elevations <br>5500-4500ft",
+          "upper": "Upper Elevations <br> 7500-5500ft"
+        }
+      },
+      "status": "active",
+      "rank": 3
+    },
+    {
+      "id": 1648,
+      "name": "West Slopes South",
+      "url": "http://www.nwac.us/avalanche-forecast/#/west-slopes-south",
+      "zone_id": "6",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br>5500-3500ft",
+          "middle": "Middle Elevations <br>6500-5500ft",
+          "upper": "Upper Elevations <br>8000-6500ft"
+        }
+      },
+      "status": "active",
+      "rank": 4
+    },
+    {
+      "id": 1649,
+      "name": "Stevens Pass",
+      "url": "http://www.nwac.us/avalanche-forecast/#/stevens-pass",
+      "zone_id": "2",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br>5000-3000ft",
+          "middle": "Middle Elevations <br>6000-5000ft",
+          "upper": "Upper Elevations <br>7000-6000ft"
+        }
+      },
+      "status": "active",
+      "rank": 5
+    },
+    {
+      "id": 1650,
+      "name": "WA Cascades East, South-Central",
+      "url": "http://www.nwac.us/avalanche-forecast/current/cascade-east-snoqualmie-to-white-pass",
+      "zone_id": "11",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "disabled",
+      "rank": 6
+    },
+    {
+      "id": 1651,
+      "name": "WA Cascades East, South",
+      "url": "http://www.nwac.us/avalanche-forecast/current/cascade-east-white-pass-south",
+      "zone_id": "12",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "disabled",
+      "rank": 7
+    },
+    {
+      "id": 1652,
+      "name": "Mt Hood",
+      "url": "http://www.nwac.us/avalanche-forecast/current/mt-hood",
+      "zone_id": "13",
+      "config": {
+        "elevation_band_names": {
+          "upper": "",
+          "middle": "",
+          "lower": ""
+        }
+      },
+      "status": "disabled",
+      "rank": 8
+    },
+    {
+      "id": 1653,
+      "name": "Snoqualmie Pass",
+      "url": "http://www.nwac.us/avalanche-forecast/#/snoqualmie-pass",
+      "zone_id": "3",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br>4000-2500ft",
+          "middle": "Middle Elevations <br>5500-4000ft",
+          "upper": "Upper Elevations <br>6500-5500ft"
+        }
+      },
+      "status": "active",
+      "rank": 9
+    },
+    {
+      "id": 1654,
+      "name": "East Slopes North",
+      "url": "http://www.nwac.us/avalanche-forecast/#/east-slopes-north",
+      "zone_id": "7",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br>5000-3000ft",
+          "middle": "Middle Elevations <br>6500-5000ft",
+          "upper": "Upper Elevations <br>8000-6500ft"
+        }
+      },
+      "status": "active",
+      "rank": 10
+    },
+    {
+      "id": 1655,
+      "name": "East Slopes Central",
+      "url": "http://www.nwac.us/avalanche-forecast/#/east-slopes-central",
+      "zone_id": "8",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br>5000-2500ft",
+          "middle": "Middle Elevations <br>6000-5000ft",
+          "upper": "Upper Elevations <br>7500-6000ft"
+        }
+      },
+      "status": "active",
+      "rank": 11
+    },
+    {
+      "id": 1656,
+      "name": "East Slopes South",
+      "url": "http://www.nwac.us/avalanche-forecast/#/east-slopes-south",
+      "zone_id": "9",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br>5000-3000ft",
+          "middle": "Middle Elevations <br>6000-5000ft",
+          "upper": "Upper Elevations <br>7500-6000ft"
+        }
+      },
+      "status": "active",
+      "rank": 12
+    },
+    {
+      "id": 1657,
+      "name": "Mt Hood",
+      "url": "http://www.nwac.us/avalanche-forecast/#/mt-hood",
+      "zone_id": "10",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevations <br>5500-3500ft",
+          "middle": "Middle Elevations <br>6500-5500ft",
+          "upper": "Upper Elevations <br>8500-6500ft"
+        }
+      },
+      "status": "active",
+      "rank": 13
+    }
+  ],
+  "nws_zones": [
+    {
+      "id": 99,
+      "zone_name": "ORZ126",
+      "zone_id": "ORZ126",
+      "state": "OR",
+      "city": "Portland",
+      "contact": null,
+      "zone_state": "OR"
+    },
+    {
+      "id": 100,
+      "zone_name": "WAZ211",
+      "zone_id": "WAZ211",
+      "state": "OR",
+      "city": "Portland",
+      "contact": null,
+      "zone_state": "WA"
+    },
+    {
+      "id": 88,
+      "zone_name": "WAZ522",
+      "zone_id": "WAZ522",
+      "state": "OR",
+      "city": "Pendelton",
+      "contact": "test@example.com",
+      "zone_state": "WA"
+    },
+    {
+      "id": 91,
+      "zone_name": "WAZ523",
+      "zone_id": "WAZ523",
+      "state": "OR",
+      "city": "Pendelton",
+      "contact": "test@example.com",
+      "zone_state": "WA"
+    },
+    {
+      "id": 87,
+      "zone_name": "WAZ041",
+      "zone_id": "WAZ041",
+      "state": "WA",
+      "city": "Spokane",
+      "contact": "test@example.com,test@example.com,test@example.com,test@example.com",
+      "zone_state": "WA"
+    },
+    {
+      "id": 84,
+      "zone_name": "WAZ047",
+      "zone_id": "WAZ047",
+      "state": "WA",
+      "city": "Spokane",
+      "contact": "test@example.com,test@example.com,test@example.com,test@example.com",
+      "zone_state": "WA"
+    },
+    {
+      "id": 85,
+      "zone_name": "WAZ048",
+      "zone_id": "WAZ048",
+      "state": "WA",
+      "city": "Spokane",
+      "contact": "test@example.com,test@example.com,test@example.com,test@example.com",
+      "zone_state": "WA"
+    },
+    {
+      "id": 86,
+      "zone_name": "WAZ049",
+      "zone_id": "WAZ049",
+      "state": "WA",
+      "city": "Spokane",
+      "contact": "test@example.com,test@example.com,test@example.com,test@example.com",
+      "zone_state": "WA"
+    },
+    {
+      "id": 108,
+      "zone_name": "WAZ301",
+      "zone_id": "WAZ301",
+      "state": "WA",
+      "city": "Seattle",
+      "contact": null,
+      "zone_state": "WA"
+    },
+    {
+      "id": 109,
+      "zone_name": "WAZ302",
+      "zone_id": "WAZ302",
+      "state": "WA",
+      "city": "Seattle",
+      "contact": null,
+      "zone_state": "WA"
+    },
+    {
+      "id": 110,
+      "zone_name": "WAZ303",
+      "zone_id": "WAZ303",
+      "state": "WA",
+      "city": "Seattle",
+      "contact": null,
+      "zone_state": "WA"
+    },
+    {
+      "id": 111,
+      "zone_name": "WAZ304",
+      "zone_id": "WAZ304",
+      "state": "WA",
+      "city": "Seattle",
+      "contact": null,
+      "zone_state": "WA"
+    },
+    {
+      "id": 107,
+      "zone_name": "WAZ328",
+      "zone_id": "WAZ328",
+      "state": "WA",
+      "city": "Seattle",
+      "contact": null,
+      "zone_state": "WA"
+    }
+  ],
+  "nws_offices": [
+    "Portland, OR ",
+    "Pendelton, OR test@example.com",
+    "Spokane, WA test@example.com,test@example.com,test@example.com,test@example.com",
+    "Seattle, WA "
+  ]
+}

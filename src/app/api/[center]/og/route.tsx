@@ -1,11 +1,12 @@
-// fallow-ignore-file dynamic-segment-name-conflict
-// False positive: fallow flags `[center]` (this custom API tree) as conflicting with
-// Payload's catch-all `(payload)/api/[...slug]` at `/api`. Next.js permits a catch-all
-// alongside more-specific named segments (the specific route wins), so both coexist and
-// serve traffic — the conflict rule only applies to two *named* siblings. Pre-existing
-// across all `/api/[center]/*` routes; not introduced by this change.
+// False positive: fallow reads `(payload)/api/[...slug]` and `api/[center]` as one dynamic path
+// and predicts a runtime crash. Route groups keep the two trees separate — verified against a
+// production build. The sibling freshness routes trip the same check and carry the same waiver.
+// This route only surfaces it now because moving `getForecastZoneDanger` (below) put the file in
+// fallow's changed set for the first time.
+// fallow-ignore-file dynamic-segment-name-conflicts
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
-import { getForecastZoneDanger } from '@/services/nac/nac'
+import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
+import type { ZoneProperties } from '@/services/nac/model/mapLayer'
 import { convertWebpToPng, isWebpMedia } from '@/utilities/convertWebpToPng'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getURL } from '@/utilities/getURL'
@@ -19,15 +20,21 @@ import { getPayload } from 'payload'
 
 import type { OgDocType } from './buildOgImageUrl'
 import { centerColorMap, isKnownCenter } from './centerColorMap'
+import { forecastCardText, forecastImageCacheControl, parseForecastRoute } from './forecastRoute'
 import { getDangerBadge } from './getDangerBadge'
 import { getOgDocData, type OgDocData } from './getOgDocData'
 import { OgDocContent } from './OgDocContent'
 
-const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
+/** Height of the warning strip across the top of an archived zone card. */
+const ARCHIVED_BANNER_HEIGHT = 76
 
 const isOgDocType = (value: string | null): value is OgDocType =>
   value === 'post' || value === 'event'
 
+// Pre-existing: a 325-line, cyclomatic-44 handler that builds the whole OG image inline. It is
+// flagged here only because this PR changed one import above, which put the file in fallow's
+// changed set; splitting it up is real work that belongs in its own change, not in the danger map.
+// fallow-ignore-next-line complexity
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ center: string }> },
@@ -38,10 +45,11 @@ export async function GET(
   const title = searchParams.get('title')
   const description = searchParams.get('description')
   const route = searchParams.get('route')
-  const zone =
-    route && route.startsWith(FORECAST_ZONE_PATH_PREFIX)
-      ? (route.slice(FORECAST_ZONE_PATH_PREFIX.length).split('/').filter(Boolean).pop() ?? null)
-      : null
+  // A zone, or a zone on an archived day; a rejected date draws the center card instead.
+  const forecastTarget = parseForecastRoute(route)
+  const zone = forecastTarget?.kind === 'zone' ? forecastTarget.zone : null
+  const day = forecastTarget?.kind === 'zone' ? forecastTarget.day : null
+  const cacheControl = forecastImageCacheControl(forecastTarget)
 
   // Blog post / event shares: `?type=post&slug=...` or `?type=event&slug=...`
   const docTypeParam = searchParams.get('type')
@@ -142,14 +150,15 @@ export async function GET(
     let dangerBadge: ReturnType<typeof getDangerBadge> | null = null
     let dangerIconSrc: string | null = null
     let zoneName: string | null = null
+    let zoneDanger: ZoneProperties | null = null
 
     if (zone) {
       zoneName = formatZoneName(zone)
 
       try {
-        const danger = await getForecastZoneDanger(center, zone)
-        if (danger) {
-          dangerBadge = getDangerBadge(danger)
+        zoneDanger = await getForecastZoneDanger(center, zone, day ?? undefined)
+        if (zoneDanger) {
+          dangerBadge = getDangerBadge(zoneDanger)
         }
       } catch (err) {
         payload.logger.error({ err }, `Failed to fetch danger for OG image (zone: ${zone})`)
@@ -160,6 +169,8 @@ export async function GET(
         dangerIconSrc = new URL(`/assets/dangerIcons/${dangerBadge.iconFile}`, getURL()).toString()
       }
     }
+
+    const card = forecastCardText(day, zoneDanger)
 
     // Load font from public folder using root domain URL
     const fontUrl = new URL('/fonts/Lato-Bold.ttf', getURL())
@@ -184,8 +195,32 @@ export async function GET(
             justifyContent: 'center',
             background: colors.header,
             padding: '40px',
+            // Clear the archived card's warning strip.
+            paddingTop: card.banner ? ARCHIVED_BANNER_HEIGHT + 32 : 40,
           }}
         >
+          {zoneName && card.banner && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                // Edge to edge: a percentage width would resolve against the padded content box.
+                left: 0,
+                right: 0,
+                height: ARCHIVED_BANNER_HEIGHT,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#fbbf24',
+                color: '#111827',
+                fontSize: '2rem',
+                fontWeight: 'bold',
+                letterSpacing: '2px',
+              }}
+            >
+              {card.banner}
+            </div>
+          )}
           {settings?.banner && bannerImgProps && (
             <div tw="flex items-center mb-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -238,7 +273,7 @@ export async function GET(
                   marginBottom: '1.5rem',
                 }}
               >
-                Avalanche Forecast
+                {card.subtitle}
               </p>
               {dangerBadge && (
                 <div
@@ -246,6 +281,8 @@ export async function GET(
                     display: 'flex',
                     alignItems: 'center',
                     marginBottom: 0,
+                    // Dimmed, hue kept, on an archived card: it was that day's rating, not today's.
+                    opacity: card.mutedRating ? 0.5 : 1,
                   }}
                 >
                   {dangerIconSrc && (
@@ -315,7 +352,7 @@ export async function GET(
                   </div>
                 </div>
               )}
-              {dangerBadge?.travelAdvice && (
+              {card.advice && (
                 <p
                   style={{
                     fontSize: '1.3rem',
@@ -325,7 +362,7 @@ export async function GET(
                     lineHeight: 1.3,
                   }}
                 >
-                  {dangerBadge.travelAdvice}
+                  {card.advice}
                 </p>
               )}
             </div>
@@ -359,6 +396,9 @@ export async function GET(
       {
         width: 1200,
         height: 630,
+        // Lowercase on purpose: @vercel/og spreads these over its own `cache-control` key, and a
+        // differently-cased one would be appended alongside the year-long immutable default.
+        headers: cacheControl ? { 'cache-control': cacheControl } : undefined,
         fonts: [
           {
             name: 'Lato',

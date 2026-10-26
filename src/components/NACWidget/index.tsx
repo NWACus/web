@@ -1,6 +1,7 @@
 'use client'
 
 import { useNACWidgetsConfig } from '@/providers/NACWidgetsConfigProvider'
+import { nacCenterId } from '@/services/nac/centerSlug'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
@@ -88,12 +89,15 @@ export function NACWidget({
   widget,
   mediaMode,
   mapHeight,
+  observationsMapZoom,
 }: {
   center: string
   widget: Widget
   mediaMode?: 'carousel' | 'grid'
   /** Pixel height of the danger map, passed as `mapWidgetData.height`. Only used when `widget` is `'map'`. */
   mapHeight?: number
+  /** Starting map zoom, passed as `obsWidgetData.zoom` in place of the center's AFP setting. Only used when `widget` is `'observations'`. */
+  observationsMapZoom?: number
 }) {
   const { version, baseUrl, devMode } = useNACWidgetsConfig()
   const widgetId = `nac-widget-${widget}`
@@ -117,16 +121,17 @@ export function NACWidget({
   useEffect(function initializeWidgetData() {
     // Base URL (used for Google Analytics)
     const baseUrl = window.location.pathname
-    const fallbackCenter = center === 'dvac' ? 'nwac' : center
     const widgetData = {
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-      centerId: fallbackCenter.toUpperCase(),
+      centerId: nacCenterId(center),
       devMode,
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
       controlledMount: true,
       ...(widget === 'media' && { mode: mediaMode }),
       ...(widget === 'map' && { height: mapHeight }),
+      ...(widget === 'observations' &&
+        observationsMapZoom !== undefined && { zoom: observationsMapZoom }),
     }
 
     window[widgetDataKey] = widgetData

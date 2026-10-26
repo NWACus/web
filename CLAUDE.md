@@ -14,7 +14,7 @@ Canonical defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 
 ### Domain docs
 
-Single-context: `DOMAIN_CONTEXT.md` and `docs/decisions/` at the repo root. See `docs/agents/domain.md`.
+Single-context: `GLOSSARY.md` and `docs/decisions/` at the repo root. See `docs/agents/domain.md`.
 
 ## LLM Documentation References
 
@@ -87,6 +87,8 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 ### Querying Tips
 
 - All content is multi-tenant. Always filter by tenant: `{"tenant": {"equals": <tenantId>}}`
+- Exception: `courses` and `providers` have no tenant. Filter courses by provider (`{"provider": {"equals": <providerId>}}`); providers are global and their slugs are globally unique
+- `sharedMedia` also has no tenant: it is Shared Content usable by every center
 - Use `findTenants` first to discover tenant IDs and slugs (nwac, dvac, sac, snfac)
 - Use `depth: 0` for IDs only, `depth: 1+` for resolved relationships
 - Use `select` to return only needed fields: `{"title": true, "slug": true}`
@@ -134,7 +136,7 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 ### Tech Stack
 
 - **Framework**: Next.js 15.5.9 (App Router)
-- **CMS**: PayloadCMS 3.88.0
+- **CMS**: PayloadCMS 3.90.2
 - **Database**: SQLite locally (WAL mode), Turso (libSQL) in production
 - **Storage**: Vercel Blob
 - **Styling**: Tailwind CSS with Radix UI components
@@ -200,10 +202,12 @@ Read these docs for detailed guidance on specific topics:
 
 - **`/docs/coding-guide.md`** - Coding patterns and conventions (TypeScript, relationships, error handling, blocks)
 - **`/docs/revalidation.md`** - ISR and cache invalidation strategy
+- **`/docs/shared-content.md`** - Checklist for adding a Shared Content collection (no owning tenant, global-role write)
 - **`/docs/migration-safety.md`** - Automated checks for destructive migrations
 - **`/docs/onboarding.md`** - Checklist for new tenant setup
 - **`/docs/troubleshooting.md`** - Common local-dev failures and fixes
 - **`/docs/error-tracking.md`** - Sentry + PostHog setup and wiring
+- **`/docs/not-found-report.md`** - Post-launch 404 report: turning a center's production 404s into redirects
 - **`/docs/fallow.md`** - Dead-code/code-health tooling: commands, `audit` vs full scan, baselines
 - **`/docs/doc-drift.md`** - How docs stay bound to code via drift, and how to clear a stale-doc flag
 - **`/docs/decisions/`** - Architectural decision records (see [`/docs/decisions/README.md`](docs/decisions/README.md) for the index)
@@ -429,10 +433,11 @@ Never cast relationship fields - they can be resolved objects, unresolved IDs, o
 ### When Adding New Collections/Globals
 
 1. **Consider revalidation** - Reference `/docs/revalidation.md` to determine if revalidation hooks are needed
-2. **Add seed data** - Add seed data to the seed script when the schema is finished
-3. **Run the seed script** - Verify `pnpm seed:standalone` completes without errors
-4. **Generate a migration** - Run `pnpm payload migrate:create <descriptive_name>` (always provide a descriptive name)
-5. **Update type generation** - Run `pnpm generate:types` after schema changes
+2. **Decide MCP exposure** - `pnpm tsc` fails until the slug has an entry in `MCP_COLLECTIONS` / `MCP_GLOBALS` in `src/constants/mcp.ts`: `'find'` by default, `{ excluded: '<reason>' }` only for sensitive data (users, permissions, form submissions). Do this before generating the migration, and add an instructions line if it has no `tenant` field. See `/docs/mcp-server.md#adding-a-collection-to-mcp`
+3. **Add seed data** - Add seed data to the seed script when the schema is finished
+4. **Run the seed script** - Verify `pnpm seed:standalone` completes without errors
+5. **Generate a migration** - Run `pnpm payload migrate:create <descriptive_name>` (always provide a descriptive name)
+6. **Update type generation** - Run `pnpm generate:types` after schema changes
 
 ### When Adding New Blocks
 
@@ -500,5 +505,6 @@ Before marking work complete, verify:
 - [ ] No TypeScript errors (`pnpm tsc`)
 - [ ] No lint errors (`pnpm lint`)
 - [ ] Tests pass if applicable (`pnpm test`)
+- [ ] If the change touches a native AFP product page, a new reader-facing surface has a Playwright spec (`pnpm test:e2e:afp-products` — see [`/docs/afp-products/e2e-mocks.md`](docs/afp-products/e2e-mocks.md))
 - [ ] No new dead code or duplication introduced (`pnpm fallow:audit`, and `pnpm fallow:check` for whole-repo regression — see [`/docs/fallow.md`](docs/fallow.md))
 - [ ] No unrelated changes included

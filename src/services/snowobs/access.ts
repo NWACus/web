@@ -1,7 +1,19 @@
+import { ALLOWLISTED_ORIGIN } from '@/services/nac/hosts'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 
 // Free of the Payload config so collection code can import it without a cycle.
 export const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
+
+// Every server-side SnowObs request goes through here: SnowObs caches
+// Origin-less responses without CORS headers, breaking the legacy widget.
+export function snowObsFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const headers = new Headers(init.headers)
+  headers.set('origin', ALLOWLISTED_ORIGIN)
+  return fetch(url, { ...init, headers })
+}
+
+// Matches SnowObs's own one-minute cache.
+export const STATION_DATA_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=60'
 
 export class SnowObsError extends Error {
   constructor(

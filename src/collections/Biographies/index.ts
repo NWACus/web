@@ -5,6 +5,7 @@ import { documentReferencesField } from '@/fields/documentReferencesField'
 import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { CollectionConfig } from 'payload'
 import { revalidateBiography, revalidateBiographyDelete } from './hooks/revalidateBiography'
 
@@ -55,7 +56,7 @@ export const Biographies: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [populateDocumentReferences],
-    afterChange: [revalidateBiography],
-    afterDelete: [revalidateBiographyDelete],
+    afterChange: [revalidateBiography, syncReferenceCounts],
+    afterDelete: [revalidateBiographyDelete, syncReferenceCountsOnDelete],
   },
 }

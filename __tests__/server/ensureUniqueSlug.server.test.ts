@@ -19,6 +19,8 @@ type RunOptions = {
   existing?: Set<string>
   user?: unknown
   fields?: CollectionField[]
+  // Slugs of related documents findByID can resolve, keyed by ID.
+  relatedSlugs?: Record<string, string>
 }
 
 const eventOptions = {
@@ -27,6 +29,13 @@ const eventOptions = {
   autoSuffixOnDuplicate: true,
 }
 
+const courseOptions: Parameters<typeof ensureUniqueSlug>[0] = {
+  ...eventOptions,
+  prefixFrom: { field: 'provider', collection: 'providers' },
+}
+
+const rec1 = { title: 'Recreational Level 1', startDate: '2026-01-10T16:00:00.000Z' }
+
 // ensureUniqueSlug only reads a handful of fields off its args, so the tests pass a minimal
 // mock. This helper keeps the type suppression on a single line (prettier-safe) and keeps the
 // call sites type-checked against the shape below.
@@ -34,7 +43,7 @@ function asHookArgs(args: {
   value: unknown
   data: Record<string, unknown>
   originalDoc: Record<string, unknown> | undefined
-  req: { user: unknown; payload: { find: jest.Mock } }
+  req: { user: unknown; payload: { find: jest.Mock; findByID: jest.Mock } }
   collection: {
     slug: string
     labels: { singular: string; plural: string }
@@ -54,12 +63,17 @@ async function run(
     existing = new Set<string>(),
     user = { id: 'user-1' },
     fields = [],
+    relatedSlugs = {},
   }: RunOptions = {},
 ) {
   const find = jest.fn(async ({ where }: { where: WhereClause }) => {
     const slugCondition = where.and.find((condition) => condition.slug)
     const candidate = slugCondition?.slug?.equals ?? ''
     return { docs: existing.has(candidate) ? [{ id: 'existing-doc' }] : [] }
+  })
+  const findByID = jest.fn(async ({ id }: { id: string | number }) => {
+    const slug = relatedSlugs[String(id)]
+    return slug ? { id, slug } : null
   })
 
   const collection = {
@@ -70,9 +84,15 @@ async function run(
 
   const hook = ensureUniqueSlug(options)
   const result = await hook(
-    asHookArgs({ value, data, originalDoc, req: { user, payload: { find } }, collection }),
+    asHookArgs({
+      value,
+      data,
+      originalDoc,
+      req: { user, payload: { find, findByID } },
+      collection,
+    }),
   )
-  return { result, find }
+  return { result, find, findByID }
 }
 
 describe('ensureUniqueSlug', () => {
@@ -147,5 +167,109 @@ describe('ensureUniqueSlug', () => {
     })
     const where: WhereClause = find.mock.calls[0][0].where
     expect(where.and).toContainEqual({ tenant: { equals: 'tenant-1' } })
+  })
+
+  describe('with a relationship prefix', () => {
+    it('prefixes the generated slug with the related document slug', async () => {
+      const { result } = await run(courseOptions, {
+        data: { ...rec1, provider: 7 },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(result).toBe('alpine-skills-international-recreational-level-1-2026-01-10')
+    })
+
+    it('looks up the slug by ID when the relationship arrives populated', async () => {
+      const { result, findByID } = await run(courseOptions, {
+        data: { ...rec1, provider: { id: 7, name: 'Alpine Skills International' } },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(result).toBe('alpine-skills-international-recreational-level-1-2026-01-10')
+      expect(findByID).toHaveBeenCalledWith(
+        expect.objectContaining({ collection: 'providers', id: 7, disableErrors: true }),
+      )
+    })
+
+    it('falls back to the saved relationship when the update omits it', async () => {
+      const { result } = await run(courseOptions, {
+        data: rec1,
+        originalDoc: { id: 'course-1', provider: 7 },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(result).toBe('alpine-skills-international-recreational-level-1-2026-01-10')
+    })
+
+    it('leaves the prefix off on a published save with no relationship', async () => {
+      const { result, findByID } = await run(courseOptions, { data: rec1 })
+      expect(result).toBe('recreational-level-1-2026-01-10')
+      expect(findByID).not.toHaveBeenCalled()
+    })
+
+    it('does not fall back to the saved relationship when the update removes it', async () => {
+      const { result, findByID } = await run(courseOptions, {
+        data: { ...rec1, provider: null },
+        originalDoc: { id: 'course-1', provider: 7 },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(result).toBe('recreational-level-1-2026-01-10')
+      expect(findByID).not.toHaveBeenCalled()
+    })
+
+    it('only selects the slug of the related document', async () => {
+      const { findByID } = await run(courseOptions, {
+        data: { ...rec1, provider: 7 },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ select: { slug: true } }))
+    })
+
+    it('leaves a draft slug blank until its prefix and date are set', async () => {
+      const noProvider = await run(courseOptions, { data: { ...rec1, _status: 'draft' } })
+      expect(noProvider.result).toBe('')
+
+      const noDate = await run(courseOptions, {
+        data: { title: rec1.title, provider: 7, _status: 'draft' },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(noDate.result).toBe('')
+    })
+
+    it('generates a draft slug once every part is present', async () => {
+      const { result } = await run(courseOptions, {
+        data: { ...rec1, provider: 7, _status: 'draft' },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(result).toBe('alpine-skills-international-recreational-level-1-2026-01-10')
+    })
+
+    it('leaves the prefix off when the related document is gone', async () => {
+      const { result } = await run(courseOptions, { data: { ...rec1, provider: 99 } })
+      expect(result).toBe('recreational-level-1-2026-01-10')
+    })
+
+    it('numbers a collision between two courses from the same provider on the same day', async () => {
+      const { result } = await run(courseOptions, {
+        data: { ...rec1, provider: 7 },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+        existing: new Set(['alpine-skills-international-recreational-level-1-2026-01-10']),
+      })
+      expect(result).toBe('alpine-skills-international-recreational-level-1-2026-01-10-2')
+    })
+
+    it('keeps a typed slug without looking up the prefix', async () => {
+      const { result, findByID } = await run(courseOptions, {
+        value: 'my-custom-course',
+        data: { ...rec1, provider: 7 },
+      })
+      expect(result).toBe('my-custom-course')
+      expect(findByID).not.toHaveBeenCalled()
+    })
+
+    it('does not generate a prefix-only slug when the title is blank', async () => {
+      const { result } = await run(courseOptions, {
+        data: { provider: 7 },
+        relatedSlugs: { '7': 'alpine-skills-international' },
+      })
+      expect(result).toBe('')
+    })
   })
 })

@@ -17,6 +17,8 @@ import { FormEmbedBlock } from '@/blocks/FormEmbed/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderLexicalBlock } from '@/blocks/Header/config'
 import { MediaBlock } from '@/blocks/Media/config'
+import { validateRichTextBlocks } from '@/blocks/nacWidgetBlocks'
+import { ObservationsWidgetBlock } from '@/blocks/ObservationsWidget/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
@@ -25,6 +27,7 @@ import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
@@ -106,6 +109,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 HeaderLexicalBlock,
                 ImageTextBlock,
                 MediaBlock,
+                ObservationsWidgetBlock,
                 SingleBlogPostBlock,
                 SingleEventBlock,
                 SponsorsBlock,
@@ -118,6 +122,7 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       }),
       required: true,
+      validate: validateRichTextBlocks,
     },
 
     // Sidebar
@@ -210,9 +215,9 @@ export const Posts: CollectionConfig<'posts'> = {
   ],
   hooks: {
     beforeChange: [populatePublishedAt, populateDocumentReferences],
-    afterChange: [revalidatePost],
+    afterChange: [revalidatePost, syncReferenceCounts],
     afterRead: [populateAuthors],
-    afterDelete: [revalidatePostDelete],
+    afterDelete: [revalidatePostDelete, syncReferenceCountsOnDelete],
   },
   versions: {
     drafts: true,

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>SAC-Weather-Station-Zones.kml</name>
+	<Style id="sn_ylw-pushpin">
+		<BalloonStyle>
+		</BalloonStyle>
+		<LineStyle>
+			<color>ff000000</color>
+		</LineStyle>
+		<PolyStyle>
+			<color>1affffff</color>
+		</PolyStyle>
+	</Style>
+	<Style id="sh_ylw-pushpin">
+		<IconStyle>
+			<scale>1.2</scale>
+		</IconStyle>
+		<BalloonStyle>
+		</BalloonStyle>
+		<LineStyle>
+			<color>ff000000</color>
+		</LineStyle>
+		<PolyStyle>
+			<color>1affffff</color>
+		</PolyStyle>
+	</Style>
+	<StyleMap id="msn_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#sn_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#sh_ylw-pushpin</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Folder>
+		<name>SAC Weather Station Zones</name>
+		<open>1</open>
+		<Placemark>
+			<name>Sierra Crest North</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-120.5824519334449,39.59657517914516,0 -120.420133956318,39.23428188201715,0 -120.1855996491156,38.8858152868499,0 -120.0467597997639,38.96345577252387,0 -120.0181839793761,39.24415148191312,0 -120.1745842205959,39.47890737870745,0 -120.5271786316387,39.70661795250574,0 -120.5824519334449,39.59657517914516,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>Sierra Crest South</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-120.0939417959439,38.44495850633519,0 -120.0292678143677,38.44720759363714,0 -119.7754371713764,38.48131855869521,0 -119.761353225794,38.53170184786858,0 -119.8438107513739,38.79361231269976,0 -119.9579785579895,38.7977112828428,0 -120.0006583682216,38.79857760663773,0 -120.0120735406036,38.85512889331438,0 -119.9867782284435,38.9473223348995,0 -120.0669534147873,38.94771951594058,0 -120.1535542710677,38.9012764848725,0 -120.1855673589158,38.8810104734112,0 -120.0939417959439,38.44495850633519,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>Carson Range</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-119.8120186824943,38.76106117449149,0 -119.76176728285,38.87243509976133,0 -119.7913641557088,38.9195955337024,0 -119.7706354724645,39.16919414412706,0 -119.8319590063891,39.45427087400192,0 -119.9225319342697,39.48631038491573,0 -119.9772498334033,39.47233898659077,0 -120.052309795635,39.35157193098089,0 -120.0061088437285,39.25035757041053,0 -120.0342246634964,38.96048538364718,0 -119.9792898718986,38.9530829853041,0 -119.9933067809515,38.80667589269162,0 -119.8419627682521,38.80106928278786,0 -119.8120186824943,38.76106117449149,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+	</Folder>
+</Document>
+</kml>

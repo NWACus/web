@@ -147,60 +147,96 @@ function formatElevation(row: PrecipAccumulationRow, unit: Unit): string {
   return value.toLocaleString()
 }
 
-type Visible = {
-  windows: (typeof PRECIP_ACCUMULATION_WINDOWS)[number][]
-  has: (c: PrecipColumn) => boolean
+type Window = (typeof PRECIP_ACCUMULATION_WINDOWS)[number]
+const META_COLUMNS = ['lastUpdate', 'latitude', 'longitude', 'elevation'] as const
+type MetaColumn = (typeof META_COLUMNS)[number]
+
+function toMetaColumn(column: PrecipColumn): MetaColumn | undefined {
+  return META_COLUMNS.find((c) => c === column)
 }
 
-function visibleColumns(columns: PrecipColumn[]): Visible {
-  const set = new Set(columns)
-  return {
-    windows: PRECIP_ACCUMULATION_WINDOWS.filter((hours) => set.has(`${hours}h`)),
-    has: (c) => set.has(c),
+// Adjacent windows form one run, which collapses to "missing" for a station without data.
+type ColumnGroup = { kind: 'windows'; windows: Window[] } | { kind: 'meta'; column: MetaColumn }
+
+function toWindow(column: PrecipColumn): Window | undefined {
+  return PRECIP_ACCUMULATION_WINDOWS.find((hours) => `${hours}h` === column)
+}
+
+function groupColumns(columns: PrecipColumn[]): ColumnGroup[] {
+  const groups: ColumnGroup[] = []
+  for (const column of columns) {
+    const hours = toWindow(column)
+    const meta = toMetaColumn(column)
+    const last = groups.at(-1)
+    if (meta) groups.push({ kind: 'meta', column: meta })
+    else if (hours !== undefined && last?.kind === 'windows') last.windows.push(hours)
+    else if (hours !== undefined) groups.push({ kind: 'windows', windows: [hours] })
   }
+  return groups
+}
+
+function MetaCell({
+  row,
+  unit,
+  column,
+}: {
+  row: PrecipAccumulationRow
+  unit: Unit
+  column: MetaColumn
+}) {
+  if (column === 'lastUpdate') {
+    const noReport = !row.lastUpdate
+    return (
+      <TableCell
+        className={cn(
+          'whitespace-nowrap px-2 py-1.5 text-right',
+          noReport && 'text-muted-foreground',
+        )}
+      >
+        {noReport ? 'no report in 72H' : row.lastUpdate}
+      </TableCell>
+    )
+  }
+  const value =
+    column === 'latitude'
+      ? formatLatitude(row)
+      : column === 'longitude'
+        ? formatLongitude(row)
+        : formatElevation(row, unit)
+  return <TableCell className="px-2 py-1.5 text-right">{value}</TableCell>
 }
 
 function StationRow({
   row,
   unit,
-  visible,
+  groups,
 }: {
   row: PrecipAccumulationRow
   unit: Unit
-  visible: Visible
+  groups: ColumnGroup[]
 }) {
-  const noReport = !row.lastUpdate
   return (
     <TableRow className="bg-background even:bg-muted">
       <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-2 py-1.5 font-medium">
         {row.name}
       </TableCell>
-      <AccumulationCells row={row} unit={unit} windows={visible.windows} />
-      {visible.has('lastUpdate') && (
-        <TableCell
-          className={cn(
-            'whitespace-nowrap px-2 py-1.5 text-right',
-            noReport && 'text-muted-foreground',
-          )}
-        >
-          {noReport ? 'no report in 72H' : row.lastUpdate}
-        </TableCell>
-      )}
-      {visible.has('latitude') && (
-        <TableCell className="px-2 py-1.5 text-right">{formatLatitude(row)}</TableCell>
-      )}
-      {visible.has('longitude') && (
-        <TableCell className="px-2 py-1.5 text-right">{formatLongitude(row)}</TableCell>
-      )}
-      {visible.has('elevation') && (
-        <TableCell className="px-2 py-1.5 text-right">{formatElevation(row, unit)}</TableCell>
+      {groups.map((group) =>
+        group.kind === 'windows' ? (
+          <AccumulationCells
+            key={group.windows.join()}
+            row={row}
+            unit={unit}
+            windows={group.windows}
+          />
+        ) : (
+          <MetaCell key={group.column} row={row} unit={unit} column={group.column} />
+        ),
       )}
     </TableRow>
   )
 }
 
-// The 1H..72H sum cells for one station; a station with no observations in the
-// widest window collapses to a single "missing" cell, like the legacy page.
+// A station with no observations shows "missing" across the run, like the legacy page.
 function AccumulationCells({
   row,
   unit,
@@ -208,9 +244,8 @@ function AccumulationCells({
 }: {
   row: PrecipAccumulationRow
   unit: Unit
-  windows: Visible['windows']
+  windows: Window[]
 }) {
-  if (windows.length === 0) return null
   if (!row.hasData) {
     return (
       <TableCell colSpan={windows.length} className="px-2 py-1.5 text-center text-muted-foreground">
@@ -231,18 +266,28 @@ function AccumulationCells({
   })
 }
 
+const META_HEADS: Record<
+  MetaColumn,
+  { label: string; sublabel: (unit: Unit, tz: string) => string | undefined }
+> = {
+  lastUpdate: { label: 'Last update', sublabel: (_, tz) => tz || undefined },
+  latitude: { label: 'Latitude', sublabel: () => '°N' },
+  longitude: { label: 'Longitude', sublabel: () => '°W' },
+  elevation: { label: 'Elevation', sublabel: (unit) => ELEVATION_UNIT[unit] },
+}
+
 function HeaderRow({
   sort,
   onSort,
   unit,
   timezoneLabel,
-  visible,
+  columns,
 }: {
   sort: SortState | null
   onSort: (key: SortKey) => void
   unit: Unit
   timezoneLabel: string
-  visible: Visible
+  columns: PrecipColumn[]
 }) {
   const stateFor = (key: SortKey): HeadSortState => ({
     active: sort?.key === key,
@@ -252,34 +297,30 @@ function HeaderRow({
   return (
     <TableRow>
       <SortableHead label="Station" state={stateFor('name')} sticky />
-      {visible.windows.map((hours) => (
-        <SortableHead
-          key={hours}
-          label={`${hours}H`}
-          sublabel={PRECIP_UNIT[unit]}
-          state={stateFor(hours)}
-        />
-      ))}
-      {visible.has('lastUpdate') && (
-        <SortableHead
-          label="Last update"
-          sublabel={timezoneLabel || undefined}
-          state={stateFor('lastUpdate')}
-        />
-      )}
-      {visible.has('latitude') && (
-        <SortableHead label="Latitude" sublabel="°N" state={stateFor('latitude')} />
-      )}
-      {visible.has('longitude') && (
-        <SortableHead label="Longitude" sublabel="°W" state={stateFor('longitude')} />
-      )}
-      {visible.has('elevation') && (
-        <SortableHead
-          label="Elevation"
-          sublabel={ELEVATION_UNIT[unit]}
-          state={stateFor('elevation')}
-        />
-      )}
+      {columns.map((column) => {
+        const hours = toWindow(column)
+        if (hours !== undefined) {
+          return (
+            <SortableHead
+              key={column}
+              label={`${hours}H`}
+              sublabel={PRECIP_UNIT[unit]}
+              state={stateFor(hours)}
+            />
+          )
+        }
+        const meta = toMetaColumn(column)
+        if (!meta) return null
+        const head = META_HEADS[meta]
+        return (
+          <SortableHead
+            key={column}
+            label={head.label}
+            sublabel={head.sublabel(unit, timezoneLabel)}
+            state={stateFor(meta)}
+          />
+        )
+      })}
     </TableRow>
   )
 }
@@ -295,7 +336,7 @@ export function PrecipAccumulationTable({
   table: PrecipAccumulationData
   columns?: PrecipColumn[]
 }) {
-  const visible = useMemo(() => visibleColumns(columns), [columns])
+  const groups = useMemo(() => groupColumns(columns), [columns])
   const [sort, setSort] = useState<SortState | null>(null)
   const [unit, setUnit] = useState<Unit>('imperial')
 
@@ -332,12 +373,12 @@ export function PrecipAccumulationTable({
             onSort={onSort}
             unit={unit}
             timezoneLabel={table.timezoneLabel}
-            visible={visible}
+            columns={columns}
           />
         </StationTableHeader>
         <TableBody>
           {rows.map((row) => (
-            <StationRow key={`${row.source}:${row.stid}`} row={row} unit={unit} visible={visible} />
+            <StationRow key={`${row.source}:${row.stid}`} row={row} unit={unit} groups={groups} />
           ))}
         </TableBody>
       </StationTableFrame>

@@ -1,0 +1,246 @@
+{
+  "id": 184250,
+  "published_time": "2026-04-01T13:44:00+00:00",
+  "expires_time": "2026-04-02T11:00:00+00:00",
+  "created_at": "2026-04-01T12:52:14+00:00",
+  "updated_at": "2026-04-01T13:44:13+00:00",
+  "author": "Brandon Schwartz",
+  "product_type": "forecast",
+  "bottom_line": "<p>Backcountry travelers could easily trigger large avalanches today, especially in locations with 6 or more inches of new snow. Consider avoiding avalanche terrain in areas where clues to unstable snow are present, such as slopes filling in with wind drifted snow, snow surface cracking, or recent avalanches.<\/p>",
+  "hazard_discussion": "",
+  "weather_discussion": null,
+  "announcement": null,
+  "status": "published",
+  "media": [
+    {
+      "id": 1,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/barely-covered-rocks_69cc181752af2-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/barely-covered-rocks_69cc181752af2-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/barely-covered-rocks_69cc181752af2.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/barely-covered-rocks_69cc181752af2-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/31\/2026) <p>About an inch of new snow on the summit of Andesite Peak. Many rocks and other obstacles remain exposed. Now they just have a dusting of new snow.&nbsp;<\/p>\n<p>Andesite Peak, Donner Summit are, CA<\/p> Photo: Sierra Avalanche Center",
+      "favorite": false
+    },
+    {
+      "id": 2,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260328_171835661_69c82b932c2ad.MP_69c82b932c2ad-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260328_171835661_69c82b932c2ad.MP_69c82b932c2ad-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260328_171835661_69c82b932c2ad.MP_69c82b932c2ad.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260328_171835661_69c82b932c2ad.MP_69c82b932c2ad-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/28\/2026) <p>More exposed rocks and other obstacles continue to melt out each day.<\/p>\n<p>Summit of Andesite Peak.<\/p> Photo: Sierra Avalanche Center",
+      "favorite": false
+    },
+    {
+      "id": 3,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260329_203809986_69c9a825deb43.MP_69c9a825deb43-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260329_203809986_69c9a825deb43.MP_69c9a825deb43-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260329_203809986_69c9a825deb43.MP_69c9a825deb43.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260329_203809986_69c9a825deb43.MP_69c9a825deb43-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/29\/2026) <p>N-NE-E aspects like the Hourglass on Tamarack Peak still have decent snow coverage while S aspects like those on Mt. Rose are mostly dirt.&nbsp;<\/p> Photo: Sierra Avalanche Center",
+      "favorite": false
+    },
+    {
+      "id": 4,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_1021_69c8a4f29153c-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_1021_69c8a4f29153c-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_1021_69c8a4f29153c.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_1021_69c8a4f29153c-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Looking west",
+      "caption": "(3\/28\/2026) <p>Looking west towards Round Top.&nbsp;<\/p> Photo: Mark Speicher",
+      "favorite": false
+    },
+    {
+      "id": 5,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_1024_69c8a4f3c0539-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_1024_69c8a4f3c0539-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_1024_69c8a4f3c0539.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_1024_69c8a4f3c0539-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Red Lake Peak",
+      "caption": "(3\/28\/2026) <p>Red Lake Peak in the distance.&nbsp; South faces have little to no snow left.&nbsp;<\/p> Photo: Mark Speicher",
+      "favorite": false
+    },
+    {
+      "id": 6,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_0989_69c8a4efa5b7b-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_0989_69c8a4efa5b7b-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_0989_69c8a4efa5b7b.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_0989_69c8a4efa5b7b-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Forestdale Rd. ",
+      "caption": "(3\/28\/2026) <p>Forestdale Rd is 60% covered with snow to the bridge. Trucks have not yet driven down the road.&nbsp; It is still managable for a snowmobile.&nbsp;<\/p> Photo: Mark Speicher",
+      "favorite": false
+    },
+    {
+      "id": 7,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260328_170213668_69c82b94abaaa-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260328_170213668_69c82b94abaaa-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260328_170213668_69c82b94abaaa.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260328_170213668_69c82b94abaaa-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/28\/2026) <p>Snowmelt continues to accelerate on E aspects as well leaving patchy snow coverage and lots of exposed debris.<\/p>\n<p>Andesite Peak<\/p> Photo: Sierra Avalanche Center",
+      "favorite": false
+    },
+    {
+      "id": 8,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Obs%20Photos%281%29_69c6fc5d4d10d-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Obs%20Photos%281%29_69c6fc5d4d10d-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Obs%20Photos%281%29_69c6fc5d4d10d.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/Obs%20Photos%281%29_69c6fc5d4d10d-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/27\/2026) <p>More rocks and other obstacles are starting to melt out on northerly aspects, but they still have decent coverage, especially above 9000 ft. Much less snow and much more bare ground exists on the sunnier south through west aspects.&nbsp;<\/p> Photo: Sierra Avalanche Center",
+      "favorite": false
+    },
+    {
+      "id": 9,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260327_165133946_69c6fc5fd1e76.MP_69c6fc5fd1e76-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260327_165133946_69c6fc5fd1e76.MP_69c6fc5fd1e76-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260327_165133946_69c6fc5fd1e76.MP_69c6fc5fd1e76.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260327_165133946_69c6fc5fd1e76.MP_69c6fc5fd1e76-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/27\/2026) <p>What was on the snow travel on March 25 is now dirt in some places on the approach to Mt. Houghton.<\/p> Photo: Sierra Avalanche Center",
+      "favorite": false
+    },
+    {
+      "id": 10,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4793_69c44618761ae-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4793_69c44618761ae-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4793_69c44618761ae.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4793_69c44618761ae-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/25\/2026) <p>Walking the Rubicon summer trail from 6900' to 7600' on most all dirt trail.<\/p>\n<p>Rubicon Peak, West Shore.<\/p> Photo: Sierra Avalanche Center",
+      "favorite": false
+    },
+    {
+      "id": 11,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4806_69c5a98a07f65-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4806_69c5a98a07f65-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4806_69c5a98a07f65.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4806_69c5a98a07f65-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/26\/2026) <p>NE\/E face of Elephants Back.<\/p>\n<p>Carson Pass area.<\/p> Photo: Sierra Avalanche Center",
+      "favorite": false
+    },
+    {
+      "id": 12,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260327_173243667_69c6fc60061d7.MP_69c6fc60061d7-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260327_173243667_69c6fc60061d7.MP_69c6fc60061d7-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260327_173243667_69c6fc60061d7.MP_69c6fc60061d7.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/PXL_20260327_173243667_69c6fc60061d7.MP_69c6fc60061d7-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "(3\/27\/2026) <p>Mount Houghton's SE gullies have lost significant snow since March 19th.&nbsp;<\/p> Photo: Sierra Avalanche Center",
+      "favorite": false
+    }
+  ],
+  "weather_data": { "weather_product_id": 184245 },
+  "json_data": null,
+  "avalanche_center": {
+    "id": "SAC",
+    "name": "Sierra Avalanche Center",
+    "url": "https:\/\/www.sierraavalanchecenter.org\/",
+    "city": "Truckee",
+    "state": "CA"
+  },
+  "forecast_avalanche_problems": [
+    {
+      "id": 2988958,
+      "forecast_id": 184250,
+      "avalanche_problem_id": 2,
+      "rank": 1,
+      "likelihood": "likely",
+      "discussion": "<p>Avalanche hazard is expected to vary significantly today from one location to another around the forecast area due to a very wide range in new snow accumulation both over the past 24 hours and during the day today. Consider avoiding avalanche terrain today, especially in locations with 6 or more inches of new snow, where slopes are filling in with wind drifted snow, where you encounter snow surface cracking, or see signs of recent avalanches. A firm crust at the old\/new snow interface may act as an efficient bed surface and allow for some long running avalanches today.<\/p>\n<p>As new snow continues to accumulate today, expect to encounter areas of unstable snow in both wind exposed and wind protected terrain. Wind speeds are forecast to reach gale force\/extreme speeds this afternoon. This increase in wind speeds is expected to increase the amount of wind loading that occurs in near treeline and below treeline areas as the day progresses. There is also the chance of some dry or wet loose snow avalanches today, where new snow slides on firm crust at the old\/new snow interface.<\/p>\n<p>Before this storm, significant snowmelt occurred across the forecast area. Large areas of bare ground were present on all aspects below 7,500' to 8,000' as well as on southerly aspects at all elevations. Today's avalanche concerns are focused on locations where new snow has fallen on top of old snow. Where new snow has fallen on bare ground, avalanche concerns are minimal. In all areas, numerous hazards such as rocks, stumps, logs, etc are barely hidden under the recent new snow. Anticipate conditions similar to early season, where it is very easy to hit hard objects under the snow surface as you travel.<\/p>",
+      "media": {
+        "url": {
+          "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_6111_698d36bd970cc-large.jpeg",
+          "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_6111_698d36bd970cc-medium.jpeg",
+          "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_6111_698d36bd970cc.jpeg",
+          "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_6111_698d36bd970cc-thumbnail.jpeg"
+        },
+        "type": "image",
+        "title": null,
+        "caption": "<p>Snow surface cracking like this indicates that you have found unstable snow. Where this is the case, consider opting for slopes with a slope angle under 30 degrees until you have navigated away from avalanche terrain.<\/p>\n<p>This photo was taken earlier this year near Blue Lakes, CA.<\/p>\n<p>Photo: Jason Bilek<\/p>"
+      },
+      "location": [
+        "northwest middle",
+        "southeast middle",
+        "southeast upper",
+        "northwest upper",
+        "north upper",
+        "north middle",
+        "northeast middle",
+        "northeast upper",
+        "east upper",
+        "east middle",
+        "south upper",
+        "southwest upper",
+        "west upper",
+        "south middle",
+        "southwest middle",
+        "west middle",
+        "north lower",
+        "northeast lower",
+        "east lower",
+        "southeast lower",
+        "south lower",
+        "southwest lower",
+        "west lower",
+        "northwest lower"
+      ],
+      "size": ["1", "2"],
+      "name": "Storm Slab",
+      "problem_description": "Storm Slab avalanches are the release of a cohesive layer (a slab) of new snow that breaks within new snow or on the old snow surface. Storm-slabs typically last between a few hours and few days (following snowfall). Storm-slabs that form over a persistent weak layer (surface hoar, depth hoar, or near-surface facets) may be termed Persistent Slabs or may develop into Persistent Slabs.",
+      "icon": "http:\/\/api.avalanche.org\/img\/avalanche_problems\/StormSlab.png"
+    }
+  ],
+  "danger": [
+    { "lower": 3, "upper": 3, "middle": 3, "valid_day": "current" },
+    { "lower": 3, "upper": 3, "middle": 3, "valid_day": "tomorrow" }
+  ],
+  "forecast_zone": [
+    {
+      "id": 2458,
+      "name": "Central Sierra Nevada",
+      "url": "https:\/\/www.sierraavalanchecenter.org\/forecasts\/avalanche\/central-sierra-nevada#\/central-sierra-nevada\/",
+      "state": "CA",
+      "zone_id": "1",
+      "config": null
+    }
+  ]
+}

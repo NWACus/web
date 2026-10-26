@@ -25,6 +25,7 @@ import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { syncReferenceCounts, syncReferenceCountsOnDelete } from '@/hooks/syncReferenceCounts'
 import { validateEventDates } from '@/hooks/validateEventDates'
 import { Course } from '@/payload-types'
 import { getImageTypeFilter, getTenantFilter } from '@/utilities/collectionFilters'
@@ -228,8 +229,8 @@ export const Events: CollectionConfig = {
   hooks: {
     beforeValidate: [validateEventDates],
     beforeChange: [populatePublishedAt, populateDocumentReferences],
-    afterChange: [revalidateEvent],
-    afterDelete: [revalidateEventDelete],
+    afterChange: [revalidateEvent, syncReferenceCounts],
+    afterDelete: [revalidateEventDelete, syncReferenceCountsOnDelete],
   },
   versions: {
     drafts: true,

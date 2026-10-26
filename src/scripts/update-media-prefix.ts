@@ -1,10 +1,12 @@
 /**
  * This script changes the prefix stored in the db for every row in the media table
- * to the passed prefix.
+ * to the passed prefix, and for every row in the sharedMedia table to that prefix's
+ * shared folder.
  *
  * This is useful for updating media after running the sync-blob-storage script.
  */
 
+import { getSharedMediaBlobPrefix } from '@/constants/sharedContent'
 import { getPayload } from 'payload'
 import config from '../payload.config.js'
 
@@ -20,6 +22,19 @@ async function updateMediaPrefix(prefix: string) {
     },
     data: {
       prefix,
+    },
+    context: {
+      disableRevalidate: true,
+    },
+  })
+
+  await payload.update({
+    collection: 'sharedMedia',
+    where: {
+      prefix: { not_equals: null },
+    },
+    data: {
+      prefix: getSharedMediaBlobPrefix(prefix),
     },
     context: {
       disableRevalidate: true,

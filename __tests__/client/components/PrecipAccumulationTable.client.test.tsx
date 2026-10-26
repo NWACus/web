@@ -107,6 +107,31 @@ describe('PrecipAccumulationTable', () => {
     expect(screen.getByText('m')).toBeInTheDocument()
   })
 
+  it('renders columns in the chosen order, collapsing each run of windows', () => {
+    render(
+      <PrecipAccumulationTable
+        table={table}
+        columns={['elevation', '24h', '1h', 'lastUpdate', '72h']}
+      />,
+    )
+
+    const headers = within(screen.getAllByRole('row')[0])
+      .getAllByRole('columnheader')
+      .map((th) => th.textContent)
+    expect(headers).toEqual(['Station', 'Elevationft', '24Hin', '1Hin', 'Last updatePDT', '72Hin'])
+
+    const mistCells = within(screen.getAllByRole('row')[3])
+      .getAllByRole('cell')
+      .map((td) => [td.textContent, td.getAttribute('colspan')])
+    expect(mistCells).toEqual([
+      ['Mist', null],
+      ['3,000', null],
+      ['missing', '2'],
+      ['no report in 72H', null],
+      ['missing', '1'],
+    ])
+  })
+
   it('renders an empty state when there are no rows', () => {
     render(<PrecipAccumulationTable table={{ rows: [], timezoneLabel: '' }} />)
 

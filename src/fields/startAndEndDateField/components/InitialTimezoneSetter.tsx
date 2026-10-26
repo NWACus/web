@@ -3,13 +3,13 @@
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import { getBrowserTimezone } from '@/utilities/getBrowserTimezone'
 import { AVALANCHE_CENTERS, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
-import { TIMEZONE_OPTIONS, timezonesAgreeAt } from '@/utilities/timezones'
+import { COURSE_TIMEZONE_OPTIONS, TIMEZONE_OPTIONS, timezonesAgreeAt } from '@/utilities/timezones'
 import { useField } from '@payloadcms/ui'
 import { UIFieldClientProps } from 'payload'
 import { useEffect, useState } from 'react'
 
 const timezoneLabel = (timezone: string) =>
-  TIMEZONE_OPTIONS.find((option) => option.value === timezone)?.label ?? timezone
+  COURSE_TIMEZONE_OPTIONS.find((option) => option.value === timezone)?.label ?? timezone
 
 /**
  * Picks the timezone a new document should default to: the selected center's timezone when

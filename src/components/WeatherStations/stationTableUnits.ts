@@ -4,14 +4,13 @@ import type { StationTable } from '@/services/snowobs/tableHelpers'
 
 const FEET_TO_METERS = 0.3048
 
-// Display precision per sensor, matching the legacy NOW tables: precipitation
-// reads to hundredths and the snow fields to tenths, everything else whole.
+// Display precision per sensor: precipitation reads to hundredths, everything else
+// whole, snow included (forecasters read it to the nearest inch).
 // Metric drops precipitation to one decimal — 0.01in is a quarter of a
 // millimetre, so hundredths there would be precision the gauge doesn't have.
 type Decimals = Record<UnitSystem, number>
 
 const PRECIP: Decimals = { imperial: 2, metric: 1 }
-const DEPTH: Decimals = { imperial: 1, metric: 1 }
 const WHOLE: Decimals = { imperial: 0, metric: 0 }
 
 const DECIMALS_BY_VARIABLE: Record<string, Decimals> = {
@@ -21,14 +20,12 @@ const DECIMALS_BY_VARIABLE: Record<string, Decimals> = {
   precip_cumsum: PRECIP,
   snow_water_equiv: PRECIP,
   snow_water_equiv_24hr: PRECIP,
-  snow_depth: DEPTH,
-  snow_depth_24h: DEPTH,
-  snow_depth_24hr: DEPTH,
-  intermittent_snow: DEPTH,
 }
 
 export function formatStationValue(variable: string, value: number, system: UnitSystem): string {
-  return value.toFixed((DECIMALS_BY_VARIABLE[variable] ?? WHOLE)[system])
+  const text = value.toFixed((DECIMALS_BY_VARIABLE[variable] ?? WHOLE)[system])
+  // A small negative (24-hour snow settling) rounds to "-0"; it reads as plain 0.
+  return Number(text) === 0 ? text.replace('-', '') : text
 }
 
 // The table is fed unrounded SnowObs values and stays unrounded through the

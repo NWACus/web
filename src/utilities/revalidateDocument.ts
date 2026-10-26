@@ -22,6 +22,10 @@ export interface DocumentReference {
   id: number
   slug: string
   tenant: number | Tenant
+  /** Only set for collections that have a title field. Revalidation ignores it. */
+  title?: string
+  /** Only set for collections with drafts enabled. Revalidation ignores it. */
+  status?: string
 }
 
 /** A routable document that can be revalidated via revalidatePath. */

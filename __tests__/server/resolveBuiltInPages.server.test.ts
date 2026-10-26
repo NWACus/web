@@ -11,6 +11,8 @@ jest.mock('payload', () => ({
   }),
 }))
 
+import { afpApiHost, nacApiHost } from '@/services/nac/hosts'
+
 import { resolveBuiltInPages } from '@/collections/Tenants/endpoints/provisionTenant'
 
 type ZoneInput = {
@@ -65,7 +67,7 @@ function makeCenterResponse(slug: string, zones: ZoneInput[]) {
 // /v1/public/avalanche-centers response used by getAvalancheCenterPlatforms.
 function makeCapabilities(
   slug: string,
-  overrides: { forecasts?: boolean; weather?: boolean } = {},
+  overrides: { forecasts?: boolean; weather?: boolean; stations?: boolean; obs?: boolean } = {},
 ) {
   return {
     centers: [
@@ -75,8 +77,8 @@ function makeCapabilities(
         platforms: {
           warnings: false,
           forecasts: overrides.forecasts ?? true,
-          stations: false,
-          obs: false,
+          stations: overrides.stations ?? false,
+          obs: overrides.obs ?? false,
           weather: overrides.weather ?? false,
         },
       },
@@ -99,6 +101,32 @@ const mockLog: import('pino').Logger = {
 
 const SLUG = 'test'
 
+/**
+ * Stand up the two upstream responses `resolveBuiltInPages` reads: the AFP capability feed and
+ * the NAC center metadata. Both are intercepted on whatever host `NAC_HOST`/`AFP_HOST` resolve to.
+ */
+function serveCenter(
+  zones: ZoneInput[],
+  options: {
+    platforms?: { forecasts?: boolean; weather?: boolean }
+    capabilitiesFail?: boolean
+    centerFails?: boolean
+  } = {},
+) {
+  server.use(
+    http.get(`${afpApiHost}/`, () =>
+      options.capabilitiesFail
+        ? new HttpResponse(null, { status: 500 })
+        : HttpResponse.json(makeCapabilities(SLUG, options.platforms)),
+    ),
+    http.get(`${nacApiHost}/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
+      options.centerFails
+        ? new HttpResponse(null, { status: 500 })
+        : HttpResponse.json(makeCenterResponse(SLUG, zones)),
+    ),
+  )
+}
+
 describe('resolveBuiltInPages', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -107,10 +135,8 @@ describe('resolveBuiltInPages', () => {
   describe('forecast pages', () => {
     it('creates single forecast page for single-zone center', async () => {
       server.use(
-        http.get('https://forecasts.avalanche.org/', () =>
-          HttpResponse.json(makeCapabilities(SLUG)),
-        ),
-        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
+        http.get(`${afpApiHost}/`, () => HttpResponse.json(makeCapabilities(SLUG))),
+        http.get(`${nacApiHost}/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
           HttpResponse.json(
             makeCenterResponse(SLUG, [{ name: 'Olympic', slug: 'olympic', rank: 1 }]),
           ),
@@ -125,19 +151,10 @@ describe('resolveBuiltInPages', () => {
     })
 
     it('creates All Forecasts + per-zone pages for multi-zone center sorted by rank', async () => {
-      server.use(
-        http.get('https://forecasts.avalanche.org/', () =>
-          HttpResponse.json(makeCapabilities(SLUG)),
-        ),
-        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
-          HttpResponse.json(
-            makeCenterResponse(SLUG, [
-              { name: 'Zone B', slug: 'zone-b', rank: 2 },
-              { name: 'Zone A', slug: 'zone-a', rank: 1 },
-            ]),
-          ),
-        ),
-      )
+      serveCenter([
+        { name: 'Zone B', slug: 'zone-b', rank: 2 },
+        { name: 'Zone A', slug: 'zone-a', rank: 1 },
+      ])
 
       const { forecastPages } = await resolveBuiltInPages(SLUG, mockLog)
 
@@ -149,14 +166,7 @@ describe('resolveBuiltInPages', () => {
     })
 
     it('creates default All Forecasts page when AFP returns no zones', async () => {
-      server.use(
-        http.get('https://forecasts.avalanche.org/', () =>
-          HttpResponse.json(makeCapabilities(SLUG)),
-        ),
-        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
-          HttpResponse.json(makeCenterResponse(SLUG, [])),
-        ),
-      )
+      serveCenter([])
 
       const { forecastPages } = await resolveBuiltInPages(SLUG, mockLog)
 
@@ -164,15 +174,7 @@ describe('resolveBuiltInPages', () => {
     })
 
     it('falls back to default All Forecasts page when AFP fails', async () => {
-      server.use(
-        http.get('https://forecasts.avalanche.org/', () =>
-          HttpResponse.json(makeCapabilities(SLUG)),
-        ),
-        http.get(
-          `https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`,
-          () => new HttpResponse(null, { status: 500 }),
-        ),
-      )
+      serveCenter([], { centerFails: true })
 
       const { forecastPages } = await resolveBuiltInPages(SLUG, mockLog)
 
@@ -180,16 +182,43 @@ describe('resolveBuiltInPages', () => {
     })
   })
 
+  describe('archive pages', () => {
+    it('gives every center the forecast archive and danger over time', async () => {
+      serveCenter([], { platforms: { weather: false } })
+
+      const { archivePages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(archivePages).toEqual([
+        { title: 'Forecast Archive', url: '/forecasts/avalanche/archive' },
+        { title: 'Danger Over Time', url: '/forecasts/avalanche/archive/danger-over-time' },
+      ])
+    })
+
+    it('adds the mountain weather archive when center has weather platform', async () => {
+      serveCenter([], { platforms: { weather: true } })
+
+      const { archivePages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(archivePages).toContainEqual({
+        title: 'Mountain Weather Archive',
+        url: '/forecasts/avalanche/archive/mountain-weather',
+      })
+    })
+
+    it('excludes the mountain weather archive when NAC platforms query fails', async () => {
+      serveCenter([], { capabilitiesFail: true })
+
+      const { archivePages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(archivePages.map((p) => p.url)).not.toContain(
+        '/forecasts/avalanche/archive/mountain-weather',
+      )
+    })
+  })
+
   describe('non-forecast pages', () => {
     it('excludes forecast pages from non-forecast list', async () => {
-      server.use(
-        http.get('https://forecasts.avalanche.org/', () =>
-          HttpResponse.json(makeCapabilities(SLUG, { weather: false })),
-        ),
-        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
-          HttpResponse.json(makeCenterResponse(SLUG, [])),
-        ),
-      )
+      serveCenter([], { platforms: { weather: false } })
 
       const { nonForecastPages } = await resolveBuiltInPages(SLUG, mockLog)
 
@@ -197,14 +226,7 @@ describe('resolveBuiltInPages', () => {
     })
 
     it('excludes Mountain Weather when center has no weather platform', async () => {
-      server.use(
-        http.get('https://forecasts.avalanche.org/', () =>
-          HttpResponse.json(makeCapabilities(SLUG, { weather: false })),
-        ),
-        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
-          HttpResponse.json(makeCenterResponse(SLUG, [])),
-        ),
-      )
+      serveCenter([], { platforms: { weather: false } })
 
       const { nonForecastPages } = await resolveBuiltInPages(SLUG, mockLog)
 
@@ -212,14 +234,7 @@ describe('resolveBuiltInPages', () => {
     })
 
     it('includes Mountain Weather when center has weather platform', async () => {
-      server.use(
-        http.get('https://forecasts.avalanche.org/', () =>
-          HttpResponse.json(makeCapabilities(SLUG, { weather: true })),
-        ),
-        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
-          HttpResponse.json(makeCenterResponse(SLUG, [])),
-        ),
-      )
+      serveCenter([], { platforms: { weather: true } })
 
       const { nonForecastPages } = await resolveBuiltInPages(SLUG, mockLog)
 
@@ -230,12 +245,7 @@ describe('resolveBuiltInPages', () => {
     })
 
     it('excludes Mountain Weather when NAC platforms query fails', async () => {
-      server.use(
-        http.get('https://forecasts.avalanche.org/', () => new HttpResponse(null, { status: 500 })),
-        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
-          HttpResponse.json(makeCenterResponse(SLUG, [])),
-        ),
-      )
+      serveCenter([], { capabilitiesFail: true })
 
       const { nonForecastPages } = await resolveBuiltInPages(SLUG, mockLog)
 
@@ -243,14 +253,7 @@ describe('resolveBuiltInPages', () => {
     })
 
     it('includes the static BUILT_IN_PAGES list', async () => {
-      server.use(
-        http.get('https://forecasts.avalanche.org/', () =>
-          HttpResponse.json(makeCapabilities(SLUG)),
-        ),
-        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
-          HttpResponse.json(makeCenterResponse(SLUG, [])),
-        ),
-      )
+      serveCenter([])
 
       const { nonForecastPages } = await resolveBuiltInPages(SLUG, mockLog)
 
@@ -268,6 +271,79 @@ describe('resolveBuiltInPages', () => {
       })
       expect(nonForecastPages).toContainEqual({ title: 'Blog', url: '/blog' })
       expect(nonForecastPages).toContainEqual({ title: 'Events', url: '/events' })
+    })
+  })
+
+  describe('info exchanges', () => {
+    const mockPlatforms = (overrides: Parameters<typeof makeCapabilities>[1]) =>
+      server.use(
+        http.get('https://forecasts.avalanche.org/', () =>
+          HttpResponse.json(makeCapabilities(SLUG, overrides)),
+        ),
+      )
+
+    const mockZonelessCenter = () =>
+      server.use(
+        http.get(`https://api.avalanche.org/v2/public/avalanche-center/${SLUG.toUpperCase()}`, () =>
+          HttpResponse.json(makeCenterResponse(SLUG, [])),
+        ),
+      )
+
+    // No avalanche-center handler: info exchanges must not query AFP forecast zones,
+    // and msw fails the test on any unhandled request.
+    it('returns no forecast pages and flags the center as an info exchange', async () => {
+      mockPlatforms({ forecasts: false, obs: true, stations: true })
+
+      const { forecastPages, infoExchange } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(forecastPages).toEqual([])
+      expect(infoExchange).toBe(true)
+    })
+
+    it('includes Weather Stations when the center has a stations platform', async () => {
+      mockPlatforms({ forecasts: false, obs: true, stations: true })
+
+      const { nonForecastPages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(nonForecastPages.map((p) => p.url)).toEqual([
+        '/weather/stations/map',
+        '/observations',
+        '/observations/submit',
+        '/blog',
+        '/events',
+      ])
+    })
+
+    it('excludes Weather Stations when the center has no stations platform', async () => {
+      mockPlatforms({ forecasts: false, obs: true, stations: false })
+
+      const { nonForecastPages } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(nonForecastPages.map((p) => p.url)).toEqual([
+        '/observations',
+        '/observations/submit',
+        '/blog',
+        '/events',
+      ])
+    })
+
+    it('treats a center with neither forecasts nor obs as a forecast center', async () => {
+      mockPlatforms({ forecasts: false, obs: false })
+      mockZonelessCenter()
+
+      const { forecastPages, infoExchange } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(infoExchange).toBe(false)
+      expect(forecastPages).toEqual([{ title: 'All Forecasts', url: '/forecasts/avalanche' }])
+    })
+
+    it('reports a forecast center as not an info exchange', async () => {
+      mockPlatforms({ obs: true })
+      mockZonelessCenter()
+
+      const { infoExchange } = await resolveBuiltInPages(SLUG, mockLog)
+
+      expect(infoExchange).toBe(false)
     })
   })
 })

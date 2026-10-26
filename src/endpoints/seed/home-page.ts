@@ -1,12 +1,14 @@
-import type { Media, Tenant } from '@/payload-types'
+import type { Media, SharedMedia, Tenant } from '@/payload-types'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 
 export const homePage: (
   tenant: Tenant,
   heroImage: Media,
+  sharedImage: SharedMedia,
 ) => RequiredDataFromCollectionSlug<'homePages'> = (
   tenant: Tenant,
   heroImage: Media,
+  sharedImage: SharedMedia,
 ): RequiredDataFromCollectionSlug<'homePages'> => {
   return {
     tenant: tenant.id,
@@ -152,6 +154,14 @@ export const homePage: (
         backgroundColor: 'transparent',
         alignContent: 'center',
         imageSize: 'large',
+      },
+      {
+        source: 'shared',
+        sharedMedia: sharedImage.id,
+        blockType: 'mediaBlock',
+        backgroundColor: 'transparent',
+        alignContent: 'center',
+        imageSize: 'medium',
       },
       {
         blockType: 'eventList',

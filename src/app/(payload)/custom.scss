@@ -25,6 +25,7 @@
   .stations-table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: calc(var(--base) * 0.5);
     margin-bottom: calc(var(--base) * 0.5);
 
     th,
@@ -88,28 +89,26 @@
     gap: calc(var(--base) * 0.4);
   }
 
-  .stations-table__add {
-    margin-bottom: calc(var(--base) * 0.5);
+  .stations-table__columns {
+    white-space: normal;
+    min-width: 9rem;
+
+    .stations-columns__toggle {
+      margin-left: calc(var(--base) * 0.3);
+      color: var(--theme-success-600);
+      text-decoration: underline;
+    }
   }
 
-  // Search and button on one line. The button matches the control's
-  // single-line height and stays at the top as chosen stations wrap below.
-  .stations-table__add-row {
-    display: flex;
-    align-items: flex-start;
-    gap: calc(var(--base) * 0.5);
+  .stations-table__drawer td {
+    background: var(--theme-elevation-50);
+    padding-block: calc(var(--base) * 0.5);
+  }
 
-    .react-select {
-      min-width: 32rem;
-      max-width: 100%;
-    }
-
-    .btn {
-      margin: 0;
-      min-height: 40px;
-      display: flex;
-      align-items: center;
-    }
+  .stations-table__add {
+    margin-bottom: calc(var(--base) * 0.5);
+    padding-bottom: calc(var(--base) * 0.75);
+    border-bottom: 1px solid var(--theme-elevation-150);
   }
 }
 
@@ -136,5 +135,161 @@
 
   &--untracked {
     background: var(--theme-elevation-400); // grey: nothing to say
+  }
+}
+
+.stations-columns {
+  display: grid;
+  gap: calc(var(--base) * 0.4);
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--base) * 0.3) calc(var(--base) * 0.75);
+    font-size: 0.85rem;
+  }
+
+  &__link {
+    margin: 0;
+    color: var(--theme-success-600);
+    text-decoration: underline;
+  }
+
+  &__list label {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--base) * 0.3);
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 0 calc(var(--base) * 0.75);
+  }
+
+  &__list label {
+    padding-block: 0.15rem;
+  }
+
+  &__code,
+  &__quiet {
+    color: var(--theme-elevation-500);
+    font-size: 0.8rem;
+  }
+
+  &__quiet {
+    font-style: italic;
+  }
+
+  &__pill {
+    white-space: nowrap;
+    font-size: 0.8rem;
+    padding: 0 0.45rem;
+    border-radius: 999px;
+    background: var(--theme-elevation-100);
+
+    &--auto {
+      background: var(--theme-success-100);
+      color: var(--theme-success-800);
+    }
+  }
+
+  &__none {
+    color: var(--theme-elevation-500);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+}
+
+.column-order-input {
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--base) * 0.3);
+    padding: calc(var(--base) * 0.3);
+    border: 1px solid var(--theme-elevation-150);
+    border-radius: var(--style-radius-s);
+    margin-top: calc(var(--base) * 0.5);
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--base) * 0.3);
+    padding: 0.15rem 0.6rem 0.15rem 0.4rem;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: var(--style-radius-s);
+    background: var(--theme-elevation-50);
+    cursor: grab;
+    user-select: none;
+    font-size: 0.9rem;
+    touch-action: none;
+    position: relative;
+
+    &--quiet {
+      border-style: dashed;
+      color: var(--theme-elevation-600);
+    }
+
+    &--dragging {
+      z-index: 2;
+      border-color: var(--theme-elevation-400);
+      box-shadow: 0 2px 6px rgb(0 0 0 / 15%);
+    }
+  }
+
+  &__remove {
+    display: inline-flex;
+    margin: -0.15rem -0.4rem -0.15rem 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--theme-elevation-500);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--theme-error-500);
+    }
+
+    .icon {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+  }
+
+  &__n,
+  &__station {
+    color: var(--theme-elevation-500);
+    font-size: 0.8rem;
+  }
+
+  &__n {
+    min-width: 1.2em;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    min-height: 1.5rem;
+    gap: calc(var(--base) * 0.75);
+    margin-top: calc(var(--base) * 0.4);
+    font-size: 0.85rem;
+    color: var(--theme-elevation-600);
+  }
+
+  &__reset {
+    margin: 0;
+    color: var(--theme-success-600);
+    text-decoration: underline;
+  }
+
+  &__note {
+    color: var(--theme-elevation-600);
+    font-size: 0.85rem;
+    margin: calc(var(--base) * 0.4) 0 0;
   }
 }
