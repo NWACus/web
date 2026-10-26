@@ -43,7 +43,7 @@ export interface AvalancheCardData {
 
 export type CardData = ObservationCardData | AvalancheCardData
 
-function cardMedia(media: MediaItem[]): CardMedia {
+export function cardMedia(media: MediaItem[]): CardMedia {
   return {
     thumbnail: media.find((item) => item.type === MediaType.Image) ?? media[0] ?? null,
     count: media.length,
@@ -51,14 +51,18 @@ function cardMedia(media: MediaItem[]): CardMedia {
 }
 
 /**
- * An observation's card. Its media count takes in its avalanches' media too — but only when the
- * observation has media of its own, which is how the widget counts.
+ * The media an observation's card counts: its own, then its avalanches' — but only when it has
+ * media of its own, which is how the widget counts.
  */
+export function observationCardMedia(observation: Observation): CardMedia {
+  if (observation.media.length === 0) return cardMedia([])
+  return cardMedia([
+    ...observation.media,
+    ...observation.avalanches.flatMap((avalanche) => avalanche.media),
+  ])
+}
+
 export function observationCard(observation: Observation): ObservationCardData {
-  const media =
-    observation.media.length > 0
-      ? [...observation.media, ...observation.avalanches.flatMap((avalanche) => avalanche.media)]
-      : []
   return {
     kind: 'observation',
     id: observation.id,
@@ -69,7 +73,7 @@ export function observationCard(observation: Observation): ObservationCardData {
     organization: observation.observer.organization,
     avalanchesObserved: observation.instability.avalanchesObserved,
     crackingOrCollapsing: observation.instability.cracking || observation.instability.collapsing,
-    media: cardMedia(media),
+    media: observationCardMedia(observation),
   }
 }
 

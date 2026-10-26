@@ -18,8 +18,10 @@ export type BBox = [number, number, number, number]
 export interface ListRequest {
   kind: ObservationKind
   filters: ObservationFilters
-  bbox: BBox
+  /** The viewer's map viewport; the forecast page's zone tabs ask by zone alone. */
+  bbox?: BBox
   list: ListState
+  pageSize?: number
 }
 
 function setIn(params: URLSearchParams, key: string, values: readonly string[]) {
@@ -87,16 +89,16 @@ export function avalancheFilterParams(
   return params
 }
 
-/** One page of a tab's list, restricted to the map's viewport (inventory row O11). */
+/** One page of a tab's list, restricted to the map's viewport when there is one (inventory row O11). */
 export function listParams(request: ListRequest, centerId: string): URLSearchParams {
-  const { kind, filters, bbox, list } = request
+  const { kind, filters, bbox, list, pageSize = PAGE_SIZE } = request
   const params =
     kind === 'observation'
       ? observationFilterParams(filters, centerId)
       : avalancheFilterParams(filters, centerId)
-  params.set('bbox', bbox.join(','))
+  if (bbox) params.set('bbox', bbox.join(','))
   params.set('page', String(list.page))
-  params.set('page_size', String(PAGE_SIZE))
+  params.set('page_size', String(pageSize))
   const dateColumn = kind === 'observation' ? 'start_date' : 'date'
   params.set('sort_by', list.sortBy === 'createdAt' ? 'created_at' : dateColumn)
   params.set('sort_order', list.sortOrder)
