@@ -16,6 +16,9 @@ import { NACError, logNacError } from './nac'
 
 const PUBLIC_PATH = '/obs/v1/public'
 
+/** Longer than the obs API ever takes when it's up; a hung request shouldn't hold the function. */
+const TIMEOUT_MS = 10_000
+
 /** The `Origin` the obs API's allowlist accepts for a tenant. */
 export function obsApiOrigin(centerSlug: string): string {
   return `https://${centerSlug}.avy-fx.org`
@@ -34,9 +37,11 @@ interface ObsFetchOptions {
 
 function fetchInit(centerSlug: string, options: ObsFetchOptions): RequestInit {
   const headers = { Origin: obsApiOrigin(centerSlug) }
-  if (options.cachedTime === undefined) return { headers, cache: 'no-store' }
+  const signal = AbortSignal.timeout(TIMEOUT_MS)
+  if (options.cachedTime === undefined) return { headers, signal, cache: 'no-store' }
   return {
     headers,
+    signal,
     next: {
       revalidate: options.cachedTime,
       ...(options.tags && options.tags.length > 0 ? { tags: options.tags } : {}),

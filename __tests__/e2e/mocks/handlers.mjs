@@ -107,14 +107,20 @@ function obsHandlers() {
         ? obsJson(fixture)
         : new HttpResponse(null, { status: 204 }),
     )
+  // The viewer asks for a map viewport (`bbox`); the forecast page's zone tabs (Forecast-9) ask
+  // for a zone's week without one, and get the recorded week filtered by zone, as the API would.
+  const list = (fixture, week) =>
+    guard(({ request }) =>
+      new URL(request.url).searchParams.has('bbox') ? obsJson(fixture) : obsList(request, week()),
+    )
   return [
     http.get(
       `${obsPath}/observation/list/`,
-      guard(() => obsJson(scenarios.observations.list)),
+      list(scenarios.observations.list, () => obsWeek().observations),
     ),
     http.get(
       `${obsPath}/avalanche_observation/list/`,
-      guard(() => obsJson(scenarios.observations.avalancheList)),
+      list(scenarios.observations.avalancheList, () => obsWeek().avalanches),
     ),
     http.get(`${obsPath}/observation/:id`, detail(scenarios.observations.observation)),
     http.get(`${obsPath}/avalanche_observation/:id`, detail(scenarios.observations.avalanche)),
@@ -148,7 +154,11 @@ function obsWeek() {
   return fixtureCache.get('obs/week')
 }
 
-/** A REST list page of the recorded records in the request's `zone_id[in]` zones. */
+/**
+ * A REST list page of the recorded records in the request's `zone_id[in]` zones. No golden corpus:
+ * one recorded week of two SNFAC zones, scrubbed to what the cards read, served whatever center and
+ * dates are asked; a zone with no recorded records gets an empty list.
+ */
 function obsList(request, records) {
   const zones = (new URL(request.url).searchParams.get('zone_id[in]') ?? '').split(',')
   const results = records.filter((r) => zones.includes(r.zone_id))
@@ -349,17 +359,6 @@ export function buildHandlers() {
       HttpResponse.text(snowObsFixture('webcams.json'), {
         headers: { 'content-type': 'application/json' },
       }),
-    ),
-
-    // The obs API's REST lists, behind the forecast page's Observations and Avalanches tabs
-    // (Forecast-9). No golden corpus either: one recorded week of two SNFAC zones, scrubbed to what
-    // the cards read, served whatever center and dates are asked. The zone filter is the API's, so
-    // the handler applies it, and a zone with no recorded records gets an empty list.
-    http.get(`${mockNacHost}/obs/v1/public/observation/list/`, ({ request }) =>
-      obsList(request, obsWeek().observations),
-    ),
-    http.get(`${mockNacHost}/obs/v1/public/avalanche_observation/list/`, ({ request }) =>
-      obsList(request, obsWeek().avalanches),
     ),
 
     // SAC's alternate station-map zones: the KML its center metadata fixture points at, served

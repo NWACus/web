@@ -5,7 +5,8 @@
  * Three requests per run: one zone's observations and avalanches, and a second zone's
  * observations, so the spec can show a record from another zone staying off the first zone's tab.
  * The obs API has no golden corpus (no v2→v3 parity obligation), so this is an ordinary recorded
- * fixture like SnowObs's. Records keep only the fields the cards read plus their zone: the rest
+ * fixture like SnowObs's. Records keep only the fields the cards read plus their zone (nested
+ * avalanches included, which the shared schema reads as full records): the rest
  * carries observers' names, write-ups and photographers' credits the cards never read.
  *
  *   pnpm e2e:capture-obs [CENTER] [FROM] [TO] [ZONE] [OTHER_ZONE]
@@ -21,20 +22,21 @@ const [
   otherZone = '2905',
 ] = process.argv.slice(2)
 
-// The URL `listUrl` in `src/services/nac/zoneObservations.ts` builds; keep the two in step.
+// The params `zoneListRequest` in `src/services/nac/zoneObservations.ts` encodes; keep in step.
 async function list(name, zoneId) {
   const dateField = name === 'observation' ? 'start_date' : 'date'
   const params = new URLSearchParams({
-    'center_id[eq]': center.toLowerCase(),
-    'zone_id[in]': zoneId,
     [`${dateField}[gte]`]: from,
     [`${dateField}[lte]`]: to,
+    'center_id[eq]': center.toLowerCase(),
+    'zone_id[in]': zoneId,
+    page: '1',
     page_size: '100',
     sort_by: dateField,
-    sort_order: 'DESC',
+    sort_order: 'desc',
   })
   const res = await fetch(`https://api.avalanche.org/obs/v1/public/${name}/list/?${params}`, {
-    headers: { origin: 'https://avy-fx.org' },
+    headers: { origin: `https://${center.toLowerCase()}.avy-fx.org` },
   })
   if (!res.ok) throw new Error(`obs API answered ${res.status} for ${name} in zone ${zoneId}`)
   const body = await res.json()
@@ -43,7 +45,8 @@ async function list(name, zoneId) {
 }
 
 const pick = (record, keys) => Object.fromEntries(keys.map((k) => [k, record[k] ?? null]))
-const scrubMedia = (media) => (media ?? []).map(({ type, url }) => ({ type, url }))
+// Captions are credits; the media schema needs the key, not its text.
+const scrubMedia = (media) => (media ?? []).map(({ type, url }) => ({ type, url, caption: null }))
 
 const RECORD = ['id', 'created_at', 'center_id', 'zone_id', 'zone_name', 'location_name']
 
@@ -54,7 +57,7 @@ function scrubObservation(obs) {
     ...pick(obs, ['start_date', ...RECORD, 'observer_type', 'organization']),
     instability: { cracking, collapsing, avalanches_observed },
     media: scrubMedia(obs.media),
-    avalanches: (obs.avalanches ?? []).map((a) => ({ media: scrubMedia(a.media) })),
+    avalanches: (obs.avalanches ?? []).map(scrubAvalanche),
   }
 }
 
