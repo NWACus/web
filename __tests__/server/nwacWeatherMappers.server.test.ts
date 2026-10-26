@@ -44,7 +44,7 @@ describe('mapV3NWACWeatherForecastDay', () => {
   it('re-keys the flat rows into zone/point grids', () => {
     expect(afternoon.temp.olympics.n1).toEqual({ high: 53, low: 47 })
     expect(afternoon.wind.olympics.ev1).toEqual({ dir: 'W', speed: 15 })
-    expect(afternoon.precip.HUR53.n1).toEqual({ qpf: 0.24, density: 11 })
+    expect(afternoon.precip.HUR53.n1).toEqual({ qpf: 0.24, slr: 11 })
     expect(afternoon.sensible.olympics.morning).toMatch(/cloudy/i)
   })
 
@@ -91,12 +91,14 @@ describe('mapV3NWACWeatherForecastDay', () => {
 })
 
 describe('nwacWeatherFormat', () => {
-  it('derives snow from QPF and density; the level is the elevation as typed', () => {
+  it('snow = QPF × SLR to a tenth; the level is the elevation as typed', () => {
     expect(deriveSnow(0.3, 10)).toBe(3)
     expect(deriveSnow(0.24, 11)).toBe(2.6)
     expect(deriveSnow(0.5, 15)).toBe(7.5)
     expect(deriveSnow(null, 10)).toBeNull()
+    // SLR 0 is the dry marker: rain, not snow, however much water falls.
     expect(deriveSnow(0.3, 0)).toBeNull()
+    expect(deriveSnow(0.4, 0)).toBeNull()
     expect(deriveSnowLevel(5000)).toBe(5000)
     expect(deriveSnowLevel(0)).toBe(0)
     expect(deriveSnowLevel(null)).toBeNull()
@@ -189,7 +191,7 @@ describe('levelKind', () => {
   const withPrecip = (qpf: number, mode: string | null = 'auto') => ({
     ...afternoon,
     precip: Object.fromEntries(
-      afternoon.points.map((p) => [p.code, { [period]: { qpf, density: 10 } }]),
+      afternoon.points.map((p) => [p.code, { [period]: { qpf, slr: 10 } }]),
     ),
     snowLevel: { [zone]: { [block.key]: { freezing: 6000, drop: 1000, mode } } },
   })

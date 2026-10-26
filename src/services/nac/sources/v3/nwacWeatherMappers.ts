@@ -75,7 +75,7 @@ export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWea
       wire.precip,
       (r) => r.point,
       (r) => r.period,
-      (r) => ({ qpf: r.qpf ?? null, density: r.density ?? null }),
+      (r) => ({ qpf: r.qpf ?? null, slr: r.slr ?? null }),
     ),
     temp: grid(
       wire.temp,

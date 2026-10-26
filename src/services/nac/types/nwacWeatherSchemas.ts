@@ -52,7 +52,7 @@ export const nwacWeatherPrecipRowSchema = z.object({
   point: z.string(),
   period: z.string(),
   qpf: nullableNumber.optional(),
-  density: nullableNumber.optional(),
+  slr: nullableNumber.optional(),
 })
 
 export const nwacWeatherTempRowSchema = z.object({

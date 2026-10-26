@@ -285,361 +285,361 @@
           "point": "HUR53",
           "period": "n1",
           "qpf": 0.24,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "HUR53",
           "period": "d2",
           "qpf": 0.19,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "HUR53",
           "period": "n2",
           "qpf": 0.14,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "HUR53",
           "period": "d3",
           "qpf": 0.09,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "MTB42",
           "period": "n1",
           "qpf": 0.22,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MTB42",
           "period": "d2",
           "qpf": 0.17,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MTB42",
           "period": "n2",
           "qpf": 0.12,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MTB42",
           "period": "d3",
           "qpf": 0.07,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "WAP55",
           "period": "n1",
           "qpf": 0.21,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "WAP55",
           "period": "d2",
           "qpf": 0.16,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "WAP55",
           "period": "n2",
           "qpf": 0.11,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "WAP55",
           "period": "d3",
           "qpf": 0.06,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "BAR24",
           "period": "n1",
           "qpf": 0.19,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "BAR24",
           "period": "d2",
           "qpf": 0.14,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "BAR24",
           "period": "n2",
           "qpf": 0.09,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "BAR24",
           "period": "d3",
           "qpf": 0.04,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "GHL56",
           "period": "n1",
           "qpf": 0.18,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "GHL56",
           "period": "d2",
           "qpf": 0.13,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "GHL56",
           "period": "n2",
           "qpf": 0.08,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "GHL56",
           "period": "d3",
           "qpf": 0.03,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "STS40",
           "period": "n1",
           "qpf": 0.16,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "STS40",
           "period": "d2",
           "qpf": 0.11,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "STS40",
           "period": "n2",
           "qpf": 0.06,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "STS40",
           "period": "d3",
           "qpf": 0.01,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "SNO30",
           "period": "n1",
           "qpf": 0.15,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "SNO30",
           "period": "d2",
           "qpf": 0.1,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "SNO30",
           "period": "n2",
           "qpf": 0.05,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "SNO30",
           "period": "d3",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "MSR52",
           "period": "n1",
           "qpf": 0.13,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MSR52",
           "period": "d2",
           "qpf": 0.08,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MSR52",
           "period": "n2",
           "qpf": 0.03,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MSR52",
           "period": "d3",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "CMT46",
           "period": "n1",
           "qpf": 0.12,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "CMT46",
           "period": "d2",
           "qpf": 0.07,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "CMT46",
           "period": "n2",
           "qpf": 0.02,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "CMT46",
           "period": "d3",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "PVC54",
           "period": "n1",
           "qpf": 0.1,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "PVC54",
           "period": "d2",
           "qpf": 0.05,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "PVC54",
           "period": "n2",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "PVC54",
           "period": "d3",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "WPS58",
           "period": "n1",
           "qpf": 0.09,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "WPS58",
           "period": "d2",
           "qpf": 0.04,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "WPS58",
           "period": "n2",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "WPS58",
           "period": "d3",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MSH56",
           "period": "n1",
           "qpf": 0.07,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "MSH56",
           "period": "d2",
           "qpf": 0.02,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "MSH56",
           "period": "n2",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "MSH56",
           "period": "d3",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "DAR70",
           "period": "n1",
           "qpf": 0.06,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "DAR70",
           "period": "d2",
           "qpf": 0.01,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "DAR70",
           "period": "n2",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "DAR70",
           "period": "d3",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "MHM54",
           "period": "n1",
           "qpf": 0.04,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MHM54",
           "period": "d2",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MHM54",
           "period": "n2",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MHM54",
           "period": "d3",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "TIM59",
           "period": "n1",
           "qpf": 0.03,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "TIM59",
           "period": "d2",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "TIM59",
           "period": "n2",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "TIM59",
           "period": "d3",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         }
       ],
       "temp": [
@@ -2353,361 +2353,361 @@
           "point": "HUR53",
           "period": "d1",
           "qpf": 0.24,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "HUR53",
           "period": "n1",
           "qpf": 0.19,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "HUR53",
           "period": "d2",
           "qpf": 0.14,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "HUR53",
           "period": "n2",
           "qpf": 0.09,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "MTB42",
           "period": "d1",
           "qpf": 0.22,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MTB42",
           "period": "n1",
           "qpf": 0.17,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MTB42",
           "period": "d2",
           "qpf": 0.12,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MTB42",
           "period": "n2",
           "qpf": 0.07,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "WAP55",
           "period": "d1",
           "qpf": 0.21,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "WAP55",
           "period": "n1",
           "qpf": 0.16,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "WAP55",
           "period": "d2",
           "qpf": 0.11,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "WAP55",
           "period": "n2",
           "qpf": 0.06,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "BAR24",
           "period": "d1",
           "qpf": 0.19,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "BAR24",
           "period": "n1",
           "qpf": 0.14,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "BAR24",
           "period": "d2",
           "qpf": 0.09,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "BAR24",
           "period": "n2",
           "qpf": 0.04,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "GHL56",
           "period": "d1",
           "qpf": 0.18,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "GHL56",
           "period": "n1",
           "qpf": 0.13,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "GHL56",
           "period": "d2",
           "qpf": 0.08,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "GHL56",
           "period": "n2",
           "qpf": 0.03,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "STS40",
           "period": "d1",
           "qpf": 0.16,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "STS40",
           "period": "n1",
           "qpf": 0.11,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "STS40",
           "period": "d2",
           "qpf": 0.06,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "STS40",
           "period": "n2",
           "qpf": 0.01,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "SNO30",
           "period": "d1",
           "qpf": 0.15,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "SNO30",
           "period": "n1",
           "qpf": 0.1,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "SNO30",
           "period": "d2",
           "qpf": 0.05,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "SNO30",
           "period": "n2",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "MSR52",
           "period": "d1",
           "qpf": 0.13,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MSR52",
           "period": "n1",
           "qpf": 0.08,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MSR52",
           "period": "d2",
           "qpf": 0.03,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MSR52",
           "period": "n2",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "CMT46",
           "period": "d1",
           "qpf": 0.12,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "CMT46",
           "period": "n1",
           "qpf": 0.07,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "CMT46",
           "period": "d2",
           "qpf": 0.02,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "CMT46",
           "period": "n2",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "PVC54",
           "period": "d1",
           "qpf": 0.1,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "PVC54",
           "period": "n1",
           "qpf": 0.05,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "PVC54",
           "period": "d2",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "PVC54",
           "period": "n2",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "WPS58",
           "period": "d1",
           "qpf": 0.09,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "WPS58",
           "period": "n1",
           "qpf": 0.04,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "WPS58",
           "period": "d2",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "WPS58",
           "period": "n2",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MSH56",
           "period": "d1",
           "qpf": 0.07,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "MSH56",
           "period": "n1",
           "qpf": 0.02,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "MSH56",
           "period": "d2",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "MSH56",
           "period": "n2",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "DAR70",
           "period": "d1",
           "qpf": 0.06,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "DAR70",
           "period": "n1",
           "qpf": 0.01,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "DAR70",
           "period": "d2",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "DAR70",
           "period": "n2",
           "qpf": 0.0,
-          "density": 11.0
+          "slr": 11.0
         },
         {
           "point": "MHM54",
           "period": "d1",
           "qpf": 0.04,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MHM54",
           "period": "n1",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MHM54",
           "period": "d2",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "MHM54",
           "period": "n2",
           "qpf": 0.0,
-          "density": 12.0
+          "slr": 12.0
         },
         {
           "point": "TIM59",
           "period": "d1",
           "qpf": 0.03,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "TIM59",
           "period": "n1",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "TIM59",
           "period": "d2",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         },
         {
           "point": "TIM59",
           "period": "n2",
           "qpf": 0.0,
-          "density": 10.0
+          "slr": 10.0
         }
       ],
       "temp": [

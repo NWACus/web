@@ -305,7 +305,7 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Tab
     const totalOf = (of: NWACWeatherPeriod[]) =>
       precipSnowPair(
         hundredths(sumOf(of.map((period) => cell(period)?.qpf))),
-        sumOf(of.map((period) => deriveSnow(cell(period)?.qpf, cell(period)?.density))),
+        sumOf(of.map((period) => deriveSnow(cell(period)?.qpf, cell(period)?.slr))),
       )
     const pairs = [...slots.map((s) => totalOf(s.periods)), totalOf(periods)]
     return {
