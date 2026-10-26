@@ -133,6 +133,7 @@
   --secondary-hover: hsla(193 42% 74% / 0.8);
 
   --link: hsl(193 100% 28%);
+  --link-on-dark: hsl(193 100% 82%);
 
   --header: hsl(217 62% 21%);
   --header-foreground: hsl(193 42% 74%);
@@ -341,19 +342,11 @@
 
 /* --link must pass on white and brand-100/200; darker shades use the block's
    own contrasting text color. Rich-text links stay underlined either way. */
-:is(
-  .bg-brand-300,
-  .bg-brand-400,
-  .bg-brand-500,
-  .bg-brand-600,
-  .bg-brand-700,
-  .bg-brand-800,
-  .bg-brand-900,
-  .bg-brand-950
-) {
+:is(.bg-brand-300, .bg-brand-400, .bg-brand-500) {
   --link: currentColor;
 }
 
-.nwac :is(.bg-brand-600, .bg-brand-700, .bg-brand-800, .bg-brand-900, .bg-brand-950) {
-  --link: hsl(193 100% 82%);
+/* A center may set --link-on-dark to keep a brand-colored link on these */
+:is(.bg-brand-600, .bg-brand-700, .bg-brand-800, .bg-brand-900, .bg-brand-950) {
+  --link: var(--link-on-dark, currentColor);
 }
