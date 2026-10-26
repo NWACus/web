@@ -93,7 +93,8 @@ describe('mapV3NWACWeatherForecastDay', () => {
 describe('nwacWeatherFormat', () => {
   it('derives snow from QPF and density; the level is the elevation as typed', () => {
     expect(deriveSnow(0.3, 10)).toBe(3)
-    expect(deriveSnow(0.24, 11)).toBe(2.2)
+    expect(deriveSnow(0.24, 11)).toBe(2.6)
+    expect(deriveSnow(0.5, 15)).toBe(7.5)
     expect(deriveSnow(null, 10)).toBeNull()
     expect(deriveSnow(0.3, 0)).toBeNull()
     expect(deriveSnowLevel(5000)).toBe(5000)

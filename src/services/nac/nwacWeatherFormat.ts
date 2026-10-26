@@ -32,10 +32,14 @@ export function levelKind(
   return wet ? 'snow' : 'freezing'
 }
 
-/** New snow in inches from water equivalent and snow-to-liquid ratio (density 10 → 10:1). */
+/**
+ * New snow in inches: QPF × SLR. The cell's `density` field carries the snow-to-liquid ratio
+ * itself (12 → 12:1) — the name is historical; the dashboard, the AFP widget and products-api
+ * all read it this way since Oct 2026. A ratio of 0 is the dry marker.
+ */
 export function deriveSnow(qpf: number | null | undefined, density: number | null | undefined) {
   if (qpf == null || density == null || density <= 0) return null
-  return Math.round(((qpf * 100) / density) * 10) / 10
+  return Math.round(qpf * density * 10) / 10
 }
 
 /**
