@@ -9,7 +9,8 @@ export const coursesByExternalProvidersPage: (
   tenant: Tenant,
   seoImage: Media,
 ): RequiredDataFromCollectionSlug<'pages'> => {
-  const url = getURL()
+  // Previews seed before their domain exists, so CI passes the embed origin explicitly
+  const url = process.env.SEED_EMBED_ORIGIN || getURL()
 
   return {
     slug: 'courses-by-external-providers',
