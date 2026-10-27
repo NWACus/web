@@ -448,7 +448,7 @@ sig = "2d0a0b5bbcea86b1"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/ObservationViewer.client.tsx"
-sig = "8a03163e2c2c74e5"
+sig = "be58bdc19c65025a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
