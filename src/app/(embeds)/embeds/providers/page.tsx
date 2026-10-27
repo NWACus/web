@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/accordion'
 import { getStateLabel } from '@/fields/location/states'
 import config from '@/payload.config'
+import { filterProvidersByCurriculum } from '@/utilities/filterProvidersByCurriculum'
 import { groupProvidersByState, type ProvidersByState } from '@/utilities/groupProvidersByState'
 import Script from 'next/script'
 import { createLoader, parseAsString, SearchParams } from 'nuqs/server'
@@ -16,6 +17,7 @@ import { getPayload } from 'payload'
 const providersSearchParams = {
   title: parseAsString,
   states: parseAsString,
+  curriculum: parseAsString,
 }
 
 const loadSearchParams = createLoader(providersSearchParams)
@@ -25,7 +27,11 @@ export default async function ProvidersEmbedPage({
 }: {
   searchParams: Promise<SearchParams>
 }) {
-  const { title, states: statesFilter } = await loadSearchParams(searchParams)
+  const {
+    title,
+    states: statesFilter,
+    curriculum: curriculumFilter,
+  } = await loadSearchParams(searchParams)
   const payload = await getPayload({ config })
 
   const result = await payload.find({
@@ -39,9 +45,9 @@ export default async function ProvidersEmbedPage({
     depth: 0,
   })
 
-  // Organize providers by state based on statesServiced (providers can be in
-  // multiple states) and restrict to the selected states when a filter is given
-  const { states, providersByState } = groupProvidersByState(result.docs, statesFilter)
+  // Filter by curriculum, then organize by state
+  const filteredDocs = filterProvidersByCurriculum(result.docs, curriculumFilter)
+  const { states, providersByState } = groupProvidersByState(filteredDocs, statesFilter)
 
   return (
     <>
@@ -55,7 +61,7 @@ export default async function ProvidersEmbedPage({
         <ProvidersByStateSection
           states={states}
           providersByState={providersByState}
-          hasStatesFilter={Boolean(statesFilter)}
+          hasFilter={Boolean(statesFilter) || Boolean(curriculumFilter)}
         />
       </div>
       <Script
@@ -69,17 +75,19 @@ export default async function ProvidersEmbedPage({
 function ProvidersByStateSection({
   states,
   providersByState,
-  hasStatesFilter,
+  hasFilter,
 }: {
   states: string[]
   providersByState: ProvidersByState
-  hasStatesFilter: boolean
+  hasFilter: boolean
 }) {
   if (states.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">
-          {hasStatesFilter ? 'No providers found for the selected states.' : 'No providers found.'}
+          {hasFilter
+            ? 'No providers found for the selected filters.'
+            : 'No providers found.'}
         </p>
       </div>
     )
@@ -93,12 +101,12 @@ function ProvidersByStateSection({
       <StatesAccordion
         states={states.slice(0, midpoint)}
         providersByState={providersByState}
-        defaultExpanded={hasStatesFilter}
+        defaultExpanded={hasFilter}
       />
       <StatesAccordion
         states={states.slice(midpoint)}
         providersByState={providersByState}
-        defaultExpanded={hasStatesFilter}
+        defaultExpanded={hasFilter}
       />
     </div>
   )

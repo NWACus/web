@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Provider } from '@/payload-types'
 
 import { courseTypesData } from '@/constants/courseTypes'
+import { curriculaData } from '@/constants/curricula'
 import { cn } from '@/utilities/ui'
 import { isValidFullUrl } from '@/utilities/validateUrl'
 import { ExternalLink, Mail, Phone } from 'lucide-react'
@@ -15,10 +16,14 @@ export const ProviderPreview = (props: { doc?: Provider }) => {
 
   if (!doc) return null
 
-  const { name, details, website, email, phone, courseTypes } = doc
+  const { name, details, website, email, phone, courseTypes, curriculum } = doc
 
   const courseTypeLabels = courseTypes
     ?.map((ct) => courseTypesData.find((ctd) => ctd.value === ct)?.label)
+    .filter(Boolean)
+
+  const curriculumLabels = curriculum
+    ?.map((c) => curriculaData.find((cd) => cd.value === c)?.label)
     .filter(Boolean)
 
   const validWebsite = website && isValidFullUrl(website) ? website : null
@@ -35,6 +40,11 @@ export const ProviderPreview = (props: { doc?: Provider }) => {
         {courseTypeLabels && courseTypeLabels.length > 0 && (
           <p>
             <span className="font-semibold">Offers:</span> {courseTypeLabels.join(', ')}
+          </p>
+        )}
+        {curriculumLabels && curriculumLabels.length > 0 && (
+          <p>
+            <span className="font-semibold">Curriculum:</span> {curriculumLabels.join(', ')}
           </p>
         )}
         {details && <p className="hidden md:block text-sm leading-tight">{details}</p>}
