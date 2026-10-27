@@ -25,22 +25,21 @@ import { SponsorsBlock } from '../Sponsors/config'
 import { VideoEmbedBlock } from '../VideoEmbed/config'
 import { healColumnLayout } from './hooks/healColumnLayout'
 
+const pluralColumns = (count: number) => `${count} column${count !== 1 ? 's' : ''}`
+
+const siblingColumnCount = (siblingData: unknown) => {
+  if (siblingData && typeof siblingData === 'object' && 'columns' in siblingData) {
+    if (Array.isArray(siblingData.columns)) return siblingData.columns.length
+  }
+}
+
 const validateColumnLayout: SelectFieldValidation = (value, args) => {
-  const { siblingData } = args
-  if (!value || typeof value !== 'string') return select(value, args)
+  const numOfCols = siblingColumnCount(args.siblingData)
+  if (typeof value !== 'string' || !value || numOfCols === undefined) return select(value, args)
 
-  if (
-    siblingData &&
-    typeof siblingData === 'object' &&
-    'columns' in siblingData &&
-    Array.isArray(siblingData.columns)
-  ) {
-    const numOfCols = siblingData.columns?.length ?? 0
-    const selectedColCount = parseInt(value.split('_')[0])
-
-    if (selectedColCount !== numOfCols) {
-      return `Selected layout requires ${selectedColCount} column${selectedColCount !== 1 ? 's' : ''}, but ${numOfCols} column${numOfCols !== 1 ? 's' : ''} exist${numOfCols === 1 ? 's' : ''}`
-    }
+  const selectedColCount = parseInt(value.split('_')[0])
+  if (selectedColCount !== numOfCols) {
+    return `Selected layout requires ${pluralColumns(selectedColCount)}, but ${pluralColumns(numOfCols)} exist${numOfCols === 1 ? 's' : ''}`
   }
 
   return select(value, args)
@@ -74,55 +73,67 @@ export const ContentBlock: Block = {
   imageURL: '/thumbnail/ContentThumbnail.jpg',
   fields: [
     {
-      type: 'row',
-      fields: [
-        colorPickerField('Background color', '24%'),
-        {
-          name: 'layout',
-          label: 'Column layout',
-          type: 'select',
-          required: true,
-          defaultValue: '1_1',
-          options: [
-            { label: 'full', value: '1_1' },
-            { label: '1:1', value: '2_11' },
-            { label: '1:1:1', value: '3_111' },
-            { label: '2:1', value: '2_21' },
-            { label: '1:2', value: '2_12' },
-            { label: '1:1:1:1', value: '4_1111' },
-            { label: '2:1:1', value: '3_211' },
-            { label: '1:2:1', value: '3_121' },
-            { label: '1:1:2', value: '3_112' },
-          ],
-          admin: {
-            width: '38%',
-            components: {
-              Field: '@/components/ColumnLayoutPicker#ColumnLayoutPicker',
-            },
-          },
-          validate: validateColumnLayout,
-          hooks: {
-            beforeChange: [healColumnLayout],
-          },
+      type: 'collapsible',
+      label: 'Layout',
+      admin: {
+        initCollapsed: true,
+        components: {
+          Label: '@/blocks/Content/components/LayoutSummaryLabel#LayoutSummaryLabel',
         },
+      },
+      fields: [
         {
-          name: 'verticalAlignment',
-          label: 'Vertical alignment',
-          type: 'select',
-          required: true,
-          defaultValue: 'top',
-          options: [
-            { label: 'Top', value: 'top' },
-            { label: 'Middle', value: 'center' },
-            { label: 'Bottom', value: 'bottom' },
-            { label: 'Stretch', value: 'stretch' },
-          ],
-          admin: {
-            width: '38%',
-            components: {
-              Field: '@/components/VerticalAlignmentPicker#VerticalAlignmentPicker',
+          type: 'row',
+          fields: [
+            colorPickerField('Background color', '24%'),
+            {
+              name: 'layout',
+              label: 'Column layout',
+              type: 'select',
+              required: true,
+              defaultValue: '1_1',
+              options: [
+                { label: 'full', value: '1_1' },
+                { label: '1:1', value: '2_11' },
+                { label: '1:1:1', value: '3_111' },
+                { label: '2:1', value: '2_21' },
+                { label: '1:2', value: '2_12' },
+                { label: '1:1:1:1', value: '4_1111' },
+                { label: '2:1:1', value: '3_211' },
+                { label: '1:2:1', value: '3_121' },
+                { label: '1:1:2', value: '3_112' },
+              ],
+              admin: {
+                width: '38%',
+                components: {
+                  Field: '@/components/ColumnLayoutPicker#ColumnLayoutPicker',
+                },
+              },
+              validate: validateColumnLayout,
+              hooks: {
+                beforeChange: [healColumnLayout],
+              },
             },
-          },
+            {
+              name: 'verticalAlignment',
+              label: 'Vertical alignment',
+              type: 'select',
+              required: true,
+              defaultValue: 'top',
+              options: [
+                { label: 'Top', value: 'top' },
+                { label: 'Middle', value: 'center' },
+                { label: 'Bottom', value: 'bottom' },
+                { label: 'Stretch', value: 'stretch' },
+              ],
+              admin: {
+                width: '38%',
+                components: {
+                  Field: '@/components/VerticalAlignmentPicker#VerticalAlignmentPicker',
+                },
+              },
+            },
+          ],
         },
       ],
     },

@@ -1,3 +1,4 @@
+import { LayoutSummaryLabel } from '@/blocks/Content/components/LayoutSummaryLabel'
 import { ColorPicker } from '@/components/ColorPicker'
 import { ColumnLayoutPicker } from '@/components/ColumnLayoutPicker'
 import { VerticalAlignmentPicker } from '@/components/VerticalAlignmentPicker'
@@ -15,6 +16,8 @@ jest.mock('@payloadcms/ui', () => ({
     showError: false,
     errorMessage: undefined,
   }),
+  useFormFields: <T,>(selector: (context: [Record<string, { value: unknown }>]) => T) =>
+    selector([Object.fromEntries([...mockFieldValues].map(([path, value]) => [path, { value }]))]),
   useDocumentInfo: () => ({ data: { tenant: 1 } }),
   FieldLabel: ({ label }: { label: string }) => <span>{label}</span>,
 }))
@@ -123,5 +126,23 @@ describe('ColorPicker', () => {
 
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument()
+  })
+})
+
+describe('LayoutSummaryLabel', () => {
+  it('summarizes the layout, color and alignment', () => {
+    mockFieldValues.set('layout.0.layout', '2_21')
+    mockFieldValues.set('layout.0.backgroundColor', 'brand-500')
+    mockFieldValues.set('layout.0.verticalAlignment', 'center')
+    render(<LayoutSummaryLabel path="layout.0._index-0" />)
+
+    expect(screen.getByText('· 2:1 · Brand 500 · Middle')).toBeInTheDocument()
+  })
+
+  it('leaves out alignment for a single column', () => {
+    mockFieldValues.set('layout.0.layout', '1_1')
+    render(<LayoutSummaryLabel path="layout.0._index-0" />)
+
+    expect(screen.getByText('· Full width · Transparent')).toBeInTheDocument()
   })
 })

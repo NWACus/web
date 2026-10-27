@@ -20,6 +20,7 @@ import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b
 import { UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ColumnLayoutPicker as ColumnLayoutPicker_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
 import { VerticalAlignmentPicker as VerticalAlignmentPicker_07a0171a6d4c814ef95b0ef075d36b7d } from '@/components/VerticalAlignmentPicker'
+import { LayoutSummaryLabel as LayoutSummaryLabel_102f3bc2130e074295a1d012fe380956 } from '@/blocks/Content/components/LayoutSummaryLabel'
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
 import { DateRangeField as DateRangeField_1d446883378a099477d310d9fe2f0813 } from '@/blocks/ObservationsWidget/DateRangeField'
 import { ZonesField as ZonesField_77b8df4c40d764f3c3941ef759d922e0 } from '@/blocks/ObservationsWidget/ZonesField'
@@ -100,6 +101,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnorderedListFeatureClient": UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/ColumnLayoutPicker#ColumnLayoutPicker": ColumnLayoutPicker_923dc5ccc0b72de4298251644cbfe39e,
   "@/components/VerticalAlignmentPicker#VerticalAlignmentPicker": VerticalAlignmentPicker_07a0171a6d4c814ef95b0ef075d36b7d,
+  "@/blocks/Content/components/LayoutSummaryLabel#LayoutSummaryLabel": LayoutSummaryLabel_102f3bc2130e074295a1d012fe380956,
   "@/blocks/Content/components/DefaultColumnAdder#DefaultColumnAdder": DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01,
   "@/blocks/ObservationsWidget/DateRangeField#DateRangeField": DateRangeField_1d446883378a099477d310d9fe2f0813,
   "@/blocks/ObservationsWidget/ZonesField#ZonesField": ZonesField_77b8df4c40d764f3c3941ef759d922e0,
