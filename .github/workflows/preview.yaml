@@ -93,8 +93,8 @@ jobs:
           # uploads are written to the runner's disk instead of Vercel Blob,
           # leaving every seeded image and document 404ing in the preview.
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          # Seeded iframe embeds must point at the preview over https, not getURL()'s localhost (#1433).
-          SEED_EMBED_ORIGIN: 'https://${{ steps.domains.outputs.preview_alias }}'
+          # Seeded iframe embeds are built from the root domain, so they must not fall back to localhost (#1433).
+          NEXT_PUBLIC_ROOT_DOMAIN: '${{ steps.domains.outputs.preview_alias }}'
       - name: Create the preview database from the seeded file
         # Bulk-import the seeded local DB into a fresh Turso DB in one operation.
         # We use `--from-dump` (plain SQL) rather than `--from-file`: the latter

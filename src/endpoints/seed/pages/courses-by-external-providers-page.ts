@@ -1,5 +1,5 @@
 import type { Media, Tenant } from '@/payload-types'
-import { getURL } from '@/utilities/getURL'
+import { ROOT_DOMAIN } from '@/utilities/domain'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 
 export const coursesByExternalProvidersPage: (
@@ -9,9 +9,9 @@ export const coursesByExternalProvidersPage: (
   tenant: Tenant,
   seoImage: Media,
 ): RequiredDataFromCollectionSlug<'pages'> => {
-  // The preview seed runs with NODE_ENV=development and no root domain, so getURL() would be
-  // http://localhost:3000; CI passes the preview's https origin instead (#1433)
-  const url = process.env.SEED_EMBED_ORIGIN || getURL()
+  // Protocol-relative so the iframes inherit the page's https on previews, whose seed runs with
+  // NODE_ENV=development and would otherwise bake in http (#1433)
+  const url = `//${ROOT_DOMAIN}`
 
   return {
     slug: 'courses-by-external-providers',
