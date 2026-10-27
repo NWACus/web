@@ -20,6 +20,7 @@ import {
 import { detailPath } from '@/services/nac/observations/routes'
 
 import { formatDay, formatSubmitted, formatTimeOfDay } from '../format'
+import { isPlainClick } from '../links'
 import { MARKER_COLORS, avalancheColor } from '../map/markerStyle'
 import {
   HeaderField,
@@ -195,24 +196,49 @@ function occurrenceTime(avalanche: Avalanche): string {
   return `${formatTimeOfDay(avalanche.time)} (${accuracy(avalanche.timeKnown)})`
 }
 
-function AssociatedObservation({ id, prefix }: { id: string | null; prefix: string }) {
+/** Over the list, a plain click opens the observation in the modal, as the widget's does. */
+function AssociatedObservation({
+  id,
+  prefix,
+  onOpen,
+}: {
+  id: string | null
+  prefix: string
+  onOpen?: (id: string) => void
+}) {
   if (!id) return null
+  const href = `${prefix}${detailPath('observation', id)}`
+  // Server-rendered on the record's own page, where a handler can't be passed.
+  if (!onOpen) {
+    return (
+      <a href={href} className="underline">
+        View Observation
+      </a>
+    )
+  }
   return (
-    <a href={`${prefix}${detailPath('observation', id)}`} className="underline">
+    <a
+      href={href}
+      className="underline"
+      onClick={(event) => {
+        if (!isPlainClick(event)) return
+        event.preventDefault()
+        onOpen(id)
+      }}
+    >
       View Observation
     </a>
   )
 }
 
-function HeaderFields({
-  avalanche,
-  timezone,
-  prefix,
-}: {
+interface HeaderProps {
   avalanche: Avalanche
   timezone: string
   prefix: string
-}) {
+  onOpenObservation?: (id: string) => void
+}
+
+function HeaderFields({ avalanche, timezone, prefix, onOpenObservation }: HeaderProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <HeaderField title="Occurrence Date">
@@ -224,7 +250,11 @@ function HeaderFields({
       <ObserverFields observer={avalanche.observer} />
       <HeaderField title="Observation Date">{formatDay(avalanche.obsDate)}</HeaderField>
       <HeaderField title="Associated Observation">
-        <AssociatedObservation id={avalanche.observationId} prefix={prefix} />
+        <AssociatedObservation
+          id={avalanche.observationId}
+          prefix={prefix}
+          onOpen={onOpenObservation}
+        />
       </HeaderField>
     </div>
   )
@@ -234,20 +264,13 @@ interface AvalancheDetailProps {
   detail: AvalancheDetailData
   timezone: string
   prefix?: string
+  /** Open the associated observation over the list; without it the link is a plain link. */
+  onOpenObservation?: (id: string) => void
   TitleTag?: 'h1' | 'h2'
 }
 
-function Header({
-  avalanche,
-  timezone,
-  prefix,
-  TitleTag,
-}: {
-  avalanche: Avalanche
-  timezone: string
-  prefix: string
-  TitleTag: 'h1' | 'h2'
-}) {
+function Header({ TitleTag, ...props }: HeaderProps & { TitleTag: 'h1' | 'h2' }) {
+  const { avalanche } = props
   return (
     <header className="grid gap-4 md:grid-cols-3">
       <div className="flex flex-col gap-3 md:col-span-2">
@@ -256,7 +279,7 @@ function Header({
           title="Avalanche Occurrence"
           location={avalanche.locationName}
         />
-        <HeaderFields avalanche={avalanche} timezone={timezone} prefix={prefix} />
+        <HeaderFields {...props} />
       </div>
       <LocationMap
         location={avalanche.location}
@@ -284,13 +307,20 @@ export function AvalancheDetail({
   detail,
   timezone,
   prefix = '',
+  onOpenObservation,
   TitleTag = 'h1',
 }: AvalancheDetailProps) {
   const { avalanche } = detail
   return (
     <article className="flex flex-col gap-6" data-testid="avalanche-detail">
       <Notices avalanche={avalanche} />
-      <Header avalanche={avalanche} timezone={timezone} prefix={prefix} TitleTag={TitleTag} />
+      <Header
+        avalanche={avalanche}
+        timezone={timezone}
+        prefix={prefix}
+        onOpenObservation={onOpenObservation}
+        TitleTag={TitleTag}
+      />
       <Summary comments={avalanche.comments} />
       <MediaGallery tiles={detail.gallery} lightbox={detail.lightbox} />
       <Panel>

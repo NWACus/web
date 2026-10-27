@@ -180,7 +180,15 @@ function Body({
   if (status.state !== 'ready') return <DetailMessage status={status.state} kind={record.kind} />
   const { detail } = status
   if (detail.kind === 'avalanche') {
-    return <AvalancheDetail detail={detail} timezone={timezone} prefix={prefix} TitleTag="h2" />
+    return (
+      <AvalancheDetail
+        detail={detail}
+        timezone={timezone}
+        prefix={prefix}
+        TitleTag="h2"
+        onOpenObservation={(id) => onOpen({ kind: 'observation', id })}
+      />
+    )
   }
   return (
     <ObservationDetail
