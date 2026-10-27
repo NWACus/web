@@ -7,6 +7,10 @@
  * map. So the map reports its bounds once built and after every move or resize, 400ms after the
  * last as the widget debounces them, and a move under 0.0001° is not a move. It doesn't wait for
  * `idle`, which never comes if the basemap style fails to load — the list must still list.
+ *
+ * A move the viewer starts itself (framing a chosen zone) is announced first: until the map has
+ * settled the viewport is `moving`, and the list waits for it rather than asking for the zone
+ * within the old view and then again within the new one, as the widget waits.
  */
 import type { Map as MapboxMap } from 'mapbox-gl'
 import mapboxgl from 'mapbox-gl'
@@ -22,6 +26,8 @@ import { type Bounds } from '@/utilities/geo/bounds'
 
 const BOUNDS_DEBOUNCE_MS = 400
 const BOUNDS_EPSILON = 0.0001
+/** A move that never reports (cancelled, or already in place) stops holding the list after this. */
+const MOVE_TIMEOUT_MS = 3000
 /** The widget frames a chosen zone with 50px to spare. */
 const ZONE_PADDING = 50
 /** The widget's layout switches to its phone view under 992px, and narrows the camera there. */
@@ -140,6 +146,7 @@ export function useObservationMap(
   const [map, setMap] = useState<MapboxMap | null>(null)
   const [unsupported, setUnsupported] = useState(false)
   const [bbox, setBBox] = useState<BBox | null>(null)
+  const [moving, setMoving] = useState(false)
 
   useEffect(() => {
     const container = containerRef.current
@@ -160,7 +167,8 @@ export function useObservationMap(
   }, [token])
   const styleStatus = useStyleStatus(map)
 
-  useViewport(map, setBBox)
+  useViewport(map, setBBox, setMoving)
+  useMoveTimeout(moving, setMoving)
 
   // Without a map there is no viewport; the center's zones stand in for it, so the list still lists.
   const fallbackBBox = unsupported ? fallbackViewport(settings) : null
@@ -170,7 +178,17 @@ export function useObservationMap(
     styleFailed: styleStatus === 'failed',
     unsupported,
     bbox: fallbackBBox ?? bbox,
+    moving: moving && !fallbackBBox,
+    expectMove: useCallback(() => setMoving(true), []),
   }
+}
+
+function useMoveTimeout(moving: boolean, setMoving: (moving: boolean) => void) {
+  useEffect(() => {
+    if (!moving) return
+    const timer = window.setTimeout(() => setMoving(false), MOVE_TIMEOUT_MS)
+    return () => window.clearTimeout(timer)
+  }, [moving, setMoving])
 }
 
 type StyleStatus = 'loading' | 'ready' | 'failed'
@@ -208,15 +226,22 @@ function fallbackViewport(settings: ObservationViewerSettings): BBox | null {
   return center ? [center.lng - 2, center.lat - 2, center.lng + 2, center.lat + 2] : null
 }
 
-function useViewport(map: MapboxMap | null, setBBox: (update: (b: BBox | null) => BBox) => void) {
+function useViewport(
+  map: MapboxMap | null,
+  setBBox: (update: (b: BBox | null) => BBox) => void,
+  setMoving: (moving: boolean) => void,
+) {
   useEffect(() => {
     if (!map) return
     let timer: number | undefined
     const report = () => {
       window.clearTimeout(timer)
       timer = window.setTimeout(() => {
+        // Mid-flight, the move's own `moveend` will report where it lands.
+        if (map.isMoving()) return
         const next = currentBBox(map)
         setBBox((current) => (sameBBox(current, next) ? (current ?? next) : next))
+        setMoving(false)
       }, BOUNDS_DEBOUNCE_MS)
     }
     report()
@@ -227,7 +252,7 @@ function useViewport(map: MapboxMap | null, setBBox: (update: (b: BBox | null) =
       map.off('moveend', report)
       map.off('resize', report)
     }
-  }, [map, setBBox])
+  }, [map, setBBox, setMoving])
 }
 
 /** Frame zones, as choosing one in the zone filter does; clearing the choice does not move the map. */

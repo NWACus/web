@@ -71,6 +71,7 @@ function useViewerMap(centerSlug: string, state: ViewerState, token: string | nu
     kind: tab,
     search: state.apiSearch,
     bbox: view.bbox,
+    moving: view.moving,
   })
   useServedPage(status, state.setList)
 
@@ -84,9 +85,9 @@ function useViewerMap(centerSlug: string, state: ViewerState, token: string | nu
     centerId: settings.centerId,
     highlightedId: state.highlightedId,
   })
-  useZoneFraming(view.map, state.chosenZones)
+  useZoneFraming(view.map, state.chosenZones, view.expectMove)
   const { setPlace, openRecord } = state
-  usePlaceMarker(view.map, state.place, () => setPlace(null))
+  usePlaceMarker(view.map, state.place, () => setPlace(null), view.expectMove)
   const resetView = useResetView(view.map, settings, state.chosenZones)
 
   const open = useCallback((id: string) => openRecord({ kind: tab, id }), [openRecord, tab])
