@@ -26,7 +26,7 @@ export function HeaderField({
 }) {
   if (isEmpty(children)) return null
   return (
-    <div className={cn('border-l-2 border-primary pl-2', wide && 'sm:col-span-2')}>
+    <div className={cn('border-l-2 border-border pl-2', wide && 'sm:col-span-2')}>
       <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {title}
       </h3>
