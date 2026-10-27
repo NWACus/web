@@ -2047,6 +2047,10 @@ export interface Provider {
     | 'DC'
     | 'INTL'
   )[];
+  /**
+   * The avalanche education curriculum(s) this provider teaches.
+   */
+  curriculum?: ('aiare' | 'aai' | 'sas' | 'mtc' | 'provider-developed')[] | null;
   courses?: {
     docs?: (number | Course)[];
     hasNextPage?: boolean;
@@ -4602,6 +4606,7 @@ export interface ProvidersSelect<T extends boolean = true> {
         country?: T;
       };
   statesServiced?: T;
+  curriculum?: T;
   courses?: T;
   slug?: T;
   notificationEmail?: T;

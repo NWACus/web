@@ -11,9 +11,12 @@ jest.mock('../../src/utilities/rbac/isProviderManager', () => ({
 }))
 
 import { courseTypesFieldAccess } from '@/collections/Providers/access/courseTypesFieldAccess'
+import type { PayloadRequest } from 'payload'
 
-const fakeReq = (user: unknown) =>
-  ({ user, payload: {} }) as Parameters<typeof courseTypesFieldAccess.create>[0]['req']
+function buildRequest(user: { id: number } | null): PayloadRequest {
+  // @ts-expect-error - partial PayloadRequest; the access checks are mocked and read only user
+  return { user, payload: {} }
+}
 
 describe('courseTypesFieldAccess (used by curriculum and courseTypes)', () => {
   beforeEach(() => {
@@ -28,33 +31,27 @@ describe('courseTypesFieldAccess (used by curriculum and courseTypes)', () => {
 
   describe('create / update', () => {
     it('denies when there is no user', async () => {
-      const result = await courseTypesFieldAccess.create({ req: fakeReq(null) } as never)
+      const result = await courseTypesFieldAccess.create({ req: buildRequest(null) })
       expect(result).toBe(false)
     })
 
     it('allows super admins', async () => {
       mockHasSuperAdminPermissions.mockResolvedValue(true)
-      const result = await courseTypesFieldAccess.create({
-        req: fakeReq({ id: 1 }),
-      } as never)
+      const result = await courseTypesFieldAccess.create({ req: buildRequest({ id: 1 }) })
       expect(result).toBe(true)
     })
 
     it('allows provider managers', async () => {
       mockHasSuperAdminPermissions.mockResolvedValue(false)
       mockIsProviderManager.mockResolvedValue(true)
-      const result = await courseTypesFieldAccess.create({
-        req: fakeReq({ id: 2 }),
-      } as never)
+      const result = await courseTypesFieldAccess.create({ req: buildRequest({ id: 2 }) })
       expect(result).toBe(true)
     })
 
     it('denies regular users who are neither super admin nor provider manager', async () => {
       mockHasSuperAdminPermissions.mockResolvedValue(false)
       mockIsProviderManager.mockResolvedValue(false)
-      const result = await courseTypesFieldAccess.update({
-        req: fakeReq({ id: 3 }),
-      } as never)
+      const result = await courseTypesFieldAccess.update({ req: buildRequest({ id: 3 }) })
       expect(result).toBe(false)
     })
   })

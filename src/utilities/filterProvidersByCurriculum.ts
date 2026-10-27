@@ -23,7 +23,6 @@ export function filterProvidersByCurriculum<T extends CurriculumProvider>(
   if (selected.length === 0) return providers
   return providers.filter(
     (provider) =>
-      provider.curriculum &&
-      provider.curriculum.some((c) => selected.includes(c.toLowerCase())),
+      provider.curriculum && provider.curriculum.some((c) => selected.includes(c.toLowerCase())),
   )
 }

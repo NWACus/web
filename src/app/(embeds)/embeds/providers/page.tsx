@@ -85,9 +85,7 @@ function ProvidersByStateSection({
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">
-          {hasFilter
-            ? 'No providers found for the selected filters.'
-            : 'No providers found.'}
+          {hasFilter ? 'No providers found for the selected filters.' : 'No providers found.'}
         </p>
       </div>
     )
