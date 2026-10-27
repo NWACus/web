@@ -678,8 +678,8 @@ export interface Biography {
  */
 export interface ContentBlock {
   backgroundColor: string;
-  layout: '1_1' | '2_11' | '3_111' | '2_12' | '2_21' | '4_1111' | '3_112' | '3_121' | '3_211';
-  verticalAlignment: 'top' | 'center' | 'bottom';
+  layout: '1_1' | '2_11' | '3_111' | '2_21' | '2_12' | '4_1111' | '3_211' | '3_121' | '3_112';
+  verticalAlignment: 'top' | 'center' | 'bottom' | 'stretch';
   columns: {
     richText?: {
       root: {

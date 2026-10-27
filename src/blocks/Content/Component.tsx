@@ -45,8 +45,10 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
     top: 'items-start',
     center: 'items-center',
     bottom: 'items-end',
+    stretch: 'items-stretch',
   }
   const alignClass = alignClasses[verticalAlignment ?? 'top']
+  const isStretch = verticalAlignment === 'stretch'
 
   return (
     <div className={cn(spacing.outer, spacing.bg)}>
@@ -55,8 +57,20 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
           {columns?.map((col, index) => {
             const { richText } = col
             return (
-              <div className={cn('col-span-6', colsSpanClass[index], textColor)} key={index}>
-                {richText && <RichText data={richText} enableGutter={false} />}
+              <div
+                className={cn('col-span-6', colsSpanClass[index], textColor, {
+                  'flex flex-col': isStretch,
+                })}
+                key={index}
+              >
+                {richText && (
+                  <RichText
+                    data={richText}
+                    enableGutter={false}
+                    // The last block grows so equal-height columns end flush, e.g. side-by-side callouts
+                    className={cn({ 'flex-1 flex flex-col [&>:last-child]:flex-1': isStretch })}
+                  />
+                )}
               </div>
             )
           })}

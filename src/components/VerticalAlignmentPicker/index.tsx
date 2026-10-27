@@ -3,13 +3,19 @@
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { FieldLabel, useField } from '@payloadcms/ui'
 import { mergeFieldStyles } from '@payloadcms/ui/shared'
-import { AlignCenterHorizontal, AlignEndHorizontal, AlignStartHorizontal } from 'lucide-react'
+import {
+  AlignCenterHorizontal,
+  AlignEndHorizontal,
+  AlignStartHorizontal,
+  StretchVertical,
+} from 'lucide-react'
 import { SelectFieldClientProps } from 'payload'
 
 const alignmentOptions = [
   { label: 'Top', value: 'top', icon: AlignStartHorizontal },
   { label: 'Middle', value: 'center', icon: AlignCenterHorizontal },
   { label: 'Bottom', value: 'bottom', icon: AlignEndHorizontal },
+  { label: 'Stretch', value: 'stretch', icon: StretchVertical },
 ]
 
 export const VerticalAlignmentPicker = (props: SelectFieldClientProps) => {

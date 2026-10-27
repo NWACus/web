@@ -115,6 +115,7 @@ export const ContentBlock: Block = {
             { label: 'Top', value: 'top' },
             { label: 'Middle', value: 'center' },
             { label: 'Bottom', value: 'bottom' },
+            { label: 'Stretch', value: 'stretch' },
           ],
           admin: {
             width: '38%',
