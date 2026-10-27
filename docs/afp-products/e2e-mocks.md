@@ -124,7 +124,7 @@ Two things are not fixture gaps and no capture will fix them:
 
 **Sentry and the MSW preload do not co-exist in one server.** With both loaded, concurrent requests intermittently returned `ReferenceError: Cannot access 'h' before initialization` from the Payload API — a webpack async module read before its body finished initialising. Both libraries hook module loading (Sentry through `import-in-the-middle`, MSW through its interceptors), and together they invert that order.
 
-It is an interaction, **not a production defect**: a normal production build carries Sentry and no MSW, and survived three cold starts × 36 concurrent requests with zero errors, while the mocked build with both produced 185 in a single run. Production never loads the preload. The mocked build skips `withSentryConfig` (`next.config.js`), which takes it to zero — and also keeps the suite's synthetic failures out of the real project.
+It is an interaction, **not a production defect**: a normal production build carries Sentry and no MSW, and survived three cold starts × 36 concurrent requests with zero errors, while the mocked build with both produced 185 in a single run. Production never loads the preload. The mocked build skips `withSentryConfig` (`next.config.ts`), which takes it to zero — and also keeps the suite's synthetic failures out of the real project.
 
 **Zone slugs containing `&` never resolved.** Next hands a dynamic segment percent-encoded, so three of Sawtooth's four zones rendered "Zone not found" — including from their own links on the all-zones grid. Fixed in `zoneSlugFromParam`, with a regression test that follows the grid's link rather than a hand-written URL.
 
