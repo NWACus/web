@@ -6,7 +6,6 @@
 import { MapPin } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-import type { LatLng } from '@/services/nac/model/observation'
 import { cn } from '@/utilities/ui'
 
 /** A labelled value in a detail header; omitted when `value` is given and empty. */
@@ -128,45 +127,5 @@ export function ReviewDisclaimer() {
       This information is provided &quot;as is&quot; and has not been reviewed for accuracy by
       Avalanche Center staff.
     </p>
-  )
-}
-
-const STATIC_STYLE = 'avalanche-org/cmg1bsw48002301pshwzoen5y'
-
-/**
- * Where the record is, as a small static map with a pin in the marker's color — the widget's
- * header map at the same zoom (9), as an image from Mapbox's Static Images API rather than a live
- * map, since it is only ever looked at.
- */
-export function LocationMap({
-  location,
-  color,
-  label,
-  count = null,
-}: {
-  location: LatLng | null
-  color: string
-  label: string
-  /** Printed in the pin when over 1, as the widget numbers a report of several avalanches. */
-  count?: number | null
-}) {
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-  if (!location || !token) return null
-  const { lng, lat } = location
-  // The Static Images API labels a pin with a number up to 99.
-  const pinLabel = count !== null && count > 1 && count < 100 ? `-${count}` : ''
-  // Drops the '#' from the hex color, which the API takes bare.
-  const pin = `pin-s${pinLabel}+${color.replace('#', '')}(${lng},${lat})`
-  const src = `https://api.mapbox.com/styles/v1/${STATIC_STYLE}/static/${pin}/${lng},${lat},9/400x280@2x?access_token=${token}`
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={`Map showing ${label}`}
-      width={400}
-      height={280}
-      className="h-auto w-full rounded-lg border bg-muted"
-      loading="lazy"
-    />
   )
 }

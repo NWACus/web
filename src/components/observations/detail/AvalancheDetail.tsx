@@ -24,7 +24,6 @@ import { isPlainClick } from '../links'
 import { MARKER_COLORS, avalancheColor } from '../map/markerStyle'
 import {
   HeaderField,
-  LocationMap,
   Panel,
   RecordTitle,
   ReviewDisclaimer,
@@ -33,6 +32,7 @@ import {
   type DetailTitleTag,
 } from './DetailParts'
 import type { AvalancheDetailData } from './detailTypes'
+import { LocationMap } from './LocationMap.client'
 import { MediaGallery } from './MediaGallery'
 import { ObserverFields } from './ObservationDetail'
 

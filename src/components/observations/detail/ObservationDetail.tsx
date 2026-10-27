@@ -17,13 +17,13 @@ import { capitalize, formatDay, formatHalfHour, formatSubmitted } from '../forma
 import { observationColor } from '../map/markerStyle'
 import {
   HeaderField,
-  LocationMap,
   Panel,
   RecordTitle,
   ReviewDisclaimer,
   type DetailTitleTag,
 } from './DetailParts'
 import type { ObservationDetailData } from './detailTypes'
+import { LocationMap } from './LocationMap.client'
 import { MediaGallery } from './MediaGallery'
 import {
   AvalanchesSection,
