@@ -30,6 +30,7 @@ import {
   ReviewDisclaimer,
   Section,
   TextBlock,
+  type DetailTitleTag,
 } from './DetailParts'
 import type { AvalancheDetailData } from './detailTypes'
 import { MediaGallery } from './MediaGallery'
@@ -266,10 +267,10 @@ interface AvalancheDetailProps {
   prefix?: string
   /** Open the associated observation over the list; without it the link is a plain link. */
   onOpenObservation?: (id: string) => void
-  TitleTag?: 'h1' | 'h2'
+  TitleTag?: DetailTitleTag
 }
 
-function Header({ TitleTag, ...props }: HeaderProps & { TitleTag: 'h1' | 'h2' }) {
+function Header({ TitleTag, ...props }: HeaderProps & { TitleTag: DetailTitleTag }) {
   const { avalanche } = props
   return (
     <header className="grid gap-4 md:grid-cols-3">

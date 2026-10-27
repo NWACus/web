@@ -3,6 +3,7 @@
  * `ContentPanel` and `TextField`. Server-renderable and client-renderable alike: the same markup
  * is the full page and the modal over the list.
  */
+import { MapPin } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import type { LatLng } from '@/services/nac/model/observation'
@@ -34,16 +35,28 @@ export function HeaderField({
   )
 }
 
+/** How a detail is titled: with its own heading, or (null) under the page's H1, which carries it. */
+export type DetailTitleTag = 'h1' | 'h2' | null
+
 /** "Field Observation" or "Avalanche Occurrence", over the location it was at. */
 export function RecordTitle({
   TitleTag,
   title,
   location,
 }: {
-  TitleTag: 'h1' | 'h2'
+  TitleTag: DetailTitleTag
   title: string
   location: string | null
 }) {
+  if (!TitleTag) {
+    if (!location) return null
+    return (
+      <p className="flex items-center gap-2 text-xl font-semibold uppercase text-muted-foreground">
+        <MapPin className="h-5 w-5 shrink-0" aria-hidden="true" />
+        {location}
+      </p>
+    )
+  }
   return (
     <div>
       <TitleTag className="text-3xl font-bold">{title}</TitleTag>
