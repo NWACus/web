@@ -23,7 +23,7 @@ import {
   TRIGGER_GROUPS,
 } from '@/services/nac/observations/options'
 
-import { CheckList, CheckOption, toOptions } from './controls'
+import { CheckList, CheckOption, SUBHEADING, toOptions } from './controls'
 
 export interface GroupProps {
   filters: ObservationFilters
@@ -34,7 +34,7 @@ export function ObserverGroup({ filters, onChange }: GroupProps) {
   return (
     <CheckList
       legend="Observer"
-      allLabel="All Observers"
+      allLabel="Any Observer"
       options={OBSERVER_TYPES}
       selected={filters.observers}
       onChange={(observers) => onChange({ observers })}
@@ -68,6 +68,7 @@ function TriggerGroup({ filters, onChange }: GroupProps) {
         allLabel="All Triggers"
         allChecked={filters.triggers.length === 0 && filters.causes.length === 0}
         onAll={() => onChange({ triggers: [], causes: [] })}
+        optionsLabel="Primary"
         options={toOptions(TRIGGER_GROUPS.map((group) => group.label))}
         selected={filters.triggers}
         onChange={(triggers) => onChange({ triggers })}
@@ -75,6 +76,7 @@ function TriggerGroup({ filters, onChange }: GroupProps) {
       />
       <CheckList
         legend="Secondary"
+        legendClassName={SUBHEADING}
         options={toOptions(CAUSES.map((cause) => cause.label))}
         selected={filters.causes}
         onChange={(causes) => onChange({ causes })}
@@ -190,10 +192,15 @@ function ImpactsGroup({ filters, onChange }: GroupProps) {
   return (
     <fieldset>
       <legend className="mb-1 text-sm font-semibold">Impacts</legend>
+      <CheckOption
+        label="All Impacts"
+        checked={filters.impacts.length === 0}
+        onChange={() => onChange({ impacts: [] })}
+      />
       <div className="grid grid-cols-3 gap-2">
         {groups.map((group) => (
           <div key={group}>
-            <div className="text-xs font-semibold uppercase text-muted-foreground">{group}</div>
+            <div className={SUBHEADING}>{group}</div>
             {IMPACTS.filter((impact) => impact.group === group).map((impact) => (
               <CheckOption
                 key={impact.value}

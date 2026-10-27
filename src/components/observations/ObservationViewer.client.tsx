@@ -120,12 +120,6 @@ function Toolbar({ state, status }: { state: ViewerState; status: ListStatus }) 
   const { filters, tab, today, settings } = state
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <DateFilter
-        filters={filters}
-        today={today}
-        startSeason={settings.startSeason}
-        onChange={state.changeFilters}
-      />
       <SortMenu kind={tab} list={state.list} onChange={state.setList} />
       <FilterSheet
         kind={tab}
@@ -138,6 +132,12 @@ function Toolbar({ state, status }: { state: ViewerState; status: ListStatus }) 
         onChange={state.changeFilters}
         onRemoveTag={state.removeFilterTag}
         onResetAll={state.resetAll}
+      />
+      <DateFilter
+        filters={filters}
+        today={today}
+        startSeason={settings.startSeason}
+        onChange={state.changeFilters}
       />
       {settings.showZoneFilter && (
         <ZoneFilter
