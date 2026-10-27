@@ -19,26 +19,37 @@ const PLACE_ZOOM = 12
 const PLACE_CLEARED_BELOW_ZOOM = 10
 const PLACE_PIN_COLOR = '#d9534f'
 
-/** Frame the chosen zones whenever the choice changes to a non-empty one (a `?zone=` link too). */
-export function useZoneFraming(map: MapboxMap | null, chosen: ObservationZoneOption[]) {
+/**
+ * Frame the chosen zones whenever the choice changes to a non-empty one (a `?zone=` link too),
+ * announcing the move first so the list waits for where the map lands.
+ */
+export function useZoneFraming(
+  map: MapboxMap | null,
+  chosen: ObservationZoneOption[],
+  expectMove: () => void,
+) {
   const key = chosen.map((zone) => zone.id).join(',')
   const chosenRef = useRef(chosen)
   chosenRef.current = chosen
   useEffect(() => {
-    if (map && chosenRef.current.length > 0) fitZones(map, chosenRef.current)
-  }, [map, key])
+    if (!map || chosenRef.current.length === 0) return
+    expectMove()
+    fitZones(map, chosenRef.current)
+  }, [map, key, expectMove])
 }
 
 export function usePlaceMarker(
   map: MapboxMap | null,
   place: ChosenPlace | null,
   onCleared: () => void,
+  expectMove: () => void,
 ) {
   const clearedRef = useRef(onCleared)
   clearedRef.current = onCleared
 
   useEffect(() => {
     if (!map || !place) return
+    expectMove()
     map.jumpTo({ center: place.center, zoom: PLACE_ZOOM })
     const marker = new mapboxgl.Marker({ color: PLACE_PIN_COLOR })
       .setLngLat(place.center)
@@ -54,5 +65,5 @@ export function usePlaceMarker(
       map.off('dragend', clear)
       map.off('zoomend', clearWhenZoomedOut)
     }
-  }, [map, place])
+  }, [map, place, expectMove])
 }
