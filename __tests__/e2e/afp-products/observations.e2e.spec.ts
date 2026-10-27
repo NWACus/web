@@ -162,13 +162,85 @@ test.describe('Native vs widget observations', () => {
     await tag.click()
     await expect(page).not.toHaveURL(/avalancheObs/)
   })
+
+  test('back to the other tab restores the filters it had, from its own address', async ({
+    page,
+  }) => {
+    await stubMap(page)
+    await loadPage(page, `${tenant('nwac')}/observations`)
+    await expect(page.getByTestId('observation-card').first()).toBeVisible()
+    await page.getByRole('link', { name: 'Avalanches', exact: true }).click()
+    await expect(page).toHaveURL(/\/observations\/avalanches$/)
+
+    await clickUntil(page.getByRole('button', { name: 'Filters' }), page.getByRole('dialog'))
+    const sheet = page.getByRole('dialog')
+    // The widget's labels: "Any Observer", the trigger group's "Primary", and "All Impacts".
+    await expect(sheet.getByLabel('Any Observer')).toBeChecked()
+    await expect(sheet.getByText('Primary', { exact: true })).toBeVisible()
+    await expect(sheet.getByLabel('All Impacts')).toBeChecked()
+    await sheet.getByLabel('Forecaster').check()
+    await expect(page).toHaveURL(/observer=/)
+    await expect(sheet.getByLabel('Any Observer')).not.toBeChecked()
+    await sheet.getByRole('button', { name: /View \d+ Results?/ }).click()
+    const tag = page
+      .getByTestId('observation-viewer')
+      .getByRole('button', { name: 'Remove filter: Forecaster' })
+    await expect(tag).toBeVisible()
+
+    await page.goBack()
+    await expect(page).toHaveURL(/\/observations$/)
+    await expect(tag).toHaveCount(0)
+    await page.goForward()
+    await expect(page).toHaveURL(/\/observations\/avalanches\?.*observer=/)
+    await expect(tag).toBeVisible()
+  })
+
+  test('an avalanche’s observation opens in the modal, over the list', async ({ page }) => {
+    await stubMap(page)
+    await loadPage(page, `${tenant('nwac')}/observations/avalanches`)
+    const card = page.getByTestId('avalanche-card').filter({ hasText: 'Chutla & Wahpenayo Peaks' })
+    await clickUntil(card, page.getByRole('dialog'))
+    await expect(page).toHaveURL(new RegExp(`/observations/avalanches/${AVALANCHE}$`))
+
+    await page.getByRole('dialog').getByRole('link', { name: 'View Observation' }).click()
+    // Its observation has no fixture, so the modal says "not found" — but it is the modal.
+    await expect(page).toHaveURL(/\/observations\/5bd9800f-a470-4cfc-afb7-6fb2bba1701c$/)
+    await expect(page.getByRole('dialog').getByRole('alert')).toContainText('Not Found')
+    await expect(page.getByTestId('observation-viewer')).toBeVisible()
+
+    await page.goBack()
+    await expect(page).toHaveURL(new RegExp(`/observations/avalanches/${AVALANCHE}$`))
+    await expect(page.getByRole('dialog').getByTestId('avalanche-detail')).toBeVisible()
+  })
+
+  test('the toolbar and map stay pinned while the page scrolls the list', async ({ page }) => {
+    await stubMap(page)
+    await loadPage(page, `${tenant('nwac')}/observations`)
+    await expect(page.getByTestId('observation-card')).toHaveCount(10)
+
+    // Partway down: at the end of a short list the bar and map let go together, by design.
+    await page.evaluate(() => {
+      const viewer = document.querySelector('[data-testid="observation-viewer"]')
+      if (viewer) window.scrollTo(0, viewer.getBoundingClientRect().top + window.scrollY + 300)
+    })
+    const sort = await page.getByRole('button', { name: 'Filters' }).boundingBox()
+    const map = await page.getByTestId('observation-map').boundingBox()
+    expect(sort?.y).toBeGreaterThanOrEqual(0)
+    expect(sort?.y).toBeLessThan(40)
+    expect(map?.y).toBeLessThan(120)
+  })
 })
 
 test.describe('Native observation pages', () => {
   test('an observation’s own page', async ({ page }) => {
+    await stubMap(page)
     const errors = await loadPage(page, `${tenant('nwac')}/observations/${OBSERVATION}`)
 
     await expect(page.getByRole('heading', { name: 'Field Observation', level: 1 })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Recent Observations' })).toBeVisible()
+    // The widget's live location map, with its fullscreen control.
+    await expect(page.getByRole('img', { name: /^Map showing / })).toBeVisible()
+    await expect(page.getByRole('button', { name: /fullscreen/i })).toBeVisible()
     await expect(page.getByText('Lanham Lake').first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Weather', exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Snowpack', exact: true })).toBeVisible()
