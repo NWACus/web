@@ -58,13 +58,18 @@ export function CheckOption({
   )
 }
 
+/** The widget's small label over a run of options inside a group (Primary, Humans…). */
+export const SUBHEADING = 'mt-1 text-xs font-semibold uppercase text-muted-foreground'
+
 /**
  * A fieldset of checkboxes over a list filter, with the widget's "All …" option first. "All" can
  * span more than this list, as "All Triggers" also clears the secondary causes.
  */
 export function CheckList<T extends string>({
   legend,
+  legendClassName = 'mb-1 text-sm font-semibold',
   allLabel,
+  optionsLabel,
   options,
   selected,
   onChange,
@@ -73,7 +78,10 @@ export function CheckList<T extends string>({
   columns = 1,
 }: {
   legend: string
+  legendClassName?: string
   allLabel?: string
+  /** A label between "All …" and the options. */
+  optionsLabel?: string
   allChecked?: boolean
   onAll?: () => void
   options: readonly { value: T; label: string }[]
@@ -85,8 +93,9 @@ export function CheckList<T extends string>({
     onChange(selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value])
   return (
     <fieldset>
-      <legend className="mb-1 text-sm font-semibold">{legend}</legend>
+      <legend className={legendClassName}>{legend}</legend>
       {allLabel && <CheckOption label={allLabel} checked={allChecked} onChange={onAll} />}
+      {optionsLabel && <div className={SUBHEADING}>{optionsLabel}</div>}
       <div className={columns === 2 ? 'grid grid-cols-2 gap-x-3' : ''}>
         {options.map((option) => (
           <CheckOption
