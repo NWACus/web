@@ -4,17 +4,26 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
+import { listParams } from '@/services/nac/observations/listParams'
+import { mapAvalanche, mapObservation, mapPage } from '@/services/nac/sources/v2/observationMappers'
+import { mediaItemSchema } from '@/services/nac/types/forecastSchemas'
+import { avalancheListSchema, observationListSchema } from '@/services/nac/types/observationSchemas'
 import {
-  listUrl,
   newestFirst,
-  observationMedia,
   thumbnailOf,
-  toAvalanches,
-  toObservations,
+  toZoneAvalanche,
+  toZoneObservation,
   weekWindow,
+  zoneListRequest,
 } from '@/services/nac/zoneObservations'
 
 const window = { from: '2026-02-24', to: '2026-03-02' }
+
+const image = (thumbnail: string) => ({
+  type: 'image',
+  url: { thumbnail, medium: 'm.jpg', large: 'l.jpg', original: 'o.jpg' },
+  caption: null,
+})
 
 function observation(overrides: Record<string, unknown> = {}) {
   return {
@@ -50,31 +59,43 @@ function avalanche(overrides: Record<string, unknown> = {}) {
   }
 }
 
-const list = (results: unknown[]) => ({ total: results.length, pages: 1, results })
+const list = (results: unknown[]) => ({ total: results.length, pages: 1, current_page: 1, results })
 
-describe('listUrl', () => {
-  it('asks for the zone’s week with the operator params, newest first', () => {
-    const url = new URL(listUrl('observation', 'SNFAC', 2904, window))
+/** A list response through the viewer's schema and mapper, as the source reads it. */
+const observations = (results: unknown[]) =>
+  mapPage(observationListSchema.parse(list(results)), mapObservation).items
+const avalanches = (results: unknown[]) =>
+  mapPage(avalancheListSchema.parse(list(results)), mapAvalanche).items
 
-    expect(url.pathname).toBe('/obs/v1/public/observation/list/')
-    expect(Object.fromEntries(url.searchParams)).toEqual({
+describe('zoneListRequest', () => {
+  it('asks for this center’s records in the zone’s week, newest first', () => {
+    const params = listParams(zoneListRequest('observation', 2904, window), 'snfac')
+
+    expect(Object.fromEntries(params)).toEqual({
       'center_id[eq]': 'snfac',
       'zone_id[in]': '2904',
       'start_date[gte]': '2026-02-24',
       'start_date[lte]': '2026-03-02',
+      page: '1',
       page_size: '100',
       sort_by: 'start_date',
-      sort_order: 'DESC',
+      sort_order: 'desc',
     })
   })
 
-  it('filters avalanches by their date field', () => {
-    const url = new URL(listUrl('avalanche_observation', 'SNFAC', 2904, window))
+  it('filters avalanches by their date field, and by nothing else', () => {
+    const params = listParams(zoneListRequest('avalanche', 2904, window), 'snfac')
 
-    expect(url.pathname).toBe('/obs/v1/public/avalanche_observation/list/')
-    expect(url.searchParams.get('date[gte]')).toBe('2026-02-24')
-    expect(url.searchParams.get('date[lte]')).toBe('2026-03-02')
-    expect(url.searchParams.get('sort_by')).toBe('date')
+    expect(Object.fromEntries(params)).toEqual({
+      'center_id[eq]': 'snfac',
+      'zone_id[in]': '2904',
+      'date[gte]': '2026-02-24',
+      'date[lte]': '2026-03-02',
+      page: '1',
+      page_size: '100',
+      sort_by: 'date',
+      sort_order: 'desc',
+    })
   })
 })
 
@@ -91,97 +112,74 @@ describe('newestFirst', () => {
   })
 })
 
-describe('observationMedia', () => {
-  const photo = { type: 'image', url: { thumbnail: 'a.jpg' } }
-
-  it('adds the avalanches’ media after the observation’s own', () => {
-    expect(observationMedia([photo], [{ media: [photo, photo] }])).toHaveLength(3)
-  })
-
-  it('shows none when the observation has no media of its own, as the widget does', () => {
-    expect(observationMedia([], [{ media: [photo] }])).toEqual([])
-  })
-})
-
 describe('thumbnailOf', () => {
-  it('prefers the first image over earlier attachments', () => {
-    expect(
-      thumbnailOf([
-        { type: 'pdf', url: { thumbnail: undefined } },
-        { type: 'image', url: { thumbnail: 'thumb.jpg', medium: 'medium.jpg' } },
-      ]),
-    ).toEqual({ kind: 'image', src: 'thumb.jpg' })
-  })
+  const item = (raw: unknown) => mediaItemSchema.parse(raw)
 
-  it('takes the first item when there is no image, drawn by its type', () => {
-    expect(thumbnailOf([{ type: 'photo', url: 'p.jpg' }, { type: 'pdf' }])).toEqual({
+  it('draws an image or photo as its thumbnail', () => {
+    expect(thumbnailOf(item(image('thumb.jpg')))).toEqual({ kind: 'image', src: 'thumb.jpg' })
+    expect(thumbnailOf(item({ type: 'photo', url: 'p.jpg', caption: null }))).toEqual({
       kind: 'image',
       src: 'p.jpg',
     })
-    expect(thumbnailOf([{ type: 'video', url: { thumbnail: 'v.jpg' } }])).toEqual({
+  })
+
+  it('draws a video by its poster, and a PDF or link as a tile', () => {
+    expect(thumbnailOf(item({ type: 'video', url: 'dQw4w9WgXcQ', caption: null }))).toEqual({
       kind: 'video',
-      src: 'v.jpg',
+      src: expect.stringContaining('dQw4w9WgXcQ'),
     })
-    expect(thumbnailOf([{ type: 'instagram' }])).toEqual({ kind: 'unknown' })
-  })
-
-  it('accepts the older photo shape with a string url', () => {
-    expect(thumbnailOf([{ type: 'photo', url: 'photo.jpg' }])).toEqual({
-      kind: 'image',
-      src: 'photo.jpg',
-    })
-  })
-
-  it('shows a tile for the first item when there is no image', () => {
-    expect(thumbnailOf([{ type: 'pdf' }])).toEqual({ kind: 'pdf' })
-    expect(thumbnailOf([{ type: 'external' }])).toEqual({ kind: 'external' })
-    expect(thumbnailOf([])).toBeNull()
+    expect(
+      thumbnailOf(item({ type: 'pdf', url: { original: 'https://x/a.pdf' }, caption: null })),
+    ).toEqual({ kind: 'pdf' })
+    expect(thumbnailOf(item({ type: 'instagram' }))).toEqual({ kind: 'unknown' })
+    expect(thumbnailOf(null)).toBeNull()
   })
 })
 
-describe('toObservations', () => {
-  it('maps the fields the cards read, newest first', () => {
-    const result = toObservations(
-      list([
-        observation({ id: 'older', start_date: '2026-02-28' }),
-        observation({
-          media: [{ type: 'image', url: { thumbnail: 'a.jpg' } }],
-          avalanches: [{ media: [{ type: 'image', url: { thumbnail: 'b.jpg' } }] }],
-        }),
-      ]),
-    )
+describe('toZoneObservation', () => {
+  it('maps the fields the cards read', () => {
+    const [result] = observations([
+      observation({
+        media: [
+          { type: 'pdf', url: { original: 'https://x/a.pdf' }, caption: null },
+          image('a.jpg'),
+        ],
+        avalanches: [avalanche({ media: [image('b.jpg')] })],
+      }),
+    ]).map(toZoneObservation)
 
-    expect(result).toEqual([
-      {
-        id: 'obs-1',
-        date: '2026-03-01',
-        location: 'Butterfield',
-        observerType: 'forecaster',
-        organization: null,
-        avalanchesObserved: false,
-        instability: true,
-        thumbnail: { kind: 'image', src: 'a.jpg' },
-        mediaCount: 2,
-      },
-      expect.objectContaining({ id: 'older', date: '2026-02-28' }),
-    ])
+    expect(result).toEqual({
+      id: 'obs-1',
+      date: '2026-03-01',
+      createdAt: '2026-03-01T20:00:00.000000Z',
+      location: 'Butterfield',
+      observerType: 'forecaster',
+      organization: null,
+      avalanchesObserved: false,
+      instability: true,
+      // The first image, not the first item; the avalanche's media counts too.
+      thumbnail: { kind: 'image', src: 'a.jpg' },
+      mediaCount: 3,
+    })
   })
 
-  it('rejects a response without a results list', () => {
-    expect(() => toObservations({ detail: 'Unauthorized' })).toThrow()
+  it('shows no media when the observation has none of its own, as the widget does', () => {
+    const [result] = observations([
+      observation({ avalanches: [avalanche({ media: [image('b.jpg')] })] }),
+    ]).map(toZoneObservation)
+
+    expect(result).toMatchObject({ thumbnail: null, mediaCount: 0 })
   })
 })
 
-describe('toAvalanches', () => {
-  it('maps the fields the cards read, newest first', () => {
-    const result = toAvalanches(
-      list([avalanche(), avalanche({ id: 'avy-2', date: '2026-02-26', d_size: null })]),
-    )
+describe('toZoneAvalanche', () => {
+  it('maps the fields the cards read', () => {
+    const [result] = avalanches([avalanche()]).map(toZoneAvalanche)
 
-    expect(result.map((a) => a.id)).toEqual(['avy-2', 'avy-1'])
-    expect(result[1]).toEqual({
+    expect(result).toEqual({
       id: 'avy-1',
       date: '2026-02-25',
+      createdAt: '2026-02-26T05:41:23.706864Z',
       location: 'Goat Peak',
       number: 1,
       aspect: 'SE',

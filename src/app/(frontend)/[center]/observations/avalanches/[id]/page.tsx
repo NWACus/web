@@ -1,42 +1,24 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
-import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { notFound } from 'next/navigation'
-import SingleObservationPage from '../../SingleObservationPage'
+import { detailPath } from '@/services/nac/observations/routes'
+
+import { ObservationRecordRoute, RECORDS, recordMetadata } from '../../ObservationRecordRoute'
 
 type Args = {
-  params: Promise<PathArgs>
-}
-
-type PathArgs = {
-  center: string
-  id: string
+  params: Promise<{ center: string; id: string }>
 }
 
 export default async function Page({ params }: Args) {
   const { center, id } = await params
-
-  if (!id) {
-    notFound()
-  }
-
-  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
-
-  if (!avalancheCenterPlatforms.obs) {
-    notFound()
-  }
-
   return (
     <>
-      <WidgetRouterHandler initialPath={`/avalanche/${id}`} widgetPageKey="single-observation" />
       <Breadcrumbs
         center={center}
-        path={`/observations/avalanches/${id}`}
-        title="Avalanche Occurrence"
+        path={detailPath('avalanche', id)}
+        title={RECORDS.avalanche.title}
       />
-      <SingleObservationPage title="Avalanche Occurrence" center={center} />
+      <ObservationRecordRoute center={center} kind="avalanche" id={id} />
     </>
   )
 }
@@ -45,25 +27,6 @@ export async function generateMetadata(
   { params }: Args,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
-  const parentMeta = await parent
   const { id } = await params
-
-  const parentTitle =
-    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
-      ? parentMeta.title.absolute
-      : parentMeta.title
-
-  const parentOg = parentMeta.openGraph
-
-  return {
-    title: `Avalanche Occurrence | ${parentTitle}`,
-    alternates: {
-      canonical: `/observations/avalanches/${id}`,
-    },
-    openGraph: {
-      ...parentOg,
-      title: `Avalanche Occurrence | ${parentTitle}`,
-      url: `/observations/avalanches/${id}`,
-    },
-  }
+  return recordMetadata('avalanche', id, parent)
 }

@@ -248,3 +248,24 @@ export function sanitizeHtml(html: string): string {
     },
   })
 }
+
+/**
+ * HTML written by the public, as observation text is. Stricter than forecast HTML: no `style` or
+ * `class`, which could lay a submission over the whole page, and no embeds.
+ */
+export function sanitizeSubmittedHtml(html: string): string {
+  return sanitizeHtmlLib(html, {
+    allowedTags: ALLOWED_TAGS.filter((tag) => tag !== 'iframe'),
+    allowedAttributes: { a: ['href', 'target', 'rel'], img: ['src', 'alt'] },
+    allowedSchemes: ['http', 'https', 'mailto'],
+    transformTags: {
+      a: (tagName, attribs) =>
+        isExternalUrl(attribs.href)
+          ? {
+              tagName,
+              attribs: { ...attribs, target: '_blank', rel: 'noopener noreferrer nofollow ugc' },
+            }
+          : { tagName, attribs },
+    },
+  })
+}

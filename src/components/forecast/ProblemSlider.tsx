@@ -9,14 +9,14 @@
 import { AvalancheProblemLikelihood, AvalancheProblemSize } from '@/services/nac/model/forecast'
 import { cn } from '@/utilities/ui'
 
-interface ProblemSliderCoreProps {
+interface ProblemScaleProps {
   /** Bottom to top; a null step has no tick or label. */
   labels: (string | null)[]
   /** [from, to] step indices of the forecast value, or null when there is none to mark. */
   range: [number, number] | null
 }
 
-function ProblemSliderCore({ labels, range }: ProblemSliderCoreProps) {
+export function ProblemScale({ labels, range }: ProblemScaleProps) {
   const percent = (index: number) => (index / (labels.length - 1)) * 100
 
   return (
@@ -83,10 +83,7 @@ export function LikelihoodSlider({
 }) {
   const step = likelihood === null ? undefined : likelihoodStep[likelihood]
   return (
-    <ProblemSliderCore
-      labels={LIKELIHOOD_LABELS}
-      range={step === undefined ? null : [step, step]}
-    />
+    <ProblemScale labels={LIKELIHOOD_LABELS} range={step === undefined ? null : [step, step]} />
   )
 }
 
@@ -116,9 +113,9 @@ function sizeStep(size: number): number {
 }
 
 export function SizeSlider({ size }: { size: number[] }) {
-  if (size.length === 0) return <ProblemSliderCore labels={SIZE_LABELS} range={null} />
+  if (size.length === 0) return <ProblemScale labels={SIZE_LABELS} range={null} />
 
   const from = sizeStep(Math.min(...size))
   const to = sizeStep(Math.max(...size))
-  return <ProblemSliderCore labels={SIZE_LABELS} range={[from, to]} />
+  return <ProblemScale labels={SIZE_LABELS} range={[from, to]} />
 }

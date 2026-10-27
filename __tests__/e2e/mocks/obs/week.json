@@ -29,7 +29,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/butterfield%20pit_69a621a931cfb-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/butterfield%20pit_69a621a931cfb.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/butterfield%20pit_69a621a931cfb-thumbnail.jpg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "video",
@@ -39,7 +40,8 @@
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/null_69a63a89be8b2.jpg",
             "video_id": "bZHoTeeDK1g",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/null_69a63a89be8b2-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -82,7 +84,8 @@
           "type": "pdf",
           "url": {
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20260302%20Galena_69a62f70115af.pdf"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -125,7 +128,8 @@
           "type": "pdf",
           "url": {
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/SMG%20Pro%20obs%203%3A1_69a4e186d15fb.pdf"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -166,6 +170,18 @@
       "media": [],
       "avalanches": [
         {
+          "date": "2026-02-26",
+          "id": "4e9750a4-0509-4e11-b25b-40d91d91b1ec",
+          "created_at": "2026-02-27T00:53:19.271936Z",
+          "center_id": "snfac",
+          "zone_id": "2904",
+          "zone_name": "Galena Summit & Eastern Mtns",
+          "location_name": "Osberg Ridge",
+          "number": 6,
+          "aspect": "E",
+          "elevation": 9000,
+          "d_size": "1",
+          "trigger": "AM",
           "media": [
             {
               "type": "image",
@@ -174,7 +190,8 @@
                 "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1577_69a0eaf890515-medium.jpeg",
                 "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1577_69a0eaf890515.jpeg",
                 "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1577_69a0eaf890515-thumbnail.jpeg"
-              }
+              },
+              "caption": null
             },
             {
               "type": "image",
@@ -183,7 +200,8 @@
                 "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1569_69a0eafae583f-medium.jpeg",
                 "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1569_69a0eafae583f.jpeg",
                 "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1569_69a0eafae583f-thumbnail.jpeg"
-              }
+              },
+              "caption": null
             },
             {
               "type": "image",
@@ -192,7 +210,8 @@
                 "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1572_69a0eafcac7de-medium.jpeg",
                 "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1572_69a0eafcac7de.jpeg",
                 "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1572_69a0eafcac7de-thumbnail.jpeg"
-              }
+              },
+              "caption": null
             },
             {
               "type": "image",
@@ -201,7 +220,8 @@
                 "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1578_69a0eafcb0c06-medium.jpeg",
                 "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1578_69a0eafcb0c06.jpeg",
                 "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1578_69a0eafcb0c06-thumbnail.jpeg"
-              }
+              },
+              "caption": null
             }
           ]
         }
@@ -230,7 +250,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5559_69a09c827fd1e-medium.jpeg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5559_69a09c827fd1e.jpeg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5559_69a09c827fd1e-thumbnail.jpeg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -239,7 +260,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5560_69a09c82b35aa-medium.jpeg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5560_69a09c82b35aa.jpeg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_5560_69a09c82b35aa-thumbnail.jpeg"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -264,7 +286,8 @@
           "type": "pdf",
           "url": {
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/SVG%2002262026_69a0d145625ca.pdf"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -292,13 +315,15 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/0126550F-8678-425B-B617-E69D04EC3863_4_5005_c_699f9db842a6f-medium.jpeg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/0126550F-8678-425B-B617-E69D04EC3863_4_5005_c_699f9db842a6f.jpeg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/0126550F-8678-425B-B617-E69D04EC3863_4_5005_c_699f9db842a6f-thumbnail.jpeg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "pdf",
           "url": {
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/SVG%2002252026_699f9db842bef.pdf"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -323,7 +348,8 @@
           "type": "pdf",
           "url": {
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/0225%20Galena_699fc69666b33.pdf"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -332,7 +358,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-25%20at%208_699fc69683964.35_699fc69683964.23%E2%80%AFPM_699fc69683964-medium.png",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-25%20at%208_699fc69683964.35_699fc69683964.23%E2%80%AFPM_699fc69683964.png",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-25%20at%208_699fc69683964.35_699fc69683964.23%E2%80%AFPM_699fc69683964-thumbnail.png"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -360,7 +387,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_8497_699e6a247dd3e-medium.JPG",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_8497_699e6a247dd3e.JPG",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_8497_699e6a247dd3e-thumbnail.JPG"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -369,7 +397,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_8493_699e6a2183057-medium.JPG",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_8493_699e6a2183057.JPG",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_8493_699e6a2183057-thumbnail.JPG"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -397,7 +426,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20260224_140700_699e2f3f71da5-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20260224_140700_699e2f3f71da5.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/20260224_140700_699e2f3f71da5-thumbnail.jpg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -406,7 +436,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot_20260224_160609_Gallery_699e2f3d2cd97-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot_20260224_160609_Gallery_699e2f3d2cd97.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot_20260224_160609_Gallery_699e2f3d2cd97-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -434,7 +465,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182547_69a24439a6a9f-medium.png",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182547_69a24439a6a9f.png",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182547_69a24439a6a9f-thumbnail.png"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -443,7 +475,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182124_69a2433e9b9fd-medium.png",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182124_69a2433e9b9fd.png",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182124_69a2433e9b9fd-thumbnail.png"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -452,7 +485,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/1020761_69a2429c6c885-medium.JPG",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/1020761_69a2429c6c885.JPG",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/1020761_69a2429c6c885-thumbnail.JPG"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -461,7 +495,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/1020765_69a2429c9e15e-medium.JPG",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/1020765_69a2429c9e15e.JPG",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/1020765_69a2429c9e15e-thumbnail.JPG"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -470,7 +505,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/1020762_69a2429d89f81-medium.JPG",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/1020762_69a2429d89f81.JPG",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/1020762_69a2429d89f81-thumbnail.JPG"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -498,7 +534,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3452_69a308e7c452c-medium.jpeg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3452_69a308e7c452c.jpeg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3452_69a308e7c452c-thumbnail.jpeg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -507,7 +544,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3447_69a308e7d3bbf-medium.jpeg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3447_69a308e7d3bbf.jpeg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_3447_69a308e7d3bbf-thumbnail.jpeg"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": []
@@ -535,11 +573,24 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Cornice%20Collapse_699fdcfef19b3-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Cornice%20Collapse_699fdcfef19b3.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Cornice%20Collapse_699fdcfef19b3-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ],
       "avalanches": [
         {
+          "date": "2026-02-25",
+          "id": "0622587d-9aa4-4558-a8d0-c951f34c7774",
+          "created_at": "2026-02-26T05:41:23.727582Z",
+          "center_id": "snfac",
+          "zone_id": "2904",
+          "zone_name": "Galena Summit & Eastern Mtns",
+          "location_name": "Murdock Peak",
+          "number": 3,
+          "aspect": "SE",
+          "elevation": 10300,
+          "d_size": "2.5",
+          "trigger": "N",
           "media": [
             {
               "type": "image",
@@ -548,11 +599,24 @@
                 "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Murdock%20Peak%202_699fdcfc15207.25_699fdcfc15207.26_699fdcfc15207-medium.jpg",
                 "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Murdock%20Peak%202_699fdcfc15207.25_699fdcfc15207.26_699fdcfc15207.jpg",
                 "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Murdock%20Peak%202_699fdcfc15207.25_699fdcfc15207.26_699fdcfc15207-thumbnail.jpg"
-              }
+              },
+              "caption": null
             }
           ]
         },
         {
+          "date": "2026-02-25",
+          "id": "5b7b4715-895f-45dd-9049-506b65db7426",
+          "created_at": "2026-02-26T05:41:23.747864Z",
+          "center_id": "snfac",
+          "zone_id": "2904",
+          "zone_name": "Galena Summit & Eastern Mtns",
+          "location_name": "Apollo Creek",
+          "number": 3,
+          "aspect": "E",
+          "elevation": 9500,
+          "d_size": "2",
+          "trigger": "N",
           "media": [
             {
               "type": "image",
@@ -561,11 +625,24 @@
                 "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Apollo%20Creek_699fdcfa0dfcf-medium.jpg",
                 "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Apollo%20Creek_699fdcfa0dfcf.jpg",
                 "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Apollo%20Creek_699fdcfa0dfcf-thumbnail.jpg"
-              }
+              },
+              "caption": null
             }
           ]
         },
         {
+          "date": "2026-02-25",
+          "id": "9bfd0892-1d44-418d-9b92-464af8ef9679",
+          "created_at": "2026-02-26T05:41:23.706864Z",
+          "center_id": "snfac",
+          "zone_id": "2904",
+          "zone_name": "Galena Summit & Eastern Mtns",
+          "location_name": "Goat Peak",
+          "number": 1,
+          "aspect": "SE",
+          "elevation": 10300,
+          "d_size": "2.5",
+          "trigger": "N",
           "media": [
             {
               "type": "image",
@@ -574,7 +651,8 @@
                 "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%202_699fdcfabfab7.25_699fdcfabfab7.26_699fdcfabfab7-medium.jpg",
                 "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%202_699fdcfabfab7.25_699fdcfabfab7.26_699fdcfabfab7.jpg",
                 "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%202_699fdcfabfab7.25_699fdcfabfab7.26_699fdcfabfab7-thumbnail.jpg"
-              }
+              },
+              "caption": null
             },
             {
               "type": "image",
@@ -583,11 +661,24 @@
                 "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%20debris_699fdcfb742bc-medium.jpg",
                 "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%20debris_699fdcfb742bc.jpg",
                 "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%20debris_699fdcfb742bc-thumbnail.jpg"
-              }
+              },
+              "caption": null
             }
           ]
         },
         {
+          "date": "2026-02-25",
+          "id": "c253418e-f62f-4b8a-bd8c-a2d12271f8d5",
+          "created_at": "2026-02-26T05:41:23.737333Z",
+          "center_id": "snfac",
+          "zone_id": "2904",
+          "zone_name": "Galena Summit & Eastern Mtns",
+          "location_name": "Newman Creek",
+          "number": 5,
+          "aspect": "SE",
+          "elevation": 9600,
+          "d_size": "2",
+          "trigger": "N",
           "media": [
             {
               "type": "image",
@@ -596,7 +687,8 @@
                 "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Newman%20Creek_699fdcf97090b-medium.jpg",
                 "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Newman%20Creek_699fdcf97090b.jpg",
                 "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Newman%20Creek_699fdcf97090b-thumbnail.jpg"
-              }
+              },
+              "caption": null
             }
           ]
         }
@@ -625,7 +717,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1577_69a0eaf890515-medium.jpeg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1577_69a0eaf890515.jpeg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1577_69a0eaf890515-thumbnail.jpeg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -634,7 +727,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1569_69a0eafae583f-medium.jpeg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1569_69a0eafae583f.jpeg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1569_69a0eafae583f-thumbnail.jpeg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -643,7 +737,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1572_69a0eafcac7de-medium.jpeg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1572_69a0eafcac7de.jpeg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1572_69a0eafcac7de-thumbnail.jpeg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -652,7 +747,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1578_69a0eafcb0c06-medium.jpeg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1578_69a0eafcb0c06.jpeg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/IMG_1578_69a0eafcb0c06-thumbnail.jpeg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -677,7 +773,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Apollo%20Creek_699fdcfa0dfcf-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Apollo%20Creek_699fdcfa0dfcf.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Apollo%20Creek_699fdcfa0dfcf-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -702,7 +799,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%202_699fdcfabfab7.25_699fdcfabfab7.26_699fdcfabfab7-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%202_699fdcfabfab7.25_699fdcfabfab7.26_699fdcfabfab7.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%202_699fdcfabfab7.25_699fdcfabfab7.26_699fdcfabfab7-thumbnail.jpg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -711,7 +809,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%20debris_699fdcfb742bc-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%20debris_699fdcfb742bc.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Goat%20Peak%20debris_699fdcfb742bc-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -736,7 +835,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Newman%20Creek_699fdcf97090b-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Newman%20Creek_699fdcf97090b.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Newman%20Creek_699fdcf97090b-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -761,7 +861,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_BoulderPeak_D2_SE_10400_cropped_69a0febf91c46-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_BoulderPeak_D2_SE_10400_cropped_69a0febf91c46.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_BoulderPeak_D2_SE_10400_cropped_69a0febf91c46-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -786,7 +887,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_EagleCk_headwall_manyD2-2_69a0fa73aa143.5_SW-W_9000-10000_cropped_69a0fa73aa143-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_EagleCk_headwall_manyD2-2_69a0fa73aa143.5_SW-W_9000-10000_cropped_69a0fa73aa143.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_EagleCk_headwall_manyD2-2_69a0fa73aa143.5_SW-W_9000-10000_cropped_69a0fa73aa143-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -811,7 +913,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_EagleCk_headwall_manyD2-2_69a0fa73aa143.5_SW-W_9000-10000_cropped_69a0fa73aa143-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_EagleCk_headwall_manyD2-2_69a0fa73aa143.5_SW-W_9000-10000_cropped_69a0fa73aa143.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_EagleCk_headwall_manyD2-2_69a0fa73aa143.5_SW-W_9000-10000_cropped_69a0fa73aa143-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -836,7 +939,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_AndersonCk_9500%27E_cropped_69a110e877201-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_AndersonCk_9500%27E_cropped_69a110e877201.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_AndersonCk_9500%27E_cropped_69a110e877201-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -861,7 +965,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_PrairieCk_3xD2_E_9700_69a1154ecceb7-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_PrairieCk_3xD2_E_9700_69a1154ecceb7.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_PrairieCk_3xD2_E_9700_69a1154ecceb7-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -886,7 +991,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_Bromaghin_D2_69a1291472775.5_NE9800_69a1291472775-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_Bromaghin_D2_69a1291472775.5_NE9800_69a1291472775.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_Bromaghin_D2_69a1291472775.5_NE9800_69a1291472775-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -911,7 +1017,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_MurdockCk_NW-W_9600_D2_69a113b0e9910-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_MurdockCk_NW-W_9600_D2_69a113b0e9910.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_MurdockCk_NW-W_9600_D2_69a113b0e9910-thumbnail.jpg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -920,7 +1027,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_MurdockCk_NW-W_9600_D2_69a20d5bb5d04-medium.JPG",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_MurdockCk_NW-W_9600_D2_69a20d5bb5d04.JPG",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_MurdockCk_NW-W_9600_D2_69a20d5bb5d04-thumbnail.JPG"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -945,7 +1053,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/avy%20peak%20N%20cliff%202%3A26%20IMG_0759_69a0e7c92983b-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/avy%20peak%20N%20cliff%202%3A26%20IMG_0759_69a0e7c92983b.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/avy%20peak%20N%20cliff%202%3A26%20IMG_0759_69a0e7c92983b-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -970,7 +1079,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_TitusLakeChutes_9700NE_zoomed_69a2167821c46-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_TitusLakeChutes_9700NE_zoomed_69a2167821c46.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_TitusLakeChutes_9700NE_zoomed_69a2167821c46-thumbnail.jpg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -979,7 +1089,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_TitusLakeChutes_9700NE_top%20of%20path_zoomed_69a217622d189-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_TitusLakeChutes_9700NE_top%20of%20path_zoomed_69a217622d189.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_TitusLakeChutes_9700NE_top%20of%20path_zoomed_69a217622d189-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -1004,7 +1115,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_GalenaPeakSWBowl_NW_10000_zoomed_69a218e22073e-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_GalenaPeakSWBowl_NW_10000_zoomed_69a218e22073e.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_GalenaPeakSWBowl_NW_10000_zoomed_69a218e22073e-thumbnail.jpg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -1013,7 +1125,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_GalenaPeakSWBowl_NW_10000_69a117d288ca7-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_GalenaPeakSWBowl_NW_10000_69a117d288ca7.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/260226_GalenaPeakSWBowl_NW_10000_69a117d288ca7-thumbnail.jpg"
-          }
+          },
+          "caption": null
         },
         {
           "type": "image",
@@ -1022,7 +1135,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/DSC07969%20copy_699fddca59439-medium.png",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/DSC07969%20copy_699fddca59439.png",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/DSC07969%20copy_699fddca59439-thumbnail.png"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -1047,7 +1161,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Murdock%20Peak%202_699fdcfc15207.25_699fdcfc15207.26_699fdcfc15207-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Murdock%20Peak%202_699fdcfc15207.25_699fdcfc15207.26_699fdcfc15207.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Murdock%20Peak%202_699fdcfc15207.25_699fdcfc15207.26_699fdcfc15207-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -1072,7 +1187,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/A5C826F3-9FB7-4E4B-96C3-32DC1A596DC3_69a2241e6045c-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/A5C826F3-9FB7-4E4B-96C3-32DC1A596DC3_69a2241e6045c.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/A5C826F3-9FB7-4E4B-96C3-32DC1A596DC3_69a2241e6045c-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     },
@@ -1097,7 +1213,8 @@
             "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/C71843C4-BDF3-49E9-8E52-3626B4694EA2_69a22422c29b0-medium.jpg",
             "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/C71843C4-BDF3-49E9-8E52-3626B4694EA2_69a22422c29b0.jpg",
             "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/C71843C4-BDF3-49E9-8E52-3626B4694EA2_69a22422c29b0-thumbnail.jpg"
-          }
+          },
+          "caption": null
         }
       ]
     }

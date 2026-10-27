@@ -161,6 +161,12 @@
       "match": "product/175073",
       "status": 404,
       "note": "BTAC's weather product, pointed at by provisional/v2_public_product_forecast_media_links.json. That fixture is there for its media; its Mountain Weather card isn't needed."
+    },
+    {
+      "match": "products/map-layer",
+      "status": 404,
+      "blockedOn": "map_layer_all_centers",
+      "note": "Every center's map layer, which the observation viewer outlines when a center shows all zones. Listed last: the per-center entries above match first. Without it the viewer draws no outlines, which is all the specs need; the zone filter reads the obs API's zones."
     }
   ],
   "tenants": {
@@ -169,28 +175,47 @@
       "warning": true,
       "dangerMap": true,
       "weather": true,
-      "stationMap": true
+      "stationMap": true,
+      "observations": true
     },
     "dvac": {
       "forecast": false,
       "warning": false,
       "dangerMap": false,
       "weather": false,
-      "stationMap": false
+      "stationMap": false,
+      "observations": false
     },
     "nwac": {
       "forecast": true,
       "warning": true,
       "dangerMap": true,
       "weather": true,
-      "stationMap": true
+      "stationMap": true,
+      "observations": true
     },
     "sac": {
       "forecast": false,
       "warning": false,
       "dangerMap": false,
       "weather": false,
-      "stationMap": true
+      "stationMap": true,
+      "observations": false
+    }
+  },
+  "observations": {
+    "note": "The public observation API (OBS_HOST). Scrubbed live captures in mocks/obs/, not goldens. Every list request gets the same page; a detail id not listed here answers 204, as the API does for a missing or private record.",
+    "list": "observation_list_NWAC.json",
+    "avalancheList": "avalanche_list_NWAC.json",
+    "observation": "observation_detail.json",
+    "avalanche": "avalanche_detail.json",
+    "ids": {
+      "d3578079-af36-41b2-b796-01a445da25ee": "observation_detail.json",
+      "3352d330-879c-474e-9c5f-83ec4e3193d4": "avalanche_detail.json"
+    },
+    "zones": {
+      "NWAC": "combined_zones_NWAC.json",
+      "SNFAC": "combined_zones_SNFAC.json"
     }
   }
 }
