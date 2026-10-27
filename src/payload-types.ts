@@ -2089,7 +2089,7 @@ export interface Course {
   id: number;
   title: string;
   /**
-   * Optional subtitle/tagline for the event
+   * Use this field as a short description of your course that will appear below the auto-populated course name
    */
   subtitle?: string | null;
   /**
