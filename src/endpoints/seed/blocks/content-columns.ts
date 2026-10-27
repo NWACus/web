@@ -7,6 +7,7 @@ export const contentColumns: RequiredDataFromCollectionSlug<'pages'>['layout'] =
     blockType: 'content',
     backgroundColor: 'transparent',
     layout: '4_1111',
+    verticalAlignment: 'top',
     blockName: null,
     columns: [
       {
@@ -36,6 +37,7 @@ export const contentColumns: RequiredDataFromCollectionSlug<'pages'>['layout'] =
     blockType: 'content',
     backgroundColor: 'transparent',
     layout: '3_111',
+    verticalAlignment: 'top',
     blockName: null,
     columns: [
       {
@@ -59,6 +61,7 @@ export const contentColumns: RequiredDataFromCollectionSlug<'pages'>['layout'] =
     blockType: 'content',
     backgroundColor: 'transparent',
     layout: '3_112',
+    verticalAlignment: 'top',
     blockName: null,
     columns: [
       {
@@ -82,6 +85,7 @@ export const contentColumns: RequiredDataFromCollectionSlug<'pages'>['layout'] =
     blockType: 'content',
     backgroundColor: 'transparent',
     layout: '3_211',
+    verticalAlignment: 'top',
     blockName: null,
     columns: [
       {
@@ -106,6 +110,7 @@ export const contentColumns: RequiredDataFromCollectionSlug<'pages'>['layout'] =
     blockType: 'content',
     backgroundColor: 'transparent',
     layout: '2_11',
+    verticalAlignment: 'top',
     blockName: null,
     columns: [
       {
@@ -124,6 +129,7 @@ export const contentColumns: RequiredDataFromCollectionSlug<'pages'>['layout'] =
     blockType: 'content',
     backgroundColor: 'transparent',
     layout: '2_21',
+    verticalAlignment: 'center',
     blockName: null,
     columns: [
       {
@@ -142,6 +148,7 @@ export const contentColumns: RequiredDataFromCollectionSlug<'pages'>['layout'] =
     blockType: 'content',
     backgroundColor: 'transparent',
     layout: '2_12',
+    verticalAlignment: 'bottom',
     blockName: null,
     columns: [
       {

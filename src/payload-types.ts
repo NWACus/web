@@ -679,6 +679,7 @@ export interface Biography {
 export interface ContentBlock {
   backgroundColor: string;
   layout: '1_1' | '2_11' | '3_111' | '2_12' | '2_21' | '4_1111' | '3_112' | '3_121' | '3_211';
+  verticalAlignment: 'top' | 'center' | 'bottom';
   columns: {
     richText?: {
       root: {
@@ -3945,6 +3946,7 @@ export interface BlogListBlockSelect<T extends boolean = true> {
 export interface ContentBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   layout?: T;
+  verticalAlignment?: T;
   columns?:
     | T
     | {

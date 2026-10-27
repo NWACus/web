@@ -73,34 +73,57 @@ export const ContentBlock: Block = {
   interfaceName: 'ContentBlock',
   imageURL: '/thumbnail/ContentThumbnail.jpg',
   fields: [
-    // Background color
-    colorPickerField('Background color'),
     {
-      name: 'layout',
-      label: 'Column layout',
-      type: 'select',
-      required: true,
-      defaultValue: '1_1',
-      options: [
-        { label: 'full', value: '1_1' },
-        { label: '1:1', value: '2_11' },
-        { label: '1:1:1', value: '3_111' },
-        { label: '2:1', value: '2_12' },
-        { label: '1:2', value: '2_21' },
-        { label: '1:1:1:1', value: '4_1111' },
-        { label: '2:1:1', value: '3_112' },
-        { label: '1:2:1', value: '3_121' },
-        { label: '1:1:2', value: '3_211' },
-      ],
-      admin: {
-        components: {
-          Field: '@/components/ColumnLayoutPicker#ColumnLayoutPicker',
+      type: 'row',
+      fields: [
+        colorPickerField('Background color', '24%'),
+        {
+          name: 'layout',
+          label: 'Column layout',
+          type: 'select',
+          required: true,
+          defaultValue: '1_1',
+          options: [
+            { label: 'full', value: '1_1' },
+            { label: '1:1', value: '2_11' },
+            { label: '1:1:1', value: '3_111' },
+            { label: '2:1', value: '2_12' },
+            { label: '1:2', value: '2_21' },
+            { label: '1:1:1:1', value: '4_1111' },
+            { label: '2:1:1', value: '3_112' },
+            { label: '1:2:1', value: '3_121' },
+            { label: '1:1:2', value: '3_211' },
+          ],
+          admin: {
+            width: '38%',
+            components: {
+              Field: '@/components/ColumnLayoutPicker#ColumnLayoutPicker',
+            },
+          },
+          validate: validateColumnLayout,
+          hooks: {
+            beforeChange: [healColumnLayout],
+          },
         },
-      },
-      validate: validateColumnLayout,
-      hooks: {
-        beforeChange: [healColumnLayout],
-      },
+        {
+          name: 'verticalAlignment',
+          label: 'Vertical alignment',
+          type: 'select',
+          required: true,
+          defaultValue: 'top',
+          options: [
+            { label: 'Top', value: 'top' },
+            { label: 'Middle', value: 'center' },
+            { label: 'Bottom', value: 'bottom' },
+          ],
+          admin: {
+            width: '38%',
+            components: {
+              Field: '@/components/VerticalAlignmentPicker#VerticalAlignmentPicker',
+            },
+          },
+        },
+      ],
     },
     {
       type: 'ui',
@@ -113,7 +136,7 @@ export const ContentBlock: Block = {
     },
     {
       name: 'columns',
-      label: false,
+      label: 'Columns',
       labels: {
         plural: 'Columns',
         singular: 'Column',

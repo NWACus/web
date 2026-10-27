@@ -4,6 +4,7 @@ export const contentWithCallout: RequiredDataFromCollectionSlug<'pages'>['layout
   {
     backgroundColor: 'transparent',
     layout: '2_12',
+    verticalAlignment: 'top',
     blockName: null,
     columns: [
       {

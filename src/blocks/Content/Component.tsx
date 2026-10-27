@@ -5,7 +5,7 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 
 export const ContentBlockComponent = (props: ContentBlockProps) => {
-  const { columns, backgroundColor, layout } = props
+  const { columns, backgroundColor, layout, verticalAlignment } = props
   const layoutCols = layout ? layout.split('_')[1] : '1'
 
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -41,10 +41,17 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
   const colsSpanClass = colsClasses[layoutCols]
   const spacing = blockSpacing(backgroundColor, true)
 
+  const alignClasses: Record<string, string> = {
+    top: 'items-start',
+    center: 'items-center',
+    bottom: 'items-end',
+  }
+  const alignClass = alignClasses[verticalAlignment ?? 'top']
+
   return (
     <div className={cn(spacing.outer, spacing.bg)}>
       <div className={cn('container', spacing.inner)}>
-        <div className="grid grid-cols-6 lg:grid-cols-12 gap-y-6 gap-x-10">
+        <div className={cn('grid grid-cols-6 lg:grid-cols-12 gap-y-6 gap-x-10', alignClass)}>
           {columns?.map((col, index) => {
             const { richText } = col
             return (
