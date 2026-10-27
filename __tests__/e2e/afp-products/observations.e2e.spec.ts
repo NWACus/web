@@ -1,7 +1,5 @@
-import type { Page } from '@playwright/test'
-
 import { expect, test } from './fixture'
-import { clickUntil, loadPage, tenant } from './helpers'
+import { clickUntil, loadPage, stubObservationMap as stubMap, tenant } from './helpers'
 
 /**
  * Inventory rows O1, O2, O4, O6, O11, O12 — the native observation viewer, and its rollout flag.
@@ -17,28 +15,6 @@ const PHONE = { width: 375, height: 812 }
 const OBSERVATION = 'd3578079-af36-41b2-b796-01a445da25ee'
 const AVALANCHE = '3352d330-879c-474e-9c5f-83ec4e3193d4'
 const MISSING = '00000000-0000-4000-8000-000000000000'
-
-const EMPTY_STYLE = JSON.stringify({ version: 8, sources: {}, layers: [] })
-const NO_ZONES = JSON.stringify({ type: 'FeatureCollection', features: [] })
-
-/**
- * Mapbox's style and telemetry, and the zone outlines, off the network. The outlines come from
- * the danger map's endpoint, whose all-centers layer the mocks don't carry; the viewer draws none
- * without it, but the endpoint's 502 would read as a failure to `loadPage`.
- */
-async function stubMap(page: Page) {
-  await page.route('**/api.mapbox.com/**', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: route.request().url().includes('/styles/v1/') ? EMPTY_STYLE : '{}',
-    }),
-  )
-  await page.route('**/events.mapbox.com/**', (route) => route.fulfill({ status: 204, body: '' }))
-  await page.route('**/api/*/danger-map**', (route) =>
-    route.fulfill({ contentType: 'application/json', body: NO_ZONES }),
-  )
-}
 
 test.describe('Native vs widget observations', () => {
   test('a widget tenant keeps the observations widget on every route', async ({ page }) => {

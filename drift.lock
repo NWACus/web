@@ -328,7 +328,7 @@ sig = "e5e0c6a8166ba6c1"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/charts/EChart.tsx"
-sig = "b1f0bc9db83681c4"
+sig = "ad21938d87a7c778"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -397,6 +397,11 @@ sig = "887de9a378518b29"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/archive/DangerOverTimeCharts.client.tsx"
+sig = "8c6bcb2ec78ff932"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/archive/dangerOverTimeExport.ts"
 sig = "94663c549592f762"
 
@@ -448,7 +453,27 @@ sig = "2d0a0b5bbcea86b1"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/ObservationViewer.client.tsx"
-sig = "5870aaad17cb1504"
+sig = "2e3d01c8f2f23191"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/charts/ChartCard.tsx"
+sig = "d327c7b74b9e63f7"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/charts/ChartsPane.tsx"
+sig = "361ebd88f3b84bb7"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/charts/chartOptions.ts"
+sig = "c34d9a25b62e941f"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/charts/useAvalancheStats.ts"
+sig = "0eb056b5bc5d5897"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -457,8 +482,13 @@ sig = "38a9caa4030a064a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/list/ObservationList.tsx"
+sig = "7931158f322133e6"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/map/useObservationMap.ts"
-sig = "99f74b6fd9ff5a2e"
+sig = "6ca4a5527a396dc0"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -479,6 +509,11 @@ sig = "fa86dcff811c5f7c"
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/useViewerLocation.ts"
 sig = "886d3153d4dd6966"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/useViewportQuery.ts"
+sig = "f2f28e2206c493eb"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -712,6 +747,11 @@ sig = "81cd5e370ec73f69"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
+target = "__tests__/e2e/afp-products/observation-charts.e2e.spec.ts"
+sig = "8b413cbaf00ff40f"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/afp-products/station-map.e2e.spec.ts"
 sig = "16419183a532a566"
 
@@ -723,12 +763,12 @@ sig = "ccdd5eaff872d342"
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/mocks/handlers.mjs"
-sig = "7be34c9116dc3599"
+sig = "a788c97fb5bdbcf0"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/mocks/scenarios.json"
-sig = "ea35761f148085e2"
+sig = "bcca27a80bc5dab6"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"

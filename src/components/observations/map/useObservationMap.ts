@@ -146,6 +146,7 @@ export function useObservationMap(
   const [map, setMap] = useState<MapboxMap | null>(null)
   const [unsupported, setUnsupported] = useState(false)
   const [bbox, setBBox] = useState<BBox | null>(null)
+  const [zoom, setZoom] = useState<number | null>(null)
   const [moving, setMoving] = useState(false)
 
   useEffect(() => {
@@ -171,7 +172,7 @@ export function useObservationMap(
   }, [token])
   const styleStatus = useStyleStatus(map)
 
-  useViewport(map, setBBox, setMoving)
+  useViewport(map, { setBBox, setZoom, setMoving })
   useMoveTimeout(moving, setMoving)
 
   // Without a map there is no viewport; the center's zones stand in for it, so the list still lists.
@@ -182,6 +183,8 @@ export function useObservationMap(
     styleFailed: styleStatus === 'failed',
     unsupported,
     bbox: fallbackBBox ?? bbox,
+    /** Whole levels: what reads it (the charts' by-center rule) is a whole-level threshold. */
+    zoom,
     moving: moving && !fallbackBBox,
     expectMove: useCallback(() => setMoving(true), []),
   }
@@ -230,11 +233,13 @@ function fallbackViewport(settings: ObservationViewerSettings): BBox | null {
   return center ? [center.lng - 2, center.lat - 2, center.lng + 2, center.lat + 2] : null
 }
 
-function useViewport(
-  map: MapboxMap | null,
-  setBBox: (update: (b: BBox | null) => BBox) => void,
-  setMoving: (moving: boolean) => void,
-) {
+interface ViewportSetters {
+  setBBox: (update: (b: BBox | null) => BBox) => void
+  setZoom: (zoom: number) => void
+  setMoving: (moving: boolean) => void
+}
+
+function useViewport(map: MapboxMap | null, { setBBox, setZoom, setMoving }: ViewportSetters) {
   useEffect(() => {
     if (!map) return
     let timer: number | undefined
@@ -245,6 +250,7 @@ function useViewport(
         if (map.isMoving()) return
         const next = currentBBox(map)
         setBBox((current) => (sameBBox(current, next) ? (current ?? next) : next))
+        setZoom(Math.floor(map.getZoom()))
         setMoving(false)
       }, BOUNDS_DEBOUNCE_MS)
     }
@@ -256,7 +262,7 @@ function useViewport(
       map.off('moveend', report)
       map.off('resize', report)
     }
-  }, [map, setBBox, setMoving])
+  }, [map, setBBox, setZoom, setMoving])
 }
 
 /** Frame zones, as choosing one in the zone filter does; clearing the choice does not move the map. */

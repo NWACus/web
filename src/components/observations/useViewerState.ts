@@ -18,6 +18,7 @@ import {
 import { listKind, type ViewerTab } from '@/services/nac/observations/routes'
 import type { ObservationViewerSettings } from '@/services/nac/observations/viewerSettings'
 
+import type { StatsStatus } from './charts/useAvalancheStats'
 import type { ChosenPlace } from './map/placeSearch'
 import type { ListStatus } from './useObservationList'
 import { useViewerFilters } from './useViewerFilters'
@@ -105,4 +106,9 @@ export function neighboursOf(status: ListStatus, record: OpenRecord | null, tab:
 export function resultCount(kind: ObservationKind, status: ListStatus): number | null {
   if (status.state !== 'ready') return null
   return kind === 'observation' ? status.data.total : (status.data.avalancheCount ?? 0)
+}
+
+/** The same count on the charts tab: the stats' own total. */
+export function statsCount(status: StatsStatus): number | null {
+  return status.state === 'ready' ? status.data.totalAvalanches : null
 }

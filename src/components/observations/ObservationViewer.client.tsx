@@ -1,11 +1,11 @@
 'use client'
 
 /**
- * The native observation viewer — the legacy observations widget's Observations and Avalanches
- * tabs (inventory rows O1, O2, O4, O6, O11, O12), on AvyWeb's design system.
+ * The native observation viewer — the legacy observations widget's Observations, Avalanches and
+ * Charts tabs (inventory rows O1, O2, O3, O4, O6, O11, O12), on AvyWeb's design system.
  *
- * Client-only: the list shows what is inside the map (O11), so it can't be fetched until the map
- * knows its viewport. The rules live elsewhere — the filter model and its two encodings in
+ * Client-only: the list and the charts show what is inside the map (O11), so neither can be
+ * fetched until the map knows its viewport. The rules live elsewhere — the filter model and its two encodings in
  * `@/services/nac/observations/`, the Mapbox plumbing in `./map/`, the URL in `./useViewerFilters`
  * and `./useViewerLocation` — and what is left here is wiring and layout.
  */
@@ -21,6 +21,8 @@ import { detailPath, type ViewerTab } from '@/services/nac/observations/routes'
 import type { ObservationViewerSettings } from '@/services/nac/observations/viewerSettings'
 import { cn } from '@/utilities/ui'
 
+import { ChartsPane } from './charts/ChartsPane'
+import { useAvalancheStats } from './charts/useAvalancheStats'
 import { DetailModal } from './detail/DetailModal'
 import { DateFilter } from './filters/DateFilter'
 import { FilterSheet } from './filters/FilterSheet'
@@ -43,7 +45,13 @@ import { ZoneHoverCard } from './map/ZoneHoverCard'
 import { useObservationList, type ListStatus } from './useObservationList'
 import { useStickyHeaderHeight } from './useStickyHeaderHeight'
 import { useViewerLayout } from './useViewerLayout'
-import { neighboursOf, resultCount, useViewerState, type ViewerState } from './useViewerState'
+import {
+  neighboursOf,
+  resultCount,
+  statsCount,
+  useViewerState,
+  type ViewerState,
+} from './useViewerState'
 import { ViewerTabs } from './ViewerTabs'
 
 export interface ObservationViewerProps {
@@ -60,17 +68,26 @@ function useServedPage(status: ListStatus, setList: (patch: Partial<ListState>) 
   }, [servedPage, setList])
 }
 
-/** The map, and everything drawn on it or fetched for it: markers, outlines, the list. */
+/** The map, and everything drawn on it or fetched for it: markers, outlines, the list or charts. */
 function useViewerMap(centerSlug: string, state: ViewerState, token: string | null) {
   const containerRef = useRef<HTMLDivElement>(null)
   const controlsRef = useRef<HTMLDivElement>(null)
   const { settings, kind } = state
+  const charts = state.tab === 'charts'
   const view = useObservationMap({ containerRef, controlsRef }, token, settings)
+  // The showing tab's query; the other waits, so a tab switch is one request, not two.
   const status = useObservationList({
     centerSlug,
     kind,
     search: state.apiSearch,
-    bbox: view.bbox,
+    bbox: charts ? null : view.bbox,
+    moving: view.moving,
+  })
+  const stats = useAvalancheStats({
+    centerSlug,
+    search: state.apiSearch,
+    bbox: charts ? view.bbox : null,
+    zoom: view.zoom,
     moving: view.moving,
   })
   useServedPage(status, state.setList)
@@ -102,6 +119,7 @@ function useViewerMap(centerSlug: string, state: ViewerState, token: string | nu
     controlsRef,
     ...view,
     status,
+    stats,
     tilesFailed,
     hoveredZone,
     resetView,
@@ -117,11 +135,12 @@ function hrefFor(prefix: string, kind: ObservationKind) {
   return (id: string) => `${prefix}${detailPath(kind, id)}`
 }
 
-function Toolbar({ state, status }: { state: ViewerState; status: ListStatus }) {
+function Toolbar({ state, view }: { state: ViewerState; view: ViewerMap }) {
   const { filters, kind, today, settings } = state
+  const charts = state.tab === 'charts'
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <SortMenu kind={kind} list={state.list} onChange={state.setList} />
+      {!charts && <SortMenu kind={kind} list={state.list} onChange={state.setList} />}
       <FilterSheet
         kind={kind}
         filters={filters}
@@ -129,7 +148,7 @@ function Toolbar({ state, status }: { state: ViewerState; status: ListStatus }) 
         zones={settings.zones}
         centerLabel={settings.centerLabel}
         activeCount={activeTags(filters, kind, today).length}
-        resultCount={resultCount(kind, status)}
+        resultCount={charts ? statsCount(view.stats) : resultCount(kind, view.status)}
         onChange={state.changeFilters}
         onRemoveTag={state.removeFilterTag}
         onResetAll={state.resetAll}
@@ -169,7 +188,7 @@ function ViewerHeader({
   return (
     <div className="flex flex-col-reverse gap-3 lg:flex-row lg:items-end lg:justify-between">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
-        <Toolbar state={state} status={view.status} />
+        <Toolbar state={state} view={view} />
         <PlaceSearch
           token={token ?? ''}
           chosen={state.place}
@@ -237,10 +256,40 @@ function MapPane({
   )
 }
 
+/** What the list pane holds: the showing tab's list, or its charts. */
+function PaneContent({ state, view, layout }: PaneProps & { layout: ViewerLayout }) {
+  const { filters } = state
+  const scope = { place: state.place && state.place.label, zoneCount: filters.zones.length }
+  if (state.tab === 'charts') {
+    return (
+      <ChartsPane
+        status={view.stats}
+        dates={{ from: filters.from, to: filters.to }}
+        scope={scope}
+      />
+    )
+  }
+  return (
+    <ObservationList
+      kind={state.kind}
+      status={view.status}
+      scope={scope}
+      highlightedId={state.highlightedId}
+      hrefFor={hrefFor(state.prefix, state.kind)}
+      onOpen={view.open}
+      onHighlight={state.setHighlightedId}
+      onPage={(page) => {
+        state.setList({ page })
+        layout.revealList()
+      }}
+    />
+  )
+}
+
 /**
- * The list. In the phone layout it is a sheet in a scroller over the whole map, resting
- * `restingTop` down and taking touches only on itself; side by side it is the left-hand column and
- * scrolls with the page.
+ * The list, or on the charts tab the charts. In the phone layout it is a sheet in a scroller over
+ * the whole map, resting `restingTop` down and taking touches only on itself; side by side it is
+ * the left-hand column and scrolls with the page.
  */
 function ListPane({
   state,
@@ -285,19 +334,7 @@ function ListPane({
           onRemove={state.removeFilterTag}
           onClearAll={state.resetAll}
         />
-        <ObservationList
-          kind={state.kind}
-          status={view.status}
-          scope={{ place: state.place && state.place.label, zoneCount: filters.zones.length }}
-          highlightedId={state.highlightedId}
-          hrefFor={hrefFor(state.prefix, state.kind)}
-          onOpen={view.open}
-          onHighlight={state.setHighlightedId}
-          onPage={(page) => {
-            state.setList({ page })
-            layout.revealList()
-          }}
-        />
+        <PaneContent state={state} view={view} expanded={expanded} layout={layout} />
       </div>
     </div>
   )

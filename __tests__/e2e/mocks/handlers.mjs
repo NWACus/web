@@ -122,6 +122,16 @@ function obsHandlers() {
       `${obsPath}/avalanche_observation/list/`,
       list(scenarios.observations.avalancheList, () => obsWeek().avalanches),
     ),
+    // The charts tab's stats: one recorded answer whatever the viewport and filters, except a
+    // Wildlife-only trigger filter, which gets a window with nothing in it, for the empty states.
+    http.get(
+      `${obsPath}/avalanche_observation/stats/`,
+      guard(({ request }) =>
+        new URL(request.url).searchParams.get('trigger[in]') === 'AW'
+          ? obsJson(scenarios.observations.avalancheStatsEmpty)
+          : obsJson(scenarios.observations.avalancheStats),
+      ),
+    ),
     http.get(`${obsPath}/observation/:id`, detail(scenarios.observations.observation)),
     http.get(`${obsPath}/avalanche_observation/:id`, detail(scenarios.observations.avalanche)),
     http.get(
