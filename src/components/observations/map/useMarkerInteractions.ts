@@ -2,7 +2,7 @@
 
 /**
  * Hovering, clicking and tapping markers, as the widget handles them: on a desktop a hover shows
- * the marker's card and raises it, and a click opens the record; on a phone (under 992px) a tap
+ * the marker's card and raises it, and a click opens the record; in the phone layout (under `lg`) a tap
  * shows the card with a link to open the record, since there is no hover to preview with.
  *
  * Where markers overlap, an observation with avalanches wins, so the most significant report is
@@ -14,9 +14,9 @@ import { useEffect, useRef, useState } from 'react'
 
 import type { ObservationKind } from '@/services/nac/model/observation'
 
+import { isSideBySide } from '../sideBySide'
 import type { MarkerProperties } from './MarkerPopup'
 import { MARKER_LAYER_ID } from './useMarkerLayers'
-import { PHONE_WIDTH } from './useObservationMap'
 
 /** How far from a marker's center the pointer can be and still be on it, as in the widget. */
 const HIT_SLOP_PX = 5
@@ -34,7 +34,7 @@ interface Marker {
   point: [number, number]
 }
 
-const isPhone = () => window.innerWidth < PHONE_WIDTH
+const isPhone = () => !isSideBySide()
 
 function toMarker(feature: GeoJSONFeature): Marker | null {
   const properties: MarkerProperties = feature.properties ?? {}
