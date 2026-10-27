@@ -462,6 +462,21 @@ sig = "99f74b6fd9ff5a2e"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/sideBySide.ts"
+sig = "e7ca9d3fbad533ba"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/useViewerFilters.ts"
+sig = "da469b48b38f1a44"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/observations/useViewerLayout.ts"
+sig = "fa86dcff811c5f7c"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/useViewerLocation.ts"
 sig = "7b142e631874609d"
 
