@@ -1,4 +1,6 @@
+import { BLOCK_MARGIN } from '@/components/BackgroundColorWrapper'
 import type { TeamBlock as TeamBlockProps } from '@/payload-types'
+import { cn } from '@/utilities/ui'
 import { format, parseISO } from 'date-fns'
 
 import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
@@ -21,7 +23,7 @@ export const TeamBlockComponent = ({ team }: TeamBlockProps) => {
   const teamMembers = filterValidRelationships(team.members)
 
   return (
-    <div className="container mx-auto mb-12">
+    <div className={cn('container mx-auto', BLOCK_MARGIN)}>
       <h2 className="text-3xl font-semi-bold">{team.name}</h2>
       <hr className="mt-2 mb-6" />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">

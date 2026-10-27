@@ -1,6 +1,8 @@
+import { BLOCK_MARGIN } from '@/components/BackgroundColorWrapper'
 import RichText from '@/components/RichText'
 import type { GalleryBlock as GalleryBlockProps } from '@/payload-types'
 import { isValidRelationship } from '@/utilities/relationships'
+import { cn } from '@/utilities/ui'
 import { GalleryGrid } from './GalleryGrid'
 import { isRenderableItem } from './shared'
 
@@ -20,7 +22,7 @@ export const GalleryBlockComponent = ({
   }
 
   return (
-    <div className="container py-10">
+    <div className={cn('container', BLOCK_MARGIN)}>
       {description && (
         <div className="mt-2 mb-6">
           <RichText data={description} enableGutter={false} />

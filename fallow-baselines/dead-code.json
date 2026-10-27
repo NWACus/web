@@ -5,7 +5,6 @@
   ],
   "unused_exports": [
     "src/components/AlignContentPicker/index.tsx:default",
-    "src/components/ColorPicker/index.tsx:default",
     "src/components/ColumnLayoutPicker/index.tsx:default",
     "src/components/Header/utils.ts:convertToNavLink",
     "src/components/Header/utils.ts:findNavigationItemBySlug",

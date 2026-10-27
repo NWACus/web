@@ -1,3 +1,4 @@
+import { blockSpacing } from '@/components/BackgroundColorWrapper'
 import { ButtonLink } from '@/components/ButtonLink'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
@@ -25,12 +26,12 @@ export const LinkPreviewBlockComponent = (props: LinkPreviewBlockProps) => {
   }
   const colsSpanClass = colsClasses[numOfCols]
 
-  const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
+  const spacing = blockSpacing(backgroundColor, true)
 
   return (
-    <div className={`${bgColorClass} py-8`}>
-      <div className="container ">
+    <div className={cn(spacing.outer, spacing.bg)}>
+      <div className={cn('container', spacing.inner)}>
         {header && (
           <div>
             <RichText className={`mb-4 ${textColor}`} data={header} enableGutter={false} />

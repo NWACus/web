@@ -1,5 +1,6 @@
 'use client'
 import { isInlineSafeMimeType } from '@/collections/Documents/allowedFileTypes'
+import { BLOCK_MARGIN } from '@/components/BackgroundColorWrapper'
 import { type DocumentBlock as DocumentBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import { getMediaURL } from '@/utilities/getURL'
@@ -26,14 +27,14 @@ export const DocumentBlockComponent = (props: Props) => {
   // Non-PDFs are served as attachments, so an iframe would download them on every page view
   if (displayAs === 'embed' && isInlineSafeMimeType(document.mimeType)) {
     return (
-      <div className={cn('my-4', { container: isLayoutBlock })}>
+      <div className={cn(isLayoutBlock ? ['container', BLOCK_MARGIN] : 'my-4')}>
         <iframe src={src} width="100%" height="600px" title="Document" />
       </div>
     )
   }
 
   return (
-    <div className={cn('my-4', { container: isLayoutBlock })}>
+    <div className={cn(isLayoutBlock ? ['container', BLOCK_MARGIN] : 'my-4')}>
       {/* target="_blank" keeps nextjs-toploader from treating the click as a navigation */}
       <a
         href={src}

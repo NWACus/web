@@ -1,3 +1,4 @@
+import { blockSpacing } from '@/components/BackgroundColorWrapper'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
@@ -21,12 +22,14 @@ export const EmbedLayout = ({
 }: EmbedLayoutProps) => {
   // Stored as `… | null`, and a parameter default only fires on `undefined`.
   const align = alignContent ?? 'left'
+  const spacing = blockSpacing(backgroundColor, isLayoutBlock)
 
   return (
-    <div className={cn(`bg-${backgroundColor}`, getTextColorFromBgColor(backgroundColor))}>
+    <div className={cn(spacing.outer, spacing.bg, getTextColorFromBgColor(backgroundColor))}>
       <div
         className={cn(
-          isLayoutBlock && 'container py-10',
+          isLayoutBlock && 'container',
+          isLayoutBlock && spacing.inner,
           'flex flex-col',
           align === 'left' && 'items-start',
           align === 'center' && 'items-center',

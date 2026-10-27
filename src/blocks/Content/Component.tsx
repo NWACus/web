@@ -1,3 +1,4 @@
+import { blockSpacing } from '@/components/BackgroundColorWrapper'
 import RichText from '@/components/RichText'
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
@@ -7,7 +8,6 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
   const { columns, backgroundColor, layout } = props
   const layoutCols = layout ? layout.split('_')[1] : '1'
 
-  const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
   const colsClasses: { [key: string]: string[] } = {
@@ -39,10 +39,11 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
     ],
   }
   const colsSpanClass = colsClasses[layoutCols]
+  const spacing = blockSpacing(backgroundColor, true)
 
   return (
-    <div className={`${bgColorClass}`}>
-      <div className="container py-10">
+    <div className={cn(spacing.outer, spacing.bg)}>
+      <div className={cn('container', spacing.inner)}>
         <div className="grid grid-cols-6 lg:grid-cols-12 gap-y-6 gap-x-10">
           {columns?.map((col, index) => {
             const { richText } = col
