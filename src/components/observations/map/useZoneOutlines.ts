@@ -13,8 +13,8 @@ import { useEffect, useState } from 'react'
 import { hasSource } from '@/components/map/mapbox'
 import { isRecord } from '@/utilities/isRecord'
 
+import { isSideBySide } from '../sideBySide'
 import { MARKER_LAYER_ID } from './useMarkerLayers'
-import { PHONE_WIDTH } from './useObservationMap'
 
 const SOURCE_ID = 'observation-zones'
 const FILL_ID = 'observation-zones-fill'
@@ -98,7 +98,7 @@ function zoneKey(zone: HoveredZone | null): string {
 function useZoneHover(map: MapboxMap | null, active: boolean): HoveredZone | null {
   const [zone, setZone] = useState<HoveredZone | null>(null)
   useEffect(() => {
-    if (!map || !active || window.innerWidth < PHONE_WIDTH) return
+    if (!map || !active || !isSideBySide()) return
     let timer: number | undefined
     const onMove = (event: MapMouseEvent) => {
       window.clearTimeout(timer)

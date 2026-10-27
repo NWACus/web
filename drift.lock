@@ -448,7 +448,7 @@ sig = "2d0a0b5bbcea86b1"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/ObservationViewer.client.tsx"
-sig = "be58bdc19c65025a"
+sig = "3ee32e9bab7dbf0a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -458,7 +458,7 @@ sig = "38a9caa4030a064a"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/map/useObservationMap.ts"
-sig = "ab78a7cccded2ad6"
+sig = "99f74b6fd9ff5a2e"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

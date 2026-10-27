@@ -24,14 +24,14 @@ import type { BBox } from '@/services/nac/observations/listParams'
 import type { ObservationViewerSettings } from '@/services/nac/observations/viewerSettings'
 import { type Bounds } from '@/utilities/geo/bounds'
 
+import { SIDE_BY_SIDE_WIDTH } from '../sideBySide'
+
 const BOUNDS_DEBOUNCE_MS = 400
 const BOUNDS_EPSILON = 0.0001
 /** A move that never reports (cancelled, or already in place) stops holding the list after this. */
 const MOVE_TIMEOUT_MS = 3000
 /** The widget frames a chosen zone with 50px to spare. */
 const ZONE_PADDING = 50
-/** The widget's layout switches to its phone view under 992px, and narrows the camera there. */
-export const PHONE_WIDTH = 992
 const WIDE_WIDTH = 1400
 
 export interface Camera {
@@ -39,9 +39,9 @@ export interface Camera {
   zoom: number
 }
 
-/** One zoom level out on a phone, and a little in on a wide screen, as the widget adjusts it. */
+/** One zoom level out in the phone layout, and a little in on a wide screen, as the widget adjusts it. */
 function responsiveZoom(zoom: number, width: number): number {
-  if (width < PHONE_WIDTH) return zoom - 1
+  if (width < SIDE_BY_SIDE_WIDTH) return zoom - 1
   if (width > WIDE_WIDTH) return zoom + (width / WIDE_WIDTH) * 0.4
   return zoom
 }
