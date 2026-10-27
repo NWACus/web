@@ -1408,10 +1408,6 @@ export interface HeaderBlock {
     [k: string]: unknown;
   };
   backgroundColor: string;
-  /**
-   * Draws a line under the heading
-   */
-  horizontalLine?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'headerBlock';
@@ -4070,7 +4066,6 @@ export interface GenericEmbedBlockSelect<T extends boolean = true> {
 export interface HeaderBlockSelect<T extends boolean = true> {
   richText?: T;
   backgroundColor?: T;
-  horizontalLine?: T;
   fullWidthColor?: T;
   id?: T;
   blockName?: T;

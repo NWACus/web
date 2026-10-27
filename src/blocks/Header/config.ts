@@ -27,15 +27,6 @@ const defaultFields: Field[] = [
     label: false,
   },
   colorPickerField('Background color'),
-  {
-    name: 'horizontalLine',
-    type: 'checkbox',
-    label: 'Horizontal line',
-    defaultValue: false,
-    admin: {
-      description: 'Draws a line under the heading',
-    },
-  },
 ]
 
 const headerBlockWithFields = (fields?: Field[]): Block => ({

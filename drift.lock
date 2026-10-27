@@ -1433,7 +1433,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "afd52166219c7364"
+sig = "967d359895148221"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

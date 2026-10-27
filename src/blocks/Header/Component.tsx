@@ -10,7 +10,7 @@ type Props = HeaderBlockProps & {
 }
 
 export const HeaderBlockComponent = (props: Props) => {
-  const { backgroundColor, fullWidthColor, richText, horizontalLine, isLayoutBlock } = props
+  const { backgroundColor, fullWidthColor, richText, isLayoutBlock } = props
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -28,7 +28,6 @@ export const HeaderBlockComponent = (props: Props) => {
         )}
       >
         <RichText data={richText} enableGutter={false} className={cn(!isLayoutBlock && 'px-4')} />
-        {horizontalLine && <hr className={cn('mt-2 border-current', !isLayoutBlock && 'mx-4')} />}
       </div>
     </div>
   )
