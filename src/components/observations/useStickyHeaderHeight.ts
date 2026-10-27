@@ -2,7 +2,7 @@
 
 /**
  * How far down the viewport the site's sticky header reaches below `lg` — the nav bar plus any
- * announcement banners, which open and collapse — so the phone layout's sticky map pins just under
+ * announcement banners, which open and collapse — so the phone layout fills the screen just under
  * it rather than sliding beneath it. Zero where the header doesn't stick (`lg` and up).
  */
 import { useEffect, useState } from 'react'
