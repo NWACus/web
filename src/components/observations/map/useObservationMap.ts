@@ -158,7 +158,11 @@ export function useObservationMap(
       return
     }
     setMap(instance)
+    // Mapbox only watches the window; the layouts resize the map's box without it.
+    const resized = new ResizeObserver(() => instance.resize())
+    resized.observe(container)
     return () => {
+      resized.disconnect()
       setMap(null)
       instance.remove()
     }
