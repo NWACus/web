@@ -8,7 +8,12 @@
  * render only from this, so the same markup serves both.
  */
 import type { LightboxMedia } from '@/components/forecast/lightboxMedia'
-import type { Avalanche, MediaItem, Observation } from '@/services/nac/model/observation'
+import type {
+  Avalanche,
+  MediaItem,
+  Observation,
+  ObservationKind,
+} from '@/services/nac/model/observation'
 import type { AvalancheCardData } from '@/services/nac/observations/cards'
 
 /** One tile of a media gallery: a photo or video opens the lightbox, anything else a new tab. */
@@ -41,3 +46,9 @@ export interface AvalancheDetailData {
 }
 
 export type DetailData = ObservationDetailData | AvalancheDetailData
+
+/** A record's title, over it on its own page and in the modal's header. */
+export const RECORD_TITLES: Record<ObservationKind, string> = {
+  observation: 'Field Observation',
+  avalanche: 'Avalanche Occurrence',
+}

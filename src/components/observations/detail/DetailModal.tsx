@@ -20,7 +20,7 @@ import { detailPath, tabPath } from '@/services/nac/observations/routes'
 
 import type { OpenRecord } from '../useViewerLocation'
 import { AvalancheDetail } from './AvalancheDetail'
-import type { DetailData } from './detailTypes'
+import { RECORD_TITLES, type DetailData } from './detailTypes'
 import { ObservationDetail } from './ObservationDetail'
 
 type DetailStatus =
@@ -56,11 +56,6 @@ function useDetail(centerSlug: string, record: OpenRecord | null): DetailStatus 
     return () => controller.abort()
   }, [url])
   return status
-}
-
-export const RECORD_TITLES: Record<ObservationKind, string> = {
-  observation: 'Field Observation',
-  avalanche: 'Avalanche Occurrence',
 }
 
 const MESSAGES = {
