@@ -2,10 +2,10 @@ import { withPayload } from '@payloadcms/next/withPayload'
 import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 
-import { AVALANCHE_CENTERS } from './src/utilities/tenancy/avalancheCenters'
 import redirects from './redirects.js'
+import { AVALANCHE_CENTERS } from './src/utilities/tenancy/avalancheCenters'
 
-const PROTOCOL =
+const PROTOCOL: 'http' | 'https' =
   process.env.NODE_ENV === 'production' &&
   process.env.LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS !== 'true'
     ? 'https'
