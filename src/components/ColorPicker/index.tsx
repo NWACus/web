@@ -1,5 +1,6 @@
 'use client'
 
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { BRAND_SHADES } from '@/fields/color'
 import { getSlugFromTenantId } from '@/utilities/getSlugFromTenantId'
 import { cn } from '@/utilities/ui'
@@ -7,12 +8,12 @@ import { FieldLabel, useDocumentInfo, useField } from '@payloadcms/ui'
 import { mergeFieldStyles } from '@payloadcms/ui/shared'
 import { ChevronDown } from 'lucide-react'
 import { TextFieldClientProps } from 'payload'
-import { ReactNode, RefObject, useCallback, useEffect, useId, useRef, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 const baseColors = ['transparent', 'white']
 const brandColors = BRAND_SHADES.map((n) => `brand-${n}`)
 
-const colorName = (color: string) => {
+export const colorName = (color: string) => {
   if (color === 'transparent') return 'Transparent'
   if (color === 'white') return 'White'
   return `Brand ${color.replace('brand-', '')}`
@@ -28,56 +29,62 @@ export const ColorPicker = (props: TextFieldClientProps) => {
   const { value, setValue } = useField<string>({ path })
   const tenantSlug = useTenantSlug()
   const [open, setOpen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const panelId = useId()
-
-  const close = useCallback(() => setOpen(false), [])
-  useDismiss(containerRef, open, close)
 
   const selected = value || 'transparent'
 
   return (
-    <div
-      ref={containerRef}
-      className={cn('relative flex flex-col mb-6', tenantSlug)}
-      style={mergeFieldStyles(field)}
-    >
+    <div className={cn('flex flex-col mb-6', tenantSlug)} style={mergeFieldStyles(field)}>
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
-      <button
-        id={path}
-        type="button"
-        aria-haspopup="true"
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen((isOpen) => !isOpen)}
-        className="flex items-center gap-2 w-44 max-w-full h-9 px-2.5 rounded border border-solid border-[var(--theme-elevation-250)] bg-[var(--theme-elevation-50)] text-[var(--theme-text)] cursor-pointer"
-      >
-        {tenantSlug && (
-          <span
-            className={cn(
-              'size-5 shrink-0 rounded border border-solid border-gray-500',
-              swatchFill(selected),
-            )}
+      <Popover open={open && Boolean(tenantSlug)} onOpenChange={setOpen}>
+        <ColorTrigger id={path} selected={selected} showSwatch={Boolean(tenantSlug)} />
+        {/* Content portals to body, so it needs the tenant class again for the brand shades */}
+        <PopoverContent
+          align="start"
+          className={cn(
+            'w-auto p-3 rounded border-solid border-[var(--theme-elevation-250)] bg-[var(--theme-elevation-50)] text-[var(--theme-text)]',
+            tenantSlug,
+          )}
+        >
+          <SwatchPanel
+            label={typeof field.label === 'string' ? field.label : 'Background color'}
+            selected={selected}
+            onPick={(color) => {
+              setValue(color)
+              setOpen(false)
+            }}
           />
-        )}
-        <span className="flex-1 text-left">{colorName(selected)}</span>
-        <ChevronDown className="size-4" aria-hidden="true" />
-      </button>
-
-      {open && tenantSlug && (
-        <SwatchPanel
-          id={panelId}
-          label={typeof field.label === 'string' ? field.label : 'Background color'}
-          selected={selected}
-          onPick={(color) => {
-            setValue(color)
-            close()
-          }}
-        />
-      )}
+        </PopoverContent>
+      </Popover>
     </div>
   )
 }
+
+const ColorTrigger = ({
+  id,
+  selected,
+  showSwatch,
+}: {
+  id: string
+  selected: string
+  showSwatch: boolean
+}) => (
+  <PopoverTrigger
+    id={id}
+    type="button"
+    className="flex items-center gap-2 w-44 max-w-full h-9 px-2.5 rounded border border-solid border-[var(--theme-elevation-250)] bg-[var(--theme-elevation-50)] text-[var(--theme-text)] cursor-pointer"
+  >
+    {showSwatch && (
+      <span
+        className={cn(
+          'size-5 shrink-0 rounded border border-solid border-gray-500',
+          swatchFill(selected),
+        )}
+      />
+    )}
+    <span className="flex-1 text-left">{colorName(selected)}</span>
+    <ChevronDown className="size-4" aria-hidden="true" />
+  </PopoverTrigger>
+)
 
 const useTenantSlug = () => {
   const { data } = useDocumentInfo()
@@ -90,44 +97,16 @@ const useTenantSlug = () => {
   return tenantSlug
 }
 
-// Closes the panel on a click outside the field or on Escape
-const useDismiss = (ref: RefObject<HTMLElement | null>, open: boolean, onDismiss: () => void) => {
-  useEffect(() => {
-    if (!open) return
-
-    const onMouseDown = (event: MouseEvent) => {
-      if (event.target instanceof Node && !ref.current?.contains(event.target)) onDismiss()
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onDismiss()
-    }
-
-    document.addEventListener('mousedown', onMouseDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('mousedown', onMouseDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [ref, open, onDismiss])
-}
-
 const SwatchPanel = ({
-  id,
   label,
   selected,
   onPick,
 }: {
-  id: string
   label: string
   selected: string
   onPick: (color: string) => void
 }) => (
-  <div
-    id={id}
-    role="radiogroup"
-    aria-label={label}
-    className="absolute top-full z-10 mt-1 flex items-start gap-3 p-3 rounded border border-solid border-[var(--theme-elevation-250)] bg-[var(--theme-elevation-50)] shadow-lg"
-  >
+  <div role="radiogroup" aria-label={label} className="flex items-start gap-3">
     {baseColors.map((color) => (
       <div key={color} className="flex flex-col items-center gap-1.5">
         <Swatch
