@@ -13,22 +13,12 @@ import type { ObservationKind } from '@/services/nac/model/observation'
 import type { ObservationListResponse } from '@/services/nac/observations/cards'
 
 import type { ListStatus } from '../useObservationList'
+import { scopeText, type CountScope } from './countScope'
 import { ObservationCard } from './ObservationCard'
 
 const NOUNS: Record<ObservationKind, { one: string; many: string; title: string }> = {
   observation: { one: 'observation', many: 'observations', title: 'Observations' },
   avalanche: { one: 'avalanche', many: 'avalanches', title: 'Avalanches' },
-}
-
-interface CountScope {
-  place: string | null
-  zoneCount: number
-}
-
-function scopeText({ place, zoneCount }: CountScope): string {
-  if (place) return `near ${place}`
-  if (zoneCount === 0) return 'within map area'
-  return zoneCount === 1 ? 'within selected zone' : 'within selected zones'
 }
 
 /**

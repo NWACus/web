@@ -15,8 +15,10 @@ import {
   type FilterTag,
   type ObservationFilters,
 } from '@/services/nac/observations/filters'
+import { listKind, type ViewerTab } from '@/services/nac/observations/routes'
 import type { ObservationViewerSettings } from '@/services/nac/observations/viewerSettings'
 
+import type { StatsStatus } from './charts/useAvalancheStats'
 import type { ChosenPlace } from './map/placeSearch'
 import type { ListStatus } from './useObservationList'
 import { useViewerFilters } from './useViewerFilters'
@@ -30,7 +32,7 @@ function withDates(listSearch: string, filters: ObservationFilters): string {
   return params.toString()
 }
 
-export function useViewerState(settings: ObservationViewerSettings, initialTab: ObservationKind) {
+export function useViewerState(settings: ObservationViewerSettings, initialTab: ViewerTab) {
   const location = useViewerLocation(initialTab)
   const viewer = useViewerFilters({
     timezone: settings.timezone,
@@ -54,9 +56,9 @@ export function useViewerState(settings: ObservationViewerSettings, initialTab: 
 
   /** The tab entered starts on its first page; the filters come along. */
   const openTab = useCallback(
-    (kind: ObservationKind) => {
+    (tab: ViewerTab) => {
       setList({ page: 1 })
-      pushTab(kind, tabSearch)
+      pushTab(tab, tabSearch)
     },
     [setList, pushTab, tabSearch],
   )
@@ -64,6 +66,8 @@ export function useViewerState(settings: ObservationViewerSettings, initialTab: 
   return {
     ...location,
     ...viewer,
+    /** The records the showing tab lists, filters and maps; the charts tab's are the avalanches. */
+    kind: listKind(location.tab),
     openTab,
     settings,
     place,
@@ -102,4 +106,9 @@ export function neighboursOf(status: ListStatus, record: OpenRecord | null, tab:
 export function resultCount(kind: ObservationKind, status: ListStatus): number | null {
   if (status.state !== 'ready') return null
   return kind === 'observation' ? status.data.total : (status.data.avalancheCount ?? 0)
+}
+
+/** The same count on the charts tab: the stats' own total. */
+export function statsCount(status: StatsStatus): number | null {
+  return status.state === 'ready' ? status.data.totalAvalanches : null
 }

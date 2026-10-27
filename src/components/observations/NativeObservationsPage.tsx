@@ -1,14 +1,15 @@
 /**
- * The server half of the native observation viewer, for `/observations` and
- * `/observations/avalanches`: the heading, the disclaimer, and the center's viewer settings and
- * zones. The observations themselves are fetched by the viewer in the browser, because the list
+ * The server half of the native observation viewer, for `/observations`,
+ * `/observations/avalanches` and `/observations/charts`: the heading, the disclaimer, and the
+ * center's viewer settings and zones. The observations themselves are fetched by the viewer in the browser, because the list
  * follows the map (see `ObservationViewer.client.tsx`).
  */
 import { ButtonLink } from '@/components/ButtonLink'
 import ObservationsDisclaimer from '@/components/ObservationsDisclaimer'
 import { getZoneMapLayer } from '@/services/nac/dangerMap/mapLayer'
-import type { ObservationKind, ObservationZoneOption } from '@/services/nac/model/observation'
+import type { ObservationZoneOption } from '@/services/nac/model/observation'
 import { getAvalancheCenterMetadata, logNacError } from '@/services/nac/nac'
+import type { ViewerTab } from '@/services/nac/observations/routes'
 import { resolveObservationViewerSettings } from '@/services/nac/observations/viewerSettings'
 import { getObservationSource } from '@/services/nac/sources'
 import { boundsOfGeometries } from '@/utilities/geo/bounds'
@@ -49,13 +50,7 @@ async function loadZones(center: string): Promise<ObservationZoneOption[]> {
   }
 }
 
-export async function NativeObservationsPage({
-  center,
-  tab,
-}: {
-  center: string
-  tab: ObservationKind
-}) {
+export async function NativeObservationsPage({ center, tab }: { center: string; tab: ViewerTab }) {
   const [metadata, zones] = await Promise.all([
     getAvalancheCenterMetadata(center),
     loadZones(center),

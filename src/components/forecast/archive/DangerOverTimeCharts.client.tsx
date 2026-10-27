@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useMemo, useRef, type RefObject } from 'react'
 
 import type { EChartOption } from '@/components/charts/EChart'
+import { saveUrl } from '@/components/charts/saveUrl'
 import { useIsNarrowViewport } from '@/components/charts/useIsNarrowViewport'
 import { Button } from '@/components/ui/button'
 import {
@@ -60,17 +61,6 @@ export function DangerOverTimeCharts({ data }: DangerOverTimeChartsProps) {
       ))}
     </ul>
   )
-}
-
-/** Save a URL as `filename`. */
-function saveUrl(url: string, filename: string) {
-  const link = document.createElement('a')
-  link.download = filename
-  link.href = url
-  // Firefox only follows a click on an anchor that is in the document.
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
 }
 
 function ZoneDangerCard({

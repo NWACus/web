@@ -1,0 +1,786 @@
+{
+  "stats": {
+    "zone": [
+      {
+        "name": "West Slopes North",
+        "zone_id": "3021",
+        "num_avalanches": 159
+      },
+      {
+        "name": "West Slopes South",
+        "zone_id": "3023",
+        "num_avalanches": 75
+      },
+      {
+        "name": "Stevens Pass",
+        "zone_id": "3024",
+        "num_avalanches": 71
+      },
+      {
+        "name": "Snoqualmie Pass",
+        "zone_id": "3028",
+        "num_avalanches": 48
+      },
+      {
+        "name": "East Slopes North",
+        "zone_id": "3029",
+        "num_avalanches": 21
+      },
+      {
+        "name": "East Slopes Central",
+        "zone_id": "3030",
+        "num_avalanches": 19
+      },
+      {
+        "name": "West Slopes Central",
+        "zone_id": "3022",
+        "num_avalanches": 14
+      },
+      {
+        "name": "East Slopes South",
+        "zone_id": "3031",
+        "num_avalanches": 6
+      },
+      {
+        "name": "Olympics",
+        "zone_id": "3020",
+        "num_avalanches": 4
+      }
+    ],
+    "trigger": [
+      {
+        "name": "Natural",
+        "num_avalanches": 299,
+        "show_label": true
+      },
+      {
+        "name": "Human",
+        "num_avalanches": 93,
+        "show_label": true
+      },
+      {
+        "name": "Explosive",
+        "num_avalanches": 2,
+        "show_label": false
+      },
+      {
+        "name": "Unknown",
+        "num_avalanches": 23,
+        "show_label": true
+      }
+    ],
+    "size": [
+      {
+        "name": "D1",
+        "num_avalanches": 265,
+        "show_label": true
+      },
+      {
+        "name": "D2",
+        "num_avalanches": 141,
+        "show_label": true
+      },
+      {
+        "name": "D3",
+        "num_avalanches": 10,
+        "show_label": false
+      },
+      {
+        "name": "D4-5",
+        "num_avalanches": 1,
+        "show_label": false
+      }
+    ],
+    "problem_type": [
+      {
+        "name": "Dry Loose",
+        "num_avalanches": 2,
+        "show_label": false
+      },
+      {
+        "name": "Storm Slab",
+        "num_avalanches": 51,
+        "show_label": true
+      },
+      {
+        "name": "Wind Slab",
+        "num_avalanches": 24,
+        "show_label": true
+      },
+      {
+        "name": "Persistent Slab",
+        "num_avalanches": 20,
+        "show_label": true
+      },
+      {
+        "name": "Deep Persistent Slab",
+        "num_avalanches": 13,
+        "show_label": true
+      },
+      {
+        "name": "Wet Loose",
+        "num_avalanches": 43,
+        "show_label": true
+      },
+      {
+        "name": "Wet Slab",
+        "num_avalanches": 17,
+        "show_label": true
+      },
+      {
+        "name": "Glide",
+        "num_avalanches": 10,
+        "show_label": true
+      },
+      {
+        "name": "Cornice",
+        "num_avalanches": 1,
+        "show_label": false
+      }
+    ],
+    "time_series": [
+      {
+        "date": "2026-02-01",
+        "period_end": "2026-02-07",
+        "aggregation": "weekly",
+        "D1": 1,
+        "D2": 2,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-02-08",
+        "period_end": "2026-02-14",
+        "aggregation": "weekly",
+        "D1": 15,
+        "D2": 14,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-02-15",
+        "period_end": "2026-02-21",
+        "aggregation": "weekly",
+        "D1": 36,
+        "D2": 7,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-02-22",
+        "period_end": "2026-02-28",
+        "aggregation": "weekly",
+        "D1": 40,
+        "D2": 23,
+        "D3": 2,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-03-01",
+        "period_end": "2026-03-07",
+        "aggregation": "weekly",
+        "D1": 7,
+        "D2": 3,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-03-08",
+        "period_end": "2026-03-14",
+        "aggregation": "weekly",
+        "D1": 40,
+        "D2": 18,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-03-15",
+        "period_end": "2026-03-21",
+        "aggregation": "weekly",
+        "D1": 22,
+        "D2": 35,
+        "D3": 2,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-03-22",
+        "period_end": "2026-03-28",
+        "aggregation": "weekly",
+        "D1": 13,
+        "D2": 5,
+        "D3": 5,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-03-29",
+        "period_end": "2026-04-04",
+        "aggregation": "weekly",
+        "D1": 7,
+        "D2": 5,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-04-05",
+        "period_end": "2026-04-11",
+        "aggregation": "weekly",
+        "D1": 44,
+        "D2": 2,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-04-12",
+        "period_end": "2026-04-18",
+        "aggregation": "weekly",
+        "D1": 34,
+        "D2": 12,
+        "D3": 0,
+        "D4-5": 1
+      },
+      {
+        "date": "2026-04-19",
+        "period_end": "2026-04-25",
+        "aggregation": "weekly",
+        "D1": 5,
+        "D2": 1,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-04-26",
+        "period_end": "2026-05-01",
+        "aggregation": "weekly",
+        "D1": 1,
+        "D2": 14,
+        "D3": 1,
+        "D4-5": 0
+      }
+    ],
+    "instability_time_series": [
+      {
+        "date": "2026-02-01",
+        "period_end": "2026-02-07",
+        "aggregation": "weekly",
+        "avalanches_observed": 2,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-02-08",
+        "period_end": "2026-02-14",
+        "aggregation": "weekly",
+        "avalanches_observed": 12,
+        "cracking_collapsing_observed": 6,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-02-15",
+        "period_end": "2026-02-21",
+        "aggregation": "weekly",
+        "avalanches_observed": 22,
+        "cracking_collapsing_observed": 5,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-02-22",
+        "period_end": "2026-02-28",
+        "aggregation": "weekly",
+        "avalanches_observed": 17,
+        "cracking_collapsing_observed": 8,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-03-01",
+        "period_end": "2026-03-07",
+        "aggregation": "weekly",
+        "avalanches_observed": 9,
+        "cracking_collapsing_observed": 2,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-03-08",
+        "period_end": "2026-03-14",
+        "aggregation": "weekly",
+        "avalanches_observed": 14,
+        "cracking_collapsing_observed": 6,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-03-15",
+        "period_end": "2026-03-21",
+        "aggregation": "weekly",
+        "avalanches_observed": 8,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 3
+      },
+      {
+        "date": "2026-03-22",
+        "period_end": "2026-03-28",
+        "aggregation": "weekly",
+        "avalanches_observed": 11,
+        "cracking_collapsing_observed": 3,
+        "no_instability_observed": 1
+      },
+      {
+        "date": "2026-03-29",
+        "period_end": "2026-04-04",
+        "aggregation": "weekly",
+        "avalanches_observed": 8,
+        "cracking_collapsing_observed": 3,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-04-05",
+        "period_end": "2026-04-11",
+        "aggregation": "weekly",
+        "avalanches_observed": 5,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 2
+      },
+      {
+        "date": "2026-04-12",
+        "period_end": "2026-04-18",
+        "aggregation": "weekly",
+        "avalanches_observed": 16,
+        "cracking_collapsing_observed": 3,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-04-19",
+        "period_end": "2026-04-25",
+        "aggregation": "weekly",
+        "avalanches_observed": 4,
+        "cracking_collapsing_observed": 1,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-04-26",
+        "period_end": "2026-05-01",
+        "aggregation": "weekly",
+        "avalanches_observed": 2,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      }
+    ],
+    "aspect_elevation": {
+      "aggregated_data": [
+        {
+          "aspect": "N",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 1,
+          "count": 3,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 2,
+          "count": 47,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 3,
+          "count": 21,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 4,
+          "count": 1,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 5,
+          "count": 1,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 0,
+          "count": 1,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 1,
+          "count": 4,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 2,
+          "count": 49,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 3,
+          "count": 9,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 4,
+          "count": 7,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 1,
+          "count": 1,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 2,
+          "count": 65,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 3,
+          "count": 25,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 2,
+          "count": 14,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 3,
+          "count": 16,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 4,
+          "count": 7,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 2,
+          "count": 102,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 3,
+          "count": 8,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 4,
+          "count": 2,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 2,
+          "count": 3,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 3,
+          "count": 3,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 2,
+          "count": 5,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 3,
+          "count": 6,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 2,
+          "count": 6,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 3,
+          "count": 11,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        }
+      ],
+      "config": {
+        "lower_el": 0,
+        "upper_el": 12000,
+        "interval": 2000,
+        "bin_count": 6,
+        "data_range": {
+          "min": 1,
+          "max": 10000
+        },
+        "reason": "optimal",
+        "user_requested": null
+      }
+    }
+  },
+  "metadata": {
+    "total_avalanches": 417,
+    "total_observations": 187,
+    "date_range": {
+      "start": "2026-02-01",
+      "end": "2026-05-01"
+    },
+    "zones": [],
+    "aggregation_type": "zone",
+    "filters_applied": {
+      "status": "published",
+      "private": false,
+      "date": {
+        "gte": "2026-02-01",
+        "lte": "2026-05-01"
+      },
+      "bbox": [-124.5, 45.5, -119.5, 49.5]
+    }
+  }
+}

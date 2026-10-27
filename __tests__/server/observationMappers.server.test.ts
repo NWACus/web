@@ -2,6 +2,7 @@ import { MediaType } from '@/services/nac/model/forecast'
 import { avalancheCard, observationCard } from '@/services/nac/observations/cards'
 import {
   mapAvalanche,
+  mapAvalancheStats,
   mapCombinedZones,
   mapObservation,
   mapPage,
@@ -11,6 +12,7 @@ import {
 import {
   avalancheListSchema,
   avalancheRecordSchema,
+  avalancheStatsSchema,
   combinedZonesSchema,
   observationListSchema,
   observationRecordSchema,
@@ -34,6 +36,8 @@ describe('observation wire schemas accept real responses', () => {
     ['avalanche_detail.json', avalancheRecordSchema],
     ['combined_zones_NWAC.json', combinedZonesSchema],
     ['combined_zones_SNFAC.json', combinedZonesSchema],
+    ['avalanche_stats_NWAC.json', avalancheStatsSchema],
+    ['avalanche_stats_empty_NWAC.json', avalancheStatsSchema],
   ])('%s', (name, schema) => {
     expect(schema.safeParse(fixture(name)).success).toBe(true)
   })
@@ -216,5 +220,65 @@ describe('cards', () => {
   it('names an avalanche’s trigger by its filter group', () => {
     expect(avalancheCard(mapAvalanche({ ...avalancheWire, trigger: 'AR' })).trigger).toBe('Human')
     expect(avalancheCard(mapAvalanche({ ...avalancheWire, trigger: 'AC' })).trigger).toBeNull()
+  })
+})
+
+describe('mapAvalancheStats', () => {
+  // Three months of NWAC avalanches (2026-02-01 to 2026-05-01), which the API buckets by week.
+  const stats = mapAvalancheStats(avalancheStatsSchema.parse(fixture('avalanche_stats_NWAC.json')))
+
+  it('keeps the headline total and every breakdown in the API’s order', () => {
+    expect(stats.totalAvalanches).toBe(417)
+    expect(stats.groupedBy).toBe('zone')
+    expect(stats.zones[0]).toEqual({ name: 'West Slopes North', count: 159, showLabel: false })
+    expect(stats.triggers.map((t) => t.name)).toEqual(['Natural', 'Human', 'Explosive', 'Unknown'])
+    expect(stats.sizes.find((s) => s.name === 'D3')).toMatchObject({ showLabel: false })
+    expect(stats.problems).toHaveLength(9)
+  })
+
+  it('reads weekly buckets with their period end', () => {
+    expect(stats.aggregation).toBe('weekly')
+    expect(stats.avalanchesOverTime).toHaveLength(13)
+    expect(stats.avalanchesOverTime[1]).toEqual({
+      date: '2026-02-08',
+      periodEnd: '2026-02-14',
+      counts: { D1: 15, D2: 14, D3: 0, 'D4-5': 0 },
+    })
+    expect(stats.instabilityOverTime[1].counts).toEqual({
+      avalanchesObserved: 12,
+      crackingCollapsing: 6,
+      noInstability: 0,
+    })
+  })
+
+  it('reads the rose’s bands lowest first, one cell per aspect per band', () => {
+    expect(stats.rose.bands[0]).toEqual({ label: '0 - 2,000ft', from: 0, to: 2000 })
+    expect(stats.rose.bands).toHaveLength(6)
+    expect(stats.rose.cells).toHaveLength(48)
+    expect(stats.rose.cells.find((c) => c.aspect === 'N' && c.band === 2)?.count).toBe(47)
+  })
+
+  it('treats a day’s bucket as its own period, and an empty window as daily', () => {
+    const empty = mapAvalancheStats(
+      avalancheStatsSchema.parse(fixture('avalanche_stats_empty_NWAC.json')),
+    )
+    expect(empty.totalAvalanches).toBe(0)
+    expect(empty.aggregation).toBe('daily')
+    expect(empty.avalanchesOverTime[0]).toEqual({
+      date: '2026-10-12',
+      periodEnd: '2026-10-12',
+      counts: { D1: 0, D2: 0, D3: 0, 'D4-5': 0 },
+    })
+    expect(empty.zones).toEqual([])
+    expect(empty.problems.every((p) => p.count === 0)).toBe(true)
+  })
+
+  it('groups by center when the API did', () => {
+    const wire = avalancheStatsSchema.parse(fixture('avalanche_stats_NWAC.json'))
+    const byCenter = mapAvalancheStats({
+      ...wire,
+      metadata: { ...wire.metadata, aggregation_type: 'center' },
+    })
+    expect(byCenter.groupedBy).toBe('center')
   })
 })

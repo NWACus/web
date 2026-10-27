@@ -1,11 +1,12 @@
 'use client'
 
-import { BarChart, LineChart } from 'echarts/charts'
+import { BarChart, LineChart, PieChart, ScatterChart } from 'echarts/charts'
 import {
   DataZoomComponent,
   GridComponent,
   LegendComponent,
   MarkLineComponent,
+  PolarComponent,
   TitleComponent,
   TooltipComponent,
 } from 'echarts/components'
@@ -18,6 +19,10 @@ import { useEffect, useRef, type RefObject } from 'react'
 echarts.use([
   LineChart,
   BarChart,
+  // The observation charts' donuts and aspect/elevation rose.
+  PieChart,
+  ScatterChart,
+  PolarComponent,
   GridComponent,
   MarkLineComponent,
   TitleComponent,

@@ -205,3 +205,49 @@ export interface ObservationZoneOption {
   /** What the map frames when the zone is chosen, `[[west, south], [east, north]]`. */
   bounds: [[number, number], [number, number]] | null
 }
+
+// ─── Stats (the charts tab) ─────────────────────────────────────────────────
+
+/** One bar or slice of a breakdown. */
+export interface StatCount {
+  name: string
+  count: number
+  /** Whether the slice is wide enough to carry its own label (the API's call). */
+  showLabel: boolean
+}
+
+/** How the API bucketed the time series for the requested range. */
+export type StatsAggregation = 'daily' | 'weekly' | 'monthly'
+
+/** One bucket of a time series; a day's `periodEnd` is its own date. */
+export interface StatsBucket<K extends string> {
+  date: string
+  periodEnd: string
+  counts: Record<K, number>
+}
+
+export type SizeBand = 'D1' | 'D2' | 'D3' | 'D4-5'
+export type InstabilityKind = 'avalanchesObserved' | 'crackingCollapsing' | 'noInstability'
+
+/** The aspect-and-elevation rose: counts per aspect per band, lowest band first. */
+export interface AspectElevationRose {
+  /** Elevation bands from lowest (index 0) to highest, as the API binned them. */
+  bands: { label: string; from: number; to: number }[]
+  /** One cell per aspect per band index, in the API's order. */
+  cells: { aspect: string; band: number; count: number }[]
+}
+
+/** The charts tab's data: every breakdown of the avalanches in the viewport for the filters. */
+export interface AvalancheStats {
+  totalAvalanches: number
+  /** What the first chart groups by: zones, or whole centers when the map is zoomed far out. */
+  groupedBy: 'zone' | 'center'
+  zones: StatCount[]
+  triggers: StatCount[]
+  sizes: StatCount[]
+  problems: StatCount[]
+  aggregation: StatsAggregation
+  avalanchesOverTime: StatsBucket<SizeBand>[]
+  instabilityOverTime: StatsBucket<InstabilityKind>[]
+  rose: AspectElevationRose
+}

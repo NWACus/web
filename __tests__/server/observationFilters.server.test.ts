@@ -15,7 +15,12 @@ import {
   type ListState,
   type ObservationFilters,
 } from '@/services/nac/observations/filters'
-import { listParams } from '@/services/nac/observations/listParams'
+import {
+  isStatsRange,
+  listParams,
+  statsAggregation,
+  statsParams,
+} from '@/services/nac/observations/listParams'
 import { legacyHashTarget, readViewerPath } from '@/services/nac/observations/routes'
 
 const TODAY = '2026-02-20'
@@ -208,10 +213,50 @@ describe('listParams', () => {
   })
 })
 
+describe('statsParams', () => {
+  const bbox: [number, number, number, number] = [-122.1, 46.9, -120.3, 48.2]
+  const base = { filters: defaultFilters(TODAY), bbox, zoom: 8 }
+
+  it('asks for the avalanche filters over the viewport, by zone', () => {
+    const params = statsParams(
+      { ...base, filters: { ...base.filters, triggers: ['Human'] } },
+      'nwac',
+    )
+    expect(Object.fromEntries(params)).toEqual({
+      'date[gte]': '2026-02-06',
+      'date[lte]': TODAY,
+      bbox: '-122.1,46.9,-120.3,48.2',
+      'trigger[in]': 'AS,AR,AM,AK,AV,AI,AF,AU,AO',
+      aggregation_type: 'zone',
+    })
+    expect(params.has('page')).toBe(false)
+  })
+
+  it('groups by center when zoomed out past level 6 with no center filter', () => {
+    expect(statsAggregation({ ...base, zoom: 5 })).toBe('center')
+    expect(statsAggregation({ ...base, zoom: 6 })).toBe('zone')
+    expect(statsAggregation({ ...base, zoom: null })).toBe('zone')
+    const only = { ...base.filters, onlyCenter: true }
+    expect(statsAggregation({ filters: only, zoom: 3 })).toBe('zone')
+    expect(statsParams({ filters: only, bbox, zoom: 3 }, 'nwac').get('aggregation_type')).toBe(
+      'zone',
+    )
+  })
+
+  it('knows the endpoint’s 366-day limit, which a season never reaches', () => {
+    expect(isStatsRange({ from: '2025-09-01', to: '2026-08-31' })).toBe(true)
+    expect(isStatsRange({ from: '2025-09-01', to: '2026-09-02' })).toBe(true)
+    expect(isStatsRange({ from: '2025-09-01', to: '2026-09-03' })).toBe(false)
+    expect(isStatsRange({ from: '2026-03-01', to: '2026-02-01' })).toBe(false)
+  })
+})
+
 describe('viewer addresses', () => {
   it.each([
     ['/observations', { prefix: '', tab: 'observation', detail: null }],
     ['/nwac/observations/avalanches', { prefix: '/nwac', tab: 'avalanche', detail: null }],
+    ['/observations/charts', { prefix: '', tab: 'charts', detail: null }],
+    ['/nwac/observations/charts/', { prefix: '/nwac', tab: 'charts', detail: null }],
     [
       `/observations/${ID}`,
       { prefix: '', tab: 'observation', detail: { kind: 'observation', id: ID } },
@@ -224,9 +269,10 @@ describe('viewer addresses', () => {
     expect(readViewerPath(path)).toEqual(expected)
   })
 
-  it('is not the viewer at the submit page or a malformed id', () => {
+  it('is not the viewer at the submit page, a malformed id, or a record under the charts', () => {
     expect(readViewerPath('/observations/submit')).toBeNull()
     expect(readViewerPath('/observations/not-an-id')).toBeNull()
+    expect(readViewerPath(`/observations/charts/${ID}`)).toBeNull()
   })
 
   it.each([
@@ -235,7 +281,8 @@ describe('viewer addresses', () => {
     ['#/view/avalanches', '/observations/avalanches'],
     [`#/view/avalanches/${ID}`, `/observations/avalanches/${ID}`],
     [`#/view/observations/${ID}`, `/observations/${ID}`],
-    ['#/view/visual?trigger=["Human"]', '/observations/avalanches?trigger=["Human"]'],
+    ['#/view/visual', '/observations/charts'],
+    ['#/view/visual?trigger=["Human"]', '/observations/charts?trigger=["Human"]'],
     [`#/observation/${ID}`, `/observations/${ID}`],
     [`#/avalanche/${ID}`, `/observations/avalanches/${ID}`],
     ['#/form', '/observations/submit'],

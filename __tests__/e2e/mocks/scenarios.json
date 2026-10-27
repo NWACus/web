@@ -70,7 +70,7 @@
       "zoneSlug": "stevens-pass",
       "type": "forecast",
       "fixture": "v2_public_product_forecast_null.json",
-      "scenario": "nothing published — v2's 200 all-null placeholder (captured at NWAC zone 3025, identical for every zone with no product); the live page shows \"The requested product doesn't exist\""
+      "scenario": "nothing published \u2014 v2's 200 all-null placeholder (captured at NWAC zone 3025, identical for every zone with no product); the live page shows \"The requested product doesn't exist\""
     },
     {
       "center": "NWAC",
@@ -78,7 +78,7 @@
       "zoneSlug": "snoqualmie-pass",
       "type": "forecast",
       "fixture": "v2_public_product_forecast_no_outlook.json",
-      "scenario": "no outlook — danger has only a current entry, set up on staging (product 165008, staging's Snoqualmie Pass); the desktop column shows today's travel advice (Forecast-67)"
+      "scenario": "no outlook \u2014 danger has only a current entry, set up on staging (product 165008, staging's Snoqualmie Pass); the desktop column shows today's travel advice (Forecast-67)"
     },
     {
       "center": "NWAC",
@@ -86,7 +86,7 @@
       "zoneSlug": "west-slopes-north",
       "type": "forecast",
       "fixture": "v2_public_product_forecast_media_links.json",
-      "scenario": "media links — BTAC's Tetons forecast of 2025-12-08 (product 175072), whose Media grid carries two YouTube links and a PDF; they open in a new tab, outside the lightbox (Forecast-125, Forecast-131)"
+      "scenario": "media links \u2014 BTAC's Tetons forecast of 2025-12-08 (product 175072), whose Media grid carries two YouTube links and a PDF; they open in a new tab, outside the lightbox (Forecast-125, Forecast-131)"
     },
     {
       "center": "SNFAC",
@@ -204,9 +204,11 @@
     }
   },
   "observations": {
-    "note": "The public observation API (OBS_HOST). Scrubbed live captures in mocks/obs/, not goldens. Every list request gets the same page; a detail id not listed here answers 204, as the API does for a missing or private record.",
+    "note": "The public observation API (OBS_HOST). Scrubbed live captures in mocks/obs/, not goldens. Every list request gets the same page; a detail id not listed here answers 204, as the API does for a missing or private record. The stats endpoint answers avalancheStats for every request, or avalancheStatsEmpty when the only trigger asked for is Wildlife (AW).",
     "list": "observation_list_NWAC.json",
     "avalancheList": "avalanche_list_NWAC.json",
+    "avalancheStats": "avalanche_stats_NWAC.json",
+    "avalancheStatsEmpty": "avalanche_stats_empty_NWAC.json",
     "observation": "observation_detail.json",
     "avalanche": "avalanche_detail.json",
     "ids": {

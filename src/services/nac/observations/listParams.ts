@@ -1,6 +1,6 @@
 /**
- * The filter model encoded as obs-API query params — the list (and, for the charts to come, the
- * stats) half of inventory row O10. `./tileFilter` is the other half; the O10 property test holds
+ * The filter model encoded as obs-API query params — the list and stats half of inventory row
+ * O10. `./tileFilter` is the other half; the O10 property test holds
  * the two to the same records, with the API's own semantics as the reference.
  *
  * Param names and the rules for when each is sent are the widget's (`buildObservationParams`,
@@ -9,7 +9,13 @@
  * column (the API ORs them).
  */
 import type { ObservationKind } from '../model/observation'
-import { PAGE_SIZE, SIZE_RANGE, type ListState, type ObservationFilters } from './filters'
+import {
+  PAGE_SIZE,
+  SIZE_RANGE,
+  daysBetween,
+  type ListState,
+  type ObservationFilters,
+} from './filters'
 import { CAUSES, IMPACTS, TRIGGER_GROUPS } from './options'
 
 /** `[west, south, east, north]`, as the API's `bbox` takes it. */
@@ -102,5 +108,48 @@ export function listParams(request: ListRequest, centerId: string): URLSearchPar
   const dateColumn = kind === 'observation' ? 'start_date' : 'date'
   params.set('sort_by', list.sortBy === 'createdAt' ? 'created_at' : dateColumn)
   params.set('sort_order', list.sortOrder)
+  return params
+}
+
+// ─── Stats (the charts tab) ─────────────────────────────────────────────────
+
+/** The stats endpoint refuses a wider range ("Date range cannot exceed 366 days"). */
+export const STATS_MAX_DAYS = 366
+
+/**
+ * Below this zoom the widget asks for avalanches by center rather than by zone, unless the viewer
+ * is already narrowed to its own center.
+ */
+export const CENTER_AGGREGATION_BELOW_ZOOM = 6
+
+export type StatsAggregation = 'zone' | 'center'
+
+export interface StatsRequest {
+  filters: ObservationFilters
+  bbox: BBox
+  /** The map's zoom, for the by-center rule; null when there is no map. */
+  zoom: number | null
+}
+
+/** Whether the filters span more days than the stats endpoint will aggregate. */
+export function isStatsRange(filters: Pick<ObservationFilters, 'from' | 'to'>): boolean {
+  const days = daysBetween(filters.from, filters.to)
+  return days >= 0 && days <= STATS_MAX_DAYS
+}
+
+/** By zone, or by center when the map is zoomed out past the rule and no center filter is set. */
+export function statsAggregation(
+  request: Pick<StatsRequest, 'filters' | 'zoom'>,
+): StatsAggregation {
+  const { filters, zoom } = request
+  if (filters.onlyCenter || zoom === null) return 'zone'
+  return zoom >= CENTER_AGGREGATION_BELOW_ZOOM ? 'zone' : 'center'
+}
+
+/** Every breakdown of the avalanches in the viewport, with the avalanche filters applied. */
+export function statsParams(request: StatsRequest, centerId: string): URLSearchParams {
+  const params = avalancheFilterParams(request.filters, centerId)
+  params.set('bbox', request.bbox.join(','))
+  params.set('aggregation_type', statsAggregation(request))
   return params
 }

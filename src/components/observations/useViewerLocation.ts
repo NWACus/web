@@ -19,6 +19,7 @@ import {
   readViewerPath,
   tabPath,
   type ViewerLocation,
+  type ViewerTab,
 } from '@/services/nac/observations/routes'
 
 export interface OpenRecord {
@@ -31,7 +32,7 @@ export interface OpenRecord {
  * observation's detail has an avalanches address, but the observations list stays underneath.
  */
 function useListTab(location: ViewerLocation) {
-  const [tab, setTab] = useState<ObservationKind>(location.tab)
+  const [tab, setTab] = useState<ViewerTab>(location.tab)
   const listTab = location.detail ? null : location.tab
   useEffect(() => {
     if (listTab) setTab(listTab)
@@ -57,7 +58,7 @@ function depthOf(state: unknown): number {
  * avalanche from its observation pushes one, so back returns to the observation. Closing goes
  * back past every record entry stacked on the list, to the list as it was.
  */
-function useRecordHistory(prefix: string, tab: ObservationKind) {
+function useRecordHistory(prefix: string, tab: ViewerTab) {
   const openRecord = useCallback(
     (record: OpenRecord, options: { replace?: boolean } = {}) => {
       const url = `${prefix}${detailPath(record.kind, record.id)}`
@@ -83,7 +84,7 @@ function useRecordHistory(prefix: string, tab: ObservationKind) {
   return { openRecord, closeRecord }
 }
 
-export function useViewerLocation(initialTab: ObservationKind) {
+export function useViewerLocation(initialTab: ViewerTab) {
   // Only ever mounted on one of its own paths; the fallback covers a path it doesn't recognize.
   const location = readViewerPath(usePathname()) ?? { prefix: '', tab: initialTab, detail: null }
   const { prefix, detail } = location
@@ -91,8 +92,8 @@ export function useViewerLocation(initialTab: ObservationKind) {
   const { openRecord, closeRecord } = useRecordHistory(prefix, tab)
 
   const openTab = useCallback(
-    (kind: ObservationKind, search: string) => {
-      window.history.pushState(null, '', `${prefix}${tabPath(kind)}${search}`)
+    (tab: ViewerTab, search: string) => {
+      window.history.pushState(null, '', `${prefix}${tabPath(tab)}${search}`)
     },
     [prefix],
   )

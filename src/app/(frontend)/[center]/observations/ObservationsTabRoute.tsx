@@ -1,6 +1,7 @@
 /**
- * The two viewer tabs, `/observations` and `/observations/avalanches`: the native viewer when the
- * center's observations flag is on, the widget (opened on the same view) when it is off. The
+ * The viewer's tabs, `/observations`, `/observations/avalanches` and `/observations/charts`: the
+ * native viewer when the center's observations flag is on, the widget (opened on the same view)
+ * when it is off. The
  * AFP's `platforms.obs` gates both, as it does the widget. Each page renders its own breadcrumbs.
  */
 import { ButtonLink } from '@/components/ButtonLink'
@@ -8,19 +9,20 @@ import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import ObservationsDisclaimer from '@/components/ObservationsDisclaimer'
 import { NativeObservationsPage } from '@/components/observations/NativeObservationsPage'
-import type { ObservationKind } from '@/services/nac/model/observation'
+import type { ViewerTab } from '@/services/nac/observations/routes'
 import { assertCenterPlatform } from '@/utilities/centerRoutePage'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 
 import { ObservationLinkHijacker } from './ObservationLinkHijacker.client'
 
 /** Where each tab opens the widget. */
-const WIDGET_PATHS: Record<ObservationKind, string> = {
+const WIDGET_PATHS: Record<ViewerTab, string> = {
   observation: '/view/observations',
   avalanche: '/view/avalanches',
+  charts: '/view/visual',
 }
 
-function WidgetTab({ center, tab }: { center: string; tab: ObservationKind }) {
+function WidgetTab({ center, tab }: { center: string; tab: ViewerTab }) {
   return (
     <>
       <WidgetRouterHandler initialPath={WIDGET_PATHS[tab]} widgetPageKey="recent-observations" />
@@ -41,13 +43,7 @@ function WidgetTab({ center, tab }: { center: string; tab: ObservationKind }) {
   )
 }
 
-export async function ObservationsTabRoute({
-  center,
-  tab,
-}: {
-  center: string
-  tab: ObservationKind
-}) {
+export async function ObservationsTabRoute({ center, tab }: { center: string; tab: ViewerTab }) {
   await assertCenterPlatform(center, 'obs')
   if (!(await getNativeProductFlag(center, 'observations'))) {
     return <WidgetTab center={center} tab={tab} />

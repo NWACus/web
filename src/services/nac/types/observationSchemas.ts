@@ -223,3 +223,85 @@ export const combinedZonesSchema = z.array(
 )
 
 export type CombinedZonesWire = z.infer<typeof combinedZonesSchema>
+
+// ─── Stats (the charts tab) ─────────────────────────────────────────────────
+
+/** One bar or slice: `{name, num_avalanches, show_label}`; the zone rows carry an id too. */
+const statCountSchema = z.object({
+  name: z.string(),
+  num_avalanches: z.number(),
+  // Whether the slice is wide enough to carry its own label; absent on the zone rows.
+  show_label: z.boolean().nullish(),
+})
+
+/** A count that an older bucket may not carry at all. */
+const bucketCountSchema = z.number().nullish()
+
+const bucketAggregationSchema = z.enum(['daily', 'weekly', 'monthly']).nullish()
+
+/** A time bucket: a day, or a week or month with its `period_end` when the API aggregates. */
+const sizeBucketSchema = z.object({
+  date: z.string(),
+  period_end: nullableStringSchema,
+  aggregation: bucketAggregationSchema,
+  D1: bucketCountSchema,
+  D2: bucketCountSchema,
+  D3: bucketCountSchema,
+  'D4-5': bucketCountSchema,
+})
+
+const instabilityBucketSchema = z.object({
+  date: z.string(),
+  period_end: nullableStringSchema,
+  aggregation: bucketAggregationSchema,
+  avalanches_observed: bucketCountSchema,
+  cracking_collapsing_observed: bucketCountSchema,
+  no_instability_observed: bucketCountSchema,
+})
+
+/**
+ * The rose, binned by the API: a count per aspect per elevation band, with the band edges it
+ * chose. `bin_index` 0 is the lowest band.
+ */
+const aspectElevationSchema = z
+  .object({
+    aggregated_data: z.array(
+      z.object({
+        aspect: z.string(),
+        bin_index: z.number(),
+        count: z.number(),
+        bin_start: z.number(),
+        bin_end: z.number(),
+        bin_label: z.string(),
+      }),
+    ),
+    config: z
+      .object({
+        lower_el: z.number(),
+        upper_el: z.number(),
+        interval: z.number(),
+        bin_count: z.number(),
+      })
+      .nullish(),
+  })
+  .nullish()
+
+/** `/avalanche_observation/stats/`, the charts tab's one read. */
+export const avalancheStatsSchema = z.object({
+  stats: z.object({
+    zone: z.array(statCountSchema),
+    trigger: z.array(statCountSchema),
+    size: z.array(statCountSchema),
+    problem_type: z.array(statCountSchema),
+    time_series: z.array(sizeBucketSchema),
+    instability_time_series: z.array(instabilityBucketSchema),
+    aspect_elevation: aspectElevationSchema,
+  }),
+  metadata: z.object({
+    total_avalanches: z.number().nullish(),
+    total_observations: z.number().nullish(),
+    aggregation_type: nullableStringSchema,
+  }),
+})
+
+export type AvalancheStatsWire = z.infer<typeof avalancheStatsSchema>

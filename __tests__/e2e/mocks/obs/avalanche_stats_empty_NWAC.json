@@ -1,0 +1,733 @@
+{
+  "stats": {
+    "zone": [],
+    "trigger": [],
+    "size": [],
+    "problem_type": [
+      {
+        "name": "Dry Loose",
+        "num_avalanches": 0,
+        "show_label": false
+      },
+      {
+        "name": "Storm Slab",
+        "num_avalanches": 0,
+        "show_label": false
+      },
+      {
+        "name": "Wind Slab",
+        "num_avalanches": 0,
+        "show_label": false
+      },
+      {
+        "name": "Persistent Slab",
+        "num_avalanches": 0,
+        "show_label": false
+      },
+      {
+        "name": "Deep Persistent Slab",
+        "num_avalanches": 0,
+        "show_label": false
+      },
+      {
+        "name": "Wet Loose",
+        "num_avalanches": 0,
+        "show_label": false
+      },
+      {
+        "name": "Wet Slab",
+        "num_avalanches": 0,
+        "show_label": false
+      },
+      {
+        "name": "Glide",
+        "num_avalanches": 0,
+        "show_label": false
+      },
+      {
+        "name": "Cornice",
+        "num_avalanches": 0,
+        "show_label": false
+      }
+    ],
+    "time_series": [
+      {
+        "date": "2026-10-12",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-13",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-14",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-15",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-16",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-17",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-18",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-19",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-20",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-21",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-22",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-23",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-24",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-25",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      },
+      {
+        "date": "2026-10-26",
+        "D1": 0,
+        "D2": 0,
+        "D3": 0,
+        "D4-5": 0
+      }
+    ],
+    "instability_time_series": [
+      {
+        "date": "2026-10-12",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-13",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-14",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-15",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-16",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-17",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-18",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-19",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-20",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-21",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-22",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-23",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-24",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-25",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      },
+      {
+        "date": "2026-10-26",
+        "avalanches_observed": 0,
+        "cracking_collapsing_observed": 0,
+        "no_instability_observed": 0
+      }
+    ],
+    "aspect_elevation": {
+      "aggregated_data": [
+        {
+          "aspect": "N",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 2,
+          "count": 0,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 3,
+          "count": 0,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "N",
+          "bin_index": 6,
+          "count": 0,
+          "bin_start": 12000,
+          "bin_end": 14000,
+          "bin_label": "12,000 - 14,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 2,
+          "count": 0,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 3,
+          "count": 0,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "NE",
+          "bin_index": 6,
+          "count": 0,
+          "bin_start": 12000,
+          "bin_end": 14000,
+          "bin_label": "12,000 - 14,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 2,
+          "count": 0,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 3,
+          "count": 0,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "E",
+          "bin_index": 6,
+          "count": 0,
+          "bin_start": 12000,
+          "bin_end": 14000,
+          "bin_label": "12,000 - 14,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 2,
+          "count": 0,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 3,
+          "count": 0,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "SE",
+          "bin_index": 6,
+          "count": 0,
+          "bin_start": 12000,
+          "bin_end": 14000,
+          "bin_label": "12,000 - 14,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 2,
+          "count": 0,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 3,
+          "count": 0,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "S",
+          "bin_index": 6,
+          "count": 0,
+          "bin_start": 12000,
+          "bin_end": 14000,
+          "bin_label": "12,000 - 14,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 2,
+          "count": 0,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 3,
+          "count": 0,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "SW",
+          "bin_index": 6,
+          "count": 0,
+          "bin_start": 12000,
+          "bin_end": 14000,
+          "bin_label": "12,000 - 14,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 2,
+          "count": 0,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 3,
+          "count": 0,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "W",
+          "bin_index": 6,
+          "count": 0,
+          "bin_start": 12000,
+          "bin_end": 14000,
+          "bin_label": "12,000 - 14,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 0,
+          "count": 0,
+          "bin_start": 0,
+          "bin_end": 2000,
+          "bin_label": "0 - 2,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 1,
+          "count": 0,
+          "bin_start": 2000,
+          "bin_end": 4000,
+          "bin_label": "2,000 - 4,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 2,
+          "count": 0,
+          "bin_start": 4000,
+          "bin_end": 6000,
+          "bin_label": "4,000 - 6,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 3,
+          "count": 0,
+          "bin_start": 6000,
+          "bin_end": 8000,
+          "bin_label": "6,000 - 8,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 4,
+          "count": 0,
+          "bin_start": 8000,
+          "bin_end": 10000,
+          "bin_label": "8,000 - 10,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 5,
+          "count": 0,
+          "bin_start": 10000,
+          "bin_end": 12000,
+          "bin_label": "10,000 - 12,000ft"
+        },
+        {
+          "aspect": "NW",
+          "bin_index": 6,
+          "count": 0,
+          "bin_start": 12000,
+          "bin_end": 14000,
+          "bin_label": "12,000 - 14,000ft"
+        }
+      ],
+      "config": {
+        "lower_el": 0,
+        "upper_el": 14000,
+        "interval": 2000,
+        "bin_count": 7,
+        "data_range": null,
+        "reason": "no_data_fallback",
+        "user_requested": null
+      }
+    }
+  },
+  "metadata": {
+    "total_avalanches": 0,
+    "total_observations": 0,
+    "date_range": {
+      "start": "2026-10-12",
+      "end": "2026-10-26"
+    },
+    "zones": [],
+    "aggregation_type": "zone",
+    "filters_applied": {
+      "status": "published",
+      "private": false,
+      "date": {
+        "gte": "2026-10-12",
+        "lte": "2026-10-26"
+      },
+      "bbox": [-124.5, 45.5, -119.5, 49.5]
+    }
+  }
+}

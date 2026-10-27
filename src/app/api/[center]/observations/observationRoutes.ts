@@ -19,7 +19,12 @@ import {
   type ObservationListResponse,
 } from '@/services/nac/observations/cards'
 import { readFilters, readListState, seasonOf } from '@/services/nac/observations/filters'
-import type { BBox, ListRequest } from '@/services/nac/observations/listParams'
+import {
+  isStatsRange,
+  type BBox,
+  type ListRequest,
+  type StatsRequest,
+} from '@/services/nac/observations/listParams'
 import { isObservationId } from '@/services/nac/observations/routes'
 import { getObservationSource } from '@/services/nac/sources'
 import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
@@ -117,6 +122,47 @@ export function listHandler(kind: ObservationKind) {
     } catch {
       return unavailable('Observations unavailable')
     }
+  }
+}
+
+/** The map's zoom, whole levels only (the by-center rule is a whole-level threshold). */
+function readZoom(raw: string | null): number | null {
+  if (raw === null) return null
+  const zoom = Number(raw)
+  return Number.isInteger(zoom) && zoom >= 0 ? zoom : null
+}
+
+function readStatsRequest(request: NextRequest, center: string): StatsRequest | null {
+  const bbox = readBBox(request.nextUrl.searchParams.get('bbox'))
+  if (!bbox) return null
+  const today = todayInTimezone(centerTimezone(center))
+  return {
+    filters: readFilters(request.nextUrl.search, today),
+    bbox,
+    zoom: readZoom(request.nextUrl.searchParams.get('zoom')),
+  }
+}
+
+/**
+ * The charts tab's breakdowns, for the same filters and viewport as the avalanches list. The
+ * filters always fit one season, which is inside the endpoint's 366-day limit; the check is for a
+ * hand-written URL.
+ */
+export async function statsHandler(request: NextRequest, { params }: CenterParams) {
+  const { center } = await params
+  if (!isValidTenantSlug(center)) return unknownCenterResponse()
+  const statsRequest = readStatsRequest(request, center)
+  if (!statsRequest) return badRequest('A bbox is required')
+  if (!isStatsRange(statsRequest.filters)) return badRequest('Date range cannot exceed 366 days')
+  return respondWithStats(center, statsRequest)
+}
+
+async function respondWithStats(center: string, request: StatsRequest): Promise<NextResponse> {
+  try {
+    const stats = await getObservationSource().getAvalancheStats(center, request)
+    return NextResponse.json(stats, { headers: SHARED_MINUTE })
+  } catch {
+    return unavailable('Avalanche statistics unavailable')
   }
 }
 

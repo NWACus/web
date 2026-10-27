@@ -8,16 +8,23 @@ import { z } from 'zod'
 import { normalizeCenterSlug } from '../../centerSlug'
 import { NACError } from '../../nac'
 import { obsFetchBytes, obsFetchJson } from '../../obsApi'
-import { listParams } from '../../observations/listParams'
+import { listParams, statsParams } from '../../observations/listParams'
 import {
   avalancheListSchema,
   avalancheRecordSchema,
+  avalancheStatsSchema,
   combinedZonesSchema,
   observationListSchema,
   observationRecordSchema,
 } from '../../types/observationSchemas'
 import type { ObservationSource } from '../types'
-import { mapAvalanche, mapCombinedZones, mapObservation, mapPage } from './observationMappers'
+import {
+  mapAvalanche,
+  mapAvalancheStats,
+  mapCombinedZones,
+  mapObservation,
+  mapPage,
+} from './observationMappers'
 
 /** Detail responses are cached upstream for 60s too (`cache-control: max-age=60`). */
 const DETAIL_CACHE_SECONDS = 60
@@ -55,6 +62,15 @@ export const observationSourceV2: ObservationSource = {
       listParams(request, upstreamCenterId(centerSlug)),
     )
     return mapPage(parse(avalancheListSchema, data, 'avalanche list'), mapAvalanche)
+  },
+
+  async getAvalancheStats(centerSlug, request) {
+    const data = await obsFetchJson(
+      centerSlug,
+      '/avalanche_observation/stats/',
+      statsParams(request, upstreamCenterId(centerSlug)),
+    )
+    return mapAvalancheStats(parse(avalancheStatsSchema, data, 'avalanche stats'))
   },
 
   async getObservation(centerSlug, id) {

@@ -7,8 +7,10 @@
 import { boundsOfGeometries } from '@/utilities/geo/bounds'
 
 import type {
+  AspectElevationRose,
   Avalanche,
   AvalancheImpacts,
+  AvalancheStats,
   LatLng,
   Observation,
   ObservationInstability,
@@ -17,9 +19,13 @@ import type {
   ObservationZoneOption,
   ObservationZoneRef,
   ObservedProblem,
+  StatCount,
+  StatsAggregation,
+  StatsBucket,
 } from '../../model/observation'
 import type {
   AvalancheRecordWire,
+  AvalancheStatsWire,
   CombinedZonesWire,
   ObservationInstabilityWire,
   ObservationRecordWire,
@@ -303,4 +309,83 @@ export function mapCombinedZones(wire: CombinedZonesWire): ObservationZoneOption
       }
     })
     .sort((a, b) => a.priority - b.priority || a.name.localeCompare(b.name))
+}
+
+// ─── Stats ──────────────────────────────────────────────────────────────────
+
+function toStatCount(wire: { name: string; num_avalanches: number; show_label?: boolean | null }) {
+  const count: StatCount = {
+    name: wire.name,
+    count: wire.num_avalanches,
+    showLabel: wire.show_label === true,
+  }
+  return count
+}
+
+type StatsWire = AvalancheStatsWire['stats']
+
+/** Buckets with a `period_end` are weeks or months; a plain day is its own period. */
+function toBucket<K extends string>(
+  wire: { date: string; period_end?: string | null },
+  counts: Record<K, number>,
+): StatsBucket<K> {
+  return { date: wire.date, periodEnd: wire.period_end ?? wire.date, counts }
+}
+
+function sizeBuckets(series: StatsWire['time_series']) {
+  return series.map((bucket) =>
+    toBucket(bucket, {
+      D1: bucket.D1 ?? 0,
+      D2: bucket.D2 ?? 0,
+      D3: bucket.D3 ?? 0,
+      'D4-5': bucket['D4-5'] ?? 0,
+    }),
+  )
+}
+
+function instabilityBuckets(series: StatsWire['instability_time_series']) {
+  return series.map((bucket) =>
+    toBucket(bucket, {
+      avalanchesObserved: bucket.avalanches_observed ?? 0,
+      crackingCollapsing: bucket.cracking_collapsing_observed ?? 0,
+      noInstability: bucket.no_instability_observed ?? 0,
+    }),
+  )
+}
+
+/** The API marks every bucket the same way; an unmarked series is daily. */
+function aggregationOf(series: StatsWire['time_series']): StatsAggregation {
+  return series.find((bucket) => bucket.aggregation)?.aggregation ?? 'daily'
+}
+
+/** The bands in index order, each described once however many aspects report it. */
+function toRose(wire: StatsWire['aspect_elevation']): AspectElevationRose {
+  const bands: AspectElevationRose['bands'] = []
+  for (const cell of wire?.aggregated_data ?? []) {
+    bands[cell.bin_index] = { label: cell.bin_label, from: cell.bin_start, to: cell.bin_end }
+  }
+  return {
+    bands: bands.map((band) => band ?? { label: '', from: 0, to: 0 }),
+    cells: (wire?.aggregated_data ?? []).map((cell) => ({
+      aspect: cell.aspect,
+      band: cell.bin_index,
+      count: cell.count,
+    })),
+  }
+}
+
+export function mapAvalancheStats(wire: AvalancheStatsWire): AvalancheStats {
+  const { stats, metadata } = wire
+  return {
+    totalAvalanches: metadata.total_avalanches ?? 0,
+    groupedBy: metadata.aggregation_type === 'center' ? 'center' : 'zone',
+    zones: stats.zone.map(toStatCount),
+    triggers: stats.trigger.map(toStatCount),
+    sizes: stats.size.map(toStatCount),
+    problems: stats.problem_type.map(toStatCount),
+    aggregation: aggregationOf(stats.time_series),
+    avalanchesOverTime: sizeBuckets(stats.time_series),
+    instabilityOverTime: instabilityBuckets(stats.instability_time_series),
+    rose: toRose(stats.aspect_elevation),
+  }
 }
