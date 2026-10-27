@@ -12,19 +12,19 @@ type Props = HeaderBlockProps & {
 export const HeaderBlockComponent = (props: Props) => {
   const { backgroundColor, fullWidthColor, richText, isLayoutBlock } = props
 
-  const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
   const spacing = blockSpacing(backgroundColor, isLayoutBlock)
 
   return (
-    <div className={cn(spacing.outer, fullWidthColor && bgColorClass)}>
+    <div className={cn(spacing.outer, fullWidthColor && spacing.bg)}>
       <div
         className={cn(
           'w-full',
-          spacing.inner,
+          // Inline headers sit in prose, outside the block rhythm
+          isLayoutBlock ? spacing.inner : 'py-4',
           textColor,
           { container: isLayoutBlock },
-          !fullWidthColor && `${bgColorClass}`,
+          !fullWidthColor && spacing.bg,
         )}
       >
         <RichText data={richText} enableGutter={false} className={cn(!isLayoutBlock && 'px-4')} />

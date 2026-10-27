@@ -1,20 +1,17 @@
+import { isPaletteColor } from '@/fields/color'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
-// Whether a block's background color picker value is a color. Only `transparent` (the picker's
-// default) reads as none; `white` is a deliberate choice and keeps the padding.
+// `white` counts as a color; `transparent` and values outside the palette paint nothing.
 export function hasBackgroundColor(backgroundColor?: string | null): boolean {
-  return !!backgroundColor && backgroundColor !== 'transparent'
+  return isPaletteColor(backgroundColor) && backgroundColor !== 'transparent'
 }
 
 export const BLOCK_MARGIN = 'my-3 md:my-5'
 export const BLOCK_PADDING = 'py-6 md:py-8'
 
-// A block with no background carries margin, which collapses with its neighbor's. A block with a
-// background keeps the full padding inside the color instead, so two colored blocks touch.
-// Inline Lexical blocks get no margin.
-// `bg` is the background class, only when there is one to paint.
+// Plain layout blocks get collapsing margin, colored ones padding; see docs/coding-guide.md.
 export function blockSpacing(backgroundColor: string | null | undefined, isLayoutBlock: boolean) {
   const hasBg = hasBackgroundColor(backgroundColor)
   return {
@@ -39,21 +36,20 @@ export const BackgroundColorWrapper = ({
   containerClassName,
   outerClassName,
 }: BackgroundColorWrapperProps) => {
-  const bgColorClass = backgroundColor ? `bg-${backgroundColor}` : ''
-  const textColor = getTextColorFromBgColor(backgroundColor)
   const spacing = blockSpacing(backgroundColor, isLayoutBlock)
 
   return (
     <div
       className={cn(
         spacing.outer,
-        hasBackgroundColor(backgroundColor) && `${bgColorClass} ${textColor}`,
+        spacing.bg,
+        spacing.bg && getTextColorFromBgColor(backgroundColor),
         outerClassName,
       )}
     >
       <div
         className={cn(
-          (isLayoutBlock || hasBackgroundColor(backgroundColor)) && 'container',
+          (isLayoutBlock || spacing.bg) && 'container',
           spacing.inner,
           '@container',
           containerClassName,

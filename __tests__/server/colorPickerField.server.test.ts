@@ -12,4 +12,9 @@ describe('validateBackgroundColor', () => {
     expect(validateBackgroundColor('gray')).toMatch(/palette/)
     expect(validateBackgroundColor(undefined)).toMatch(/palette/)
   })
+
+  it('lets an unchanged off-palette value through so older content can publish', () => {
+    expect(validateBackgroundColor('gray', 'gray')).toBe(true)
+    expect(validateBackgroundColor('gray', 'brand-100')).toMatch(/palette/)
+  })
 })

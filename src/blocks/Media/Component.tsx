@@ -36,7 +36,6 @@ export const MediaBlockComponent = (props: Props) => {
 
   const resource = resolveMediaSource({ source, media, sharedMedia })
 
-  const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
   const spacing = blockSpacing(backgroundColor, isLayoutBlock)
 
@@ -61,7 +60,7 @@ export const MediaBlockComponent = (props: Props) => {
   }
 
   return (
-    <div className={cn(spacing.outer, bgColorClass, textColor)}>
+    <div className={cn(spacing.outer, spacing.bg, textColor)}>
       <div
         className={cn(
           isLayoutBlock && 'container',

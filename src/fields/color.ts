@@ -1,4 +1,4 @@
-import { Field } from 'payload'
+import { Field, TextFieldSingleValidation } from 'payload'
 
 const brandShades = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
@@ -8,9 +8,17 @@ export const BACKGROUND_COLOR_OPTIONS = [
   ...brandShades.map((n) => `brand-${n}`),
 ]
 
-export const validateBackgroundColor = (value: unknown): true | string =>
-  (typeof value === 'string' && BACKGROUND_COLOR_OPTIONS.includes(value)) ||
+export const isPaletteColor = (value: unknown): value is string =>
+  typeof value === 'string' && BACKGROUND_COLOR_OPTIONS.includes(value)
+
+// An unchanged off-palette value passes so older content can still be published.
+export const validateBackgroundColor = (value: unknown, previousValue?: unknown): true | string =>
+  isPaletteColor(value) ||
+  (value !== undefined && value === previousValue) ||
   'Pick a color from the palette'
+
+const validate: TextFieldSingleValidation = (value, { previousValue }) =>
+  validateBackgroundColor(value, previousValue)
 
 const colorPickerField: (label: string) => Field = (label) => ({
   name: 'backgroundColor',
@@ -18,7 +26,7 @@ const colorPickerField: (label: string) => Field = (label) => ({
   label,
   required: true,
   defaultValue: 'transparent',
-  validate: (value: unknown) => validateBackgroundColor(value),
+  validate,
   admin: {
     components: {
       Field: '@/components/ColorPicker#ColorPicker',
