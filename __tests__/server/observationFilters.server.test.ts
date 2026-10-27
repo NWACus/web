@@ -255,6 +255,8 @@ describe('viewer addresses', () => {
   it.each([
     ['/observations', { prefix: '', tab: 'observation', detail: null }],
     ['/nwac/observations/avalanches', { prefix: '/nwac', tab: 'avalanche', detail: null }],
+    ['/observations/charts', { prefix: '', tab: 'charts', detail: null }],
+    ['/nwac/observations/charts/', { prefix: '/nwac', tab: 'charts', detail: null }],
     [
       `/observations/${ID}`,
       { prefix: '', tab: 'observation', detail: { kind: 'observation', id: ID } },
@@ -267,9 +269,10 @@ describe('viewer addresses', () => {
     expect(readViewerPath(path)).toEqual(expected)
   })
 
-  it('is not the viewer at the submit page or a malformed id', () => {
+  it('is not the viewer at the submit page, a malformed id, or a record under the charts', () => {
     expect(readViewerPath('/observations/submit')).toBeNull()
     expect(readViewerPath('/observations/not-an-id')).toBeNull()
+    expect(readViewerPath(`/observations/charts/${ID}`)).toBeNull()
   })
 
   it.each([
@@ -278,7 +281,8 @@ describe('viewer addresses', () => {
     ['#/view/avalanches', '/observations/avalanches'],
     [`#/view/avalanches/${ID}`, `/observations/avalanches/${ID}`],
     [`#/view/observations/${ID}`, `/observations/${ID}`],
-    ['#/view/visual?trigger=["Human"]', '/observations/avalanches?trigger=["Human"]'],
+    ['#/view/visual', '/observations/charts'],
+    ['#/view/visual?trigger=["Human"]', '/observations/charts?trigger=["Human"]'],
     [`#/observation/${ID}`, `/observations/${ID}`],
     [`#/avalanche/${ID}`, `/observations/avalanches/${ID}`],
     ['#/form', '/observations/submit'],

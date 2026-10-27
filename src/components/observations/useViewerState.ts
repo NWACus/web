@@ -15,6 +15,7 @@ import {
   type FilterTag,
   type ObservationFilters,
 } from '@/services/nac/observations/filters'
+import { listKind, type ViewerTab } from '@/services/nac/observations/routes'
 import type { ObservationViewerSettings } from '@/services/nac/observations/viewerSettings'
 
 import type { ChosenPlace } from './map/placeSearch'
@@ -30,7 +31,7 @@ function withDates(listSearch: string, filters: ObservationFilters): string {
   return params.toString()
 }
 
-export function useViewerState(settings: ObservationViewerSettings, initialTab: ObservationKind) {
+export function useViewerState(settings: ObservationViewerSettings, initialTab: ViewerTab) {
   const location = useViewerLocation(initialTab)
   const viewer = useViewerFilters({
     timezone: settings.timezone,
@@ -54,9 +55,9 @@ export function useViewerState(settings: ObservationViewerSettings, initialTab: 
 
   /** The tab entered starts on its first page; the filters come along. */
   const openTab = useCallback(
-    (kind: ObservationKind) => {
+    (tab: ViewerTab) => {
       setList({ page: 1 })
-      pushTab(kind, tabSearch)
+      pushTab(tab, tabSearch)
     },
     [setList, pushTab, tabSearch],
   )
@@ -64,6 +65,8 @@ export function useViewerState(settings: ObservationViewerSettings, initialTab: 
   return {
     ...location,
     ...viewer,
+    /** The records the showing tab lists, filters and maps; the charts tab's are the avalanches. */
+    kind: listKind(location.tab),
     openTab,
     settings,
     place,

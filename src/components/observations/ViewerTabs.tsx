@@ -1,26 +1,26 @@
 'use client'
 
 /**
- * The widget's tabs — Observations and Avalanches — as links to their addresses carrying the
- * reader's filters. A plain click switches in place (the map and filters stay put); a modified
- * click opens the tab in a new one. The widget's third tab, Charts, arrives with #1338.
+ * The widget's tabs — Observations, Avalanches and Charts — as links to their addresses carrying
+ * the reader's filters. A plain click switches in place (the map and filters stay put); a modified
+ * click opens the tab in a new one.
  */
-import type { ObservationKind } from '@/services/nac/model/observation'
-import { tabPath } from '@/services/nac/observations/routes'
+import { tabPath, type ViewerTab } from '@/services/nac/observations/routes'
 import { cn } from '@/utilities/ui'
 
 import { isPlainClick } from './links'
 
-const TABS: { kind: ObservationKind; label: string }[] = [
+const TABS: { kind: ViewerTab; label: string }[] = [
   { kind: 'observation', label: 'Observations' },
   { kind: 'avalanche', label: 'Avalanches' },
+  { kind: 'charts', label: 'Charts' },
 ]
 
 interface ViewerTabsProps {
-  active: ObservationKind
+  active: ViewerTab
   prefix: string
   search: string
-  onSelect: (kind: ObservationKind) => void
+  onSelect: (tab: ViewerTab) => void
 }
 
 export function ViewerTabs({ active, prefix, search, onSelect }: ViewerTabsProps) {

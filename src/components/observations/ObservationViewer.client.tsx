@@ -17,7 +17,7 @@ import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import type { ObservationKind } from '@/services/nac/model/observation'
 import { activeTags, type ListState } from '@/services/nac/observations/filters'
-import { detailPath } from '@/services/nac/observations/routes'
+import { detailPath, type ViewerTab } from '@/services/nac/observations/routes'
 import type { ObservationViewerSettings } from '@/services/nac/observations/viewerSettings'
 import { cn } from '@/utilities/ui'
 
@@ -49,7 +49,7 @@ import { ViewerTabs } from './ViewerTabs'
 export interface ObservationViewerProps {
   centerSlug: string
   settings: ObservationViewerSettings
-  initialTab: ObservationKind
+  initialTab: ViewerTab
 }
 
 /** A shared link's page can outlive its matches; the server then serves page 1, and so do we. */
@@ -64,11 +64,11 @@ function useServedPage(status: ListStatus, setList: (patch: Partial<ListState>) 
 function useViewerMap(centerSlug: string, state: ViewerState, token: string | null) {
   const containerRef = useRef<HTMLDivElement>(null)
   const controlsRef = useRef<HTMLDivElement>(null)
-  const { settings, tab } = state
+  const { settings, kind } = state
   const view = useObservationMap({ containerRef, controlsRef }, token, settings)
   const status = useObservationList({
     centerSlug,
-    kind: tab,
+    kind,
     search: state.apiSearch,
     bbox: view.bbox,
     moving: view.moving,
@@ -80,7 +80,7 @@ function useViewerMap(centerSlug: string, state: ViewerState, token: string | nu
     map: view.map,
     styleReady: view.styleReady,
     centerSlug,
-    kind: tab,
+    kind,
     filters: state.filters,
     centerId: settings.centerId,
     highlightedId: state.highlightedId,
@@ -90,10 +90,10 @@ function useViewerMap(centerSlug: string, state: ViewerState, token: string | nu
   usePlaceMarker(view.map, state.place, () => setPlace(null), view.expectMove)
   const resetView = useResetView(view.map, settings, state.chosenZones)
 
-  const open = useCallback((id: string) => openRecord({ kind: tab, id }), [openRecord, tab])
+  const open = useCallback((id: string) => openRecord({ kind, id }), [openRecord, kind])
   const interactions = useMarkerInteractions({
     map: view.map,
-    kind: tab,
+    kind,
     onOpen: open,
     onHighlight: state.setHighlightedId,
   })
@@ -118,18 +118,18 @@ function hrefFor(prefix: string, kind: ObservationKind) {
 }
 
 function Toolbar({ state, status }: { state: ViewerState; status: ListStatus }) {
-  const { filters, tab, today, settings } = state
+  const { filters, kind, today, settings } = state
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <SortMenu kind={tab} list={state.list} onChange={state.setList} />
+      <SortMenu kind={kind} list={state.list} onChange={state.setList} />
       <FilterSheet
-        kind={tab}
+        kind={kind}
         filters={filters}
         today={today}
         zones={settings.zones}
         centerLabel={settings.centerLabel}
-        activeCount={activeTags(filters, tab, today).length}
-        resultCount={resultCount(tab, status)}
+        activeCount={activeTags(filters, kind, today).length}
+        resultCount={resultCount(kind, status)}
         onChange={state.changeFilters}
         onRemoveTag={state.removeFilterTag}
         onResetAll={state.resetAll}
@@ -142,7 +142,7 @@ function Toolbar({ state, status }: { state: ViewerState; status: ListStatus }) 
       />
       {settings.showZoneFilter && (
         <ZoneFilter
-          kind={tab}
+          kind={kind}
           filters={filters}
           zones={settings.zones}
           centerLabel={settings.centerLabel}
@@ -218,7 +218,7 @@ function MapPane({
           expanded={expanded}
           onToggleExpanded={onToggleExpanded}
         />
-        <MapLegend kind={state.tab} />
+        <MapLegend kind={state.kind} />
         <ZoneHoverCard zone={view.hoveredZone} />
         <MapNotices
           unsupported={view.unsupported}
@@ -228,8 +228,8 @@ function MapPane({
         />
         <MarkerList
           map={view.map}
-          kind={state.tab}
-          hrefFor={hrefFor(state.prefix, state.tab)}
+          kind={state.kind}
+          hrefFor={hrefFor(state.prefix, state.kind)}
           onOpen={view.open}
         />
       </div>
@@ -277,7 +277,7 @@ function ListPane({
           className="mx-auto h-1.5 w-10 rounded-full bg-neutral-300 lg:hidden"
         />
         <FilterTags
-          kind={state.tab}
+          kind={state.kind}
           filters={filters}
           today={state.today}
           zones={settings.zones}
@@ -286,11 +286,11 @@ function ListPane({
           onClearAll={state.resetAll}
         />
         <ObservationList
-          kind={state.tab}
+          kind={state.kind}
           status={view.status}
           scope={{ place: state.place && state.place.label, zoneCount: filters.zones.length }}
           highlightedId={state.highlightedId}
-          hrefFor={hrefFor(state.prefix, state.tab)}
+          hrefFor={hrefFor(state.prefix, state.kind)}
           onOpen={view.open}
           onHighlight={state.setHighlightedId}
           onPage={(page) => {
@@ -361,10 +361,10 @@ function StickyBar({
 function MarkerPopupPortal({ state, view }: { state: ViewerState; view: ViewerMap }) {
   const { popup, popupNode, closePopup } = view.interactions
   if (!popup) return null
-  const href = popup.tapped ? hrefFor(state.prefix, state.tab)(popup.id) : null
+  const href = popup.tapped ? hrefFor(state.prefix, state.kind)(popup.id) : null
   return createPortal(
     <MarkerPopup
-      kind={state.tab}
+      kind={state.kind}
       properties={popup.properties}
       href={href}
       onOpen={() => {
@@ -474,7 +474,7 @@ export function ObservationViewer({ centerSlug, settings, initialTab }: Observat
         timezone={settings.timezone}
         prefix={state.prefix}
         record={state.detail}
-        neighbours={neighboursOf(view.status, state.detail, state.tab)}
+        neighbours={neighboursOf(view.status, state.detail, state.kind)}
         onOpen={state.openRecord}
         onClose={() => state.closeRecord(state.listSearch)}
       />

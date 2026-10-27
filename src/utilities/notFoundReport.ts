@@ -63,6 +63,7 @@ export const ROUTES_WITHOUT_REDIRECTS = [
   '/observations/:id',
   '/observations/avalanches',
   '/observations/avalanches/:id',
+  '/observations/charts',
   '/observations/submit',
   '/theme-preview',
   '/weather/forecast',

@@ -3,11 +3,20 @@
  * widget hash link lands. Pure, so the viewer, the pages and the tests share one reading.
  *
  * The native viewer lives at the addresses the widget pages already had: `/observations` is the
- * observations tab, `/observations/avalanches` the avalanches tab, and a record is
- * `/observations/<id>` or `/observations/avalanches/<id>` — opened as a modal over the list when a
- * reader clicks into it, and as a full page when that address is loaded directly.
+ * observations tab, `/observations/avalanches` the avalanches tab, `/observations/charts` the
+ * charts tab, and a record is `/observations/<id>` or `/observations/avalanches/<id>` — opened as
+ * a modal over the list when a reader clicks into it, and as a full page when that address is
+ * loaded directly.
  */
 import type { ObservationKind } from '../model/observation'
+
+/** The viewer's tabs: a list of either kind of record, or the charts over the avalanches. */
+export type ViewerTab = ObservationKind | 'charts'
+
+/** The records a tab lists, filters and maps: the charts tab is the avalanches', charted. */
+export function listKind(tab: ViewerTab): ObservationKind {
+  return tab === 'observation' ? 'observation' : 'avalanche'
+}
 
 /** The obs API's ids are UUIDs; anything else makes it answer 500 rather than 204. */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -18,9 +27,16 @@ export function isObservationId(id: string): boolean {
 
 export const OBSERVATIONS_PATH = '/observations'
 export const AVALANCHES_PATH = '/observations/avalanches'
+export const CHARTS_PATH = '/observations/charts'
 
-export function tabPath(kind: ObservationKind): string {
-  return kind === 'observation' ? OBSERVATIONS_PATH : AVALANCHES_PATH
+const TAB_PATHS: Record<ViewerTab, string> = {
+  observation: OBSERVATIONS_PATH,
+  avalanche: AVALANCHES_PATH,
+  charts: CHARTS_PATH,
+}
+
+export function tabPath(tab: ViewerTab): string {
+  return TAB_PATHS[tab]
 }
 
 export function detailPath(kind: ObservationKind, id: string): string {
@@ -30,7 +46,7 @@ export function detailPath(kind: ObservationKind, id: string): string {
 export interface ViewerLocation {
   /** Anything before `/observations` — the tenant segment on a path-routed host, else empty. */
   prefix: string
-  tab: ObservationKind
+  tab: ViewerTab
   /** The record open over the list, if any. */
   detail: { kind: ObservationKind; id: string } | null
 }
@@ -41,11 +57,12 @@ export interface ViewerLocation {
  * the match is on the suffix. An open record keeps its own tab underneath it.
  */
 export function readViewerPath(pathname: string): ViewerLocation | null {
-  // `<prefix>/observations`, then optionally `/avalanches`, then optionally `/<id>`.
-  const match = pathname.match(/^(.*?)\/observations(\/avalanches)?(?:\/([^/]+))?\/?$/)
+  // `<prefix>/observations`, then optionally `/avalanches` or `/charts`, then optionally `/<id>`.
+  const match = pathname.match(/^(.*?)\/observations(\/avalanches|\/charts)?(?:\/([^/]+))?\/?$/)
   if (!match) return null
-  const [, prefix, avalanches, id] = match
-  const tab: ObservationKind = avalanches ? 'avalanche' : 'observation'
+  const [, prefix, segment, id] = match
+  if (segment === '/charts') return id ? null : { prefix, tab: 'charts', detail: null }
+  const tab: ObservationKind = segment ? 'avalanche' : 'observation'
   if (!id) return { prefix, tab, detail: null }
   if (!isObservationId(id)) return null
   return { prefix, tab, detail: { kind: tab, id } }
@@ -68,7 +85,7 @@ export function legacyHashTarget(hash: string): string | null {
   const [first, second, third] = parts
 
   if (first === 'view') {
-    // `visual` is the charts view, not built natively yet; its filters are the avalanches tab's.
+    if (second === 'visual') return `${CHARTS_PATH}${query}`
     const kind: ObservationKind = second === 'observations' || !second ? 'observation' : 'avalanche'
     if (third && isObservationId(third)) return detailPath(kind, third)
     return `${tabPath(kind)}${query}`

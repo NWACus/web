@@ -448,7 +448,7 @@ sig = "2d0a0b5bbcea86b1"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/ObservationViewer.client.tsx"
-sig = "3ee32e9bab7dbf0a"
+sig = "5870aaad17cb1504"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -478,7 +478,7 @@ sig = "fa86dcff811c5f7c"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/observations/useViewerLocation.ts"
-sig = "7b142e631874609d"
+sig = "886d3153d4dd6966"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -1548,7 +1548,7 @@ sig = "d3cd76897aad26d4"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/notFoundReport.ts"
-sig = "e2bc3d1fc9ea7841"
+sig = "21d1eb142b2a36dc"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
