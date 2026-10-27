@@ -11,12 +11,13 @@ import type { ZoneMapLayer } from '../model/mapLayer'
 import type { NWACWeatherForecastDay } from '../model/nwacWeather'
 import type {
   Avalanche,
+  AvalancheStats,
   Observation,
   ObservationKind,
   ObservationPage,
   ObservationZoneOption,
 } from '../model/observation'
-import type { ListRequest } from '../observations/listParams'
+import type { ListRequest, StatsRequest } from '../observations/listParams'
 
 export interface ForecastSource {
   /**
@@ -113,6 +114,11 @@ export interface ObservationSource {
     centerSlug: string,
     request: ListRequest & { kind: 'avalanche' },
   ): Promise<ObservationPage<Avalanche>>
+  /**
+   * The charts tab's breakdowns of the avalanches in the viewport, filtered. Throws on any
+   * upstream failure, including a range the endpoint won't aggregate (see `STATS_MAX_DAYS`).
+   */
+  getAvalancheStats(centerSlug: string, request: StatsRequest): Promise<AvalancheStats>
   /**
    * One observation, or `null` when there is no such public record — missing, draft and private
    * all look the same from outside. Throws on a failure, so "not found" and "couldn't load" stay
