@@ -67,8 +67,11 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
                   <RichText
                     data={richText}
                     enableGutter={false}
-                    // The last block grows so equal-height columns end flush, e.g. side-by-side callouts
-                    className={cn({ 'flex-1 flex flex-col [&>:last-child]:flex-1': isStretch })}
+                    // Blocks render as divs and text as p, so the last block (not Lexical's trailing
+                    // empty paragraph) grows to make side-by-side callouts end flush
+                    className={cn({
+                      'flex-1 flex flex-col [&>div:last-of-type]:flex-1': isStretch,
+                    })}
                   />
                 )}
               </div>
