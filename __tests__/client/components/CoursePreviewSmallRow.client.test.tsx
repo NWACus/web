@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom'
-import { render, screen, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 
 jest.mock('next/link', () => ({
   __esModule: true,
@@ -84,8 +83,7 @@ describe('CoursePreviewSmallRow subtitle', () => {
     expect(screen.queryByText(/comprehensive/)).not.toBeInTheDocument()
   })
 
-  it('does not show the subtitle again in the expanded details panel', async () => {
-    const user = userEvent.setup()
+  it('does not show the subtitle again in the expanded details panel', () => {
     const doc: Course = {
       ...baseCourse,
       subtitle: '3-day comprehensive avalanche course',
@@ -97,7 +95,7 @@ describe('CoursePreviewSmallRow subtitle', () => {
     expect(screen.getAllByText('3-day comprehensive avalanche course')).toHaveLength(1)
 
     // Expand details
-    await user.click(screen.getByRole('button', { name: 'Expand details' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Expand details' }))
 
     // Subtitle should still appear only once (not duplicated in expanded panel)
     expect(screen.getAllByText('3-day comprehensive avalanche course')).toHaveLength(1)

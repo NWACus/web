@@ -80,9 +80,7 @@ export const CoursePreviewSmallRow = (props: {
           >
             {title}
           </h3>
-          {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
-          )}
+          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
           {providerName && (
             <p className="text-sm font-medium text-muted-foreground">Provided by: {providerName}</p>
           )}
