@@ -35,14 +35,13 @@ export function useViewerState(settings: ObservationViewerSettings, initialTab: 
   const viewer = useViewerFilters({
     timezone: settings.timezone,
     centerId: settings.centerId,
-    prefix: location.prefix,
-    tab: location.tab,
     recordOpen: location.detail !== null,
     zones: settings.zones,
   })
   const [place, setPlace] = useState<ChosenPlace | null>(null)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
-  const { filters, setFilters, today } = viewer
+  const { filters, setFilters, today, setList, tabSearch } = viewer
+  const { openTab: pushTab } = location
 
   const changeFilters = useCallback(
     (patch: Partial<ObservationFilters>) => setFilters({ ...filters, ...patch }),
@@ -53,9 +52,19 @@ export function useViewerState(settings: ObservationViewerSettings, initialTab: 
     [settings.zones, filters.zones],
   )
 
+  /** The tab entered starts on its first page; the filters come along. */
+  const openTab = useCallback(
+    (kind: ObservationKind) => {
+      setList({ page: 1 })
+      pushTab(kind, tabSearch)
+    },
+    [setList, pushTab, tabSearch],
+  )
+
   return {
     ...location,
     ...viewer,
+    openTab,
     settings,
     place,
     setPlace,

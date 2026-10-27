@@ -91,8 +91,8 @@ export function useViewerLocation(initialTab: ObservationKind) {
   const { openRecord, closeRecord } = useRecordHistory(prefix, tab)
 
   const openTab = useCallback(
-    (kind: ObservationKind) => {
-      window.history.pushState(null, '', `${prefix}${tabPath(kind)}${window.location.search}`)
+    (kind: ObservationKind, search: string) => {
+      window.history.pushState(null, '', `${prefix}${tabPath(kind)}${search}`)
     },
     [prefix],
   )

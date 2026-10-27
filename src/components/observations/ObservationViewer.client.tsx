@@ -182,7 +182,7 @@ function ViewerHeader({
       <ViewerTabs
         active={state.tab}
         prefix={state.prefix}
-        search={state.listSearch}
+        search={state.tabSearch}
         onSelect={state.openTab}
       />
     </div>
