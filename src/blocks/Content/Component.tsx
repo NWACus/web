@@ -13,20 +13,20 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
   const colsClasses: { [key: string]: string[] } = {
     '1': ['lg:col-span-12'],
     '11': ['md:col-span-3 lg:col-span-6', 'md:col-span-3 lg:col-span-6'],
-    '12': ['md:col-span-4 lg:col-span-8', 'md:col-span-2 lg:col-span-4'],
-    '21': ['md:col-span-2 lg:col-span-4', 'md:col-span-4 lg:col-span-8'],
+    '21': ['md:col-span-4 lg:col-span-8', 'md:col-span-2 lg:col-span-4'],
+    '12': ['md:col-span-2 lg:col-span-4', 'md:col-span-4 lg:col-span-8'],
     '111': [
       'sm:col-span-2 lg:col-span-4',
       'sm:col-span-2 lg:col-span-4',
       'sm:col-span-2 lg:col-span-4',
     ],
-    '112': [
+    '211': [
       'md:col-span-6 lg:col-span-6',
       'md:col-span-3 lg:col-span-3',
       'md:col-span-3 lg:col-span-3',
     ],
     '121': ['lg:col-span-3', 'lg:col-span-6', 'lg:col-span-3'],
-    '211': [
+    '112': [
       'md:col-span-3 lg:col-span-3',
       'md:col-span-3 lg:col-span-3',
       'md:col-span-6 lg:col-span-6',

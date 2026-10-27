@@ -3,7 +3,7 @@ import { RequiredDataFromCollectionSlug } from 'payload'
 export const contentWithCallout: RequiredDataFromCollectionSlug<'pages'>['layout'] = [
   {
     backgroundColor: 'transparent',
-    layout: '2_12',
+    layout: '2_21',
     verticalAlignment: 'top',
     blockName: null,
     columns: [

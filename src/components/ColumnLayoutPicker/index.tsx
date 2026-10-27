@@ -7,17 +7,15 @@ import { SelectFieldClientProps } from 'payload'
 import { useEffect, useMemo, useState } from 'react'
 import { ColumnsIcon } from './icons'
 
-// `parts` are the column widths as rendered on desktop, which is what the label describes.
-// The stored values predate this and don't always read left to right (e.g. 2_12 renders 2:1).
 const layoutOptions = [
   { value: '1_1', parts: [1] },
   { value: '2_11', parts: [1, 1] },
-  { value: '2_12', parts: [2, 1] },
-  { value: '2_21', parts: [1, 2] },
+  { value: '2_21', parts: [2, 1] },
+  { value: '2_12', parts: [1, 2] },
   { value: '3_111', parts: [1, 1, 1] },
-  { value: '3_112', parts: [2, 1, 1] },
+  { value: '3_211', parts: [2, 1, 1] },
   { value: '3_121', parts: [1, 2, 1] },
-  { value: '3_211', parts: [1, 1, 2] },
+  { value: '3_112', parts: [1, 1, 2] },
   { value: '4_1111', parts: [1, 1, 1, 1] },
 ]
 
