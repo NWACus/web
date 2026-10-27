@@ -15,7 +15,14 @@ import { detailPath } from '@/services/nac/observations/routes'
 
 import { capitalize, formatDay, formatHalfHour, formatSubmitted } from '../format'
 import { observationColor } from '../map/markerStyle'
-import { HeaderField, LocationMap, Panel, RecordTitle, ReviewDisclaimer } from './DetailParts'
+import {
+  HeaderField,
+  LocationMap,
+  Panel,
+  RecordTitle,
+  ReviewDisclaimer,
+  type DetailTitleTag,
+} from './DetailParts'
 import type { ObservationDetailData } from './detailTypes'
 import { MediaGallery } from './MediaGallery'
 import {
@@ -113,7 +120,7 @@ function Header({
 }: {
   observation: Observation
   timezone: string
-  TitleTag: 'h1' | 'h2'
+  TitleTag: DetailTitleTag
 }) {
   return (
     <header className="grid gap-4 md:grid-cols-3">
@@ -162,7 +169,7 @@ interface ObservationDetailProps {
   prefix?: string
   /** Open a nested avalanche over the list; without it the avalanche cards are plain links. */
   onOpenAvalanche?: (id: string) => void
-  TitleTag?: 'h1' | 'h2'
+  TitleTag?: DetailTitleTag
 }
 
 export function ObservationDetail({
