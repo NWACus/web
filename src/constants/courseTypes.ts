@@ -46,14 +46,6 @@ export const courseTypesData: CourseType[] = [
     value: 'intro-to-avalanches-field-course',
   },
   {
-    label: 'Level 1 + Rescue Combined',
-    value: 'level-1-rescue-combined',
-  },
-  {
-    label: 'Level 2 + Rescue Combined',
-    value: 'level-2-rescue-combined',
-  },
-  {
     label: 'Pro Rescue',
     value: 'pro-rescue',
   },
