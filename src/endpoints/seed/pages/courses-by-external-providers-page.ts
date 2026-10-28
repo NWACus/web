@@ -9,7 +9,9 @@ export const coursesByExternalProvidersPage: (
   tenant: Tenant,
   seoImage: Media,
 ): RequiredDataFromCollectionSlug<'pages'> => {
-  const url = getURL()
+  // The preview seed runs with NODE_ENV=development and no root domain, so getURL() would be
+  // http://localhost:3000; CI passes the preview's https origin instead (#1433)
+  const url = process.env.SEED_EMBED_ORIGIN || getURL()
 
   return {
     slug: 'courses-by-external-providers',
