@@ -23,6 +23,7 @@ jest.mock('../../src/services/snowobs/stationTracking', () => ({
 
 import { GET as getGraphData } from '@/app/(frontend)/[center]/weather/graph-data/route'
 import { GET as getPrecipData } from '@/app/(frontend)/[center]/weather/precip-data/route'
+import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 
 const params = Promise.resolve({ center: 'nwac' })
 
@@ -48,5 +49,15 @@ describe('station data routes', () => {
     })
     expect(res.status).toBe(200)
     expect(res.headers.get('Cache-Control')).toBe('public, s-maxage=60, stale-while-revalidate=60')
+  })
+
+  // SnowObs rounds to whole inches otherwise, so every hourly total reads 0.
+  it('precip-data asks SnowObs for unrounded readings', async () => {
+    await getPrecipData(new Request('https://x/weather/precip-data?stations=nwac:1'), { params })
+    expect(fetchStationTimeseries).toHaveBeenLastCalledWith(
+      'nwac',
+      [nwac1],
+      expect.objectContaining({ rawData: true }),
+    )
   })
 })

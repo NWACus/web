@@ -43,8 +43,10 @@ export async function GET(
       return badRequest(`stations this center does not track: ${strangers.join(',')}`)
     }
     // One 72h fetch covers every trailing window (1H..72H are sums over it).
+    // Rounded data gives whole inches, so every hourly gauge reading is 0.
     const response = await fetchStationTimeseries(center, requested, {
       windowHours: WINDOW_HOURS,
+      rawData: true,
     })
     return NextResponse.json(buildPrecipAccumulationTable(center, response, requested), {
       headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
