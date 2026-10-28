@@ -119,20 +119,6 @@ export const Providers: CollectionConfig = {
       ],
     },
     {
-      name: 'curriculum',
-      label: 'Curriculum',
-      type: 'select',
-      hasMany: true,
-      access: courseTypesFieldAccess,
-      admin: {
-        description: 'The avalanche education curriculum(s) this provider teaches.',
-      },
-      options: curriculaData.map((c) => ({
-        label: c.label,
-        value: c.value,
-      })),
-    },
-    {
       name: 'courses',
       type: 'join',
       collection: 'courses',
@@ -165,6 +151,21 @@ export const Providers: CollectionConfig = {
       options: courseTypesData.map((courseType) => ({
         label: courseType.label,
         value: courseType.value,
+      })),
+    },
+    {
+      name: 'curriculum',
+      label: 'Curriculum',
+      type: 'select',
+      hasMany: true,
+      access: courseTypesFieldAccess,
+      admin: {
+        description: 'The avalanche education curriculum(s) this provider teaches.',
+        position: 'sidebar',
+      },
+      options: curriculaData.map((c) => ({
+        label: c.label,
+        value: c.value,
       })),
     },
     contentHashField(),

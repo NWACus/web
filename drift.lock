@@ -833,7 +833,7 @@ sig = "da9798232ae9cd98"
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/collections/Providers/index.ts"
-sig = "85992000178ca148"
+sig = "94e4ae6312ce47e0"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
@@ -878,7 +878,7 @@ sig = "da9798232ae9cd98"
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
 target = "src/collections/Providers/index.ts"
-sig = "85992000178ca148"
+sig = "94e4ae6312ce47e0"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -1388,7 +1388,7 @@ sig = "f8b42ae102ff2db7"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Providers/index.ts"
-sig = "85992000178ca148"
+sig = "94e4ae6312ce47e0"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
