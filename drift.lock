@@ -1268,7 +1268,7 @@ sig = "793bc5ac9efb3eb7"
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
 target = "src/collections/Documents/allowedFileTypes.ts"
-sig = "fd9ce3f83e95a798"
+sig = "2de748481e0663e7"
 
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"

@@ -78,6 +78,7 @@ describe('Documents upload allow list', () => {
       'application/pdf',
       'text/plain',
       'text/csv',
+      'application/json',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ]) {
@@ -117,9 +118,10 @@ describe('assertFileContentMatchesName', () => {
     ).not.toThrow()
   })
 
-  it('allows plain text and CSV', () => {
+  it('allows plain text, CSV and JSON', () => {
     expect(() => runHook('notes.txt', 'field observations')).not.toThrow()
     expect(() => runHook('data.csv', 'station,temp')).not.toThrow()
+    expect(() => runHook('table.json', '{"help": "<h5>Snowfall</h5>"}')).not.toThrow()
   })
 })
 

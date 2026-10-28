@@ -27,6 +27,8 @@ export const DOCUMENT_MIME_TYPES = [
 
   'text/plain',
   'text/csv',
+  // JSON has no magic bytes, so Payload types it from the `.json` extension.
+  'application/json',
 
   // Modern Office formats only. Legacy .doc/.xls/.ppt are detected as the generic
   // application/x-cfb container, which also covers .msi installers, and KMZ is
