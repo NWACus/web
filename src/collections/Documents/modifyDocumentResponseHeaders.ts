@@ -19,7 +19,7 @@ export const modifyDocumentResponseHeaders = ({ headers }: { headers: Headers })
   // the storage plugin's one-year default. See docs/decisions/023-document-upload-restrictions.md.
   if (contentType === 'application/json') {
     headers.set('Access-Control-Allow-Origin', '*')
-    headers.set('Cache-Control', 'public, max-age=300')
+    headers.set('Cache-Control', 'public, max-age=3600')
   }
 
   if (!isInlineSafeMimeType(contentType)) {

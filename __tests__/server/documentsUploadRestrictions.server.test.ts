@@ -212,7 +212,7 @@ describe('Documents response headers', () => {
     modifyDocumentResponseHeaders({ headers })
 
     expect(headers.get('Access-Control-Allow-Origin')).toBe('*')
-    expect(headers.get('Cache-Control')).toBe('public, max-age=300')
+    expect(headers.get('Cache-Control')).toBe('public, max-age=3600')
     expect(headers.get('Content-Disposition')).toBe('attachment')
   })
 

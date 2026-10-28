@@ -1283,7 +1283,7 @@ sig = "1505f4e1177778dd"
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
 target = "src/collections/Documents/modifyDocumentResponseHeaders.ts"
-sig = "c243d1bab8be8715"
+sig = "8fb4e3fc8e623885"
 
 [[bindings]]
 doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
