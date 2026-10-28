@@ -3,7 +3,11 @@ import os from 'os'
 import path from 'path'
 import { ValidationError } from 'payload'
 
-import { DOCUMENT_MIME_TYPES } from '../../src/collections/Documents/allowedFileTypes'
+import {
+  DOCUMENT_MIME_TYPES,
+  EMBEDDABLE_MIME_TYPES,
+  INLINE_SAFE_MIME_TYPES,
+} from '../../src/collections/Documents/allowedFileTypes'
 import {
   assertFileContentMatchesName,
   assertUploadedFileContent,
@@ -207,11 +211,29 @@ describe('Documents response headers', () => {
     const headers = modify('application/json; charset=utf-8')
 
     expect(headers.get('Access-Control-Allow-Origin')).toBe('*')
-    expect(headers.get('Content-Disposition')).toBe('attachment')
+  })
+
+  it('shows JSON in the browser instead of downloading it', () => {
+    const headers = modify('application/json', 'inline; filename="table.json"')
+
+    expect(headers.get('Content-Disposition')).toBe('inline; filename="table.json"')
+    expect(headers.get('X-Content-Type-Options')).toBe('nosniff')
   })
 
   it('does not open other types to cross-origin reads', () => {
     expect(modify('text/csv').get('Access-Control-Allow-Origin')).toBeNull()
     expect(modify('application/pdf').get('Access-Control-Allow-Origin')).toBeNull()
+  })
+})
+
+describe('embeddable document types', () => {
+  it('only embeds PDFs, even though JSON is served inline', () => {
+    expect(EMBEDDABLE_MIME_TYPES).toEqual(['application/pdf'])
+  })
+
+  it('only embeds types that are served inline', () => {
+    for (const mimeType of EMBEDDABLE_MIME_TYPES) {
+      expect(INLINE_SAFE_MIME_TYPES).toContain(mimeType)
+    }
   })
 })

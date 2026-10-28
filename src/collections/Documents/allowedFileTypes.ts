@@ -40,9 +40,16 @@ export const DOCUMENT_MIME_TYPES = [
 /**
  * Types we are willing to render in the browser. Everything else is served as an
  * attachment so it cannot execute in the site's origin if its bytes turn out not
- * to match its declared type.
+ * to match its declared type. JSON is safe because `nosniff` keeps browsers from
+ * treating it as anything but data.
  */
-export const INLINE_SAFE_MIME_TYPES = ['application/pdf']
+export const INLINE_SAFE_MIME_TYPES = ['application/pdf', 'application/json']
 
 export const isInlineSafeMimeType = (mimeType: string | null | undefined): boolean =>
   !!mimeType && INLINE_SAFE_MIME_TYPES.includes(mimeType)
+
+/** Types the Document block may show in an iframe. Must be a subset of `INLINE_SAFE_MIME_TYPES`. */
+export const EMBEDDABLE_MIME_TYPES = ['application/pdf']
+
+export const isEmbeddableMimeType = (mimeType: string | null | undefined): boolean =>
+  !!mimeType && EMBEDDABLE_MIME_TYPES.includes(mimeType)
