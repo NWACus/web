@@ -1,18 +1,25 @@
 import { config } from '@/middleware'
+import { unstable_doesMiddlewareMatch } from 'next/experimental/testing/server'
 
-// Next compiles each matcher source into an anchored regex; the catch-all is already valid regex
-// syntax, so anchoring it reproduces which paths reach middleware.
-const catchAll = new RegExp(`^${config.matcher[0]}$`)
+const runsMiddleware = (path: string) =>
+  unstable_doesMiddlewareMatch({ config, url: `https://www.example.org${path}` })
 
-const skippedPaths = ['/monitoring', '/monitoring/', '/ingest', '/ingest/e/', '/api/tenants']
+const skippedPaths = [
+  '/monitoring',
+  '/monitoring/',
+  '/monitoring?o=4504317391929344&p=4509675069702145&r=us',
+  '/ingest',
+  '/ingest/e/',
+  '/api/tenants',
+]
 const matchedPaths = ['/', '/sac/forecasts/avalanche', '/monitoring-stations', '/about/monitoring']
 
 describe('middleware matcher', () => {
   it.each(skippedPaths)('skips %s', (path) => {
-    expect(catchAll.test(path)).toBe(false)
+    expect(runsMiddleware(path)).toBe(false)
   })
 
   it.each(matchedPaths)('runs on %s', (path) => {
-    expect(catchAll.test(path)).toBe(true)
+    expect(runsMiddleware(path)).toBe(true)
   })
 })

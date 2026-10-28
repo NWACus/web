@@ -93,8 +93,8 @@ const sentryWrappedConfig = withSentryConfig(configWithPayload, {
   automaticVercelMonitors: true,
 })
 
-// withSentryConfig sets experimental.clientTraceMetadata, so Next renders per-request sentry-trace
-// and baggage meta tags that make every ISR revalidation a write. See docs/error-tracking.md.
+// withSentryConfig sets experimental.clientTraceMetadata, so Next renders a fresh sentry-trace and
+// baggage meta tag into every render, ISR included. See docs/error-tracking.md.
 const { clientTraceMetadata: _clientTraceMetadata, ...sentryExperimental } =
   sentryWrappedConfig.experimental ?? {}
 const configWithSentry = { ...sentryWrappedConfig, experimental: sentryExperimental }
