@@ -62,7 +62,7 @@ export const CoursePreviewSmallRow = (props: {
 
   // Determine if we should render as a link or expandable div
   const hasExternalUrl = !!courseUrl
-  const isExpandable = !hasExternalUrl && (subtitle || description || registrationDeadline)
+  const isExpandable = !hasExternalUrl && (description || registrationDeadline)
 
   const content = (
     <article className={cn('flex flex-col gap-1', className)}>
@@ -81,8 +81,11 @@ export const CoursePreviewSmallRow = (props: {
             {title}
           </h3>
           {providerName && (
-            <p className="text-sm font-medium text-muted-foreground">Provided by: {providerName}</p>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium">Provided by:</span> {providerName}
+            </p>
           )}
+          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
           {startDate && (
             <p className="text-sm text-muted-foreground">
               <StartAndEndDateDisplay
@@ -120,7 +123,6 @@ export const CoursePreviewSmallRow = (props: {
 
       {isExpanded && isExpandable && (
         <div className="mt-2 pt-2 border-t space-y-2 text-sm">
-          {subtitle && <p className="font-medium text-muted-foreground">{subtitle}</p>}
           {description && <p className="text-muted-foreground">{description}</p>}
           {registrationDeadline && (
             <p className="text-sm">
