@@ -89,7 +89,7 @@ _Also called_: A3 course
 _Avoid_: Event (a Course is not an Event, despite some legacy "event" wording in the Courses config)
 
 **Course Type**:
-The kind of A3 course a Course is, from a fixed national set (e.g. Rec 1, Rec 2, Pro 1, Rescue, Level 1 + Rescue Combined). Not editable per Provider or per Avalanche Center. Level 1/2 + Rescue Combined are Course Types of their own, but a Rec 1 or Rec 2 Course may also cover Avalanche Rescue and say so in its title.
+The kind of A3 course a Course is, from a fixed national set (e.g. Rec 1, Rec 2, Pro 1, Rescue). Not editable per Provider or per Avalanche Center. A Rec 1 or Rec 2 Course may also cover Avalanche Rescue and say so in its title.
 
 **Approved Course Types**:
 The Course Types a Provider is accredited to offer, granted only by a Provider Manager. A Course's Course Type must be one of its Provider's Approved Course Types.

@@ -46,6 +46,21 @@ jobs:
 
           name="payloadcms-preview-${ref}"
           echo "name=${name}" >> "${GITHUB_OUTPUT}"
+      - name: Generate preview domain names
+        id: domains
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          PREVIEW_ALIAS="${{ steps.database.outputs.ref }}.preview.avy-fx.org"
+          WILDCARD_PREVIEW_ALIAS="*.${{ steps.database.outputs.ref }}.preview.avy-fx.org"
+
+          echo "preview_alias=${PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
+          echo "wildcard_preview_alias=${WILDCARD_PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
+
+          echo "Preview alias: $PREVIEW_ALIAS"
+          echo "Wildcard preview alias: $WILDCARD_PREVIEW_ALIAS"
       - name: 🏗 Setup repo
         uses: actions/checkout@v5
       - name: 🏗 Setup pnpm
@@ -78,6 +93,8 @@ jobs:
           # uploads are written to the runner's disk instead of Vercel Blob,
           # leaving every seeded image and document 404ing in the preview.
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
+          # Seeded iframe embeds must point at the preview over https, not getURL()'s localhost (#1433).
+          SEED_EMBED_ORIGIN: 'https://${{ steps.domains.outputs.preview_alias }}'
       - name: Create the preview database from the seeded file
         # Bulk-import the seeded local DB into a fresh Turso DB in one operation.
         # We use `--from-dump` (plain SQL) rather than `--from-file`: the latter
@@ -128,21 +145,6 @@ jobs:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
-      - name: Generate preview domain names
-        id: domains
-        run: |
-          set -o errexit
-          set -o nounset
-          set -o pipefail
-
-          PREVIEW_ALIAS="${{ steps.database.outputs.ref }}.preview.avy-fx.org"
-          WILDCARD_PREVIEW_ALIAS="*.${{ steps.database.outputs.ref }}.preview.avy-fx.org"
-
-          echo "preview_alias=${PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
-          echo "wildcard_preview_alias=${WILDCARD_PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
-
-          echo "Preview alias: $PREVIEW_ALIAS"
-          echo "Wildcard preview alias: $WILDCARD_PREVIEW_ALIAS"
       - name: Update database URI in Vercel
         run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview ${{ github.head_ref }} --no-sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database token in Vercel

@@ -2071,8 +2071,6 @@ export interface Provider {
     | 'rescue'
     | 'awareness-external'
     | 'intro-to-avalanches-field-course'
-    | 'level-1-rescue-combined'
-    | 'level-2-rescue-combined'
     | 'pro-rescue'
     | 'pro-avsar'
   )[];
@@ -2205,8 +2203,6 @@ export interface Course {
     | 'rescue'
     | 'awareness-external'
     | 'intro-to-avalanches-field-course'
-    | 'level-1-rescue-combined'
-    | 'level-2-rescue-combined'
     | 'pro-rescue'
     | 'pro-avsar';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
