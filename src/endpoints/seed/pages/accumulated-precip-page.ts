@@ -32,9 +32,10 @@ export const accumulatedPrecipPage = (
     {
       blockType: 'precipTable',
       columns: ['1h', '3h', '6h', '12h', '24h', '48h', '72h'],
-      stations: stationPages.flatMap((page) =>
-        (page.stations ?? []).map(({ stid, source }) => ({ stid, source })),
-      ),
+      // Archived pages' stations may no longer be tracked, which 400s the whole table.
+      stations: stationPages
+        .filter((page) => !page.archived)
+        .flatMap((page) => (page.stations ?? []).map(({ stid, source }) => ({ stid, source }))),
     },
   ],
   meta: {
