@@ -8,12 +8,17 @@ Shared options live in [`sentry-base-config.ts`](../sentry-base-config.ts), impo
 
 - DSN is hardcoded (the `avy-web` project under the `nwac` org).
 - `enabled: NODE_ENV === 'production'` — inert in dev/test, and also in the mocked E2E build (see below).
-- `tracesSampleRate: 0` — error tracking only, no performance tracing.
+- No `tracesSampleRate` / `tracesSampler` — error tracking only. Leaving them unset turns tracing off entirely; `0` still runs the sampler on every request.
+- `sendClientReports: false` — otherwise the SDK posts an envelope reporting every transaction it drops.
 - `environment` comes from `VERCEL_GIT_COMMIT_REF` (falls back to `'local'`), so previews report under their branch name.
 
-Init per runtime: server ([`sentry.server.config.ts`](../sentry.server.config.ts)) and edge ([`sentry.edge.config.ts`](../sentry.edge.config.ts)) are loaded by [`src/instrumentation.ts`](../src/instrumentation.ts) `register()` (which also exports `onRequestError`); the browser inits in [`src/instrumentation-client.ts`](../src/instrumentation-client.ts).
+Init per runtime: server ([`sentry.server.config.ts`](../sentry.server.config.ts)) and edge ([`sentry.edge.config.ts`](../sentry.edge.config.ts)) are loaded by [`src/instrumentation.ts`](../src/instrumentation.ts) `register()` (which also exports `onRequestError`); the browser inits in [`src/instrumentation-client.ts`](../src/instrumentation-client.ts). The server init replaces the default Http integration with `httpIntegration({ trackIncomingRequestsAsSessions: false })`: request sessions sent ~2.6 envelopes to Sentry per function invocation, on every route. The edge runtime has no Http integration, so it needs no override. Browser sessions (Release Health) stay on.
 
-`next.config.ts` wraps the build in `withSentryConfig` **only when `NODE_ENV === 'production'**` — `org: 'nwac'`, `project: 'avy-web'`, source-map upload, and `tunnelRoute: '/monitoring'` to route SDK requests past ad blockers. `serverExternalPackages` + a `webpack.ignoreWarnings` entry suppress harmless Sentry/OpenTelemetry import warnings.
+`next.config.ts` wraps the build in `withSentryConfig` **only when `NODE_ENV === 'production'**` — `org: 'nwac'`, `project: 'avy-web'`, source-map upload, and `tunnelRoute: '/monitoring'` to route SDK requests past ad blockers. [`src/middleware.ts`](../src/middleware.ts) excludes `/monitoring` from its matcher (as it does `/ingest`), so browser envelopes don't run middleware.
+
+`withSentryConfig` also sets `experimental.clientTraceMetadata: ['baggage', 'sentry-trace']`, which makes Next render `sentry-trace` and `baggage` `<meta>` tags with a fresh trace ID and `sentry-sample_rand` on every render, even with tracing off. No two renders were byte-identical, so Vercel never got to skip an ISR write when the output was unchanged. `next.config.ts` removes that key after wrapping. Without the tags, the browser SDK starts its own trace instead of continuing the server's. That doesn't matter while tracing is off. Restore the key if tracing is ever turned back on.
+
+`serverExternalPackages` + a `webpack.ignoreWarnings` entry suppress harmless Sentry/OpenTelemetry import warnings.
 
 One exception: the mocked E2E build (`NEXT_PUBLIC_E2E_MOCK_ROLE`) skips `withSentryConfig` entirely. It is a production build, so it would otherwise report every synthetic failure the suite provokes to the real project — and, more importantly, the SDK's module instrumentation is loaded even when reporting is disabled, and does not co-exist with the E2E harness's MSW preload — the two together produce intermittent 5xx from the Payload API. That is an interaction between the two, not a production problem: a normal production build carries Sentry without the preload and does not reproduce it. See [afp-products/e2e-mocks.md](afp-products/e2e-mocks.md).
 

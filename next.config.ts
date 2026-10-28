@@ -79,7 +79,7 @@ const nextConfig: NextConfig = {
 
 const configWithPayload = withPayload(nextConfig, { devBundleServerPackages: false })
 
-const configWithSentry = withSentryConfig(configWithPayload, {
+const sentryWrappedConfig = withSentryConfig(configWithPayload, {
   org: 'nwac',
   project: 'avy-web',
   silent: !process.env.CI,
@@ -92,6 +92,12 @@ const configWithSentry = withSentryConfig(configWithPayload, {
   // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
   automaticVercelMonitors: true,
 })
+
+// withSentryConfig sets experimental.clientTraceMetadata, so Next renders per-request sentry-trace
+// and baggage meta tags that make every ISR revalidation a write. See docs/error-tracking.md.
+const { clientTraceMetadata: _clientTraceMetadata, ...sentryExperimental } =
+  sentryWrappedConfig.experimental ?? {}
+const configWithSentry = { ...sentryWrappedConfig, experimental: sentryExperimental }
 
 // The mocked E2E build is a production build, but it must not carry Sentry: the SDK's module
 // instrumentation is loaded even when reporting is disabled, and it does not co-exist with the
