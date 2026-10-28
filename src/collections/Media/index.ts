@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url'
 import { generateBlurDataUrl } from './hooks/generateBlurDataUrl'
 import { prefixFilenameWithTenant } from './hooks/prefixFilenameWithTenant'
 import { revalidateMedia, revalidateMediaDelete } from './hooks/revalidateMedia'
+import { modifyMediaResponseHeaders } from './modifyMediaResponseHeaders'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -59,6 +60,7 @@ export const Media: CollectionConfig = {
     adminThumbnail: 'thumbnail',
     focalPoint: true,
     mimeTypes: ['image/*', 'video/*'],
+    modifyResponseHeaders: modifyMediaResponseHeaders,
     imageSizes: [
       {
         name: 'thumbnail',
