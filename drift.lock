@@ -133,7 +133,7 @@ sig = "1455813193c0068d"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/components/CoursePreviewSmallRow.tsx"
-sig = "c384833eb1353209"
+sig = "ee08b9517214a81a"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -828,7 +828,7 @@ sig = "c995ef0ec2eae6b4"
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/collections/Courses/index.ts"
-sig = "da9798232ae9cd98"
+sig = "81aef2a075da3de2"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
@@ -873,7 +873,7 @@ sig = "6032ba50c3ac85a7"
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
 target = "src/collections/Courses/index.ts"
-sig = "da9798232ae9cd98"
+sig = "81aef2a075da3de2"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -1368,7 +1368,7 @@ sig = "9fea7eae9c72b62e"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Courses/index.ts"
-sig = "da9798232ae9cd98"
+sig = "81aef2a075da3de2"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
