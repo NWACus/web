@@ -53,6 +53,19 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
+  // Media reads are public and site URLs carry an updatedAt cache-busting query, so the CDN can keep
+  // each file for a year. Vercel-CDN-Cache-Control is set because the Blob handler sets its own Cache-Control.
+  async headers() {
+    return [
+      {
+        source: '/api/media/file/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ]
+  },
   async rewrites() {
     return [
       {
