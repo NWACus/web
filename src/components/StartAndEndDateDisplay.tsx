@@ -15,8 +15,9 @@ export function StartAndEndDateDisplay({
   endDate,
   showTime = true,
 }: StartAndEndDateDisplayProps) {
-  if (!showTime) {
-    return <time dateTime={startDate}>{formatDateRange(startDate, endDate, startDate_tz)}</time>
-  }
-  return <ZonedDateTime dateTime={startDate} endDateTime={endDate} timeZone={startDate_tz} />
+  return showTime ? (
+    <ZonedDateTime dateTime={startDate} endDateTime={endDate} timeZone={startDate_tz} />
+  ) : (
+    <time dateTime={startDate}>{formatDateRange(startDate, endDate, startDate_tz)}</time>
+  )
 }

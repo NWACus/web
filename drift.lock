@@ -1398,7 +1398,7 @@ sig = "cb2c59d9f564684c"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/StartAndEndDateDisplay.tsx"
-sig = "8e78d1a24da492df"
+sig = "d2acaff109a3e186"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
