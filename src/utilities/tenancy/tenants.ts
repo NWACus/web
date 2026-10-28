@@ -1,3 +1,4 @@
+// Loaded by next.config.ts, which can't resolve `@/` aliases: keep imports relative (eslint.config.mjs enforces it)
 import { AVALANCHE_CENTERS, isValidTenantSlug, ValidTenantSlug } from './avalancheCenters'
 
 /**

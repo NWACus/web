@@ -57,7 +57,7 @@ jobs:
         run: pnpm ii
         shell: bash
       - name: 📦 Opt out of image optimization
-        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
+        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.ts"
         shell: bash
       - name: 🧹 Run seed
         run: pnpm seed:standalone
@@ -221,7 +221,7 @@ jobs:
       - name: 🎭 Install Playwright Chromium
         run: pnpm exec playwright install chromium
       - name: 📦 Opt out of image optimization
-        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
+        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.ts"
         shell: bash
       - name: 🌱 Seed database
         run: pnpm seed:standalone
@@ -285,7 +285,7 @@ jobs:
       - name: 🎭 Install Playwright Chromium
         run: pnpm exec playwright install chromium
       - name: 📦 Opt out of image optimization
-        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
+        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.ts"
         shell: bash
       - name: 🌱 Seed database
         run: pnpm seed:standalone

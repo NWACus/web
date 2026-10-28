@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "f4b9eb14a74b8fb1"
+sig = "a7f6555ce616e30f"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "9e795adcbf299571"
+sig = "270bbcd8d4bc373d"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -793,7 +793,7 @@ sig = "fd722c55fdb3239d"
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
 target = "src/utilities/tenancy/tenants.ts"
-sig = "2fcb46e02fa2f388"
+sig = "76d25f34cc58b62c"
 
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
@@ -853,7 +853,7 @@ sig = "fd722c55fdb3239d"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "f36ae9afc5147710"
+sig = "45b661609a65bd97"
 
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
@@ -1008,12 +1008,12 @@ sig = "8eb97b822b21e97b"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "f36ae9afc5147710"
+sig = "45b661609a65bd97"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/timezones.ts"
-sig = "c94bfa851620c830"
+sig = "bcf5b0e73d294432"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1307,8 +1307,8 @@ sig = "1109f2020067761a"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
-target = "next.config.js"
-sig = "4d750bcc62ef50a1"
+target = "next.config.ts"
+sig = "93e48ccf40b7c2d4"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1492,8 +1492,8 @@ sig = "006ace2d385d431e"
 
 [[bindings]]
 doc = "docs/onboarding.md"
-target = "next.config.js"
-sig = "4d750bcc62ef50a1"
+target = "next.config.ts"
+sig = "93e48ccf40b7c2d4"
 
 [[bindings]]
 doc = "docs/onboarding.md"
@@ -1553,7 +1553,17 @@ sig = "a5ad3b592de08694"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "f36ae9afc5147710"
+sig = "45b661609a65bd97"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "src/utilities/tenancy/centerRemotePatterns.ts"
+sig = "ac427a292e672db3"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "src/utilities/tenancy/tenants.ts"
+sig = "76d25f34cc58b62c"
 
 [[bindings]]
 doc = "docs/revalidation.md"

@@ -1,9 +1,11 @@
 import { withPayload } from '@payloadcms/next/withPayload'
 import { withSentryConfig } from '@sentry/nextjs'
+import type { NextConfig } from 'next'
 
 import redirects from './redirects.js'
+import { centerRemotePatterns } from './src/utilities/tenancy/centerRemotePatterns'
 
-const PROTOCOL =
+const PROTOCOL: 'http' | 'https' =
   process.env.NODE_ENV === 'production' &&
   process.env.LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS !== 'true'
     ? 'https'
@@ -12,8 +14,7 @@ const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'
 const ROOT_SITE_URL = `${PROTOCOL}://${ROOT_DOMAIN}`
 const url = new URL(ROOT_SITE_URL)
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   // The mocked E2E build writes to its own directory, so a build made against the real AFP API can
   // never be mistaken for one made against the fixtures. See docs/afp-products/e2e-mocks.md.
   distDir: process.env.NEXT_DIST_DIR || '.next',
@@ -23,32 +24,13 @@ const nextConfig = {
     remotePatterns: [
       {
         hostname: url.hostname,
-        protocol: url.protocol.replace(':', ''),
-      },
-      {
-        hostname: '*.' + url.hostname,
-        protocol: url.protocol.replace(':', ''),
-      },
-      {
-        hostname: 'www.avy-fx-demo.org',
         protocol: PROTOCOL,
       },
       {
-        hostname: 'www.sierraavalanchecenter.org',
+        hostname: `*.${url.hostname}`,
         protocol: PROTOCOL,
       },
-      {
-        hostname: 'www.sawtoothavalanche.com',
-        protocol: PROTOCOL,
-      },
-      {
-        hostname: 'payetteavalanche.org',
-        protocol: PROTOCOL,
-      },
-      {
-        hostname: 'nwac.us',
-        protocol: PROTOCOL,
-      },
+      ...centerRemotePatterns(PROTOCOL),
     ],
   },
   reactStrictMode: true,
