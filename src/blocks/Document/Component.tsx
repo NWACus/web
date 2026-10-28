@@ -1,5 +1,5 @@
 'use client'
-import { isInlineSafeMimeType } from '@/collections/Documents/allowedFileTypes'
+import { isEmbeddableMimeType } from '@/collections/Documents/allowedFileTypes'
 import { BLOCK_MARGIN } from '@/components/BackgroundColorWrapper'
 import { type DocumentBlock as DocumentBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
@@ -24,8 +24,8 @@ export const DocumentBlockComponent = (props: Props) => {
   const src = getMediaURL(document.url, null, getHostnameFromTenant(tenant))
   const filename = document.filename ?? 'Download'
 
-  // Non-PDFs are served as attachments, so an iframe would download them on every page view
-  if (displayAs === 'embed' && isInlineSafeMimeType(document.mimeType)) {
+  // Only PDFs are embedded; most other types are served as attachments and would download on every page view
+  if (displayAs === 'embed' && isEmbeddableMimeType(document.mimeType)) {
     return (
       <div className={cn(isLayoutBlock ? ['container', BLOCK_MARGIN] : 'my-4')}>
         <iframe src={src} width="100%" height="600px" title="Document" />
