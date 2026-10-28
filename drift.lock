@@ -1068,7 +1068,7 @@ sig = "64928701e7b1ff21"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/PrecipAccumulationTable.tsx"
-sig = "ff3681ee4cfc577f"
+sig = "125c4710ff9486d1"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

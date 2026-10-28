@@ -117,8 +117,8 @@ function SortableHead({
     <TableHead
       aria-sort={headAriaSort(state.active, state.desc)}
       className={cn(
-        'whitespace-nowrap px-2 text-right align-top',
-        sticky && 'sticky left-0 z-10 bg-background text-left',
+        'whitespace-nowrap px-1.5 text-right align-top sm:px-2',
+        sticky && 'sticky left-0 z-10 min-w-28 bg-background text-left',
       )}
     >
       <SortButton
@@ -189,7 +189,7 @@ function MetaCell({
     return (
       <TableCell
         className={cn(
-          'whitespace-nowrap px-2 py-1.5 text-right',
+          'whitespace-nowrap px-1.5 py-1.5 text-right sm:px-2',
           noReport && 'text-muted-foreground',
         )}
       >
@@ -203,7 +203,7 @@ function MetaCell({
       : column === 'longitude'
         ? formatLongitude(row)
         : formatElevation(row, unit)
-  return <TableCell className="px-2 py-1.5 text-right">{value}</TableCell>
+  return <TableCell className="px-1.5 py-1.5 text-right sm:px-2">{value}</TableCell>
 }
 
 function StationRow({
@@ -217,7 +217,8 @@ function StationRow({
 }) {
   return (
     <TableRow className="bg-background even:bg-muted">
-      <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-2 py-1.5 font-medium">
+      {/* Names wrap on a phone so the pinned column leaves room for the totals. */}
+      <TableCell className="sticky left-0 z-10 min-w-28 max-w-36 bg-inherit px-1.5 py-1.5 font-medium leading-snug sm:max-w-none sm:whitespace-nowrap sm:px-2">
         {row.name}
       </TableCell>
       {groups.map((group) =>
@@ -248,7 +249,10 @@ function AccumulationCells({
 }) {
   if (!row.hasData) {
     return (
-      <TableCell colSpan={windows.length} className="px-2 py-1.5 text-center text-muted-foreground">
+      <TableCell
+        colSpan={windows.length}
+        className="px-1.5 py-1.5 text-center text-muted-foreground sm:px-2"
+      >
         missing
       </TableCell>
     )
@@ -258,7 +262,7 @@ function AccumulationCells({
     return (
       <TableCell
         key={hours}
-        className={cn('px-2 py-1.5 text-right', value == null && 'text-muted-foreground')}
+        className={cn('px-1.5 py-1.5 text-right sm:px-2', value == null && 'text-muted-foreground')}
       >
         {value == null ? '–' : formatTotal(value, unit)}
       </TableCell>
@@ -365,7 +369,7 @@ export function PrecipAccumulationTable({
       </div>
       <StationTableFrame
         label="Accumulated precipitation by station"
-        className="mx-auto w-auto text-base"
+        className="mx-auto w-auto text-sm sm:text-base"
       >
         <StationTableHeader>
           <HeaderRow
