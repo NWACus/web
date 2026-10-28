@@ -3,7 +3,7 @@ version = 1
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/a3-embeds.md"
-sig = "7366c712f9e0df32"
+sig = "6ac7f8f5a53e0d2f"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -58,7 +58,7 @@ sig = "a7f6555ce616e30f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "e2278a6e85255c11"
+sig = "ec88e2c5330e75ea"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -123,7 +123,7 @@ sig = "5e5358d572b712a4"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/app/(embeds)/embeds/providers/page.tsx"
-sig = "75150661129f7199"
+sig = "12af29a2c1e472cc"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -143,7 +143,7 @@ sig = "493bef88055bd06a"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/components/ProviderPreview.tsx"
-sig = "2433d2218a295ca5"
+sig = "9040b51fa901d0a6"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -833,7 +833,7 @@ sig = "81aef2a075da3de2"
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/collections/Providers/index.ts"
-sig = "ef162015be100d91"
+sig = "94e4ae6312ce47e0"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
@@ -878,7 +878,7 @@ sig = "81aef2a075da3de2"
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
 target = "src/collections/Providers/index.ts"
-sig = "ef162015be100d91"
+sig = "94e4ae6312ce47e0"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -1388,7 +1388,7 @@ sig = "f8b42ae102ff2db7"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Providers/index.ts"
-sig = "ef162015be100d91"
+sig = "94e4ae6312ce47e0"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1443,7 +1443,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "967d359895148221"
+sig = "606830e7f6ffa9df"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

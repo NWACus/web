@@ -188,7 +188,7 @@ test.describe('Providers embed states filter', () => {
   test('a filter matching no providers shows a message, not a blank embed', async ({ page }) => {
     const errors = await loadPage(page, '/embeds/providers?states=OR')
 
-    await expect(page.getByText('No providers found for the selected states.')).toBeVisible()
+    await expect(page.getByText('No providers found for the selected filters.')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Oregon' })).toHaveCount(0)
 
     expect(errors).toEqual([])

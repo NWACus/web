@@ -16,6 +16,7 @@ import type { OptionObject } from 'payload'
 import { type ChangeEvent, useMemo, useState } from 'react'
 
 import { courseTypesData } from '@/constants/courseTypes'
+import { curriculaData } from '@/constants/curricula'
 import { affinityGroupOptions } from '@/fields/affinityGroupField'
 import { stateOptionsWIntl } from '@/fields/location/states'
 import { modeOfTravelOptions } from '@/fields/modeOfTravelField'
@@ -54,6 +55,7 @@ interface EmbedOptions {
   types: string[]
   providers: string[]
   states: string[]
+  curricula: string[]
   affinityGroups: string[]
   modesOfTravel: string[]
   startDate: Date | undefined
@@ -68,6 +70,7 @@ const initialOptions: EmbedOptions = {
   types: [],
   providers: [],
   states: [],
+  curricula: [],
   affinityGroups: [],
   modesOfTravel: [],
   startDate: undefined,
@@ -111,6 +114,7 @@ function generateEmbedCode(type: EmbedType, options: EmbedOptions, baseUrl: stri
 
   if (type === 'providers') {
     if (options.states.length) params.set('states', options.states.join(','))
+    if (options.curricula.length) params.set('curriculum', options.curricula.join(','))
   }
 
   if (type === 'courses') {
@@ -260,13 +264,25 @@ export function EmbedGeneratorForm({ baseUrl }: { baseUrl: string }) {
       {embedType === 'providers' && (
         <>
           <div className="field-description">
-            <strong>Pre-filter options:</strong> Select states below to pre-filter the providers
-            shown in the embed. Leave empty to show all states.
+            <strong>Pre-filter options:</strong> Select states and/or curricula below to pre-filter
+            the providers shown in the embed. Leave empty to show all.
           </div>
 
           <StatesSelect
             value={options.states}
             onChange={(states) => updateOption('states', states)}
+          />
+
+          <SelectInput
+            label="Curriculum"
+            name="curricula"
+            path="curricula"
+            options={curriculaData.map((c) => ({ label: c.label, value: c.value }))}
+            value={options.curricula}
+            onChange={(selected) => {
+              updateOption('curricula', extractStringValues(selected))
+            }}
+            hasMany
           />
         </>
       )}

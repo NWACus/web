@@ -148,6 +148,7 @@ Key fields:
 - Business location
 - States serviced (for filtering by region)
 - Approved course types (controls which course types they can create)
+- Curriculum (optional, multi-select: AIARE, AAI, SAS, MTC, Provider Developed; editable only by provider managers and super admins)
 - Notification email
 
 ### Course Types

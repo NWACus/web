@@ -2074,6 +2074,10 @@ export interface Provider {
     | 'pro-rescue'
     | 'pro-avsar'
   )[];
+  /**
+   * The avalanche education curriculum(s) this provider teaches.
+   */
+  curriculum?: ('aiare' | 'aai' | 'sas' | 'mtc' | 'provider-developed')[] | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -4602,6 +4606,7 @@ export interface ProvidersSelect<T extends boolean = true> {
   slug?: T;
   notificationEmail?: T;
   courseTypes?: T;
+  curriculum?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
