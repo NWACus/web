@@ -80,10 +80,12 @@ export const CoursePreviewSmallRow = (props: {
           >
             {title}
           </h3>
-          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
           {providerName && (
-            <p className="text-sm font-medium text-muted-foreground">Provided by: {providerName}</p>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium">Provided by:</span> {providerName}
+            </p>
           )}
+          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
           {startDate && (
             <p className="text-sm text-muted-foreground">
               <StartAndEndDateDisplay

@@ -51,15 +51,20 @@ const baseCourse: Course = {
 }
 
 describe('CoursePreviewSmallRow subtitle', () => {
-  it('renders the subtitle directly below the title when present', () => {
+  it('renders the subtitle below the title and provider line when present', () => {
     const doc: Course = {
       ...baseCourse,
       subtitle: '3-day comprehensive avalanche course',
     }
     render(<CoursePreviewSmallRow doc={doc} />)
 
-    expect(screen.getByText('AIARE Recreational Level 1')).toBeInTheDocument()
-    expect(screen.getByText('3-day comprehensive avalanche course')).toBeInTheDocument()
+    const title = screen.getByText('AIARE Recreational Level 1')
+    const provider = screen.getByText('Provided by:').parentElement
+    const subtitle = screen.getByText('3-day comprehensive avalanche course')
+
+    expect(provider).toHaveTextContent('Provided by: Mountain Education Center')
+    expect(title.compareDocumentPosition(subtitle) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(provider?.compareDocumentPosition(subtitle)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
   })
 
   it('renders the subtitle under the title for courses with courseUrl (external link)', () => {
@@ -91,7 +96,7 @@ describe('CoursePreviewSmallRow subtitle', () => {
     }
     render(<CoursePreviewSmallRow doc={doc} />)
 
-    // Subtitle should appear once (below the title)
+    // Subtitle should appear once (in the always-visible header)
     expect(screen.getAllByText('3-day comprehensive avalanche course')).toHaveLength(1)
 
     // Expand details

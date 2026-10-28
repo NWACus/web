@@ -133,7 +133,7 @@ sig = "1455813193c0068d"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/components/CoursePreviewSmallRow.tsx"
-sig = "be0b365c871d358f"
+sig = "ee08b9517214a81a"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
