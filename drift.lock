@@ -683,12 +683,12 @@ sig = "89c52cf9a19956ef"
 [[bindings]]
 doc = "docs/agents/triage-labels.md"
 target = ".github/workflows/pr-visual-recap.yml"
-sig = "564c0ea050a68e81"
+sig = "785a6e42047c6a52"
 
 [[bindings]]
 doc = "docs/claude-github-issues.md"
 target = ".github/workflows/claude.yml"
-sig = "92802f251746884e"
+sig = "6eb1c60228ca8424"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
