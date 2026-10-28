@@ -6,9 +6,8 @@ import { useState } from 'react'
 
 import type { Course } from '@/payload-types'
 
-import { StartAndEndDateDisplay } from '@/components/StartAndEndDateDisplay'
 import { courseTypesData } from '@/constants/courseTypes'
-import { formatDateTime } from '@/utilities/formatDateTime'
+import { formatDateRange, formatDateTime } from '@/utilities/formatDateTime'
 import { ChevronDown, ChevronUp, MapPin } from 'lucide-react'
 import { Badge } from './ui/badge'
 
@@ -88,12 +87,7 @@ export const CoursePreviewSmallRow = (props: {
           {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
           {startDate && (
             <p className="text-sm text-muted-foreground">
-              <StartAndEndDateDisplay
-                startDate={startDate}
-                startDate_tz={startDate_tz}
-                endDate={endDate}
-                dateOnly
-              />
+              <time dateTime={startDate}>{formatDateRange(startDate, endDate, startDate_tz)}</time>
             </p>
           )}
           {locationText && (

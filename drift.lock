@@ -58,7 +58,7 @@ sig = "f4b9eb14a74b8fb1"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "f3b29860f42ab1b7"
+sig = "c24fbc5d46842cb7"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -133,7 +133,7 @@ sig = "1455813193c0068d"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/components/CoursePreviewSmallRow.tsx"
-sig = "ca57299afcbad74e"
+sig = "c2f507bdf8f4b4a1"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -1392,8 +1392,13 @@ sig = "ef162015be100d91"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/components/CoursePreviewSmallRow.tsx"
+sig = "c2f507bdf8f4b4a1"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/components/StartAndEndDateDisplay.tsx"
-sig = "7912dc06ce9e0e7d"
+sig = "fdaa1e280e240e83"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1404,6 +1409,11 @@ sig = "eb2718b09a4b6ff6"
 doc = "docs/events-and-courses.md"
 target = "src/fields/slug/ensureUniqueSlug.ts"
 sig = "cb2e76810074aec2"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/utilities/formatDateTime.ts"
+sig = "283ec8147a8ffaa4"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

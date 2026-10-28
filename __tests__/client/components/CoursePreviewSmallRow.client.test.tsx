@@ -119,3 +119,13 @@ describe('CoursePreviewSmallRow subtitle', () => {
     expect(screen.queryByRole('button', { name: /expand/i })).not.toBeInTheDocument()
   })
 })
+
+describe('CoursePreviewSmallRow dates', () => {
+  it('shows calendar dates only, with no time or timezone', () => {
+    const { container } = render(<CoursePreviewSmallRow doc={baseCourse} />)
+
+    const time = container.querySelector('time')
+    expect(time).toHaveTextContent(/^Feb 14 - Feb 16, 2027$/)
+    expect(time).toHaveAttribute('datetime', baseCourse.startDate)
+  })
+})
