@@ -24,6 +24,23 @@ export const formatDateTime = (
 }
 
 /**
+ * A start and optional end as calendar dates only, e.g. `Jan 6 - Jan 8, 2026`, or `Jan 6, 2026`
+ * when both fall on the same day. The timezone still decides which day each instant lands on.
+ */
+export const formatDateRange = (
+  start: string,
+  end: string | null | undefined,
+  timeZone: string,
+) => {
+  const inZone = { in: tz(timeZone) }
+  const endDate = formatDateTime(end ?? start, timeZone, 'MMM d, yyyy')
+  if (!end || isSameDay(start, end, inZone)) return endDate
+
+  const startFormat = isSameYear(start, end, inZone) ? 'MMM d' : 'MMM d, yyyy'
+  return `${formatDateTime(start, timeZone, startFormat)} - ${endDate}`
+}
+
+/**
  * An event's start and end as two halves, e.g. `Jan 5, 2026, 3:00 PM` and `5:00 PM PST`, so each
  * can be annotated separately. The end carries the zone, and the date and year are only repeated
  * when the end falls on a different day or year.

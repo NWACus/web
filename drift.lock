@@ -58,7 +58,7 @@ sig = "f4b9eb14a74b8fb1"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "ebcbc2f70b0ee57e"
+sig = "ec88e2c5330e75ea"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -133,7 +133,7 @@ sig = "1455813193c0068d"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/components/CoursePreviewSmallRow.tsx"
-sig = "c384833eb1353209"
+sig = "cb2c59d9f564684c"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -683,12 +683,12 @@ sig = "89c52cf9a19956ef"
 [[bindings]]
 doc = "docs/agents/triage-labels.md"
 target = ".github/workflows/pr-visual-recap.yml"
-sig = "564c0ea050a68e81"
+sig = "785a6e42047c6a52"
 
 [[bindings]]
 doc = "docs/claude-github-issues.md"
 target = ".github/workflows/claude.yml"
-sig = "92802f251746884e"
+sig = "6eb1c60228ca8424"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -828,7 +828,7 @@ sig = "c995ef0ec2eae6b4"
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/collections/Courses/index.ts"
-sig = "da9798232ae9cd98"
+sig = "81aef2a075da3de2"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
@@ -873,7 +873,7 @@ sig = "6032ba50c3ac85a7"
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
 target = "src/collections/Courses/index.ts"
-sig = "da9798232ae9cd98"
+sig = "81aef2a075da3de2"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -1368,7 +1368,7 @@ sig = "9fea7eae9c72b62e"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Courses/index.ts"
-sig = "da9798232ae9cd98"
+sig = "81aef2a075da3de2"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1392,8 +1392,13 @@ sig = "94e4ae6312ce47e0"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
+target = "src/components/CoursePreviewSmallRow.tsx"
+sig = "cb2c59d9f564684c"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
 target = "src/components/StartAndEndDateDisplay.tsx"
-sig = "fdaa1e280e240e83"
+sig = "d2acaff109a3e186"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1404,6 +1409,11 @@ sig = "eb2718b09a4b6ff6"
 doc = "docs/events-and-courses.md"
 target = "src/fields/slug/ensureUniqueSlug.ts"
 sig = "cb2e76810074aec2"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/utilities/formatDateTime.ts"
+sig = "283ec8147a8ffaa4"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
