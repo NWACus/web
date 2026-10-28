@@ -1728,7 +1728,7 @@ sig = "795806f511f0878d"
 [[bindings]]
 doc = "docs/shared-content.md"
 target = "src/scripts/update-media-prefix.ts"
-sig = "fd8a43c7ca0b3e8c"
+sig = "7d3a09e798591f5a"
 
 [[bindings]]
 doc = "docs/tenant-selector.md"
