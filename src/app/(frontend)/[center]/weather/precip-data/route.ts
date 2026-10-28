@@ -37,16 +37,28 @@ export async function GET(
   if (typeof requested === 'string') return badRequest(requested)
 
   try {
-    // This serves a center's own gauges, not whatever SnowObs will answer for.
-    const strangers = await unknownStationKeys(center, requested.map(stationKey))
-    if (strangers.length > 0) {
-      return badRequest(`stations this center does not track: ${strangers.join(',')}`)
+    // This serves a center's own gauges, not whatever SnowObs will answer for. A gauge
+    // that has left the tracking list (often a retired one) drops out of the table
+    // rather than failing it.
+    const strangers = new Set(await unknownStationKeys(center, requested.map(stationKey)))
+    const tracked = requested.filter((ref) => !strangers.has(stationKey(ref)))
+    if (strangers.size > 0) {
+      const payload = await getPayload({ config })
+      payload.logger.warn(
+        { center, stations: Array.from(strangers) },
+        'precip-data skipped stations the center does not track',
+      )
     }
     // One 72h fetch covers every trailing window (1H..72H are sums over it).
-    const response = await fetchStationTimeseries(center, requested, {
-      windowHours: WINDOW_HOURS,
-    })
-    return NextResponse.json(buildPrecipAccumulationTable(center, response, requested), {
+    // Rounded data gives whole inches, so every hourly gauge reading is 0.
+    const response =
+      tracked.length > 0
+        ? await fetchStationTimeseries(center, tracked, {
+            windowHours: WINDOW_HOURS,
+            rawData: true,
+          })
+        : { UNITS: {}, VARIABLES: [], STATION: [] }
+    return NextResponse.json(buildPrecipAccumulationTable(center, response, tracked), {
       headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
     })
   } catch (error) {
