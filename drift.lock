@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "e84cd41db6a4882c"
+sig = "270bbcd8d4bc373d"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -793,7 +793,7 @@ sig = "fd722c55fdb3239d"
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
 target = "src/utilities/tenancy/tenants.ts"
-sig = "2fcb46e02fa2f388"
+sig = "76d25f34cc58b62c"
 
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
@@ -853,7 +853,7 @@ sig = "fd722c55fdb3239d"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "6306858f4f1b48ec"
+sig = "45b661609a65bd97"
 
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
@@ -1008,12 +1008,12 @@ sig = "8eb97b822b21e97b"
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "6306858f4f1b48ec"
+sig = "45b661609a65bd97"
 
 [[bindings]]
 doc = "docs/decisions/020-center-timezone-is-a-hardcoded-fact.md"
 target = "src/utilities/timezones.ts"
-sig = "c94bfa851620c830"
+sig = "bcf5b0e73d294432"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1543,7 +1543,17 @@ sig = "a5ad3b592de08694"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "6306858f4f1b48ec"
+sig = "45b661609a65bd97"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "src/utilities/tenancy/centerRemotePatterns.ts"
+sig = "ac427a292e672db3"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "src/utilities/tenancy/tenants.ts"
+sig = "76d25f34cc58b62c"
 
 [[bindings]]
 doc = "docs/revalidation.md"
