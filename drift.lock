@@ -1268,7 +1268,7 @@ sig = "793bc5ac9efb3eb7"
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
 target = "src/collections/Documents/allowedFileTypes.ts"
-sig = "2de748481e0663e7"
+sig = "fd97da4a9d383fc4"
 
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
@@ -1283,7 +1283,7 @@ sig = "1505f4e1177778dd"
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
 target = "src/collections/Documents/modifyDocumentResponseHeaders.ts"
-sig = "49f8be7472703468"
+sig = "c243d1bab8be8715"
 
 [[bindings]]
 doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"

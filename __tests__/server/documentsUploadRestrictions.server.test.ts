@@ -202,4 +202,22 @@ describe('Documents response headers', () => {
 
     expect(headers.get('Content-Disposition')).toBe('inline; filename="a.pdf"')
   })
+
+  it('lets other sites fetch JSON and keeps it fresh', () => {
+    const headers = new Headers()
+    headers.set('Content-Type', 'application/json; charset=utf-8')
+    // The storage plugin appends its one-year default before this hook runs.
+    headers.append('Cache-Control', 'public, max-age=31536000')
+
+    modifyDocumentResponseHeaders({ headers })
+
+    expect(headers.get('Access-Control-Allow-Origin')).toBe('*')
+    expect(headers.get('Cache-Control')).toBe('public, max-age=300')
+    expect(headers.get('Content-Disposition')).toBe('attachment')
+  })
+
+  it('does not open other types to cross-origin reads', () => {
+    expect(modify('text/csv').get('Access-Control-Allow-Origin')).toBeNull()
+    expect(modify('application/pdf').get('Access-Control-Allow-Origin')).toBeNull()
+  })
 })

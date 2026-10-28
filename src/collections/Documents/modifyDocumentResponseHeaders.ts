@@ -15,6 +15,13 @@ export const modifyDocumentResponseHeaders = ({ headers }: { headers: Headers })
 
   const contentType = headers.get('Content-Type')?.split(';')[0].trim()
 
+  // Other sites (e.g. AFP) fetch JSON. `*` never carries cookies, and the short cache replaces
+  // the storage plugin's one-year default. See docs/decisions/023-document-upload-restrictions.md.
+  if (contentType === 'application/json') {
+    headers.set('Access-Control-Allow-Origin', '*')
+    headers.set('Cache-Control', 'public, max-age=300')
+  }
+
   if (!isInlineSafeMimeType(contentType)) {
     const disposition = headers.get('Content-Disposition')
 
