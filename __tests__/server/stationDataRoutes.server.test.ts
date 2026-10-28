@@ -1,5 +1,7 @@
 jest.mock('../../src/payload.config', () => ({}))
-jest.mock('payload', () => ({ getPayload: jest.fn() }))
+jest.mock('payload', () => ({
+  getPayload: jest.fn(async () => ({ logger: { warn: jest.fn(), error: jest.fn() } })),
+}))
 
 const nwac1 = { stid: '1', source: 'nwac' }
 
@@ -59,5 +61,26 @@ describe('station data routes', () => {
       [nwac1],
       expect.objectContaining({ rawData: true }),
     )
+  })
+
+  // A retired gauge left on a block must not blank the rest of the table.
+  it('precip-data skips a station the center does not track', async () => {
+    jest.mocked(fetchStationTimeseries).mockClear()
+    const res = await getPrecipData(
+      new Request('https://x/weather/precip-data?stations=nwac:1,nwac:40'),
+      { params },
+    )
+    expect(res.status).toBe(200)
+    expect(fetchStationTimeseries).toHaveBeenCalledWith('nwac', [nwac1], expect.anything())
+  })
+
+  it('precip-data answers an empty table when no station is tracked', async () => {
+    jest.mocked(fetchStationTimeseries).mockClear()
+    const res = await getPrecipData(new Request('https://x/weather/precip-data?stations=nwac:40'), {
+      params,
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ rows: [], timezoneLabel: '' })
+    expect(fetchStationTimeseries).not.toHaveBeenCalled()
   })
 })

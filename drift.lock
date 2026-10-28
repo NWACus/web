@@ -1023,7 +1023,7 @@ sig = "fc2db391c5c7bf68"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/precip-data/route.ts"
-sig = "a7470683d1fdd606"
+sig = "41caf706c8ed4ea0"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
