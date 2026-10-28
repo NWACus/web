@@ -8,6 +8,7 @@
  * `pnpm check:centers` verifies every entry against the NAC and AFP APIs and lists AFP centers
  * that aren't here yet, including whether their metadata parses.
  */
+// Imported by next.config.ts, which can't resolve `@/` aliases; nextConfigLoads.server.test.ts enforces it
 import { US_TIMEZONES, type USTimezone } from '../timezones'
 
 type AvalancheCenterInfo = {

@@ -3,7 +3,7 @@ import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 
 import redirects from './redirects.js'
-import { AVALANCHE_CENTERS } from './src/utilities/tenancy/avalancheCenters'
+import { centerRemotePatterns } from './src/utilities/tenancy/centerRemotePatterns'
 
 const PROTOCOL: 'http' | 'https' =
   process.env.NODE_ENV === 'production' &&
@@ -13,9 +13,6 @@ const PROTOCOL: 'http' | 'https' =
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'
 const ROOT_SITE_URL = `${PROTOCOL}://${ROOT_DOMAIN}`
 const url = new URL(ROOT_SITE_URL)
-
-// De-duplicated custom domains from AVALANCHE_CENTERS (e.g. hac and vac share alaskasnow.org)
-const centerDomains = [...new Set(Object.values(AVALANCHE_CENTERS).map((c) => c.customDomain))]
 
 const nextConfig: NextConfig = {
   // The mocked E2E build writes to its own directory, so a build made against the real AFP API can
@@ -33,10 +30,7 @@ const nextConfig: NextConfig = {
         hostname: `*.${url.hostname}`,
         protocol: PROTOCOL,
       },
-      ...centerDomains.map((hostname) => ({
-        hostname,
-        protocol: PROTOCOL,
-      })),
+      ...centerRemotePatterns(PROTOCOL),
     ],
   },
   reactStrictMode: true,
