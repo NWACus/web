@@ -58,7 +58,7 @@ sig = "f4b9eb14a74b8fb1"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/events-and-courses.md"
-sig = "f3b29860f42ab1b7"
+sig = "e2278a6e85255c11"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -133,7 +133,7 @@ sig = "1455813193c0068d"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/components/CoursePreviewSmallRow.tsx"
-sig = "ca57299afcbad74e"
+sig = "cb2c59d9f564684c"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -1393,12 +1393,12 @@ sig = "ef162015be100d91"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/CoursePreviewSmallRow.tsx"
-sig = "ca57299afcbad74e"
+sig = "cb2c59d9f564684c"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/components/StartAndEndDateDisplay.tsx"
-sig = "7912dc06ce9e0e7d"
+sig = "8e78d1a24da492df"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

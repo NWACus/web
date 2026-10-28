@@ -20,22 +20,27 @@ describe('StartAndEndDateDisplay', () => {
     expect(container).toHaveTextContent('Jan 6, 9:00 AM - Jan 8, 2026, 4:00 PM PST')
   })
 
-  it('shows a date-only range with no time or timezone when dateOnly is set', () => {
+  it('shows a date-only range with no time or timezone when showTime is false', () => {
     const { container } = render(
-      <StartAndEndDateDisplay startDate={START} startDate_tz={PACIFIC} endDate={END} dateOnly />,
+      <StartAndEndDateDisplay
+        startDate={START}
+        startDate_tz={PACIFIC}
+        endDate={END}
+        showTime={false}
+      />,
     )
 
     expect(container).toHaveTextContent(/^Jan 6 - Jan 8, 2026$/)
     expect(container.querySelector('time')).toHaveAttribute('datetime', START)
   })
 
-  it('shows a single date for a same-day course when dateOnly is set', () => {
+  it('shows a single date for a same-day course when showTime is false', () => {
     const { container } = render(
       <StartAndEndDateDisplay
         startDate={START}
         startDate_tz={PACIFIC}
         endDate="2026-01-07T00:00:00Z"
-        dateOnly
+        showTime={false}
       />,
     )
 
