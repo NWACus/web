@@ -1,3 +1,4 @@
+import { spacingField } from '@/fields/spacing'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
 
@@ -52,5 +53,6 @@ export const GalleryBlock: Block = {
         description: 'Optional rich text shown above the gallery. Supports links.',
       },
     },
+    spacingField(),
   ],
 }

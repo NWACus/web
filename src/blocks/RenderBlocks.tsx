@@ -25,8 +25,13 @@ import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
 import { TeamBlockComponent } from '@/blocks/Team/Component'
 import { VideoEmbedBlockComponent } from '@/blocks/VideoEmbed/Component'
+import { cn } from '@/utilities/ui'
 
 type LayoutBlock = Page['layout'][number] | HomePage['layout'][number]
+
+// Padding, not margin, so the extra space adds to the block's own spacing instead of collapsing into it
+const spaceAbove: Record<string, string> = { sm: 'pt-4', md: 'pt-8 md:pt-12', lg: 'pt-16 md:pt-24' }
+const spaceBelow: Record<string, string> = { sm: 'pb-4', md: 'pb-8 md:pb-12', lg: 'pb-16 md:pb-24' }
 
 export const RenderBlocks = (props: { blocks: LayoutBlock[]; payload: Payload }) => {
   const { blocks } = props
@@ -38,7 +43,13 @@ export const RenderBlocks = (props: { blocks: LayoutBlock[]; payload: Payload })
       <Fragment>
         {blocks.map((block) => {
           return (
-            <div key={`${block.id}__${block.blockType}`}>
+            <div
+              key={`${block.id}__${block.blockType}`}
+              className={cn(
+                block.spacingTop && spaceAbove[block.spacingTop],
+                block.spacingBottom && spaceBelow[block.spacingBottom],
+              )}
+            >
               <RenderBlock block={block} />
             </div>
           )

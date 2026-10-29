@@ -1,6 +1,7 @@
 import { LayoutSummaryLabel } from '@/blocks/Content/components/LayoutSummaryLabel'
 import { ColorPicker } from '@/components/ColorPicker'
 import { ColumnLayoutPicker } from '@/components/ColumnLayoutPicker'
+import { SpacingSummaryLabel } from '@/components/SpacingSummaryLabel'
 import { VerticalAlignmentPicker } from '@/components/VerticalAlignmentPicker'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
@@ -144,5 +145,31 @@ describe('LayoutSummaryLabel', () => {
     render(<LayoutSummaryLabel path="layout.0._index-0" />)
 
     expect(screen.getByText('· Full width · Transparent')).toBeInTheDocument()
+  })
+
+  it('adds any extra spacing', () => {
+    mockFieldValues.set('layout.0.layout', '1_1')
+    mockFieldValues.set('layout.0.spacingTop', 'lg')
+    mockFieldValues.set('layout.0.spacingBottom', 'none')
+    render(<LayoutSummaryLabel path="layout.0._index-0" />)
+
+    expect(screen.getByText('· Full width · Transparent · Above: Large')).toBeInTheDocument()
+  })
+})
+
+describe('SpacingSummaryLabel', () => {
+  it('lists the extra space above and below', () => {
+    mockFieldValues.set('layout.0.spacingTop', 'sm')
+    mockFieldValues.set('layout.0.spacingBottom', 'md')
+    render(<SpacingSummaryLabel path="layout.0._index-0" />)
+
+    expect(screen.getByText('· Above: Small · Below: Medium')).toBeInTheDocument()
+  })
+
+  it('says None when no extra space is set', () => {
+    mockFieldValues.set('layout.0.spacingTop', 'none')
+    render(<SpacingSummaryLabel path="layout.0._index-0" />)
+
+    expect(screen.getByText('· None')).toBeInTheDocument()
   })
 })

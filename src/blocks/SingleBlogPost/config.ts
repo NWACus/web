@@ -1,4 +1,5 @@
 import colorPickerField from '@/fields/color'
+import { spacingField } from '@/fields/spacing'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block, Field } from 'payload'
 
@@ -20,5 +21,5 @@ export const SingleBlogPostBlock: Block = {
   slug: 'singleBlogPost',
   interfaceName: 'SingleBlogPostBlock',
   imageURL: '/thumbnail/SingleBlogPostThumbnail.jpg',
-  fields: [...defaultFields],
+  fields: [...defaultFields, spacingField()],
 }

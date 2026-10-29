@@ -2,6 +2,7 @@ import type { Block, SelectFieldValidation } from 'payload'
 
 import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import colorPickerField from '@/fields/color'
+import { spacingRow } from '@/fields/spacing'
 import {
   BlocksFeature,
   HorizontalRuleFeature,
@@ -135,6 +136,7 @@ export const ContentBlock: Block = {
             },
           ],
         },
+        spacingRow,
       ],
     },
     {

@@ -1,3 +1,4 @@
+import { spacingField } from '@/fields/spacing'
 import type { Block } from 'payload'
 import { DEFAULT_DATE_RANGE, isValidDateRange } from './widgetPath'
 
@@ -83,5 +84,6 @@ export const ObservationsWidgetBlock: Block = {
         },
       ],
     },
+    spacingField(),
   ],
 }

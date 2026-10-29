@@ -1,4 +1,5 @@
 import colorPickerField from '@/fields/color'
+import { spacingField } from '@/fields/spacing'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { Block, RadioFieldValidation } from 'payload'
 import { radio } from 'payload/shared'
@@ -94,5 +95,6 @@ export const SponsorsBlock: Block = {
       required: true,
       filterOptions: getTenantFilter,
     },
+    spacingField(),
   ],
 }

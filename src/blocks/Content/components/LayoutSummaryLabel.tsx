@@ -1,6 +1,7 @@
 'use client'
 
 import { colorName } from '@/components/ColorPicker'
+import { useSpacingSummary } from '@/components/SpacingSummaryLabel'
 import { alignmentOptions } from '@/components/VerticalAlignmentPicker'
 import { useFormFields } from '@payloadcms/ui'
 
@@ -31,6 +32,7 @@ export const LayoutSummaryLabel = ({ path }: { path?: string }) => {
     const alignment = alignmentOptions.find((opt) => opt.value === verticalAlignment)
     parts.push(alignment?.label ?? 'Top')
   }
+  parts.push(...useSpacingSummary(blockPath))
 
   return (
     <span>

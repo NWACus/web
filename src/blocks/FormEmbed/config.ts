@@ -1,5 +1,6 @@
 import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
+import { spacingField } from '@/fields/spacing'
 import type { Block } from 'payload'
 
 export const FormEmbedBlock: Block = {
@@ -25,5 +26,6 @@ export const FormEmbedBlock: Block = {
       type: 'row',
       fields: [colorPickerField('Background color'), alignContentField('Content alignment')],
     },
+    spacingField(),
   ],
 }

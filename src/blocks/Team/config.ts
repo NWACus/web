@@ -1,3 +1,4 @@
+import { spacingField } from '@/fields/spacing'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
 
@@ -13,6 +14,7 @@ export const TeamBlock: Block = {
       required: true,
       filterOptions: getTenantFilter,
     },
+    spacingField(),
   ],
   labels: {
     plural: 'Teams',

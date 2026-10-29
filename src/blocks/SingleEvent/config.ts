@@ -1,4 +1,5 @@
 import colorPickerField from '@/fields/color'
+import { spacingField } from '@/fields/spacing'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block, Field } from 'payload'
 
@@ -20,5 +21,5 @@ export const SingleEventBlock: Block = {
   slug: 'singleEvent',
   interfaceName: 'SingleEventBlock',
   imageURL: '/thumbnail/SingleEventThumbnail.jpg',
-  fields: [...defaultFields],
+  fields: [...defaultFields, spacingField()],
 }

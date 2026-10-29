@@ -2,6 +2,7 @@ import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
 import imageSizeField from '@/fields/imageSize'
 import { mediaSourceFields } from '@/fields/mediaSource'
+import { spacingField } from '@/fields/spacing'
 import {
   AlignFeature,
   BoldFeature,
@@ -52,5 +53,5 @@ export const MediaBlock: Block = {
   slug: 'mediaBlock',
   interfaceName: 'MediaBlock',
   imageURL: '/thumbnail/MediaThumbnail.jpg',
-  fields: [...defaultFields],
+  fields: [...defaultFields, spacingField()],
 }

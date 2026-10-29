@@ -1,6 +1,7 @@
 import type { Block, Field } from 'payload'
 
 import colorPickerField from '@/fields/color'
+import { spacingField } from '@/fields/spacing'
 import {
   AlignFeature,
   FixedToolbarFeature,
@@ -27,6 +28,7 @@ const defaultFields: Field[] = [
     label: false,
   },
   colorPickerField('Background color'),
+  spacingField(),
 ]
 
 const headerBlockWithFields = (fields?: Field[]): Block => ({

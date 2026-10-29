@@ -1,5 +1,6 @@
 import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import colorPickerField from '@/fields/color'
+import { spacingField } from '@/fields/spacing'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import {
   BlocksFeature,
@@ -143,5 +144,10 @@ export const BlogListBlock: Block = {
   slug: 'blogList',
   interfaceName: 'BlogListBlock',
   imageURL: '/thumbnail/BlogListThumbnail.jpg',
-  fields: [...defaultStylingFields, ...dynamicPostRelatedFields, ...staticPostRelatedFields],
+  fields: [
+    ...defaultStylingFields,
+    ...dynamicPostRelatedFields,
+    ...staticPostRelatedFields,
+    spacingField(),
+  ],
 }

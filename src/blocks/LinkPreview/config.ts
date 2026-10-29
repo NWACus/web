@@ -2,6 +2,7 @@ import type { Block, Field } from 'payload'
 
 import { buttonField } from '@/fields/button'
 import colorPickerField from '@/fields/color'
+import { spacingField } from '@/fields/spacing'
 import { titleField } from '@/fields/title'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import {
@@ -64,5 +65,6 @@ export const LinkPreviewBlock: Block = {
       minRows: 2,
       maxRows: 3,
     },
+    spacingField(),
   ],
 }
