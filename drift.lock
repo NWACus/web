@@ -78,7 +78,7 @@ sig = "270bbcd8d4bc373d"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/revalidation.md"
-sig = "c29269cfda1b8e40"
+sig = "870a8ad82cf3fe08"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1028,7 +1028,7 @@ sig = "41caf706c8ed4ea0"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/stations/station/[source]/[stid]/page.tsx"
-sig = "e2b03df7a45855b0"
+sig = "2d18beaa52c43ae2"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1614,11 +1614,6 @@ sig = "c820301d5f27af19"
 doc = "docs/revalidation.md"
 target = "src/collections/Teams/hooks/revalidateTeam.ts"
 sig = "409cffc372032d25"
-
-[[bindings]]
-doc = "docs/revalidation.md"
-target = "src/components/Breadcrumbs/linkablePaths.ts"
-sig = "1c7beb60f3577275"
 
 [[bindings]]
 doc = "docs/revalidation.md"

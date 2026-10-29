@@ -77,6 +77,7 @@ export default async function Page({ params, searchParams }: Args) {
         center={center}
         path={`/weather/stations/map/${encodeURIComponent(station.stid)}`}
         title={displayName(station)}
+        hasStationsIndex={pages.length > 0}
       />
       <StationPageView
         page={{ slug: null, displayName: displayName(station), archived: false }}
