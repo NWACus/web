@@ -3,7 +3,6 @@ import {
   findNavigationItemBySlug,
   getCanonicalUrlsFromNavigation,
   getNavigationPathForSlug,
-  hiddenTabUrls,
   topLevelNavItem,
 } from '../../src/components/Header/utils-pure'
 
@@ -534,25 +533,6 @@ describe('Header Utilities', () => {
       expect(result.canonicalUrls).toEqual(navigationUrls)
       // Should only have 'about' once in excluded slugs, even though it appears in multiple nav URLs
       expect(result.excludedSlugs).toEqual(['about', 'unique-page'])
-    })
-  })
-
-  describe('hiddenTabUrls', () => {
-    const tab = (enabled: boolean, displayMode: 'link' | 'button' | 'dropdown', url: string) => ({
-      options: { displayMode, enabled },
-      link: { type: 'internal' as const, url, label: url },
-    })
-
-    it('lists the URLs of hidden link and button tabs, whose pages stay live', () => {
-      const navigation = {
-        blog: tab(false, 'link', '/blog'),
-        events: tab(true, 'link', '/events'),
-        donate: tab(false, 'button', '/donate'),
-        about: tab(false, 'dropdown', '/about'),
-      }
-
-      // @ts-expect-error - partial Navigation with only the tabs under test
-      expect(hiddenTabUrls(navigation)).toEqual(['/blog', '/donate'])
     })
   })
 

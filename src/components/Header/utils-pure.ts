@@ -63,35 +63,6 @@ export function topLevelNavItem({ tab, label }: { tab: NavTab; label: string }):
   return [{ displayMode: 'dropdown', label, items }]
 }
 
-const NAV_TAB_NAMES = [
-  'forecasts',
-  'observations',
-  'weather',
-  'education',
-  'accidents',
-  'blog',
-  'events',
-  'about',
-  'support',
-  'donate',
-] as const
-
-const isHiddenLinkTab = (tab: NavTab) =>
-  tab?.options && 'enabled' in tab.options && tab.options.enabled === false
-    ? tab.options.displayMode === 'link' || tab.options.displayMode === 'button'
-    : false
-
-/**
- * URLs of link and button tabs hidden from the menu. Hiding one only takes it out of the menu:
- * its page (e.g. the blog or events landing page) is still live.
- */
-export function hiddenTabUrls(navigation: Navigation): string[] {
-  return NAV_TAB_NAMES.map((name) => navigation[name])
-    .filter(isHiddenLinkTab)
-    .map((tab) => (tab?.link ? convertToNavLink(tab.link) : undefined))
-    .flatMap((link) => (link?.type === 'internal' ? [link.url] : []))
-}
-
 // Recursively converts a payload nav item into a frontend NavItem, or null if
 // the item has no renderable content. `parentPath` is the sequence of parent
 // labels used to build nested URLs (e.g. ['education', 'classes']).
