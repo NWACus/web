@@ -2,7 +2,7 @@ import type { Block, SelectFieldValidation } from 'payload'
 
 import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import colorPickerField from '@/fields/color'
-import { spacingRow } from '@/fields/spacing'
+import { layoutField } from '@/fields/layout'
 import {
   BlocksFeature,
   HorizontalRuleFeature,
@@ -74,72 +74,6 @@ export const ContentBlock: Block = {
   imageURL: '/thumbnail/ContentThumbnail.jpg',
   fields: [
     {
-      type: 'collapsible',
-      label: 'Layout',
-      admin: {
-        initCollapsed: true,
-        components: {
-          Label: '@/blocks/Content/components/LayoutSummaryLabel#LayoutSummaryLabel',
-        },
-      },
-      fields: [
-        {
-          type: 'row',
-          fields: [
-            colorPickerField('Background color', '24%'),
-            {
-              name: 'layout',
-              label: 'Column layout',
-              type: 'select',
-              required: true,
-              defaultValue: '1_1',
-              options: [
-                { label: 'full', value: '1_1' },
-                { label: '1:1', value: '2_11' },
-                { label: '1:1:1', value: '3_111' },
-                { label: '2:1', value: '2_21' },
-                { label: '1:2', value: '2_12' },
-                { label: '1:1:1:1', value: '4_1111' },
-                { label: '2:1:1', value: '3_211' },
-                { label: '1:2:1', value: '3_121' },
-                { label: '1:1:2', value: '3_112' },
-              ],
-              admin: {
-                width: '38%',
-                components: {
-                  Field: '@/components/ColumnLayoutPicker#ColumnLayoutPicker',
-                },
-              },
-              validate: validateColumnLayout,
-              hooks: {
-                beforeChange: [healColumnLayout],
-              },
-            },
-            {
-              name: 'verticalAlignment',
-              label: 'Vertical alignment',
-              type: 'select',
-              required: true,
-              defaultValue: 'top',
-              options: [
-                { label: 'Top', value: 'top' },
-                { label: 'Middle', value: 'center' },
-                { label: 'Bottom', value: 'bottom' },
-                { label: 'Stretch', value: 'stretch' },
-              ],
-              admin: {
-                width: '38%',
-                components: {
-                  Field: '@/components/VerticalAlignmentPicker#VerticalAlignmentPicker',
-                },
-              },
-            },
-          ],
-        },
-        spacingRow,
-      ],
-    },
-    {
       type: 'ui',
       name: 'defaultColumnAdder',
       admin: {
@@ -199,5 +133,58 @@ export const ContentBlock: Block = {
         },
       ],
     },
+    layoutField([
+      {
+        type: 'row',
+        fields: [
+          colorPickerField('Background color'),
+          {
+            name: 'layout',
+            label: 'Column layout',
+            type: 'select',
+            required: true,
+            defaultValue: '1_1',
+            options: [
+              { label: 'full', value: '1_1' },
+              { label: '1:1', value: '2_11' },
+              { label: '1:1:1', value: '3_111' },
+              { label: '2:1', value: '2_21' },
+              { label: '1:2', value: '2_12' },
+              { label: '1:1:1:1', value: '4_1111' },
+              { label: '2:1:1', value: '3_211' },
+              { label: '1:2:1', value: '3_121' },
+              { label: '1:1:2', value: '3_112' },
+            ],
+            admin: {
+              components: {
+                Field: '@/components/ColumnLayoutPicker#ColumnLayoutPicker',
+              },
+            },
+            validate: validateColumnLayout,
+            hooks: {
+              beforeChange: [healColumnLayout],
+            },
+          },
+          {
+            name: 'verticalAlignment',
+            label: 'Vertical alignment',
+            type: 'select',
+            required: true,
+            defaultValue: 'top',
+            options: [
+              { label: 'Top', value: 'top' },
+              { label: 'Middle', value: 'center' },
+              { label: 'Bottom', value: 'bottom' },
+              { label: 'Stretch', value: 'stretch' },
+            ],
+            admin: {
+              components: {
+                Field: '@/components/VerticalAlignmentPicker#VerticalAlignmentPicker',
+              },
+            },
+          },
+        ],
+      },
+    ]),
   ],
 }

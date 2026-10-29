@@ -1,8 +1,8 @@
 import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
 import imageSizeField from '@/fields/imageSize'
+import { layoutField } from '@/fields/layout'
 import { mediaSourceFields } from '@/fields/mediaSource'
-import { spacingField } from '@/fields/spacing'
 import {
   AlignFeature,
   BoldFeature,
@@ -45,13 +45,12 @@ const defaultFields: Field[] = [
         'Optional text that appears below the image to provide additional context or information about the image content.',
     },
   },
-  colorAndAlignmentRow,
-  imageSizeField('Image size'),
+  layoutField([colorAndAlignmentRow, imageSizeField('Image size')]),
 ]
 
 export const MediaBlock: Block = {
   slug: 'mediaBlock',
   interfaceName: 'MediaBlock',
   imageURL: '/thumbnail/MediaThumbnail.jpg',
-  fields: [...defaultFields, spacingField()],
+  fields: [...defaultFields],
 }

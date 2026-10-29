@@ -8,7 +8,7 @@ sig = "6ac7f8f5a53e0d2f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "1017dcbe805213cf"
+sig = "4159ea646c1212b4"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -742,6 +742,11 @@ sig = "dfe26edde8cbef93"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
+target = "src/fields/layout.ts"
+sig = "0eab3e5083010748"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
 target = "src/utilities/relationships.ts"
 sig = "1511a3263c81daf8"
 
@@ -908,7 +913,7 @@ sig = "9f139eb3ec8427a2"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/blocks/FormEmbed/config.ts"
-sig = "a117a2f5b45372ff"
+sig = "34d222e25d387cd0"
 
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
@@ -1043,7 +1048,7 @@ sig = "a66b6809d33344dc"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/blocks/PrecipTable/config.ts"
-sig = "9072e4c494ddce6f"
+sig = "1dc627f196626384"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1258,7 +1263,7 @@ sig = "7d26df9de7b357cc"
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
 target = "src/blocks/Document/config.ts"
-sig = "5529c83d603b12eb"
+sig = "207cb9340f24ba49"
 
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
@@ -1353,17 +1358,17 @@ sig = "43282c6a80a9303a"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/blocks/EventList/config.ts"
-sig = "275b6112768e2ad8"
+sig = "3688323a7656bdde"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/blocks/EventTable/config.ts"
-sig = "d9abdf298730811c"
+sig = "c10ec3628a3ec5d6"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/blocks/SingleEvent/config.ts"
-sig = "28f4962703db10da"
+sig = "c7802f87581d0daf"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

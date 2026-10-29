@@ -1,7 +1,7 @@
 import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
-import { spacingField } from '@/fields/spacing'
+import { layoutField } from '@/fields/layout'
 
 export const NACMediaBlock: Block = {
   slug: 'nacMediaBlock',
@@ -12,17 +12,18 @@ export const NACMediaBlock: Block = {
   },
   imageURL: '/thumbnail/NACMediaBlockThumbnail.jpg',
   fields: [
-    colorPickerField('Background color'),
-    {
-      name: 'mode',
-      type: 'radio',
-      options: [
-        { label: 'Carousel', value: 'carousel' },
-        { label: 'Grid', value: 'grid' },
-      ],
-      required: true,
-      defaultValue: 'carousel',
-    },
-    spacingField(),
+    layoutField([
+      colorPickerField('Background color'),
+      {
+        name: 'mode',
+        type: 'radio',
+        options: [
+          { label: 'Carousel', value: 'carousel' },
+          { label: 'Grid', value: 'grid' },
+        ],
+        required: true,
+        defaultValue: 'carousel',
+      },
+    ]),
   ],
 }

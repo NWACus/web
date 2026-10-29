@@ -1,6 +1,6 @@
 import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import colorPickerField from '@/fields/color'
-import { spacingField } from '@/fields/spacing'
+import { layoutField } from '@/fields/layout'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import {
   BlocksFeature,
@@ -39,7 +39,6 @@ const defaultStylingFields: Field[] = [
       description: 'Optional content to display below the heading and above the blog list.',
     },
   },
-  colorPickerField('Background color'),
   {
     type: 'radio',
     name: 'postOptions',
@@ -148,6 +147,6 @@ export const BlogListBlock: Block = {
     ...defaultStylingFields,
     ...dynamicPostRelatedFields,
     ...staticPostRelatedFields,
-    spacingField(),
+    layoutField([colorPickerField('Background color')]),
   ],
 }

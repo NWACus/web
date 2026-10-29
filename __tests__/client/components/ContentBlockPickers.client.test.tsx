@@ -1,7 +1,6 @@
-import { LayoutSummaryLabel } from '@/blocks/Content/components/LayoutSummaryLabel'
 import { ColorPicker } from '@/components/ColorPicker'
 import { ColumnLayoutPicker } from '@/components/ColumnLayoutPicker'
-import { SpacingSummaryLabel } from '@/components/SpacingSummaryLabel'
+import { LayoutSummaryLabel } from '@/components/LayoutSummaryLabel'
 import { VerticalAlignmentPicker } from '@/components/VerticalAlignmentPicker'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
@@ -131,45 +130,47 @@ describe('ColorPicker', () => {
 })
 
 describe('LayoutSummaryLabel', () => {
-  it('summarizes the layout, color and alignment', () => {
+  const renderLabel = () => render(<LayoutSummaryLabel path="layout.0._index-2" />)
+
+  it('summarizes a Content block layout, color and alignment', () => {
     mockFieldValues.set('layout.0.layout', '2_21')
     mockFieldValues.set('layout.0.backgroundColor', 'brand-500')
     mockFieldValues.set('layout.0.verticalAlignment', 'center')
-    render(<LayoutSummaryLabel path="layout.0._index-0" />)
+    renderLabel()
 
     expect(screen.getByText('· 2:1 · Brand 500 · Middle')).toBeInTheDocument()
   })
 
-  it('leaves out alignment for a single column', () => {
+  it('leaves out vertical alignment for a single column', () => {
     mockFieldValues.set('layout.0.layout', '1_1')
-    render(<LayoutSummaryLabel path="layout.0._index-0" />)
+    mockFieldValues.set('layout.0.backgroundColor', 'transparent')
+    renderLabel()
 
     expect(screen.getByText('· Full width · Transparent')).toBeInTheDocument()
   })
 
-  it('adds any extra spacing', () => {
-    mockFieldValues.set('layout.0.layout', '1_1')
+  it('shows content alignment and extra spacing when the block has them', () => {
+    mockFieldValues.set('layout.0.backgroundColor', 'white')
+    mockFieldValues.set('layout.0.alignContent', 'center')
     mockFieldValues.set('layout.0.spacingTop', 'lg')
     mockFieldValues.set('layout.0.spacingBottom', 'none')
-    render(<LayoutSummaryLabel path="layout.0._index-0" />)
+    renderLabel()
 
-    expect(screen.getByText('· Full width · Transparent · Above: Large')).toBeInTheDocument()
-  })
-})
-
-describe('SpacingSummaryLabel', () => {
-  it('lists the extra space above and below', () => {
-    mockFieldValues.set('layout.0.spacingTop', 'sm')
-    mockFieldValues.set('layout.0.spacingBottom', 'md')
-    render(<SpacingSummaryLabel path="layout.0._index-0" />)
-
-    expect(screen.getByText('· Above: Small · Below: Medium')).toBeInTheDocument()
+    expect(screen.getByText('· White · Aligned center · Above: Large')).toBeInTheDocument()
   })
 
-  it('says None when no extra space is set', () => {
-    mockFieldValues.set('layout.0.spacingTop', 'none')
-    render(<SpacingSummaryLabel path="layout.0._index-0" />)
+  it("ignores another block's own layout option", () => {
+    mockFieldValues.set('layout.0.layout', 'masonry')
+    mockFieldValues.set('layout.0.spacingBottom', 'sm')
+    renderLabel()
 
-    expect(screen.getByText('· None')).toBeInTheDocument()
+    expect(screen.getByText('· Below: Small')).toBeInTheDocument()
+  })
+
+  it('shows just the title when nothing is set', () => {
+    renderLabel()
+
+    expect(screen.getByText('Layout')).toBeInTheDocument()
+    expect(screen.queryByText(/·/)).not.toBeInTheDocument()
   })
 })

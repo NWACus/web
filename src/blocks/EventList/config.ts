@@ -4,7 +4,7 @@ import {
   dynamicEventRelatedFields,
   staticEventRelatedFields,
 } from '@/fields/EventQuery/config'
-import { spacingField } from '@/fields/spacing'
+import { layoutField } from '@/fields/layout'
 import type { Block } from 'payload'
 
 export const EventListBlock: Block = {
@@ -12,9 +12,9 @@ export const EventListBlock: Block = {
   interfaceName: 'EventListBlock',
   imageURL: '/thumbnail/EventListThumbnail.jpg',
   fields: [
-    ...defaultStylingFields([colorPickerField('Background color')]),
+    ...defaultStylingFields(),
     ...dynamicEventRelatedFields(),
     ...staticEventRelatedFields,
-    spacingField(),
+    layoutField([colorPickerField('Background color')]),
   ],
 }

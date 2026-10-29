@@ -8,7 +8,7 @@ export const SPACING_OPTIONS = [
 ]
 
 // Blocks embedded in rich text sit inside a column, where page-level spacing doesn't apply
-const isLayoutBlock: Condition = (_data, _siblingData, { path }) => path[0] === 'layout'
+export const isLayoutBlock: Condition = (_data, _siblingData, { path }) => path[0] === 'layout'
 
 const spacingSelect = (name: string, label: string): SelectField => ({
   name,
@@ -16,7 +16,7 @@ const spacingSelect = (name: string, label: string): SelectField => ({
   type: 'select',
   defaultValue: 'none',
   options: SPACING_OPTIONS,
-  admin: { width: '50%', condition: isLayoutBlock },
+  admin: { width: '50%', isClearable: false, condition: isLayoutBlock },
 })
 
 export const spacingRow: Field = {
@@ -26,16 +26,3 @@ export const spacingRow: Field = {
     spacingSelect('spacingBottom', 'Extra space below'),
   ],
 }
-
-export const spacingField = (): Field => ({
-  type: 'collapsible',
-  label: 'Spacing',
-  admin: {
-    initCollapsed: true,
-    condition: isLayoutBlock,
-    components: {
-      Label: '@/components/SpacingSummaryLabel#SpacingSummaryLabel',
-    },
-  },
-  fields: [spacingRow],
-})

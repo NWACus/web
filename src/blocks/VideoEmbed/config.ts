@@ -1,6 +1,6 @@
 import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
-import { spacingField } from '@/fields/spacing'
+import { layoutField } from '@/fields/layout'
 import type { Block } from 'payload'
 
 export const VideoEmbedBlock: Block = {
@@ -22,10 +22,11 @@ export const VideoEmbedBlock: Block = {
           'Paste the embed code (<iframe>) from a video provider such as YouTube or Vimeo. Scripts are not executed in this block. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.',
       },
     },
-    {
-      type: 'row',
-      fields: [colorPickerField('Background color'), alignContentField('Content alignment')],
-    },
-    spacingField(),
+    layoutField([
+      {
+        type: 'row',
+        fields: [colorPickerField('Background color'), alignContentField('Content alignment')],
+      },
+    ]),
   ],
 }

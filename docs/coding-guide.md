@@ -231,7 +231,7 @@ When creating a new block, you must register it in the following locations:
 
 1. **`src/blocks/RenderBlocks.tsx`** - For standalone page blocks
    - Set `isLayoutBlock={true}` so the block gets its own `container` wrapper
-   - Add `spacingField()` to the block's fields so editors get extra space above and below
+   - End the block's fields with `layoutField([...])`, passing its appearance options, so editors get them and extra spacing in one Layout group
 
 2. **`src/components/RichText/index.tsx`** - For blocks used inline within rich text editors
    - Set `isLayoutBlock={false}` to avoid double-wrapping (the RichText component already provides a container)
@@ -267,7 +267,7 @@ A reusable layout component that wraps content with configurable background colo
 
 **Spacing:** `blockSpacing(backgroundColor, isLayoutBlock)`, exported beside the wrapper, is the one rule. A layout block with no background color (`hasBackgroundColor` is false for `transparent` and for anything outside the picker's palette) carries `BLOCK_MARGIN` (`my-3 md:my-5`) on its outer div; those margins collapse, so two plain neighbors sit 12px apart on phones and 20px from `md`. A block with any other color, `white` included, carries no margin and instead pads its inner container with `BLOCK_PADDING` (`py-6 md:py-8`), so two colored blocks touch. Inline Lexical blocks get neither (an inline Header keeps its own `py-4`). Blocks that don't use the wrapper call `blockSpacing` themselves, or use `BLOCK_MARGIN` when they never take a background.
 
-**Extra spacing:** every layout block also takes `spacingField()` from `src/fields/spacing.ts`, a collapsed "Spacing" group with "Extra space above" and "Extra space below" selects (None, Small, Medium, Large); the Content block puts the same `spacingRow` in its Layout collapsible instead. `RenderBlocks` turns them into padding on the div it wraps each block in, so the space adds to the block's own margin or padding rather than collapsing into it. The selects hide when the block is embedded in rich text, where they don't apply.
+**Layout group:** every block ends with `layoutField([...])` from `src/fields/layout.ts`, a collapsed "Layout" group that holds the block's appearance options (background color, content alignment, full-width color, image size and the like) and a summary header. It always includes "Extra space above" and "Extra space below" (None, Small, Medium, Large) from `spacingRow` in `src/fields/spacing.ts`. `RenderBlocks` turns those into padding on the div it wraps each block in, so the space adds to the block's own margin or padding rather than collapsing into it. The spacing selects hide when the block is embedded in rich text, and a group holding only spacing hides with them. Button and Inline Media are inline elements and don't take one.
 
 **Usage:**
 ```tsx

@@ -1,4 +1,4 @@
-import { spacingField } from '@/fields/spacing'
+import { layoutField } from '@/fields/layout'
 import { stationsField } from '@/fields/stations'
 import { PRECIP_HOURLY } from '@/services/snowobs/constants'
 import { ALL_PRECIP_COLUMNS, PRECIP_COLUMNS } from '@/services/stations/precipColumns'
@@ -29,6 +29,6 @@ export const PrecipTableBlock: Block = {
         'The table shows these stations in this order. Drag to reorder. Day-to-day gaps show as "missing" on their own.',
       requiredVariable: { variable: PRECIP_HOURLY, label: 'Precip' },
     }),
-    spacingField(),
+    layoutField(),
   ],
 }

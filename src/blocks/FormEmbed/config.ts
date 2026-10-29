@@ -1,6 +1,6 @@
 import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
-import { spacingField } from '@/fields/spacing'
+import { layoutField } from '@/fields/layout'
 import type { Block } from 'payload'
 
 export const FormEmbedBlock: Block = {
@@ -22,10 +22,11 @@ export const FormEmbedBlock: Block = {
           'For donation and form widgets that ship their own scripts (DonorBox, Classy/GoFundMe, Eventbrite, etc.). Paste the provider embed code, including any <script> tags. This code runs in the page itself so that checkout flows and their pop-over payment forms work, so only paste code from a provider you trust. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.',
       },
     },
-    {
-      type: 'row',
-      fields: [colorPickerField('Background color'), alignContentField('Content alignment')],
-    },
-    spacingField(),
+    layoutField([
+      {
+        type: 'row',
+        fields: [colorPickerField('Background color'), alignContentField('Content alignment')],
+      },
+    ]),
   ],
 }

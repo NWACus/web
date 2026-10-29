@@ -20,7 +20,7 @@ export const validateBackgroundColor = (value: unknown, previousValue?: unknown)
 const validate: TextFieldSingleValidation = (value, { previousValue }) =>
   validateBackgroundColor(value, previousValue)
 
-const colorPickerField: (label: string, width?: string) => Field = (label, width) => ({
+const colorPickerField: (label: string) => Field = (label) => ({
   name: 'backgroundColor',
   type: 'text',
   label,
@@ -28,7 +28,6 @@ const colorPickerField: (label: string, width?: string) => Field = (label, width
   defaultValue: 'transparent',
   validate,
   admin: {
-    width,
     components: {
       Field: '@/components/ColorPicker#ColorPicker',
     },
