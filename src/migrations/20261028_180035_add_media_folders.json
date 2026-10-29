@@ -17370,6 +17370,65 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "providers_curriculum": {
+      "name": "providers_curriculum",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "providers_curriculum_order_idx": {
+          "name": "providers_curriculum_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "providers_curriculum_parent_idx": {
+          "name": "providers_curriculum_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "providers_curriculum_parent_fk": {
+          "name": "providers_curriculum_parent_fk",
+          "tableFrom": "providers_curriculum",
+          "tableTo": "providers",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "providers_course_types": {
       "name": "providers_course_types",
       "columns": {
@@ -17631,6 +17690,65 @@
         "_providers_v_version_states_serviced_parent_fk": {
           "name": "_providers_v_version_states_serviced_parent_fk",
           "tableFrom": "_providers_v_version_states_serviced",
+          "tableTo": "_providers_v",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "_providers_v_version_curriculum": {
+      "name": "_providers_v_version_curriculum",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "_providers_v_version_curriculum_order_idx": {
+          "name": "_providers_v_version_curriculum_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "_providers_v_version_curriculum_parent_idx": {
+          "name": "_providers_v_version_curriculum_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_providers_v_version_curriculum_parent_fk": {
+          "name": "_providers_v_version_curriculum_parent_fk",
+          "tableFrom": "_providers_v_version_curriculum",
           "tableTo": "_providers_v",
           "columnsFrom": ["parent_id"],
           "columnsTo": ["id"],
