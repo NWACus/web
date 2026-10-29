@@ -8,7 +8,7 @@ sig = "6ac7f8f5a53e0d2f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "e7ea670bb0ff121d"
+sig = "1017dcbe805213cf"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -718,7 +718,7 @@ sig = "eb24f127761f7a4d"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/blocks/RenderBlocks.tsx"
-sig = "f43871fb7d3ff5cf"
+sig = "33cd88273287d711"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -868,7 +868,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "6032ba50c3ac85a7"
+sig = "87edaf45aa7ca99c"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -908,7 +908,7 @@ sig = "9f139eb3ec8427a2"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/blocks/FormEmbed/config.ts"
-sig = "c42ac43d05f5c632"
+sig = "a117a2f5b45372ff"
 
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
@@ -933,7 +933,7 @@ sig = "40e884154478bb43"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/components/Footer/Footer.tsx"
-sig = "6f294cd17dcdfd2c"
+sig = "066ee46ecf98347b"
 
 [[bindings]]
 doc = "docs/decisions/018-forecast-glossary.md"
@@ -1043,7 +1043,7 @@ sig = "a66b6809d33344dc"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/blocks/PrecipTable/config.ts"
-sig = "bb66e8620bc4d127"
+sig = "9072e4c494ddce6f"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1258,7 +1258,7 @@ sig = "7d26df9de7b357cc"
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
 target = "src/blocks/Document/config.ts"
-sig = "c594f12626272cb9"
+sig = "5529c83d603b12eb"
 
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
@@ -1288,7 +1288,7 @@ sig = "d411242eea928047"
 [[bindings]]
 doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "6032ba50c3ac85a7"
+sig = "87edaf45aa7ca99c"
 
 [[bindings]]
 doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
@@ -1353,17 +1353,17 @@ sig = "43282c6a80a9303a"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/blocks/EventList/config.ts"
-sig = "b2a77f5589152ab4"
+sig = "275b6112768e2ad8"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/blocks/EventTable/config.ts"
-sig = "42518ac26ff407a6"
+sig = "d9abdf298730811c"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/blocks/SingleEvent/config.ts"
-sig = "9fea7eae9c72b62e"
+sig = "28f4962703db10da"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1443,7 +1443,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "606830e7f6ffa9df"
+sig = "efbb4580936748cf"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -1523,22 +1523,22 @@ sig = "c5dd4dda38e40915"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "6032ba50c3ac85a7"
+sig = "87edaf45aa7ca99c"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/components/Footer/Footer.tsx"
-sig = "6f294cd17dcdfd2c"
+sig = "066ee46ecf98347b"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/components/Header/Header.tsx"
-sig = "d22b1ef080899d7d"
+sig = "fd3e0912b1a1d097"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/components/Header/MobileNav.client.tsx"
-sig = "618f679e1566bb2e"
+sig = "dd96bfe4f39218ca"
 
 [[bindings]]
 doc = "docs/onboarding.md"
@@ -1618,7 +1618,7 @@ sig = "409cffc372032d25"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/components/Header/Header.tsx"
-sig = "d22b1ef080899d7d"
+sig = "fd3e0912b1a1d097"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -1783,7 +1783,7 @@ sig = "b6c0c9c3e420014d"
 [[bindings]]
 doc = "docs/testing.md"
 target = "__tests__/e2e/helpers/create-doc.ts"
-sig = "909ddfdaacfe4994"
+sig = "a465174c4f23ccc8"
 
 [[bindings]]
 doc = "docs/testing.md"
