@@ -2,7 +2,7 @@
 
 Date: 2026-10-28
 
-Status: proposed
+Status: accepted (2026-10-29, after POC 1)
 
 ## Context
 

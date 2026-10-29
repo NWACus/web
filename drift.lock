@@ -47,6 +47,11 @@ sig = "82d1359c10cc2a6a"
 
 [[bindings]]
 doc = "CLAUDE.md"
+target = "docs/decisions/026-member-auth-with-better-auth.md"
+sig = "070866fd075c8f3c"
+
+[[bindings]]
+doc = "CLAUDE.md"
 target = "docs/decisions/README.md"
 sig = "a44763750db99c16"
 
