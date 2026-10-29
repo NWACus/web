@@ -18,7 +18,7 @@ The same entity as an Avalanche Center, named for its multi-tenancy/RBAC role �
 ## People
 
 **User**:
-An authenticated account that can sign into the admin; the subject of RBAC. Identified by email. Distinct from a Biography — a User is a login, not a public identity. (No data relationship currently links a User to a Biography.)
+An authenticated account that can sign into the admin; the subject of RBAC. Identified by email. Distinct from a Biography — a User is a login, not a public identity. (No data relationship currently links a User to a Biography.) Distinct from a Member — staff and public accounts never link, even with the same email.
 
 **Biography**:
 A public profile of an avalanche center staff member or contributor (name, headshot, title, bio). Tenant-scoped and independent of any User account — a person can have a Biography without a login, and vice versa. Can be grouped into Teams and credited as the Author of a Post.
@@ -29,6 +29,30 @@ A Biography in its role as the credited writer of a Post. Not a separate entity.
 
 **Team**:
 A named, ordered grouping of Biographies for display (e.g. a "Who We Are" page). Not an org unit and not a permissions group.
+
+## Members
+
+Public (non-staff) accounts, authenticated by Better Auth rather than Payload's admin login. Global across Avalanche Centers and owned by Avy. See ADR [026](docs/decisions/026-member-auth-with-better-auth.md).
+
+**Member**:
+A public account on the Avy platform — one per person, global across Avalanche Centers. Never signs into the admin. May be anonymous. Distinct from a User.
+_Avoid_: donor, paying member (that's a Membership), subscriber
+
+**Anonymous Member**:
+A Member whose only credential is its Device. Created lazily by AvyApp on the first action that needs an identity (e.g. subscribing), never on install and never on AvyWeb. Can sign back in with its device secret only while it is still anonymous.
+
+**Linked Member**:
+A Member with an email or social sign-in. Signing in from an Anonymous Member links them: Devices, Subscriptions and Deliveries move to the Linked Member, Subscriptions are unioned, and the Anonymous Member is deleted.
+
+**Membership**:
+A Member's relationship with one Avalanche Center (donor, paid membership, site customization). Tenant-scoped, and the privacy boundary: tenant admins only see Members who hold a Membership with their center.
+_Avoid_: Member (the account itself)
+
+**Device**:
+An AvyApp install that can receive notifications. Identified by a random install ID; holds a hashed device secret and a push token (which can change). Belongs to at most one Member at a time; signing out leaves it unowned until the next action that needs an identity.
+
+**Subscription**:
+A Member's opt-in to one center × zone × category × channel combination. Independent of Membership.
 
 ## Access & Roles
 
