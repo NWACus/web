@@ -125,7 +125,6 @@ Add three fields and one hook to any collection that needs reference tracking:
 - **Global data**: `getCachedGlobal()` with tags like `global_{slugName}`
 - **Routable collection data**: `getCachedDocument()` with tags like `{collection}_{slug}` (this isn't currently used very much since we need to make query documents based on center + slug typically -- might be a good function to update as we go forward)
 - **Navigation data**: Cached with tenant-specific tags
-- **Built-in page URLs**: Breadcrumbs (`linkablePaths`) cache each center's built-in page URLs under `navigation-{center}` with an hourly `revalidate`, since built-in pages have no revalidation hook of their own
 
 ### Never cache a miss
 
@@ -135,7 +134,7 @@ If a cached lookup returns `undefined` because the database was momentarily unre
 
 **Throw instead of returning an empty result.** `unstable_cache` only writes an entry after the callback resolves, so a rejected callback leaves nothing behind and the next read retries against the database. `getCachedHomePage` and `getCachedTopLevelNavItems` both do this. Callers that can genuinely tolerate missing data catch the error themselves, as `getCanonicalUrlForSlug` does.
 
-**Catch at the call site, not inside the cached function.** The throw exists to keep the miss out of the cache, not to fail the page. `Header.tsx`, the tenant home page and breadcrumbs (`linkablePaths`) each catch, log at error level, and render their degraded version. Because nothing was written to the cache, the next ISR regeneration retries the database and the page repairs itself with no deploy and no re-save. That self-healing is what makes a degraded render safe, and it is exactly what a pinned miss used to prevent. It also keeps ordinary content states out of the build: `generateStaticParams` prerenders every tenant row, so an unpublished home page or a half-provisioned tenant would otherwise fail the whole build rather than one route.
+**Catch at the call site, not inside the cached function.** The throw exists to keep the miss out of the cache, not to fail the page. `Header.tsx` and the tenant home page each catch, log at error level, and render their degraded version. Because nothing was written to the cache, the next ISR regeneration retries the database and the page repairs itself with no deploy and no re-save. That self-healing is what makes a degraded render safe, and it is exactly what a pinned miss used to prevent. It also keeps ordinary content states out of the build: `generateStaticParams` prerenders every tenant row, so an unpublished home page or a half-provisioned tenant would otherwise fail the whole build rather than one route.
 
 One exception: a cached function nested inside another cached function should let the error propagate. `pages-sitemap.xml` calls `getCachedTopLevelNavItems` from inside its own `unstable_cache`, so catching there would write a partial sitemap into the outer entry for a year. Failing the request leaves both entries unwritten.
 

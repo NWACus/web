@@ -14,21 +14,25 @@ export type BuildBreadcrumbsArgs = {
   title?: string
   /** Explicit labels for any crumb, keyed by the crumb's cumulative path. */
   labels?: Record<string, string>
-  /**
-   * Paths with a page to link to (see `linkablePaths`). An intermediate crumb links only when its
-   * path is one of these, so nav sections and dropdown tabs never do.
-   */
-  linkablePaths?: string[]
-  /** Linkable paths the page knows have no live page, e.g. a retired zone. */
+  /** Whether the center has a `/weather/stations` index to link the stations crumb to. */
+  hasStationsIndex?: boolean
+  /** Intermediate crumbs, by cumulative path, that have no page of their own to link to. */
   pathsWithoutPages?: string[]
 }
+
+// First path segments that are served by native Next.js routes rather than the CMS
+// page catch-all. Intermediate crumbs under any other root are navigation groupings
+// with no page of their own, so they never link.
+const NATIVE_ROUTE_ROOTS = ['blog', 'events', 'forecasts', 'observations', 'weather']
+
+const KNOWN_PATHS_WITHOUT_PAGES = ['/forecasts', '/weather', '/observations/avalanches']
 
 export function buildBreadcrumbs({
   path,
   title,
   labels = {},
-  linkablePaths = [],
-  pathsWithoutPages = [],
+  hasStationsIndex = false,
+  pathsWithoutPages: unlinkedPaths = [],
 }: BuildBreadcrumbsArgs): BreadcrumbItemData[] {
   const segments = path
     .split('/')
@@ -37,13 +41,15 @@ export function buildBreadcrumbs({
 
   if (segments.length === 0) return []
 
+  const pathsWithoutPages = [...KNOWN_PATHS_WITHOUT_PAGES, ...unlinkedPaths]
+  if (!hasStationsIndex) pathsWithoutPages.push('/weather/stations')
+
+  const isCmsPath = !NATIVE_ROUTE_ROOTS.includes(segments[0])
+
   return segments.map((segment, index) => {
     const isLast = index === segments.length - 1
     const cumulativePath = '/' + segments.slice(0, index + 1).join('/')
-    const isLinkable =
-      !isLast &&
-      linkablePaths.includes(cumulativePath) &&
-      !pathsWithoutPages.includes(cumulativePath)
+    const isLinkable = !isLast && !isCmsPath && !pathsWithoutPages.includes(cumulativePath)
 
     const explicitName = (isLast && title) || labels[cumulativePath]
 
