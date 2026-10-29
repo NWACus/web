@@ -5,13 +5,13 @@ import type { CollectionConfig } from 'payload'
 
 // A paid center membership counts as donating; it is not a third kind.
 export const MEMBERSHIP_KINDS = {
-  signup: "Signed up on the center's site",
+  free: 'Free (has an account with this center)',
   donor: 'Donor',
 } as const
 
 /**
  * A Member's relationship with one center; the privacy boundary for tenant admins (ADR 026).
- * Most are `signup`, created the first time a center host hands the Member a site session;
+ * Most are `free`, created the first time a center host hands the Member a site session;
  * `donor` comes later from donation and paid-membership flows.
  */
 export const Memberships: CollectionConfig = {
@@ -29,7 +29,7 @@ export const Memberships: CollectionConfig = {
       name: 'kind',
       type: 'select',
       required: true,
-      defaultValue: 'signup',
+      defaultValue: 'free',
       options: Object.entries(MEMBERSHIP_KINDS).map(([value, label]) => ({ label, value })),
     },
     {

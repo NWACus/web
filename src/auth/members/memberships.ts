@@ -21,7 +21,7 @@ export async function findCenterMembership(
 
 /**
  * Signing in on a center's site is a Membership (ADR 026): the first site session on a host
- * records a `signup` Membership with that center, so its admins can see the Member.
+ * records a `free` Membership with that center, so its admins can see the Member.
  */
 export async function ensureCenterMembership(
   payload: Payload,
@@ -42,7 +42,7 @@ export async function ensureCenterMembership(
   if (!tenant) return null
   return payload.create({
     collection: 'memberships',
-    data: { member: memberId, tenant: tenant.id, kind: 'signup' },
+    data: { member: memberId, tenant: tenant.id, kind: 'free' },
     depth: 0,
   })
 }

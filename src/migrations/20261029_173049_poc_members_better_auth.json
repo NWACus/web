@@ -20363,7 +20363,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'signup'"
+          "default": "'free'"
         },
         "preferences": {
           "name": "preferences",
@@ -30085,6 +30085,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "67f555d5-a594-4420-809f-5a5c3f3b1cbc",
+  "id": "8e7d1a58-efd2-462f-a5dc-5787728ee5fb",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

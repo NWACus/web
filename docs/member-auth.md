@@ -42,7 +42,7 @@ A Member is never a User: `isMember()` and `isUser()` narrow on `collection`, th
 
 Tenant admins see only Members holding a Membership with a center they administer (`readMembers`), by collecting Membership rows for their tenants. Super admins see everyone; a Member sees only itself.
 
-Signing in on a center's site is a Membership: the exchange endpoint records a `signup` Membership with that center the first time it hands the Member a site session (`ensureCenterMembership`), so Members who arrive through a center are visible to its admins. The only other kind, `donor` (a donation or a paid center membership), will come from those flows. Preferences live in two places: global ones on the Member, center-scoped ones on the Membership, written through `/member-preferences/set` with `scope: 'global'` (default) or `'center'`; `/member-preferences/get` returns both.
+Signing in on a center's site is a Membership: the exchange endpoint records a `free` Membership with that center the first time it hands the Member a site session (`ensureCenterMembership`), so Members who arrive through a center are visible to its admins. The only other kind, `donor` (a donation or a paid center membership), will come from those flows. Preferences live in two places: global ones on the Member, center-scoped ones on the Membership, written through `/member-preferences/set` with `scope: 'global'` (default) or `'center'`; `/member-preferences/get` returns both.
 
 ## Hosts and site sessions
 

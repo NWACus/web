@@ -205,7 +205,7 @@ await payload.create({
 })
 await payload.create({
   collection: 'memberships',
-  data: { member: anon1.id, tenant: nwacId, kind: 'signup' },
+  data: { member: anon1.id, tenant: nwacId, kind: 'free' },
 })
 await payload.create({
   collection: 'deliveries',
@@ -399,7 +399,7 @@ assert.ok(!nwacIds.includes(anon3.id), 'does not see a Member with no Membership
 const sacOnly = await signInAnonymous()
 await payload.create({
   collection: 'memberships',
-  data: { member: sacOnly.id, tenant: sacId, kind: 'signup' },
+  data: { member: sacOnly.id, tenant: sacId, kind: 'free' },
 })
 const nwacView2 = await payload.find({
   collection: 'members',

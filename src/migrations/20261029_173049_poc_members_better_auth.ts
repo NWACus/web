@@ -20,7 +20,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`member_id\` text NOT NULL,
   	\`tenant_id\` integer NOT NULL,
-  	\`kind\` text DEFAULT 'signup' NOT NULL,
+  	\`kind\` text DEFAULT 'free' NOT NULL,
   	\`preferences\` text,
   	\`updated_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
   	\`created_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
