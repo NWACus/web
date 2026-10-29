@@ -1,13 +1,14 @@
 import { buildBreadcrumbs } from '@/components/Breadcrumbs/buildBreadcrumbs'
 
-// What a center's nav links to: tabs in link mode, built-in pages, and dropdown items. Nav
-// sections and dropdown tabs (/forecasts, /weather, /education/classes) have no link of their own.
-const NAV_PATHS = [
+// What a center's nav links plus its built-in pages (see linkablePaths). Nav sections and dropdown
+// tabs (/forecasts, /weather, /education/classes) have no page of their own.
+const LINKABLE_PATHS = [
   '/blog',
   '/observations',
   '/forecasts/avalanche',
   '/forecasts/avalanche/stevens-pass',
   '/forecasts/avalanche/stevens-pass/archive',
+  '/forecasts/avalanche/whitefish-range',
   '/weather/stations/map',
   '/education/classes/field-classes',
 ]
@@ -22,7 +23,7 @@ describe('buildBreadcrumbs', () => {
       const items = buildBreadcrumbs({
         center: 'dvac',
         path: '/blog/two-feet-of-right-side-up-pow-fell-overnight',
-        navPaths: NAV_PATHS,
+        linkablePaths: LINKABLE_PATHS,
       })
 
       expect(items).toEqual([
@@ -46,7 +47,7 @@ describe('buildBreadcrumbs', () => {
       const items = buildBreadcrumbs({
         center: 'dvac',
         path: '/weather/stations/map',
-        navPaths: NAV_PATHS,
+        linkablePaths: LINKABLE_PATHS,
       })
 
       expect(items).toEqual([
@@ -60,7 +61,7 @@ describe('buildBreadcrumbs', () => {
       const items = buildBreadcrumbs({
         center: 'nwac',
         path: '/weather/stations/map',
-        navPaths: [...NAV_PATHS, '/weather/stations'],
+        linkablePaths: [...LINKABLE_PATHS, '/weather/stations'],
       })
 
       expect(items).toEqual([
@@ -74,7 +75,7 @@ describe('buildBreadcrumbs', () => {
       const items = buildBreadcrumbs({
         center: 'dvac',
         path: '/education/classes/field-classes',
-        navPaths: NAV_PATHS,
+        linkablePaths: LINKABLE_PATHS,
       })
 
       expect(items).toEqual([
@@ -88,7 +89,7 @@ describe('buildBreadcrumbs', () => {
       const items = buildBreadcrumbs({
         center: 'dvac',
         path: '/observations/avalanches/12345',
-        navPaths: NAV_PATHS,
+        linkablePaths: LINKABLE_PATHS,
       })
 
       expect(items).toEqual([
@@ -111,7 +112,7 @@ describe('buildBreadcrumbs', () => {
         center: 'dvac',
         path: '/blog/two-feet-of-pow',
         title: 'Two Feet of Pow!',
-        navPaths: NAV_PATHS,
+        linkablePaths: LINKABLE_PATHS,
       })
 
       expect(items).toEqual([
@@ -128,7 +129,7 @@ describe('buildBreadcrumbs', () => {
           '/forecasts/avalanche/stevens-pass': 'Stevens Pass',
           '/forecasts/avalanche/stevens-pass/archive/2026-01-15': 'January 15, 2026',
         },
-        navPaths: NAV_PATHS,
+        linkablePaths: LINKABLE_PATHS,
       })
 
       expect(items).toEqual([
@@ -155,7 +156,7 @@ describe('buildBreadcrumbs', () => {
         center: 'dvac',
         path: '/blog/some-post',
         labels: { '/events': 'Events', '/blog/other-post': 'Other' },
-        navPaths: NAV_PATHS,
+        linkablePaths: LINKABLE_PATHS,
       })
 
       expect(items).toEqual([
@@ -186,11 +187,13 @@ describe('buildBreadcrumbs', () => {
     })
   })
 
-  it('leaves a retired zone unlinked, since the nav no longer links it', () => {
+  it('leaves a crumb the page says has no page of its own unlinked', () => {
+    // A retired zone's dated forecast: its built-in page may linger, but there's no live page.
     const items = buildBreadcrumbs({
       center: 'fac',
       path: '/forecasts/avalanche/whitefish-range/2024-01-05',
-      navPaths: NAV_PATHS,
+      linkablePaths: LINKABLE_PATHS,
+      pathsWithoutPages: ['/forecasts/avalanche/whitefish-range'],
     })
 
     expect(items.map((item) => item.href)).toEqual([null, '/forecasts/avalanche', null, null])

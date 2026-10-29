@@ -15,17 +15,20 @@ export type BuildBreadcrumbsArgs = {
   /** Explicit labels for any crumb, keyed by the crumb's cumulative path. */
   labels?: Record<string, string>
   /**
-   * Paths the center's nav links to. An intermediate crumb links only when its path is one of
-   * these, so nav sections and dropdown tabs, which have no page of their own, never do.
+   * Paths with a page to link to (see `linkablePaths`). An intermediate crumb links only when its
+   * path is one of these, so nav sections and dropdown tabs never do.
    */
-  navPaths?: string[]
+  linkablePaths?: string[]
+  /** Linkable paths the page knows have no live page, e.g. a retired zone. */
+  pathsWithoutPages?: string[]
 }
 
 export function buildBreadcrumbs({
   path,
   title,
   labels = {},
-  navPaths = [],
+  linkablePaths = [],
+  pathsWithoutPages = [],
 }: BuildBreadcrumbsArgs): BreadcrumbItemData[] {
   const segments = path
     .split('/')
@@ -37,7 +40,10 @@ export function buildBreadcrumbs({
   return segments.map((segment, index) => {
     const isLast = index === segments.length - 1
     const cumulativePath = '/' + segments.slice(0, index + 1).join('/')
-    const isLinkable = !isLast && navPaths.includes(cumulativePath)
+    const isLinkable =
+      !isLast &&
+      linkablePaths.includes(cumulativePath) &&
+      !pathsWithoutPages.includes(cumulativePath)
 
     const explicitName = (isLast && title) || labels[cumulativePath]
 

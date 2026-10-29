@@ -7,10 +7,9 @@ jest.mock('../../../src/utilities/useAnalytics', () => ({
   useAnalytics: () => ({ captureWithTenant: jest.fn() }),
 }))
 
-// The nav links /forecasts/avalanche but not the /forecasts dropdown tab above it
-jest.mock('../../../src/components/Header/utils', () => ({
-  getCachedTopLevelNavItems: () => async () => ({ topLevelNavItems: [] }),
-  extractAllInternalUrls: () => ['/forecasts/avalanche'],
+// /forecasts/avalanche has a page; the /forecasts dropdown tab above it doesn't
+jest.mock('../../../src/components/Breadcrumbs/linkablePaths', () => ({
+  linkablePaths: async () => ['/forecasts/avalanche'],
 }))
 
 describe('Breadcrumbs', () => {
@@ -42,7 +41,7 @@ describe('Breadcrumbs', () => {
     expect(html).not.toContain('12345')
   })
 
-  it('derives the trail from the path, links what the nav links, and applies labels by href', async () => {
+  it('derives the trail from the path, links crumbs that have pages, and applies labels by href', async () => {
     render(
       await Breadcrumbs({
         center: 'nwac',
