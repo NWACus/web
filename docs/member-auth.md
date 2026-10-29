@@ -68,6 +68,8 @@ Rate limits are stored in `members_rate_limits`, keyed on `x-forwarded-for`, wit
 
 Google is configured only when `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set. `clientId` is an array: Better Auth verifies native `idToken`s against every entry, so the iOS, Android and preview-Android client ids go in `GOOGLE_IOS_CLIENT_ID`, `GOOGLE_ANDROID_CLIENT_ID` and `GOOGLE_ANDROID_PREVIEW_CLIENT_ID`. The only redirect URI is the apex callback.
 
+AvyApp calls the apex through `@better-auth/expo`. The `expo()` plugin turns the app's `expo-origin` header into the request Origin, which Better Auth checks on every POST that carries a cookie, so `trustedOrigins` lists `avy://` (AvyApp's scheme; the plugin adds `exp://` itself, in development only). Without it, `/device/register`, OTP linking and sign-out from the app return 403 `INVALID_ORIGIN`. On the app side `expoClient` must set `cookiePrefix: 'avy'` to match `advanced.cookiePrefix`, or it never stores the session cookie.
+
 ## Running the harness
 
 ```sh

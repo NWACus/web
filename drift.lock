@@ -73,7 +73,7 @@ sig = "93e588f55d89ff59"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/member-auth.md"
-sig = "7cbafb55cf5098a7"
+sig = "d490167406f3613e"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1398,7 +1398,7 @@ sig = "4a685d04d8f18a26"
 [[bindings]]
 doc = "docs/decisions/026-member-auth-with-better-auth.md"
 target = "src/auth/members/getMemberAuth.ts"
-sig = "051481495260828d"
+sig = "837376270562c4aa"
 
 [[bindings]]
 doc = "docs/decisions/026-member-auth-with-better-auth.md"
@@ -1603,7 +1603,7 @@ sig = "2592f3efe74137c0"
 [[bindings]]
 doc = "docs/member-auth.md"
 target = "src/auth/members/getMemberAuth.ts"
-sig = "051481495260828d"
+sig = "837376270562c4aa"
 
 [[bindings]]
 doc = "docs/member-auth.md"

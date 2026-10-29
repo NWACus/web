@@ -53,6 +53,10 @@ function buildMemberAuth(payload: Payload) {
       fallback: APEX_ORIGIN,
       protocol: PROTOCOL,
     },
+    // AvyApp's scheme: the expo plugin turns its `expo-origin` header into the Origin, which must be
+    // trusted for any cookie-bearing POST (device register, OTP linking, sign-out). `exp://` is added
+    // by the plugin itself in development only.
+    trustedOrigins: ['avy://'],
     secret: process.env.BETTER_AUTH_SECRET || payload.secret,
     database: drizzleAdapter(payload.db.drizzle, {
       provider: 'sqlite',
