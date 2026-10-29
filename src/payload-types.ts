@@ -2405,7 +2405,7 @@ export interface Membership {
   id: number;
   member: string | Member;
   tenant: number | Tenant;
-  kind: 'signup' | 'donor' | 'paid';
+  kind: 'signup' | 'donor';
   /**
    * Preferences scoped to this center. Global ones live on the Member.
    */

@@ -68,7 +68,7 @@ sig = "93e588f55d89ff59"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/member-auth.md"
-sig = "46e6040e833d4220"
+sig = "fae9a4ab86f90f85"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1663,7 +1663,7 @@ sig = "dbbf6a9428ef651a"
 [[bindings]]
 doc = "docs/member-auth.md"
 target = "src/collections/Memberships/index.ts"
-sig = "198f07a78a7822f1"
+sig = "48be86f9321df411"
 
 [[bindings]]
 doc = "docs/member-auth.md"
@@ -1693,7 +1693,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "af1a9431697b1aab"
+sig = "b6e64355589a6a1c"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

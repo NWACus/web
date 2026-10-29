@@ -45,7 +45,7 @@ A Member whose only credential is its Device. Created lazily by AvyApp on the fi
 A Member with an email or social sign-in. Signing in from an Anonymous Member links them: Devices, Subscriptions and Deliveries move to the Linked Member, Subscriptions are unioned, and the Anonymous Member is deleted.
 
 **Membership**:
-A Member's relationship with one Avalanche Center: signed up on the center's site (the common case, recorded the first time the center hands the Member a site session), donor, or paid membership. Holds the Member's center-scoped preferences; global ones live on the Member. Tenant-scoped, and the privacy boundary: tenant admins only see Members who hold a Membership with their center.
+A Member's relationship with one Avalanche Center: either signed up on the center's site (the common case, recorded the first time the center hands the Member a site session) or donor (a donation or paid center membership). Holds the Member's center-scoped preferences; global ones live on the Member. Tenant-scoped, and the privacy boundary: tenant admins only see Members who hold a Membership with their center.
 _Avoid_: Member (the account itself)
 
 **Device**:

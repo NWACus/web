@@ -3,15 +3,16 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
+// A paid center membership counts as donating; it is not a third kind.
 export const MEMBERSHIP_KINDS = {
   signup: "Signed up on the center's site",
   donor: 'Donor',
-  paid: 'Paid membership',
 } as const
 
 /**
  * A Member's relationship with one center; the privacy boundary for tenant admins (ADR 026).
- * Most are `signup`: created the first time a center host hands the Member a site session.
+ * Most are `signup`, created the first time a center host hands the Member a site session;
+ * `donor` comes later from donation and paid-membership flows.
  */
 export const Memberships: CollectionConfig = {
   slug: 'memberships',
