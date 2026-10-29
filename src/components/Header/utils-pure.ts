@@ -1,3 +1,4 @@
+import { formatSlug } from '@/fields/slug/formatSlug'
 import { BuiltInPage, Navigation, Page, Post, StationPage } from '@/payload-types'
 import { stationPagePath } from '@/services/stations/stationPages'
 import { normalizePath } from '@/utilities/path'
@@ -55,7 +56,7 @@ export function topLevelNavItem({ tab, label }: { tab: NavTab; label: string }):
 
   // dropdown mode — recursively convert items using the tab label as the initial parent path
   const items = (tab.items ?? [])
-    .map((item) => convertNavItem(item, [label.toLowerCase()]))
+    .map((item) => convertNavItem(item, [formatSlug(label)]))
     .filter((item): item is NavItem => item !== null)
 
   if (items.length === 0) return []
@@ -82,8 +83,9 @@ function convertNavItem(item: PayloadNavItem, parentPath: string[]): NavItem | n
   }
 
   if (item.items && item.items.length > 0) {
-    const ownLabel = navItem.label ?? navItem.link?.label
-    const childPath = ownLabel ? [...parentPath, ownLabel.toLowerCase()] : parentPath
+    // Slugged so a label like "Weather Tools" yields a segment the request path can match
+    const ownSegment = formatSlug(navItem.label ?? navItem.link?.label ?? null)
+    const childPath = ownSegment ? [...parentPath, ownSegment] : parentPath
     const children = item.items
       .map((child) => convertNavItem(child, childPath))
       .filter((child): child is NavItem => child !== null)
