@@ -2405,7 +2405,19 @@ export interface Membership {
   id: number;
   member: string | Member;
   tenant: number | Tenant;
-  kind: 'donor' | 'paid' | 'site';
+  kind: 'signup' | 'donor' | 'paid';
+  /**
+   * Preferences scoped to this center. Global ones live on the Member.
+   */
+  preferences?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -4982,6 +4994,7 @@ export interface MembershipsSelect<T extends boolean = true> {
   member?: T;
   tenant?: T;
   kind?: T;
+  preferences?: T;
   updatedAt?: T;
   createdAt?: T;
 }

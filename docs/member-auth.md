@@ -17,6 +17,8 @@ How public **Members** sign in, as decided in [ADR 026](decisions/026-member-aut
 | Silent re-sign-in decision used by middleware | `src/auth/members/silentReSignIn.ts`, `src/middleware.ts` |
 | HTTP mount | `src/app/api/auth/[...all]/route.ts` (more specific than Payload's `/api/[...slug]`) |
 | Apex sign-in and account pages (POC-grade) | `src/app/(frontend)/members/`, `src/components/Members/` |
+| Floating Member tag on center sites | `src/components/Members/MemberTag.tsx`, rendered by `src/app/(frontend)/[center]/layout.tsx` |
+| Membership on first site session, center-scoped preferences | `src/auth/members/memberships.ts` |
 | End-to-end harness | `src/scripts/poc/better-auth-members.ts` |
 
 ## Hybrid tables
@@ -40,11 +42,15 @@ A Member is never a User: `isMember()` and `isUser()` narrow on `collection`, th
 
 Tenant admins see only Members holding a Membership with a center they administer (`readMembers`), by collecting Membership rows for their tenants. Super admins see everyone; a Member sees only itself.
 
+Signing in on a center's site is a Membership: the exchange endpoint records a `signup` Membership with that center the first time it hands the Member a site session (`ensureCenterMembership`), so Members who arrive through a center are visible to its admins. `donor` and `paid` Memberships will come from other flows. Preferences live in two places: global ones on the Member, center-scoped ones on the Membership, written through `/member-preferences/set` with `scope: 'global'` (default) or `'center'`; `/member-preferences/get` returns both.
+
 ## Hosts and site sessions
 
 The apex (`ROOT_DOMAIN`) is the auth server and account home. `baseURL.allowedHosts` lists the apex, every `<slug>.<ROOT_DOMAIN>` and every center custom domain, and Better Auth resolves the base URL per request. A `before` hook refuses everything but the site-safe paths (`get-session`, `sign-out`, the exchange, the preference endpoints) when the request host is a center host, and refuses the account paths (delete, change email, link/unlink, sessions) for any session whose `scope` is `site`.
 
 Hand-off: a center "Sign in" link goes to `apex/api/auth/site-session/handoff?returnTo=<center url>`. With an apex session the endpoint mints a 60-second one-time token stored in `members_verifications` (hashed) and redirects to `<center>/api/auth/site-session/exchange?token=…&returnTo=<path>`, which consumes the token, creates a session with `scope: 'site'`, sets the session cookie plus a 400-day `avy.site_member` marker, and redirects to the path. Without an apex session the handoff sends the browser to `/members/sign-in` (or, with `silent=1`, back to the center with `clear=1` to drop the marker). `validateReturnTo` only accepts center hosts over the configured protocol; `safeLocalPath` keeps the final redirect on the center host. The `oneTimeToken` plugin was not used: its verify endpoint cannot mark the new session as site-scoped, and the custom endpoint is about forty lines.
+
+On center pages `MemberTag` floats bottom-right (fixed, so no layout shift), reads the session client-side, and offers "Sign in" (the apex hand-off with the current URL as `returnTo`) or, signed in, "Manage account" on the apex and sign out.
 
 Silent re-sign-in: `silentReSignInRedirect` runs in middleware for GET page requests on a center host that carry the marker but no session cookie, and redirects through the handoff with `silent=1`. Prefetches never redirect. Locally the Next dev server relativizes that `Location` because `localhost:<port>` is both the server origin and the apex; deployed hosts differ, so the redirect stays absolute.
 

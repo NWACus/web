@@ -77,7 +77,7 @@ async function ensureMembership(payload: Payload, member: string, tenant: number
   if (totalDocs === 0) {
     await payload.create({
       collection: 'memberships',
-      data: { member, tenant, kind: 'site' },
+      data: { member, tenant, kind: 'signup' },
       depth: 0,
     })
   }

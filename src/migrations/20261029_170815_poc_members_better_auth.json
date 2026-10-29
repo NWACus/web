@@ -20363,7 +20363,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'site'"
+          "default": "'signup'"
+        },
+        "preferences": {
+          "name": "preferences",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -30078,6 +30085,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "8e4b52b5-9892-413b-ba6b-6cd605aa3086",
+  "id": "eb069a00-c573-43c0-8e51-560843ffc66c",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

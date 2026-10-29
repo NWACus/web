@@ -3,7 +3,16 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
-/** A Member's relationship with one center; the privacy boundary for tenant admins (ADR 026). */
+export const MEMBERSHIP_KINDS = {
+  signup: "Signed up on the center's site",
+  donor: 'Donor',
+  paid: 'Paid membership',
+} as const
+
+/**
+ * A Member's relationship with one center; the privacy boundary for tenant admins (ADR 026).
+ * Most are `signup`: created the first time a center host hands the Member a site session.
+ */
 export const Memberships: CollectionConfig = {
   slug: 'memberships',
   access: accessByTenantRole('memberships'),
@@ -19,12 +28,13 @@ export const Memberships: CollectionConfig = {
       name: 'kind',
       type: 'select',
       required: true,
-      defaultValue: 'site',
-      options: [
-        { label: 'Donor', value: 'donor' },
-        { label: 'Paid membership', value: 'paid' },
-        { label: 'Site customization', value: 'site' },
-      ],
+      defaultValue: 'signup',
+      options: Object.entries(MEMBERSHIP_KINDS).map(([value, label]) => ({ label, value })),
+    },
+    {
+      name: 'preferences',
+      type: 'json',
+      admin: { description: 'Preferences scoped to this center. Global ones live on the Member.' },
     },
   ],
 }

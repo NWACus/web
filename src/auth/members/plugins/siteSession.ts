@@ -12,6 +12,7 @@ import { createHash, randomBytes } from 'node:crypto'
 import type { Payload } from 'payload'
 import * as z from 'zod'
 import { APEX_ORIGIN, isApexHost, isCenterHost } from '../hosts'
+import { ensureCenterMembership, findCenterMembership } from '../memberships'
 import {
   FULL_SESSION_SCOPE,
   HANDOFF_TOKEN_TTL_SECONDS,
@@ -26,6 +27,11 @@ import {
 
 const handoffIdentifier = (token: string) =>
   `site-session:${createHash('sha256').update(token).digest('hex')}`
+
+/** A JSON field as a plain object; anything else counts as empty. */
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? { ...value } : {}
+}
 
 /** Host of the request as Better Auth resolved it against `allowedHosts`. */
 function requestHost(baseURL: string): string {
@@ -143,35 +149,50 @@ export const siteSession = (payload: Payload): BetterAuthPlugin => ({
         )
         await setSessionCookie(ctx, { session, user })
         markerCookie(ctx, true)
+        await ensureCenterMembership(payload, user.id, host)
         throw ctx.redirect(back)
       },
     ),
 
     // The site-safe write a center page is allowed: a low-stakes, reversible preference.
+    // `scope: 'center'` writes the Membership with the request's center; 'global' the Member.
     setMemberPreference: createAuthEndpoint(
       '/member-preferences/set',
       {
         method: 'POST',
-        body: z.object({ key: z.string().min(1).max(64), value: z.unknown() }),
+        body: z.object({
+          key: z.string().min(1).max(64),
+          value: z.unknown(),
+          scope: z.enum(['global', 'center']).default('global'),
+        }),
         use: [sessionMiddleware],
       },
       async (ctx) => {
         const memberId = ctx.context.session.user.id
+        const patch = { [ctx.body.key]: ctx.body.value }
+        if (ctx.body.scope === 'center') {
+          const host = requestHost(ctx.context.baseURL)
+          const membership = await findCenterMembership(payload, memberId, host)
+          if (!membership) {
+            throw new APIError('BAD_REQUEST', { message: 'No Membership with this center' })
+          }
+          const preferences = { ...asRecord(membership.preferences), ...patch }
+          await payload.update({
+            collection: 'memberships',
+            id: membership.id,
+            data: { preferences },
+          })
+          return ctx.json({ scope: 'center', preferences })
+        }
         const member = await payload.findByID({ collection: 'members', id: memberId, depth: 0 })
-        const current =
-          member.preferences &&
-          typeof member.preferences === 'object' &&
-          !Array.isArray(member.preferences)
-            ? member.preferences
-            : {}
-        const preferences = { ...current, [ctx.body.key]: ctx.body.value }
+        const preferences = { ...asRecord(member.preferences), ...patch }
         await payload.update({
           collection: 'members',
           id: memberId,
           data: { preferences },
           depth: 0,
         })
-        return ctx.json({ preferences })
+        return ctx.json({ scope: 'global', preferences })
       },
     ),
 
@@ -179,12 +200,15 @@ export const siteSession = (payload: Payload): BetterAuthPlugin => ({
       '/member-preferences/get',
       { method: 'GET', use: [sessionMiddleware] },
       async (ctx) => {
-        const member = await payload.findByID({
-          collection: 'members',
-          id: ctx.context.session.user.id,
-          depth: 0,
+        const memberId = ctx.context.session.user.id
+        const [member, membership] = await Promise.all([
+          payload.findByID({ collection: 'members', id: memberId, depth: 0 }),
+          findCenterMembership(payload, memberId, requestHost(ctx.context.baseURL)),
+        ])
+        return ctx.json({
+          global: asRecord(member.preferences),
+          center: membership ? asRecord(membership.preferences) : null,
         })
-        return ctx.json({ preferences: member.preferences ?? {} })
       },
     ),
   },
