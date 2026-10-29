@@ -9,10 +9,20 @@ export function safeReturnTo(returnTo: string | undefined): string {
   }
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' ? { ...value } : {}
+}
+
 function readString(json: unknown, key: string): string | undefined {
-  const record: Record<string, unknown> = json && typeof json === 'object' ? { ...json } : {}
-  const value = record[key]
+  const value = asRecord(json)[key]
   return typeof value === 'string' ? value : undefined
+}
+
+/** The signed-in Member from a `/get-session` body, or null when there is no session. */
+export function readSessionUser(json: unknown): { email: string; isAnonymous: boolean } | null {
+  const user = asRecord(asRecord(json).user)
+  const email = readString(user, 'email')
+  return email === undefined ? null : { email, isAnonymous: user.isAnonymous === true }
 }
 
 /** POSTs JSON to a Better Auth endpoint and throws its `message` on failure. */

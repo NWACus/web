@@ -5,6 +5,7 @@ import React from 'react'
 import { Announcements } from '@/components/Announcements/Announcements'
 import { Footer } from '@/components/Footer/Footer'
 import { Header } from '@/components/Header/Header'
+import { MemberTag } from '@/components/Members/MemberTag'
 
 import { PostHogCenterRegister } from '@/components/PostHogCenterRegister.client'
 import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
@@ -92,6 +93,7 @@ export default async function RootLayout({ children, params }: Args) {
             </Announcements>
             <main className="flex-grow">{children}</main>
             <Footer center={center} />
+            <MemberTag />
           </div>
         </NACWidgetsConfigProvider>
       </AvalancheCenterProvider>
