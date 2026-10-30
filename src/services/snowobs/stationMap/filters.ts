@@ -9,7 +9,8 @@ import { boundsOfGeometries, type Bounds } from '@/utilities/geo/bounds'
 
 import { OTHER_ZONE } from './mappers'
 
-import type { StationMapStation, StationMapUnits, StationMapWebcam, StationMapZone } from './model'
+import type { StationUnits } from '../units'
+import type { StationMapStation, StationMapWebcam, StationMapZone } from './model'
 
 export const SHOW_ALL_VARIABLE = 'show_all'
 /** The widget's "no recency limit" sentinel; large enough that nothing is ever older. */
@@ -22,7 +23,7 @@ export interface StationMapFilters {
   variable: string
   /** Hide stations whose latest reading is older than this many minutes. */
   withinMinutes: number
-  units: StationMapUnits
+  units: StationUnits
   /** Only one data source, or null for all. */
   source: string | null
   type: StationMapType
@@ -48,9 +49,9 @@ export const WITHIN_OPTIONS: { value: number; label: string }[] = [
   { value: 1440, label: '1 day' },
 ]
 
-export const UNIT_OPTIONS: { value: StationMapUnits; label: string }[] = [
+// No English: it ignores a center's units for pressure, snow and precip (ADR 021).
+export const UNIT_OPTIONS: { value: StationUnits; label: string }[] = [
   { value: 'default', label: 'Default' },
-  { value: 'english', label: 'English' },
   { value: 'metric', label: 'Metric' },
 ]
 

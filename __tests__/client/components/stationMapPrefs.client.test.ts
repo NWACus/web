@@ -40,11 +40,16 @@ describe('the units preference', () => {
     )
     expect(readUnitsPref('nwac')).toBe('metric')
 
-    writeUnitsPref('nwac', 'english')
+    writeUnitsPref('nwac', 'default')
 
     expect(JSON.parse(window.localStorage.getItem('avyweb-station-map-nwac') ?? 'null')).toEqual({
-      units: 'english',
+      units: 'default',
     })
+  })
+
+  it('reads a saved English choice, no longer offered, as unset', () => {
+    window.localStorage.setItem('avyweb-station-map-nwac', '{"units":"english"}')
+    expect(readUnitsPref('nwac')).toBeUndefined()
   })
 })
 

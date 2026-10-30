@@ -4,7 +4,14 @@ import { z } from 'zod'
 // strings (e.g. "2026-07-07T00:00:00Z"); sensor series are numbers or null.
 // Anything else reads as null: raw airport data carries cloud layers as objects
 // ({ sky_condition, height_agl }), which no table or graph column shows.
-const observationSeriesSchema = z.array(z.union([z.number(), z.string(), z.null()]).catch(null))
+// So does -7999, the loggers' no-reading code, which SnowObs passes through as a value, and
+// converts in metric (-20317 cm, -4462 °C). No real reading comes near -1000 in any unit.
+const NO_READING_BELOW = -1000
+const withoutNoReading = <T>(v: T | number) =>
+  typeof v === 'number' && v <= NO_READING_BELOW ? null : v
+const observationSeriesSchema = z.array(
+  z.union([z.number(), z.string(), z.null()]).catch(null).transform(withoutNoReading),
+)
 
 export const snowObsObservationsSchema = z.record(z.string(), observationSeriesSchema)
 export type SnowObsObservations = z.infer<typeof snowObsObservationsSchema>
@@ -52,7 +59,10 @@ export type SnowObsTimeseriesResponse = z.infer<typeof snowObsTimeseriesResponse
 
 // A station's most recent reading per sensor, plus the `date_time` it was taken. Values are
 // numbers (SnowObs rounds them unless `raw_data` is set); `date_time` is an ISO-UTC string.
-const currentDataSchema = z.record(z.string(), z.union([z.number(), z.string(), z.null()]))
+const currentDataSchema = z.record(
+  z.string(),
+  z.union([z.number(), z.string(), z.null()]).transform(withoutNoReading),
+)
 
 export const snowObsCurrentFeatureSchema = z.object({
   type: z.literal('Feature'),

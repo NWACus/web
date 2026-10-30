@@ -2,9 +2,13 @@ const fetchStationTimeseriesMock = jest.fn()
 jest.mock('../../src/services/snowobs/snowobs', () => ({
   fetchStationTimeseries: (...args: unknown[]) => fetchStationTimeseriesMock(...args),
 }))
+jest.mock('../../src/services/snowobs/stationTracking', () => ({
+  fetchVariableRounding: jest.fn(async () => ({})),
+}))
 
 import type { StationTabContext } from '@/components/WeatherStations/stationTabViews'
 import { resolveTabView } from '@/components/WeatherStations/stationTabViews'
+import { isValidElement } from 'react'
 
 const context: StationTabContext = {
   center: 'nwac',
@@ -26,13 +30,31 @@ beforeEach(() => {
 })
 
 describe('the Table tab', () => {
-  it('caches its SnowObs request for 60 seconds, as SnowObs does', async () => {
+  it('reads both unit systems, each cached for 60 seconds as SnowObs does', async () => {
     await resolveTabView(context, 'table', {})
-    expect(fetchStationTimeseriesMock).toHaveBeenCalledWith(
-      'nwac',
-      context.subject.stations,
-      expect.objectContaining({ rawData: true, revalidate: 60, windowHours: 24 }),
+    for (const units of ['default', 'metric']) {
+      expect(fetchStationTimeseriesMock).toHaveBeenCalledWith(
+        'nwac',
+        context.subject.stations,
+        expect.objectContaining({ units, revalidate: 60, windowHours: 24 }),
+      )
+    }
+  })
+
+  it('still renders the table when the metric read fails', async () => {
+    fetchStationTimeseriesMock.mockImplementation(
+      async (_c: string, _s: unknown, o: { units?: string }) => {
+        if (o.units === 'metric') throw new Error('metric down')
+        return { UNITS: {}, VARIABLES: [], STATION: [] }
+      },
     )
+    const view = await resolveTabView(context, 'table', {})
+    const content = view.tabContent
+    if (!isValidElement<{ tables: { default: unknown; metric: unknown } }>(content)) {
+      throw new Error('expected the table view')
+    }
+    expect(content.props.tables.default).toBeTruthy()
+    expect(content.props.tables.metric).toBeNull()
   })
 
   it('reads a valid custom range as whole days in the center zone', async () => {
