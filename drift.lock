@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "12f6f6ac3e9ef635"
+sig = "4d12ef8cba2cf816"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1343,7 +1343,7 @@ sig = "d217d568b825da64"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/instrumentation-client.ts"
-sig = "e5b929ccb285db09"
+sig = "4bda0e076f543065"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
