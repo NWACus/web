@@ -1,8 +1,14 @@
 import { config } from '@/middleware'
+import { buildNotFoundReport } from '@/utilities/notFoundReport'
 import { unstable_doesMiddlewareMatch } from 'next/experimental/testing/server'
 
 const runsMiddleware = (path: string) =>
   unstable_doesMiddlewareMatch({ config, url: `https://www.example.org${path}` })
+
+const notRedirectable = (path: string) =>
+  buildNotFoundReport([{ path, hits: 1 }], []).excluded.some(
+    ({ reason }) => reason === 'not-redirectable',
+  )
 
 const skippedPaths = [
   '/monitoring',
@@ -21,5 +27,16 @@ describe('middleware matcher', () => {
 
   it.each(matchedPaths)('runs on %s', (path) => {
     expect(runsMiddleware(path)).toBe(true)
+  })
+})
+
+// notFoundReport keeps its own copy of the matcher's exclusions
+describe('not-found report exclusions', () => {
+  it.each(skippedPaths)('sets aside %s as not redirectable', (path) => {
+    expect(notRedirectable(path)).toBe(true)
+  })
+
+  it.each(matchedPaths)('does not set aside %s as not redirectable', (path) => {
+    expect(notRedirectable(path)).toBe(false)
   })
 })
