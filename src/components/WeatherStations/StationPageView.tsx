@@ -48,25 +48,32 @@ function StationHeader({
   )
 }
 
+// Each dot sits in its item's left padding and the list hangs that far left in
+// a clipped box, so the dot that would start a wrapped line is cut off.
 function StationList({ stations }: { stations: StationSummary[] }) {
   return (
-    <ul className="container flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-      {stations.map((station, index) => (
-        <li key={station.key} className="inline-flex items-center gap-2">
-          {index > 0 && (
-            <span aria-hidden="true" className="text-muted-foreground">
-              ·
-            </span>
-          )}
-          <span className="font-medium text-foreground">{station.name}</span>
-          {station.elevation !== null && (
-            <span className="text-muted-foreground">
-              {Math.round(station.elevation).toLocaleString()}&apos;
-            </span>
-          )}
-        </li>
-      ))}
-    </ul>
+    <div className="container">
+      <div className="overflow-hidden">
+        <ul className="-ml-4 flex flex-wrap items-center gap-y-1 text-sm">
+          {stations.map((station) => (
+            <li key={station.key} className="relative inline-flex items-center gap-2 pl-4">
+              <span
+                aria-hidden="true"
+                className="absolute left-0 w-4 text-center text-muted-foreground"
+              >
+                ·
+              </span>
+              <span className="font-medium text-foreground">{station.name}</span>
+              {station.elevation !== null && (
+                <span className="text-muted-foreground">
+                  {Math.round(station.elevation).toLocaleString()}&apos;
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   )
 }
 

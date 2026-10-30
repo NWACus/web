@@ -3,7 +3,8 @@
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import type { StationUnits } from '@/services/snowobs/units'
 import { useRouter } from 'next/navigation'
-import type { ReactNode } from 'react'
+import type { ReactNode, RefObject } from 'react'
+import { useEffect, useRef } from 'react'
 import { StationLatestObservation } from './StationLatestObservation'
 import { StationNowTable } from './StationNowTable'
 import type { DateRange } from './stationPeriods'
@@ -44,18 +45,37 @@ function TableRangePicker({
   )
 }
 
+// Publishes the pinned bar's height so the table's header pins just below it.
+function useBarHeightVar(
+  wrapperRef: RefObject<HTMLDivElement | null>,
+  barRef: RefObject<HTMLDivElement | null>,
+) {
+  useEffect(() => {
+    const wrapper = wrapperRef.current
+    const bar = barRef.current
+    if (!wrapper || !bar) return
+    const observer = new ResizeObserver(() => {
+      wrapper.style.setProperty('--station-bar-h', `${bar.getBoundingClientRect().height}px`)
+    })
+    observer.observe(bar)
+    return () => observer.disconnect()
+  }, [wrapperRef, barRef])
+}
+
 // A past range's last row is not the station's latest, so there is no staleness to flag.
 function LatestObservation({
   table,
   customRange,
   timeZone,
+  className,
 }: {
   table: StationTable
   customRange: DateRange | null
   timeZone: string
+  className?: string
 }) {
   if (customRange && customRange.to < todayInZone(new Date(), timeZone)) return null
-  return <StationLatestObservation table={table} />
+  return <StationLatestObservation table={table} className={className} />
 }
 
 type StationTables = { default: StationTable; metric: StationTable | null }
@@ -83,21 +103,28 @@ export function StationTableView({
 }) {
   const [unitSystem, changeStationUnits] = useStationUnits()
   const [table, units] = shownTable(tables, unitSystem)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLDivElement>(null)
+  useBarHeightVar(wrapperRef, barRef)
   return (
-    <div className="flex flex-col gap-2">
-      {/* Not pinned: it would sit on top of the frozen table header. */}
-      <StationViewBar pinned={false}>
+    <div ref={wrapperRef} className="flex flex-col gap-2">
+      <StationViewBar ref={barRef}>
         {tabs}
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* On a phone the picker and units share a line, with the latest
+            observation under them; wider, it sits between the two. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <TableRangePicker
             activePeriodKey={activePeriodKey}
             customRange={customRange}
             timeZone={timeZone}
           />
-          <div className="flex flex-wrap items-center gap-3">
-            <LatestObservation table={table} customRange={customRange} timeZone={timeZone} />
-            {tables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
-          </div>
+          <LatestObservation
+            table={table}
+            customRange={customRange}
+            timeZone={timeZone}
+            className="order-last basis-full sm:order-none sm:ml-auto sm:basis-auto"
+          />
+          {tables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
         </div>
       </StationViewBar>
       <StationNowTable table={table} elevationUnit={units === 'metric' ? ' m' : undefined} />
