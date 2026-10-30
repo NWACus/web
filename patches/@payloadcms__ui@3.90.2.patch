@@ -1,0 +1,120 @@
+diff --git a/dist/elements/FolderView/Cell/index.client.js b/dist/elements/FolderView/Cell/index.client.js
+index fd0178ee095149afb5814211ccc9d2b2907f6d4f..bcb563cd745e398c1a6cded36ec1aa897f73ed2c 100644
+--- a/dist/elements/FolderView/Cell/index.client.js
++++ b/dist/elements/FolderView/Cell/index.client.js
+@@ -4,7 +4,8 @@ import { jsx as _jsx } from "react/jsx-runtime";
+ import { formatAdminURL } from 'payload/shared';
+ import React, { useEffect } from 'react';
+ // eslint-disable-next-line payload/no-imports-from-exports-dir
+-import { MoveDocToFolderButton, useConfig, useTranslation } from '../../../exports/client/index.js';
++import { MoveDocToFolderButton, useConfig, useListRelationships, useTranslation } from '../../../exports/client/index.js';
++const getFolderID = value => value && typeof value === 'object' ? value.id : value ?? null;
+ export const FolderTableCellClient = ({
+   collectionSlug,
+   data,
+@@ -14,16 +15,52 @@ export const FolderTableCellClient = ({
+   viewType
+ }) => {
+   const docID = data.id;
+-  const intialFolderID = data?.[folderFieldName];
++  const folderValue = data?.[folderFieldName];
++  const folderIDFromData = getFolderID(folderValue);
+   const {
+     config
+   } = useConfig();
+   const {
+     t
+   } = useTranslation();
+-  const [fromFolderName, setFromFolderName] = React.useState(() => intialFolderID ? `${t('general:loading')}...` : t('folder:noFolder'));
+-  const [fromFolderID, setFromFolderID] = React.useState(intialFolderID);
+-  const hasLoadedFolderName = React.useRef(false);
++  // Batches every row's folder lookup into one request, like relationship cells do
++  const {
++    documents,
++    getRelationships
++  } = useListRelationships();
++  // A move made from this cell wins until the row's own data changes, e.g. after a bulk edit
++  const [moved, setMoved] = React.useState(null);
++  const [movedFromFolderID, setMovedFromFolderID] = React.useState(folderIDFromData);
++  if (movedFromFolderID !== folderIDFromData) {
++    setMovedFromFolderID(folderIDFromData);
++    setMoved(null);
++  }
++  const fromFolderID = moved ? moved.id : folderIDFromData;
++  const populatedName = !moved && folderValue && typeof folderValue === 'object' ? folderValue.name : undefined;
++  const loadedFolder = fromFolderID ? documents?.[folderCollectionSlug]?.[fromFolderID] : undefined;
++  useEffect(() => {
++    if (moved || !fromFolderID || populatedName || loadedFolder !== undefined || typeof getRelationships !== 'function') {
++      return;
++    }
++    getRelationships([{
++      relationTo: folderCollectionSlug,
++      value: fromFolderID
++    }]);
++  }, [fromFolderID, folderCollectionSlug, getRelationships, loadedFolder, moved, populatedName]);
++  let fromFolderName;
++  if (moved) {
++    fromFolderName = moved.name || t('folder:noFolder');
++  } else if (!fromFolderID) {
++    fromFolderName = t('folder:noFolder');
++  } else if (populatedName) {
++    fromFolderName = populatedName;
++  } else if (loadedFolder) {
++    fromFolderName = loadedFolder.name || t('folder:noFolder');
++  } else if (loadedFolder === false) {
++    fromFolderName = t('folder:noFolder');
++  } else {
++    fromFolderName = `${t('general:loading')}...`;
++  }
+   const onConfirm = React.useCallback(async ({
+     id,
+     name
+@@ -42,38 +79,15 @@ export const FolderTableCellClient = ({
+         },
+         method: 'PATCH'
+       });
+-      setFromFolderID(id);
+-      setFromFolderName(name || t('folder:noFolder'));
++      setMoved({
++        id: id ?? null,
++        name
++      });
+     } catch (error) {
+       // eslint-disable-next-line no-console
+       console.error('Error moving document to folder', error);
+     }
+-  }, [config.routes.api, collectionSlug, docID, folderFieldName, t]);
+-  useEffect(() => {
+-    const loadFolderName = async () => {
+-      try {
+-        const req = await fetch(formatAdminURL({
+-          apiRoute: config.routes.api,
+-          path: `/${folderCollectionSlug}${intialFolderID ? `/${intialFolderID}` : ''}`
+-        }), {
+-          credentials: 'include',
+-          headers: {
+-            'Content-Type': 'application/json'
+-          },
+-          method: 'GET'
+-        });
+-        const res = await req.json();
+-        setFromFolderName(res?.name || t('folder:noFolder'));
+-      } catch (error_0) {
+-        // eslint-disable-next-line no-console
+-        console.error('Error moving document to folder', error_0);
+-      }
+-    };
+-    if (!hasLoadedFolderName.current) {
+-      void loadFolderName();
+-      hasLoadedFolderName.current = true;
+-    }
+-  }, [config.routes.api, folderCollectionSlug, intialFolderID, t]);
++  }, [config.routes.api, collectionSlug, docID, folderFieldName]);
+   return /*#__PURE__*/_jsx(MoveDocToFolderButton, {
+     buttonProps: {
+       disabled: viewType === 'trash',
+@@ -92,4 +106,3 @@ export const FolderTableCellClient = ({
+     skipConfirmModal: false
+   });
+ };
+-//# sourceMappingURL=index.client.js.map

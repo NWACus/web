@@ -14,6 +14,7 @@ import { Documents } from '@/collections/Documents'
 import { EventGroups } from '@/collections/EventGroups'
 import { Events } from '@/collections/Events'
 import { EventTags } from '@/collections/EventTags'
+import { folders } from '@/collections/Folders'
 import { Galleries } from '@/collections/Galleries'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
@@ -203,6 +204,7 @@ export default buildConfig({
     Boolean,
   ),
   csrf: [getURL(), ...getTenantSubdomainUrls(), ...getProductionTenantUrls()].filter(Boolean),
+  folders,
   globals: [NACWidgetsConfig, DiagnosticsConfig, A3Management],
   graphQL: {
     disable: true,
