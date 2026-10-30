@@ -59,6 +59,12 @@ describe('units and names', () => {
     expect(shortUnit('fahrenheit')).toBe('F')
     expect(shortUnit('W/m**2')).toBe('W/m2')
     expect(shortUnit('mph')).toBe('mph')
+    expect(['centimeters', 'pascals', 'inch_Hg', 'm/s'].map(shortUnit)).toEqual([
+      'cm',
+      'Pa',
+      'inHg',
+      'm/s',
+    ])
     expect(shortUnit(undefined)).toBe('')
   })
 
