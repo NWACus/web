@@ -45,7 +45,8 @@ const defaultFields: Field[] = [
         'Optional text that appears below the image to provide additional context or information about the image content.',
     },
   },
-  layoutField([colorAndAlignmentRow, imageSizeField('Image size')]),
+  imageSizeField('Image size'),
+  layoutField([colorAndAlignmentRow]),
 ]
 
 export const MediaBlock: Block = {

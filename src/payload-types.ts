@@ -1656,12 +1656,12 @@ export interface MediaBlock {
     };
     [k: string]: unknown;
   } | null;
-  backgroundColor: string;
-  alignContent?: ('left' | 'center' | 'right') | null;
   /**
    * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
    */
   imageSize?: ('original' | 'xsmall' | 'small' | 'medium' | 'large' | 'full') | null;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
   spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
   spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
@@ -1721,8 +1721,8 @@ export interface SharedMedia {
  * via the `definition` "NACMediaBlock".
  */
 export interface NACMediaBlock {
-  backgroundColor: string;
   mode: 'carousel' | 'grid';
+  backgroundColor: string;
   spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
   spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
@@ -4215,9 +4215,9 @@ export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
   sharedMedia?: T;
   caption?: T;
+  imageSize?: T;
   backgroundColor?: T;
   alignContent?: T;
-  imageSize?: T;
   spacingTop?: T;
   spacingBottom?: T;
   id?: T;
@@ -4228,8 +4228,8 @@ export interface MediaBlockSelect<T extends boolean = true> {
  * via the `definition` "NACMediaBlock_select".
  */
 export interface NACMediaBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
   mode?: T;
+  backgroundColor?: T;
   spacingTop?: T;
   spacingBottom?: T;
   id?: T;

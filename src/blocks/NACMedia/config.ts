@@ -12,18 +12,16 @@ export const NACMediaBlock: Block = {
   },
   imageURL: '/thumbnail/NACMediaBlockThumbnail.jpg',
   fields: [
-    layoutField([
-      colorPickerField('Background color'),
-      {
-        name: 'mode',
-        type: 'radio',
-        options: [
-          { label: 'Carousel', value: 'carousel' },
-          { label: 'Grid', value: 'grid' },
-        ],
-        required: true,
-        defaultValue: 'carousel',
-      },
-    ]),
+    {
+      name: 'mode',
+      type: 'radio',
+      options: [
+        { label: 'Carousel', value: 'carousel' },
+        { label: 'Grid', value: 'grid' },
+      ],
+      required: true,
+      defaultValue: 'carousel',
+    },
+    layoutField([colorPickerField('Background color')]),
   ],
 }
