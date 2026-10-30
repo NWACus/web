@@ -8,7 +8,7 @@ Shared options live in [`sentry-base-config.ts`](../sentry-base-config.ts), impo
 
 - DSN is hardcoded (the `avy-web` project under the `nwac` org).
 - `enabled: NODE_ENV === 'production'` — inert in dev/test, and also in the mocked E2E build (see below).
-- No `tracesSampleRate` / `tracesSampler` — error tracking only. Leaving them unset turns tracing off entirely; `0` still runs the sampler on every request.
+- No `tracesSampleRate` / `tracesSampler` — error tracking only. Leaving them unset means no spans are sampled or sent; `0` still runs the sampler on every request. The SDK still propagates trace headers on outgoing requests.
 - `sendClientReports: false` — otherwise the SDK posts an envelope reporting every transaction it drops. This applies to the browser too, so Sentry's Stats page no longer shows browser events dropped by rate limiting.
 - `environment` comes from `VERCEL_GIT_COMMIT_REF` (falls back to `'local'`), so previews report under their branch name.
 
