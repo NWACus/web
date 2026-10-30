@@ -64,14 +64,15 @@ function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token
 // Best-effort logging: bootstrapping payload must never mask the original error. Named by call
 // site, because the three SnowObs reads fail independently — a station-map outage should not read
 // as a station-page one.
-async function logSnowObsError(
+export async function logSnowObsError(
   operation: string,
   error: unknown,
   context: Record<string, unknown>,
+  level: 'error' | 'warn' = 'error',
 ): Promise<void> {
   try {
     const payload = await getPayload({ config })
-    payload.logger.error({ err: error, ...context }, `${operation} error`)
+    payload.logger[level]({ err: error, ...context }, `${operation} ${level}`)
   } catch {
     console.error(`${operation} error (payload logger unavailable)`, { ...context, error })
   }
@@ -174,7 +175,9 @@ export async function fetchStationTimeseries(
       return await requestEachStation(stations, options, token, error)
     }
   } catch (error) {
-    await logSnowObsError('fetchStationTimeseries', error, { stids })
+    // A raw read that 500s is retried rounded by its caller, so it is only worth a warning.
+    const level = options.rawData && isServerError(error) ? 'warn' : 'error'
+    await logSnowObsError('fetchStationTimeseries', error, { stids }, level)
     throw toSnowObsError(error, stids)
   }
 }

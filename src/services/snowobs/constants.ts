@@ -50,6 +50,9 @@ export const UNIT_LABELS: Record<string, string> = {
   millimeters: 'mm',
   mph: 'mph',
   'm/s': 'm/s',
+  // No center reports metric wind in km/h yet, so SnowObs's name for it is a guess.
+  kph: 'km/h',
+  'km/hr': 'km/h',
   '%': '%',
   'W/m**2': 'W/m²',
   'MJ/m**2': 'MJ/m²',

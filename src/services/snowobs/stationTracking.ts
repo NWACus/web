@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { resolveSnowObsToken, SNOWOBS_API, SnowObsError, snowObsFetch } from './access'
+import { logSnowObsError } from './snowobs'
 
 // The stations a center's forecasters have curated in SnowObs, across every
 // source the center uses (NWAC: its own loggers plus SNOTEL and Mesowest).
@@ -129,7 +130,8 @@ export async function fetchVariableRounding(centerSlug: string): Promise<Variabl
         rounding == null ? [] : [[variable, rounding]],
       ),
     )
-  } catch {
+  } catch (error) {
+    await logSnowObsError('fetchVariableRounding', error, { centerSlug }, 'warn')
     return {}
   }
 }

@@ -1,7 +1,7 @@
 import { PrecipTableClient } from '@/blocks/PrecipTable/PrecipTable.client'
 import type { PrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import '@testing-library/jest-dom'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 const STATIONS = [
   { stid: '1', source: 'nwac' },
@@ -59,6 +59,31 @@ describe('PrecipTableClient', () => {
     render(<PrecipTableClient stations={STATIONS} columns={['24h']} />)
 
     expect(screen.getByRole('status', { name: 'Loading precipitation totals' })).toBeInTheDocument()
+  })
+
+  it('keeps the table, in its own units, when a unit refetch fails', async () => {
+    let calls = 0
+    mockFetch(async () => {
+      calls += 1
+      return calls === 1
+        ? { ok: true, json: async () => TABLE }
+        : { ok: false, status: 502, json: async () => ({}) }
+    })
+    render(<PrecipTableClient stations={STATIONS} columns={['24h']} />)
+    await waitFor(() => expect(screen.getByText('Alpental Base')).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: 'Metric' }))
+
+    await waitFor(() => expect(urls).toHaveLength(2))
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Imperial' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      ),
+    )
+    expect(screen.getByText('Alpental Base')).toBeInTheDocument()
+    expect(screen.queryByText(/Precipitation data is unavailable/)).not.toBeInTheDocument()
+    window.localStorage.clear()
   })
 
   it('says so when the route fails rather than rendering an empty table', async () => {

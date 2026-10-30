@@ -12,13 +12,20 @@ import { useEffect, useState } from 'react'
 
 type State =
   | { status: 'loading' }
-  | { status: 'ready'; table: PrecipAccumulationData; refreshing: boolean }
+  | { status: 'ready'; table: PrecipAccumulationData; units: StationUnits; refreshing: boolean }
   | { status: 'error' }
 
 // Fetched in the browser so the block keeps its own refresh cadence: a server
 // fetch's revalidate becomes the revalidate of every page carrying the block.
-// A unit change keeps the table on screen while it refetches, so its sort survives.
-function usePrecipTable(stations: StationRef[], units: StationUnits, unitsLoaded: boolean): State {
+// A unit change keeps the table, in the units it was read in, on screen while it refetches, so
+// its sort survives and a failed refetch leaves it there.
+// `attempt` lets a repeated toggle retry after a failed refetch left the saved units unchanged.
+function usePrecipTable(
+  stations: StationRef[],
+  units: StationUnits,
+  unitsLoaded: boolean,
+  attempt: number,
+): State {
   const keys = stations.map(stationKey).join(',')
   const [state, setState] = useState<State>({ status: 'loading' })
 
@@ -32,13 +39,16 @@ function usePrecipTable(stations: StationRef[], units: StationUnits, unitsLoaded
     fetch(`/weather/precip-data?${params.toString()}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
       .then((table: PrecipAccumulationData) =>
-        setState({ status: 'ready', table, refreshing: false }),
+        setState({ status: 'ready', table, units, refreshing: false }),
       )
       .catch(() => {
-        if (!controller.signal.aborted) setState({ status: 'error' })
+        if (controller.signal.aborted) return
+        setState((prev) =>
+          prev.status === 'ready' ? { ...prev, refreshing: false } : { status: 'error' },
+        )
       })
     return () => controller.abort()
-  }, [keys, units, unitsLoaded])
+  }, [keys, units, unitsLoaded, attempt])
 
   return state
 }
@@ -55,7 +65,12 @@ export function PrecipTableClient({
   columns: PrecipColumn[]
 }) {
   const [units, setUnits, unitsLoaded] = useStationUnits()
-  const state = usePrecipTable(stations, units, unitsLoaded)
+  const [attempt, setAttempt] = useState(0)
+  const state = usePrecipTable(stations, units, unitsLoaded, attempt)
+  const changeUnits = (next: StationUnits) => {
+    setUnits(next)
+    setAttempt((n) => n + 1)
+  }
 
   if (state.status === 'loading') {
     return (
@@ -74,8 +89,8 @@ export function PrecipTableClient({
       <div aria-busy={state.refreshing} className={cn(state.refreshing && 'opacity-60')}>
         <PrecipAccumulationTable
           table={state.table}
-          unit={units}
-          onUnitChange={setUnits}
+          unit={state.units}
+          onUnitChange={changeUnits}
           columns={columns}
         />
       </div>

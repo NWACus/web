@@ -8,6 +8,7 @@ jest.mock('../../src/services/snowobs/stationTracking', () => ({
 
 import type { StationTabContext } from '@/components/WeatherStations/stationTabViews'
 import { resolveTabView } from '@/components/WeatherStations/stationTabViews'
+import { isValidElement } from 'react'
 
 const context: StationTabContext = {
   center: 'nwac',
@@ -48,7 +49,12 @@ describe('the Table tab', () => {
       },
     )
     const view = await resolveTabView(context, 'table', {})
-    expect(view.tabContent).toBeTruthy()
+    const content = view.tabContent
+    if (!isValidElement<{ tables: { default: unknown; metric: unknown } }>(content)) {
+      throw new Error('expected the table view')
+    }
+    expect(content.props.tables.default).toBeTruthy()
+    expect(content.props.tables.metric).toBeNull()
   })
 
   it('reads a valid custom range as whole days in the center zone', async () => {

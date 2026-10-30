@@ -2,6 +2,8 @@ import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
 jest.mock('../../src/payload.config', () => ({}))
+const warnMock = jest.fn()
+jest.mock('payload', () => ({ getPayload: jest.fn(async () => ({ logger: { warn: warnMock } })) }))
 jest.mock('../../src/services/snowobs/access', () => ({
   ...jest.requireActual('../../src/services/snowobs/access'),
   resolveSnowObsToken: jest.fn(async () => 't'),
@@ -54,9 +56,13 @@ describe('fetchVariableRounding', () => {
     expect(await fetchVariableRounding('nwac')).toEqual({ precip_accum_one_hour: 2, air_temp: 1 })
   })
 
-  it('comes back empty when SnowObs fails, so readings fall back to their own precision', async () => {
+  it('comes back empty, with a warning, when SnowObs fails', async () => {
     server.use(http.get(TRACKING_URL, () => new HttpResponse(null, { status: 500 })))
     expect(await fetchVariableRounding('nwac')).toEqual({})
+    expect(warnMock).toHaveBeenCalledWith(
+      expect.objectContaining({ centerSlug: 'nwac' }),
+      'fetchVariableRounding warn',
+    )
   })
 })
 

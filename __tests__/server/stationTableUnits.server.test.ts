@@ -86,6 +86,7 @@ describe('displayUnit', () => {
       'mbar',
       'inHg',
     ])
+    expect(['kph', 'km/hr'].map(displayUnit)).toEqual(['km/h', 'km/h'])
     expect(['celsius', 'millimeters', 'centimeters', 'm/s', 'pascals'].map(displayUnit)).toEqual([
       '°C',
       'mm',
