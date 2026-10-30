@@ -448,6 +448,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
               blockType: 'content',
               backgroundColor: 'transparent',
               layout: '1_1',
+              verticalAlignment: 'top',
               columns: [{ richText: simpleContent('') }],
             },
           ],

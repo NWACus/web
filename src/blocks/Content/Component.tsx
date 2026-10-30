@@ -5,7 +5,7 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 
 export const ContentBlockComponent = (props: ContentBlockProps) => {
-  const { columns, backgroundColor, layout } = props
+  const { columns, backgroundColor, layout, verticalAlignment } = props
   const layoutCols = layout ? layout.split('_')[1] : '1'
 
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -13,23 +13,23 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
   const colsClasses: { [key: string]: string[] } = {
     '1': ['lg:col-span-12'],
     '11': ['md:col-span-3 lg:col-span-6', 'md:col-span-3 lg:col-span-6'],
-    '12': ['md:col-span-2 lg:col-span-8', 'md:col-span-4'],
-    '21': ['md:col-span-4', 'md:col-span-2 lg:col-span-8'],
+    '21': ['md:col-span-4 lg:col-span-8', 'md:col-span-2 lg:col-span-4'],
+    '12': ['md:col-span-2 lg:col-span-4', 'md:col-span-4 lg:col-span-8'],
     '111': [
       'sm:col-span-2 lg:col-span-4',
       'sm:col-span-2 lg:col-span-4',
       'sm:col-span-2 lg:col-span-4',
     ],
-    '112': [
-      'md:col-span-3 lg:col-span-6',
+    '211': [
+      'md:col-span-6 lg:col-span-6',
       'md:col-span-3 lg:col-span-3',
-      'md:col-span-6 lg:col-span-3',
+      'md:col-span-3 lg:col-span-3',
     ],
     '121': ['lg:col-span-3', 'lg:col-span-6', 'lg:col-span-3'],
-    '211': [
-      'md:col-span-6 lg:col-span-3',
+    '112': [
       'md:col-span-3 lg:col-span-3',
-      'md:col-span-3 lg:col-span-6',
+      'md:col-span-3 lg:col-span-3',
+      'md:col-span-6 lg:col-span-6',
     ],
     '1111': [
       'sm:col-span-3 lg:col-span-3',
@@ -39,17 +39,41 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
     ],
   }
   const colsSpanClass = colsClasses[layoutCols]
-  const spacing = blockSpacing(backgroundColor, true)
+  const spacing = blockSpacing(backgroundColor)
+
+  const alignClasses: Record<string, string> = {
+    top: 'items-start',
+    center: 'items-center',
+    bottom: 'items-end',
+    stretch: 'items-stretch',
+  }
+  const alignClass = alignClasses[verticalAlignment ?? 'top']
+  const isStretch = verticalAlignment === 'stretch'
 
   return (
-    <div className={cn(spacing.outer, spacing.bg)}>
+    <div className={cn(spacing.bg)}>
       <div className={cn('container', spacing.inner)}>
-        <div className="grid grid-cols-6 lg:grid-cols-12 gap-y-6 gap-x-10">
+        <div className={cn('grid grid-cols-6 lg:grid-cols-12 gap-y-6 gap-x-10', alignClass)}>
           {columns?.map((col, index) => {
             const { richText } = col
             return (
-              <div className={cn('col-span-6', colsSpanClass[index], textColor)} key={index}>
-                {richText && <RichText data={richText} enableGutter={false} />}
+              <div
+                className={cn('col-span-6', colsSpanClass[index], textColor, {
+                  'flex flex-col': isStretch,
+                })}
+                key={index}
+              >
+                {richText && (
+                  <RichText
+                    data={richText}
+                    enableGutter={false}
+                    // Blocks render as divs and text as p, so the last block (not Lexical's trailing
+                    // empty paragraph) grows to make side-by-side callouts end flush
+                    className={cn({
+                      'flex-1 flex flex-col [&>div:last-of-type]:flex-1': isStretch,
+                    })}
+                  />
+                )}
               </div>
             )
           })}

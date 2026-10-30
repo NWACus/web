@@ -1,9 +1,9 @@
 import colorPickerField from '@/fields/color'
+import { layoutField } from '@/fields/layout'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block, Field } from 'payload'
 
 const defaultFields: Field[] = [
-  colorPickerField('Background color'),
   {
     name: 'post',
     type: 'relationship',
@@ -20,5 +20,5 @@ export const SingleBlogPostBlock: Block = {
   slug: 'singleBlogPost',
   interfaceName: 'SingleBlogPostBlock',
   imageURL: '/thumbnail/SingleBlogPostThumbnail.jpg',
-  fields: [...defaultFields],
+  fields: [...defaultFields, layoutField([colorPickerField('Background color')])],
 }

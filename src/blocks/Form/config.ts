@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 
+import { layoutField } from '@/fields/layout'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
@@ -33,6 +34,7 @@ export const FormBlock: Block = {
       }),
       label: 'Intro Content',
     },
+    layoutField(),
   ],
   graphQL: {
     singularName: 'FormBlock',

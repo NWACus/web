@@ -25,8 +25,23 @@ import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
 import { TeamBlockComponent } from '@/blocks/Team/Component'
 import { VideoEmbedBlockComponent } from '@/blocks/VideoEmbed/Component'
+import { cn } from '@/utilities/ui'
 
 type LayoutBlock = Page['layout'][number] | HomePage['layout'][number]
+
+// Margins, so neighbors collapse and the larger of the two settings sets the gap
+const spaceAbove: Record<string, string> = {
+  none: 'mt-0 md:mt-0',
+  sm: 'mt-3 md:mt-5',
+  md: 'mt-6 md:mt-10',
+  lg: 'mt-12 md:mt-20',
+}
+const spaceBelow: Record<string, string> = {
+  none: 'mb-0 md:mb-0',
+  sm: 'mb-3 md:mb-5',
+  md: 'mb-6 md:mb-10',
+  lg: 'mb-12 md:mb-20',
+}
 
 export const RenderBlocks = (props: { blocks: LayoutBlock[]; payload: Payload }) => {
   const { blocks } = props
@@ -38,7 +53,13 @@ export const RenderBlocks = (props: { blocks: LayoutBlock[]; payload: Payload })
       <Fragment>
         {blocks.map((block) => {
           return (
-            <div key={`${block.id}__${block.blockType}`}>
+            <div
+              key={`${block.id}__${block.blockType}`}
+              className={cn(
+                spaceAbove[block.spacingTop ?? 'sm'],
+                spaceBelow[block.spacingBottom ?? 'sm'],
+              )}
+            >
               <RenderBlock block={block} />
             </div>
           )

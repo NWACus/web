@@ -1,3 +1,4 @@
+import { layoutField } from '@/fields/layout'
 import type { Block } from 'payload'
 import { validateDisplayAs } from './validateDisplayAs'
 
@@ -26,5 +27,6 @@ export const DocumentBlock: Block = {
         { label: 'Embed (iframe)', value: 'embed' },
       ],
     },
+    layoutField(),
   ],
 }

@@ -1,6 +1,7 @@
 import type { Block, Field } from 'payload'
 
 import colorPickerField from '@/fields/color'
+import { layoutField } from '@/fields/layout'
 import {
   AlignFeature,
   FixedToolbarFeature,
@@ -26,14 +27,16 @@ const defaultFields: Field[] = [
     }),
     label: false,
   },
-  colorPickerField('Background color'),
 ]
 
-const headerBlockWithFields = (fields?: Field[]): Block => ({
+const headerBlockWithFields = (layoutFields?: Field[]): Block => ({
   slug: 'headerBlock',
   interfaceName: 'HeaderBlock',
   imageURL: '/thumbnail/HeaderThumbnail.jpg',
-  fields: [...defaultFields, ...(fields ?? [])],
+  fields: [
+    ...defaultFields,
+    layoutField([colorPickerField('Background color'), ...(layoutFields ?? [])]),
+  ],
 })
 
 export const HeaderBlock = headerBlockWithFields([

@@ -1,15 +1,19 @@
 import { Field, TextFieldSingleValidation } from 'payload'
 
-const brandShades = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+export const BRAND_SHADES = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
 export const BACKGROUND_COLOR_OPTIONS = [
   'transparent',
   'white',
-  ...brandShades.map((n) => `brand-${n}`),
+  ...BRAND_SHADES.map((n) => `brand-${n}`),
 ]
 
 export const isPaletteColor = (value: unknown): value is string =>
   typeof value === 'string' && BACKGROUND_COLOR_OPTIONS.includes(value)
+
+// `white` counts as a color; `transparent` and values outside the palette paint nothing.
+export const hasBackgroundColor = (value: unknown): boolean =>
+  isPaletteColor(value) && value !== 'transparent'
 
 // An unchanged off-palette value passes so older content can still be published.
 export const validateBackgroundColor = (value: unknown, previousValue?: unknown): true | string =>

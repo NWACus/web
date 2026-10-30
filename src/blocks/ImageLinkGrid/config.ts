@@ -1,3 +1,4 @@
+import { layoutField } from '@/fields/layout'
 import { linkField } from '@/fields/linkField'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
@@ -38,5 +39,6 @@ export const ImageLinkGridBlock: Block = {
       },
       maxRows: 4,
     },
+    layoutField(),
   ],
 }

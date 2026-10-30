@@ -6,6 +6,8 @@ import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8c
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { SpacingSelect as SpacingSelect_dbc34829ef9cfb63031eaf8981ee5510 } from '@/components/SpacingSelect'
+import { LayoutSummaryLabel as LayoutSummaryLabel_222f4ecf9e1c212b69518dd8f42eb0fe } from '@/components/LayoutSummaryLabel'
 import { default as default_ef94af202ba9f4dd0fd10062e0964050 } from '@/components/AlignContentPicker'
 import { AlignFeatureClient as AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -18,8 +20,9 @@ import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997e
 import { SponsorsLayoutDescription as SponsorsLayoutDescription_3bd21b612ee21de8be7622c02de7e892 } from '@/blocks/Sponsors/components/SponsorsLayoutDescription'
 import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { default as default_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
+import { ColumnLayoutPicker as ColumnLayoutPicker_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
+import { VerticalAlignmentPicker as VerticalAlignmentPicker_07a0171a6d4c814ef95b0ef075d36b7d } from '@/components/VerticalAlignmentPicker'
 import { DateRangeField as DateRangeField_1d446883378a099477d310d9fe2f0813 } from '@/blocks/ObservationsWidget/DateRangeField'
 import { ZonesField as ZonesField_77b8df4c40d764f3c3941ef759d922e0 } from '@/blocks/ObservationsWidget/ZonesField'
 import { StationsInput as StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd } from '@/fields/stations/StationsInput'
@@ -85,6 +88,8 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/components/SpacingSelect#SpacingSelect": SpacingSelect_dbc34829ef9cfb63031eaf8981ee5510,
+  "@/components/LayoutSummaryLabel#LayoutSummaryLabel": LayoutSummaryLabel_222f4ecf9e1c212b69518dd8f42eb0fe,
   "@/components/AlignContentPicker#default": default_ef94af202ba9f4dd0fd10062e0964050,
   "@payloadcms/richtext-lexical/client#AlignFeatureClient": AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HeadingFeatureClient": HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
@@ -97,8 +102,9 @@ export const importMap = {
   "@/blocks/Sponsors/components/SponsorsLayoutDescription#SponsorsLayoutDescription": SponsorsLayoutDescription_3bd21b612ee21de8be7622c02de7e892,
   "@payloadcms/richtext-lexical/client#OrderedListFeatureClient": OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UnorderedListFeatureClient": UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@/components/ColumnLayoutPicker#default": default_923dc5ccc0b72de4298251644cbfe39e,
   "@/blocks/Content/components/DefaultColumnAdder#DefaultColumnAdder": DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01,
+  "@/components/ColumnLayoutPicker#ColumnLayoutPicker": ColumnLayoutPicker_923dc5ccc0b72de4298251644cbfe39e,
+  "@/components/VerticalAlignmentPicker#VerticalAlignmentPicker": VerticalAlignmentPicker_07a0171a6d4c814ef95b0ef075d36b7d,
   "@/blocks/ObservationsWidget/DateRangeField#DateRangeField": DateRangeField_1d446883378a099477d310d9fe2f0813,
   "@/blocks/ObservationsWidget/ZonesField#ZonesField": ZonesField_77b8df4c40d764f3c3941ef759d922e0,
   "@/fields/stations/StationsInput#StationsInput": StationsInput_4eba0530c9a8d5d5d04a8e8b7a3aadbd,

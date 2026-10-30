@@ -231,6 +231,7 @@ When creating a new block, you must register it in the following locations:
 
 1. **`src/blocks/RenderBlocks.tsx`** - For standalone page blocks
    - Set `isLayoutBlock={true}` so the block gets its own `container` wrapper
+   - End the block's fields with `layoutField([...])`, passing its appearance options, so editors get them and the block's spacing in one Layout group
 
 2. **`src/components/RichText/index.tsx`** - For blocks used inline within rich text editors
    - Set `isLayoutBlock={false}` to avoid double-wrapping (the RichText component already provides a container)
@@ -264,7 +265,9 @@ A reusable layout component that wraps content with configurable background colo
 - `containerClassName` - Optional - additional classes for the inner container div
 - `outerClassName` - Optional - additional classes for the outer wrapper div
 
-**Spacing:** `blockSpacing(backgroundColor, isLayoutBlock)`, exported beside the wrapper, is the one rule. A layout block with no background color (`hasBackgroundColor` is false for `transparent` and for anything outside the picker's palette) carries `BLOCK_MARGIN` (`my-3 md:my-5`) on its outer div; those margins collapse, so two plain neighbors sit 12px apart on phones and 20px from `md`. A block with any other color, `white` included, carries no margin and instead pads its inner container with `BLOCK_PADDING` (`py-6 md:py-8`), so two colored blocks touch. Inline Lexical blocks get neither (an inline Header keeps its own `py-4`). Blocks that don't use the wrapper call `blockSpacing` themselves, or use `BLOCK_MARGIN` when they never take a background.
+**Spacing:** the space between layout blocks belongs to `RenderBlocks`, not the blocks. Each block's "Space above" and "Space below" (see Layout group) become `mt-*`/`mb-*` on the div `RenderBlocks` wraps it in: None `0`, Small `mt-3 md:mt-5` (12px, 20px from `md`), Medium `mt-6 md:mt-10`, Large `mt-12 md:mt-20`. Neighbors' margins collapse, so the gap is the larger of the two settings, and it's the same whether or not either block has a color. Blocks carry no outer margin of their own. `blockSpacing(backgroundColor)`, exported beside the wrapper, only covers the inside of a colored block: any color but `transparent` (`hasBackgroundColor` in `src/fields/color.ts`; `white` counts, values outside the palette don't) pads the inner container with `BLOCK_PADDING` (`py-6 md:py-8`). Inline Lexical blocks keep their own spacing (an inline Header keeps its `py-4`).
+
+**Layout group:** every block ends with `layoutField([...])` from `src/fields/layout.ts`, a collapsed "Layout" group that holds the block's appearance options (background color, content alignment, full-width color and the like) and a summary header that lists each setting in field order. Options about what the block shows, such as Media's image size or NAC Media's carousel/grid, stay with the block's other fields. It always includes "Space above" and "Space below" (None, Small, Medium, Large; default Small) from `spacingRow` in `src/fields/spacing.ts`, which `RenderBlocks` applies as described under Spacing. A block with a background color can't use None: the option is hidden, `SpacingSelect` moves a None value to Small as soon as a color is picked, and a `beforeChange` hook does the same on save. The spacing selects hide when the block is embedded in rich text, and a group holding only spacing hides with them. Button and Inline Media are inline elements and don't take one.
 
 **Usage:**
 ```tsx
@@ -282,7 +285,7 @@ Use this instead of manually creating nested divs with background colors and con
 
 Not using `BackgroundColorWrapper`
 - `DocumentComponent`
-- `EmbedLayout`, `HeaderComponent`, `LinkPreview`, `NACMedia`, `Team`, `Document`, `Form`, `Gallery`, `ImageLinkGrid` — same rule via `blockSpacing` / `BLOCK_MARGIN`.
+- `EmbedLayout`, `HeaderComponent`, `LinkPreview`, `NACMedia`, `Media`, `Content` — same rule via `blockSpacing`.
 
 
 ## Theme Preview

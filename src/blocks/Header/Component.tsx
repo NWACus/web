@@ -13,10 +13,10 @@ export const HeaderBlockComponent = (props: Props) => {
   const { backgroundColor, fullWidthColor, richText, isLayoutBlock } = props
 
   const textColor = getTextColorFromBgColor(backgroundColor)
-  const spacing = blockSpacing(backgroundColor, isLayoutBlock)
+  const spacing = blockSpacing(backgroundColor)
 
   return (
-    <div className={cn(spacing.outer, fullWidthColor && spacing.bg)}>
+    <div className={cn(fullWidthColor && spacing.bg)}>
       <div
         className={cn(
           'w-full',
