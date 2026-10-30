@@ -212,7 +212,7 @@ describe('LayoutSummaryLabel', () => {
     mockFieldValues.set('layout.0.verticalAlignment', 'center')
     renderLabel(contentFields)
 
-    expect(screen.getByText('· Brand 500 · 2:1 · Middle')).toBeInTheDocument()
+    expect(screen.getByText('· Brand 500 · 2:1 · Middle aligned')).toBeInTheDocument()
   })
 
   it('leaves out vertical alignment for a single column', () => {
@@ -224,7 +224,7 @@ describe('LayoutSummaryLabel', () => {
     expect(screen.getByText('· Transparent · Full width')).toBeInTheDocument()
   })
 
-  it("shows each of a block's own options and spacing other than Small", () => {
+  it("shows each of a block's own options and its spacing", () => {
     mockFieldValues.set('layout.0.backgroundColor', 'white')
     mockFieldValues.set('layout.0.imageLayout', 'right')
     mockFieldValues.set('layout.0.textWrap', true)
@@ -233,7 +233,7 @@ describe('LayoutSummaryLabel', () => {
     renderLabel(imageTextFields)
 
     expect(
-      screen.getByText('· White · Image right · Text wraps · Above: Large'),
+      screen.getByText('· White · Image right · Text wraps · Top: Lg · Btm: Sm'),
     ).toBeInTheDocument()
   })
 
@@ -243,7 +243,23 @@ describe('LayoutSummaryLabel', () => {
     mockFieldValues.set('layout.0.spacingBottom', 'none')
     renderLabel(galleryFields)
 
-    expect(screen.getByText('· Masonry · 3 columns · Below: None')).toBeInTheDocument()
+    expect(screen.getByText('· Masonry · 3 columns · Btm: None')).toBeInTheDocument()
+  })
+
+  it("shows a Header's full-width color only when it's ticked", () => {
+    const headerFields: ClientField[] = [
+      { name: 'backgroundColor', type: 'text' },
+      { name: 'fullWidthColor', type: 'checkbox' },
+    ]
+    mockFieldValues.set('layout.0.backgroundColor', 'brand-200')
+    mockFieldValues.set('layout.0.fullWidthColor', true)
+    const { unmount } = renderLabel(headerFields)
+    expect(screen.getByText('· Brand 200 · Full width')).toBeInTheDocument()
+    unmount()
+
+    mockFieldValues.set('layout.0.fullWidthColor', false)
+    renderLabel(headerFields)
+    expect(screen.getByText('· Brand 200')).toBeInTheDocument()
   })
 
   it('shows just the title when nothing is set', () => {

@@ -25,12 +25,12 @@ const optionLabel = (field: NamedField, value: unknown) => {
   return typeof option?.label === 'string' ? option.label : undefined
 }
 
+const spacingNames: Record<string, string> = { none: 'None', sm: 'Sm', md: 'Md', lg: 'Lg' }
+
 const spacing =
   (prefix: string): Summarize =>
-  (value, field) => {
-    const label = value !== 'sm' && optionLabel(field, value)
-    return label && `${prefix}: ${label}`
-  }
+  (value) =>
+    typeof value === 'string' && value in spacingNames && `${prefix}: ${spacingNames[value]}`
 
 // Fields whose option labels would be vague on their own; anything else shows its option label
 const summaries: Record<string, Summarize> = {
@@ -39,14 +39,14 @@ const summaries: Record<string, Summarize> = {
   verticalAlignment: (value, field, values) =>
     isColumnLayout(values.layout) &&
     !values.layout.startsWith('1_') &&
-    (optionLabel(field, value) ?? 'Top'),
+    (value === 'stretch' ? 'Stretched' : `${optionLabel(field, value) ?? 'Top'} aligned`),
   alignContent: (value) => typeof value === 'string' && `Aligned ${value}`,
-  fullWidthColor: (value) => value === true && 'Full width color',
+  fullWidthColor: (value) => value === true && 'Full width',
   imageLayout: (value) => typeof value === 'string' && `Image ${value}`,
   textWrap: (value) => value === true && 'Text wraps',
   columns: (value) => value && `${value} columns`,
-  spacingTop: spacing('Above'),
-  spacingBottom: spacing('Below'),
+  spacingTop: spacing('Top'),
+  spacingBottom: spacing('Btm'),
 }
 
 const namedFields = (fields: ClientField[]): NamedField[] =>
