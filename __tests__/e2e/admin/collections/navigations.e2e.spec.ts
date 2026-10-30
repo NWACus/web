@@ -1,13 +1,40 @@
+import type { Page } from '@playwright/test'
 import { authTest, expect } from '../../fixtures/auth.fixture'
+import { saveDocAndAssert, waitForFormReady } from '../../helpers'
 import { setTenantCookie, TenantSlugs } from '../../helpers/tenant-cookie'
 
 const SERVER_URL = 'http://localhost:3000'
 
 type NavLinkData = { type?: string | null; reference?: unknown; newTab?: boolean | null } | null
-type NavItemData = { id?: string; link?: NavLinkData; items?: NavItemData[] | null }
+type NavItemData = {
+  id?: string
+  label?: string | null
+  link?: NavLinkData
+  items?: NavItemData[] | null
+}
 
 function collectLinks(items: NavItemData[]): NavLinkData[] {
   return items.flatMap((item) => [item.link ?? null, ...collectLinks(item.items ?? [])])
+}
+
+async function readNwacNavigation(page: Page) {
+  await setTenantCookie(page.context(), TenantSlugs.nwac)
+  await page.goto(`${SERVER_URL}/admin`)
+
+  // The tenant cookie scopes the admin list view, not the REST API, and a super admin's access
+  // adds no tenant constraint, so the navigation has to be looked up by tenant explicitly.
+  const read = await page.evaluate(async (slug) => {
+    const tenants = await fetch(`/api/tenants?where[slug][equals]=${slug}&limit=1&depth=0`)
+    const tenantId = (await tenants.json()).docs?.[0]?.id
+    const res = await fetch(`/api/navigations?where[tenant][equals]=${tenantId}&limit=1&depth=0`)
+    return { ok: res.ok, status: res.status, tenantId, body: await res.json() }
+  }, TenantSlugs.nwac)
+  expect(read.tenantId, `no ${TenantSlugs.nwac} tenant seeded`).toBeTruthy()
+  expect(read.ok, `read navigations failed (${read.status})`).toBeTruthy()
+
+  const doc = read.body.docs?.[0]
+  expect(doc, `no navigation seeded for ${TenantSlugs.nwac}`).toBeTruthy()
+  return doc
 }
 
 /**
@@ -20,22 +47,7 @@ authTest.describe('Navigations save', () => {
   authTest.describe.configure({ timeout: 90000 })
 
   authTest('saves a tab whose item has sub-items', async ({ adminPage }) => {
-    await setTenantCookie(adminPage.context(), TenantSlugs.nwac)
-    await adminPage.goto(`${SERVER_URL}/admin`)
-
-    // The tenant cookie scopes the admin list view, not the REST API, and a super admin's access
-    // adds no tenant constraint, so the navigation has to be looked up by tenant explicitly.
-    const read = await adminPage.evaluate(async (slug) => {
-      const tenants = await fetch(`/api/tenants?where[slug][equals]=${slug}&limit=1&depth=0`)
-      const tenantId = (await tenants.json()).docs?.[0]?.id
-      const res = await fetch(`/api/navigations?where[tenant][equals]=${tenantId}&limit=1&depth=0`)
-      return { ok: res.ok, status: res.status, tenantId, body: await res.json() }
-    }, TenantSlugs.nwac)
-    expect(read.tenantId, `no ${TenantSlugs.nwac} tenant seeded`).toBeTruthy()
-    expect(read.ok, `read navigations failed (${read.status})`).toBeTruthy()
-
-    const doc = read.body.docs?.[0]
-    expect(doc, `no navigation seeded for ${TenantSlugs.nwac}`).toBeTruthy()
+    const doc = await readNwacNavigation(adminPage)
 
     const items: NavItemData[] = doc.education?.items ?? []
     expect(
@@ -67,5 +79,91 @@ authTest.describe('Navigations save', () => {
       (link) => link && link.type === 'internal' && link.reference && link.newTab,
     )
     expect(internalWithNewTab, 'internal links came back with newTab set').toEqual([])
+  })
+})
+
+const restoreEducation = (page: Page, id: number, education: unknown) =>
+  page.evaluate(
+    async ({ id, education }) => {
+      await fetch(`/api/navigations/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ education }),
+      })
+    },
+    { id, education },
+  )
+
+// Opens the Education tab on the first linked item that has no sub-items
+async function openLinkedEducationItem(page: Page) {
+  const doc = await readNwacNavigation(page)
+  const items: NavItemData[] = doc.education?.items ?? []
+  const index = items.findIndex((item) => item.link?.reference && !item.items?.length)
+  expect(index, 'seeded education tab has no linked item without sub-items').toBeGreaterThanOrEqual(
+    0,
+  )
+
+  await page.goto(`${SERVER_URL}/admin/collections/navigations/${doc.id}`)
+  await waitForFormReady(page)
+  await page.getByRole('button', { name: 'Education', exact: true }).first().click()
+
+  const link = page.locator(`#field-education__items__${index}__link`)
+  const pageTitle = (await link.locator('.relationship--single-value__text').innerText()).trim()
+  const linkLabel = await page
+    .locator(`#field-education__items__${index}__link__label`)
+    .inputValue()
+  // One picker per top-level item, in order
+  const typePicker = (name: string) =>
+    page.getByRole('radio', { name }).or(page.getByRole('button', { name })).nth(index)
+
+  return { doc, index, link, pageTitle, sectionName: linkLabel || pageTitle, typePicker }
+}
+
+authTest.describe('Navigations item type picker', () => {
+  authTest.describe.configure({ mode: 'serial', timeout: 90000 })
+
+  authTest(
+    'carries the link across when switching to a section and back',
+    async ({ adminPage }) => {
+      const { index, link, pageTitle, sectionName, typePicker } =
+        await openLinkedEducationItem(adminPage)
+
+      await typePicker('Section with sub-items').click()
+
+      await expect(adminPage.locator(`#field-education__items__${index}__label`)).toHaveValue(
+        sectionName,
+      )
+      const firstSubItem = adminPage.locator(`#field-education__items__${index}__items__0__link`)
+      await expect(firstSubItem.locator('.relationship--single-value__text')).toHaveText(pageTitle)
+      await expect(link).toBeHidden()
+
+      await typePicker('Link to a page').click()
+
+      await expect(link.locator('.relationship--single-value__text')).toHaveText(pageTitle)
+      await expect(adminPage.locator(`[id^="education-items-${index}-items-row-"]`)).toHaveCount(0)
+    },
+  )
+
+  authTest('saves a linked item switched to a section', async ({ adminPage }) => {
+    const { doc, index, sectionName, typePicker } = await openLinkedEducationItem(adminPage)
+    const reference = doc.education.items[index].link.reference
+
+    try {
+      await typePicker('Section with sub-items').click()
+      await expect(adminPage.locator(`#field-education__items__${index}__label`)).toHaveValue(
+        sectionName,
+      )
+      await saveDocAndAssert(adminPage)
+
+      const saved = await readNwacNavigation(adminPage)
+      const item = saved.education.items[index]
+      expect(item.label).toBe(sectionName)
+      expect(item.link?.reference ?? null, 'section kept its own link').toBeNull()
+      expect(item.items?.map((subItem: NavItemData) => subItem.link?.reference)).toEqual([
+        reference,
+      ])
+    } finally {
+      await restoreEducation(adminPage, doc.id, doc.education)
+    }
   })
 })
