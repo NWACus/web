@@ -29,16 +29,12 @@ import { NextRequest, NextResponse } from 'next/server'
 // where caching happens.
 export const dynamic = 'force-dynamic'
 
-const UNITS: SnowObsUnits[] = ['default', 'english', 'metric']
+const UNITS: SnowObsUnits[] = ['default', 'metric']
 
-/**
- * The requested units, or `default` — an unknown value is not forwarded to SnowObs. English asks
- * for `default` too: SnowObs's English pins pressure, snow depth, SWE and precip to fixed units.
- */
+/** The requested units, or `default` — an unknown value is not forwarded to SnowObs. */
 function requestedUnits(request: NextRequest): SnowObsUnits {
   const units = request.nextUrl.searchParams.get('units')
-  const known = UNITS.find((unit) => unit === units) ?? 'default'
-  return known === 'english' ? 'default' : known
+  return UNITS.find((known) => known === units) ?? 'default'
 }
 
 /**

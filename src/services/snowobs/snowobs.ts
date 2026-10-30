@@ -142,7 +142,7 @@ export async function fetchStationTimeseries(
 // --- Current conditions and webcams (the station map) ----------------------------------------
 
 /** The units SnowObs reports in; `default` is whatever the center configured. */
-export type SnowObsUnits = 'default' | 'english' | 'metric'
+export type SnowObsUnits = 'default' | 'metric'
 
 const WEBCAMS_REVALIDATE = 3600
 

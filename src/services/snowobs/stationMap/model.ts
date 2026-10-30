@@ -8,7 +8,7 @@
 import type { PolygonGeometry } from '@/utilities/geo/pointInPolygon'
 
 /** The units SnowObs will report in. `default` lets the center's own configuration decide. */
-export type StationMapUnits = 'default' | 'english' | 'metric'
+export type StationMapUnits = 'default' | 'metric'
 
 export interface StationMapStation {
   /** SnowObs station id, unique within the center's source set. */

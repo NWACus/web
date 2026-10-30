@@ -12,7 +12,8 @@
 import type { StationMapUnits } from '@/services/snowobs/stationMap/model'
 import type { TableSort } from '@/services/snowobs/stationMap/table'
 
-const UNITS: StationMapUnits[] = ['default', 'english', 'metric']
+// A saved 'english' from before the option was dropped reads as unset, so Default.
+const UNITS: StationMapUnits[] = ['default', 'metric']
 
 interface StationMapPrefs {
   units?: StationMapUnits
