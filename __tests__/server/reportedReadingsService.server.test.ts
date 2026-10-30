@@ -50,7 +50,6 @@ describe('fetchReportedReadings', () => {
     expect(fetchStationTimeseriesMock).toHaveBeenCalledWith('nwac', [live], {
       windowHours: 24,
       revalidate: 60,
-      rawData: true,
     })
     expect(fetchCurrentObservationsMock).not.toHaveBeenCalled()
   })
@@ -77,7 +76,6 @@ describe('fetchReportedReadings', () => {
       start: new Date('2026-10-17T16:10:00Z'),
       end: new Date('2026-10-18T16:10:00Z'),
       revalidate: 3600,
-      rawData: true,
     })
   })
 

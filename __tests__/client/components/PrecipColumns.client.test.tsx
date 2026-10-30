@@ -5,6 +5,8 @@ import { render, screen } from '@testing-library/react'
 
 const table: PrecipAccumulationData = {
   timezoneLabel: 'PST',
+  unit: 'in',
+  decimals: 2,
   rows: [
     {
       stid: 'A',
@@ -24,14 +26,21 @@ const table: PrecipAccumulationData = {
 
 describe('PrecipAccumulationTable columns', () => {
   it('shows every column when none are chosen', () => {
-    render(<PrecipAccumulationTable table={table} />)
+    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
     for (const label of ['1H', '72H', 'Last update', 'Latitude', 'Longitude', 'Elevation']) {
       expect(screen.getByText(label)).toBeInTheDocument()
     }
   })
 
   it('shows only the chosen columns, and always the station', () => {
-    render(<PrecipAccumulationTable table={table} columns={['24h', '72h', 'elevation']} />)
+    render(
+      <PrecipAccumulationTable
+        table={table}
+        unit="imperial"
+        onUnitChange={jest.fn()}
+        columns={['24h', '72h', 'elevation']}
+      />,
+    )
     expect(screen.getByText('Alta')).toBeInTheDocument()
     expect(screen.getByText('24H')).toBeInTheDocument()
     expect(screen.getByText('72H')).toBeInTheDocument()

@@ -3,13 +3,11 @@ import {
   seasonHours,
   TABLE_PERIODS,
 } from '../../src/components/WeatherStations/stationPeriods'
-import {
-  convertStationTable,
-  formatStationValue,
-} from '../../src/components/WeatherStations/stationTableUnits'
+import { withElevationsIn } from '../../src/components/WeatherStations/stationTableUnits'
 import { buildStationCsv } from '../../src/services/snowobs/csv'
 import type { StationTable } from '../../src/services/snowobs/tableHelpers'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
+import { formatReading, roundTo, seriesDecimals } from '../../src/services/snowobs/units'
 
 const table: StationTable = {
   columns: [
@@ -21,6 +19,7 @@ const table: StationTable = {
       label: 'Temp',
       longName: 'Air Temperature',
       unit: '°F',
+      decimals: 0,
       elevation: 5250,
     },
     {
@@ -31,6 +30,7 @@ const table: StationTable = {
       label: 'Pcp1',
       longName: 'Precipitation',
       unit: 'in',
+      decimals: 0,
       elevation: 5250,
     },
     {
@@ -41,6 +41,7 @@ const table: StationTable = {
       label: 'RH',
       longName: 'Relative Humidity',
       unit: '%',
+      decimals: 0,
       elevation: 5250,
     },
   ],
@@ -60,52 +61,39 @@ const table: StationTable = {
   latestDisplay: null,
 }
 
-describe('convertStationTable', () => {
-  it('converts values, units, and elevation to metric', () => {
-    const metric = convertStationTable(table, 'metric')
-    expect(metric.columns.map((c) => c.unit)).toEqual(['°C', 'mm', '%'])
+describe('withElevationsIn', () => {
+  it('converts column elevations, always feet from SnowObs, and leaves readings alone', () => {
+    const metric = withElevationsIn(table, 'metric')
     expect(metric.columns[0].elevation).toBe(1600)
-    expect(metric.rows[0].values).toEqual({
-      'nwac:4_air_temp': 0,
-      'nwac:4_precip_accum_one_hour': 25.4,
-      'nwac:4_relative_humidity': 80,
-    })
-  })
-
-  it('leaves imperial values unrounded and unconverted', () => {
-    const raw = {
-      ...table,
-      rows: [{ ...table.rows[0], values: { ...table.rows[0].values, 'nwac:4_air_temp': 29.33 } }],
-    }
-    const imperial = convertStationTable(raw, 'imperial')
-    expect(imperial.columns.map((c) => c.unit)).toEqual(['°F', 'in', '%'])
-    expect(imperial.columns[0].elevation).toBe(5250)
-    expect(imperial.rows[0].values['nwac:4_air_temp']).toBe(29.33)
+    expect(metric.rows).toBe(table.rows)
+    expect(withElevationsIn(table, 'imperial').columns[0].elevation).toBe(5250)
   })
 })
 
-describe('formatStationValue', () => {
-  it('reads precipitation to hundredths and snow to whole inches', () => {
-    expect(formatStationValue('precip_accum_one_hour', 0.034, 'imperial')).toBe('0.03')
-    expect(formatStationValue('precip_cumsum', 1.5, 'imperial')).toBe('1.50')
-    expect(formatStationValue('snow_depth', 74.51, 'imperial')).toBe('75')
-    expect(formatStationValue('snow_depth_24h', 2.46, 'imperial')).toBe('2')
-    expect(formatStationValue('snow_depth_24h', 2.5, 'imperial')).toBe('3')
-    expect(formatStationValue('snow_depth_24h', -0.4, 'imperial')).toBe('0')
-    expect(formatStationValue('snow_depth', -0.04, 'imperial')).toBe('0')
-    expect(formatStationValue('intermittent_snow', 1.4, 'imperial')).toBe('1')
+describe('seriesDecimals', () => {
+  it("reads SnowObs's rounding off the values it sent", () => {
+    expect(seriesDecimals([0, 0.03, null, 0.1])).toBe(2)
+    expect(seriesDecimals([33, 33.1, 'x'])).toBe(1)
+    expect(seriesDecimals([30, 31])).toBe(0)
+    expect(seriesDecimals([])).toBe(0)
   })
 
-  it('rounds everything else to whole numbers', () => {
-    expect(formatStationValue('air_temp', 31.4, 'imperial')).toBe('31')
-    expect(formatStationValue('relative_humidity', 95.6, 'imperial')).toBe('96')
-    expect(formatStationValue('wind_gust', 13.7, 'imperial')).toBe('14')
+  it('caps a float artifact rather than showing every digit', () => {
+    expect(seriesDecimals([0.1 + 0.2])).toBe(4)
+  })
+})
+
+describe('roundTo and formatReading', () => {
+  it("holds a derived value to the readings' precision", () => {
+    expect(roundTo(33.2333, 1)).toBe(33.2)
+    expect(roundTo(0.1 + 0.2, 2)).toBe(0.3)
   })
 
-  it('drops precipitation to one decimal in metric, where 0.01in is noise', () => {
-    expect(formatStationValue('precip_accum_one_hour', 0.762, 'metric')).toBe('0.8')
-    expect(formatStationValue('snow_depth', 189.23, 'metric')).toBe('189')
-    expect(formatStationValue('air_temp', -0.6, 'metric')).toBe('-1')
+  it('pads to the precision and reads a rounded-away negative as 0', () => {
+    expect(formatReading(1.5, 2)).toBe('1.50')
+    expect(formatReading(74.51, 0)).toBe('75')
+    expect(formatReading(-0.4, 0)).toBe('0')
+    expect(formatReading(-0.6, 0)).toBe('-1')
   })
 })
 
@@ -142,7 +130,7 @@ describe('seasonHours', () => {
   })
 })
 
-describe('buildStationCsv metric', () => {
+describe('buildStationCsv', () => {
   const response: SnowObsTimeseriesResponse = {
     UNITS: { air_temp: 'fahrenheit', snow_depth: 'inches' },
     VARIABLES: [
@@ -167,18 +155,7 @@ describe('buildStationCsv metric', () => {
     ],
   }
 
-  it('converts header units and values when metric', () => {
-    const [header, row] = buildStationCsv(
-      'nwac',
-      response,
-      { stid: '4', source: 'nwac' },
-      'metric',
-    ).split('\n')
-    expect(header).toBe('Time (PST),air_temp (°C),snow_depth (cm)')
-    expect(row.endsWith(',0,25.4')).toBe(true)
-  })
-
-  it('keeps imperial output unchanged by default', () => {
+  it('writes readings and units as SnowObs sent them', () => {
     const [header, row] = buildStationCsv('nwac', response, { stid: '4', source: 'nwac' }).split(
       '\n',
     )

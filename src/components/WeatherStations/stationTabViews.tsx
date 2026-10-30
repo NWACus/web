@@ -10,6 +10,7 @@ import {
   TABLE_MAX_CUSTOM_DAYS,
 } from '@/components/WeatherStations/stationPeriods'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
+import { withElevationsIn } from '@/components/WeatherStations/stationTableUnits'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import { resolveColumns } from '@/services/snowobs/deriveColumns'
@@ -161,15 +162,21 @@ async function tableTabView(
   const now = new Date()
   const period = resolveTablePeriod(params.period)
   const custom = parseCustomRange(params.from, params.to, TABLE_MAX_CUSTOM_DAYS, timeZone, now)
-  const response = await fetchStationTimeseries(center, subject.stations, {
-    ...tableWindow(period, custom, timeZone, now),
-    rawData: true,
-  })
-  const table = buildStationTable(center, response, resolveColumns(response, subject))
+  const range = tableWindow(period, custom, timeZone, now)
+  // SnowObs serves each system in its own units and rounding, so the table reads both.
+  const [imperial, metric] = await Promise.all([
+    fetchStationTimeseries(center, subject.stations, { ...range, units: 'imperial' }),
+    fetchStationTimeseries(center, subject.stations, { ...range, units: 'metric' }),
+  ])
+  const columns = resolveColumns(imperial, subject)
+  const tables = {
+    imperial: buildStationTable(center, imperial, columns),
+    metric: withElevationsIn(buildStationTable(center, metric, columns), 'metric'),
+  }
   return {
     tabContent: (
       <StationTableView
-        table={table}
+        tables={tables}
         activePeriodKey={period.key}
         customRange={custom}
         timeZone={timeZone}

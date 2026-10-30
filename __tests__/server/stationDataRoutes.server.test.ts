@@ -45,6 +45,22 @@ describe('station data routes', () => {
     expect(res.headers.get('Cache-Control')).toBe('public, s-maxage=60, stale-while-revalidate=60')
   })
 
+  it("graph-data reads SnowObs's metric units when asked", async () => {
+    const query = new URLSearchParams({
+      stations: 'nwac:1',
+      vars: 'air_temp',
+      from: '2026-09-27T10:00:00Z',
+      to: '2026-09-28T10:00:00Z',
+      units: 'metric',
+    })
+    await getGraphData(new Request(`https://x/weather/graph-data?${query}`), { params })
+    expect(fetchStationTimeseries).toHaveBeenLastCalledWith(
+      'nwac',
+      [nwac1],
+      expect.objectContaining({ units: 'metric' }),
+    )
+  })
+
   it('precip-data caches a minute at the CDN', async () => {
     const res = await getPrecipData(new Request('https://x/weather/precip-data?stations=nwac:1'), {
       params,
@@ -53,14 +69,29 @@ describe('station data routes', () => {
     expect(res.headers.get('Cache-Control')).toBe('public, s-maxage=60, stale-while-revalidate=60')
   })
 
-  // SnowObs rounds to whole inches otherwise, so every hourly total reads 0.
-  it('precip-data asks SnowObs for unrounded readings', async () => {
+  it('precip-data reads the requested unit system, imperial when absent', async () => {
     await getPrecipData(new Request('https://x/weather/precip-data?stations=nwac:1'), { params })
     expect(fetchStationTimeseries).toHaveBeenLastCalledWith(
       'nwac',
       [nwac1],
-      expect.objectContaining({ rawData: true }),
+      expect.objectContaining({ units: 'imperial' }),
     )
+    await getPrecipData(new Request('https://x/weather/precip-data?stations=nwac:1&units=metric'), {
+      params,
+    })
+    expect(fetchStationTimeseries).toHaveBeenLastCalledWith(
+      'nwac',
+      [nwac1],
+      expect.objectContaining({ units: 'metric' }),
+    )
+  })
+
+  it('precip-data rejects an unknown unit system', async () => {
+    const res = await getPrecipData(
+      new Request('https://x/weather/precip-data?stations=nwac:1&units=kelvin'),
+      { params },
+    )
+    expect(res.status).toBe(400)
   })
 
   // A retired gauge left on a block must not blank the rest of the table.
@@ -80,7 +111,7 @@ describe('station data routes', () => {
       params,
     })
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({ rows: [], timezoneLabel: '' })
+    expect(await res.json()).toEqual({ rows: [], timezoneLabel: '', unit: '', decimals: 0 })
     expect(fetchStationTimeseries).not.toHaveBeenCalled()
   })
 })

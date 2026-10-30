@@ -76,7 +76,7 @@ function pickOption(name: string) {
   fireEvent.click(screen.getByRole('option', { name }))
 }
 
-function series(stid: string, variable = 'air_temp'): GraphData['series'][number] {
+function series(stid: string, variable = 'air_temp', decimals = 1): GraphData['series'][number] {
   return {
     kind: 'raw',
     key: `nwac:${stid}`,
@@ -86,6 +86,7 @@ function series(stid: string, variable = 'air_temp'): GraphData['series'][number
     variable,
     label: `Station ${stid}`,
     unit: '°F',
+    decimals,
     points: [[1_700_000_000_000, 30]],
   }
 }
@@ -154,14 +155,15 @@ describe('buildChartOption precision and bar rendering', () => {
     return String(formatter({ value }))
   }
 
-  it('formats tooltip values to one decimal with the unit appended', () => {
+  it('formats tooltip values at the precision SnowObs sends, with the unit appended', () => {
     expect(tooltipFormat(buildChartOption(data, TEMP_PRESET), 31.26)).toBe('31.3 °F')
-    expect(tooltipFormat(buildChartOption(data, BAR_PRESET), 0.16)).toBe('0.2 °F')
     expect(tooltipFormat(buildChartOption(data, TEMP_PRESET), Number.NaN)).toBe('–')
+    const precip: GraphData = { ...data, series: [series('1', 'precip_accum_one_hour', 2)] }
+    expect(tooltipFormat(buildChartOption(precip, BAR_PRESET), 0.03)).toBe('0.03 °F')
   })
 
-  it('formats snow tooltips to the whole inch, as the tables do', () => {
-    const snow: GraphData = { ...data, series: [series('1', 'snow_depth')] }
+  it('formats whole-number readings, like snow, without a decimal', () => {
+    const snow: GraphData = { ...data, series: [series('1', 'snow_depth', 0)] }
     expect(tooltipFormat(buildChartOption(snow, TEMP_PRESET), 74.51)).toBe('75 °F')
   })
 
@@ -197,6 +199,7 @@ describe('buildChartOption wind band', () => {
       variable,
       label: 'Station 1',
       unit: 'mph',
+      decimals: 1,
       points: [[T, value]],
     }
   }
@@ -300,6 +303,14 @@ describe('StationGraphs compare picker', () => {
     const urls = fetchedUrls()
     const expected = [...keysOf(current), ...keysOf(third)].join(',')
     expect(urls[urls.length - 1]).toContain(`stations=${encodeURIComponent(expected)}`)
+  })
+
+  it("refetches in SnowObs's metric units when the reader switches to metric", () => {
+    renderGraphs()
+    expect(fetchedUrls()[0]).toContain('units=imperial')
+    fireEvent.click(screen.getAllByRole('button', { name: 'Metric' })[0])
+    expect(fetchedUrls().at(-1)).toContain('units=metric')
+    window.localStorage.clear()
   })
 
   it('shows removable chips for compared stations in the toolbar', () => {

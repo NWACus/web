@@ -31,10 +31,14 @@ export const dynamic = 'force-dynamic'
 
 const UNITS: SnowObsUnits[] = ['default', 'english', 'metric']
 
-/** The requested units, or `default` — an unknown value is not forwarded to SnowObs. */
+/**
+ * The requested units, or `default` — an unknown value is not forwarded to SnowObs. English asks
+ * for `default` too: SnowObs's English ignores a center's units (pressure in inHg, not millibar).
+ */
 function requestedUnits(request: NextRequest): SnowObsUnits {
   const units = request.nextUrl.searchParams.get('units')
-  return UNITS.find((known) => known === units) ?? 'default'
+  const known = UNITS.find((unit) => unit === units) ?? 'default'
+  return known === 'english' ? 'default' : known
 }
 
 /**

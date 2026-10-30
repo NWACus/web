@@ -1,9 +1,9 @@
 'use client'
 
 import type { StationTable } from '@/services/snowobs/tableHelpers'
+import type { UnitSystem } from '@/services/snowobs/units'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { useMemo } from 'react'
 import { StationLatestObservation } from './StationLatestObservation'
 import { StationNowTable } from './StationNowTable'
 import type { DateRange } from './stationPeriods'
@@ -14,7 +14,6 @@ import {
   todayInZone,
 } from './stationPeriods'
 import { StationRangePicker } from './StationRangePicker'
-import { convertStationTable } from './stationTableUnits'
 import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 
@@ -60,13 +59,14 @@ function LatestObservation({
 }
 
 export function StationTableView({
-  table,
+  tables,
   activePeriodKey,
   customRange,
   timeZone,
   tabs,
 }: {
-  table: StationTable
+  /** Both systems, built server-side, so the unit toggle is instant. */
+  tables: Record<UnitSystem, StationTable>
   /** The preset in force; a valid custom range overrides it. */
   activePeriodKey: string
   customRange: DateRange | null
@@ -74,7 +74,7 @@ export function StationTableView({
   tabs?: ReactNode
 }) {
   const [unitSystem, changeUnitSystem] = useUnitSystem()
-  const display = useMemo(() => convertStationTable(table, unitSystem), [table, unitSystem])
+  const table = tables[unitSystem]
   return (
     <div className="flex flex-col gap-2">
       {/* Not pinned: it would sit on top of the frozen table header. */}
@@ -92,11 +92,7 @@ export function StationTableView({
           </div>
         </div>
       </StationViewBar>
-      <StationNowTable
-        table={display}
-        elevationUnit={unitSystem === 'metric' ? ' m' : undefined}
-        unitSystem={unitSystem}
-      />
+      <StationNowTable table={table} elevationUnit={unitSystem === 'metric' ? ' m' : undefined} />
     </div>
   )
 }

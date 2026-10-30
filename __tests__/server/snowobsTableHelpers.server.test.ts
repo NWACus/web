@@ -54,15 +54,16 @@ const columnConfig = [
 
 describe('computePrecipCumsum', () => {
   it('runs a cumulative total, passing nulls through without advancing the sum', () => {
-    expect(computePrecipCumsum([0.1, 0.2, null, 0.3])).toEqual([0.1, 0.3, null, 0.6])
+    expect(computePrecipCumsum([0.1, 0.2, null, 0.3], 1)).toEqual([0.1, 0.3, null, 0.6])
   })
 
-  it('rounds to two decimals to avoid float drift', () => {
-    expect(computePrecipCumsum([0.1, 0.2])).toEqual([0.1, 0.3])
+  it("holds the total to the readings' precision, clearing float drift", () => {
+    expect(computePrecipCumsum([0.1, 0.2], 1)).toEqual([0.1, 0.3])
+    expect(computePrecipCumsum([0.01, 0.02, 0.05], 2)).toEqual([0.01, 0.03, 0.08])
   })
 
   it('handles an all-null series', () => {
-    expect(computePrecipCumsum([null, null])).toEqual([null, null])
+    expect(computePrecipCumsum([null, null], 2)).toEqual([null, null])
   })
 })
 

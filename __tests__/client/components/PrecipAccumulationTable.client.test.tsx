@@ -4,7 +4,7 @@ import type {
   PrecipAccumulationRow,
 } from '@/services/snowobs/tableHelpers'
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 
 function buildRow(overrides: Partial<PrecipAccumulationRow>): PrecipAccumulationRow {
   return {
@@ -45,7 +45,12 @@ const mist = buildRow({
   hasData: false,
 })
 
-const table: PrecipAccumulationData = { rows: [zeta, alta, mist], timezoneLabel: 'PDT' }
+const table: PrecipAccumulationData = {
+  rows: [zeta, alta, mist],
+  timezoneLabel: 'PDT',
+  unit: 'in',
+  decimals: 2,
+}
 
 function bodyRowNames(): string[] {
   // Skip the header row; the station name is each body row's first cell.
@@ -57,7 +62,7 @@ function bodyRowNames(): string[] {
 
 describe('PrecipAccumulationTable', () => {
   it('renders rows in server order with missing stations collapsed', () => {
-    render(<PrecipAccumulationTable table={table} />)
+    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
 
     expect(bodyRowNames()).toEqual(['Zeta', 'Alta', 'Mist'])
     expect(screen.getByText('missing')).toHaveAttribute('colspan', '7')
@@ -66,7 +71,7 @@ describe('PrecipAccumulationTable', () => {
   })
 
   it('sorts a window column descending first, keeping null totals last', () => {
-    render(<PrecipAccumulationTable table={table} />)
+    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
 
     fireEvent.click(screen.getByTitle('Sort by 72H'))
     expect(bodyRowNames()).toEqual(['Alta', 'Zeta', 'Mist'])
@@ -76,14 +81,14 @@ describe('PrecipAccumulationTable', () => {
   })
 
   it('sorts by station name ascending first', () => {
-    render(<PrecipAccumulationTable table={table} />)
+    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
 
     fireEvent.click(screen.getByTitle('Sort by Station'))
     expect(bodyRowNames()).toEqual(['Alta', 'Mist', 'Zeta'])
   })
 
   it('sorts last update by timestamp with never-reported stations last', () => {
-    render(<PrecipAccumulationTable table={table} />)
+    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
 
     fireEvent.click(screen.getByTitle('Sort by Last update'))
     expect(bodyRowNames()).toEqual(['Zeta', 'Alta', 'Mist'])
@@ -92,25 +97,39 @@ describe('PrecipAccumulationTable', () => {
     expect(bodyRowNames()).toEqual(['Alta', 'Zeta', 'Mist'])
   })
 
-  it('converts totals and elevation when toggled to metric', () => {
-    render(<PrecipAccumulationTable table={table} />)
-
+  it('shows totals in the unit and precision SnowObs sent, converting only elevation', () => {
+    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
     expect(screen.getByText('0.10')).toBeInTheDocument()
     expect(screen.getByText('4,000')).toBeInTheDocument()
+    cleanup()
 
-    fireEvent.click(screen.getByText('Metric'))
-
-    // 0.1 in -> 2.5 mm; 4000 ft -> 1219 m.
+    const metric = {
+      ...table,
+      unit: 'mm',
+      decimals: 1,
+      rows: [{ ...zeta, totals: { ...zeta.totals, 1: 2.5 } }, alta, mist],
+    }
+    render(<PrecipAccumulationTable table={metric} unit="metric" onUnitChange={jest.fn()} />)
+    // 4000 ft -> 1219 m; the totals arrive in mm.
     expect(screen.getByText('2.5')).toBeInTheDocument()
     expect(screen.getByText('1,219')).toBeInTheDocument()
     expect(screen.getAllByText('mm')).toHaveLength(7)
     expect(screen.getByText('m')).toBeInTheDocument()
   })
 
+  it('asks for the other unit system when toggled', () => {
+    const onUnitChange = jest.fn()
+    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={onUnitChange} />)
+    fireEvent.click(screen.getByText('Metric'))
+    expect(onUnitChange).toHaveBeenCalledWith('metric')
+  })
+
   it('renders columns in the chosen order, collapsing each run of windows', () => {
     render(
       <PrecipAccumulationTable
         table={table}
+        unit="imperial"
+        onUnitChange={jest.fn()}
         columns={['elevation', '24h', '1h', 'lastUpdate', '72h']}
       />,
     )
@@ -133,7 +152,13 @@ describe('PrecipAccumulationTable', () => {
   })
 
   it('renders an empty state when there are no rows', () => {
-    render(<PrecipAccumulationTable table={{ rows: [], timezoneLabel: '' }} />)
+    render(
+      <PrecipAccumulationTable
+        table={{ rows: [], timezoneLabel: '', unit: '', decimals: 0 }}
+        unit="imperial"
+        onUnitChange={jest.fn()}
+      />,
+    )
 
     expect(
       screen.getByText('No precipitation readings from these stations in the last 72 hours.'),

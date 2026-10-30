@@ -1,6 +1,6 @@
 'use client'
 
-import type { UnitSystem } from '@/services/snowobs/metricUnits'
+import type { UnitSystem } from '@/services/snowobs/units'
 import { readLocalStorage, writeLocalStorage } from '@/utilities/safeLocalStorage'
 import { cn } from '@/utilities/ui'
 import { useEffect, useState } from 'react'

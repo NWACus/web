@@ -5,6 +5,7 @@ import { buildStationCsv } from './csv'
 import { fetchStationTimeseries } from './snowobs'
 import type { StationRef } from './stationKey'
 import { parseStationKey, stationKey } from './stationKey'
+import { parseUnitSystem } from './units'
 
 const MIN_YEAR = 2016
 
@@ -36,8 +37,8 @@ export async function stationCsvDownload(
   if (!Number.isInteger(year) || year < MIN_YEAR || year > currentYear) {
     return new Response('Invalid year', { status: 400 })
   }
-  const units = url.searchParams.get('units') ?? 'imperial'
-  if (units !== 'imperial' && units !== 'metric') {
+  const units = parseUnitSystem(url.searchParams.get('units'))
+  if (!units) {
     return new Response('Invalid units', { status: 400 })
   }
   if (!(await passesCaptcha(url.searchParams.get('cf-turnstile-response')))) {
@@ -53,9 +54,9 @@ export async function stationCsvDownload(
     start,
     end,
     revalidate: 3600,
-    rawData: true,
+    units,
   })
-  const csv = buildStationCsv(center, response, datalogger, units)
+  const csv = buildStationCsv(center, response, datalogger)
 
   return new Response(csv, {
     headers: {

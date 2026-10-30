@@ -10,6 +10,8 @@ const STATIONS = [
 
 const TABLE: PrecipAccumulationTable = {
   timezoneLabel: 'PST',
+  unit: 'in',
+  decimals: 2,
   rows: [
     {
       stid: '1',
@@ -48,7 +50,7 @@ describe('PrecipTableClient', () => {
 
     await waitFor(() => expect(screen.getByText('Alpental Base')).toBeInTheDocument())
     expect(urls[0]).toBe(
-      `/weather/precip-data?stations=${encodeURIComponent('nwac:1,snotel:1011')}`,
+      `/weather/precip-data?stations=${encodeURIComponent('nwac:1,snotel:1011')}&units=imperial`,
     )
   })
 

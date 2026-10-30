@@ -1,9 +1,9 @@
 'use client'
 
 import type { GraphData } from '@/services/snowobs/graph'
-import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
+import type { UnitSystem } from '@/services/snowobs/units'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
@@ -15,7 +15,8 @@ import type { EditViewProps, GraphRange } from './EditViewDialog'
 import { CompareChips, CompareSelect, EditViewDialog, GraphRangePicker } from './EditViewDialog'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
-import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
+import { presetFor } from './stationGraphPresets'
+import { clampNegativeValues } from './stationGraphUnits'
 import { customRangeBounds, DEFAULT_GRAPH_PERIOD } from './stationPeriods'
 import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
@@ -40,23 +41,31 @@ function graphWindow(range: GraphRange, timeZone: string): { from: Date; to: Dat
   return { from, to: to ?? now }
 }
 
-function graphDataUrl(stations: StationRef[], variables: string[], from: Date, to: Date): string {
+function graphDataUrl(
+  stations: StationRef[],
+  variables: string[],
+  from: Date,
+  to: Date,
+  units: UnitSystem,
+): string {
   const params = new URLSearchParams({
     stations: stations.map(stationKey).join(','),
     vars: variables.join(','),
     from: from.toISOString(),
     to: to.toISOString(),
+    units,
   })
   return `/weather/graph-data?${params.toString()}`
 }
 
 // One fetch serves every chart: the union of all preset variables for all
-// selected stations.
+// selected stations, in the reader's unit system.
 function useGraphData(
   stations: StationRef[],
   variables: string[],
   range: GraphRange,
   timeZone: string,
+  units: UnitSystem,
 ) {
   const [data, setData] = useState<GraphData | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -67,7 +76,7 @@ function useGraphData(
     const controller = new AbortController()
     setError(null)
     setLoading(true)
-    fetch(graphDataUrl(stations, variables, from, to), { signal: controller.signal })
+    fetch(graphDataUrl(stations, variables, from, to, units), { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
       .then(setData)
       .catch((err: unknown) => {
@@ -77,7 +86,7 @@ function useGraphData(
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [stations, variables, range, timeZone])
+  }, [stations, variables, range, timeZone, units])
 
   return { data, error, loading }
 }
@@ -109,11 +118,10 @@ function PresetChart({
       ...data,
       series: data.series.filter((s) => preset.variables.includes(s.variable)),
     }
-    const clamped = preset.allowNegative ? filtered : clampNegativeValues(filtered)
-    return convertGraphData(clamped, unitSystem)
-  }, [data, preset, unitSystem])
+    return preset.allowNegative ? filtered : clampNegativeValues(filtered)
+  }, [data, preset])
   const option = useMemo(
-    () => buildChartOption(presetData, convertPreset(preset, unitSystem), primaryKeys),
+    () => buildChartOption(presetData, presetFor(preset, unitSystem), primaryKeys),
     [presetData, preset, unitSystem, primaryKeys],
   )
   return <EChart option={option} group="station-graphs" />
@@ -267,7 +275,13 @@ export function StationGraphs({
     [presets],
   )
 
-  const { data, error, loading } = useGraphData(allStations, variables, graphRange, timeZone)
+  const { data, error, loading } = useGraphData(
+    allStations,
+    variables,
+    graphRange,
+    timeZone,
+    unitSystem,
+  )
 
   const emptyKeys = useMemo(() => emptyPresetKeys(data, presets), [data, presets])
 

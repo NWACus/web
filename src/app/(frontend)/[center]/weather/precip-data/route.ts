@@ -3,6 +3,7 @@ import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { parseStationKeys, stationKey } from '@/services/snowobs/stationKey'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { unknownStationKeys } from '@/services/snowobs/trackedStations'
+import { parseUnitSystem } from '@/services/snowobs/units'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import config from '@payload-config'
 import { NextResponse } from 'next/server'
@@ -35,6 +36,8 @@ export async function GET(
   const url = new URL(request.url)
   const requested = parseStationKeys(url.searchParams.get('stations'), MAX_STATIONS)
   if (typeof requested === 'string') return badRequest(requested)
+  const units = parseUnitSystem(url.searchParams.get('units'))
+  if (!units) return badRequest('units must be imperial or metric')
 
   try {
     // This serves a center's own gauges, not whatever SnowObs will answer for. A gauge
@@ -50,13 +53,9 @@ export async function GET(
       )
     }
     // One 72h fetch covers every trailing window (1H..72H are sums over it).
-    // Rounded data gives whole inches, so every hourly gauge reading is 0.
     const response =
       tracked.length > 0
-        ? await fetchStationTimeseries(center, tracked, {
-            windowHours: WINDOW_HOURS,
-            rawData: true,
-          })
+        ? await fetchStationTimeseries(center, tracked, { windowHours: WINDOW_HOURS, units })
         : { UNITS: {}, VARIABLES: [], STATION: [] }
     return NextResponse.json(buildPrecipAccumulationTable(center, response, tracked), {
       headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },

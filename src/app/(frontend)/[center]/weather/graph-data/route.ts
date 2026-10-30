@@ -8,6 +8,8 @@ import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKey } from '@/services/snowobs/stationKey'
 import { unknownStationKeys } from '@/services/snowobs/trackedStations'
+import type { UnitSystem } from '@/services/snowobs/units'
+import { parseUnitSystem } from '@/services/snowobs/units'
 import type { AssembledStationPage } from '@/services/stations/getStationPages'
 import { allStations, getStationPages } from '@/services/stations/getStationPages'
 import { unknownCenterResponse } from '@/utilities/apiResponses'
@@ -78,17 +80,27 @@ function dateParam(url: URL, name: string): Date {
   return new Date(url.searchParams.get(name) ?? '')
 }
 
-type GraphQuery = { keys: string[]; stations: StationRef[]; vars: string[]; from: Date; to: Date }
+type GraphQuery = {
+  keys: string[]
+  stations: StationRef[]
+  vars: string[]
+  from: Date
+  to: Date
+  units: UnitSystem
+}
 
 function parseQuery(url: URL, pages: AssembledStationPage[]): NextResponse | GraphQuery {
   const keys = csvParam(url.searchParams.get('stations'))
   const vars = csvParam(url.searchParams.get('vars'))
   const from = dateParam(url, 'from')
   const to = dateParam(url, 'to')
+  const units = parseUnitSystem(url.searchParams.get('units'))
   const error = validateLists(keys, vars, pages) ?? validateWindow(from, to)
   if (error) return badRequest(error)
+  if (!units) return badRequest('units must be imperial or metric')
   // Every key passed validation, so each parses.
-  return { keys, stations: keys.flatMap((key) => parseStationKey(key) ?? []), vars, from, to }
+  const stations = keys.flatMap((key) => parseStationKey(key) ?? [])
+  return { keys, stations, vars, from, to, units }
 }
 
 // A station page's own stations pass without a SnowObs read; anything else,
@@ -122,7 +134,7 @@ export async function GET(
 
   const parsed = parseQuery(new URL(request.url), pages)
   if (parsed instanceof NextResponse) return parsed
-  const { keys, stations, vars, from, to } = parsed
+  const { keys, stations, vars, from, to, units } = parsed
 
   try {
     const rejected = await unknownStations(center, keys, pages)
@@ -130,7 +142,7 @@ export async function GET(
     const response = await fetchStationTimeseries(center, stations, {
       start: from,
       end: to,
-      rawData: true,
+      units,
     })
     const data = buildGraphData(center, response, stations, vars, windowExceedsThreshold(from, to))
     return NextResponse.json(data, {

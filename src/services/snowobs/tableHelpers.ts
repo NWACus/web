@@ -12,6 +12,7 @@ import {
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
 import type { SnowObsObservations, SnowObsTimeseriesResponse } from './types/schemas'
+import { roundTo, seriesDecimals } from './units'
 
 export type StationColumnConfig = { station: StationRef; variable: string }
 
@@ -23,6 +24,8 @@ export type TableColumn = {
   label: string
   longName: string
   unit: string
+  /** The precision SnowObs rounds this column's readings to. */
+  decimals: number
   elevation: number | null
 }
 
@@ -41,13 +44,16 @@ export type StationTable = {
   latestDisplay: string | null
 }
 
-// Running cumulative precip; nulls pass through and don't advance the total.
-export function computePrecipCumsum(values: (number | null)[]): (number | null)[] {
+// Running cumulative precip at the readings' precision; nulls pass through and don't advance it.
+export function computePrecipCumsum(
+  values: (number | null)[],
+  decimals: number,
+): (number | null)[] {
   let sum = 0
   return values.map((v) => {
     if (v === null) return null
     sum += v
-    return Number(sum.toFixed(2))
+    return roundTo(sum, decimals)
   })
 }
 
@@ -150,6 +156,7 @@ function columnMeta(
   ref: StationRef,
   variable: string,
   station: ResponseStation | undefined,
+  series: (number | null)[] | undefined,
   longNameByVariable: Map<string, string>,
   units: Record<string, string>,
 ): TableColumn {
@@ -163,7 +170,8 @@ function columnMeta(
     longName: isCumsum
       ? 'Cumulative Precipitation'
       : (longNameByVariable.get(variable) ?? variable),
-    unit: isCumsum ? 'in' : displayUnit(units[variable]),
+    unit: displayUnit(units[isCumsum ? PRECIP_HOURLY : variable]),
+    decimals: seriesDecimals(series ?? []),
     elevation: station?.elevation ?? null,
   }
 }
@@ -196,6 +204,9 @@ export type PrecipAccumulationRow = {
 export type PrecipAccumulationTable = {
   rows: PrecipAccumulationRow[]
   timezoneLabel: string
+  /** The totals' unit and precision: hourly precip's, as SnowObs sends it. */
+  unit: string
+  decimals: number
 }
 
 // One row per requested station, in the order requested (the block's station
@@ -211,7 +222,12 @@ function latestMs(times: string[]): number {
 }
 
 // Sum of non-null hourly values observed after `cutoff`; null when none.
-function trailingSum(times: string[], hourly: (number | null)[], cutoff: number): number | null {
+function trailingSum(
+  times: string[],
+  hourly: (number | null)[],
+  cutoff: number,
+  decimals: number,
+): number | null {
   let sum = 0
   let observed = false
   times.forEach((iso, i) => {
@@ -222,7 +238,7 @@ function trailingSum(times: string[], hourly: (number | null)[], cutoff: number)
     sum += v
     observed = true
   })
-  return observed ? Number(sum.toFixed(2)) : null
+  return observed ? roundTo(sum, decimals) : null
 }
 
 function accumulationRow(
@@ -230,6 +246,7 @@ function accumulationRow(
   station: ResponseStation,
   anchorMs: number,
   timeZone: string,
+  decimals: number,
 ): PrecipAccumulationRow {
   const { stid, source } = ref
   const times = timeSeries(station.observations)
@@ -238,7 +255,7 @@ function accumulationRow(
 
   const totals: Record<number, number | null> = {}
   for (const hours of PRECIP_ACCUMULATION_WINDOWS) {
-    totals[hours] = trailingSum(times, hourly, anchorMs - hours * 60 * 60 * 1000)
+    totals[hours] = trailingSum(times, hourly, anchorMs - hours * 60 * 60 * 1000, decimals)
   }
 
   return {
@@ -282,12 +299,19 @@ export function buildPrecipAccumulationTable(
     ...stations.map(({ station }) => latestMs(timeSeries(station.observations))),
   )
   const withTimes = stations.find(({ station }) => timeSeries(station.observations).length > 0)
+  const decimals = seriesDecimals(
+    stations.flatMap(({ station }) => station.observations[PRECIP_HOURLY] ?? []),
+  )
 
   return {
-    rows: stations.map(({ ref, station }) => accumulationRow(ref, station, anchorMs, timeZone)),
+    rows: stations.map(({ ref, station }) =>
+      accumulationRow(ref, station, anchorMs, timeZone, decimals),
+    ),
     timezoneLabel: withTimes
       ? timezoneLabelFor(timeSeries(withTimes.station.observations)[0], timeZone)
       : '',
+    unit: displayUnit(response.UNITS[PRECIP_HOURLY]),
+    decimals,
   }
 }
 
@@ -333,9 +357,15 @@ function hourlyValues(
 
 // The running total over the hourly values, oldest first, so a station that
 // reports a rolling hour every five minutes isn't counted twelve times.
-function hourlyCumsum(hourly: Map<number, number | null>): Map<number, number | null> {
+function hourlyCumsum(
+  hourly: Map<number, number | null>,
+  decimals: number,
+): Map<number, number | null> {
   const hours = Array.from(hourly.keys()).sort((a, b) => a - b)
-  const sums = computePrecipCumsum(hours.map((h) => hourly.get(h) ?? null))
+  const sums = computePrecipCumsum(
+    hours.map((h) => hourly.get(h) ?? null),
+    decimals,
+  )
   return new Map(hours.map((h, i) => [h, sums[i]]))
 }
 
@@ -358,7 +388,7 @@ function columnHours(
   if (!station || !series) return new Map()
   const precip = variable === PRECIP_HOURLY || variable === PRECIP_CUMSUM
   const hourly = hourlyValues(timeSeries(station.observations), series, now, precip)
-  return variable === PRECIP_CUMSUM ? hourlyCumsum(hourly) : hourly
+  return variable === PRECIP_CUMSUM ? hourlyCumsum(hourly, seriesDecimals(series)) : hourly
 }
 
 function latestReading(response: SnowObsTimeseriesResponse): number | null {
@@ -402,7 +432,7 @@ export function buildStationTable(
     // it, mirroring the legacy plugin which logs and drops such columns.
     if (!series && !longNameByVariable.has(variable) && variable !== PRECIP_CUMSUM) return
 
-    columns.push(columnMeta(ref, variable, station, longNameByVariable, response.UNITS))
+    columns.push(columnMeta(ref, variable, station, series, longNameByVariable, response.UNITS))
     const lookup = columnHours(station, variable, series, now)
     for (const hour of lookup.keys()) allHours.add(hour)
     valueByColumn.set(key, lookup)

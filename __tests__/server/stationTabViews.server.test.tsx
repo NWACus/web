@@ -26,13 +26,15 @@ beforeEach(() => {
 })
 
 describe('the Table tab', () => {
-  it('caches its SnowObs request for 60 seconds, as SnowObs does', async () => {
+  it('reads both unit systems, each cached for 60 seconds as SnowObs does', async () => {
     await resolveTabView(context, 'table', {})
-    expect(fetchStationTimeseriesMock).toHaveBeenCalledWith(
-      'nwac',
-      context.subject.stations,
-      expect.objectContaining({ rawData: true, revalidate: 60, windowHours: 24 }),
-    )
+    for (const units of ['imperial', 'metric']) {
+      expect(fetchStationTimeseriesMock).toHaveBeenCalledWith(
+        'nwac',
+        context.subject.stations,
+        expect.objectContaining({ units, revalidate: 60, windowHours: 24 }),
+      )
+    }
   })
 
   it('reads a valid custom range as whole days in the center zone', async () => {
