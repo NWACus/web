@@ -1,35 +1,37 @@
 'use client'
 
-import type { UnitSystem } from '@/services/snowobs/metricUnits'
+import type { StationUnits } from '@/services/snowobs/units'
 import { readLocalStorage, writeLocalStorage } from '@/utilities/safeLocalStorage'
 import { cn } from '@/utilities/ui'
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'nwac-station-graph-units'
 
-// Unit choice persisted per browser; localStorage is browser-only, so the
-// stored choice loads after mount.
-export function useUnitSystem(): [UnitSystem, (system: UnitSystem) => void] {
-  const [unitSystem, setUnitSystem] = useState<UnitSystem>('imperial')
+// Unit choice persisted per browser. localStorage loads after mount, so `loaded` lets a fetch
+// wait for it rather than fetch the default first.
+export function useStationUnits(): [StationUnits, (units: StationUnits) => void, boolean] {
+  const [units, setUnits] = useState<StationUnits>('default')
+  const [loaded, setLoaded] = useState(false)
   useEffect(() => {
-    setUnitSystem(readLocalStorage(STORAGE_KEY) === 'metric' ? 'metric' : 'imperial')
+    setUnits(readLocalStorage(STORAGE_KEY) === 'metric' ? 'metric' : 'default')
+    setLoaded(true)
   }, [])
-  const changeUnitSystem = (system: UnitSystem) => {
-    setUnitSystem(system)
-    writeLocalStorage(STORAGE_KEY, system)
+  const changeUnits = (next: StationUnits) => {
+    setUnits(next)
+    writeLocalStorage(STORAGE_KEY, next)
   }
-  return [unitSystem, changeUnitSystem]
+  return [units, changeUnits, loaded]
 }
 
 export function UnitToggle({
   unit,
   onChange,
 }: {
-  unit: UnitSystem
-  onChange: (unit: UnitSystem) => void
+  unit: StationUnits
+  onChange: (unit: StationUnits) => void
 }) {
   // Abbreviated on phones, where the full words ate most of the screen width.
-  const chip = (system: UnitSystem, text: string, short: string) => (
+  const chip = (system: StationUnits, text: string, short: string) => (
     <button
       type="button"
       onClick={() => onChange(system)}
@@ -54,7 +56,7 @@ export function UnitToggle({
           unit === 'metric' && 'translate-x-12 sm:translate-x-20',
         )}
       />
-      {chip('imperial', 'Imperial', 'Imp')}
+      {chip('default', 'Imperial', 'Imp')}
       {chip('metric', 'Metric', 'Met')}
     </div>
   )

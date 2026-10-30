@@ -1,20 +1,17 @@
 import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
-import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
+import { formatReading } from '@/services/snowobs/units'
 import { cn } from '@/utilities/ui'
 import { StationTableFrame, StationTableHeader } from './StationTableFrame'
-import { formatStationValue } from './stationTableUnits'
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
 export function StationNowTable({
   table,
   elevationUnit = "'",
-  unitSystem = 'imperial',
 }: {
   table: StationTable
   elevationUnit?: string
-  unitSystem?: UnitSystem
 }) {
   if (table.rows.length === 0) {
     return <p className="text-muted-foreground">No station observations in this period.</p>
@@ -67,7 +64,7 @@ export function StationNowTable({
                     value == null && 'text-muted-foreground',
                   )}
                 >
-                  {value == null ? '–' : formatStationValue(column.variable, value, unitSystem)}
+                  {value == null ? '–' : formatReading(value, column.decimals)}
                 </TableCell>
               )
             })}

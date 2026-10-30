@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { SNOWOBS_API, SnowObsError, snowObsFetch } from './access'
+import { resolveSnowObsToken, SNOWOBS_API, SnowObsError, snowObsFetch } from './access'
+import { logSnowObsError } from './snowobs'
 
 // The stations a center's forecasters have curated in SnowObs, across every
 // source the center uses (NWAC: its own loggers plus SNOTEL and Mesowest).
@@ -104,6 +105,35 @@ export async function fetchCatalogue(token: string, source: string): Promise<Tra
     { source },
   )
   return (stations ?? []).map((s) => toStation(s, false))
+}
+
+const trackedVariableSchema = z.object({
+  variable: z.string(),
+  rounding: z.number().int().nonnegative().nullish(),
+})
+
+export type VariableRounding = Record<string, number>
+
+// Decimals per variable from the center's SnowObs config; empty on failure, so readings fall
+// back to their own precision.
+export async function fetchVariableRounding(centerSlug: string): Promise<VariableRounding> {
+  try {
+    const token = await resolveSnowObsToken(centerSlug)
+    const variables = await readClientFeed(
+      'variable/tracking/',
+      token,
+      z.array(trackedVariableSchema),
+      'variable tracking',
+    )
+    return Object.fromEntries(
+      (variables ?? []).flatMap(({ variable, rounding }) =>
+        rounding == null ? [] : [[variable, rounding]],
+      ),
+    )
+  } catch (error) {
+    await logSnowObsError('fetchVariableRounding', error, { centerSlug }, 'warn')
+    return {}
+  }
 }
 
 // Pure so it can be tested: catalogue stations not on the tracking list join

@@ -32,7 +32,6 @@ export async function fetchReportedReadings(
   const response = await fetchStationTimeseries(center, stations, {
     windowHours: resolveTablePeriod(undefined).hoursBack(new Date(), centerTimezone(center)),
     revalidate: 60,
-    rawData: true,
   })
   const readings = readingsByStation(response, stations)
   const quiet = stations.filter((s) => readings[stationKey(s)].length === 0)
@@ -51,7 +50,6 @@ export async function fetchReportedReadings(
         start: subHours(end, 24),
         end,
         revalidate: PAST_DAY_REVALIDATE,
-        rawData: true,
       }).catch(() => null)
       if (!lastDay) return
       readings[stationKey(station)] = readingsByStation(lastDay, [station])[stationKey(station)]

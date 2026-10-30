@@ -90,6 +90,7 @@ describe('aggregateDaily', () => {
         [T0 + 48 * HOUR, 20],
       ],
       'America/Los_Angeles',
+      0,
     )
     expect(days).toHaveLength(2)
     expect(days[0][1]).toBe(10)
@@ -122,6 +123,7 @@ describe('vectorMeanDegrees', () => {
         [Date.UTC(2026, 0, 10, 13), 10],
       ],
       'America/Los_Angeles',
+      0,
       true,
     )
     expect(days[0].slice(1)).toEqual([0, 0, 0])

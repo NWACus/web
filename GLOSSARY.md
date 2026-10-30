@@ -197,6 +197,10 @@ The per-Tenant × per-Product `nativeProducts` checkbox in Settings that decides
 A per-center boolean from the NAC capability feed — `forecasts`, `warnings`, `stations`, `obs`, `weather` — declaring whether a center _has_ that product at all. Read-only to AvyWeb and evaluated **above** the Rollout flag: no capability, no page, whatever Settings says.
 _Note_: NWAC's `weather` is `false` — NWAC authors mountain weather in its own system rather than in AFP.
 
+**Tracked Variable**:
+A kind of weather-station reading (air temperature, hourly precipitation, pressure…) as a center configures it in SnowObs: its display name, its unit in default, English and metric, and how many decimals it keeps. That configuration decides what readers see — AvyWeb shows readings as SnowObs sends them rather than converting or re-rounding.
+_Avoid_: sensor, column mapping, variable mapping
+
 **Mountain Weather Forecast (MWF)**:
 NWAC's in-house mountain weather product, migrating out of a legacy app into the AFP's `products-api`. Served exclusively by dedicated `/mwf/*` endpoints, so unlike every other Product it has no legacy v2 equivalent to fall back to — "default to v2" is a per-Product default, not an invariant. AvyWeb renders it natively for NWAC behind NWAC's `weather` Rollout flag, which otherwise has nothing to gate there.
 _Contrast_: the traditional weather product, which other centers author in AFP and which a forecast points at via `weather_data.weather_product_id`. MWF has no such pointer — its morning and afternoon forecasts derive from center plus service date.

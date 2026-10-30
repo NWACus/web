@@ -65,16 +65,13 @@ function captureTokenParam(): string[] {
   return seen
 }
 
-const warnMock = jest.fn()
-
 beforeEach(() => {
-  warnMock.mockClear()
   mockAfpToken('afp-token')
   // Error paths log via payload; return a stub logger so they don't hit the console fallback.
   jest
     .mocked(getPayload)
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    .mockResolvedValue({ logger: { error: jest.fn(), warn: warnMock } } as unknown as Payload)
+    .mockResolvedValue({ logger: { error: jest.fn() } } as unknown as Payload)
 })
 
 describe('fetchStationTimeseries', () => {
@@ -97,7 +94,7 @@ describe('fetchStationTimeseries', () => {
     expect(result.STATION[0].observations.air_temp).toEqual([30])
   })
 
-  it('requests unrounded values, in English units, only when rawData is set', async () => {
+  it("reads the center's default units, or SnowObs's metric, never raw data", async () => {
     const seenParams: [string | null, string | null][] = []
     server.use(
       http.get(TIMESERIES_URL, ({ request }) => {
@@ -106,11 +103,11 @@ describe('fetchStationTimeseries', () => {
         return HttpResponse.json(validResponse)
       }),
     )
-    await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
     await fetchStationTimeseries('nwac', [ref('4')])
+    await fetchStationTimeseries('nwac', [ref('4')], { units: 'metric' })
     expect(seenParams).toEqual([
-      ['true', 'english'],
-      [null, null],
+      [null, 'default'],
+      [null, 'metric'],
     ])
   })
 
@@ -133,51 +130,6 @@ describe('fetchStationTimeseries', () => {
     expect(result.UNITS).toEqual({ air_temp: 'fahrenheit', pressure: '' })
   })
 
-  it('falls back to rounded values when SnowObs fails the unrounded request', async () => {
-    const seenParams: (string | null)[] = []
-    server.use(
-      http.get(TIMESERIES_URL, ({ request }) => {
-        const raw = new URL(request.url).searchParams.get('raw_data')
-        seenParams.push(raw)
-        return raw ? new HttpResponse(null, { status: 500 }) : HttpResponse.json(validResponse)
-      }),
-    )
-    const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
-    expect(seenParams).toEqual(['true', null])
-    expect(result.STATION[0].name).toBe('Test Station')
-    // Rounding the whole request is a silent loss of precision without this.
-    expect(warnMock).toHaveBeenCalledWith(
-      expect.objectContaining({ stids: ['4'] }),
-      expect.stringContaining('raw_data'),
-    )
-  })
-
-  it('discards a 500 traceback body before retrying rounded', async () => {
-    server.use(
-      http.get(TIMESERIES_URL, ({ request }) =>
-        new URL(request.url).searchParams.get('raw_data')
-          ? new HttpResponse('Traceback (most recent call last): …', { status: 500 })
-          : HttpResponse.json(validResponse),
-      ),
-    )
-    const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
-    expect(result.STATION[0].stid).toBe('4')
-  })
-
-  it.each([400, 503])('does not retry a %i, which rounding would not fix', async (status) => {
-    let calls = 0
-    server.use(
-      http.get(TIMESERIES_URL, () => {
-        calls += 1
-        return new HttpResponse(null, { status })
-      }),
-    )
-    await expect(fetchStationTimeseries('nwac', [ref('4')], { rawData: true })).rejects.toThrow(
-      `status ${status}`,
-    )
-    expect(calls).toBe(1)
-  })
-
   it('reads object-valued readings, like raw cloud layers, as null', async () => {
     const station = validResponse.STATION[0]
     server.use(
@@ -196,9 +148,28 @@ describe('fetchStationTimeseries', () => {
         }),
       ),
     )
-    const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
+    const result = await fetchStationTimeseries('nwac', [ref('4')])
     expect(result.STATION[0].observations.cloud_layer_1).toEqual([null])
     expect(result.STATION[0].observations.air_temp).toEqual([30])
+  })
+
+  it("reads a logger's -7999 no-reading code as null, converted to metric too", async () => {
+    const station = validResponse.STATION[0]
+    server.use(
+      http.get(TIMESERIES_URL, () =>
+        HttpResponse.json({
+          ...validResponse,
+          STATION: [
+            {
+              ...station,
+              observations: { ...station.observations, snow_depth: [-7999, -20317.46, -2, 40] },
+            },
+          ],
+        }),
+      ),
+    )
+    const result = await fetchStationTimeseries('nwac', [ref('4')])
+    expect(result.STATION[0].observations.snow_depth).toEqual([null, null, -2, 40])
   })
 
   it('treats a 404 (no station left) as an empty timeseries', async () => {
@@ -217,82 +188,41 @@ describe('fetchStationTimeseries', () => {
     await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(/status 500/)
   })
 
-  describe('when a request fails', () => {
-    const stationResponse = (stid: string): SnowObsTimeseriesResponse => ({
-      ...validResponse,
-      STATION: [{ ...validResponse.STATION[0], id: stid, stid }],
-    })
-
-    // SnowObs 500s any request that includes `bad`, alone or batched; with
-    // `rawOnly`, only when raw_data is set, as it does for KMHS.
-    function failOnStation(bad: string, rawOnly = false): string[] {
+  describe('when one station fails a batch', () => {
+    // SnowObs 500s any request that includes `bad`, alone or batched.
+    function failOnStation(bad: string): string[] {
       const requested: string[] = []
       server.use(
         http.get(TIMESERIES_URL, ({ request }) => {
-          const params = new URL(request.url).searchParams
-          const stid = params.get('stid') ?? ''
-          const raw = params.get('raw_data') === 'true'
-          requested.push(raw ? stid : `${stid} (rounded)`)
-          const fails = stid.split(',').includes(bad) && (raw || !rawOnly)
-          return fails
+          const stid = new URL(request.url).searchParams.get('stid') ?? ''
+          requested.push(stid)
+          return stid.split(',').includes(bad)
             ? new HttpResponse(null, { status: 500 })
-            : HttpResponse.json(stationResponse(stid))
+            : HttpResponse.json({
+                ...validResponse,
+                STATION: [{ ...validResponse.STATION[0], id: stid, stid }],
+              })
         }),
       )
       return requested
     }
 
-    it('retries each station and drops one that fails rounded too', async () => {
+    it('retries each station and keeps the ones that load', async () => {
       const requested = failOnStation('2')
-      const result = await fetchStationTimeseries('nwac', [ref('1'), ref('2'), ref('3')], {
-        rawData: true,
-      })
-      expect(requested.sort()).toEqual(['1', '1,2,3', '2', '2 (rounded)', '3'])
+      const result = await fetchStationTimeseries('nwac', [ref('1'), ref('2'), ref('3')])
+      expect(requested.sort()).toEqual(['1', '1,2,3', '2', '3'])
       expect(result.STATION.map((s) => s.stid)).toEqual(['1', '3'])
-      expect(result.VARIABLES).toEqual(validResponse.VARIABLES)
     })
 
-    it('keeps a station that only fails under raw_data, rounded', async () => {
-      const requested = failOnStation('2', true)
-      const result = await fetchStationTimeseries('nwac', [ref('1'), ref('2'), ref('3')], {
-        rawData: true,
-      })
-      expect(requested).toContain('2 (rounded)')
-      expect(result.STATION.map((s) => s.stid)).toEqual(['1', '2', '3'])
-    })
-
-    it('retries a single station rounded', async () => {
-      const requested = failOnStation('4', true)
-      const result = await fetchStationTimeseries('nwac', [ref('4')], { rawData: true })
-      expect(requested).toEqual(['4', '4 (rounded)'])
-      expect(result.STATION[0].stid).toBe('4')
-    })
-
-    it('does not retry a single rounded request', async () => {
+    it('does not fan out a single station or a non-500 failure', async () => {
       const requested = failOnStation('4')
       await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(/status 500/)
-      expect(requested).toEqual(['4 (rounded)'])
-    })
+      expect(requested).toEqual(['4'])
 
-    it('does not fan out a batch that fails with anything but a 500', async () => {
-      const requested: string[] = []
-      server.use(
-        http.get(TIMESERIES_URL, ({ request }) => {
-          requested.push(new URL(request.url).searchParams.get('stid') ?? '')
-          return new HttpResponse(null, { status: 403 })
-        }),
+      server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 403 })))
+      await expect(fetchStationTimeseries('nwac', [ref('1'), ref('2')])).rejects.toThrow(
+        /status 403/,
       )
-      await expect(
-        fetchStationTimeseries('nwac', [ref('1'), ref('2')], { rawData: true }),
-      ).rejects.toThrow(/status 403/)
-      expect(requested).toEqual(['1,2'])
-    })
-
-    it('throws when every station fails on its own too', async () => {
-      server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
-      await expect(
-        fetchStationTimeseries('nwac', [ref('1'), ref('2')], { rawData: true }),
-      ).rejects.toThrow(/status 500/)
     })
   })
 
