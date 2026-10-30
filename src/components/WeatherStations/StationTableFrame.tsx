@@ -108,9 +108,10 @@ function useHeaderCopy(
   })
 }
 
-// Sticks below the mobile site header plus whatever view bar pins above the
-// table, which sets --station-bar-h; above lg the site header doesn't stick.
-const pinTop = 'top-[calc(4rem+var(--station-bar-h,0px))] lg:top-[var(--station-bar-h,0px)]'
+// Sticks below the mobile header strip (see StationViewBar) plus whatever view
+// bar pins above the table, which sets --station-bar-h; above lg the strip doesn't stick.
+const pinTop =
+  'top-[calc(var(--admin-bar-height,0px)+var(--sticky-header-height,4rem)+var(--station-bar-h,0px))] lg:top-[var(--station-bar-h,0px)]'
 
 // Collapsed row borders don't move with a stuck header, so cells draw their own.
 const headClass = '[&_th]:bg-background [&_th]:shadow-[inset_0_-1px_0_var(--border)]'

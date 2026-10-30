@@ -2,6 +2,7 @@ import { AnnouncementBannerProvider } from '@/providers/AnnouncementBannerProvid
 import { getCachedActiveAnnouncements } from '@/utilities/queries/getActiveAnnouncements'
 import { AnnouncementBanners } from './AnnouncementBanners.client'
 import { AnnouncementPopup } from './AnnouncementPopup.client'
+import { StickyHeaderStrip } from './StickyHeaderStrip.client'
 
 interface AnnouncementsProps {
   center: string
@@ -22,13 +23,10 @@ export async function Announcements({ center, children }: AnnouncementsProps) {
           It is also where `data-print-hide` goes, rather than on the banners: the print stylesheet
           takes the site's `<header>` chrome out, and the banners are its sibling here, not its
           child. Marking the strip that holds both is what keeps them from separating. */}
-      <div
-        data-print-hide
-        className="sticky top-[var(--admin-bar-height,0px)] z-50 lg:static lg:z-auto"
-      >
+      <StickyHeaderStrip className="sticky top-[var(--admin-bar-height,0px)] z-50 lg:static lg:z-auto">
         {banners.length > 0 && <AnnouncementBanners />}
         {children}
-      </div>
+      </StickyHeaderStrip>
       {popups.length > 0 && <AnnouncementPopup popups={popups} center={center} />}
     </AnnouncementBannerProvider>
   )
