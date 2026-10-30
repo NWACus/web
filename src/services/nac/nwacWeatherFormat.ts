@@ -13,8 +13,9 @@ export const DASH = '—'
 export const WET_QPF_IN = 0.01
 
 /**
- * Whether a block's level is a snow level or a freezing level, as the dashboard decides it: the
- * forecaster's pick when they made one, else snow when the zone's period is wet.
+ * Whether a block's level is a snow level or a freezing level: the forecaster's pick. Publish
+ * requires a pick for every block (dashboard and products-api gates, Oct 2026), so the wet-period
+ * fallback below only ever reads forecasts published before that rule.
  */
 export function levelKind(
   issuance: NWACWeatherIssuance,
@@ -32,10 +33,14 @@ export function levelKind(
   return wet ? 'snow' : 'freezing'
 }
 
-/** New snow in inches from water equivalent and snow-to-liquid ratio (density 10 → 10:1). */
-export function deriveSnow(qpf: number | null | undefined, density: number | null | undefined) {
-  if (qpf == null || density == null || density <= 0) return null
-  return Math.round(((qpf * 100) / density) * 10) / 10
+/**
+ * New snow in inches: QPF × SLR (snow-to-liquid ratio, 12 → 12:1), to a tenth. The same
+ * derivation lives in the dashboard; products-api stores the ratio and never derives. A ratio
+ * of 0 is the dry marker: no snow, whatever the water.
+ */
+export function deriveSnow(qpf: number | null | undefined, slr: number | null | undefined) {
+  if (qpf == null || slr == null || slr <= 0) return null
+  return Math.round(qpf * slr * 10) / 10
 }
 
 /**
@@ -299,14 +304,14 @@ export function snowTier(snow: number | null | undefined): number | null {
   return 3
 }
 
-/** One point's snow for one period, from its water amount and density. */
+/** One point's snow for one period, from its water amount and ratio. */
 export function pointSnow(
   issuance: NWACWeatherIssuance,
   pointCode: string,
   periodKey: string,
 ): number | null {
   const cell = issuance.precip[pointCode]?.[periodKey]
-  return deriveSnow(cell?.qpf, cell?.density)
+  return deriveSnow(cell?.qpf, cell?.slr)
 }
 
 /** The points that forecast a zone's snow, in the issuance's order. */

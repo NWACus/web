@@ -50,7 +50,8 @@ export interface NWACWeatherExtendedBlock {
 
 export interface NWACWeatherPrecipCell {
   qpf: number | null
-  density: number | null
+  /** Snow-to-liquid ratio (12 → 12:1); 0 is the dry marker. Snow = qpf × slr. */
+  slr: number | null
 }
 export interface NWACWeatherTempCell {
   high: number | null

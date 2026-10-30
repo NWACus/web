@@ -48,38 +48,42 @@ export const nwacWeatherExtendedBlockSchema = z.object({
   date: z.string(),
 })
 
+// Measurement rows: products-api emits every value key on every row, null
+// where the forecaster left it blank, so the keys are required. A row that
+// lacks one is a wire mismatch (a renamed field, an older server) and should
+// fail here, loudly, rather than read as a forecast of nothing.
 export const nwacWeatherPrecipRowSchema = z.object({
   point: z.string(),
   period: z.string(),
-  qpf: nullableNumber.optional(),
-  density: nullableNumber.optional(),
+  qpf: nullableNumber,
+  slr: nullableNumber,
 })
 
 export const nwacWeatherTempRowSchema = z.object({
   zone: z.string(),
   period: z.string(),
-  high: nullableNumber.optional(),
-  low: nullableNumber.optional(),
+  high: nullableNumber,
+  low: nullableNumber,
 })
 
 export const nwacWeatherWindRowSchema = z.object({
   zone: z.string(),
   block: z.string(),
-  dir: z.string().nullable().optional(),
-  speed: nullableNumber.optional(),
+  dir: z.string().nullable(),
+  speed: nullableNumber,
 })
 
 export const nwacWeatherLevelRowSchema = z.object({
   zone: z.string(),
   block: z.string(),
-  freezing: nullableNumber.optional(),
-  mode: z.string().nullable().optional(),
+  freezing: nullableNumber,
+  mode: z.string().nullable(),
 })
 
 export const nwacWeatherSensibleRowSchema = z.object({
   zone: z.string(),
   slot: z.string(),
-  text: z.string().nullable().optional(),
+  text: z.string().nullable(),
 })
 
 /** One published issuance. `available: false` is the empty answer and carries no forecast. */
