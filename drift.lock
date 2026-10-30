@@ -68,7 +68,7 @@ sig = "93e588f55d89ff59"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/migration-safety.md"
-sig = "aed73099bb43561f"
+sig = "1172aaf8268312f1"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1452,6 +1452,16 @@ sig = "795806f511f0878d"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
+target = ".github/workflows/development.yaml"
+sig = "a39933cca411b367"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = ".github/workflows/sync-prod-to-dev.yml"
+sig = "09d80e62ae23e9fc"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
 target = ".husky/check-migrations"
 sig = "f3230eac010baa8c"
 
@@ -1469,6 +1479,31 @@ sig = "d4ffb46dc41c80e0"
 doc = "docs/migration-safety.md"
 target = "src/scripts/check-migrations.ts"
 sig = "a4824faf89f4051e"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = "src/scripts/db-diff/diffSnapshots.ts"
+sig = "a671e8e90719c6c0"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = "src/scripts/db-diff/expectations.ts"
+sig = "64633b1b8a597c04"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = "src/scripts/db-diff/formatReport.ts"
+sig = "05159fa770f4684a"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = "src/scripts/db-diff/index.ts"
+sig = "1c5ff70dbb09049b"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = "src/scripts/db-diff/snapshot.ts"
+sig = "1c7c4676470c29cc"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
