@@ -294,9 +294,9 @@
   }
 }
 
-// Payload trims a collapsible's last group divider with :last-child, but a rich-text block puts
-// a hidden id input after its fields, so a block ending in a group (Button) keeps a stray line.
-.LexicalEditorTheme__block .group-field:not(:has(~ :not(input[type='hidden']))) {
+// Payload trims a collapsible's last group divider with :last-child, but array rows and rich-text
+// blocks put a hidden id input after their fields, so one ending in a button group keeps a stray line.
+.collapsible__content .group-field:not(:has(~ :not(input[type='hidden']))) {
   border-bottom: 0;
   padding-bottom: 0;
   margin-bottom: 0;
