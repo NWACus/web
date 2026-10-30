@@ -14,14 +14,22 @@ function cloneParentMeta(parentMeta?: Metadata) {
   return parentMeta ? JSON.parse(JSON.stringify(parentMeta)) : {}
 }
 
+function titleOf(parentMeta?: Metadata) {
+  const title = parentMeta?.title
+  return title && typeof title !== 'string' && 'absolute' in title ? title.absolute : title
+}
+
 export const generateMetaForPage = async (args: {
   customTitle?: string
   center: string
-  doc: Partial<Page>
+  doc: Partial<Page> | null
   slugs?: string[]
   parentMeta?: Metadata
 }): Promise<Metadata> => {
   const { doc, slugs, parentMeta } = args
+  if (!doc) {
+    return parentMeta || {}
+  }
 
   let tenant: Tenant | undefined
   let hostname
@@ -35,10 +43,7 @@ export const generateMetaForPage = async (args: {
   const pageSlugs = slugs ? slugs : doc?.slug
   const url = serverUrl + '/' + (Array.isArray(pageSlugs) ? pageSlugs.join('/') : `${pageSlugs}/`)
 
-  const parentTitle =
-    parentMeta?.title && typeof parentMeta?.title !== 'string' && 'absolute' in parentMeta?.title
-      ? parentMeta?.title.absolute
-      : parentMeta?.title
+  const parentTitle = titleOf(parentMeta)
 
   const title =
     parentTitle || tenant?.name ? `${doc.title} | ${parentTitle ?? tenant?.name}` : doc.title
@@ -86,10 +91,7 @@ const generateMetaForSlugDoc = async (args: {
   const serverUrl = getURL(hostname)
   const url = `${serverUrl}/${urlPath}/${doc?.slug}/`
 
-  const parentTitle =
-    parentMeta?.title && typeof parentMeta?.title !== 'string' && 'absolute' in parentMeta?.title
-      ? parentMeta?.title.absolute
-      : parentMeta?.title
+  const parentTitle = titleOf(parentMeta)
 
   const title = customTitle ? customTitle : `${doc?.title} | ${parentTitle ?? tenant?.name}`
 
@@ -116,9 +118,15 @@ const generateMetaForSlugDoc = async (args: {
 export const generateMetaForPost = (args: {
   customTitle?: string
   center: string
-  doc: Partial<Post>
+  doc: Partial<Post> | null
   parentMeta?: Metadata
-}): Promise<Metadata> => generateMetaForSlugDoc({ ...args, urlPath: 'blog', ogType: 'post' })
+}): Promise<Metadata> => {
+  const { doc, parentMeta } = args
+  if (!doc) {
+    return Promise.resolve(parentMeta || {})
+  }
+  return generateMetaForSlugDoc({ ...args, doc, urlPath: 'blog', ogType: 'post' })
+}
 
 export const generateMetaForEvent = (args: {
   customTitle?: string
