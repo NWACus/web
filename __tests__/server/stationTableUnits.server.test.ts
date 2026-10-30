@@ -4,6 +4,7 @@ import {
   TABLE_PERIODS,
 } from '../../src/components/WeatherStations/stationPeriods'
 import { withElevationsIn } from '../../src/components/WeatherStations/stationTableUnits'
+import { displayUnit } from '../../src/services/snowobs/constants'
 import { buildStationCsv } from '../../src/services/snowobs/csv'
 import type { StationTable } from '../../src/services/snowobs/tableHelpers'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
@@ -72,6 +73,30 @@ describe('withElevationsIn', () => {
     expect(metric.columns[0].elevation).toBe(1600)
     expect(metric.rows).toBe(table.rows)
     expect(withElevationsIn(table, 'default').columns[0].elevation).toBe(5250)
+  })
+})
+
+describe('displayUnit', () => {
+  it('labels the units SnowObs returns in either system', () => {
+    expect(['fahrenheit', 'inches', 'mph', 'millibar', 'inch_Hg'].map(displayUnit)).toEqual([
+      '°F',
+      'in',
+      'mph',
+      'mbar',
+      'inHg',
+    ])
+    expect(['celsius', 'millimeters', 'centimeters', 'm/s', 'pascals'].map(displayUnit)).toEqual([
+      '°C',
+      'mm',
+      'cm',
+      'm/s',
+      'Pa',
+    ])
+  })
+
+  it('passes an unknown unit through, and none as empty', () => {
+    expect(displayUnit('furlongs')).toBe('furlongs')
+    expect(displayUnit(undefined)).toBe('')
   })
 })
 

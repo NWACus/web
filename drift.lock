@@ -1148,7 +1148,7 @@ sig = "0501469f97a1a1fc"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/constants.ts"
-sig = "0ce7c520737db6cf"
+sig = "dd9ab5e7c49eabeb"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
