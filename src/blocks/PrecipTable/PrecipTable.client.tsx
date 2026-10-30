@@ -1,10 +1,11 @@
 'use client'
 
 import { PrecipAccumulationTable } from '@/components/WeatherStations/PrecipAccumulationTable'
+import { useStationUnits } from '@/components/WeatherStations/UnitToggle'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
 import type { PrecipAccumulationTable as PrecipAccumulationData } from '@/services/snowobs/tableHelpers'
-import type { UnitSystem } from '@/services/snowobs/units'
+import type { StationUnits } from '@/services/snowobs/units'
 import type { PrecipColumn } from '@/services/stations/precipColumns'
 import { useEffect, useState } from 'react'
 
@@ -15,7 +16,7 @@ type State =
 
 // Fetched in the browser so the block keeps its own refresh cadence: a server
 // fetch's revalidate becomes the revalidate of every page carrying the block.
-function usePrecipTable(stations: StationRef[], units: UnitSystem): State {
+function usePrecipTable(stations: StationRef[], units: StationUnits): State {
   const keys = stations.map(stationKey).join(',')
   const [state, setState] = useState<State>({ status: 'loading' })
 
@@ -46,7 +47,7 @@ export function PrecipTableClient({
   stations: StationRef[]
   columns: PrecipColumn[]
 }) {
-  const [units, setUnits] = useState<UnitSystem>('imperial')
+  const [units, setUnits] = useStationUnits()
   const state = usePrecipTable(stations, units)
 
   if (state.status === 'loading') {

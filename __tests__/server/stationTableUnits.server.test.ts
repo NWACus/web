@@ -7,7 +7,12 @@ import { withElevationsIn } from '../../src/components/WeatherStations/stationTa
 import { buildStationCsv } from '../../src/services/snowobs/csv'
 import type { StationTable } from '../../src/services/snowobs/tableHelpers'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
-import { formatReading, roundTo, seriesDecimals } from '../../src/services/snowobs/units'
+import {
+  formatReading,
+  parseStationUnits,
+  roundTo,
+  seriesDecimals,
+} from '../../src/services/snowobs/units'
 
 const table: StationTable = {
   columns: [
@@ -66,7 +71,17 @@ describe('withElevationsIn', () => {
     const metric = withElevationsIn(table, 'metric')
     expect(metric.columns[0].elevation).toBe(1600)
     expect(metric.rows).toBe(table.rows)
-    expect(withElevationsIn(table, 'imperial').columns[0].elevation).toBe(5250)
+    expect(withElevationsIn(table, 'default').columns[0].elevation).toBe(5250)
+  })
+})
+
+describe('parseStationUnits', () => {
+  it('reads default and metric, with an absent or earlier imperial param as default', () => {
+    expect(parseStationUnits(null)).toBe('default')
+    expect(parseStationUnits('imperial')).toBe('default')
+    expect(parseStationUnits('default')).toBe('default')
+    expect(parseStationUnits('metric')).toBe('metric')
+    expect(parseStationUnits('kelvin')).toBeNull()
   })
 })
 

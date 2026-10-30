@@ -69,12 +69,12 @@ describe('station data routes', () => {
     expect(res.headers.get('Cache-Control')).toBe('public, s-maxage=60, stale-while-revalidate=60')
   })
 
-  it('precip-data reads the requested unit system, imperial when absent', async () => {
+  it('precip-data reads the requested units, default when absent', async () => {
     await getPrecipData(new Request('https://x/weather/precip-data?stations=nwac:1'), { params })
     expect(fetchStationTimeseries).toHaveBeenLastCalledWith(
       'nwac',
       [nwac1],
-      expect.objectContaining({ units: 'imperial' }),
+      expect.objectContaining({ units: 'default' }),
     )
     await getPrecipData(new Request('https://x/weather/precip-data?stations=nwac:1&units=metric'), {
       params,

@@ -1,6 +1,6 @@
 import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
 import { clampNegativeValues } from '@/components/WeatherStations/stationGraphUnits'
-import { useUnitSystem } from '@/components/WeatherStations/UnitToggle'
+import { useStationUnits } from '@/components/WeatherStations/UnitToggle'
 import type { GraphData } from '@/services/snowobs/graph'
 import { act, renderHook } from '@testing-library/react'
 
@@ -54,15 +54,15 @@ it('both temperature presets allow negative values', () => {
   expect(temps.every((p) => p.allowNegative)).toBe(true)
 })
 
-describe('useUnitSystem', () => {
-  it('defaults to imperial and persists the choice per browser', () => {
-    const first = renderHook(() => useUnitSystem())
-    expect(first.result.current[0]).toBe('imperial')
+describe('useStationUnits', () => {
+  it('defaults to the center units and persists the choice per browser', () => {
+    const first = renderHook(() => useStationUnits())
+    expect(first.result.current[0]).toBe('default')
     act(() => first.result.current[1]('metric'))
     expect(first.result.current[0]).toBe('metric')
     first.unmount()
 
-    const second = renderHook(() => useUnitSystem())
+    const second = renderHook(() => useStationUnits())
     expect(second.result.current[0]).toBe('metric')
     window.localStorage.clear()
   })

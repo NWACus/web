@@ -1,7 +1,7 @@
 'use client'
 
 import type { StationTable } from '@/services/snowobs/tableHelpers'
-import type { UnitSystem } from '@/services/snowobs/units'
+import type { StationUnits } from '@/services/snowobs/units'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { StationLatestObservation } from './StationLatestObservation'
@@ -15,7 +15,7 @@ import {
 } from './stationPeriods'
 import { StationRangePicker } from './StationRangePicker'
 import { StationViewBar } from './StationViewBar'
-import { UnitToggle, useUnitSystem } from './UnitToggle'
+import { UnitToggle, useStationUnits } from './UnitToggle'
 
 const tableHref = (key: string) => `?range=table&period=${key}`
 
@@ -66,14 +66,14 @@ export function StationTableView({
   tabs,
 }: {
   /** Both systems, built server-side, so the unit toggle is instant. */
-  tables: Record<UnitSystem, StationTable>
+  tables: Record<StationUnits, StationTable>
   /** The preset in force; a valid custom range overrides it. */
   activePeriodKey: string
   customRange: DateRange | null
   timeZone: string
   tabs?: ReactNode
 }) {
-  const [unitSystem, changeUnitSystem] = useUnitSystem()
+  const [unitSystem, changeStationUnits] = useStationUnits()
   const table = tables[unitSystem]
   return (
     <div className="flex flex-col gap-2">
@@ -88,7 +88,7 @@ export function StationTableView({
           />
           <div className="flex flex-wrap items-center gap-3">
             <LatestObservation table={table} customRange={customRange} timeZone={timeZone} />
-            <UnitToggle unit={unitSystem} onChange={changeUnitSystem} />
+            <UnitToggle unit={unitSystem} onChange={changeStationUnits} />
           </div>
         </div>
       </StationViewBar>

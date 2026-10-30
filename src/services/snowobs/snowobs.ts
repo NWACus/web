@@ -17,8 +17,7 @@ import {
 export { SnowObsError } from './access'
 
 import type { StationRef } from './stationKey'
-import type { UnitSystem } from './units'
-import { snowObsUnits } from './units'
+import type { StationUnits } from './units'
 
 export type { StationRef } from './stationKey'
 
@@ -36,7 +35,7 @@ type FetchOptions = {
   // Data-cache lifetime; omitted means uncached so readings never lag SnowObs.
   revalidate?: number
   // Imperial reads the center's configured default units.
-  units?: UnitSystem
+  units?: StationUnits
 }
 
 // A cached window floors `end` to its bucket so the URL stays stable.
@@ -55,7 +54,7 @@ function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token
     stid: stations.map((s) => s.stid).join(','),
     start_date: formatSnowObsDate(start),
     end_date: formatSnowObsDate(end),
-    units: snowObsUnits(options.units ?? 'imperial'),
+    units: options.units ?? 'default',
   })
   return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
 }
@@ -141,9 +140,6 @@ export async function fetchStationTimeseries(
 
 // --- Current conditions and webcams (the station map) ----------------------------------------
 
-/** The units SnowObs reports in; `default` is whatever the center configured. */
-export type SnowObsUnits = 'default' | 'metric'
-
 const WEBCAMS_REVALIDATE = 3600
 
 // Shared by the current-data and webcam fetches: a non-2xx is a SnowObsError with the status.
@@ -170,7 +166,7 @@ async function checkedJson(res: Response, context: Record<string, unknown>): Pro
  */
 export async function fetchCurrentStationData(
   centerSlug: string,
-  units: SnowObsUnits = 'default',
+  units: StationUnits = 'default',
 ): Promise<SnowObsCurrentGeojson> {
   try {
     const params = new URLSearchParams({

@@ -1,4 +1,4 @@
-import type { UnitSystem } from '@/services/snowobs/units'
+import type { StationUnits } from '@/services/snowobs/units'
 
 /** `min` pins the bottom of the axis (0 for amounts). `minSpan` is the least
  * range the axis shows, so a quiet week doesn't stretch sensor noise to full
@@ -29,7 +29,7 @@ export type GraphPreset = {
 }
 
 /** The preset as drawn in a unit system: metric swaps in its own reference line and axis. */
-export function presetFor(preset: GraphPreset, system: UnitSystem): GraphPreset {
+export function presetFor(preset: GraphPreset, system: StationUnits): GraphPreset {
   return system === 'metric' && preset.metric ? { ...preset, ...preset.metric } : preset
 }
 

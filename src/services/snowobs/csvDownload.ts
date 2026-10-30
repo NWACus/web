@@ -5,7 +5,7 @@ import { buildStationCsv } from './csv'
 import { fetchStationTimeseries } from './snowobs'
 import type { StationRef } from './stationKey'
 import { parseStationKey, stationKey } from './stationKey'
-import { parseUnitSystem } from './units'
+import { parseStationUnits } from './units'
 
 const MIN_YEAR = 2016
 
@@ -37,7 +37,7 @@ export async function stationCsvDownload(
   if (!Number.isInteger(year) || year < MIN_YEAR || year > currentYear) {
     return new Response('Invalid year', { status: 400 })
   }
-  const units = parseUnitSystem(url.searchParams.get('units'))
+  const units = parseStationUnits(url.searchParams.get('units'))
   if (!units) {
     return new Response('Invalid units', { status: 400 })
   }

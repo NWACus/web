@@ -3,7 +3,7 @@
 import type { GraphData } from '@/services/snowobs/graph'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
-import type { UnitSystem } from '@/services/snowobs/units'
+import type { StationUnits } from '@/services/snowobs/units'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
@@ -19,7 +19,7 @@ import { presetFor } from './stationGraphPresets'
 import { clampNegativeValues } from './stationGraphUnits'
 import { customRangeBounds, DEFAULT_GRAPH_PERIOD } from './stationPeriods'
 import { StationViewBar } from './StationViewBar'
-import { UnitToggle, useUnitSystem } from './UnitToggle'
+import { UnitToggle, useStationUnits } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
 function ChartSkeleton() {
@@ -46,7 +46,7 @@ function graphDataUrl(
   variables: string[],
   from: Date,
   to: Date,
-  units: UnitSystem,
+  units: StationUnits,
 ): string {
   const params = new URLSearchParams({
     stations: stations.map(stationKey).join(','),
@@ -65,7 +65,7 @@ function useGraphData(
   variables: string[],
   range: GraphRange,
   timeZone: string,
-  units: UnitSystem,
+  units: StationUnits,
 ) {
   const [data, setData] = useState<GraphData | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -111,7 +111,7 @@ function PresetChart({
   preset: GraphPreset
   data: GraphData
   primaryKeys: string[]
-  unitSystem: UnitSystem
+  unitSystem: StationUnits
 }) {
   const presetData = useMemo(() => {
     const filtered = {
@@ -148,7 +148,7 @@ function GraphsCharts({
   data: GraphData | null
   error: string | null
   loading: boolean
-  unitSystem: UnitSystem
+  unitSystem: StationUnits
 }) {
   if (error) {
     return <p className="text-sm text-muted-foreground">{`Couldn't load station data: ${error}`}</p>
@@ -263,7 +263,7 @@ export function StationGraphs({
     custom: null,
   })
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
-  const [unitSystem, changeUnitSystem] = useUnitSystem()
+  const [unitSystem, changeStationUnits] = useStationUnits()
 
   const allStations = useMemo(
     () => combinedStations(stations, compareSlugs, pages),
@@ -300,7 +300,7 @@ export function StationGraphs({
         onRangeChange={setGraphRange}
         timeZone={timeZone}
         unitSystem={unitSystem}
-        onUnitChange={changeUnitSystem}
+        onUnitChange={changeStationUnits}
         currentSlug={currentSlug}
         compareSlugs={compareSlugs}
         onCompareChange={setCompareSlugs}

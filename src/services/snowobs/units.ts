@@ -1,17 +1,16 @@
 // Readings arrive in the units and rounding each Tracked Variable is configured with in SnowObs;
 // AvyWeb neither converts nor re-rounds them. See ADR 021.
 
-export type UnitSystem = 'imperial' | 'metric'
+/**
+ * SnowObs's own `units` values, used as-is from page to API. `default` is the center's configured
+ * units, which the station pages label "Imperial".
+ */
+export type StationUnits = 'default' | 'metric'
 
-/** A `units` query param; absent means imperial, so URLs from before the param keep working. */
-export function parseUnitSystem(param: string | null): UnitSystem | null {
-  const units = param ?? 'imperial'
-  return units === 'imperial' || units === 'metric' ? units : null
-}
-
-/** The SnowObs `units` value for a system: imperial is the center's configured default. */
-export function snowObsUnits(system: UnitSystem): 'default' | 'metric' {
-  return system === 'metric' ? 'metric' : 'default'
+/** A `units` param; absent or the earlier `imperial` reads as default, so old links keep working. */
+export function parseStationUnits(param: string | null): StationUnits | null {
+  if (param === null || param === 'imperial' || param === 'default') return 'default'
+  return param === 'metric' ? 'metric' : null
 }
 
 // SnowObs's rounding isn't in its response, so read it off the values. Capped so a stray
@@ -43,6 +42,6 @@ export function formatReading(value: number, decimals: number): string {
 const FEET_TO_METERS = 0.3048
 
 // SnowObs reports station elevation in feet whatever `units` asks for.
-export function elevationIn(system: UnitSystem, feet: number): number {
-  return system === 'metric' ? Math.round(feet * FEET_TO_METERS) : feet
+export function elevationIn(units: StationUnits, feet: number): number {
+  return units === 'metric' ? Math.round(feet * FEET_TO_METERS) : feet
 }

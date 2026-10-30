@@ -164,13 +164,13 @@ async function tableTabView(
   const custom = parseCustomRange(params.from, params.to, TABLE_MAX_CUSTOM_DAYS, timeZone, now)
   const range = tableWindow(period, custom, timeZone, now)
   // SnowObs serves each system in its own units and rounding, so the table reads both.
-  const [imperial, metric] = await Promise.all([
-    fetchStationTimeseries(center, subject.stations, { ...range, units: 'imperial' }),
+  const [standard, metric] = await Promise.all([
+    fetchStationTimeseries(center, subject.stations, { ...range, units: 'default' }),
     fetchStationTimeseries(center, subject.stations, { ...range, units: 'metric' }),
   ])
-  const columns = resolveColumns(imperial, subject)
+  const columns = resolveColumns(standard, subject)
   const tables = {
-    imperial: buildStationTable(center, imperial, columns),
+    default: buildStationTable(center, standard, columns),
     metric: withElevationsIn(buildStationTable(center, metric, columns), 'metric'),
   }
   return {

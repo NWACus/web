@@ -26,7 +26,7 @@ const table: PrecipAccumulationData = {
 
 describe('PrecipAccumulationTable columns', () => {
   it('shows every column when none are chosen', () => {
-    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
+    render(<PrecipAccumulationTable table={table} unit="default" onUnitChange={jest.fn()} />)
     for (const label of ['1H', '72H', 'Last update', 'Latitude', 'Longitude', 'Elevation']) {
       expect(screen.getByText(label)).toBeInTheDocument()
     }
@@ -36,7 +36,7 @@ describe('PrecipAccumulationTable columns', () => {
     render(
       <PrecipAccumulationTable
         table={table}
-        unit="imperial"
+        unit="default"
         onUnitChange={jest.fn()}
         columns={['24h', '72h', 'elevation']}
       />,

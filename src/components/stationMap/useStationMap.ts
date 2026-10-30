@@ -13,12 +13,9 @@ import type { RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { MAP_STYLE, asControl, disableRotation, hasSource } from '@/components/map/mapbox'
-import type {
-  StationMapData,
-  StationMapUnits,
-  StationMapZone,
-} from '@/services/snowobs/stationMap/model'
+import type { StationMapData, StationMapZone } from '@/services/snowobs/stationMap/model'
 import type { StationMapSettings } from '@/services/snowobs/stationMap/settings'
+import type { StationUnits } from '@/services/snowobs/units'
 import type { Bounds } from '@/utilities/geo/bounds'
 
 export interface MapView {
@@ -30,7 +27,7 @@ export interface MapView {
 
 async function fetchStationMapData(
   centerSlug: string,
-  units: StationMapUnits,
+  units: StationUnits,
   signal: AbortSignal,
 ): Promise<StationMapData> {
   const res = await fetch(`/api/${centerSlug}/station-map?units=${units}`, { signal })
@@ -49,7 +46,7 @@ function isAbort(error: unknown): boolean {
  * the readings current, exactly as the legacy widget's fetch-per-page-load did. On a units change
  * the previous data stays on screen until the new data lands, as the widget left it.
  */
-export function useStationMapData(centerSlug: string, units: StationMapUnits) {
+export function useStationMapData(centerSlug: string, units: StationUnits) {
   const [data, setData] = useState<StationMapData | null>(null)
   const [failed, setFailed] = useState(false)
   const [loading, setLoading] = useState(true)

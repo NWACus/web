@@ -62,7 +62,7 @@ function bodyRowNames(): string[] {
 
 describe('PrecipAccumulationTable', () => {
   it('renders rows in server order with missing stations collapsed', () => {
-    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
+    render(<PrecipAccumulationTable table={table} unit="default" onUnitChange={jest.fn()} />)
 
     expect(bodyRowNames()).toEqual(['Zeta', 'Alta', 'Mist'])
     expect(screen.getByText('missing')).toHaveAttribute('colspan', '7')
@@ -71,7 +71,7 @@ describe('PrecipAccumulationTable', () => {
   })
 
   it('sorts a window column descending first, keeping null totals last', () => {
-    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
+    render(<PrecipAccumulationTable table={table} unit="default" onUnitChange={jest.fn()} />)
 
     fireEvent.click(screen.getByTitle('Sort by 72H'))
     expect(bodyRowNames()).toEqual(['Alta', 'Zeta', 'Mist'])
@@ -81,14 +81,14 @@ describe('PrecipAccumulationTable', () => {
   })
 
   it('sorts by station name ascending first', () => {
-    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
+    render(<PrecipAccumulationTable table={table} unit="default" onUnitChange={jest.fn()} />)
 
     fireEvent.click(screen.getByTitle('Sort by Station'))
     expect(bodyRowNames()).toEqual(['Alta', 'Mist', 'Zeta'])
   })
 
   it('sorts last update by timestamp with never-reported stations last', () => {
-    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
+    render(<PrecipAccumulationTable table={table} unit="default" onUnitChange={jest.fn()} />)
 
     fireEvent.click(screen.getByTitle('Sort by Last update'))
     expect(bodyRowNames()).toEqual(['Zeta', 'Alta', 'Mist'])
@@ -98,7 +98,7 @@ describe('PrecipAccumulationTable', () => {
   })
 
   it('shows totals in the unit and precision SnowObs sent, converting only elevation', () => {
-    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={jest.fn()} />)
+    render(<PrecipAccumulationTable table={table} unit="default" onUnitChange={jest.fn()} />)
     expect(screen.getByText('0.10')).toBeInTheDocument()
     expect(screen.getByText('4,000')).toBeInTheDocument()
     cleanup()
@@ -119,7 +119,7 @@ describe('PrecipAccumulationTable', () => {
 
   it('asks for the other unit system when toggled', () => {
     const onUnitChange = jest.fn()
-    render(<PrecipAccumulationTable table={table} unit="imperial" onUnitChange={onUnitChange} />)
+    render(<PrecipAccumulationTable table={table} unit="default" onUnitChange={onUnitChange} />)
     fireEvent.click(screen.getByText('Metric'))
     expect(onUnitChange).toHaveBeenCalledWith('metric')
   })
@@ -128,7 +128,7 @@ describe('PrecipAccumulationTable', () => {
     render(
       <PrecipAccumulationTable
         table={table}
-        unit="imperial"
+        unit="default"
         onUnitChange={jest.fn()}
         columns={['elevation', '24h', '1h', 'lastUpdate', '72h']}
       />,
@@ -155,7 +155,7 @@ describe('PrecipAccumulationTable', () => {
     render(
       <PrecipAccumulationTable
         table={{ rows: [], timezoneLabel: '', unit: '', decimals: 0 }}
-        unit="imperial"
+        unit="default"
         onUnitChange={jest.fn()}
       />,
     )

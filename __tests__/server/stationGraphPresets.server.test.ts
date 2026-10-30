@@ -87,7 +87,7 @@ describe('axis bounds', () => {
   it('swaps in the metric reference line and axis', () => {
     expect(presetFor(preset('temp'), 'metric')).toMatchObject({ refLine: 0, axis: { minSpan: 5 } })
     expect(presetFor(preset('snowdepth'), 'metric').axis).toEqual({ min: 0, minSpan: 30 })
-    expect(presetFor(preset('temp'), 'imperial')).toMatchObject({
+    expect(presetFor(preset('temp'), 'default')).toMatchObject({
       refLine: 32,
       axis: { minSpan: 10 },
     })

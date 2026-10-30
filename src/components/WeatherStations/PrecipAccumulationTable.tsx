@@ -6,7 +6,7 @@ import type {
   PrecipAccumulationRow,
 } from '@/services/snowobs/tableHelpers'
 import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
-import type { UnitSystem } from '@/services/snowobs/units'
+import type { StationUnits } from '@/services/snowobs/units'
 import { elevationIn, formatReading } from '@/services/snowobs/units'
 import type { PrecipColumn } from '@/services/stations/precipColumns'
 import { ALL_PRECIP_COLUMNS } from '@/services/stations/precipColumns'
@@ -17,8 +17,8 @@ import { StationTableFrame, StationTableHeader } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
 // Totals come from the API in the chosen system's unit and precision; elevation is always feet.
-type Unit = UnitSystem
-const ELEVATION_UNIT: Record<Unit, string> = { imperial: 'ft', metric: 'm' }
+type Unit = StationUnits
+const ELEVATION_UNIT: Record<Unit, string> = { default: 'ft', metric: 'm' }
 
 // Sortable columns: station name, each trailing window (by hours), and the
 // metadata columns. Numbers default to descending, name to ascending.

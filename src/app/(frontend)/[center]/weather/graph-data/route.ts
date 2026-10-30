@@ -8,8 +8,8 @@ import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKey } from '@/services/snowobs/stationKey'
 import { unknownStationKeys } from '@/services/snowobs/trackedStations'
-import type { UnitSystem } from '@/services/snowobs/units'
-import { parseUnitSystem } from '@/services/snowobs/units'
+import type { StationUnits } from '@/services/snowobs/units'
+import { parseStationUnits } from '@/services/snowobs/units'
 import type { AssembledStationPage } from '@/services/stations/getStationPages'
 import { allStations, getStationPages } from '@/services/stations/getStationPages'
 import { unknownCenterResponse } from '@/utilities/apiResponses'
@@ -86,7 +86,7 @@ type GraphQuery = {
   vars: string[]
   from: Date
   to: Date
-  units: UnitSystem
+  units: StationUnits
 }
 
 function parseQuery(url: URL, pages: AssembledStationPage[]): NextResponse | GraphQuery {
@@ -94,10 +94,10 @@ function parseQuery(url: URL, pages: AssembledStationPage[]): NextResponse | Gra
   const vars = csvParam(url.searchParams.get('vars'))
   const from = dateParam(url, 'from')
   const to = dateParam(url, 'to')
-  const units = parseUnitSystem(url.searchParams.get('units'))
+  const units = parseStationUnits(url.searchParams.get('units'))
   const error = validateLists(keys, vars, pages) ?? validateWindow(from, to)
   if (error) return badRequest(error)
-  if (!units) return badRequest('units must be imperial or metric')
+  if (!units) return badRequest('units must be default or metric')
   // Every key passed validation, so each parses.
   const stations = keys.flatMap((key) => parseStationKey(key) ?? [])
   return { keys, stations, vars, from, to, units }

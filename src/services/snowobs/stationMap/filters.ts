@@ -9,7 +9,8 @@ import { boundsOfGeometries, type Bounds } from '@/utilities/geo/bounds'
 
 import { OTHER_ZONE } from './mappers'
 
-import type { StationMapStation, StationMapUnits, StationMapWebcam, StationMapZone } from './model'
+import type { StationUnits } from '../units'
+import type { StationMapStation, StationMapWebcam, StationMapZone } from './model'
 
 export const SHOW_ALL_VARIABLE = 'show_all'
 /** The widget's "no recency limit" sentinel; large enough that nothing is ever older. */
@@ -22,7 +23,7 @@ export interface StationMapFilters {
   variable: string
   /** Hide stations whose latest reading is older than this many minutes. */
   withinMinutes: number
-  units: StationMapUnits
+  units: StationUnits
   /** Only one data source, or null for all. */
   source: string | null
   type: StationMapType
@@ -50,7 +51,7 @@ export const WITHIN_OPTIONS: { value: number; label: string }[] = [
 
 // No English: SnowObs's english pins pressure, snow depth, SWE and precip to fixed units
 // whatever the center sets, where Default honors its settings. See ADR 021.
-export const UNIT_OPTIONS: { value: StationMapUnits; label: string }[] = [
+export const UNIT_OPTIONS: { value: StationUnits; label: string }[] = [
   { value: 'default', label: 'Default' },
   { value: 'metric', label: 'Metric' },
 ]

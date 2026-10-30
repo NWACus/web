@@ -307,7 +307,7 @@ describe('StationGraphs compare picker', () => {
 
   it("refetches in SnowObs's metric units when the reader switches to metric", () => {
     renderGraphs()
-    expect(fetchedUrls()[0]).toContain('units=imperial')
+    expect(fetchedUrls()[0]).toContain('units=default')
     fireEvent.click(screen.getAllByRole('button', { name: 'Metric' })[0])
     expect(fetchedUrls().at(-1)).toContain('units=metric')
     window.localStorage.clear()

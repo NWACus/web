@@ -28,7 +28,7 @@ beforeEach(() => {
 describe('the Table tab', () => {
   it('reads both unit systems, each cached for 60 seconds as SnowObs does', async () => {
     await resolveTabView(context, 'table', {})
-    for (const units of ['imperial', 'metric']) {
+    for (const units of ['default', 'metric']) {
       expect(fetchStationTimeseriesMock).toHaveBeenCalledWith(
         'nwac',
         context.subject.stations,
