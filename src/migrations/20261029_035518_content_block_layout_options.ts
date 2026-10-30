@@ -26,530 +26,506 @@ async function swapReversedLayouts(db: MigrateUpArgs['db']) {
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_blog_list\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_blog_list\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_blog_list\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_blog_list\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
     sql`ALTER TABLE \`home_pages_blocks_content\` ADD \`vertical_alignment\` text DEFAULT 'top';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_content\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_content\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_content\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_content\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_document_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_document_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_document_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_document_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_event_list\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_event_list\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_event_list\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_event_list\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_event_table\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_event_table\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_event_table\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_event_table\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_form_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_form_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_form_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_form_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_form_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_form_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_form_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_form_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_gallery\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_gallery\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_gallery\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_gallery\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_generic_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_generic_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_generic_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_generic_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_header_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_header_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_header_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_header_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_image_link_grid\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_image_link_grid\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_image_link_grid\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_image_link_grid\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_image_text\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_image_text\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_image_text\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_image_text\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_link_preview\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_link_preview\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_link_preview\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_link_preview\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_nac_media_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_nac_media_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_nac_media_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_nac_media_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_observations_widget\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_observations_widget\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_observations_widget\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_observations_widget\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_precip_table\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_precip_table\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_precip_table\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_precip_table\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_single_blog_post\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_single_blog_post\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_single_blog_post\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_single_blog_post\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_single_event\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_single_event\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_single_event\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_single_event\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_sponsors_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_sponsors_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_sponsors_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_sponsors_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
-  await db.run(sql`ALTER TABLE \`home_pages_blocks_team\` ADD \`spacing_top\` text DEFAULT 'none';`)
+  await db.run(sql`ALTER TABLE \`home_pages_blocks_team\` ADD \`spacing_top\` text DEFAULT 'sm';`)
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_team\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_video_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_team\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_video_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_video_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_blog_list\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`home_pages_blocks_video_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_blog_list\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_blog_list\` ADD \`spacing_top\` text DEFAULT 'sm';`,
+  )
+  await db.run(
+    sql`ALTER TABLE \`_home_pages_v_blocks_blog_list\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
     sql`ALTER TABLE \`_home_pages_v_blocks_content\` ADD \`vertical_alignment\` text DEFAULT 'top';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_content\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_content\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_content\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_content\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_document_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_document_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_document_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_document_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_event_list\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_event_list\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_event_list\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_event_list\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_event_table\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_event_table\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_event_table\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_event_table\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_form_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_form_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_form_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_form_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_form_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_form_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_form_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_form_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_gallery\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_gallery\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_gallery\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_gallery\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_generic_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_generic_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_generic_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_generic_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_header_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_header_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_header_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_header_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_image_link_grid\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_image_link_grid\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_image_link_grid\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_image_link_grid\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_image_text\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_image_text\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_image_text\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_image_text\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_link_preview\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_link_preview\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_link_preview\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_link_preview\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_nac_media_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_nac_media_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_nac_media_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_nac_media_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_observations_widget\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_observations_widget\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_observations_widget\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_observations_widget\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_precip_table\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_precip_table\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_precip_table\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_precip_table\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_single_blog_post\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_single_blog_post\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_single_blog_post\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_single_blog_post\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_single_event\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_single_event\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_single_event\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_single_event\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_sponsors_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_sponsors_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_sponsors_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_sponsors_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_team\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_team\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_team\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_team\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_video_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_video_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_video_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_video_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
-  await db.run(sql`ALTER TABLE \`pages_blocks_blog_list\` ADD \`spacing_top\` text DEFAULT 'none';`)
+  await db.run(sql`ALTER TABLE \`pages_blocks_blog_list\` ADD \`spacing_top\` text DEFAULT 'sm';`)
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_blog_list\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_blog_list\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
     sql`ALTER TABLE \`pages_blocks_content\` ADD \`vertical_alignment\` text DEFAULT 'top';`,
   )
-  await db.run(sql`ALTER TABLE \`pages_blocks_content\` ADD \`spacing_top\` text DEFAULT 'none';`)
+  await db.run(sql`ALTER TABLE \`pages_blocks_content\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(sql`ALTER TABLE \`pages_blocks_content\` ADD \`spacing_bottom\` text DEFAULT 'sm';`)
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_content\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_document_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_document_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_document_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`pages_blocks_event_list\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`pages_blocks_event_list\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`pages_blocks_event_table\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`pages_blocks_event_table\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`pages_blocks_form_block\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`pages_blocks_form_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`pages_blocks_form_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`pages_blocks_form_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`pages_blocks_gallery\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(sql`ALTER TABLE \`pages_blocks_gallery\` ADD \`spacing_bottom\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`pages_blocks_generic_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_document_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_generic_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_event_list\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_header_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_event_list\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_header_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_event_table\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_image_link_grid\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_event_table\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_image_link_grid\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`pages_blocks_image_text\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`pages_blocks_image_text\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_form_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_link_preview\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_form_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_link_preview\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_form_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_nac_media_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_form_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(sql`ALTER TABLE \`pages_blocks_gallery\` ADD \`spacing_top\` text DEFAULT 'none';`)
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_gallery\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_nac_media_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_generic_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_observations_widget\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_generic_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_observations_widget\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_header_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_precip_table\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_header_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_precip_table\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_image_link_grid\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_single_blog_post\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_image_link_grid\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_single_blog_post\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_image_text\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_single_event\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_image_text\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_single_event\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_link_preview\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_sponsors_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_link_preview\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`pages_blocks_sponsors_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`pages_blocks_team\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(sql`ALTER TABLE \`pages_blocks_team\` ADD \`spacing_bottom\` text DEFAULT 'sm';`)
+  await db.run(sql`ALTER TABLE \`pages_blocks_video_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`pages_blocks_video_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_blog_list\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_nac_media_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_nac_media_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_observations_widget\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_observations_widget\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_precip_table\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_precip_table\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_single_blog_post\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_single_blog_post\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_single_event\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_single_event\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_sponsors_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_sponsors_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(sql`ALTER TABLE \`pages_blocks_team\` ADD \`spacing_top\` text DEFAULT 'none';`)
-  await db.run(sql`ALTER TABLE \`pages_blocks_team\` ADD \`spacing_bottom\` text DEFAULT 'none';`)
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_video_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`pages_blocks_video_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_blog_list\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_blog_list\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_blog_list\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
     sql`ALTER TABLE \`_pages_v_blocks_content\` ADD \`vertical_alignment\` text DEFAULT 'top';`,
   )
+  await db.run(sql`ALTER TABLE \`_pages_v_blocks_content\` ADD \`spacing_top\` text DEFAULT 'sm';`)
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_content\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_content\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_content\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_document_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_document_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_document_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_document_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_event_list\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_event_list\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_event_list\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_event_list\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_event_table\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_event_table\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_event_table\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_event_table\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_form_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_form_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_form_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_form_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_form_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_form_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_form_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`_pages_v_blocks_gallery\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`_pages_v_blocks_gallery\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_form_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_generic_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_gallery\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_generic_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_gallery\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_header_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_generic_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_header_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_generic_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_image_link_grid\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_header_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_image_link_grid\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_header_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_image_text\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_image_link_grid\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_image_text\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_image_link_grid\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_link_preview\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_image_text\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_link_preview\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_image_text\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_link_preview\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_link_preview\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_nac_media_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_nac_media_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_observations_widget\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_nac_media_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_observations_widget\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_nac_media_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_precip_table\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_observations_widget\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_precip_table\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_observations_widget\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_single_blog_post\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_precip_table\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_single_blog_post\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_precip_table\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_single_event\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_single_blog_post\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_single_event\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_single_blog_post\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_sponsors_block\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_single_event\` ADD \`spacing_top\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_sponsors_block\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
+  )
+  await db.run(sql`ALTER TABLE \`_pages_v_blocks_team\` ADD \`spacing_top\` text DEFAULT 'sm';`)
+  await db.run(sql`ALTER TABLE \`_pages_v_blocks_team\` ADD \`spacing_bottom\` text DEFAULT 'sm';`)
+  await db.run(
+    sql`ALTER TABLE \`_pages_v_blocks_video_embed\` ADD \`spacing_top\` text DEFAULT 'sm';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_single_event\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_sponsors_block\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_sponsors_block\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(sql`ALTER TABLE \`_pages_v_blocks_team\` ADD \`spacing_top\` text DEFAULT 'none';`)
-  await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_team\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_video_embed\` ADD \`spacing_top\` text DEFAULT 'none';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_video_embed\` ADD \`spacing_bottom\` text DEFAULT 'none';`,
+    sql`ALTER TABLE \`_pages_v_blocks_video_embed\` ADD \`spacing_bottom\` text DEFAULT 'sm';`,
   )
   await swapReversedLayouts(db)
 }

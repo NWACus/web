@@ -29,9 +29,19 @@ import { cn } from '@/utilities/ui'
 
 type LayoutBlock = Page['layout'][number] | HomePage['layout'][number]
 
-// Padding, not margin, so the extra space adds to the block's own spacing instead of collapsing into it
-const spaceAbove: Record<string, string> = { sm: 'pt-4', md: 'pt-8 md:pt-12', lg: 'pt-16 md:pt-24' }
-const spaceBelow: Record<string, string> = { sm: 'pb-4', md: 'pb-8 md:pb-12', lg: 'pb-16 md:pb-24' }
+// Margins, so neighbors collapse and the larger of the two settings sets the gap
+const spaceAbove: Record<string, string> = {
+  none: 'mt-0 md:mt-0',
+  sm: 'mt-3 md:mt-5',
+  md: 'mt-6 md:mt-10',
+  lg: 'mt-12 md:mt-20',
+}
+const spaceBelow: Record<string, string> = {
+  none: 'mb-0 md:mb-0',
+  sm: 'mb-3 md:mb-5',
+  md: 'mb-6 md:mb-10',
+  lg: 'mb-12 md:mb-20',
+}
 
 export const RenderBlocks = (props: { blocks: LayoutBlock[]; payload: Payload }) => {
   const { blocks } = props
@@ -46,8 +56,8 @@ export const RenderBlocks = (props: { blocks: LayoutBlock[]; payload: Payload })
             <div
               key={`${block.id}__${block.blockType}`}
               className={cn(
-                block.spacingTop && spaceAbove[block.spacingTop],
-                block.spacingBottom && spaceBelow[block.spacingBottom],
+                spaceAbove[block.spacingTop ?? 'sm'],
+                spaceBelow[block.spacingBottom ?? 'sm'],
               )}
             >
               <RenderBlock block={block} />

@@ -15,7 +15,7 @@ const layoutName = (layout: string) => {
 }
 
 const spacingName = (value: unknown) =>
-  SPACING_OPTIONS.find((opt) => opt.value === value && value !== 'none')?.label
+  SPACING_OPTIONS.find((opt) => opt.value === value && value !== 'sm')?.label
 
 // The collapsible's own path ends in an `_index-N` segment; its fields live on the block
 export const LayoutSummaryLabel = ({ path }: { path?: string }) => {

@@ -8,7 +8,7 @@ sig = "6ac7f8f5a53e0d2f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "4159ea646c1212b4"
+sig = "1c2086d33bc717cd"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -713,12 +713,12 @@ sig = "b3dd8b3c14b678af"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/blocks/ObservationsWidget/Component.tsx"
-sig = "eb24f127761f7a4d"
+sig = "08ac032e5754f875"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/blocks/RenderBlocks.tsx"
-sig = "33cd88273287d711"
+sig = "cb5e47999b730a9e"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -728,7 +728,7 @@ sig = "f9e8741dfcaf1662"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/components/BackgroundColorWrapper.tsx"
-sig = "1f3fa07c611dc9fd"
+sig = "a891fa006dce2494"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -918,7 +918,7 @@ sig = "34d222e25d387cd0"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/components/EmbedFrame/EmbedLayout.tsx"
-sig = "c5b62a3c016ac3eb"
+sig = "0b05b78c24ae2c8e"
 
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
@@ -1258,7 +1258,7 @@ sig = "32c2d60a25e1dced"
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"
 target = "src/blocks/Document/Component.tsx"
-sig = "7d26df9de7b357cc"
+sig = "d0f1ad93edcccc91"
 
 [[bindings]]
 doc = "docs/decisions/023-document-upload-restrictions.md"

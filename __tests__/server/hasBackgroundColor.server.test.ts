@@ -1,9 +1,5 @@
-import {
-  BLOCK_MARGIN,
-  BLOCK_PADDING,
-  blockSpacing,
-  hasBackgroundColor,
-} from '@/components/BackgroundColorWrapper'
+import { BLOCK_PADDING, blockSpacing } from '@/components/BackgroundColorWrapper'
+import { hasBackgroundColor } from '@/fields/color'
 
 describe('hasBackgroundColor', () => {
   it('is true for any palette color but transparent', () => {
@@ -17,29 +13,16 @@ describe('hasBackgroundColor', () => {
 })
 
 describe('blockSpacing', () => {
-  it('gives a plain layout block margin only', () => {
-    expect(blockSpacing('transparent', true)).toEqual({
-      outer: BLOCK_MARGIN,
-      inner: false,
-      bg: false,
-    })
+  it('gives a plain block nothing', () => {
+    expect(blockSpacing('transparent')).toEqual({ inner: false, bg: false })
   })
 
-  it('gives a colored layout block padding and its color, no margin', () => {
-    expect(blockSpacing('brand-300', true)).toEqual({
-      outer: false,
-      inner: BLOCK_PADDING,
-      bg: 'bg-brand-300',
-    })
-    expect(blockSpacing('white', true).bg).toBe('bg-white')
-  })
-
-  it('never gives an inline block margin', () => {
-    expect(blockSpacing('transparent', false).outer).toBe(false)
-    expect(blockSpacing('brand-300', false).outer).toBe(false)
+  it('gives a colored block padding and its color', () => {
+    expect(blockSpacing('brand-300')).toEqual({ inner: BLOCK_PADDING, bg: 'bg-brand-300' })
+    expect(blockSpacing('white').bg).toBe('bg-white')
   })
 
   it('treats an off-palette value as no background', () => {
-    expect(blockSpacing('gray', true)).toEqual({ outer: BLOCK_MARGIN, inner: false, bg: false })
+    expect(blockSpacing('gray')).toEqual({ inner: false, bg: false })
   })
 })

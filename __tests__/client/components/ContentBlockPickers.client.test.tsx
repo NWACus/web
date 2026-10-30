@@ -149,11 +149,11 @@ describe('LayoutSummaryLabel', () => {
     expect(screen.getByText('· Full width · Transparent')).toBeInTheDocument()
   })
 
-  it('shows content alignment and extra spacing when the block has them', () => {
+  it('shows content alignment and spacing other than the default Small', () => {
     mockFieldValues.set('layout.0.backgroundColor', 'white')
     mockFieldValues.set('layout.0.alignContent', 'center')
     mockFieldValues.set('layout.0.spacingTop', 'lg')
-    mockFieldValues.set('layout.0.spacingBottom', 'none')
+    mockFieldValues.set('layout.0.spacingBottom', 'sm')
     renderLabel()
 
     expect(screen.getByText('· White · Aligned center · Above: Large')).toBeInTheDocument()
@@ -161,10 +161,10 @@ describe('LayoutSummaryLabel', () => {
 
   it("ignores another block's own layout option", () => {
     mockFieldValues.set('layout.0.layout', 'masonry')
-    mockFieldValues.set('layout.0.spacingBottom', 'sm')
+    mockFieldValues.set('layout.0.spacingBottom', 'none')
     renderLabel()
 
-    expect(screen.getByText('· Below: Small')).toBeInTheDocument()
+    expect(screen.getByText('· Below: None')).toBeInTheDocument()
   })
 
   it('shows just the title when nothing is set', () => {

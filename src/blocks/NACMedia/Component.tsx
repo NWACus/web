@@ -20,12 +20,12 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
   }, [center])
 
   const textColor = getTextColorFromBgColor(backgroundColor)
-  const spacing = blockSpacing(backgroundColor, true)
+  const spacing = blockSpacing(backgroundColor)
 
   if (!center) return null
 
   return (
-    <div className={cn(spacing.outer, spacing.bg)}>
+    <div className={cn(spacing.bg)}>
       <div className={cn('container w-full text-center', spacing.inner, textColor)}>
         <NACWidget center={center} widget={'media'} mediaMode={mode} />
       </div>
