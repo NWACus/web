@@ -58,6 +58,15 @@ function LatestObservation({
   return <StationLatestObservation table={table} />
 }
 
+type StationTables = { default: StationTable; metric: StationTable | null }
+
+// A failed metric read shows the default table, labelled as such, until the next load.
+function shownTable(tables: StationTables, wanted: StationUnits): [StationTable, StationUnits] {
+  return wanted === 'metric' && tables.metric
+    ? [tables.metric, 'metric']
+    : [tables.default, 'default']
+}
+
 export function StationTableView({
   tables,
   activePeriodKey,
@@ -65,8 +74,8 @@ export function StationTableView({
   timeZone,
   tabs,
 }: {
-  /** Both systems, built server-side, so the unit toggle is instant. */
-  tables: Record<StationUnits, StationTable>
+  /** Both systems, built server-side, so the unit toggle is instant; metric is null if it failed. */
+  tables: StationTables
   /** The preset in force; a valid custom range overrides it. */
   activePeriodKey: string
   customRange: DateRange | null
@@ -74,7 +83,7 @@ export function StationTableView({
   tabs?: ReactNode
 }) {
   const [unitSystem, changeStationUnits] = useStationUnits()
-  const table = tables[unitSystem]
+  const [table, units] = shownTable(tables, unitSystem)
   return (
     <div className="flex flex-col gap-2">
       {/* Not pinned: it would sit on top of the frozen table header. */}
@@ -88,11 +97,11 @@ export function StationTableView({
           />
           <div className="flex flex-wrap items-center gap-3">
             <LatestObservation table={table} customRange={customRange} timeZone={timeZone} />
-            <UnitToggle unit={unitSystem} onChange={changeStationUnits} />
+            {tables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
           </div>
         </div>
       </StationViewBar>
-      <StationNowTable table={table} elevationUnit={unitSystem === 'metric' ? ' m' : undefined} />
+      <StationNowTable table={table} elevationUnit={units === 'metric' ? ' m' : undefined} />
     </div>
   )
 }

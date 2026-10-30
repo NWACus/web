@@ -17,6 +17,7 @@ import { resolveColumns } from '@/services/snowobs/deriveColumns'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
+import { fetchVariableRounding } from '@/services/snowobs/stationTracking'
 import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
 import { buildStationTable, stationNotes, stationSummaries } from '@/services/snowobs/tableHelpers'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
@@ -163,15 +164,21 @@ async function tableTabView(
   const period = resolveTablePeriod(params.period)
   const custom = parseCustomRange(params.from, params.to, TABLE_MAX_CUSTOM_DAYS, timeZone, now)
   const range = tableWindow(period, custom, timeZone, now)
-  // SnowObs serves each system in its own units and rounding, so the table reads both.
-  const [standard, metric] = await Promise.all([
+  // SnowObs serves each system in its own units, so the table reads both. Metric is the
+  // reader's option: if it fails, the table still shows, without the toggle.
+  const [standard, metric, rounding] = await Promise.all([
     fetchStationTimeseries(center, subject.stations, { ...range, units: 'default' }),
-    fetchStationTimeseries(center, subject.stations, { ...range, units: 'metric' }),
+    fetchStationTimeseries(center, subject.stations, { ...range, units: 'metric' }).catch(
+      () => null,
+    ),
+    fetchVariableRounding(center),
   ])
   const columns = resolveColumns(standard, subject)
   const tables = {
-    default: buildStationTable(center, standard, columns),
-    metric: withElevationsIn(buildStationTable(center, metric, columns), 'metric'),
+    default: buildStationTable(center, standard, columns, rounding),
+    metric: metric
+      ? withElevationsIn(buildStationTable(center, metric, columns, rounding), 'metric')
+      : null,
   }
   return {
     tabContent: (

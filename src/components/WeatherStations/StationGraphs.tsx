@@ -66,12 +66,14 @@ function useGraphData(
   range: GraphRange,
   timeZone: string,
   units: StationUnits,
+  unitsLoaded: boolean,
 ) {
   const [data, setData] = useState<GraphData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!unitsLoaded) return
     const { from, to } = graphWindow(range, timeZone)
     const controller = new AbortController()
     setError(null)
@@ -86,7 +88,7 @@ function useGraphData(
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [stations, variables, range, timeZone, units])
+  }, [stations, variables, range, timeZone, units, unitsLoaded])
 
   return { data, error, loading }
 }
@@ -106,12 +108,10 @@ function PresetChart({
   preset,
   data,
   primaryKeys,
-  unitSystem,
 }: {
   preset: GraphPreset
   data: GraphData
   primaryKeys: string[]
-  unitSystem: StationUnits
 }) {
   const presetData = useMemo(() => {
     const filtered = {
@@ -121,8 +121,8 @@ function PresetChart({
     return preset.allowNegative ? filtered : clampNegativeValues(filtered)
   }, [data, preset])
   const option = useMemo(
-    () => buildChartOption(presetData, presetFor(preset, unitSystem), primaryKeys),
-    [presetData, preset, unitSystem, primaryKeys],
+    () => buildChartOption(presetData, presetFor(preset, presetData.series[0]?.unit), primaryKeys),
+    [presetData, preset, primaryKeys],
   )
   return <EChart option={option} group="station-graphs" />
 }
@@ -140,7 +140,6 @@ function GraphsCharts({
   data,
   error,
   loading,
-  unitSystem,
 }: {
   presets: GraphPreset[]
   primaryKeys: string[]
@@ -148,7 +147,6 @@ function GraphsCharts({
   data: GraphData | null
   error: string | null
   loading: boolean
-  unitSystem: StationUnits
 }) {
   if (error) {
     return <p className="text-sm text-muted-foreground">{`Couldn't load station data: ${error}`}</p>
@@ -173,12 +171,7 @@ function GraphsCharts({
             >
               <X className="h-4 w-4" />
             </button>
-            <PresetChart
-              preset={preset}
-              data={data}
-              primaryKeys={primaryKeys}
-              unitSystem={unitSystem}
-            />
+            <PresetChart preset={preset} data={data} primaryKeys={primaryKeys} />
           </div>
         ))}
       </div>
@@ -263,7 +256,7 @@ export function StationGraphs({
     custom: null,
   })
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
-  const [unitSystem, changeStationUnits] = useStationUnits()
+  const [unitSystem, changeStationUnits, unitsLoaded] = useStationUnits()
 
   const allStations = useMemo(
     () => combinedStations(stations, compareSlugs, pages),
@@ -281,6 +274,7 @@ export function StationGraphs({
     graphRange,
     timeZone,
     unitSystem,
+    unitsLoaded,
   )
 
   const emptyKeys = useMemo(() => emptyPresetKeys(data, presets), [data, presets])
@@ -314,7 +308,6 @@ export function StationGraphs({
         data={data}
         error={error}
         loading={loading}
-        unitSystem={unitSystem}
       />
     </div>
   )

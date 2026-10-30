@@ -26,7 +26,7 @@ function formatSnowObsDate(date: Date): string {
   return format(date, 'yyyyMMddHHmm', { in: tz('UTC') })
 }
 
-type FetchOptions = {
+export type FetchOptions = {
   // Trailing-window fetch (used when start/end are omitted).
   windowHours?: number
   // Explicit window — overrides windowHours when provided.
@@ -36,6 +36,8 @@ type FetchOptions = {
   revalidate?: number
   // Imperial reads the center's configured default units.
   units?: StationUnits
+  // Every sensor, unrounded, in the logger's own units: only the CSV wants that.
+  rawData?: boolean
 }
 
 // A cached window floors `end` to its bucket so the URL stays stable.
@@ -56,6 +58,7 @@ function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token
     end_date: formatSnowObsDate(end),
     units: options.units ?? 'default',
   })
+  if (options.rawData) params.set('raw_data', 'true')
   return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
 }
 
@@ -121,6 +124,39 @@ async function requestTimeseries(
   )
 }
 
+function isServerError(error: unknown): boolean {
+  return error instanceof SnowObsError && error.context?.status === 500
+}
+
+function mergeTimeseries(responses: SnowObsTimeseriesResponse[]): SnowObsTimeseriesResponse {
+  const variables = new Map(responses.flatMap((r) => r.VARIABLES).map((v) => [v.variable, v]))
+  return {
+    UNITS: Object.assign({}, ...responses.map((r) => r.UNITS)),
+    VARIABLES: Array.from(variables.values()),
+    STATION: responses.flatMap((r) => r.STATION),
+  }
+}
+
+// One station's bad data 500s the whole batch, so retry each station alone and keep the ones
+// that load; only the failing station drops out, rather than blanking the page.
+async function requestEachStation(
+  stations: StationRef[],
+  options: FetchOptions,
+  token: string,
+  error: unknown,
+): Promise<SnowObsTimeseriesResponse> {
+  const results = await Promise.allSettled(
+    stations.map((station) => requestTimeseries([station], options, token)),
+  )
+  const loaded = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+  if (loaded.length === 0) throw error
+  const failed = stations.filter((_, i) => results[i].status === 'rejected').map((s) => s.stid)
+  if (failed.length > 0) {
+    await logSnowObsError('fetchStationTimeseries per-station', error, { stids: failed })
+  }
+  return mergeTimeseries(loaded)
+}
+
 // Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
 export async function fetchStationTimeseries(
   centerSlug: string,
@@ -131,7 +167,13 @@ export async function fetchStationTimeseries(
 
   try {
     const token = await resolveSnowObsToken(centerSlug)
-    return await requestTimeseries(stations, options, token)
+    try {
+      return await requestTimeseries(stations, options, token)
+    } catch (error) {
+      // Only a 500 is one station's data; a bad token or an outage fails them all alike.
+      if (stations.length < 2 || !isServerError(error)) throw error
+      return await requestEachStation(stations, options, token, error)
+    }
   } catch (error) {
     await logSnowObsError('fetchStationTimeseries', error, { stids })
     throw toSnowObsError(error, stids)

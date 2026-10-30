@@ -13,6 +13,7 @@ import {
   parseStationUnits,
   roundTo,
   seriesDecimals,
+  variableDecimals,
 } from '../../src/services/snowobs/units'
 
 const table: StationTable = {
@@ -120,6 +121,15 @@ describe('seriesDecimals', () => {
 
   it('caps a float artifact rather than showing every digit', () => {
     expect(seriesDecimals([0.1 + 0.2])).toBe(4)
+  })
+})
+
+describe('variableDecimals', () => {
+  it("prefers the center's SnowObs rounding, so a dry week's 0s keep two places", () => {
+    expect(variableDecimals('precip_accum_one_hour', [0, 0, 0], { precip_accum_one_hour: 2 })).toBe(
+      2,
+    )
+    expect(variableDecimals('air_temp', [33.1], {})).toBe(1)
   })
 })
 

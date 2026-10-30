@@ -2,11 +2,16 @@ import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
 jest.mock('../../src/payload.config', () => ({}))
+jest.mock('../../src/services/snowobs/access', () => ({
+  ...jest.requireActual('../../src/services/snowobs/access'),
+  resolveSnowObsToken: jest.fn(async () => 't'),
+}))
 
 import {
   fetchCatalogue,
   fetchCurrentObservations,
   fetchTrackedStations,
+  fetchVariableRounding,
   withCurrentObservations,
   withUntracked,
 } from '@/services/snowobs/stationTracking'
@@ -31,6 +36,28 @@ const station = (stid: string, source = 'nwac') => ({
   variables: [],
   observedAt: null,
   tracked: true,
+})
+
+describe('fetchVariableRounding', () => {
+  const TRACKING_URL = 'https://api.snowobs.com/wx/v1/variable/tracking/'
+
+  it('maps each Tracked Variable to the decimals the center rounds it to', async () => {
+    server.use(
+      http.get(TRACKING_URL, () =>
+        HttpResponse.json([
+          { variable: 'precip_accum_one_hour', rounding: 2, default_unit: 'inches' },
+          { variable: 'air_temp', rounding: 1 },
+          { variable: 'wet_bulb', rounding: null },
+        ]),
+      ),
+    )
+    expect(await fetchVariableRounding('nwac')).toEqual({ precip_accum_one_hour: 2, air_temp: 1 })
+  })
+
+  it('comes back empty when SnowObs fails, so readings fall back to their own precision', async () => {
+    server.use(http.get(TRACKING_URL, () => new HttpResponse(null, { status: 500 })))
+    expect(await fetchVariableRounding('nwac')).toEqual({})
+  })
 })
 
 describe('withCurrentObservations', () => {

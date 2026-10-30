@@ -7,18 +7,20 @@ import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'nwac-station-graph-units'
 
-// Unit choice persisted per browser; localStorage is browser-only, so the
-// stored choice loads after mount.
-export function useStationUnits(): [StationUnits, (units: StationUnits) => void] {
+// Unit choice persisted per browser; localStorage is browser-only, so the stored choice loads
+// after mount. `loaded` says it has, so a fetch can wait rather than fetch the default first.
+export function useStationUnits(): [StationUnits, (units: StationUnits) => void, boolean] {
   const [units, setUnits] = useState<StationUnits>('default')
+  const [loaded, setLoaded] = useState(false)
   useEffect(() => {
     setUnits(readLocalStorage(STORAGE_KEY) === 'metric' ? 'metric' : 'default')
+    setLoaded(true)
   }, [])
   const changeUnits = (next: StationUnits) => {
     setUnits(next)
     writeLocalStorage(STORAGE_KEY, next)
   }
-  return [units, changeUnits]
+  return [units, changeUnits, loaded]
 }
 
 export function UnitToggle({

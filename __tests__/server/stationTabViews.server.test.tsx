@@ -2,6 +2,9 @@ const fetchStationTimeseriesMock = jest.fn()
 jest.mock('../../src/services/snowobs/snowobs', () => ({
   fetchStationTimeseries: (...args: unknown[]) => fetchStationTimeseriesMock(...args),
 }))
+jest.mock('../../src/services/snowobs/stationTracking', () => ({
+  fetchVariableRounding: jest.fn(async () => ({})),
+}))
 
 import type { StationTabContext } from '@/components/WeatherStations/stationTabViews'
 import { resolveTabView } from '@/components/WeatherStations/stationTabViews'
@@ -35,6 +38,17 @@ describe('the Table tab', () => {
         expect.objectContaining({ units, revalidate: 60, windowHours: 24 }),
       )
     }
+  })
+
+  it('still renders the table when the metric read fails', async () => {
+    fetchStationTimeseriesMock.mockImplementation(
+      async (_c: string, _s: unknown, o: { units?: string }) => {
+        if (o.units === 'metric') throw new Error('metric down')
+        return { UNITS: {}, VARIABLES: [], STATION: [] }
+      },
+    )
+    const view = await resolveTabView(context, 'table', {})
+    expect(view.tabContent).toBeTruthy()
   })
 
   it('reads a valid custom range as whole days in the center zone', async () => {

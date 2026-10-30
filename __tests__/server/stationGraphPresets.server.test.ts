@@ -84,16 +84,17 @@ describe('axis bounds', () => {
     expect(axisBounds(data('air_temp', [30, 30, 30]), preset('temp'))).toEqual({ min: 25, max: 35 })
   })
 
-  it('swaps in the metric reference line and axis', () => {
-    expect(presetFor(preset('temp'), 'metric')).toMatchObject({ refLine: 0, axis: { minSpan: 5 } })
-    expect(presetFor(preset('snowdepth'), 'metric').axis).toEqual({ min: 0, minSpan: 30 })
-    expect(presetFor(preset('temp'), 'default')).toMatchObject({
-      refLine: 32,
-      axis: { minSpan: 10 },
-    })
+  it('swaps in the reference line and axis for the unit SnowObs returned', () => {
+    expect(presetFor(preset('temp'), '°C')).toMatchObject({ refLine: 0, axis: { minSpan: 5 } })
+    expect(presetFor(preset('snowdepth'), 'cm').axis).toEqual({ min: 0, minSpan: 30 })
+    expect(presetFor(preset('wind'), 'm/s').axis).toEqual({ min: 0, minSpan: 4.5 })
+    expect(presetFor(preset('wind'), 'km/h').axis).toEqual({ min: 0, minSpan: 16 })
+    expect(presetFor(preset('pressure'), 'Pa').axis).toEqual({ minSpan: 1000 })
   })
 
-  it('keeps a preset with no unit to change, like pressure in millibar', () => {
-    expect(presetFor(preset('pressure'), 'metric')).toBe(preset('pressure'))
+  it('keeps the preset for its own unit, or one it has no override for', () => {
+    expect(presetFor(preset('temp'), '°F')).toBe(preset('temp'))
+    expect(presetFor(preset('pressure'), 'mbar')).toBe(preset('pressure'))
+    expect(presetFor(preset('temp'), undefined)).toBe(preset('temp'))
   })
 })

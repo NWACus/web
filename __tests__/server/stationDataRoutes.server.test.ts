@@ -21,6 +21,7 @@ jest.mock('../../src/services/snowobs/access', () => ({
 }))
 jest.mock('../../src/services/snowobs/stationTracking', () => ({
   fetchTrackedStations: jest.fn(async () => [nwac1]),
+  fetchVariableRounding: jest.fn(async () => ({})),
 }))
 
 import { GET as getGraphData } from '@/app/(frontend)/[center]/weather/graph-data/route'

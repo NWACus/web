@@ -7,6 +7,7 @@ import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { parseStationKey } from '@/services/snowobs/stationKey'
+import { fetchVariableRounding } from '@/services/snowobs/stationTracking'
 import { unknownStationKeys } from '@/services/snowobs/trackedStations'
 import type { StationUnits } from '@/services/snowobs/units'
 import { parseStationUnits } from '@/services/snowobs/units'
@@ -139,12 +140,12 @@ export async function GET(
   try {
     const rejected = await unknownStations(center, keys, pages)
     if (rejected) return rejected
-    const response = await fetchStationTimeseries(center, stations, {
-      start: from,
-      end: to,
-      units,
-    })
-    const data = buildGraphData(center, response, stations, vars, windowExceedsThreshold(from, to))
+    const [response, rounding] = await Promise.all([
+      fetchStationTimeseries(center, stations, { start: from, end: to, units }),
+      fetchVariableRounding(center),
+    ])
+    const aggregated = windowExceedsThreshold(from, to)
+    const data = buildGraphData(center, response, stations, vars, aggregated, rounding)
     return NextResponse.json(data, {
       headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
     })

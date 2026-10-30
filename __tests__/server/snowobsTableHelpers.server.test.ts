@@ -185,7 +185,7 @@ describe('buildStationTable with stations on different schedules', () => {
   ]
   // 02:20Z: the 02:10 reading belongs to the 03:00 row, which hasn't come yet.
   const now = Date.parse('2026-07-07T02:20:00Z')
-  const table = buildStationTable('nwac', mixed, columns, now)
+  const table = buildStationTable('nwac', mixed, columns, {}, now)
 
   it('gives one row per hour, dropping the hour still in progress', () => {
     expect(table.rows.map((r) => r.display)).toEqual(['07/06 19:00', '07/06 18:00'])
@@ -229,7 +229,7 @@ describe('buildStationTable with stations on different schedules', () => {
     const precipOnly = [
       { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'precip_accum_one_hour' },
     ]
-    const [hour] = buildStationTable('nwac', resetting, precipOnly, now).rows
+    const [hour] = buildStationTable('nwac', resetting, precipOnly, {}, now).rows
     expect(hour.values['mesowest:KSEA_precip_accum_one_hour']).toBe(0.08)
   })
 

@@ -1,6 +1,7 @@
 import { STATION_DATA_CACHE_CONTROL } from '@/services/snowobs/access'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { parseStationKeys, stationKey } from '@/services/snowobs/stationKey'
+import { fetchVariableRounding } from '@/services/snowobs/stationTracking'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { unknownStationKeys } from '@/services/snowobs/trackedStations'
 import { parseStationUnits } from '@/services/snowobs/units'
@@ -53,11 +54,13 @@ export async function GET(
       )
     }
     // One 72h fetch covers every trailing window (1H..72H are sums over it).
-    const response =
+    const [response, rounding] = await Promise.all([
       tracked.length > 0
-        ? await fetchStationTimeseries(center, tracked, { windowHours: WINDOW_HOURS, units })
-        : { UNITS: {}, VARIABLES: [], STATION: [] }
-    return NextResponse.json(buildPrecipAccumulationTable(center, response, tracked), {
+        ? fetchStationTimeseries(center, tracked, { windowHours: WINDOW_HOURS, units })
+        : { UNITS: {}, VARIABLES: [], STATION: [] },
+      fetchVariableRounding(center),
+    ])
+    return NextResponse.json(buildPrecipAccumulationTable(center, response, tracked, rounding), {
       headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
     })
   } catch (error) {

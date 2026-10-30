@@ -153,6 +153,22 @@ describe('fetchStationTimeseries', () => {
     expect(result.STATION[0].observations.air_temp).toEqual([30])
   })
 
+  it("reads a logger's -7999 no-reading code as null", async () => {
+    const station = validResponse.STATION[0]
+    server.use(
+      http.get(TIMESERIES_URL, () =>
+        HttpResponse.json({
+          ...validResponse,
+          STATION: [
+            { ...station, observations: { ...station.observations, snow_depth: [-7999, 40] } },
+          ],
+        }),
+      ),
+    )
+    const result = await fetchStationTimeseries('nwac', [ref('4')])
+    expect(result.STATION[0].observations.snow_depth).toEqual([null, 40])
+  })
+
   it('treats a 404 (no station left) as an empty timeseries', async () => {
     server.use(
       http.get(TIMESERIES_URL, () =>
@@ -167,6 +183,44 @@ describe('fetchStationTimeseries', () => {
     server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
     await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(SnowObsError)
     await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(/status 500/)
+  })
+
+  describe('when one station fails a batch', () => {
+    // SnowObs 500s any request that includes `bad`, alone or batched.
+    function failOnStation(bad: string): string[] {
+      const requested: string[] = []
+      server.use(
+        http.get(TIMESERIES_URL, ({ request }) => {
+          const stid = new URL(request.url).searchParams.get('stid') ?? ''
+          requested.push(stid)
+          return stid.split(',').includes(bad)
+            ? new HttpResponse(null, { status: 500 })
+            : HttpResponse.json({
+                ...validResponse,
+                STATION: [{ ...validResponse.STATION[0], id: stid, stid }],
+              })
+        }),
+      )
+      return requested
+    }
+
+    it('retries each station and keeps the ones that load', async () => {
+      const requested = failOnStation('2')
+      const result = await fetchStationTimeseries('nwac', [ref('1'), ref('2'), ref('3')])
+      expect(requested.sort()).toEqual(['1', '1,2,3', '2', '3'])
+      expect(result.STATION.map((s) => s.stid)).toEqual(['1', '3'])
+    })
+
+    it('does not fan out a single station or a non-500 failure', async () => {
+      const requested = failOnStation('4')
+      await expect(fetchStationTimeseries('nwac', [ref('4')])).rejects.toThrow(/status 500/)
+      expect(requested).toEqual(['4'])
+
+      server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 403 })))
+      await expect(fetchStationTimeseries('nwac', [ref('1'), ref('2')])).rejects.toThrow(
+        /status 403/,
+      )
+    })
   })
 
   it('wraps network failures in a SnowObsError', async () => {

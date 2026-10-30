@@ -28,6 +28,18 @@ export function seriesDecimals(values: readonly unknown[]): number {
   return decimals
 }
 
+/**
+ * A variable's precision: the center's SnowObs rounding when known, else read off the values.
+ * The values alone can't tell a dry week's 0s from whole-inch rounding.
+ */
+export function variableDecimals(
+  variable: string,
+  values: readonly unknown[],
+  rounding: Record<string, number>,
+): number {
+  return rounding[variable] ?? seriesDecimals(values)
+}
+
 /** A value we derive (a sum or mean), held to the precision of the readings it came from. */
 export function roundTo(value: number, decimals: number): number {
   return Number(value.toFixed(decimals))

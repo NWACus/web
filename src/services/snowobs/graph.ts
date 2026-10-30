@@ -3,8 +3,9 @@ import { differenceInHours } from 'date-fns'
 import { displayUnit } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
+import type { VariableRounding } from './stationTracking'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
-import { roundTo, seriesDecimals } from './units'
+import { roundTo, variableDecimals } from './units'
 
 // The graph-data contract: series come back either raw (hourly points) or
 // daily-aggregated — windows longer than DECIMATION_THRESHOLD_DAYS
@@ -161,12 +162,13 @@ function buildSeries(
   units: Record<string, string>,
   aggregated: boolean,
   timeZone: string,
+  rounding: VariableRounding,
 ): GraphSeries | null {
   const values = station.observations[variable]
   if (!values) return null
   const points = rawPoints(times, values)
   if (points.length === 0) return null
-  const decimals = seriesDecimals(values)
+  const decimals = variableDecimals(variable, values, rounding)
   const base = {
     key: stationKey(station),
     stid: station.stid,
@@ -197,6 +199,7 @@ export function buildGraphData(
   stations: StationRef[],
   variables: string[],
   aggregated: boolean,
+  rounding: VariableRounding = {},
 ): GraphData {
   const timeZone = centerTimezone(center)
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
@@ -206,7 +209,15 @@ export function buildGraphData(
     if (!station) continue
     const times = parsedTimes(station)
     for (const variable of variables) {
-      const built = buildSeries(station, times, variable, response.UNITS, aggregated, timeZone)
+      const built = buildSeries(
+        station,
+        times,
+        variable,
+        response.UNITS,
+        aggregated,
+        timeZone,
+        rounding,
+      )
       if (built) series.push(built)
     }
   }

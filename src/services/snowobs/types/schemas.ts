@@ -4,7 +4,15 @@ import { z } from 'zod'
 // strings (e.g. "2026-07-07T00:00:00Z"); sensor series are numbers or null.
 // Anything else reads as null: raw airport data carries cloud layers as objects
 // ({ sky_condition, height_agl }), which no table or graph column shows.
-const observationSeriesSchema = z.array(z.union([z.number(), z.string(), z.null()]).catch(null))
+// So does -7999, the loggers' code for a sensor with no reading (Campbell's NaN), which
+// SnowObs passes through as if it were a value.
+const LOGGER_NO_READING = -7999
+const observationSeriesSchema = z.array(
+  z
+    .union([z.number(), z.string(), z.null()])
+    .catch(null)
+    .transform((v) => (v === LOGGER_NO_READING ? null : v)),
+)
 
 export const snowObsObservationsSchema = z.record(z.string(), observationSeriesSchema)
 export type SnowObsObservations = z.infer<typeof snowObsObservationsSchema>
@@ -52,7 +60,12 @@ export type SnowObsTimeseriesResponse = z.infer<typeof snowObsTimeseriesResponse
 
 // A station's most recent reading per sensor, plus the `date_time` it was taken. Values are
 // numbers (SnowObs rounds them unless `raw_data` is set); `date_time` is an ISO-UTC string.
-const currentDataSchema = z.record(z.string(), z.union([z.number(), z.string(), z.null()]))
+const currentDataSchema = z.record(
+  z.string(),
+  z
+    .union([z.number(), z.string(), z.null()])
+    .transform((v) => (v === LOGGER_NO_READING ? null : v)),
+)
 
 export const snowObsCurrentFeatureSchema = z.object({
   type: z.literal('Feature'),

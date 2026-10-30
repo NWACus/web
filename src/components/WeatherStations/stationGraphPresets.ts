@@ -1,5 +1,3 @@
-import type { StationUnits } from '@/services/snowobs/units'
-
 /** `min` pins the bottom of the axis (0 for amounts). `minSpan` is the least
  * range the axis shows, so a quiet week doesn't stretch sensor noise to full
  * height; a pinned axis grows upward to reach it, an unpinned one centres the
@@ -15,8 +13,9 @@ export type GraphPreset = {
   axis?: GraphAxis
   /** Horizontal reference line (legacy: 32°F freezing line on temperature). */
   refLine?: number
-  /** `refLine` and `axis` for metric readings, where a unit change moves them. */
-  metric?: { refLine?: number; axis?: GraphAxis }
+  /** `refLine` and `axis` per display unit other than the imperial one they're stated in, since
+   * SnowObs decides the unit (metric wind may be m/s or km/h, pressure mbar or Pa). */
+  byUnit?: Record<string, { refLine?: number; axis?: GraphAxis }>
   /** Render these two variables as a shaded band instead of their own lines
    * (wind: min→gust around the speed line). */
   band?: { lower: string; upper: string }
@@ -28,9 +27,10 @@ export type GraphPreset = {
   defaultHidden?: boolean
 }
 
-/** The preset as drawn in a unit system: metric swaps in its own reference line and axis. */
-export function presetFor(preset: GraphPreset, system: StationUnits): GraphPreset {
-  return system === 'metric' && preset.metric ? { ...preset, ...preset.metric } : preset
+/** The preset as drawn for readings in `unit`, its display label (°C, m/s…). */
+export function presetFor(preset: GraphPreset, unit: string | undefined): GraphPreset {
+  const override = unit === undefined ? undefined : preset.byUnit?.[unit]
+  return override ? { ...preset, ...override } : preset
 }
 
 // Graphs-tab comparison cap; the graph-data route derives its station cap from this.
@@ -46,7 +46,7 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     refLine: 32,
     allowNegative: true,
     axis: { minSpan: 10 },
-    metric: { refLine: 0, axis: { minSpan: 5 } },
+    byUnit: { '°C': { refLine: 0, axis: { minSpan: 5 } } },
   },
   {
     key: 'wind',
@@ -54,7 +54,10 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     variables: ['wind_speed_min', 'wind_speed', 'wind_gust'],
     band: { lower: 'wind_speed_min', upper: 'wind_gust' },
     axis: { min: 0, minSpan: 10 },
-    metric: { axis: { min: 0, minSpan: 16 } },
+    byUnit: {
+      'km/h': { axis: { min: 0, minSpan: 16 } },
+      'm/s': { axis: { min: 0, minSpan: 4.5 } },
+    },
   },
   { key: 'winddir', title: 'Wind Direction', variables: ['wind_direction'], symbolsOnly: true },
   {
@@ -63,28 +66,28 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     variables: ['precip_accum_one_hour'],
     bar: true,
     axis: { min: 0, minSpan: 0.1 },
-    metric: { axis: { min: 0, minSpan: 2.5 } },
+    byUnit: { mm: { axis: { min: 0, minSpan: 2.5 } } },
   },
   {
     key: 'snow24',
     title: '24 Hour Snow Total',
     variables: ['snow_depth_24h'],
     axis: { min: 0, minSpan: 6 },
-    metric: { axis: { min: 0, minSpan: 15 } },
+    byUnit: { cm: { axis: { min: 0, minSpan: 15 } } },
   },
   {
     key: 'intersnow',
     title: 'Intermittent Snow',
     variables: ['intermittent_snow'],
     axis: { min: 0, minSpan: 6 },
-    metric: { axis: { min: 0, minSpan: 15 } },
+    byUnit: { cm: { axis: { min: 0, minSpan: 15 } } },
   },
   {
     key: 'snowdepth',
     title: 'Total Snow Depth',
     variables: ['snow_depth'],
     axis: { min: 0, minSpan: 12 },
-    metric: { axis: { min: 0, minSpan: 30 } },
+    byUnit: { cm: { axis: { min: 0, minSpan: 30 } } },
   },
   // Legacy also plotted a `net_solar` "Solar Radiation" chart. SnowObs doesn't
   // serve that variable for the NWAC source, so only the pyranometer remains —
@@ -100,6 +103,7 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     title: 'Barometric Pressure',
     variables: ['pressure'],
     axis: { minSpan: 10 },
+    byUnit: { Pa: { axis: { minSpan: 1000 } } },
   },
   {
     key: 'equiptemp',
@@ -108,7 +112,7 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     refLine: 32,
     allowNegative: true,
     axis: { minSpan: 10 },
-    metric: { refLine: 0, axis: { minSpan: 5 } },
+    byUnit: { '°C': { refLine: 0, axis: { minSpan: 5 } } },
   },
   {
     key: 'rh',
