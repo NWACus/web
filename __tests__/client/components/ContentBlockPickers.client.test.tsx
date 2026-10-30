@@ -4,7 +4,7 @@ import { LayoutSummaryLabel } from '@/components/LayoutSummaryLabel'
 import { VerticalAlignmentPicker } from '@/components/VerticalAlignmentPicker'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
-import type { SelectFieldClientProps, TextFieldClientProps } from 'payload'
+import type { ClientField, SelectFieldClientProps, TextFieldClientProps } from 'payload'
 
 const mockSetValue = jest.fn()
 const mockFieldValues = new Map<string, unknown>()
@@ -130,45 +130,124 @@ describe('ColorPicker', () => {
 })
 
 describe('LayoutSummaryLabel', () => {
-  const renderLabel = () => render(<LayoutSummaryLabel path="layout.0._index-2" />)
+  const spacingOptions = [
+    { label: 'None', value: 'none' },
+    { label: 'Small', value: 'sm' },
+    { label: 'Large', value: 'lg' },
+  ]
+  const spacingRow: ClientField = {
+    type: 'row',
+    fields: [
+      { name: 'spacingTop', type: 'select', options: spacingOptions },
+      { name: 'spacingBottom', type: 'select', options: spacingOptions },
+    ],
+  }
+  const contentFields: ClientField[] = [
+    {
+      type: 'row',
+      fields: [
+        { name: 'backgroundColor', type: 'text' },
+        {
+          name: 'layout',
+          type: 'select',
+          options: [
+            { label: 'full', value: '1_1' },
+            { label: '2:1', value: '2_21' },
+          ],
+        },
+        {
+          name: 'verticalAlignment',
+          type: 'select',
+          options: [
+            { label: 'Top', value: 'top' },
+            { label: 'Middle', value: 'center' },
+          ],
+        },
+      ],
+    },
+    spacingRow,
+  ]
+  const imageTextFields: ClientField[] = [
+    { name: 'backgroundColor', type: 'text' },
+    {
+      name: 'imageLayout',
+      type: 'radio',
+      options: [
+        { label: 'Image left, text right', value: 'left' },
+        { label: 'Text left, Image right', value: 'right' },
+      ],
+    },
+    { name: 'textWrap', type: 'checkbox' },
+    spacingRow,
+  ]
+  const galleryFields: ClientField[] = [
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'layout',
+          type: 'select',
+          options: [
+            { label: 'Grid', value: 'grid' },
+            { label: 'Masonry', value: 'masonry' },
+          ],
+        },
+        { name: 'columns', type: 'select', options: [{ label: '3', value: '3' }] },
+      ],
+    },
+    spacingRow,
+  ]
 
-  it('summarizes a Content block layout, color and alignment', () => {
-    mockFieldValues.set('layout.0.layout', '2_21')
+  const renderLabel = (fields: ClientField[]) =>
+    render(
+      <LayoutSummaryLabel
+        path="layout.0._index-2"
+        field={{ type: 'collapsible', label: 'Layout', fields }}
+      />,
+    )
+
+  it('summarizes the Content block in field order', () => {
     mockFieldValues.set('layout.0.backgroundColor', 'brand-500')
+    mockFieldValues.set('layout.0.layout', '2_21')
     mockFieldValues.set('layout.0.verticalAlignment', 'center')
-    renderLabel()
+    renderLabel(contentFields)
 
-    expect(screen.getByText('· 2:1 · Brand 500 · Middle')).toBeInTheDocument()
+    expect(screen.getByText('· Brand 500 · 2:1 · Middle')).toBeInTheDocument()
   })
 
   it('leaves out vertical alignment for a single column', () => {
-    mockFieldValues.set('layout.0.layout', '1_1')
     mockFieldValues.set('layout.0.backgroundColor', 'transparent')
-    renderLabel()
+    mockFieldValues.set('layout.0.layout', '1_1')
+    mockFieldValues.set('layout.0.verticalAlignment', 'top')
+    renderLabel(contentFields)
 
-    expect(screen.getByText('· Full width · Transparent')).toBeInTheDocument()
+    expect(screen.getByText('· Transparent · Full width')).toBeInTheDocument()
   })
 
-  it('shows content alignment and spacing other than the default Small', () => {
+  it("shows each of a block's own options and spacing other than Small", () => {
     mockFieldValues.set('layout.0.backgroundColor', 'white')
-    mockFieldValues.set('layout.0.alignContent', 'center')
+    mockFieldValues.set('layout.0.imageLayout', 'right')
+    mockFieldValues.set('layout.0.textWrap', true)
     mockFieldValues.set('layout.0.spacingTop', 'lg')
     mockFieldValues.set('layout.0.spacingBottom', 'sm')
-    renderLabel()
+    renderLabel(imageTextFields)
 
-    expect(screen.getByText('· White · Aligned center · Above: Large')).toBeInTheDocument()
+    expect(
+      screen.getByText('· White · Image right · Text wraps · Above: Large'),
+    ).toBeInTheDocument()
   })
 
-  it("ignores another block's own layout option", () => {
+  it('names option values for fields without a custom summary', () => {
     mockFieldValues.set('layout.0.layout', 'masonry')
+    mockFieldValues.set('layout.0.columns', '3')
     mockFieldValues.set('layout.0.spacingBottom', 'none')
-    renderLabel()
+    renderLabel(galleryFields)
 
-    expect(screen.getByText('· Below: None')).toBeInTheDocument()
+    expect(screen.getByText('· Masonry · 3 columns · Below: None')).toBeInTheDocument()
   })
 
   it('shows just the title when nothing is set', () => {
-    renderLabel()
+    renderLabel([spacingRow])
 
     expect(screen.getByText('Layout')).toBeInTheDocument()
     expect(screen.queryByText(/·/)).not.toBeInTheDocument()

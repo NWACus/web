@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { SelectFieldClientProps } from 'payload'
 
-export const alignmentOptions = [
+const alignmentOptions = [
   { label: 'Top', value: 'top', icon: AlignStartHorizontal },
   { label: 'Middle', value: 'center', icon: AlignCenterHorizontal },
   { label: 'Bottom', value: 'bottom', icon: AlignEndHorizontal },

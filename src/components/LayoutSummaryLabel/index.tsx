@@ -1,11 +1,13 @@
 'use client'
 
 import { colorName } from '@/components/ColorPicker'
-import { alignmentOptions } from '@/components/VerticalAlignmentPicker'
-import { SPACING_OPTIONS } from '@/fields/spacing'
 import { useFormFields } from '@payloadcms/ui'
+import type { ClientField, CollapsibleFieldLabelClientComponent } from 'payload'
 
-// Content block column layouts look like `2_21`; other blocks use `layout` for their own options
+type NamedField = Extract<ClientField, { name: string }>
+type Summarize = (value: unknown, field: NamedField, values: Record<string, unknown>) => unknown
+
+// Content block column layouts look like `2_21`; Gallery uses `layout` for grid or masonry
 const isColumnLayout = (value: unknown): value is string =>
   typeof value === 'string' && /^\d_\d+$/.test(value)
 
@@ -14,38 +16,63 @@ const layoutName = (layout: string) => {
   return parts === '1' ? 'Full width' : parts.split('').join(':')
 }
 
-const spacingName = (value: unknown) =>
-  SPACING_OPTIONS.find((opt) => opt.value === value && value !== 'sm')?.label
+const optionLabel = (field: NamedField, value: unknown) => {
+  if (!('options' in field)) return undefined
+  const option = field.options.find((opt) =>
+    typeof opt === 'string' ? opt === value : opt.value === value,
+  )
+  if (typeof option === 'string') return option
+  return typeof option?.label === 'string' ? option.label : undefined
+}
 
-// The collapsible's own path ends in an `_index-N` segment; its fields live on the block
-export const LayoutSummaryLabel = ({ path }: { path?: string }) => {
+const spacing =
+  (prefix: string): Summarize =>
+  (value, field) => {
+    const label = value !== 'sm' && optionLabel(field, value)
+    return label && `${prefix}: ${label}`
+  }
+
+// Fields whose option labels would be vague on their own; anything else shows its option label
+const summaries: Record<string, Summarize> = {
+  backgroundColor: (value) => colorName(typeof value === 'string' && value ? value : 'transparent'),
+  layout: (value, field) => (isColumnLayout(value) ? layoutName(value) : optionLabel(field, value)),
+  verticalAlignment: (value, field, values) =>
+    isColumnLayout(values.layout) &&
+    !values.layout.startsWith('1_') &&
+    (optionLabel(field, value) ?? 'Top'),
+  alignContent: (value) => typeof value === 'string' && `Aligned ${value}`,
+  fullWidthColor: (value) => value === true && 'Full width color',
+  imageLayout: (value) => typeof value === 'string' && `Image ${value}`,
+  textWrap: (value) => value === true && 'Text wraps',
+  columns: (value) => value && `${value} columns`,
+  spacingTop: spacing('Above'),
+  spacingBottom: spacing('Below'),
+}
+
+const namedFields = (fields: ClientField[]): NamedField[] =>
+  fields.flatMap((field) => {
+    if ('name' in field) return [field]
+    return field.type === 'row' ? namedFields(field.fields) : []
+  })
+
+// Lists the group's settings in the order its fields appear
+export const LayoutSummaryLabel: CollapsibleFieldLabelClientComponent = ({ field, path }) => {
+  // The collapsible's own path ends in an `_index-N` segment; its fields live on the block
   const blockPath = path?.split('.').slice(0, -1).join('.')
   const fieldPath = (name: string) => (blockPath ? `${blockPath}.${name}` : name)
+  const fields = namedFields(field?.fields ?? [])
 
-  const values = useFormFields(([fields]) => ({
-    layout: fields[fieldPath('layout')]?.value,
-    backgroundColor: fields[fieldPath('backgroundColor')],
-    alignContent: fields[fieldPath('alignContent')]?.value,
-    verticalAlignment: fields[fieldPath('verticalAlignment')]?.value,
-    spacingTop: fields[fieldPath('spacingTop')]?.value,
-    spacingBottom: fields[fieldPath('spacingBottom')]?.value,
-  }))
+  const state = useFormFields(([formFields]) =>
+    Object.fromEntries(fields.map((f) => [f.name, formFields[fieldPath(f.name)]])),
+  )
+  const values = Object.fromEntries(fields.map((f) => [f.name, state[f.name]?.value]))
 
-  const parts: string[] = []
-  if (isColumnLayout(values.layout)) parts.push(layoutName(values.layout))
-  if (values.backgroundColor) {
-    const color = values.backgroundColor.value
-    parts.push(colorName(typeof color === 'string' && color ? color : 'transparent'))
-  }
-  if (typeof values.alignContent === 'string') parts.push(`Aligned ${values.alignContent}`)
-  if (isColumnLayout(values.layout) && !values.layout.startsWith('1_')) {
-    const alignment = alignmentOptions.find((opt) => opt.value === values.verticalAlignment)
-    parts.push(alignment?.label ?? 'Top')
-  }
-  const above = spacingName(values.spacingTop)
-  const below = spacingName(values.spacingBottom)
-  if (above) parts.push(`Above: ${above}`)
-  if (below) parts.push(`Below: ${below}`)
+  const parts = fields
+    .filter((f) => state[f.name] && state[f.name].passesCondition !== false)
+    .map((f) =>
+      (summaries[f.name] ?? ((value) => optionLabel(f, value)))(values[f.name], f, values),
+    )
+    .filter((part): part is string => typeof part === 'string' && part !== '')
 
   return (
     <span>
