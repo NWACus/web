@@ -40,6 +40,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { CollectionConfig, DateField, ValidateOptions } from 'payload'
 import { date } from 'payload/shared'
+import { geocode } from './endpoints/geocode'
 import { revalidateEvent, revalidateEventDelete } from './hooks/revalidateEvent'
 
 export const Events: CollectionConfig = {
@@ -51,6 +52,7 @@ export const Events: CollectionConfig = {
     defaultColumns: ['title', 'subtitle', 'featuredImage', 'startDate', 'updatedAt'],
     useAsTitle: 'title',
   },
+  endpoints: [{ path: '/geocode', method: 'get', handler: geocode }],
   fields: [
     titleField(),
     {

@@ -24,7 +24,9 @@ export const EventsFilters = ({
 }) => {
   return (
     <>
+      {/* Remounted on a date change, so dates picked in the map view's bar show here too. */}
       <DateRangeFilter
+        key={`${startDate}|${endDate}`}
         startDate={startDate}
         endDate={endDate}
         quickFilters={QUICK_DATE_FILTERS_EVENTS}
