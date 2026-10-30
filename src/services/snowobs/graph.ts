@@ -102,8 +102,8 @@ function rawPoints(
   })
 }
 
-// Per-day [dayStart, min, mean, max] rows, days as the given zone reckons them, held to the
-// readings' precision. Circular variables get a vector mean with min/max pinned to it (no band).
+// Per-day [dayStart, min, mean, max] rows, days as the given zone reckons them.
+// Circular variables get a vector mean with min/max pinned to it (no band).
 export function aggregateDaily(
   points: [number, number | null][],
   timeZone: string,

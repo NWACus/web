@@ -60,7 +60,6 @@ function LatestObservation({
 
 type StationTables = { default: StationTable; metric: StationTable | null }
 
-// A failed metric read shows the default table, labelled as such, until the next load.
 function shownTable(tables: StationTables, wanted: StationUnits): [StationTable, StationUnits] {
   return wanted === 'metric' && tables.metric
     ? [tables.metric, 'metric']
@@ -74,7 +73,7 @@ export function StationTableView({
   timeZone,
   tabs,
 }: {
-  /** Both systems, built server-side, so the unit toggle is instant; metric is null if it failed. */
+  /** Built server-side so the toggle is instant; metric is null if its read failed. */
   tables: StationTables
   /** The preset in force; a valid custom range overrides it. */
   activePeriodKey: string

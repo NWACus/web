@@ -11,9 +11,8 @@ import { parseStationUnits } from './units'
 
 const MIN_YEAR = 2016
 
-// A download is the logger's whole record, so it reads raw: every sensor, not only the center's
-// Tracked Variables, unrounded. SnowObs has 500'd raw reads for some airport stations, which
-// then come back rounded rather than not at all.
+// A download is the logger's whole record: raw gets every sensor, not only Tracked Variables.
+// SnowObs has 500'd raw reads for some airport stations, which then come back rounded.
 async function fetchCsvTimeseries(
   center: string,
   datalogger: StationRef,

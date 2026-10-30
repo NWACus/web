@@ -2,7 +2,6 @@ import type { StationTable } from '@/services/snowobs/tableHelpers'
 import type { StationUnits } from '@/services/snowobs/units'
 import { elevationIn } from '@/services/snowobs/units'
 
-// Readings arrive in the requested system; only column elevations, always feet, convert.
 export function withElevationsIn(table: StationTable, system: StationUnits): StationTable {
   return {
     ...table,

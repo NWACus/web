@@ -230,7 +230,7 @@ function directionTooltip(): object {
   }
 }
 
-// Tooltip values as "31.3 °F", at the precision SnowObs sends the reading in.
+// Tooltip values as "31.3 °F".
 function unitTooltip(unit: string, decimals: number): object {
   return {
     tooltip: {

@@ -34,9 +34,8 @@ export type FetchOptions = {
   end?: Date
   // Data-cache lifetime; omitted means uncached so readings never lag SnowObs.
   revalidate?: number
-  // Imperial reads the center's configured default units.
   units?: StationUnits
-  // Every sensor, unrounded, in the logger's own units: only the CSV wants that.
+  // Every sensor, unrounded: only the CSV wants that.
   rawData?: boolean
 }
 

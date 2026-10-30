@@ -139,9 +139,12 @@ describe('roundTo and formatReading', () => {
     expect(roundTo(0.1 + 0.2, 2)).toBe(0.3)
   })
 
-  it('pads to the precision and reads a rounded-away negative as 0', () => {
+  it('pads to the precision but reads zero, or a negative rounded to it, as a plain 0', () => {
     expect(formatReading(1.5, 2)).toBe('1.50')
+    expect(formatReading(0.01, 2)).toBe('0.01')
     expect(formatReading(74.51, 0)).toBe('75')
+    expect(formatReading(0, 2)).toBe('0')
+    expect(formatReading(0.004, 2)).toBe('0')
     expect(formatReading(-0.4, 0)).toBe('0')
     expect(formatReading(-0.6, 0)).toBe('-1')
   })

@@ -13,8 +13,7 @@ export type GraphPreset = {
   axis?: GraphAxis
   /** Horizontal reference line (legacy: 32°F freezing line on temperature). */
   refLine?: number
-  /** `refLine` and `axis` per display unit other than the imperial one they're stated in, since
-   * SnowObs decides the unit (metric wind may be m/s or km/h, pressure mbar or Pa). */
+  /** `refLine` and `axis` by display unit, since SnowObs decides it (m/s or km/h, mbar or Pa). */
   byUnit?: Record<string, { refLine?: number; axis?: GraphAxis }>
   /** Render these two variables as a shaded band instead of their own lines
    * (wind: min→gust around the speed line). */
@@ -27,7 +26,6 @@ export type GraphPreset = {
   defaultHidden?: boolean
 }
 
-/** The preset as drawn for readings in `unit`, its display label (°C, m/s…). */
 export function presetFor(preset: GraphPreset, unit: string | undefined): GraphPreset {
   const override = unit === undefined ? undefined : preset.byUnit?.[unit]
   return override ? { ...preset, ...override } : preset

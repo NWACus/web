@@ -49,8 +49,7 @@ export const WITHIN_OPTIONS: { value: number; label: string }[] = [
   { value: 1440, label: '1 day' },
 ]
 
-// No English: SnowObs's english pins pressure, snow depth, SWE and precip to fixed units
-// whatever the center sets, where Default honors its settings. See ADR 021.
+// No English: it ignores a center's units for pressure, snow and precip (ADR 021).
 export const UNIT_OPTIONS: { value: StationUnits; label: string }[] = [
   { value: 'default', label: 'Default' },
   { value: 'metric', label: 'Metric' },

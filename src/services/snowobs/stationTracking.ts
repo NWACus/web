@@ -106,7 +106,6 @@ export async function fetchCatalogue(token: string, source: string): Promise<Tra
   return (stations ?? []).map((s) => toStation(s, false))
 }
 
-// A center's Tracked Variables, read for the decimals SnowObs rounds each one to.
 const trackedVariableSchema = z.object({
   variable: z.string(),
   rounding: z.number().int().nonnegative().nullish(),
@@ -114,8 +113,8 @@ const trackedVariableSchema = z.object({
 
 export type VariableRounding = Record<string, number>
 
-// How many decimals SnowObs keeps per variable for this center, from the same config that
-// rounds the readings. Empty on any failure: readings then fall back to their own precision.
+// Decimals per variable from the center's SnowObs config; empty on failure, so readings fall
+// back to their own precision.
 export async function fetchVariableRounding(centerSlug: string): Promise<VariableRounding> {
   try {
     const token = await resolveSnowObsToken(centerSlug)

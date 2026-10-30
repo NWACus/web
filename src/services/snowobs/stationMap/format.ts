@@ -42,10 +42,7 @@ export function orderVariables(variables: string[]): string[] {
   return [...ordered, ...rest]
 }
 
-/**
- * The widget's abbreviations of SnowObs' unit names, for card rows and marker labels, plus the
- * names it never abbreviated that default and metric also return (cm, Pa, inHg…).
- */
+/** The widget's abbreviations of SnowObs' unit names, plus metric ones it never had. */
 const SHORT_UNITS: Record<string, string> = {
   inches: 'in',
   fahrenheit: 'F',

@@ -16,7 +16,6 @@ import { useMemo, useState } from 'react'
 import { StationTableFrame, StationTableHeader } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
-// Totals come from the API in the chosen system's unit and precision; elevation is always feet.
 type Unit = StationUnits
 const ELEVATION_UNIT: Record<Unit, string> = { default: 'ft', metric: 'm' }
 
@@ -340,7 +339,6 @@ export function PrecipAccumulationTable({
   columns = ALL_PRECIP_COLUMNS,
 }: {
   table: PrecipAccumulationData
-  /** The system `table` was fetched in; changing it refetches. */
   unit: Unit
   onUnitChange: (unit: Unit) => void
   columns?: PrecipColumn[]

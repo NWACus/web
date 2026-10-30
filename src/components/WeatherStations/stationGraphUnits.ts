@@ -1,6 +1,6 @@
 import type { GraphData } from '@/services/snowobs/graph'
 
-// Sub-zero readings on non-temperature sensors are noise; zero is zero in either unit system.
+// Sub-zero readings on non-temperature sensors are noise.
 export function clampNegativeValues(data: GraphData): GraphData {
   return {
     ...data,

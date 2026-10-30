@@ -164,8 +164,7 @@ async function tableTabView(
   const period = resolveTablePeriod(params.period)
   const custom = parseCustomRange(params.from, params.to, TABLE_MAX_CUSTOM_DAYS, timeZone, now)
   const range = tableWindow(period, custom, timeZone, now)
-  // SnowObs serves each system in its own units, so the table reads both. Metric is the
-  // reader's option: if it fails, the table still shows, without the toggle.
+  // Both systems, so the toggle is instant; a failed metric read just drops the toggle.
   const [standard, metric, rounding] = await Promise.all([
     fetchStationTimeseries(center, subject.stations, { ...range, units: 'default' }),
     fetchStationTimeseries(center, subject.stations, { ...range, units: 'metric' }).catch(

@@ -25,7 +25,6 @@ export type TableColumn = {
   label: string
   longName: string
   unit: string
-  /** The precision SnowObs rounds this column's readings to. */
   decimals: number
   elevation: number | null
 }
@@ -45,7 +44,7 @@ export type StationTable = {
   latestDisplay: string | null
 }
 
-// Running cumulative precip at the readings' precision; nulls pass through and don't advance it.
+// Running cumulative precip; nulls pass through and don't advance the total.
 export function computePrecipCumsum(
   values: (number | null)[],
   decimals: number,
@@ -206,7 +205,6 @@ export type PrecipAccumulationRow = {
 export type PrecipAccumulationTable = {
   rows: PrecipAccumulationRow[]
   timezoneLabel: string
-  /** The totals' unit and precision: hourly precip's, as SnowObs sends it. */
   unit: string
   decimals: number
 }

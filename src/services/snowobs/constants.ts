@@ -40,8 +40,7 @@ export const READING_NAMES: Record<string, string> = {
   equip_temperature: 'Equipment temperature',
 }
 
-// Display-friendly unit labels keyed by the raw unit SnowObs returns in `UNITS`, for both
-// `default` and `metric` (every name NWAC, MSAC and SNFAC returned on 2026-10-29).
+// Display-friendly unit labels keyed by the raw unit SnowObs returns in `UNITS`.
 export const UNIT_LABELS: Record<string, string> = {
   fahrenheit: '°F',
   celsius: '°C',

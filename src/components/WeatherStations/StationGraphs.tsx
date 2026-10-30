@@ -59,7 +59,7 @@ function graphDataUrl(
 }
 
 // One fetch serves every chart: the union of all preset variables for all
-// selected stations, in the reader's unit system.
+// selected stations.
 function useGraphData(
   stations: StationRef[],
   variables: string[],
