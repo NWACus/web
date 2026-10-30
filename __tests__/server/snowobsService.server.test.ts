@@ -153,20 +153,23 @@ describe('fetchStationTimeseries', () => {
     expect(result.STATION[0].observations.air_temp).toEqual([30])
   })
 
-  it("reads a logger's -7999 no-reading code as null", async () => {
+  it("reads a logger's -7999 no-reading code as null, converted to metric too", async () => {
     const station = validResponse.STATION[0]
     server.use(
       http.get(TIMESERIES_URL, () =>
         HttpResponse.json({
           ...validResponse,
           STATION: [
-            { ...station, observations: { ...station.observations, snow_depth: [-7999, 40] } },
+            {
+              ...station,
+              observations: { ...station.observations, snow_depth: [-7999, -20317.46, -2, 40] },
+            },
           ],
         }),
       ),
     )
     const result = await fetchStationTimeseries('nwac', [ref('4')])
-    expect(result.STATION[0].observations.snow_depth).toEqual([null, 40])
+    expect(result.STATION[0].observations.snow_depth).toEqual([null, null, -2, 40])
   })
 
   it('treats a 404 (no station left) as an empty timeseries', async () => {

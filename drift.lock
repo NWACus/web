@@ -1193,7 +1193,7 @@ sig = "f010ada87a757f62"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/types/schemas.ts"
-sig = "2e781fa306599c4b"
+sig = "be5900f1d9b2e058"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
