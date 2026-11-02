@@ -130,7 +130,7 @@ export const plugins: Plugin[] = [
           '- "Where does this old URL redirect?" → findRedirects filtered by tenant and from.',
           '',
           'Tips:',
-          '- Use the select parameter to return only specific fields: \'{"title": true, "slug": true}\'.',
+          '- Use the select parameter (an object, not a JSON string) to return only specific fields: {"title": true, "slug": true}.',
           '- Use sort parameter for ordering: "-createdAt" for newest first, "title" for alphabetical.',
           '- The where clause supports operators: equals, not_equals, contains, like, greater_than, less_than, in, etc.',
         ].join('\n'),
