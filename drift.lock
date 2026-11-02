@@ -1493,7 +1493,7 @@ sig = "d3cd76897aad26d4"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/notFoundReport.ts"
-sig = "ce865efeeee173f9"
+sig = "4df03f923ae83040"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
