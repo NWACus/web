@@ -598,7 +598,7 @@ sig = "2b5fbbb42fe0e771"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/observations/listParams.ts"
-sig = "21c4fb919fcea3e3"
+sig = "24c71ff4b660309a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

@@ -149,6 +149,11 @@ export function statsAggregation(
 /** Every breakdown of the avalanches in the viewport, with the avalanche filters applied. */
 export function statsParams(request: StatsRequest, centerId: string): URLSearchParams {
   const params = avalancheFilterParams(request.filters, centerId)
+  // The stats endpoint ignores the list's `center_id[eq]`; it filters on a plain `center_id`.
+  if (params.has('center_id[eq]')) {
+    params.delete('center_id[eq]')
+    params.set('center_id', centerId.toLowerCase())
+  }
   params.set('bbox', request.bbox.join(','))
   params.set('aggregation_type', statsAggregation(request))
   return params

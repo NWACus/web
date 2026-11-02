@@ -243,6 +243,13 @@ describe('statsParams', () => {
     )
   })
 
+  it('narrows to the center with the plain `center_id` the stats endpoint reads', () => {
+    const params = statsParams({ ...base, filters: { ...base.filters, onlyCenter: true } }, 'NWAC')
+    expect(params.get('center_id')).toBe('nwac')
+    expect(params.has('center_id[eq]')).toBe(false)
+    expect(statsParams(base, 'nwac').has('center_id')).toBe(false)
+  })
+
   it('knows the endpoint’s 366-day limit, which a season never reaches', () => {
     expect(isStatsRange({ from: '2025-09-01', to: '2026-08-31' })).toBe(true)
     expect(isStatsRange({ from: '2025-09-01', to: '2026-09-02' })).toBe(true)
