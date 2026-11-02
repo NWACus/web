@@ -41,7 +41,6 @@ import { useObservationMap, useResetView } from './map/useObservationMap'
 import { useZoneOutlines } from './map/useZoneOutlines'
 import { ZoneHoverCard } from './map/ZoneHoverCard'
 import { useObservationList, type ListStatus } from './useObservationList'
-import { useStickyHeaderHeight } from './useStickyHeaderHeight'
 import { useViewerLayout } from './useViewerLayout'
 import { neighboursOf, resultCount, useViewerState, type ViewerState } from './useViewerState'
 import { ViewerTabs } from './ViewerTabs'
@@ -444,16 +443,16 @@ export function ObservationViewer({ centerSlug, settings, initialTab }: Observat
   const scrollerRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const [expanded, setExpanded] = useState(false)
-  const headerHeight = useStickyHeaderHeight()
   const layout = useViewerLayout({ barRef, frameRef, scrollerRef, listRef })
   const rootRef = useRef<HTMLDivElement>(null)
-  useCssSizes(rootRef, { '--view-bar': layout.barHeight, '--header-bottom': headerHeight })
+  useCssSizes(rootRef, { '--view-bar': layout.barHeight })
 
   return (
     <div
       ref={rootRef}
-      // In the phone layout the viewer is exactly the screen under the site's sticky header.
-      className="relative flex h-[calc(100dvh-var(--header-bottom))] flex-col lg:block lg:h-auto"
+      // In the phone layout the viewer is exactly the screen under the site's sticky header,
+      // whose height `StickyHeaderStrip` publishes.
+      className="relative flex h-[calc(100dvh-var(--admin-bar-height,0px)-var(--sticky-header-height,4rem))] flex-col lg:block lg:h-auto"
       data-testid="observation-viewer"
     >
       <StickyBar barRef={barRef} scrolledUnder={layout.scrolledUnder} expanded={expanded}>
