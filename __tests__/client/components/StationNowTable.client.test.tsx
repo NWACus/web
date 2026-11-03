@@ -37,7 +37,7 @@ describe('StationNowTable', () => {
 
     expect(screen.getByText('SW (225°)')).toBeInTheDocument()
     expect(screen.queryByText('224.6')).not.toBeInTheDocument()
-    expect(screen.queryByText('°')).not.toBeInTheDocument()
+    expect(screen.getByText('°')).toBeInTheDocument()
     expect(screen.getByText('12')).toBeInTheDocument()
     expect(screen.getByText('mph')).toBeInTheDocument()
   })

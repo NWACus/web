@@ -5,12 +5,11 @@ import { formatReading } from '@/services/snowobs/units'
 import { cn } from '@/utilities/ui'
 import { StationTableFrame } from './StationTableFrame'
 
-const isDirection = (column: TableColumn) => column.variable === 'wind_direction'
-
 // Wind direction reads "SW (225°)", as in the graph tooltips.
 function cellText(column: TableColumn, value: number | null | undefined): string {
   if (value == null) return '–'
-  if (isDirection(column)) return `${windDirectionLabel(value)} (${Math.round(value)}°)`
+  if (column.variable === 'wind_direction')
+    return `${windDirectionLabel(value)} (${Math.round(value)}°)`
   return formatReading(value, column.decimals)
 }
 
@@ -45,7 +44,7 @@ export function StationNowTable({
               className="whitespace-nowrap px-1 text-right align-bottom sm:px-2"
             >
               <div className="font-semibold text-foreground">{column.label}</div>
-              {column.unit && !isDirection(column) && (
+              {column.unit && (
                 <div className="text-xs font-normal text-muted-foreground sm:text-sm">
                   {column.unit}
                 </div>
