@@ -17,6 +17,7 @@ import {
 export { SnowObsError } from './access'
 
 import type { StationRef } from './stationKey'
+import type { StationUnits } from './units'
 
 export type { StationRef } from './stationKey'
 
@@ -25,7 +26,7 @@ function formatSnowObsDate(date: Date): string {
   return format(date, 'yyyyMMddHHmm', { in: tz('UTC') })
 }
 
-type FetchOptions = {
+export type FetchOptions = {
   // Trailing-window fetch (used when start/end are omitted).
   windowHours?: number
   // Explicit window — overrides windowHours when provided.
@@ -33,7 +34,8 @@ type FetchOptions = {
   end?: Date
   // Data-cache lifetime; omitted means uncached so readings never lag SnowObs.
   revalidate?: number
-  // Skip SnowObs' default integer rounding (graphs want full precision).
+  units?: StationUnits
+  // Every sensor, unrounded: only the CSV wants that.
   rawData?: boolean
 }
 
@@ -53,21 +55,16 @@ function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token
     stid: stations.map((s) => s.stid).join(','),
     start_date: formatSnowObsDate(start),
     end_date: formatSnowObsDate(end),
+    units: options.units ?? 'default',
   })
-  // raw_data also skips unit conversion, so stations come back in their native
-  // units (KSEA's pressure in inHg beside a logger's millibar); English keeps one
-  // system, as SnowObs suggested.
-  if (options.rawData) {
-    params.set('raw_data', 'true')
-    params.set('units', 'english')
-  }
+  if (options.rawData) params.set('raw_data', 'true')
   return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
 }
 
 // Best-effort logging: bootstrapping payload must never mask the original error. Named by call
 // site, because the three SnowObs reads fail independently — a station-map outage should not read
 // as a station-page one.
-async function logSnowObsError(
+export async function logSnowObsError(
   operation: string,
   error: unknown,
   context: Record<string, unknown>,
@@ -131,33 +128,6 @@ function isServerError(error: unknown): boolean {
   return error instanceof SnowObsError && error.context?.status === 500
 }
 
-// SnowObs 500s `raw_data` for some Synoptic airport stations (KMHS, KSEA, KBLI…) whose readings
-// its unit conversion can't take, but serves them rounded, as the legacy widget reads every
-// station. Logged, so we can see how often a station comes back rounded.
-async function retryRounded(
-  stations: StationRef[],
-  options: FetchOptions,
-  token: string,
-  error: unknown,
-): Promise<SnowObsTimeseriesResponse> {
-  if (!options.rawData || !isServerError(error)) throw error
-  const stids = stations.map((s) => s.stid)
-  await logSnowObsError('fetchStationTimeseries raw_data', error, { stids }, 'warn')
-  return requestTimeseries(stations, { ...options, rawData: false }, token)
-}
-
-async function requestStation(
-  station: StationRef,
-  options: FetchOptions,
-  token: string,
-): Promise<SnowObsTimeseriesResponse> {
-  try {
-    return await requestTimeseries([station], options, token)
-  } catch (error) {
-    return retryRounded([station], options, token, error)
-  }
-}
-
 function mergeTimeseries(responses: SnowObsTimeseriesResponse[]): SnowObsTimeseriesResponse {
   const variables = new Map(responses.flatMap((r) => r.VARIABLES).map((v) => [v.variable, v]))
   return {
@@ -167,9 +137,8 @@ function mergeTimeseries(responses: SnowObsTimeseriesResponse[]): SnowObsTimeser
   }
 }
 
-// One station's bad data fails the whole batch, so retry each station alone and keep the ones
-// that load: raw where they can be, rounded where not. Only a station that fails rounded too
-// drops out, rather than blanking the page.
+// One station's bad data 500s the whole batch, so retry each station alone and keep the ones
+// that load; only the failing station drops out, rather than blanking the page.
 async function requestEachStation(
   stations: StationRef[],
   options: FetchOptions,
@@ -177,7 +146,7 @@ async function requestEachStation(
   error: unknown,
 ): Promise<SnowObsTimeseriesResponse> {
   const results = await Promise.allSettled(
-    stations.map((station) => requestStation(station, options, token)),
+    stations.map((station) => requestTimeseries([station], options, token)),
   )
   const loaded = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
   if (loaded.length === 0) throw error
@@ -201,21 +170,19 @@ export async function fetchStationTimeseries(
     try {
       return await requestTimeseries(stations, options, token)
     } catch (error) {
-      if (stations.length < 2) return await retryRounded(stations, options, token, error)
       // Only a 500 is one station's data; a bad token or an outage fails them all alike.
-      if (!isServerError(error)) throw error
+      if (stations.length < 2 || !isServerError(error)) throw error
       return await requestEachStation(stations, options, token, error)
     }
   } catch (error) {
-    await logSnowObsError('fetchStationTimeseries', error, { stids })
+    // A raw read that 500s is retried rounded by its caller, so it is only worth a warning.
+    const level = options.rawData && isServerError(error) ? 'warn' : 'error'
+    await logSnowObsError('fetchStationTimeseries', error, { stids }, level)
     throw toSnowObsError(error, stids)
   }
 }
 
 // --- Current conditions and webcams (the station map) ----------------------------------------
-
-/** The units SnowObs reports in; `default` is whatever the center configured. */
-export type SnowObsUnits = 'default' | 'english' | 'metric'
 
 const WEBCAMS_REVALIDATE = 3600
 
@@ -243,7 +210,7 @@ async function checkedJson(res: Response, context: Record<string, unknown>): Pro
  */
 export async function fetchCurrentStationData(
   centerSlug: string,
-  units: SnowObsUnits = 'default',
+  units: StationUnits = 'default',
 ): Promise<SnowObsCurrentGeojson> {
   try {
     const params = new URLSearchParams({

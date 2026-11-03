@@ -30,8 +30,10 @@ export const Courses: CollectionConfig = {
     {
       name: 'subtitle',
       type: 'text',
+      maxLength: 150,
       admin: {
-        description: 'Optional subtitle/tagline for the event',
+        description:
+          'Use this field as a short description of your course that will appear below the auto-populated course name',
       },
     },
     {

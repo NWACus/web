@@ -1,4 +1,4 @@
-import { formatDateTime, splitDateTimeRange } from '@/utilities/formatDateTime'
+import { formatDateRange, formatDateTime, splitDateTimeRange } from '@/utilities/formatDateTime'
 
 const PACIFIC = 'America/Los_Angeles'
 
@@ -51,5 +51,34 @@ describe('splitDateTimeRange', () => {
     expect(joined('2026-01-16T06:00:00Z', '2026-01-16T10:00:00Z')).toBe(
       'Jan 15, 10:00 PM - Jan 16, 2026, 2:00 AM PST',
     )
+  })
+})
+
+describe('formatDateRange', () => {
+  it('shows a single date when there is no end', () => {
+    expect(formatDateRange('2026-01-15T23:00:00Z', null, PACIFIC)).toBe('Jan 15, 2026')
+  })
+
+  it('shows a single date once for a same-day range', () => {
+    expect(formatDateRange('2026-01-15T17:00:00Z', '2026-01-16T01:00:00Z', PACIFIC)).toBe(
+      'Jan 15, 2026',
+    )
+  })
+
+  it('shows one year when a multi-day range stays within one year', () => {
+    expect(formatDateRange('2026-01-06T17:00:00Z', '2026-01-09T00:00:00Z', PACIFIC)).toBe(
+      'Jan 6 - Jan 8, 2026',
+    )
+  })
+
+  it('keeps both years when a range crosses a year boundary', () => {
+    expect(formatDateRange('2025-12-31T17:00:00Z', '2026-01-02T01:00:00Z', PACIFIC)).toBe(
+      'Dec 31, 2025 - Jan 1, 2026',
+    )
+  })
+
+  it('decides the day in the given timezone, not UTC', () => {
+    // 10pm Pacific on Jan 15 is already Jan 16 in UTC.
+    expect(formatDateRange('2026-01-16T06:00:00Z', null, PACIFIC)).toBe('Jan 15, 2026')
   })
 })

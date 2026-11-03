@@ -1,8 +1,10 @@
 import { STATION_DATA_CACHE_CONTROL } from '@/services/snowobs/access'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { parseStationKeys, stationKey } from '@/services/snowobs/stationKey'
+import { fetchVariableRounding } from '@/services/snowobs/stationTracking'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { unknownStationKeys } from '@/services/snowobs/trackedStations'
+import { parseStationUnits } from '@/services/snowobs/units'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import config from '@payload-config'
 import { NextResponse } from 'next/server'
@@ -35,18 +37,30 @@ export async function GET(
   const url = new URL(request.url)
   const requested = parseStationKeys(url.searchParams.get('stations'), MAX_STATIONS)
   if (typeof requested === 'string') return badRequest(requested)
+  const units = parseStationUnits(url.searchParams.get('units'))
+  if (!units) return badRequest('units must be default or metric')
 
   try {
-    // This serves a center's own gauges, not whatever SnowObs will answer for.
-    const strangers = await unknownStationKeys(center, requested.map(stationKey))
-    if (strangers.length > 0) {
-      return badRequest(`stations this center does not track: ${strangers.join(',')}`)
+    // This serves a center's own gauges, not whatever SnowObs will answer for. A gauge
+    // that has left the tracking list (often a retired one) drops out of the table
+    // rather than failing it.
+    const strangers = new Set(await unknownStationKeys(center, requested.map(stationKey)))
+    const tracked = requested.filter((ref) => !strangers.has(stationKey(ref)))
+    if (strangers.size > 0) {
+      const payload = await getPayload({ config })
+      payload.logger.warn(
+        { center, stations: Array.from(strangers) },
+        'precip-data skipped stations the center does not track',
+      )
     }
     // One 72h fetch covers every trailing window (1H..72H are sums over it).
-    const response = await fetchStationTimeseries(center, requested, {
-      windowHours: WINDOW_HOURS,
-    })
-    return NextResponse.json(buildPrecipAccumulationTable(center, response, requested), {
+    const [response, rounding] = await Promise.all([
+      tracked.length > 0
+        ? fetchStationTimeseries(center, tracked, { windowHours: WINDOW_HOURS, units })
+        : { UNITS: {}, VARIABLES: [], STATION: [] },
+      fetchVariableRounding(center),
+    ])
+    return NextResponse.json(buildPrecipAccumulationTable(center, response, tracked, rounding), {
       headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
     })
   } catch (error) {

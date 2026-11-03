@@ -182,7 +182,7 @@ jobs:
       pull-requests: write
     uses: BuilderIO/agent-native/.github/workflows/pr-visual-recap-reusable.yml@main
     with:
-      model: claude-opus-5
+      model: opus
       # Load-bearing, despite our own gate already enforcing the label: the
       # reusable workflow's gate carries
       # `if: github.event.action != 'labeled' || inputs.required-labels != ''`,

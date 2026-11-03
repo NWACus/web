@@ -5,7 +5,6 @@
 import { getZoneMapLayer } from '@/services/nac/dangerMap/mapLayer'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { AvalancheForecastZoneStatus } from '@/services/nac/types/schemas'
-import type { SnowObsUnits } from '@/services/snowobs/snowobs'
 import { fetchCurrentStationData, fetchWebcams } from '@/services/snowobs/snowobs'
 import { fetchAlternateZones } from '@/services/snowobs/stationMap/alternateZones'
 import { variableDisplayName } from '@/services/snowobs/stationMap/format'
@@ -18,6 +17,8 @@ import {
 } from '@/services/snowobs/stationMap/mappers'
 import type { StationMapData, StationMapZone } from '@/services/snowobs/stationMap/model'
 import { resolveStationMapSettings } from '@/services/snowobs/stationMap/settings'
+import type { StationUnits } from '@/services/snowobs/units'
+import { parseStationUnits } from '@/services/snowobs/units'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { getStationPages, toPageSummaries } from '@/services/stations/getStationPages'
 import { NO_STORE, productDisabledResponse, unknownCenterResponse } from '@/utilities/apiResponses'
@@ -29,12 +30,9 @@ import { NextRequest, NextResponse } from 'next/server'
 // where caching happens.
 export const dynamic = 'force-dynamic'
 
-const UNITS: SnowObsUnits[] = ['default', 'english', 'metric']
-
 /** The requested units, or `default` — an unknown value is not forwarded to SnowObs. */
-function requestedUnits(request: NextRequest): SnowObsUnits {
-  const units = request.nextUrl.searchParams.get('units')
-  return UNITS.find((known) => known === units) ?? 'default'
+function requestedUnits(request: NextRequest): StationUnits {
+  return parseStationUnits(request.nextUrl.searchParams.get('units')) ?? 'default'
 }
 
 /**

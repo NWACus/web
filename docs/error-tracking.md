@@ -13,7 +13,7 @@ Shared options live in [`sentry-base-config.ts`](../sentry-base-config.ts), impo
 
 Init per runtime: server ([`sentry.server.config.ts`](../sentry.server.config.ts)) and edge ([`sentry.edge.config.ts`](../sentry.edge.config.ts)) are loaded by [`src/instrumentation.ts`](../src/instrumentation.ts) `register()` (which also exports `onRequestError`); the browser inits in [`src/instrumentation-client.ts`](../src/instrumentation-client.ts).
 
-`next.config.js` wraps the build in `withSentryConfig` **only when `NODE_ENV === 'production'**` — `org: 'nwac'`, `project: 'avy-web'`, source-map upload, and `tunnelRoute: '/monitoring'` to route SDK requests past ad blockers. `serverExternalPackages` + a `webpack.ignoreWarnings` entry suppress harmless Sentry/OpenTelemetry import warnings.
+`next.config.ts` wraps the build in `withSentryConfig` **only when `NODE_ENV === 'production'**` — `org: 'nwac'`, `project: 'avy-web'`, source-map upload, and `tunnelRoute: '/monitoring'` to route SDK requests past ad blockers. `serverExternalPackages` + a `webpack.ignoreWarnings` entry suppress harmless Sentry/OpenTelemetry import warnings.
 
 One exception: the mocked E2E build (`NEXT_PUBLIC_E2E_MOCK_ROLE`) skips `withSentryConfig` entirely. It is a production build, so it would otherwise report every synthetic failure the suite provokes to the real project — and, more importantly, the SDK's module instrumentation is loaded even when reporting is disabled, and does not co-exist with the E2E harness's MSW preload — the two together produce intermittent 5xx from the Payload API. That is an interaction between the two, not a production problem: a normal production build carries Sentry without the preload and does not reproduce it. See [afp-products/e2e-mocks.md](afp-products/e2e-mocks.md).
 
@@ -30,7 +30,7 @@ Installs an admin `AdminErrorBoundary` and reports errors from the admin UI and 
 
 ## PostHog
 
-PostHog runs as a **same-origin reverse proxy** so analytics aren't ad-blocked: client requests hit `/ingest/*`, which `next.config.js` `rewrites()` to PostHog's US hosts; `skipTrailingSlashRedirect` and the `ingest` exclusion in [`src/middleware.ts`](../src/middleware.ts) keep that path intact.
+PostHog runs as a **same-origin reverse proxy** so analytics aren't ad-blocked: client requests hit `/ingest/*`, which `next.config.ts` `rewrites()` to PostHog's US hosts; `skipTrailingSlashRedirect` and the `ingest` exclusion in [`src/middleware.ts`](../src/middleware.ts) keep that path intact.
 
 - **Browser:** [`PostHogProvider.tsx`](../src/providers/PostHogProvider.tsx) calls `posthog.init()` only when `NEXT_PUBLIC_POSTHOG_KEY` is set, pointing `api_host` at `/ingest`. It wraps both `src/app/(frontend)/layout.tsx` and `src/app/(embeds)/layout.tsx`; feature flags and surveys are disabled.
 - **Server:** [`src/posthog.ts`](../src/posthog.ts) exposes `PostHogClient()` (`posthog-node`), returning `null` when no key is set.

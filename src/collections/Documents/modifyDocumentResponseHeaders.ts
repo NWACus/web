@@ -15,6 +15,11 @@ export const modifyDocumentResponseHeaders = ({ headers }: { headers: Headers })
 
   const contentType = headers.get('Content-Type')?.split(';')[0].trim()
 
+  // Other sites (e.g. AFP) fetch JSON. `*` never carries cookies, unlike Payload's `cors` list.
+  if (contentType === 'application/json') {
+    headers.set('Access-Control-Allow-Origin', '*')
+  }
+
   if (!isInlineSafeMimeType(contentType)) {
     const disposition = headers.get('Content-Disposition')
 

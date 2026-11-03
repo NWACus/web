@@ -10,12 +10,14 @@ import {
   TABLE_MAX_CUSTOM_DAYS,
 } from '@/components/WeatherStations/stationPeriods'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
+import { withElevationsIn } from '@/components/WeatherStations/stationTableUnits'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import { resolveColumns } from '@/services/snowobs/deriveColumns'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
+import { fetchVariableRounding } from '@/services/snowobs/stationTracking'
 import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
 import { buildStationTable, stationNotes, stationSummaries } from '@/services/snowobs/tableHelpers'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
@@ -161,15 +163,26 @@ async function tableTabView(
   const now = new Date()
   const period = resolveTablePeriod(params.period)
   const custom = parseCustomRange(params.from, params.to, TABLE_MAX_CUSTOM_DAYS, timeZone, now)
-  const response = await fetchStationTimeseries(center, subject.stations, {
-    ...tableWindow(period, custom, timeZone, now),
-    rawData: true,
-  })
-  const table = buildStationTable(center, response, resolveColumns(response, subject))
+  const range = tableWindow(period, custom, timeZone, now)
+  // Both systems, so the toggle is instant; a failed metric read just drops the toggle.
+  const [standard, metric, rounding] = await Promise.all([
+    fetchStationTimeseries(center, subject.stations, { ...range, units: 'default' }),
+    fetchStationTimeseries(center, subject.stations, { ...range, units: 'metric' }).catch(
+      () => null,
+    ),
+    fetchVariableRounding(center),
+  ])
+  const columns = resolveColumns(standard, subject)
+  const tables = {
+    default: buildStationTable(center, standard, columns, rounding),
+    metric: metric
+      ? withElevationsIn(buildStationTable(center, metric, columns, rounding), 'metric')
+      : null,
+  }
   return {
     tabContent: (
       <StationTableView
-        table={table}
+        tables={tables}
         activePeriodKey={period.key}
         customRange={custom}
         timeZone={timeZone}

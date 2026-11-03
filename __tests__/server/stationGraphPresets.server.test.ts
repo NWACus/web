@@ -1,7 +1,6 @@
 import { buildChartOption } from '@/components/WeatherStations/stationGraphOptions'
 import type { GraphPreset } from '@/components/WeatherStations/stationGraphPresets'
-import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
-import { convertPreset } from '@/components/WeatherStations/stationGraphUnits'
+import { presetFor, STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
 import type { GraphData } from '@/services/snowobs/graph'
 
 function preset(key: string): GraphPreset {
@@ -22,6 +21,7 @@ function data(variable: string, values: number[]): GraphData {
         variable,
         label: 'Station 1',
         unit: 'in',
+        decimals: 0,
         points: values.map((v, i) => [1_700_000_000_000 + i * 3_600_000, v]),
       },
     ],
@@ -67,6 +67,7 @@ describe('axis bounds', () => {
           variable: 'precip_accum_one_hour',
           label: 'Station 1',
           unit: 'in',
+          decimals: 0,
           days: [
             [1_700_000_000_000, 0, 0.2, 5.2],
             [1_700_086_400_000, 0, 0.4, 0.6],
@@ -83,8 +84,17 @@ describe('axis bounds', () => {
     expect(axisBounds(data('air_temp', [30, 30, 30]), preset('temp'))).toEqual({ min: 25, max: 35 })
   })
 
-  it('converts a metric span by scale only', () => {
-    expect(convertPreset(preset('temp'), 'metric').axis?.minSpan).toBeCloseTo(5.56, 2)
-    expect(convertPreset(preset('snowdepth'), 'metric').axis).toEqual({ min: 0, minSpan: 30.48 })
+  it('swaps in the reference line and axis for the unit SnowObs returned', () => {
+    expect(presetFor(preset('temp'), '°C')).toMatchObject({ refLine: 0, axis: { minSpan: 5 } })
+    expect(presetFor(preset('snowdepth'), 'cm').axis).toEqual({ min: 0, minSpan: 30 })
+    expect(presetFor(preset('wind'), 'm/s').axis).toEqual({ min: 0, minSpan: 4.5 })
+    expect(presetFor(preset('wind'), 'km/h').axis).toEqual({ min: 0, minSpan: 16 })
+    expect(presetFor(preset('pressure'), 'Pa').axis).toEqual({ minSpan: 1000 })
+  })
+
+  it('keeps the preset for its own unit, or one it has no override for', () => {
+    expect(presetFor(preset('temp'), '°F')).toBe(preset('temp'))
+    expect(presetFor(preset('pressure'), 'mbar')).toBe(preset('pressure'))
+    expect(presetFor(preset('temp'), undefined)).toBe(preset('temp'))
   })
 })

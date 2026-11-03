@@ -112,6 +112,7 @@ Changes needed:
 - Read and understand the entire codebase
 - Create new files and modify existing ones
 - Run tests and fix failures
+- Run the same checks CI runs on its PR (prettier, lint, type generation, drift, fallow, migrations, seeding), so they pass the first time — but not `pnpm build` or the e2e suites
 - Create well-documented pull requests
 - Follow existing code patterns and styles
 
@@ -119,7 +120,7 @@ Changes needed:
 
 - Access external services or APIs not in the codebase
 - Deploy changes (PRs still need human approval)
-- Access secrets or environment variables
+- Access secrets or environment variables (Payload's CLI commands run against a local file database with a placeholder secret)
 - Make changes outside the repository
 
 ## Tips for Success

@@ -39,7 +39,7 @@ describe('reading the filters from a link', () => {
 
   // Units comes from the reader's own preference, so a shared link never imposes it.
   it('defaults everything a bare link leaves out, and takes units from the caller', () => {
-    expect(readFilterParams('', 'english')).toEqual({ ...DEFAULT_FILTERS, units: 'english' })
+    expect(readFilterParams('', 'metric')).toEqual({ ...DEFAULT_FILTERS, units: 'metric' })
   })
 
   it('ignores a recency or a type the filter does not offer', () => {

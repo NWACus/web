@@ -49,7 +49,7 @@ describe('StationCsvForm', () => {
 
     expect(await screen.findByRole('button', { name: /Preparing CSV/ })).toBeDisabled()
     expect(global.fetch).toHaveBeenCalledWith(
-      '/weather/stations/alpental/csv?station=nwac%3A4&year=2026&units=imperial',
+      '/weather/stations/alpental/csv?station=nwac%3A4&year=2026&units=default',
       { cache: 'no-store' },
     )
 

@@ -9,13 +9,14 @@
  * should hold across visits, and it should not be imposed on whoever opens a shared link. The
  * sort and the color toggle are the same kind of habit, and the widget kept them here too.
  */
-import type { StationMapUnits } from '@/services/snowobs/stationMap/model'
 import type { TableSort } from '@/services/snowobs/stationMap/table'
+import type { StationUnits } from '@/services/snowobs/units'
 
-const UNITS: StationMapUnits[] = ['default', 'english', 'metric']
+// A saved 'english' from before the option was dropped reads as unset, so Default.
+const UNITS: StationUnits[] = ['default', 'metric']
 
 interface StationMapPrefs {
-  units?: StationMapUnits
+  units?: StationUnits
   colorRules?: boolean
   sort?: TableSort
 }
@@ -29,7 +30,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /** Only a unit we offer — a stale or hand-edited entry must not crash the map. */
-function readUnits(value: unknown): StationMapUnits | undefined {
+function readUnits(value: unknown): StationUnits | undefined {
   return UNITS.find((known) => known === value)
 }
 
@@ -64,11 +65,11 @@ function writePrefs(centerSlug: string, patch: StationMapPrefs): void {
   }
 }
 
-export function readUnitsPref(centerSlug: string): StationMapUnits | undefined {
+export function readUnitsPref(centerSlug: string): StationUnits | undefined {
   return readPrefs(centerSlug).units
 }
 
-export function writeUnitsPref(centerSlug: string, units: StationMapUnits): void {
+export function writeUnitsPref(centerSlug: string, units: StationUnits): void {
   writePrefs(centerSlug, { units })
 }
 

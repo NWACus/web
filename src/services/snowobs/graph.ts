@@ -3,7 +3,9 @@ import { differenceInHours } from 'date-fns'
 import { displayUnit } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
+import type { VariableRounding } from './stationTracking'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
+import { roundTo, variableDecimals } from './units'
 
 // The graph-data contract: series come back either raw (hourly points) or
 // daily-aggregated — windows longer than DECIMATION_THRESHOLD_DAYS
@@ -21,6 +23,8 @@ export type RawGraphSeries = {
   variable: string
   label: string
   unit: string
+  /** The precision SnowObs rounds this variable to. */
+  decimals: number
   /** [ms epoch, value|null] pairs, time-ascending. */
   points: [number, number | null][]
 }
@@ -34,6 +38,7 @@ export type DailyGraphSeries = {
   variable: string
   label: string
   unit: string
+  decimals: number
   /** [day-start ms epoch (display TZ), min, mean, max], time-ascending. */
   days: [number, number, number, number][]
 }
@@ -102,6 +107,7 @@ function rawPoints(
 export function aggregateDaily(
   points: [number, number | null][],
   timeZone: string,
+  decimals: number,
   circular = false,
 ): [number, number, number, number][] {
   const dayFormatter = dayFormatterFor(timeZone)
@@ -119,22 +125,21 @@ export function aggregateDaily(
   }
   return Array.from(byDay.values())
     .sort((a, b) => a.t - b.t)
-    .map(({ t, values }) => dayRow(t, values, circular))
+    .map(({ t, values }) => dayRow(t, values, decimals, circular))
 }
 
-function dayRow(t: number, values: number[], circular: boolean): [number, number, number, number] {
+function dayRow(
+  t: number,
+  values: number[],
+  decimals: number,
+  circular: boolean,
+): [number, number, number, number] {
   if (circular) {
-    const mean = vectorMeanDegrees(values)
+    const mean = roundTo(vectorMeanDegrees(values), decimals)
     return [t, mean, mean, mean]
   }
-  const min = Math.min(...values)
-  const max = Math.max(...values)
   const mean = values.reduce((acc, v) => acc + v, 0) / values.length
-  return [t, round2(min), round2(mean), round2(max)]
-}
-
-function round2(v: number): number {
-  return Number(v.toFixed(2))
+  return [t, Math.min(...values), roundTo(mean, decimals), Math.max(...values)]
 }
 
 // Vector (circular) mean of compass degrees — 350° and 10° average to 0°, not
@@ -144,7 +149,8 @@ export function vectorMeanDegrees(values: number[]): number {
   const x = values.reduce((acc, d) => acc + Math.cos(d * toRad), 0)
   const y = values.reduce((acc, d) => acc + Math.sin(d * toRad), 0)
   const deg = (Math.atan2(y, x) * 180) / Math.PI
-  return round2((deg + 360) % 360)
+  // Two places clears the trig's float noise, so 350° and 10° land on 0, not 359.99….
+  return roundTo((deg + 360) % 360, 2)
 }
 
 const CIRCULAR_VARIABLES = new Set(['wind_direction'])
@@ -156,11 +162,13 @@ function buildSeries(
   units: Record<string, string>,
   aggregated: boolean,
   timeZone: string,
+  rounding: VariableRounding,
 ): GraphSeries | null {
   const values = station.observations[variable]
   if (!values) return null
   const points = rawPoints(times, values)
   if (points.length === 0) return null
+  const decimals = variableDecimals(variable, values, rounding)
   const base = {
     key: stationKey(station),
     stid: station.stid,
@@ -169,12 +177,13 @@ function buildSeries(
     variable,
     label: seriesLabel(station),
     unit: displayUnit(units[variable]),
+    decimals,
   }
   if (aggregated) {
     return {
       kind: 'daily',
       ...base,
-      days: aggregateDaily(points, timeZone, CIRCULAR_VARIABLES.has(variable)),
+      days: aggregateDaily(points, timeZone, decimals, CIRCULAR_VARIABLES.has(variable)),
     }
   }
   return { kind: 'raw', ...base, points }
@@ -190,6 +199,7 @@ export function buildGraphData(
   stations: StationRef[],
   variables: string[],
   aggregated: boolean,
+  rounding: VariableRounding = {},
 ): GraphData {
   const timeZone = centerTimezone(center)
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
@@ -199,7 +209,15 @@ export function buildGraphData(
     if (!station) continue
     const times = parsedTimes(station)
     for (const variable of variables) {
-      const built = buildSeries(station, times, variable, response.UNITS, aggregated, timeZone)
+      const built = buildSeries(
+        station,
+        times,
+        variable,
+        response.UNITS,
+        aggregated,
+        timeZone,
+        rounding,
+      )
       if (built) series.push(built)
     }
   }

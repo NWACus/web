@@ -72,6 +72,13 @@ const response: SnowObsTimeseriesResponse = {
 const ref = (stid: string) => ({ stid, source: 'nwac' })
 
 describe('buildPrecipAccumulationTable', () => {
+  it("reports totals in hourly precip's unit, at the center's rounding", () => {
+    const rounded = buildPrecipAccumulationTable('nwac', response, [ref('1')], {
+      precip_accum_one_hour: 2,
+    })
+    expect(rounded.decimals).toBe(2)
+  })
+
   const table = buildPrecipAccumulationTable('nwac', response, [ref('1'), ref('2'), ref('3')])
 
   const rowFor = (stid: string) => {

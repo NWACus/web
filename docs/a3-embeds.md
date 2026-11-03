@@ -33,6 +33,7 @@ Displays all published avalanche education providers organized by state in a two
 |-----------|------|---------|-------------|
 | `title` | string | none | Optional header title to display above the provider list |
 | `states` | string | none | Pre-filter to only the given states (comma-separated state codes, e.g. `WA,OR`; case-insensitive). Uses `INTL` for International. When omitted, all states are shown. |
+| `curriculum` | string | none | Pre-filter to providers teaching at least one of the given curricula (comma-separated values: `aiare`, `aai`, `sas`, `mtc`, `provider-developed`; case-insensitive). Combines with `states`. When omitted, all providers are shown. |
 
 ### Example Usage
 
@@ -78,10 +79,11 @@ Pre-filtered to show only Washington and Oregon providers:
 
 - Providers are grouped by their `statesServiced` field (a provider can appear under multiple states)
 - When the `states` param is present, only the selected states' sections are rendered; a provider appears under a selected state if that state is among its `statesServiced`
-- If no providers match the selected states, a "No providers found for the selected states." message is shown instead of the accordion
-- State sections start collapsed by default; when the `states` param is present, the selected states' sections start expanded
+- When the `curriculum` param is present, only providers with at least one of the selected curricula are shown
+- If no providers match the selected filters, a "No providers found for the selected filters." message is shown instead of the accordion
+- State sections start collapsed by default; when the `states` or `curriculum` param is present, the shown sections start expanded
 - States are sorted alphabetically and split into two columns
-- Clicking a provider opens a modal with details: name, course types offered, email, phone, and website
+- Clicking a provider opens a modal with details: name, course types offered, curricula, email, phone, and website
 
 ## Courses Embed
 

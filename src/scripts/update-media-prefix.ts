@@ -25,6 +25,8 @@ async function updateMediaPrefix(prefix: string) {
     },
     context: {
       disableRevalidate: true,
+      // Without this, Payload's storage plugin nests the prefix under this environment's (e.g. preview/dev)
+      skipCloudStorage: true,
     },
   })
 
@@ -38,6 +40,8 @@ async function updateMediaPrefix(prefix: string) {
     },
     context: {
       disableRevalidate: true,
+      // Without this, Payload's storage plugin nests the prefix under this environment's (e.g. preview/dev)
+      skipCloudStorage: true,
     },
   })
 }

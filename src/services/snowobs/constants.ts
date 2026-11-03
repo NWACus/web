@@ -43,13 +43,24 @@ export const READING_NAMES: Record<string, string> = {
 // Display-friendly unit labels keyed by the raw unit SnowObs returns in `UNITS`.
 export const UNIT_LABELS: Record<string, string> = {
   fahrenheit: '°F',
+  celsius: '°C',
   degrees: '°',
   inches: 'in',
+  centimeters: 'cm',
+  millimeters: 'mm',
   mph: 'mph',
+  'm/s': 'm/s',
+  // No center reports metric wind in km/h yet, so SnowObs's name for it is a guess.
+  kph: 'km/h',
+  'km/hr': 'km/h',
   '%': '%',
   'W/m**2': 'W/m²',
+  'MJ/m**2': 'MJ/m²',
   volt: 'V',
+  volts: 'V',
   inch_Hg: 'inHg',
+  millibar: 'mbar',
+  pascals: 'Pa',
 }
 
 export function displayUnit(rawUnit: string | undefined): string {

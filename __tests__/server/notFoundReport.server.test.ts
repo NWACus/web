@@ -2,6 +2,7 @@ import {
   buildNotFoundReport,
   extractSitemapLocs,
   forecastZonePaths,
+  nacCenterZonesSchema,
   ROUTES_WITHOUT_REDIRECTS,
 } from '@/utilities/notFoundReport'
 import { readdirSync, readFileSync } from 'node:fs'
@@ -172,6 +173,23 @@ describe('forecastZonePaths', () => {
         to: '/forecasts/avalanche/mt-hood',
         hits: 20,
       },
+    ])
+  })
+
+  it('accepts a zone with a null url, as the NAC API sends for some disabled zones', () => {
+    const metadata = nacCenterZonesSchema.parse({
+      zones: [
+        { status: 'disabled', url: null },
+        {
+          status: 'active',
+          url: 'https://payetteavalanche.org/forecasts/avalanche/west-mountains',
+        },
+      ],
+    })
+
+    expect(forecastZonePaths(metadata)).toEqual([
+      '/forecasts/avalanche',
+      '/forecasts/avalanche/west-mountains',
     ])
   })
 })

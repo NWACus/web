@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select'
-import type { UnitSystem } from '@/services/snowobs/metricUnits'
+import type { StationUnits } from '@/services/snowobs/units'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
 import type { DragEndEvent } from '@dnd-kit/core'
@@ -312,8 +312,8 @@ export type EditViewProps = {
   graphRange: GraphRange
   onRangeChange: (range: GraphRange) => void
   timeZone: string
-  unitSystem: UnitSystem
-  onUnitChange: (system: UnitSystem) => void
+  unitSystem: StationUnits
+  onUnitChange: (system: StationUnits) => void
   /** The station page being viewed; null on a single station's detail page. */
   currentSlug: string | null
   compareSlugs: string[]

@@ -1,5 +1,6 @@
 import { accessByProviderRelationship } from '@/access/byProviderRelationship'
 import { courseTypesData } from '@/constants/courseTypes'
+import { curriculaData } from '@/constants/curricula'
 import { contentHashField } from '@/fields/contentHashField'
 import { stateOptionsWIntl } from '@/fields/location/states'
 import { slugField } from '@/fields/slug'
@@ -150,6 +151,21 @@ export const Providers: CollectionConfig = {
       options: courseTypesData.map((courseType) => ({
         label: courseType.label,
         value: courseType.value,
+      })),
+    },
+    {
+      name: 'curriculum',
+      label: 'Curriculum',
+      type: 'select',
+      hasMany: true,
+      access: courseTypesFieldAccess,
+      admin: {
+        description: 'The avalanche education curriculum(s) this provider teaches.',
+        position: 'sidebar',
+      },
+      options: curriculaData.map((c) => ({
+        label: c.label,
+        value: c.value,
       })),
     },
     contentHashField(),

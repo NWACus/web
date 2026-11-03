@@ -2,8 +2,6 @@ import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
 import { displayUnit, timezoneAbbreviation } from './constants'
-import type { UnitSystem } from './metricUnits'
-import { metricConversionFor } from './metricUnits'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
@@ -22,21 +20,13 @@ function csvRow(fields: string[]): string {
   return fields.map(csvField).join(',')
 }
 
-function sensorHeader(variable: string, rawUnit: string | undefined, units: UnitSystem): string {
-  const conversion = units === 'metric' ? metricConversionFor(variable) : null
-  const unit = conversion ? conversion.unit : displayUnit(rawUnit)
+function sensorHeader(variable: string, rawUnit: string | undefined): string {
+  const unit = displayUnit(rawUnit)
   return unit ? `${variable} (${unit})` : variable
 }
 
-function sensorValue(
-  value: string | number | null | undefined,
-  units: UnitSystem,
-  variable: string,
-) {
-  if (value === null || value === undefined) return ''
-  if (units === 'imperial' || typeof value !== 'number') return String(value)
-  const conversion = metricConversionFor(variable)
-  return conversion ? String(Number(conversion.convert(value).toFixed(2))) : String(value)
+function sensorValue(value: string | number | null | undefined): string {
+  return value === null || value === undefined ? '' : String(value)
 }
 
 /**
@@ -49,7 +39,6 @@ export function buildStationCsv(
   center: string,
   response: SnowObsTimeseriesResponse,
   station: StationRef,
-  units: UnitSystem = 'imperial',
 ): string {
   const timeZone = centerTimezone(center)
   const key = stationKey(station)
@@ -62,11 +51,11 @@ export function buildStationCsv(
   const labelAt = times.length > 0 ? new Date(String(times[0])) : new Date()
   const header = [
     `Time (${timezoneAbbreviation(labelAt, timeZone)})`,
-    ...sensors.map((v) => sensorHeader(v, response.UNITS[v], units)),
+    ...sensors.map((v) => sensorHeader(v, response.UNITS[v])),
   ]
   const rows = times.map((time, i) => [
     formatCsvTimestamp(String(time), timeZone),
-    ...sensors.map((variable) => sensorValue(observations[variable]?.[i], units, variable)),
+    ...sensors.map((variable) => sensorValue(observations[variable]?.[i])),
   ])
   return [header, ...rows].map(csvRow).join('\n')
 }

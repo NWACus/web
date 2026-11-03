@@ -1,7 +1,7 @@
 import { PrecipTableClient } from '@/blocks/PrecipTable/PrecipTable.client'
 import type { PrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import '@testing-library/jest-dom'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 const STATIONS = [
   { stid: '1', source: 'nwac' },
@@ -10,6 +10,8 @@ const STATIONS = [
 
 const TABLE: PrecipAccumulationTable = {
   timezoneLabel: 'PST',
+  unit: 'in',
+  decimals: 2,
   rows: [
     {
       stid: '1',
@@ -48,7 +50,7 @@ describe('PrecipTableClient', () => {
 
     await waitFor(() => expect(screen.getByText('Alpental Base')).toBeInTheDocument())
     expect(urls[0]).toBe(
-      `/weather/precip-data?stations=${encodeURIComponent('nwac:1,snotel:1011')}`,
+      `/weather/precip-data?stations=${encodeURIComponent('nwac:1,snotel:1011')}&units=default`,
     )
   })
 
@@ -57,6 +59,31 @@ describe('PrecipTableClient', () => {
     render(<PrecipTableClient stations={STATIONS} columns={['24h']} />)
 
     expect(screen.getByRole('status', { name: 'Loading precipitation totals' })).toBeInTheDocument()
+  })
+
+  it('keeps the table, in its own units, when a unit refetch fails', async () => {
+    let calls = 0
+    mockFetch(async () => {
+      calls += 1
+      return calls === 1
+        ? { ok: true, json: async () => TABLE }
+        : { ok: false, status: 502, json: async () => ({}) }
+    })
+    render(<PrecipTableClient stations={STATIONS} columns={['24h']} />)
+    await waitFor(() => expect(screen.getByText('Alpental Base')).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: 'Metric' }))
+
+    await waitFor(() => expect(urls).toHaveLength(2))
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Imperial' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      ),
+    )
+    expect(screen.getByText('Alpental Base')).toBeInTheDocument()
+    expect(screen.queryByText(/Precipitation data is unavailable/)).not.toBeInTheDocument()
+    window.localStorage.clear()
   })
 
   it('says so when the route fails rather than rendering an empty table', async () => {

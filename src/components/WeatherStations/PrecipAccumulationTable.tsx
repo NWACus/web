@@ -1,27 +1,23 @@
 'use client'
 
 import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
-import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type {
   PrecipAccumulationTable as PrecipAccumulationData,
   PrecipAccumulationRow,
 } from '@/services/snowobs/tableHelpers'
 import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
+import type { StationUnits } from '@/services/snowobs/units'
+import { elevationIn, formatReading } from '@/services/snowobs/units'
 import type { PrecipColumn } from '@/services/stations/precipColumns'
 import { ALL_PRECIP_COLUMNS } from '@/services/stations/precipColumns'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { StationTableFrame, StationTableHeader } from './StationTableFrame'
+import { StationTableFrame } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
-// Totals come from the API in inches, elevation in feet; metric converts on display.
-type Unit = UnitSystem
-const PRECIP_UNIT: Record<Unit, string> = { imperial: 'in', metric: 'mm' }
-const ELEVATION_UNIT: Record<Unit, string> = { imperial: 'ft', metric: 'm' }
-function formatTotal(value: number, unit: Unit): string {
-  return unit === 'metric' ? (value * 25.4).toFixed(1) : value.toFixed(2)
-}
+type Unit = StationUnits
+const ELEVATION_UNIT: Record<Unit, string> = { default: 'ft', metric: 'm' }
 
 // Sortable columns: station name, each trailing window (by hours), and the
 // metadata columns. Numbers default to descending, name to ascending.
@@ -117,8 +113,8 @@ function SortableHead({
     <TableHead
       aria-sort={headAriaSort(state.active, state.desc)}
       className={cn(
-        'whitespace-nowrap px-2 text-right align-top',
-        sticky && 'sticky left-0 z-10 bg-background text-left',
+        'whitespace-nowrap px-1.5 text-right align-top sm:px-2',
+        sticky && 'sticky left-0 z-10 min-w-28 bg-background text-left',
       )}
     >
       <SortButton
@@ -143,8 +139,7 @@ function formatLongitude(row: PrecipAccumulationRow): string {
 
 function formatElevation(row: PrecipAccumulationRow, unit: Unit): string {
   if (row.elevation == null) return '–'
-  const value = unit === 'metric' ? Math.round(row.elevation * 0.3048) : row.elevation
-  return value.toLocaleString()
+  return elevationIn(unit, row.elevation).toLocaleString()
 }
 
 type Window = (typeof PRECIP_ACCUMULATION_WINDOWS)[number]
@@ -189,7 +184,7 @@ function MetaCell({
     return (
       <TableCell
         className={cn(
-          'whitespace-nowrap px-2 py-1.5 text-right',
+          'whitespace-nowrap px-1.5 py-1.5 text-right sm:px-2',
           noReport && 'text-muted-foreground',
         )}
       >
@@ -203,21 +198,24 @@ function MetaCell({
       : column === 'longitude'
         ? formatLongitude(row)
         : formatElevation(row, unit)
-  return <TableCell className="px-2 py-1.5 text-right">{value}</TableCell>
+  return <TableCell className="px-1.5 py-1.5 text-right sm:px-2">{value}</TableCell>
 }
 
 function StationRow({
   row,
   unit,
+  decimals,
   groups,
 }: {
   row: PrecipAccumulationRow
   unit: Unit
+  decimals: number
   groups: ColumnGroup[]
 }) {
   return (
     <TableRow className="bg-background even:bg-muted">
-      <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-2 py-1.5 font-medium">
+      {/* Names wrap on a phone so the pinned column leaves room for the totals. */}
+      <TableCell className="sticky left-0 z-10 min-w-28 max-w-36 bg-inherit px-1.5 py-1.5 font-medium leading-snug sm:max-w-none sm:whitespace-nowrap sm:px-2">
         {row.name}
       </TableCell>
       {groups.map((group) =>
@@ -225,7 +223,7 @@ function StationRow({
           <AccumulationCells
             key={group.windows.join()}
             row={row}
-            unit={unit}
+            decimals={decimals}
             windows={group.windows}
           />
         ) : (
@@ -239,16 +237,19 @@ function StationRow({
 // A station with no observations shows "missing" across the run, like the legacy page.
 function AccumulationCells({
   row,
-  unit,
+  decimals,
   windows,
 }: {
   row: PrecipAccumulationRow
-  unit: Unit
+  decimals: number
   windows: Window[]
 }) {
   if (!row.hasData) {
     return (
-      <TableCell colSpan={windows.length} className="px-2 py-1.5 text-center text-muted-foreground">
+      <TableCell
+        colSpan={windows.length}
+        className="px-1.5 py-1.5 text-center text-muted-foreground sm:px-2"
+      >
         missing
       </TableCell>
     )
@@ -258,9 +259,9 @@ function AccumulationCells({
     return (
       <TableCell
         key={hours}
-        className={cn('px-2 py-1.5 text-right', value == null && 'text-muted-foreground')}
+        className={cn('px-1.5 py-1.5 text-right sm:px-2', value == null && 'text-muted-foreground')}
       >
-        {value == null ? '–' : formatTotal(value, unit)}
+        {value == null ? '–' : formatReading(value, decimals)}
       </TableCell>
     )
   })
@@ -280,12 +281,14 @@ function HeaderRow({
   sort,
   onSort,
   unit,
+  totalsUnit,
   timezoneLabel,
   columns,
 }: {
   sort: SortState | null
   onSort: (key: SortKey) => void
   unit: Unit
+  totalsUnit: string
   timezoneLabel: string
   columns: PrecipColumn[]
 }) {
@@ -304,7 +307,7 @@ function HeaderRow({
             <SortableHead
               key={column}
               label={`${hours}H`}
-              sublabel={PRECIP_UNIT[unit]}
+              sublabel={totalsUnit}
               state={stateFor(hours)}
             />
           )
@@ -331,14 +334,17 @@ function HeaderRow({
 // list; clicking a header sorts client-side, toggling direction.
 export function PrecipAccumulationTable({
   table,
+  unit,
+  onUnitChange,
   columns = ALL_PRECIP_COLUMNS,
 }: {
   table: PrecipAccumulationData
+  unit: Unit
+  onUnitChange: (unit: Unit) => void
   columns?: PrecipColumn[]
 }) {
   const groups = useMemo(() => groupColumns(columns), [columns])
   const [sort, setSort] = useState<SortState | null>(null)
-  const [unit, setUnit] = useState<Unit>('imperial')
 
   const onSort = (key: SortKey) =>
     setSort((prev) =>
@@ -361,24 +367,31 @@ export function PrecipAccumulationTable({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center justify-end gap-3">
-        <UnitToggle unit={unit} onChange={setUnit} />
+        <UnitToggle unit={unit} onChange={onUnitChange} />
       </div>
       <StationTableFrame
         label="Accumulated precipitation by station"
-        className="mx-auto w-auto text-base"
-      >
-        <StationTableHeader>
+        className="mx-auto w-auto text-sm sm:text-base"
+        header={
           <HeaderRow
             sort={sort}
             onSort={onSort}
             unit={unit}
+            totalsUnit={table.unit}
             timezoneLabel={table.timezoneLabel}
             columns={columns}
           />
-        </StationTableHeader>
+        }
+      >
         <TableBody>
           {rows.map((row) => (
-            <StationRow key={`${row.source}:${row.stid}`} row={row} unit={unit} groups={groups} />
+            <StationRow
+              key={`${row.source}:${row.stid}`}
+              row={row}
+              unit={unit}
+              decimals={table.decimals}
+              groups={groups}
+            />
           ))}
         </TableBody>
       </StationTableFrame>

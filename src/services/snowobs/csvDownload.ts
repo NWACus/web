@@ -2,11 +2,29 @@ import { passesCaptcha } from '@/services/turnstile'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { TZDate } from '@date-fns/tz'
 import { buildStationCsv } from './csv'
-import { fetchStationTimeseries } from './snowobs'
+import type { FetchOptions } from './snowobs'
+import { fetchStationTimeseries, SnowObsError } from './snowobs'
 import type { StationRef } from './stationKey'
 import { parseStationKey, stationKey } from './stationKey'
+import type { SnowObsTimeseriesResponse } from './types/schemas'
+import { parseStationUnits } from './units'
 
 const MIN_YEAR = 2016
+
+// A download is the logger's whole record: raw gets every sensor, not only Tracked Variables.
+// SnowObs has 500'd raw reads for some airport stations, which then come back rounded.
+async function fetchCsvTimeseries(
+  center: string,
+  datalogger: StationRef,
+  options: FetchOptions,
+): Promise<SnowObsTimeseriesResponse> {
+  try {
+    return await fetchStationTimeseries(center, [datalogger], { ...options, rawData: true })
+  } catch (error) {
+    if (!(error instanceof SnowObsError) || error.context?.status !== 500) throw error
+    return fetchStationTimeseries(center, [datalogger], options)
+  }
+}
 
 type CsvDownloadOptions = {
   center: string
@@ -36,8 +54,8 @@ export async function stationCsvDownload(
   if (!Number.isInteger(year) || year < MIN_YEAR || year > currentYear) {
     return new Response('Invalid year', { status: 400 })
   }
-  const units = url.searchParams.get('units') ?? 'imperial'
-  if (units !== 'imperial' && units !== 'metric') {
+  const units = parseStationUnits(url.searchParams.get('units'))
+  if (!units) {
     return new Response('Invalid units', { status: 400 })
   }
   if (!(await passesCaptcha(url.searchParams.get('cf-turnstile-response')))) {
@@ -49,13 +67,13 @@ export async function stationCsvDownload(
   const start = new Date(new TZDate(year, 0, 1, 0, 0, 0, 0, timeZone).getTime())
   const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, timeZone).getTime())
 
-  const response = await fetchStationTimeseries(center, [datalogger], {
+  const response = await fetchCsvTimeseries(center, datalogger, {
     start,
     end,
     revalidate: 3600,
-    rawData: true,
+    units,
   })
-  const csv = buildStationCsv(center, response, datalogger, units)
+  const csv = buildStationCsv(center, response, datalogger)
 
   return new Response(csv, {
     headers: {

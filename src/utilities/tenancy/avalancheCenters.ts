@@ -8,7 +8,8 @@
  * `pnpm check:centers` verifies every entry against the NAC and AFP APIs and lists AFP centers
  * that aren't here yet, including whether their metadata parses.
  */
-import { US_TIMEZONES, type USTimezone } from '@/utilities/timezones'
+// Loaded by next.config.ts, which can't resolve `@/` aliases: keep imports relative (eslint.config.mjs enforces it)
+import { US_TIMEZONES, type USTimezone } from '../timezones'
 
 type AvalancheCenterInfo = {
   readonly name: string

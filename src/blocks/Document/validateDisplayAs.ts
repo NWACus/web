@@ -1,11 +1,11 @@
-import { isInlineSafeMimeType } from '@/collections/Documents/allowedFileTypes'
+import { isEmbeddableMimeType } from '@/collections/Documents/allowedFileTypes'
 import { isRecord } from '@/utilities/isRecord'
 import { relationshipID } from '@/utilities/relationships'
 import type { SelectFieldSingleValidation } from 'payload'
 import { select } from 'payload/shared'
 
 /**
- * Only PDFs are served inline; every other document type is sent as an attachment, so
+ * Only PDFs can be embedded. Most other document types are sent as attachments, so
  * embedding one would make the page download it on every view.
  */
 export const validateDisplayAs: SelectFieldSingleValidation = async (value, options) => {
@@ -23,7 +23,7 @@ export const validateDisplayAs: SelectFieldSingleValidation = async (value, opti
       req: options.req,
     })
 
-    if (document && !isInlineSafeMimeType(document.mimeType)) {
+    if (document && !isEmbeddableMimeType(document.mimeType)) {
       return 'Only PDFs can be embedded. Choose Download Link for this file.'
     }
   }

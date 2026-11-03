@@ -54,15 +54,16 @@ const columnConfig = [
 
 describe('computePrecipCumsum', () => {
   it('runs a cumulative total, passing nulls through without advancing the sum', () => {
-    expect(computePrecipCumsum([0.1, 0.2, null, 0.3])).toEqual([0.1, 0.3, null, 0.6])
+    expect(computePrecipCumsum([0.1, 0.2, null, 0.3], 1)).toEqual([0.1, 0.3, null, 0.6])
   })
 
-  it('rounds to two decimals to avoid float drift', () => {
-    expect(computePrecipCumsum([0.1, 0.2])).toEqual([0.1, 0.3])
+  it("holds the total to the readings' precision, clearing float drift", () => {
+    expect(computePrecipCumsum([0.1, 0.2], 1)).toEqual([0.1, 0.3])
+    expect(computePrecipCumsum([0.01, 0.02, 0.05], 2)).toEqual([0.01, 0.03, 0.08])
   })
 
   it('handles an all-null series', () => {
-    expect(computePrecipCumsum([null, null])).toEqual([null, null])
+    expect(computePrecipCumsum([null, null], 2)).toEqual([null, null])
   })
 })
 
@@ -184,7 +185,7 @@ describe('buildStationTable with stations on different schedules', () => {
   ]
   // 02:20Z: the 02:10 reading belongs to the 03:00 row, which hasn't come yet.
   const now = Date.parse('2026-07-07T02:20:00Z')
-  const table = buildStationTable('nwac', mixed, columns, now)
+  const table = buildStationTable('nwac', mixed, columns, {}, now)
 
   it('gives one row per hour, dropping the hour still in progress', () => {
     expect(table.rows.map((r) => r.display)).toEqual(['07/06 19:00', '07/06 18:00'])
@@ -228,7 +229,7 @@ describe('buildStationTable with stations on different schedules', () => {
     const precipOnly = [
       { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'precip_accum_one_hour' },
     ]
-    const [hour] = buildStationTable('nwac', resetting, precipOnly, now).rows
+    const [hour] = buildStationTable('nwac', resetting, precipOnly, {}, now).rows
     expect(hour.values['mesowest:KSEA_precip_accum_one_hour']).toBe(0.08)
   })
 

@@ -114,7 +114,7 @@ function FormSelect({
 }
 
 const UNIT_OPTIONS: FormOption[] = [
-  { value: 'imperial', label: 'Imperial' },
+  { value: 'default', label: 'Imperial' },
   { value: 'metric', label: 'Metric' },
 ]
 

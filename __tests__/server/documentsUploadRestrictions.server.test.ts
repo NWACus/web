@@ -3,7 +3,11 @@ import os from 'os'
 import path from 'path'
 import { ValidationError } from 'payload'
 
-import { DOCUMENT_MIME_TYPES } from '../../src/collections/Documents/allowedFileTypes'
+import {
+  DOCUMENT_MIME_TYPES,
+  EMBEDDABLE_MIME_TYPES,
+  INLINE_SAFE_MIME_TYPES,
+} from '../../src/collections/Documents/allowedFileTypes'
 import {
   assertFileContentMatchesName,
   assertUploadedFileContent,
@@ -78,6 +82,7 @@ describe('Documents upload allow list', () => {
       'application/pdf',
       'text/plain',
       'text/csv',
+      'application/json',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ]) {
@@ -117,9 +122,10 @@ describe('assertFileContentMatchesName', () => {
     ).not.toThrow()
   })
 
-  it('allows plain text and CSV', () => {
+  it('allows plain text, CSV and JSON', () => {
     expect(() => runHook('notes.txt', 'field observations')).not.toThrow()
     expect(() => runHook('data.csv', 'station,temp')).not.toThrow()
+    expect(() => runHook('table.json', '{"help": "<h5>Snowfall</h5>"}')).not.toThrow()
   })
 })
 
@@ -199,5 +205,35 @@ describe('Documents response headers', () => {
     const headers = modify('application/pdf; charset=binary', 'inline; filename="a.pdf"')
 
     expect(headers.get('Content-Disposition')).toBe('inline; filename="a.pdf"')
+  })
+
+  it('lets other sites fetch JSON', () => {
+    const headers = modify('application/json; charset=utf-8')
+
+    expect(headers.get('Access-Control-Allow-Origin')).toBe('*')
+  })
+
+  it('shows JSON in the browser instead of downloading it', () => {
+    const headers = modify('application/json', 'inline; filename="table.json"')
+
+    expect(headers.get('Content-Disposition')).toBe('inline; filename="table.json"')
+    expect(headers.get('X-Content-Type-Options')).toBe('nosniff')
+  })
+
+  it('does not open other types to cross-origin reads', () => {
+    expect(modify('text/csv').get('Access-Control-Allow-Origin')).toBeNull()
+    expect(modify('application/pdf').get('Access-Control-Allow-Origin')).toBeNull()
+  })
+})
+
+describe('embeddable document types', () => {
+  it('only embeds PDFs, even though JSON is served inline', () => {
+    expect(EMBEDDABLE_MIME_TYPES).toEqual(['application/pdf'])
+  })
+
+  it('only embeds types that are served inline', () => {
+    for (const mimeType of EMBEDDABLE_MIME_TYPES) {
+      expect(INLINE_SAFE_MIME_TYPES).toContain(mimeType)
+    }
   })
 })
