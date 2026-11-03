@@ -1,5 +1,6 @@
 import { getCachedRedirects } from '@/utilities/getRedirects'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
+import { safeDecodePath } from '@/utilities/path'
 import { notFound, redirect } from 'next/navigation'
 import invariant from 'tiny-invariant'
 
@@ -12,13 +13,15 @@ interface Props {
 /* SSR based dynamic redirects based on the redirects collection */
 export const Redirects = async ({ disableNotFound, center, url }: Props) => {
   const redirects = await getCachedRedirects()()
+  // Next.js re-encodes route params and a stored From may be either form, so match decoded
+  const decodedUrl = safeDecodePath(url)
 
   const redirectItem = redirects.find((redirect) => {
     invariant(
       typeof redirect.tenant === 'object',
       `Depth not set correctly when querying redirects. Tenant for redirect id ${redirect.id} not an object.`,
     )
-    return redirect.from === url && redirect.tenant.slug === center
+    return safeDecodePath(redirect.from) === decodedUrl && redirect.tenant.slug === center
   })
 
   if (redirectItem) {
