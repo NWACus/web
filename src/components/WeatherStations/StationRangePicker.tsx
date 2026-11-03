@@ -107,7 +107,6 @@ function RangeCalendar({
       mode="range"
       selected={draft}
       onSelect={(_range, day) => onDraftChange(nextDraft(draft, day))}
-      // One month only: with two, react-day-picker's month dropdowns land a month early.
       month={month}
       onMonthChange={onMonthChange}
       startMonth={parseISO(EARLIEST_CUSTOM_DATE)}
