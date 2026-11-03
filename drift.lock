@@ -1518,12 +1518,12 @@ sig = "8aa0db8af527ff49"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/(frontend)/colors.css"
-sig = "12a1dd483bee1fdd"
+sig = "324706cb7e8781cf"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/api/[center]/og/centerColorMap.ts"
-sig = "c62d9aedb3a11293"
+sig = "b87bb99185e80bea"
 
 [[bindings]]
 doc = "docs/onboarding.md"
