@@ -80,4 +80,33 @@ describe('avalancheCenterSchema', () => {
     expect(parsed.data?.widget_config.danger_map?.center).toEqual({ lat: null, lng: 1 })
     expect(parsed.data?.widget_config.stations?.source_marker_color).toBeUndefined()
   })
+
+  // BAC's live metadata carries `obs_rose_upper_el: null` and `obs_rose_lower_el: null`.
+  it('falls back on null or malformed observation viewer settings', () => {
+    const { widget_config: widgets } = snfacCenter
+    const parsed = avalancheCenterSchema.safeParse({
+      ...snfacCenter,
+      widget_config: {
+        ...widgets,
+        observation_viewer: {
+          ...widgets.observation_viewer,
+          map_center: null,
+          show_zone_filter: null,
+          show_all_zones: 'yes',
+          obs_rose_upper_el: null,
+          obs_rose_lower_el: null,
+          obs_rose_interval: '1000',
+        },
+      },
+    })
+
+    expect(parsed.success).toBe(true)
+    const viewer = parsed.data?.widget_config.observation_viewer
+    expect(viewer?.map_center).toBeUndefined()
+    expect(viewer?.show_zone_filter).toBeUndefined()
+    expect(viewer?.show_all_zones).toBeUndefined()
+    expect(viewer?.obs_rose_upper_el).toBeUndefined()
+    expect(viewer?.obs_rose_lower_el).toBeUndefined()
+    expect(viewer?.obs_rose_interval).toBeUndefined()
+  })
 })

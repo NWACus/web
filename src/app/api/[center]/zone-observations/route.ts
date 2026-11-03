@@ -31,7 +31,7 @@ export async function GET(
 
   try {
     const metadata = await getAvalancheCenterMetadata(center)
-    const body = await getZoneObservations(metadata.id, zone.zone.id, metadata.timezone ?? 'UTC')
+    const body = await getZoneObservations(center, zone.zone.id, metadata.timezone ?? 'UTC')
 
     // A burst of readers shares one upstream request; a new observation shows within 5 minutes.
     return NextResponse.json(body, {

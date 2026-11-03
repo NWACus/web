@@ -1,16 +1,15 @@
 /**
- * The zone's last 7 days of observations and avalanches, from the obs API's REST lists (what NAC's
- * newer observations viewer reads): the API filters by forecast zone, and the records are sorted
- * newest date first, then newest submitted.
- *
- * Server-only: the obs API rejects requests without an allowlisted `Origin`, which a server fetch
- * can send from any host, previews included.
+ * The zone's last 7 days of observations and avalanches, read through the observation viewer's
+ * source (`getObservationSource()`): the same obs-API client, schemas and mappers, asked for one
+ * zone and week instead of a map viewport. Records are sorted newest date first, then newest
+ * submitted.
  */
 import { unstable_cache } from 'next/cache'
-import { z } from 'zod'
 
-import { ALLOWLISTED_ORIGIN, nacApiHost } from './hosts'
+import { getThumbnailUrl } from '@/components/forecast/mediaItem'
 
+import { MediaType, type MediaItem } from './model/forecast'
+import type { Avalanche, Observation, ObservationKind } from './model/observation'
 import type {
   MediaThumbnail,
   ZoneAvalanche,
@@ -18,73 +17,21 @@ import type {
   ZoneObservations,
 } from './model/zoneObservations'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from './nac'
+import { cardMedia, observationCardMedia } from './observations/cards'
+import { DEFAULT_LIST_STATE, defaultFilters } from './observations/filters'
+import type { ListRequest } from './observations/listParams'
+import { getObservationSource } from './sources'
 
 const WINDOW_DAYS = 7
 
 /** Matches the route's edge window: a new observation shows within 5 minutes. */
 const CACHE_SECONDS = 300
 
-/** Longer than the obs API ever takes when it's up; a hung request shouldn't hold the function. */
-const UPSTREAM_TIMEOUT_MS = 10_000
-
 /** The API's largest page. A zone's week has never come close, so later pages aren't read. */
 const PAGE_SIZE = 100
 
-const mediaSchema = z
-  .object({
-    type: z.string().optional(),
-    url: z
-      .union([
-        z.string(),
-        z.object({ thumbnail: z.string().optional(), medium: z.string().optional() }),
-      ])
-      .optional(),
-  })
-  .catch({})
-
-const mediaListSchema = z.array(mediaSchema).nullable().catch([])
-
-const observationSchema = z.object({
-  id: z.string(),
-  start_date: z.string(),
-  created_at: z.string().nullable().catch(null),
-  location_name: z.string().nullable(),
-  observer_type: z.string().nullable(),
-  organization: z.string().nullable(),
-  instability: z
-    .object({
-      cracking: z.boolean().optional(),
-      collapsing: z.boolean().optional(),
-      avalanches_observed: z.boolean().optional(),
-    })
-    .nullable()
-    .catch(null),
-  media: mediaListSchema,
-  avalanches: z
-    .array(z.object({ media: mediaListSchema }))
-    .nullable()
-    .catch([]),
-})
-
-const avalancheSchema = z.object({
-  id: z.string(),
-  date: z.string(),
-  created_at: z.string().nullable().catch(null),
-  location_name: z.string().nullable(),
-  number: z.number().nullable(),
-  aspect: z.string().nullable(),
-  elevation: z.number().nullable(),
-  d_size: z.string().nullable(),
-  trigger: z.string().nullable(),
-  media: mediaListSchema,
-})
-
-const listSchema = <T extends z.ZodTypeAny>(record: T) => z.object({ results: z.array(record) })
-
-type Media = z.infer<typeof mediaSchema>
-
 /**
- * Whether the center shows the zone's Observations and Avalanches tabs: its `obs_tab` switch, as
+ * Whether a center shows the zone's Observations and Avalanches tabs: its `obs_tab` switch, as
  * the widget reads it, and an observations platform, without which `/observations` 404s.
  */
 export async function showsZoneObservationTabs(centerSlug: string): Promise<boolean> {
@@ -105,37 +52,32 @@ export function weekWindow(now: Date, timeZone: string): { from: string; to: str
   return { from: from.toISOString().slice(0, 10), to }
 }
 
-function imageSrc(item: Media): string | null {
-  if (typeof item.url === 'string') return item.url
-  return item.url?.thumbnail ?? item.url?.medium ?? null
+/** The viewer's filters narrowed to this center's records in one zone and week. */
+export function zoneListRequest<K extends ObservationKind>(
+  kind: K,
+  zoneId: number,
+  window: { from: string; to: string },
+): ListRequest & { kind: K } {
+  return {
+    kind,
+    // A forecast zone's obs-API `zone_id` is its NAC zone id as a string.
+    filters: { ...defaultFilters(window.to), ...window, zones: [String(zoneId)], onlyCenter: true },
+    list: DEFAULT_LIST_STATE,
+    pageSize: PAGE_SIZE,
+  }
 }
 
-/**
- * The widget's choice: the first `image`, else the first item, drawn by its type as `Thumbnail`
- * draws it (a photo or video frame, a link or PDF tile, or nothing for any other type).
- */
-export function thumbnailOf(media: Media[]): MediaThumbnail | null {
-  const item = media.find((m) => m.type === 'image') ?? media[0]
+/** The card's thumbnail, drawn by its type as the widget's `Thumbnail` draws it. */
+export function thumbnailOf(item: MediaItem | null): MediaThumbnail | null {
   if (!item) return null
-
-  const src = imageSrc(item)
-  if ((item.type === 'image' || item.type === 'photo') && src) return { kind: 'image', src }
-  if (item.type === 'video') return { kind: 'video', src }
-  if (item.type === 'pdf' || item.type === 'external') return { kind: item.type }
+  if (item.type === MediaType.Image || item.type === MediaType.Photo) {
+    const src = getThumbnailUrl(item)
+    return src ? { kind: 'image', src } : { kind: 'unknown' }
+  }
+  if (item.type === MediaType.Video) return { kind: 'video', src: getThumbnailUrl(item) }
+  if (item.type === MediaType.PDF) return { kind: 'pdf' }
+  if (item.type === MediaType.External) return { kind: 'external' }
   return { kind: 'unknown' }
-}
-
-function withMedia(media: Media[]) {
-  return { thumbnail: thumbnailOf(media), mediaCount: media.length }
-}
-
-/**
- * The widget's `media`: an observation with no media of its own shows none, even when its
- * avalanches have some; otherwise its avalanches' media follows its own.
- */
-export function observationMedia(own: Media[], avalanches: { media: Media[] | null }[]): Media[] {
-  if (own.length === 0) return []
-  return [...own, ...avalanches.flatMap((a) => a.media ?? [])]
 }
 
 interface Sortable {
@@ -159,98 +101,58 @@ export function newestFirst<T extends Sortable>(items: T[]): T[] {
   )
 }
 
-function toObservation(r: z.infer<typeof observationSchema>): ZoneObservation & Sortable {
-  const instability = r.instability ?? {}
-  return {
-    id: r.id,
-    date: r.start_date,
-    createdAt: r.created_at,
-    location: r.location_name || null,
-    observerType: r.observer_type || null,
-    organization: r.organization || null,
-    avalanchesObserved: Boolean(instability.avalanches_observed),
-    instability: Boolean(instability.cracking || instability.collapsing),
-    ...withMedia(observationMedia(r.media ?? [], r.avalanches ?? [])),
-  }
-}
-
-function toAvalanche(r: z.infer<typeof avalancheSchema>): ZoneAvalanche & Sortable {
-  return {
-    id: r.id,
-    date: r.date,
-    createdAt: r.created_at,
-    location: r.location_name || null,
-    number: r.number,
-    aspect: r.aspect,
-    elevation: r.elevation,
-    dSize: r.d_size,
-    trigger: r.trigger,
-    ...withMedia(r.media ?? []),
-  }
-}
-
 function sorted<T extends Sortable>(items: T[]): Omit<T, 'createdAt'>[] {
   return newestFirst(items).map(({ createdAt: _createdAt, ...rest }) => rest)
 }
 
-/** A list response's observations, mapped to what the cards read, newest first. */
-export function toObservations(body: unknown): ZoneObservation[] {
-  return sorted(listSchema(observationSchema).parse(body).results.map(toObservation))
+export function toZoneObservation(observation: Observation): ZoneObservation & Sortable {
+  const media = observationCardMedia(observation)
+  return {
+    id: observation.id,
+    // Every record in a date-filtered list has its date.
+    date: observation.startDate ?? '',
+    createdAt: observation.createdAt,
+    location: observation.locationName,
+    observerType: observation.observer.type,
+    organization: observation.observer.organization,
+    avalanchesObserved: observation.instability.avalanchesObserved,
+    instability: observation.instability.cracking || observation.instability.collapsing,
+    thumbnail: thumbnailOf(media.thumbnail),
+    mediaCount: media.count,
+  }
 }
 
-/** A list response's avalanches, mapped to what the cards read, newest first. */
-export function toAvalanches(body: unknown): ZoneAvalanche[] {
-  return sorted(listSchema(avalancheSchema).parse(body).results.map(toAvalanche))
-}
-
-/**
- * A REST list's URL for the zone and week. The operator forms are required: the plain
- * `start_date`/`end_date` params filter differently, and the avalanche list ignores them.
- */
-export function listUrl(
-  list: 'observation' | 'avalanche_observation',
-  centerId: string,
-  zoneId: number,
-  window: { from: string; to: string },
-): string {
-  const dateField = list === 'observation' ? 'start_date' : 'date'
-  const params = new URLSearchParams({
-    'center_id[eq]': centerId.toLowerCase(),
-    // A forecast zone's `zone_id` is its NAC zone id as a string.
-    'zone_id[in]': String(zoneId),
-    [`${dateField}[gte]`]: window.from,
-    [`${dateField}[lte]`]: window.to,
-    page_size: String(PAGE_SIZE),
-    sort_by: dateField,
-    sort_order: 'DESC',
-  })
-  // The trailing slash is required.
-  return `${nacApiHost}/obs/v1/public/${list}/list/?${params}`
-}
-
-async function fetchList(url: string): Promise<unknown> {
-  const res = await fetch(url, {
-    headers: { origin: ALLOWLISTED_ORIGIN },
-    cache: 'no-store',
-    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-  })
-  if (!res.ok) throw new Error(`Observations request failed with status ${res.status}`)
-  return res.json()
+export function toZoneAvalanche(avalanche: Avalanche): ZoneAvalanche & Sortable {
+  const media = cardMedia(avalanche.media)
+  return {
+    id: avalanche.id,
+    date: avalanche.date ?? '',
+    createdAt: avalanche.createdAt,
+    location: avalanche.locationName,
+    number: avalanche.number,
+    aspect: avalanche.aspect,
+    elevation: avalanche.elevation,
+    dSize: avalanche.dSize,
+    trigger: avalanche.trigger,
+    thumbnail: thumbnailOf(media.thumbnail),
+    mediaCount: media.count,
+  }
 }
 
 async function fetchZoneWeek(
-  centerId: string,
+  centerSlug: string,
   zoneId: number,
   window: { from: string; to: string },
 ): Promise<ZoneObservations> {
+  const source = getObservationSource()
   const [observations, avalanches] = await Promise.all([
-    fetchList(listUrl('observation', centerId, zoneId, window)),
-    fetchList(listUrl('avalanche_observation', centerId, zoneId, window)),
+    source.listObservations(centerSlug, zoneListRequest('observation', zoneId, window)),
+    source.listAvalanches(centerSlug, zoneListRequest('avalanche', zoneId, window)),
   ])
   return {
     window,
-    observations: toObservations(observations),
-    avalanches: toAvalanches(avalanches),
+    observations: sorted(observations.items.map(toZoneObservation)),
+    avalanches: sorted(avalanches.items.map(toZoneAvalanche)),
   }
 }
 
@@ -259,15 +161,14 @@ async function fetchZoneWeek(
  * caller answers with an error state.
  */
 export async function getZoneObservations(
-  /** The NAC center id from the center's metadata (`SNFAC`). */
-  centerId: string,
+  centerSlug: string,
   zoneId: number,
   timeZone: string,
 ): Promise<ZoneObservations> {
   const window = weekWindow(new Date(), timeZone)
   return unstable_cache(
-    () => fetchZoneWeek(centerId, zoneId, window),
-    ['zone-observations', centerId, String(zoneId), window.from, window.to],
+    () => fetchZoneWeek(centerSlug, zoneId, window),
+    ['zone-observations', centerSlug, String(zoneId), window.from, window.to],
     { revalidate: CACHE_SECONDS },
   )()
 }

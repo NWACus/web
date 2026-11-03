@@ -43,7 +43,7 @@ it('answers the zone’s week with an edge-cacheable response', async () => {
     'public, max-age=0, s-maxage=300, stale-while-revalidate=60',
   )
   expect(await res.json()).toEqual(week)
-  expect(mockGetZoneObservations).toHaveBeenCalledWith('SNFAC', 2904, 'America/Boise')
+  expect(mockGetZoneObservations).toHaveBeenCalledWith('snfac', 2904, 'America/Boise')
 })
 
 it('404s when the center has the tabs off, without reading upstream', async () => {
