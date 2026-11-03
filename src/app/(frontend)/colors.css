@@ -307,6 +307,51 @@
   --nav-underline: hsl(43 96% 50%);
 }
 
+/* Mount Shasta Avalanche Center — Midnight Shasta */
+.msac {
+  --brand-50: hsl(200 14% 97%);
+  --brand-100: hsl(200 14% 94%);
+  --brand-200: hsl(200 14% 88%);
+  --brand-300: hsl(200 14% 76%);
+  --brand-400: hsl(200 14% 62%);
+  --brand-500: hsl(200 14% 48%);
+  --brand-600: hsl(200 14% 38%);
+  --brand-700: hsl(200 14% 29%);
+  --brand-800: hsl(200 14% 20%);
+  --brand-900: hsl(200 14% 13%);
+  --brand-950: hsl(200 14% 8%);
+
+  --brand-foreground-50: hsl(240 10% 3.9%);
+  --brand-foreground-100: hsl(240 10% 3.9%);
+  --brand-foreground-200: hsl(240 10% 3.9%);
+  --brand-foreground-300: hsl(240 10% 3.9%);
+  --brand-foreground-400: hsl(240 10% 3.9%);
+  --brand-foreground-500: hsl(240 10% 3.9%);
+  --brand-foreground-600: hsl(0 0% 100%);
+  --brand-foreground-700: hsl(0 0% 100%);
+  --brand-foreground-800: hsl(0 0% 100%);
+  --brand-foreground-900: hsl(0 0% 100%);
+  --brand-foreground-950: hsl(0 0% 100%);
+
+  --primary: hsl(210 8% 13%);
+  --primary-hover: hsla(210 8% 13% / 0.85);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(178 70% 28%);
+  --secondary-hover: hsla(178 70% 28% / 0.85);
+  --secondary-foreground: hsl(0 0% 100%);
+  --header: hsl(210 8% 10%);
+  --header-foreground: hsl(0 0% 90%);
+  --header-foreground-highlight: hsl(54 100% 55%);
+  --footer: hsl(210 8% 7%);
+  --footer-foreground: hsl(0 0% 100%);
+  --footer-foreground-highlight: hsl(54 100% 55%);
+  --callout: hsl(54 100% 50%);
+  --callout-hover: hsla(54 100% 50% / 0.85);
+  --callout-foreground: hsl(210 10% 8%);
+  --nav-underline: hsl(54 100% 50%);
+  --link: hsl(178 85% 21%);
+}
+
 .a3 {
   /* A3 BRAND COLORS */
   --mountain-slate: hsl(220 25% 20%); /* RGB: 38 / 46 / 63 */
