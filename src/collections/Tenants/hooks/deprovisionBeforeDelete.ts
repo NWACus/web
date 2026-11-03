@@ -1,3 +1,4 @@
+import { FOLDERS_SLUG } from '@/collections/Folders/constants'
 import type { CollectionBeforeDeleteHook } from 'payload'
 
 export const TENANT_SCOPED_COLLECTIONS = [
@@ -6,6 +7,7 @@ export const TENANT_SCOPED_COLLECTIONS = [
   'builtInPages',
   'settings',
   'pages',
+  'stationPages',
   'posts',
   'events',
   'eventGroups',
@@ -15,9 +17,12 @@ export const TENANT_SCOPED_COLLECTIONS = [
   'teams',
   'biographies',
   'documents',
+  'galleries',
   'media',
+  FOLDERS_SLUG,
   'redirects',
   'roleAssignments',
+  'form-submissions',
   'forms',
 ] as const
 

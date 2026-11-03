@@ -35,6 +35,8 @@ import { ToggleField as ToggleField_371a8655e7a5f0cef03f5ca5077a64ce } from '@/c
 import { ViewStationPageButton as ViewStationPageButton_4e6b34efa94959a825a191dd4faa5e47 } from '@/collections/StationPages/components/ViewStationPageButton'
 import { PublishChangesButton as PublishChangesButton_733c9fec647d0760a6b62cbe16c0e231 } from '@/collections/StationPages/components/PublishChangesButton'
 import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } from '@/collections/Posts/components/ViewPostButton'
+import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { DescriptionWithCharCount as DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b } from '@/components/DescriptionWithCharCount'
 import { InitialTimezoneSetter as InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643 } from '@/fields/startAndEndDateField/components/InitialTimezoneSetter'
 import { CourseTypeField as CourseTypeField_348fff62462d32a00f93a0ac5be86e99 } from '@/collections/Courses/components/CourseTypeField'
@@ -58,6 +60,7 @@ import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce257
 import { NativeProductCheckbox as NativeProductCheckbox_2be46ba709ce10ea0c3fe67495e33beb } from '@/collections/Settings/components/NativeProductCheckbox'
 import { WhereThisIsUsed as WhereThisIsUsed_3c817eccfaa77946710fff3fda18114c } from '@/components/SharedContent/WhereThisIsUsed'
 import { SuggestEditDrawer as SuggestEditDrawer_aba91efd1845c1da20f002ee64b75852 } from '@/components/SharedContent/SuggestEditDrawer'
+import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6 } from '@/globals/Diagnostics/components/DiagnosticsDisplay'
 import { RevalidateCacheField as RevalidateCacheField_75dcdddd4342c9fd5df6099c7d907aa6 } from '@/globals/Diagnostics/components/RevalidateCacheField'
 import { LogoutButton as LogoutButton_db9ac62598c46d0f1db201f6af05442e } from '@/components/LogoutButton'
@@ -114,6 +117,8 @@ export const importMap = {
   "@/collections/StationPages/components/ViewStationPageButton#ViewStationPageButton": ViewStationPageButton_4e6b34efa94959a825a191dd4faa5e47,
   "@/collections/StationPages/components/PublishChangesButton#PublishChangesButton": PublishChangesButton_733c9fec647d0760a6b62cbe16c0e231,
   "@/collections/Posts/components/ViewPostButton#ViewPostButton": ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
+  "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@/components/DescriptionWithCharCount#DescriptionWithCharCount": DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b,
   "@/fields/startAndEndDateField/components/InitialTimezoneSetter#InitialTimezoneSetter": InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643,
   "@/collections/Courses/components/CourseTypeField#CourseTypeField": CourseTypeField_348fff62462d32a00f93a0ac5be86e99,
@@ -137,6 +142,7 @@ export const importMap = {
   "@/collections/Settings/components/NativeProductCheckbox#NativeProductCheckbox": NativeProductCheckbox_2be46ba709ce10ea0c3fe67495e33beb,
   "@/components/SharedContent/WhereThisIsUsed#WhereThisIsUsed": WhereThisIsUsed_3c817eccfaa77946710fff3fda18114c,
   "@/components/SharedContent/SuggestEditDrawer#SuggestEditDrawer": SuggestEditDrawer_aba91efd1845c1da20f002ee64b75852,
+  "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
   "@/globals/Diagnostics/components/DiagnosticsDisplay#DiagnosticsDisplay": DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6,
   "@/globals/Diagnostics/components/RevalidateCacheField#RevalidateCacheField": RevalidateCacheField_75dcdddd4342c9fd5df6099c7d907aa6,
   "@/components/LogoutButton#LogoutButton": LogoutButton_db9ac62598c46d0f1db201f6af05442e,

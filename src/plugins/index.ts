@@ -15,6 +15,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import * as Sentry from '@sentry/nextjs'
 import { Plugin } from 'payload'
+import { disableBulkEditOfHiddenFields } from './disableBulkEditOfHiddenFields'
 import tenantFieldPlugin from './tenantFieldPlugin'
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
@@ -166,4 +167,5 @@ export const plugins: Plugin[] = [
       },
     }),
   }),
+  disableBulkEditOfHiddenFields,
 ]

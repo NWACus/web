@@ -1,3 +1,4 @@
+import { FOLDERS_SLUG } from '@/collections/Folders/constants'
 import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
@@ -54,6 +55,7 @@ const collections: CollectionSlug[] = [
   'homePages',
   'sponsors',
   'media',
+  FOLDERS_SLUG,
   'pages',
   'posts',
   'forms',
@@ -485,12 +487,28 @@ export const seed = async ({
       }
     }
 
+    const brandFolders = await upsert(
+      FOLDERS_SLUG,
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.name,
+      Object.values(tenants).map(
+        (tenant): RequiredDataFromCollectionSlug<typeof FOLDERS_SLUG> => ({
+          tenant: tenant.id,
+          name: 'Brand',
+          folderType: ['media'],
+        }),
+      ),
+    )
+
     const brandImages = await upsert('media', payload, incremental, tenantsById, (obj) => obj.alt, [
       ...Object.values(tenants)
         .map((tenant): { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] => [
           {
             data: {
               tenant: tenant.id,
+              folder: brandFolders[tenant.slug]['Brand'].id,
               alt: 'logo',
             },
             file: logos[tenant.slug],
@@ -498,6 +516,7 @@ export const seed = async ({
           {
             data: {
               tenant: tenant.id,
+              folder: brandFolders[tenant.slug]['Brand'].id,
               alt: 'icon',
             },
             file: icons[tenant.slug],
@@ -505,6 +524,7 @@ export const seed = async ({
           {
             data: {
               tenant: tenant.id,
+              folder: brandFolders[tenant.slug]['Brand'].id,
               alt: 'banner',
             },
             file: banners[tenant.slug],
@@ -514,6 +534,7 @@ export const seed = async ({
                 {
                   data: {
                     tenant: tenant.id,
+                    folder: brandFolders[tenant.slug]['Brand'].id,
                     alt: 'usfs logo',
                   },
                   file: usfsLogos[tenant.slug],
