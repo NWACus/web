@@ -64,20 +64,23 @@ export function StationNowTable({
             {table.columns.map((column) => {
               const value = row.values[column.key]
               const direction = value != null && isDirection(column)
+              const text =
+                value == null
+                  ? '–'
+                  : direction
+                    ? windDirectionLabel(value)
+                    : formatReading(value, column.decimals)
+              const title = direction ? `${Math.round(value)}°` : undefined
               return (
                 <TableCell
                   key={column.key}
-                  title={direction ? `${Math.round(value)}°` : undefined}
+                  title={title}
                   className={cn(
                     'px-1 py-1 text-right sm:px-2 sm:py-1.5',
                     value == null && 'text-muted-foreground',
                   )}
                 >
-                  {value == null
-                    ? '–'
-                    : direction
-                      ? windDirectionLabel(value)
-                      : formatReading(value, column.decimals)}
+                  {text}
                 </TableCell>
               )
             })}
