@@ -32,10 +32,10 @@ const TABLE: StationTable = {
 }
 
 describe('StationNowTable', () => {
-  it('shows wind direction as a compass point, with the degrees on hover', () => {
+  it('shows wind direction as a compass point with its degrees', () => {
     render(<StationNowTable table={TABLE} />)
 
-    expect(screen.getByText('SW')).toHaveAttribute('title', '225°')
+    expect(screen.getByText('SW (225°)')).toBeInTheDocument()
     expect(screen.queryByText('224.6')).not.toBeInTheDocument()
     expect(screen.queryByText('°')).not.toBeInTheDocument()
     expect(screen.getByText('12')).toBeInTheDocument()

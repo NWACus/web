@@ -5,8 +5,14 @@ import { formatReading } from '@/services/snowobs/units'
 import { cn } from '@/utilities/ui'
 import { StationTableFrame } from './StationTableFrame'
 
-// Wind direction reads as a compass point, as on the graphs and station map.
 const isDirection = (column: TableColumn) => column.variable === 'wind_direction'
+
+// Wind direction reads "SW (225°)", as in the graph tooltips.
+function cellText(column: TableColumn, value: number | null | undefined): string {
+  if (value == null) return '–'
+  if (isDirection(column)) return `${windDirectionLabel(value)} (${Math.round(value)}°)`
+  return formatReading(value, column.decimals)
+}
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
@@ -63,24 +69,15 @@ export function StationNowTable({
             </TableCell>
             {table.columns.map((column) => {
               const value = row.values[column.key]
-              const direction = value != null && isDirection(column)
-              const text =
-                value == null
-                  ? '–'
-                  : direction
-                    ? windDirectionLabel(value)
-                    : formatReading(value, column.decimals)
-              const title = direction ? `${Math.round(value)}°` : undefined
               return (
                 <TableCell
                   key={column.key}
-                  title={title}
                   className={cn(
                     'px-1 py-1 text-right sm:px-2 sm:py-1.5',
                     value == null && 'text-muted-foreground',
                   )}
                 >
-                  {text}
+                  {cellText(column, value)}
                 </TableCell>
               )
             })}
