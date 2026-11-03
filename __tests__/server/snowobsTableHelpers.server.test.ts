@@ -159,7 +159,8 @@ describe('buildStationTable with wind direction', () => {
       'nwac:4_wind_direction',
       'nwac:4_wind_direction_compass',
     ])
-    expect(table.columns[1]).toMatchObject({ label: 'Compass', unit: '' })
+    expect(table.columns[0]).toMatchObject({ label: 'Dir', unit: 'deg' })
+    expect(table.columns[1]).toMatchObject({ label: 'Dir', unit: '' })
     expect(table.rows[0].values['nwac:4_wind_direction_compass']).toBe(225)
   })
 })

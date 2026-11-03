@@ -19,8 +19,8 @@ function column(variable: string, unit: string, label: string): TableColumn {
 
 const TABLE: StationTable = {
   columns: [
-    column('wind_direction', '°', 'Dir'),
-    column('wind_direction_compass', '', 'Compass'),
+    column('wind_direction', 'deg', 'Dir'),
+    column('wind_direction_compass', '', 'Dir'),
     column('wind_speed', 'mph', 'Speed'),
   ],
   rows: [
@@ -44,9 +44,15 @@ describe('StationNowTable', () => {
     render(<StationNowTable table={TABLE} />)
 
     expect(screen.getByText('225')).toBeInTheDocument()
-    expect(screen.getByText('°')).toBeInTheDocument()
+    expect(screen.getByText('deg')).toBeInTheDocument()
     expect(screen.getByText('SW')).toBeInTheDocument()
-    expect(screen.getByText('Compass')).toBeInTheDocument()
     expect(screen.getByText('12')).toBeInTheDocument()
+  })
+
+  it('keeps a blank unit line under a unitless label so headers stay level', () => {
+    render(<StationNowTable table={TABLE} />)
+
+    const compassLabel = screen.getAllByText('Dir')[1]
+    expect(compassLabel.nextElementSibling?.textContent).toBe('\u00A0')
   })
 })

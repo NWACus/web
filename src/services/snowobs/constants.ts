@@ -9,7 +9,7 @@ export const SENSOR_LABELS: Record<string, string> = {
   wind_speed_min: 'Min',
   wind_gust: 'Gust',
   wind_direction: 'Dir',
-  wind_direction_compass: 'Compass',
+  wind_direction_compass: 'Dir',
   precip_accum_one_hour: 'Pcp1',
   precip_accum_24hr: 'Pcp24',
   precip_cumsum: 'PcpSum',

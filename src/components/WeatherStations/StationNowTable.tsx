@@ -43,11 +43,10 @@ export function StationNowTable({
               className="whitespace-nowrap px-1 text-right align-bottom sm:px-2"
             >
               <div className="font-semibold text-foreground">{column.label}</div>
-              {column.unit && (
-                <div className="text-xs font-normal text-muted-foreground sm:text-sm">
-                  {column.unit}
-                </div>
-              )}
+              {/* A blank line keeps unitless labels level with the others, as headers align to the bottom. */}
+              <div className="text-xs font-normal text-muted-foreground sm:text-sm">
+                {column.unit || '\u00A0'}
+              </div>
               {column.elevation != null && (
                 <div className="text-xs font-normal text-muted-foreground sm:text-sm">
                   {column.elevation}

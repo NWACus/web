@@ -164,6 +164,11 @@ const DERIVED_NAMES: Record<string, string> = {
   [WIND_COMPASS]: 'Wind Direction (compass)',
 }
 
+const UNIT_OVERRIDES: Record<string, string> = {
+  [WIND_DIRECTION]: 'deg',
+  [WIND_COMPASS]: '',
+}
+
 const sourceVariable = (variable: string) => DERIVED_FROM[variable] ?? variable
 
 // Header metadata for a config column.
@@ -184,7 +189,7 @@ function columnMeta(
     variable,
     label: SENSOR_LABELS[variable] ?? fallbackSensorLabel(variable),
     longName: DERIVED_NAMES[variable] ?? longNameByVariable.get(variable) ?? variable,
-    unit: variable === WIND_COMPASS ? '' : displayUnit(units[source]),
+    unit: UNIT_OVERRIDES[variable] ?? displayUnit(units[source]),
     decimals: variableDecimals(source, series ?? [], rounding),
     elevation: station?.elevation ?? null,
   }
