@@ -73,7 +73,7 @@ sig = "aed73099bb43561f"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/onboarding.md"
-sig = "270bbcd8d4bc373d"
+sig = "4860bf45a48d6e4c"
 
 [[bindings]]
 doc = "CLAUDE.md"
