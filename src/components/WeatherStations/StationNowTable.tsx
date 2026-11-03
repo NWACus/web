@@ -1,15 +1,14 @@
 import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
+import { WIND_COMPASS } from '@/services/snowobs/constants'
 import { windDirectionLabel } from '@/services/snowobs/stationMap/format'
 import type { StationTable, TableColumn } from '@/services/snowobs/tableHelpers'
 import { formatReading } from '@/services/snowobs/units'
 import { cn } from '@/utilities/ui'
 import { StationTableFrame } from './StationTableFrame'
 
-// Wind direction reads "SW (225°)", as in the graph tooltips.
 function cellText(column: TableColumn, value: number | null | undefined): string {
   if (value == null) return '–'
-  if (column.variable === 'wind_direction')
-    return `${windDirectionLabel(value)} (${Math.round(value)}°)`
+  if (column.variable === WIND_COMPASS) return windDirectionLabel(value) ?? '–'
   return formatReading(value, column.decimals)
 }
 

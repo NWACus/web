@@ -9,6 +9,7 @@ export const SENSOR_LABELS: Record<string, string> = {
   wind_speed_min: 'Min',
   wind_gust: 'Gust',
   wind_direction: 'Dir',
+  wind_direction_compass: 'Compass',
   precip_accum_one_hour: 'Pcp1',
   precip_accum_24hr: 'Pcp24',
   precip_cumsum: 'PcpSum',
@@ -72,6 +73,10 @@ export function displayUnit(rawUnit: string | undefined): string {
 // table computes from it (not fetched from SnowObs).
 export const PRECIP_HOURLY = 'precip_accum_one_hour'
 export const PRECIP_CUMSUM = 'precip_cumsum'
+
+// Wind direction, and the compass-point column the table derives from it.
+export const WIND_DIRECTION = 'wind_direction'
+export const WIND_COMPASS = 'wind_direction_compass'
 
 // Derive a fallback header label the way the legacy plugin did: initials of the
 // underscore/space-separated variable name, uppercased (e.g. "foo_bar" -> "FB").

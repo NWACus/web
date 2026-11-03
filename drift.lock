@@ -1148,7 +1148,7 @@ sig = "0501469f97a1a1fc"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/constants.ts"
-sig = "3d89a0bdf172303f"
+sig = "a3a37a3034c44a4e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1183,7 +1183,7 @@ sig = "199b48e5650d4e95"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/tableHelpers.ts"
-sig = "803476320c147e4d"
+sig = "2bf0fc0f7cb22b0a"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

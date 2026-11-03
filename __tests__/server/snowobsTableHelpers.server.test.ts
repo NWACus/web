@@ -139,6 +139,31 @@ describe('buildStationTable', () => {
   })
 })
 
+describe('buildStationTable with wind direction', () => {
+  const windResponse: SnowObsTimeseriesResponse = {
+    UNITS: { wind_direction: 'degrees' },
+    VARIABLES: [{ variable: 'wind_direction', long_name: 'Wind Direction' }],
+    STATION: [
+      {
+        ...response.STATION[0],
+        observations: { date_time: [T0], wind_direction: [225] },
+      },
+    ],
+  }
+  const table = buildStationTable('nwac', windResponse, [
+    { station: ref('4'), variable: 'wind_direction' },
+  ])
+
+  it('auto-inserts a unitless compass column reading the same degrees', () => {
+    expect(table.columns.map((c) => c.key)).toEqual([
+      'nwac:4_wind_direction',
+      'nwac:4_wind_direction_compass',
+    ])
+    expect(table.columns[1]).toMatchObject({ label: 'Compass', unit: '' })
+    expect(table.rows[0].values['nwac:4_wind_direction_compass']).toBe(225)
+  })
+})
+
 describe('buildStationTable with stations on different schedules', () => {
   // A logger on the hour beside an airport reporting every few minutes, with a
   // rolling one-hour precip total.

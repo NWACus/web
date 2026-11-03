@@ -8,6 +8,8 @@ import {
   PRECIP_HOURLY,
   SENSOR_LABELS,
   timezoneAbbreviation,
+  WIND_COMPASS,
+  WIND_DIRECTION,
 } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
@@ -151,6 +153,19 @@ function raisedAt(note: StationNote): number {
   return Number.isNaN(ms) ? -Infinity : ms
 }
 
+// Columns the table derives from another reading, each inserted right after its source.
+const DERIVED_FROM: Record<string, string> = {
+  [PRECIP_CUMSUM]: PRECIP_HOURLY,
+  [WIND_COMPASS]: WIND_DIRECTION,
+}
+const DERIVED_AFTER = new Map(Object.entries(DERIVED_FROM).map(([derived, src]) => [src, derived]))
+const DERIVED_NAMES: Record<string, string> = {
+  [PRECIP_CUMSUM]: 'Cumulative Precipitation',
+  [WIND_COMPASS]: 'Wind Direction (compass)',
+}
+
+const sourceVariable = (variable: string) => DERIVED_FROM[variable] ?? variable
+
 // Header metadata for a config column.
 function columnMeta(
   ref: StationRef,
@@ -161,18 +176,16 @@ function columnMeta(
   units: Record<string, string>,
   rounding: VariableRounding,
 ): TableColumn {
-  const isCumsum = variable === PRECIP_CUMSUM
+  const source = sourceVariable(variable)
   return {
     key: `${stationKey(ref)}_${variable}`,
     stid: ref.stid,
     source: ref.source,
     variable,
     label: SENSOR_LABELS[variable] ?? fallbackSensorLabel(variable),
-    longName: isCumsum
-      ? 'Cumulative Precipitation'
-      : (longNameByVariable.get(variable) ?? variable),
-    unit: displayUnit(units[isCumsum ? PRECIP_HOURLY : variable]),
-    decimals: variableDecimals(isCumsum ? PRECIP_HOURLY : variable, series ?? [], rounding),
+    longName: DERIVED_NAMES[variable] ?? longNameByVariable.get(variable) ?? variable,
+    unit: variable === WIND_COMPASS ? '' : displayUnit(units[source]),
+    decimals: variableDecimals(source, series ?? [], rounding),
     elevation: station?.elevation ?? null,
   }
 }
@@ -372,13 +385,13 @@ function hourlyCumsum(
   return new Map(hours.map((h, i) => [h, sums[i]]))
 }
 
-// The series a column reads; cumulative precip is built from hourly precip.
+// The series a column reads; a derived column reads its source's.
 function columnSeries(
   station: ResponseStation | undefined,
   variable: string,
 ): (number | null)[] | undefined {
   if (!station) return undefined
-  return numericSeries(station.observations, variable === PRECIP_CUMSUM ? PRECIP_HOURLY : variable)
+  return numericSeries(station.observations, sourceVariable(variable))
 }
 
 // A column's value per row hour; cumulative precip runs over the hourly values.
@@ -408,7 +421,7 @@ function latestReading(response: SnowObsTimeseriesResponse): number | null {
 
 // Builds a render-ready table: one newest-first row per hour, full-outer-joined
 // across the group's stations, with a cumulative-precip column after each
-// hourly-precip one. Hourly because stations report on different schedules
+// hourly-precip one and a compass column after each wind direction. Hourly because stations report on different schedules
 // (loggers on the hour, airports every few minutes); see ADR 021.
 export function buildStationTable(
   center: string,
@@ -435,7 +448,7 @@ export function buildStationTable(
 
     // Unknown variable with no data and not in the response's variable list — skip
     // it, mirroring the legacy plugin which logs and drops such columns.
-    if (!series && !longNameByVariable.has(variable) && variable !== PRECIP_CUMSUM) return
+    if (!series && !longNameByVariable.has(variable) && !(variable in DERIVED_FROM)) return
 
     const column = columnMeta(
       ref,
@@ -453,9 +466,10 @@ export function buildStationTable(
   }
 
   for (const { station, variable } of columnConfig) {
-    if (variable === PRECIP_CUMSUM) continue // inserted automatically after hourly precip
+    if (variable in DERIVED_FROM) continue // inserted automatically after its source
     addColumn(station, variable)
-    if (variable === PRECIP_HOURLY) addColumn(station, PRECIP_CUMSUM)
+    const derived = DERIVED_AFTER.get(variable)
+    if (derived) addColumn(station, derived)
   }
 
   const sortedHours = Array.from(allHours).sort((a, b) => b - a)

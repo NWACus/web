@@ -18,12 +18,20 @@ function column(variable: string, unit: string, label: string): TableColumn {
 }
 
 const TABLE: StationTable = {
-  columns: [column('wind_direction', '°', 'Dir'), column('wind_speed', 'mph', 'Speed')],
+  columns: [
+    column('wind_direction', '°', 'Dir'),
+    column('wind_direction_compass', '', 'Compass'),
+    column('wind_speed', 'mph', 'Speed'),
+  ],
   rows: [
     {
       timestamp: 0,
       display: '11/14 12:00',
-      values: { 'nwac:1_wind_direction': 224.6, 'nwac:1_wind_speed': 12 },
+      values: {
+        'nwac:1_wind_direction': 224.6,
+        'nwac:1_wind_direction_compass': 224.6,
+        'nwac:1_wind_speed': 12,
+      },
     },
   ],
   timezoneLabel: 'PST',
@@ -32,13 +40,13 @@ const TABLE: StationTable = {
 }
 
 describe('StationNowTable', () => {
-  it('shows wind direction as a compass point with its degrees', () => {
+  it('shows wind direction in degrees, with its compass point in its own column', () => {
     render(<StationNowTable table={TABLE} />)
 
-    expect(screen.getByText('SW (225°)')).toBeInTheDocument()
-    expect(screen.queryByText('224.6')).not.toBeInTheDocument()
+    expect(screen.getByText('225')).toBeInTheDocument()
     expect(screen.getByText('°')).toBeInTheDocument()
+    expect(screen.getByText('SW')).toBeInTheDocument()
+    expect(screen.getByText('Compass')).toBeInTheDocument()
     expect(screen.getByText('12')).toBeInTheDocument()
-    expect(screen.getByText('mph')).toBeInTheDocument()
   })
 })
