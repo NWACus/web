@@ -296,13 +296,14 @@ function RangeBody({
 }
 
 type ShellProps = {
+  align: 'start' | 'center'
   open: boolean
   onOpenChange: (open: boolean) => void
   label: string
   children: ReactNode
 }
 
-function RangeDialog({ open, onOpenChange, label, children }: ShellProps) {
+function RangeDialog({ open, onOpenChange, label, children }: Omit<ShellProps, 'align'>) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -316,7 +317,7 @@ function RangeDialog({ open, onOpenChange, label, children }: ShellProps) {
   )
 }
 
-function RangePopover({ open, onOpenChange, label, children }: ShellProps) {
+function RangePopover({ align, open, onOpenChange, label, children }: ShellProps) {
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
@@ -327,7 +328,7 @@ function RangePopover({ open, onOpenChange, label, children }: ShellProps) {
       <PopoverContent
         className="flex w-auto flex-row p-0"
         side="bottom"
-        align="center"
+        align={align}
         collisionPadding={{ top: 8, right: 8, bottom: -Infinity, left: 8 }}
       >
         {children}
@@ -348,6 +349,7 @@ export function StationRangePicker({
   onApplyCustom,
   maxDays,
   timeZone,
+  align = 'center',
   className,
   ...target
 }: PeriodTarget & {
@@ -358,6 +360,8 @@ export function StationRangePicker({
   onApplyCustom: (range: DateRange) => void
   maxDays: number
   timeZone: string
+  /** Where the popover lines up with the button on wider screens. */
+  align?: 'start' | 'center'
   className?: string
 }) {
   const narrow = useIsNarrowViewport()
@@ -395,7 +399,7 @@ export function StationRangePicker({
   const Shell = narrow ? RangeDialog : RangePopover
   return (
     <div className={className}>
-      <Shell open={open} onOpenChange={changeOpen} label={label}>
+      <Shell align={align} open={open} onOpenChange={changeOpen} label={label}>
         {body}
       </Shell>
     </div>

@@ -41,6 +41,7 @@ function TableRangePicker({
       }
       maxDays={TABLE_MAX_CUSTOM_DAYS}
       timeZone={timeZone}
+      align="start"
     />
   )
 }
