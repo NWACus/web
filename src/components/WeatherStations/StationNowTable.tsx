@@ -1,8 +1,12 @@
 import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
-import type { StationTable } from '@/services/snowobs/tableHelpers'
+import { windDirectionLabel } from '@/services/snowobs/stationMap/format'
+import type { StationTable, TableColumn } from '@/services/snowobs/tableHelpers'
 import { formatReading } from '@/services/snowobs/units'
 import { cn } from '@/utilities/ui'
 import { StationTableFrame } from './StationTableFrame'
+
+// Wind direction reads as a compass point, as on the graphs and station map.
+const isDirection = (column: TableColumn) => column.variable === 'wind_direction'
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
@@ -35,7 +39,7 @@ export function StationNowTable({
               className="whitespace-nowrap px-1 text-right align-bottom sm:px-2"
             >
               <div className="font-semibold text-foreground">{column.label}</div>
-              {column.unit && (
+              {column.unit && !isDirection(column) && (
                 <div className="text-xs font-normal text-muted-foreground sm:text-sm">
                   {column.unit}
                 </div>
@@ -59,15 +63,21 @@ export function StationNowTable({
             </TableCell>
             {table.columns.map((column) => {
               const value = row.values[column.key]
+              const direction = value != null && isDirection(column)
               return (
                 <TableCell
                   key={column.key}
+                  title={direction ? `${Math.round(value)}°` : undefined}
                   className={cn(
                     'px-1 py-1 text-right sm:px-2 sm:py-1.5',
                     value == null && 'text-muted-foreground',
                   )}
                 >
-                  {value == null ? '–' : formatReading(value, column.decimals)}
+                  {value == null
+                    ? '–'
+                    : direction
+                      ? windDirectionLabel(value)
+                      : formatReading(value, column.decimals)}
                 </TableCell>
               )
             })}
