@@ -26,3 +26,24 @@ export function normalizePath(path: string, options: NormalizePathOptions = {}):
 
   return normalized
 }
+
+function decodePathOrNull(path: string): string | null {
+  try {
+    return decodeURIComponent(path)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Percent-decode a path, returning it unchanged when it holds a malformed escape like a stray `%`.
+ * Next.js re-encodes route params with encodeURIComponent (`/&` → `%26`), so compare paths in this form.
+ */
+export function safeDecodePath(path: string): string {
+  return decodePathOrNull(path) ?? path
+}
+
+/** False when the path holds a malformed escape like a stray `%`, which no request can match. */
+export function isDecodablePath(path: string): boolean {
+  return decodePathOrNull(path) !== null
+}
