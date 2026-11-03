@@ -1,5 +1,6 @@
 import type { EChartOption } from '@/components/charts/EChart'
 import type { GraphData, GraphSeries } from '@/services/snowobs/graph'
+import { windDirectionLabel } from '@/services/snowobs/stationMap/format'
 import { formatReading } from '@/services/snowobs/units'
 import { format } from 'date-fns'
 import type { GraphPreset } from './stationGraphPresets'
@@ -52,8 +53,6 @@ function seriesFor(
 }
 
 const AXIS_CARDINALS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
-// prettier-ignore
-const ROSE_16 = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW']
 
 // Axis ticks land on 45° multiples — 8-wind keeps them readable.
 export function degreesToCardinal(deg: number): string {
@@ -63,7 +62,7 @@ export function degreesToCardinal(deg: number): string {
 // Hover labels use the 16-wind rose (22.5° sectors), matching the legacy plots.
 export function degreesToRose(deg: number): string {
   if (deg < 0 || deg > 360) return 'INV'
-  return ROSE_16[Math.round(deg / 22.5) % 16]
+  return windDirectionLabel(deg) ?? 'INV'
 }
 
 function degreeAxisOverrides(symbolsOnly: boolean): object {
