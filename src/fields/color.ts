@@ -11,6 +11,10 @@ export const BACKGROUND_COLOR_OPTIONS = [
 export const isPaletteColor = (value: unknown): value is string =>
   typeof value === 'string' && BACKGROUND_COLOR_OPTIONS.includes(value)
 
+// `white` counts as a color; `transparent` and values outside the palette paint nothing.
+export const hasBackgroundColor = (value: unknown): boolean =>
+  isPaletteColor(value) && value !== 'transparent'
+
 // An unchanged off-palette value passes so older content can still be published.
 export const validateBackgroundColor = (value: unknown, previousValue?: unknown): true | string =>
   isPaletteColor(value) ||

@@ -1,4 +1,3 @@
-import { BLOCK_MARGIN } from '@/components/BackgroundColorWrapper'
 import { cn } from '@/utilities/ui'
 
 import type { ImageLinkGridBlock as ImageLinkGridBlockProps } from '@/payload-types'
@@ -49,7 +48,7 @@ export const ImageLinkGridBlockComponent = (props: Props) => {
   const imageSizes = getImageSizes(numOfCols)
 
   return (
-    <div className={cn('container', BLOCK_MARGIN)}>
+    <div className="container">
       <div className="grid sm:grid-cols-12 gap-3">
         {columns &&
           columns?.length > 0 &&

@@ -59,7 +59,7 @@ export const ObservationsWidgetBlockComponent = ({
   if (!center) return null
 
   return (
-    <div className={cn('flex flex-col gap-4', { 'py-4': isLayoutBlock, breakout: !isLayoutBlock })}>
+    <div className={cn('flex flex-col gap-4', { breakout: !isLayoutBlock })}>
       <WidgetRouterHandler
         initialPath={observationsWidgetPath(filters, new Date())}
         widgetPageKey="recent-observations"

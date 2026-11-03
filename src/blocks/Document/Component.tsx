@@ -1,6 +1,5 @@
 'use client'
 import { isEmbeddableMimeType } from '@/collections/Documents/allowedFileTypes'
-import { BLOCK_MARGIN } from '@/components/BackgroundColorWrapper'
 import { type DocumentBlock as DocumentBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import { getMediaURL } from '@/utilities/getURL'
@@ -27,14 +26,14 @@ export const DocumentBlockComponent = (props: Props) => {
   // Only PDFs are embedded; most other types are served as attachments and would download on every page view
   if (displayAs === 'embed' && isEmbeddableMimeType(document.mimeType)) {
     return (
-      <div className={cn(isLayoutBlock ? ['container', BLOCK_MARGIN] : 'my-4')}>
+      <div className={cn(isLayoutBlock ? 'container' : 'my-4')}>
         <iframe src={src} width="100%" height="600px" title="Document" />
       </div>
     )
   }
 
   return (
-    <div className={cn(isLayoutBlock ? ['container', BLOCK_MARGIN] : 'my-4')}>
+    <div className={cn(isLayoutBlock ? 'container' : 'my-4')}>
       {/* target="_blank" keeps nextjs-toploader from treating the click as a navigation */}
       <a
         href={src}

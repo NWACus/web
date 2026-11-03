@@ -27,10 +27,10 @@ export const LinkPreviewBlockComponent = (props: LinkPreviewBlockProps) => {
   const colsSpanClass = colsClasses[numOfCols]
 
   const textColor = getTextColorFromBgColor(backgroundColor)
-  const spacing = blockSpacing(backgroundColor, true)
+  const spacing = blockSpacing(backgroundColor)
 
   return (
-    <div className={cn(spacing.outer, spacing.bg)}>
+    <div className={cn(spacing.bg)}>
       <div className={cn('container', spacing.inner)}>
         {header && (
           <div>

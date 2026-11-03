@@ -22,10 +22,10 @@ export const EmbedLayout = ({
 }: EmbedLayoutProps) => {
   // Stored as `… | null`, and a parameter default only fires on `undefined`.
   const align = alignContent ?? 'left'
-  const spacing = blockSpacing(backgroundColor, isLayoutBlock)
+  const spacing = blockSpacing(backgroundColor)
 
   return (
-    <div className={cn(spacing.outer, spacing.bg, getTextColorFromBgColor(backgroundColor))}>
+    <div className={cn(spacing.bg, getTextColorFromBgColor(backgroundColor))}>
       <div
         className={cn(
           isLayoutBlock && 'container',

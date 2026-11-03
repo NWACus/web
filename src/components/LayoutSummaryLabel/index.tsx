@@ -25,6 +25,13 @@ const optionLabel = (field: NamedField, value: unknown) => {
   return typeof option?.label === 'string' ? option.label : undefined
 }
 
+const spacingNames: Record<string, string> = { none: 'None', sm: 'Sm', md: 'Md', lg: 'Lg' }
+
+const spacing =
+  (prefix: string): Summarize =>
+  (value) =>
+    typeof value === 'string' && value in spacingNames && `${prefix}: ${spacingNames[value]}`
+
 // Fields whose option labels would be vague on their own; anything else shows its option label
 const summaries: Record<string, Summarize> = {
   backgroundColor: (value) => colorName(typeof value === 'string' && value ? value : 'transparent'),
@@ -38,6 +45,8 @@ const summaries: Record<string, Summarize> = {
   imageLayout: (value) => typeof value === 'string' && `Image ${value}`,
   textWrap: (value) => value === true && 'Text wraps',
   columns: (value) => value && `${value} columns`,
+  spacingTop: spacing('Top'),
+  spacingBottom: spacing('Btm'),
 }
 
 const namedFields = (fields: ClientField[]): NamedField[] =>

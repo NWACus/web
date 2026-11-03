@@ -72,6 +72,7 @@ import * as migration_20261019_120000_add_display_as_to_document_block from './2
 import * as migration_20261020_035907_add_observations_widget_block from './20261020_035907_add_observations_widget_block'
 import * as migration_20261027_230050_add_provider_curriculum from './20261027_230050_add_provider_curriculum'
 import * as migration_20261029_035518_content_block_layout_options from './20261029_035518_content_block_layout_options'
+import * as migration_20261103_001438_block_spacing from './20261103_001438_block_spacing'
 
 export const migrations = [
   {
@@ -443,5 +444,10 @@ export const migrations = [
     up: migration_20261029_035518_content_block_layout_options.up,
     down: migration_20261029_035518_content_block_layout_options.down,
     name: '20261029_035518_content_block_layout_options',
+  },
+  {
+    up: migration_20261103_001438_block_spacing.up,
+    down: migration_20261103_001438_block_spacing.down,
+    name: '20261103_001438_block_spacing',
   },
 ]

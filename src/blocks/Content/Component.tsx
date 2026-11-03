@@ -39,7 +39,7 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
     ],
   }
   const colsSpanClass = colsClasses[layoutCols]
-  const spacing = blockSpacing(backgroundColor, true)
+  const spacing = blockSpacing(backgroundColor)
 
   const alignClasses: Record<string, string> = {
     top: 'items-start',
@@ -51,7 +51,7 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
   const isStretch = verticalAlignment === 'stretch'
 
   return (
-    <div className={cn(spacing.outer, spacing.bg)}>
+    <div className={cn(spacing.bg)}>
       <div className={cn('container', spacing.inner)}>
         <div className={cn('grid grid-cols-6 lg:grid-cols-12 gap-y-6 gap-x-10', alignClass)}>
           {columns?.map((col, index) => {

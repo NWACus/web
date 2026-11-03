@@ -37,7 +37,7 @@ export const MediaBlockComponent = (props: Props) => {
   const resource = resolveMediaSource({ source, media, sharedMedia })
 
   const textColor = getTextColorFromBgColor(backgroundColor)
-  const spacing = blockSpacing(backgroundColor, isLayoutBlock)
+  const spacing = blockSpacing(backgroundColor)
 
   // `cqw` sizes the image relative to the block's `@container`; the browser reads the
   // rendered width via `sizes="auto"` (images are lazy-loaded) to pick the resolution.
@@ -60,7 +60,7 @@ export const MediaBlockComponent = (props: Props) => {
   }
 
   return (
-    <div className={cn(spacing.outer, spacing.bg, textColor)}>
+    <div className={cn(spacing.bg, textColor)}>
       <div
         className={cn(
           isLayoutBlock && 'container',
