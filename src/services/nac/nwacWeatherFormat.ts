@@ -13,9 +13,8 @@ export const DASH = '—'
 export const WET_QPF_IN = 0.01
 
 /**
- * Whether a block's level is a snow level or a freezing level: the forecaster's pick. Publish
- * requires a pick for every block (dashboard and products-api gates, Oct 2026), so the wet-period
- * fallback below only ever reads forecasts published before that rule.
+ * Whether a block's level is a snow level or a freezing level, as the dashboard decides it: the
+ * forecaster's pick when they made one, else snow when the zone's period is wet.
  */
 export function levelKind(
   issuance: NWACWeatherIssuance,
@@ -33,11 +32,7 @@ export function levelKind(
   return wet ? 'snow' : 'freezing'
 }
 
-/**
- * New snow in inches: QPF × SLR (snow-to-liquid ratio, 12 → 12:1), to a tenth. The same
- * derivation lives in the dashboard; products-api stores the ratio and never derives. A ratio
- * of 0 is the dry marker: no snow, whatever the water.
- */
+/** New snow in inches from water equivalent and snow-to-liquid ratio (slr 12 → 12:1). */
 export function deriveSnow(qpf: number | null | undefined, slr: number | null | undefined) {
   if (qpf == null || slr == null || slr <= 0) return null
   return Math.round(qpf * slr * 10) / 10
@@ -68,7 +63,6 @@ export function fmtQpf(qpf: number | null | undefined): string {
 
 export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
   if (cell?.speed == null) return DASH
-  // Calm keeps the forecast direction in front ("SW Calm"), matching the dashboard.
   if (cell.speed === 0) return `${cell.dir ?? ''} Calm`.trim()
   return `${cell.dir ?? ''} ${cell.speed}`.trim()
 }

@@ -48,10 +48,7 @@ export const nwacWeatherExtendedBlockSchema = z.object({
   date: z.string(),
 })
 
-// Measurement rows: products-api emits every value key on every row, null
-// where the forecaster left it blank, so the keys are required. A row that
-// lacks one is a wire mismatch (a renamed field, an older server) and should
-// fail here, loudly, rather than read as a forecast of nothing.
+// Value keys are required (null when blank) so a renamed field fails here instead of reading blank.
 export const nwacWeatherPrecipRowSchema = z.object({
   point: z.string(),
   period: z.string(),
