@@ -8,6 +8,7 @@ import {
   fmtWind,
   levelKind,
   periodDateGroups,
+  pointSnow,
   precipPeriods,
   sensibleSlots,
   snowLevelBlocks,
@@ -17,6 +18,7 @@ import {
   windBlocks,
   windRange,
   windWording,
+  zoneSnow,
 } from '@/services/nac/nwacWeatherFormat'
 import {
   mapV3NWACWeatherForecastDay,
@@ -96,8 +98,9 @@ describe('nwacWeatherFormat', () => {
     expect(deriveSnow(0.24, 11)).toBe(2.6)
     expect(deriveSnow(0.5, 15)).toBe(7.5)
     expect(deriveSnow(null, 10)).toBeNull()
-    expect(deriveSnow(0.3, 0)).toBeNull()
-    expect(deriveSnow(0.4, 0)).toBeNull()
+    expect(deriveSnow(0.3, null)).toBeNull()
+    expect(deriveSnow(0.3, -1)).toBeNull()
+    expect(deriveSnow(0.4, 0)).toBe(0)
     expect(deriveSnowLevel(5000)).toBe(5000)
     expect(deriveSnowLevel(0)).toBe(0)
     expect(deriveSnowLevel(null)).toBeNull()
@@ -180,6 +183,22 @@ describe('nwacWeatherFormat', () => {
       { date: '2026-09-15', span: 1 },
     ])
     expect(blockDate(afternoon, afternoon.blocks[0])).toBe('2026-09-14')
+  })
+})
+
+describe('zoneSnow', () => {
+  it('counts a point marked dry as 0 in the mean, not as unforecast', () => {
+    const [zone] = afternoon.zones
+    const issuance = {
+      ...afternoon,
+      points: [
+        { ...afternoon.points[0], code: 'A', zoneId: zone.id },
+        { ...afternoon.points[0], code: 'B', zoneId: zone.id },
+      ],
+      precip: { A: { n1: { qpf: 0.5, slr: 12 } }, B: { n1: { qpf: 0.4, slr: 0 } } },
+    }
+    expect(pointSnow(issuance, 'B', 'n1')).toBe(0)
+    expect(zoneSnow(issuance, zone.id, 'n1')).toBe(3)
   })
 })
 
