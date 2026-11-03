@@ -474,7 +474,9 @@ export function buildStationTable(
     if (variable in DERIVED_FROM) continue // inserted automatically after its source
     addColumn(station, variable)
     const derived = DERIVED_AFTER.get(variable)
-    if (derived) addColumn(station, derived)
+    if (derived && valueByColumn.has(`${stationKey(station)}_${variable}`)) {
+      addColumn(station, derived)
+    }
   }
 
   const sortedHours = Array.from(allHours).sort((a, b) => b - a)

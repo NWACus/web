@@ -163,6 +163,19 @@ describe('buildStationTable with wind direction', () => {
     expect(table.columns[1]).toMatchObject({ label: 'Dir', unit: '' })
     expect(table.rows[0].values['nwac:4_wind_direction_compass']).toBe(225)
   })
+
+  it('adds no compass column when the wind direction column is dropped', () => {
+    const noWind: SnowObsTimeseriesResponse = {
+      ...windResponse,
+      VARIABLES: [],
+      STATION: [{ ...response.STATION[0], observations: { date_time: [T0] } }],
+    }
+    const { columns } = buildStationTable('nwac', noWind, [
+      { station: ref('4'), variable: 'wind_direction' },
+    ])
+
+    expect(columns).toEqual([])
+  })
 })
 
 describe('buildStationTable with stations on different schedules', () => {
