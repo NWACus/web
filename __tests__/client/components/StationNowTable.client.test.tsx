@@ -49,6 +49,15 @@ describe('StationNowTable', () => {
     expect(screen.getByText('12')).toBeInTheDocument()
   })
 
+  it('shows a dash, not a compass point, for degrees outside 0–360', () => {
+    const [row] = TABLE.rows
+    const values = { ...row.values, 'nwac:1_wind_direction_compass': 400 }
+    render(<StationNowTable table={{ ...TABLE, rows: [{ ...row, values }] }} />)
+
+    expect(screen.queryByText('NNE')).not.toBeInTheDocument()
+    expect(screen.getByText('–')).toHaveClass('text-muted-foreground')
+  })
+
   it('keeps a blank unit line under a unitless label so headers stay level', () => {
     render(<StationNowTable table={TABLE} />)
 

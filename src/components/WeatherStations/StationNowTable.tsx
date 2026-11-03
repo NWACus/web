@@ -8,7 +8,9 @@ import { StationTableFrame } from './StationTableFrame'
 
 function cellText(column: TableColumn, value: number | null | undefined): string {
   if (value == null) return '–'
-  if (column.variable === WIND_COMPASS) return windDirectionLabel(value) ?? '–'
+  if (column.variable === WIND_COMPASS) {
+    return value >= 0 && value <= 360 ? (windDirectionLabel(value) ?? '–') : '–'
+  }
   return formatReading(value, column.decimals)
 }
 
@@ -65,16 +67,16 @@ export function StationNowTable({
               {row.display}
             </TableCell>
             {table.columns.map((column) => {
-              const value = row.values[column.key]
+              const text = cellText(column, row.values[column.key])
               return (
                 <TableCell
                   key={column.key}
                   className={cn(
                     'px-1 py-1 text-right sm:px-2 sm:py-1.5',
-                    value == null && 'text-muted-foreground',
+                    text === '–' && 'text-muted-foreground',
                   )}
                 >
-                  {cellText(column, value)}
+                  {text}
                 </TableCell>
               )
             })}
