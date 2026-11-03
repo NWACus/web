@@ -1,4 +1,3 @@
-import { layoutField } from '@/fields/layout'
 import type { Block } from 'payload'
 import { DEFAULT_DATE_RANGE, isValidDateRange } from './widgetPath'
 
@@ -84,6 +83,5 @@ export const ObservationsWidgetBlock: Block = {
         },
       ],
     },
-    layoutField(),
   ],
 }

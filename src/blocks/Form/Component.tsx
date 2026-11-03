@@ -1,5 +1,7 @@
 'use client'
 
+import { BLOCK_MARGIN } from '@/components/BackgroundColorWrapper'
+
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
@@ -129,7 +131,7 @@ export const FormBlockComponent = (props: FormBlockTypeProps) => {
   }
 
   return (
-    <div className={cn('lg:max-w-[48rem]', isLayoutBlock && 'container')}>
+    <div className={cn('lg:max-w-[48rem]', isLayoutBlock && ['container', BLOCK_MARGIN])}>
       {enableIntro && introContent && !hasSubmitted && (
         <RichText className="mb-8 lg:mb-12" data={introContent} enableGutter={false} />
       )}

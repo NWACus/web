@@ -1,14 +1,21 @@
-import { hasBackgroundColor } from '@/fields/color'
+import { isPaletteColor } from '@/fields/color'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
+// `white` counts as a color; `transparent` and values outside the palette paint nothing.
+export function hasBackgroundColor(backgroundColor?: string | null): boolean {
+  return isPaletteColor(backgroundColor) && backgroundColor !== 'transparent'
+}
+
+export const BLOCK_MARGIN = 'my-3 md:my-5'
 export const BLOCK_PADDING = 'py-6 md:py-8'
 
-// Colored blocks pad inside their color; the space between blocks comes from RenderBlocks
-export function blockSpacing(backgroundColor: string | null | undefined) {
+// Plain layout blocks get collapsing margin, colored ones padding; see docs/coding-guide.md.
+export function blockSpacing(backgroundColor: string | null | undefined, isLayoutBlock: boolean) {
   const hasBg = hasBackgroundColor(backgroundColor)
   return {
+    outer: isLayoutBlock && !hasBg && BLOCK_MARGIN,
     inner: hasBg && BLOCK_PADDING,
     bg: hasBg && `bg-${backgroundColor}`,
   }
@@ -29,11 +36,12 @@ export const BackgroundColorWrapper = ({
   containerClassName,
   outerClassName,
 }: BackgroundColorWrapperProps) => {
-  const spacing = blockSpacing(backgroundColor)
+  const spacing = blockSpacing(backgroundColor, isLayoutBlock)
 
   return (
     <div
       className={cn(
+        spacing.outer,
         spacing.bg,
         spacing.bg && getTextColorFromBgColor(backgroundColor),
         outerClassName,

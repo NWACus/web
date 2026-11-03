@@ -219,22 +219,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -390,22 +374,6 @@
           "autoincrement": false,
           "default": "'top'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -491,22 +459,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'download'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -690,22 +642,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -874,22 +810,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -981,22 +901,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -1106,22 +1010,6 @@
           "autoincrement": false,
           "default": "'left'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -1222,22 +1110,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -1347,22 +1219,6 @@
           "autoincrement": false,
           "default": "'left'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -1448,22 +1304,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'transparent'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "full_width_color": {
           "name": "full_width_color",
@@ -1646,22 +1486,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -1770,22 +1594,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -2011,22 +1819,6 @@
           "autoincrement": false,
           "default": "'transparent'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -2151,22 +1943,6 @@
           "autoincrement": false,
           "default": "'original'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -2282,22 +2058,6 @@
           "autoincrement": false,
           "default": "'carousel'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -2407,22 +2167,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'past2Weeks'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -2562,22 +2306,6 @@
           "autoincrement": false,
           "default": "'[]'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -2663,22 +2391,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -2779,22 +2491,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -2897,22 +2593,6 @@
           "autoincrement": false,
           "default": "'static'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -2990,22 +2670,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -3114,22 +2778,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -3905,22 +3553,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -4090,22 +3722,6 @@
           "autoincrement": false,
           "default": "'top'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -4198,22 +3814,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'download'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -4404,22 +4004,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -4595,22 +4179,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -4709,22 +4277,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -4841,22 +4393,6 @@
           "autoincrement": false,
           "default": "'left'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -4964,22 +4500,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -5096,22 +4616,6 @@
           "autoincrement": false,
           "default": "'left'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -5204,22 +4708,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'transparent'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "full_width_color": {
           "name": "full_width_color",
@@ -5416,22 +4904,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -5547,22 +5019,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -5802,22 +5258,6 @@
           "autoincrement": false,
           "default": "'transparent'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -5949,22 +5389,6 @@
           "autoincrement": false,
           "default": "'original'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -6087,22 +5511,6 @@
           "autoincrement": false,
           "default": "'carousel'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -6219,22 +5627,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'past2Weeks'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -6381,22 +5773,6 @@
           "autoincrement": false,
           "default": "'[]'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -6489,22 +5865,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -6612,22 +5972,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -6737,22 +6081,6 @@
           "autoincrement": false,
           "default": "'static'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -6837,22 +6165,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -6968,22 +6280,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -7763,22 +7059,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -7934,22 +7214,6 @@
           "autoincrement": false,
           "default": "'top'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -8035,22 +7299,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'download'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -8234,22 +7482,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -8418,22 +7650,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -8525,22 +7741,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -8650,22 +7850,6 @@
           "autoincrement": false,
           "default": "'left'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -8766,22 +7950,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -8891,22 +8059,6 @@
           "autoincrement": false,
           "default": "'left'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -8992,22 +8144,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'transparent'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "full_width_color": {
           "name": "full_width_color",
@@ -9190,22 +8326,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -9314,22 +8434,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -9555,22 +8659,6 @@
           "autoincrement": false,
           "default": "'transparent'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -9695,22 +8783,6 @@
           "autoincrement": false,
           "default": "'original'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -9826,22 +8898,6 @@
           "autoincrement": false,
           "default": "'carousel'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -9951,22 +9007,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'past2Weeks'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -10106,22 +9146,6 @@
           "autoincrement": false,
           "default": "'[]'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -10207,22 +9231,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -10323,22 +9331,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -10441,22 +9433,6 @@
           "autoincrement": false,
           "default": "'static'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -10534,22 +9510,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -10658,22 +9618,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "block_name": {
           "name": "block_name",
@@ -11319,22 +10263,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -11504,22 +10432,6 @@
           "autoincrement": false,
           "default": "'top'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -11612,22 +10524,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'download'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -11818,22 +10714,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -12009,22 +10889,6 @@
           "autoincrement": false,
           "default": 4
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -12123,22 +10987,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -12255,22 +11103,6 @@
           "autoincrement": false,
           "default": "'left'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -12378,22 +11210,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -12510,22 +11326,6 @@
           "autoincrement": false,
           "default": "'left'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -12618,22 +11418,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'transparent'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "full_width_color": {
           "name": "full_width_color",
@@ -12830,22 +11614,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -12961,22 +11729,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -13216,22 +11968,6 @@
           "autoincrement": false,
           "default": "'transparent'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -13363,22 +12099,6 @@
           "autoincrement": false,
           "default": "'original'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -13501,22 +12221,6 @@
           "autoincrement": false,
           "default": "'carousel'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -13633,22 +12337,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'past2Weeks'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -13795,22 +12483,6 @@
           "autoincrement": false,
           "default": "'[]'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -13903,22 +12575,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -14026,22 +12682,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -14151,22 +12791,6 @@
           "autoincrement": false,
           "default": "'static'"
         },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -14251,22 +12875,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -14382,22 +12990,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "spacing_top": {
-          "name": "spacing_top",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
-        },
-        "spacing_bottom": {
-          "name": "spacing_bottom",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'sm'"
         },
         "_uuid": {
           "name": "_uuid",

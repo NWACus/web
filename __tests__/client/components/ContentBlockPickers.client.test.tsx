@@ -130,18 +130,6 @@ describe('ColorPicker', () => {
 })
 
 describe('LayoutSummaryLabel', () => {
-  const spacingOptions = [
-    { label: 'None', value: 'none' },
-    { label: 'Small', value: 'sm' },
-    { label: 'Large', value: 'lg' },
-  ]
-  const spacingRow: ClientField = {
-    type: 'row',
-    fields: [
-      { name: 'spacingTop', type: 'select', options: spacingOptions },
-      { name: 'spacingBottom', type: 'select', options: spacingOptions },
-    ],
-  }
   const contentFields: ClientField[] = [
     {
       type: 'row',
@@ -165,7 +153,6 @@ describe('LayoutSummaryLabel', () => {
         },
       ],
     },
-    spacingRow,
   ]
   const imageTextFields: ClientField[] = [
     { name: 'backgroundColor', type: 'text' },
@@ -178,7 +165,6 @@ describe('LayoutSummaryLabel', () => {
       ],
     },
     { name: 'textWrap', type: 'checkbox' },
-    spacingRow,
   ]
   const galleryFields: ClientField[] = [
     {
@@ -195,7 +181,6 @@ describe('LayoutSummaryLabel', () => {
         { name: 'columns', type: 'select', options: [{ label: '3', value: '3' }] },
       ],
     },
-    spacingRow,
   ]
 
   const renderLabel = (fields: ClientField[]) =>
@@ -224,26 +209,21 @@ describe('LayoutSummaryLabel', () => {
     expect(screen.getByText('· Transparent · Full width')).toBeInTheDocument()
   })
 
-  it("shows each of a block's own options and its spacing", () => {
+  it("shows each of a block's own options", () => {
     mockFieldValues.set('layout.0.backgroundColor', 'white')
     mockFieldValues.set('layout.0.imageLayout', 'right')
     mockFieldValues.set('layout.0.textWrap', true)
-    mockFieldValues.set('layout.0.spacingTop', 'lg')
-    mockFieldValues.set('layout.0.spacingBottom', 'sm')
     renderLabel(imageTextFields)
 
-    expect(
-      screen.getByText('· White · Image right · Text wraps · Top: Lg · Btm: Sm'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('· White · Image right · Text wraps')).toBeInTheDocument()
   })
 
   it('names option values for fields without a custom summary', () => {
     mockFieldValues.set('layout.0.layout', 'masonry')
     mockFieldValues.set('layout.0.columns', '3')
-    mockFieldValues.set('layout.0.spacingBottom', 'none')
     renderLabel(galleryFields)
 
-    expect(screen.getByText('· Masonry · 3 columns · Btm: None')).toBeInTheDocument()
+    expect(screen.getByText('· Masonry · 3 columns')).toBeInTheDocument()
   })
 
   it("shows a Header's full-width color only when it's ticked", () => {
@@ -263,7 +243,7 @@ describe('LayoutSummaryLabel', () => {
   })
 
   it('shows just the title when nothing is set', () => {
-    renderLabel([spacingRow])
+    renderLabel(galleryFields)
 
     expect(screen.getByText('Layout')).toBeInTheDocument()
     expect(screen.queryByText(/·/)).not.toBeInTheDocument()

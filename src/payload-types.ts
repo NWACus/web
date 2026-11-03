@@ -510,8 +510,6 @@ export interface BlogListBlock {
     staticPosts?: (number | Post)[] | null;
   };
   backgroundColor: string;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'blogList';
@@ -700,8 +698,6 @@ export interface ContentBlock {
   backgroundColor: string;
   layout: '1_1' | '2_11' | '3_111' | '2_21' | '2_12' | '4_1111' | '3_211' | '3_121' | '3_112';
   verticalAlignment: 'top' | 'center' | 'bottom' | 'stretch';
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
@@ -716,8 +712,6 @@ export interface DocumentBlock {
    * Only PDFs can be embedded. Use Download Link for other file types.
    */
   displayAs: 'download' | 'embed';
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'documentBlock';
@@ -797,8 +791,6 @@ export interface EventListBlock {
     staticEvents?: (number | Event)[] | null;
   };
   backgroundColor: string;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'eventList';
@@ -1087,8 +1079,6 @@ export interface EventTableBlock {
     staticEvents?: (number | Event)[] | null;
   };
   backgroundColor: string;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'eventTable';
@@ -1115,8 +1105,6 @@ export interface FormBlock {
     };
     [k: string]: unknown;
   } | null;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'formBlock';
@@ -1298,8 +1286,6 @@ export interface FormEmbedBlock {
   html: string;
   backgroundColor: string;
   alignContent?: ('left' | 'center' | 'right') | null;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'formEmbed';
@@ -1330,8 +1316,6 @@ export interface GalleryBlock {
   } | null;
   layout: 'grid' | 'masonry';
   columns: '2' | '3' | '4';
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'gallery';
@@ -1400,8 +1384,6 @@ export interface GenericEmbedBlock {
   html: string;
   backgroundColor: string;
   alignContent?: ('left' | 'center' | 'right') | null;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'genericEmbed';
@@ -1427,8 +1409,6 @@ export interface HeaderBlock {
     [k: string]: unknown;
   };
   backgroundColor: string;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'headerBlock';
@@ -1470,8 +1450,6 @@ export interface ImageLinkGridBlock {
         id?: string | null;
       }[]
     | null;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'imageLinkGrid';
@@ -1556,8 +1534,6 @@ export interface ImageTextBlock {
    * Text will flow around the image instead of being in a separate column
    */
   textWrap?: boolean | null;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'imageText';
@@ -1621,8 +1597,6 @@ export interface LinkPreviewBlock {
       }[]
     | null;
   backgroundColor: string;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'linkPreview';
@@ -1662,8 +1636,6 @@ export interface MediaBlock {
   imageSize?: ('original' | 'xsmall' | 'small' | 'medium' | 'large' | 'full') | null;
   backgroundColor: string;
   alignContent?: ('left' | 'center' | 'right') | null;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
@@ -1723,8 +1695,6 @@ export interface SharedMedia {
 export interface NACMediaBlock {
   mode: 'carousel' | 'grid';
   backgroundColor: string;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'nacMediaBlock';
@@ -1746,8 +1716,6 @@ export interface ObservationsWidgetBlock {
    * Leave empty to show every zone.
    */
   zones?: string[] | null;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'observationsWidget';
@@ -1767,8 +1735,6 @@ export interface PrecipTableBlock {
     stid: string;
     source: string;
   }[];
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'precipTable';
@@ -1783,8 +1749,6 @@ export interface SingleBlogPostBlock {
    */
   post: number | Post;
   backgroundColor: string;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'singleBlogPost';
@@ -1799,8 +1763,6 @@ export interface SingleEventBlock {
    */
   event: number | Event;
   backgroundColor: string;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'singleEvent';
@@ -1813,8 +1775,6 @@ export interface SponsorsBlock {
   sponsors: (number | Sponsor)[];
   backgroundColor: string;
   sponsorsLayout: 'static' | 'carousel' | 'banner';
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'sponsorsBlock';
@@ -1857,8 +1817,6 @@ export interface Sponsor {
  */
 export interface TeamBlock {
   team: number | Team;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'team';
@@ -1909,8 +1867,6 @@ export interface VideoEmbedBlock {
   html: string;
   backgroundColor: string;
   alignContent?: ('left' | 'center' | 'right') | null;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'videoEmbed';
@@ -3980,8 +3936,6 @@ export interface BlogListBlockSelect<T extends boolean = true> {
         staticPosts?: T;
       };
   backgroundColor?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -3999,8 +3953,6 @@ export interface ContentBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   layout?: T;
   verticalAlignment?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4011,8 +3963,6 @@ export interface ContentBlockSelect<T extends boolean = true> {
 export interface DocumentBlockSelect<T extends boolean = true> {
   document?: T;
   displayAs?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4038,8 +3988,6 @@ export interface EventListBlockSelect<T extends boolean = true> {
         staticEvents?: T;
       };
   backgroundColor?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4065,8 +4013,6 @@ export interface EventTableBlockSelect<T extends boolean = true> {
         staticEvents?: T;
       };
   backgroundColor?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4078,8 +4024,6 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4091,8 +4035,6 @@ export interface FormEmbedBlockSelect<T extends boolean = true> {
   html?: T;
   backgroundColor?: T;
   alignContent?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4105,8 +4047,6 @@ export interface GalleryBlockSelect<T extends boolean = true> {
   description?: T;
   layout?: T;
   columns?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4118,8 +4058,6 @@ export interface GenericEmbedBlockSelect<T extends boolean = true> {
   html?: T;
   backgroundColor?: T;
   alignContent?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4131,8 +4069,6 @@ export interface HeaderBlockSelect<T extends boolean = true> {
   richText?: T;
   backgroundColor?: T;
   fullWidthColor?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4156,8 +4092,6 @@ export interface ImageLinkGridBlockSelect<T extends boolean = true> {
         caption?: T;
         id?: T;
       };
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4171,8 +4105,6 @@ export interface ImageTextBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   imageLayout?: T;
   textWrap?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4201,8 +4133,6 @@ export interface LinkPreviewBlockSelect<T extends boolean = true> {
         id?: T;
       };
   backgroundColor?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4218,8 +4148,6 @@ export interface MediaBlockSelect<T extends boolean = true> {
   imageSize?: T;
   backgroundColor?: T;
   alignContent?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4230,8 +4158,6 @@ export interface MediaBlockSelect<T extends boolean = true> {
 export interface NACMediaBlockSelect<T extends boolean = true> {
   mode?: T;
   backgroundColor?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4246,8 +4172,6 @@ export interface ObservationsWidgetBlockSelect<T extends boolean = true> {
   avalanchesObservedOnly?: T;
   dateRange?: T;
   zones?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4258,8 +4182,6 @@ export interface ObservationsWidgetBlockSelect<T extends boolean = true> {
 export interface PrecipTableBlockSelect<T extends boolean = true> {
   columns?: T;
   stations?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4270,8 +4192,6 @@ export interface PrecipTableBlockSelect<T extends boolean = true> {
 export interface SingleBlogPostBlockSelect<T extends boolean = true> {
   post?: T;
   backgroundColor?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4282,8 +4202,6 @@ export interface SingleBlogPostBlockSelect<T extends boolean = true> {
 export interface SingleEventBlockSelect<T extends boolean = true> {
   event?: T;
   backgroundColor?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4295,8 +4213,6 @@ export interface SponsorsBlockSelect<T extends boolean = true> {
   sponsors?: T;
   backgroundColor?: T;
   sponsorsLayout?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4306,8 +4222,6 @@ export interface SponsorsBlockSelect<T extends boolean = true> {
  */
 export interface TeamBlockSelect<T extends boolean = true> {
   team?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -4319,8 +4233,6 @@ export interface VideoEmbedBlockSelect<T extends boolean = true> {
   html?: T;
   backgroundColor?: T;
   alignContent?: T;
-  spacingTop?: T;
-  spacingBottom?: T;
   id?: T;
   blockName?: T;
 }
@@ -6012,8 +5924,6 @@ export interface CalloutBlock {
     [k: string]: unknown;
   } | null;
   backgroundColor: string;
-  spacingTop?: ('none' | 'sm' | 'md' | 'lg') | null;
-  spacingBottom?: ('none' | 'sm' | 'md' | 'lg') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'calloutBlock';
