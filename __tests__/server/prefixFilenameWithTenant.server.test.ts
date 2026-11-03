@@ -1,7 +1,3 @@
-import { mkdtemp, rm, writeFile } from 'fs/promises'
-import os from 'os'
-import path from 'path'
-
 const mockResolveTenant = jest.fn()
 jest.mock('../../src/utilities/tenancy/resolveTenant', () => ({
   resolveTenant: (...args: unknown[]) => mockResolveTenant(...args),
@@ -77,25 +73,19 @@ describe('prefixFilenameWithTenant', () => {
     expect(file).not.toHaveProperty('clientUploadContext')
   })
 
-  it('loads a client upload from its temp file before handing it back for a server re-upload', async () => {
-    // Since Payload 3.89 client uploads arrive with empty `data` and the bytes in a temp file,
-    // which the blob adapter never reads.
-    const dir = await mkdtemp(path.join(os.tmpdir(), 'prefix-filename-'))
-    const tempFilePath = path.join(dir, 'upload')
-    await writeFile(tempFilePath, 'png-bytes')
+  it('keeps the temp file on a client upload so the blob adapter re-uploads its processed bytes', async () => {
+    // Since Payload 3.89 client uploads arrive with empty `data`; since 3.92.1 the blob adapter
+    // uploads from `tempFilePath`, which Payload rewrites with any crop/resize edits.
     const file = buildFile({
       clientUploadContext: { prefix: 'local' },
       data: Buffer.alloc(0),
-      tempFilePath,
+      tempFilePath: '/tmp/payload-client-upload',
     })
 
-    try {
-      await runHook({ data: { tenant: 4 }, file })
-    } finally {
-      await rm(dir, { recursive: true, force: true })
-    }
+    await runHook({ data: { tenant: 4 }, file })
 
-    expect(file.data.toString()).toBe('png-bytes')
+    expect(file.name).toBe('snfac-photo.png')
+    expect(file.tempFilePath).toBe('/tmp/payload-client-upload')
     expect(file).not.toHaveProperty('clientUploadContext')
   })
 
