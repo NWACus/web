@@ -51,12 +51,15 @@ function SegmentedBar({
   names,
   labels,
   cols,
+  centered = false,
 }: {
   fills: string[]
   names: readonly string[]
   labels: readonly (string | null)[]
   /** The grid's column count as a static class (`grid-cols-4`), so Tailwind sees it. */
   cols: string
+  /** Center each label under its segment, for labels that name the segment, not a tick. */
+  centered?: boolean
 }) {
   return (
     <span className="inline-flex w-56 shrink-0 flex-col gap-0.5">
@@ -66,7 +69,10 @@ function SegmentedBar({
           <span key={i} title={names[i]} className={fill} />
         ))}
       </span>
-      <span aria-hidden="true" className={cn('grid text-[10px] leading-none', cols)}>
+      <span
+        aria-hidden="true"
+        className={cn('grid text-[10px] leading-none', centered && 'text-center', cols)}
+      >
         {labels.map((label, i) => (
           <span key={i}>{label}</span>
         ))}
@@ -88,6 +94,7 @@ function SnowFillKey() {
         names={SNOW_TIER_LABELS}
         labels={SNOW_TIER_LABELS}
         cols="grid-cols-4"
+        centered
       />
     </>
   )
