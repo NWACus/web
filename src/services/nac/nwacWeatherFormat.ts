@@ -33,10 +33,11 @@ export function levelKind(
 }
 
 /**
- * New snow in inches from water equivalent and snow-to-liquid ratio (slr 12 → 12:1). A ratio of 0
- * is the rain marker: water with no snow, so it derives 0, not "not forecast".
+ * New snow in inches from water equivalent and snow-to-liquid ratio (slr 12 → 12:1). A dry period
+ * (qpf 0, which needs no ratio) and the rain marker (slr 0) both derive 0, not "not forecast".
  */
 export function deriveSnow(qpf: number | null | undefined, slr: number | null | undefined) {
+  if (qpf === 0) return 0
   if (qpf == null || slr == null || slr < 0) return null
   return Math.round(qpf * slr * 10) / 10
 }
