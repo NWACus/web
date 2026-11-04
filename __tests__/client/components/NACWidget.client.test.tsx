@@ -13,7 +13,7 @@ jest.mock('next/script', () => ({
 // Stand-in for the posthog-js singleton; the test only checks the same object is handed over.
 jest.mock('posthog-js', () => ({
   __esModule: true,
-  default: { __loaded: true, capture: jest.fn() },
+  default: { capture: jest.fn() },
 }))
 
 const config = { version: '1.0.0', baseUrl: 'https://widgets.example.com', devMode: false }
@@ -24,7 +24,12 @@ describe('NACWidget', () => {
   afterEach(() => {
     delete window.mapWidgetData
     delete window.forecastWidgetData
-    process.env.NEXT_PUBLIC_POSTHOG_KEY = originalPostHogKey
+    // Assigning undefined to process.env stores the string "undefined", so delete instead.
+    if (originalPostHogKey === undefined) {
+      delete process.env.NEXT_PUBLIC_POSTHOG_KEY
+    } else {
+      process.env.NEXT_PUBLIC_POSTHOG_KEY = originalPostHogKey
+    }
   })
 
   it('passes mapHeight through to the danger map widget as mapWidgetData.height', () => {

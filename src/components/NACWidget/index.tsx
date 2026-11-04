@@ -130,7 +130,7 @@ export function NACWidget({
       baseUrl: baseUrl,
       controlledMount: true,
       // Hand the widget our PostHog client so it doesn't init a second one and double-count.
-      // The provider inits the singleton in the same commit, before the widget script can load.
+      // PostHogProvider inits this singleton no later than the commit that appends the script.
       ...(process.env.NEXT_PUBLIC_POSTHOG_KEY && { posthog }),
       ...(widget === 'media' && { mode: mediaMode }),
       ...(widget === 'map' && { height: mapHeight }),
