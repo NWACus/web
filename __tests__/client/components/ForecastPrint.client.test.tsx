@@ -3,9 +3,9 @@ import type { PrintSection } from '@/components/forecast/forecastPrintSections'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
 
-const captureWithTenant = jest.fn()
+const capture = jest.fn()
 jest.mock('../../../src/utilities/useAnalytics', () => ({
-  useAnalytics: () => ({ captureWithTenant }),
+  useAnalytics: () => ({ capture }),
 }))
 
 const ALL_SECTIONS: PrintSection[] = ['bottomLine', 'problems', 'discussion', 'weather']
@@ -39,7 +39,7 @@ describe('ForecastPrint', () => {
   let print: jest.Mock
 
   beforeEach(() => {
-    captureWithTenant.mockClear()
+    capture.mockClear()
     print = jest.fn()
     window.print = print
     document.title = 'Olympics | NWAC'
@@ -147,7 +147,7 @@ describe('ForecastPrint', () => {
     openModal()
     clickButton('Print')
 
-    expect(captureWithTenant).toHaveBeenCalledWith('forecast_print', {
+    expect(capture).toHaveBeenCalledWith('forecast_print', {
       sections: 'bottomLine,problems,weather',
     })
   })

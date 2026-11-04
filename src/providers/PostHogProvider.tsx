@@ -1,7 +1,7 @@
 'use client'
 
 import { getRootDomainURL } from '@/utilities/getURL'
-import { defaultPostHogProperties } from '@/utilities/useAnalytics'
+import { getPostHogSuperProperties } from '@/utilities/useAnalytics'
 import posthog from 'posthog-js'
 import { PostHogProvider as PHProvider } from 'posthog-js/react'
 import React, { useEffect } from 'react'
@@ -13,13 +13,11 @@ type PersistenceMode =
   | 'sessionStorage'
   | 'memory'
 
-export function PostHogProvider({
-  children,
-  persistence = 'localStorage+cookie',
-}: {
-  children: React.ReactNode
-  persistence?: PersistenceMode
-}) {
+// Rendered before `children` so its effect runs before any descendant's: React commits effects
+// child-first, so a descendant calling posthog.register() before init() is a silent no-op.
+// posthog-js fires the initial $pageview on a timer after init(), so super properties registered
+// anywhere in this same effect pass land on it.
+function PostHogInit({ persistence }: { persistence: PersistenceMode }) {
   useEffect(
     function initPostHog() {
       if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
@@ -33,16 +31,26 @@ export function PostHogProvider({
           advanced_disable_feature_flags: true,
           disable_surveys: true,
         })
+        posthog.register(getPostHogSuperProperties())
       }
     },
     [persistence],
   )
 
-  useEffect(function addDefaultPostHogProperties() {
-    if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-      posthog.register(defaultPostHogProperties)
-    }
-  })
+  return null
+}
 
-  return <PHProvider client={posthog}>{children}</PHProvider>
+export function PostHogProvider({
+  children,
+  persistence = 'localStorage+cookie',
+}: {
+  children: React.ReactNode
+  persistence?: PersistenceMode
+}) {
+  return (
+    <PHProvider client={posthog}>
+      <PostHogInit persistence={persistence} />
+      {children}
+    </PHProvider>
+  )
 }

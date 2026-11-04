@@ -25,11 +25,8 @@ const SCROLL_INTO_VIEW_MAX_WIDTH = 768
 
 /** Report an interaction to PostHog (inventory row X4), named as the widget named its GA events. */
 export function useTrack(): (name: string) => void {
-  const { captureWithTenant } = useAnalytics()
-  return useCallback(
-    (name: string) => captureWithTenant('station_map_interaction', { name }),
-    [captureWithTenant],
-  )
+  const { capture } = useAnalytics()
+  return useCallback((name: string) => capture('station_map_interaction', { name }), [capture])
 }
 
 interface Selection {

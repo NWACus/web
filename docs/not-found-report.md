@@ -74,4 +74,4 @@ Paths are set aside, not listed in the CSV, when a redirect can't or shouldn't f
 
 ## PostHog `page_not_found` event
 
-Center 404 pages also send a `page_not_found` PostHog event with `tenant`, `path` and `referrer`. It's groundwork for #280 — Create dashboard widget that allows embedding a PostHog widget, and the fallback data source if Observability Plus is dropped in January 2027, since without Plus this script has no data. It's sent from the browser because the not-found render is ISR-cached: a server-side capture would fire once per revalidation, not once per visitor.
+Center 404 pages also send a `page_not_found` PostHog event with `path` and `referrer` (`center` comes from the super properties). It's groundwork for #280 — Create dashboard widget that allows embedding a PostHog widget, and the fallback data source if Observability Plus is dropped in January 2027, since without Plus this script has no data. It's sent from the browser because the not-found render is ISR-cached: a server-side capture would fire once per revalidation, not once per visitor.

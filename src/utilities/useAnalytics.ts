@@ -1,23 +1,34 @@
 'use client'
-import { useTenant } from '@/providers/TenantProvider'
 import posthog from 'posthog-js'
-import { getEnvironmentFriendlyName } from './getEnvironmentFriendlyName'
+import { getPostHogEnvironment } from './getPostHogEnvironment'
 
-export const defaultPostHogProperties = {
-  platform: 'AvyWeb',
-  environment: getEnvironmentFriendlyName(),
+/**
+ * Super properties every browser event carries. `platform` duplicates `source` for one release so
+ * saved insights can move to the shared names, then it goes.
+ */
+export function getPostHogSuperProperties() {
+  return {
+    source: 'nwacus/web',
+    platform: 'AvyWeb',
+    environment: getPostHogEnvironment(),
+  }
 }
 
-export function useAnalytics() {
-  const { tenant } = useTenant()
-
-  function captureWithTenant(event: string, properties: Record<string, string> = {}) {
-    posthog.capture(event, {
-      ...defaultPostHogProperties,
-      tenant: tenant?.slug ?? 'unknown',
-      ...properties,
-    })
+/**
+ * Properties identifying the center. `tenant` duplicates `center` for one release, then it goes.
+ */
+export function getPostHogCenterProperties(tenantSlug: string) {
+  return {
+    center: tenantSlug.toUpperCase(),
+    tenant: tenantSlug,
   }
+}
 
-  return { captureWithTenant }
+function capture(event: string, properties: Record<string, string> = {}) {
+  posthog.capture(event, properties)
+}
+
+// Super properties supply source, environment and center; call sites only pass event-specific data.
+export function useAnalytics() {
+  return { capture }
 }

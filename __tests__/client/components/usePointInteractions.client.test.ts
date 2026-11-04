@@ -4,7 +4,7 @@
  */
 jest.mock('mapbox-gl', () => ({ __esModule: true, default: {} }))
 jest.mock('../../../src/utilities/useAnalytics', () => ({
-  useAnalytics: () => ({ captureWithTenant: jest.fn() }),
+  useAnalytics: () => ({ capture: jest.fn() }),
 }))
 
 import { usePointInteractions } from '@/components/stationMap/usePointInteractions'

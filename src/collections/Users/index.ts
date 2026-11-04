@@ -6,7 +6,6 @@ import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlo
 import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
 import { globalRoleAssignmentsFieldAccess } from './access/globalRoleAssignmentsFieldAccess'
 import { beforeValidatePassword } from './hooks/beforeValidatePassword'
-import { posthogIdentifyAfterLogin } from './hooks/posthogIdentifyAfterLogin'
 import { setLastLogin } from './hooks/setLastLogin'
 import { validateDomainAccessBeforeLogin } from './hooks/validateDomainAccessBeforeLogin'
 
@@ -117,7 +116,7 @@ export const Users: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterLogin: [setLastLogin, posthogIdentifyAfterLogin],
+    afterLogin: [setLastLogin],
     beforeLogin: [validateDomainAccessBeforeLogin],
     beforeValidate: [beforeValidatePassword],
   },

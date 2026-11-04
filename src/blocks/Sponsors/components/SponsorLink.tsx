@@ -11,7 +11,7 @@ type Props = {
 }
 
 export function SponsorLink({ sponsor, className, children }: Props) {
-  const { captureWithTenant } = useAnalytics()
+  const { capture } = useAnalytics()
   const impressionSent = useRef(false)
 
   const eventProperties = {
@@ -22,7 +22,7 @@ export function SponsorLink({ sponsor, className, children }: Props) {
   useEffect(() => {
     if (impressionSent.current) return
     impressionSent.current = true
-    captureWithTenant('sponsor_impression', eventProperties)
+    capture('sponsor_impression', eventProperties)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -32,7 +32,7 @@ export function SponsorLink({ sponsor, className, children }: Props) {
       target="_blank"
       rel="noopener noreferrer"
       className={className}
-      onClick={() => captureWithTenant('sponsor_click', eventProperties)}
+      onClick={() => capture('sponsor_click', eventProperties)}
     >
       {children}
     </a>

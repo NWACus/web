@@ -32,9 +32,9 @@ Installs an admin `AdminErrorBoundary` and reports errors from the admin UI and 
 
 PostHog runs as a **same-origin reverse proxy** so analytics aren't ad-blocked: client requests hit `/ingest/*`, which `next.config.ts` `rewrites()` to PostHog's US hosts; `skipTrailingSlashRedirect` and the `ingest` exclusion in [`src/middleware.ts`](../src/middleware.ts) keep that path intact.
 
-- **Browser:** [`PostHogProvider.tsx`](../src/providers/PostHogProvider.tsx) calls `posthog.init()` only when `NEXT_PUBLIC_POSTHOG_KEY` is set, pointing `api_host` at `/ingest`. It wraps both `src/app/(frontend)/layout.tsx` and `src/app/(embeds)/layout.tsx`; feature flags and surveys are disabled.
-- **Server:** [`src/posthog.ts`](../src/posthog.ts) exposes `PostHogClient()` (`posthog-node`), returning `null` when no key is set.
-- **Identity:** users are identified after login via `src/collections/Users/hooks/posthogIdentifyAfterLogin.ts`.
+- **Browser:** [`PostHogProvider.tsx`](../src/providers/PostHogProvider.tsx) calls `posthog.init()` only when `NEXT_PUBLIC_POSTHOG_KEY` is set, pointing `api_host` at `/ingest`. It wraps `src/app/(frontend)/layout.tsx`, `src/app/(embeds)/layout.tsx` and `src/app/(payload)/layout.tsx`; feature flags and surveys are disabled. Init runs in a leaf rendered before `children` so it happens before any descendant's effect — React commits effects child-first, and `posthog.register()` before `init()` is a silent no-op.
+- **Super properties:** every browser event carries `source: nwacus/web`, `environment` and, on center pages, `center` (the uppercased tenant slug), the same names AvyApp uses. `environment` comes from [`getPostHogEnvironment`](../src/utilities/getPostHogEnvironment.ts), which reads the `NEXT_PUBLIC_` copies of Vercel's system variables (the unprefixed `VERCEL_ENV` is server-only). `platform` and `tenant` duplicate `source` and `center` for one release so saved insights can switch, then go. [`PostHogCenterRegister`](../src/components/PostHogCenterRegister.client.tsx) registers `center` from the `[center]` layout; the `useAnalytics` `capture` wrapper in [`useAnalytics.ts`](../src/utilities/useAnalytics.ts) only passes event-specific properties.
+- **Admin identity:** [`PostHogAdminIdentity`](../src/components/PostHogAdminIdentity.client.tsx) runs `posthog.identify()` with the logged-in user's id in the admin layout, linking the browser's anonymous id to the person, registers the selected tenant as `center`, and resets on logout.
 - **404s:** center not-found pages send a `page_not_found` event from the browser via [`TrackPageNotFound`](../src/components/TrackPageNotFound.client.tsx); see [not-found-report.md](not-found-report.md).
 
 ### Environment variables
@@ -43,5 +43,6 @@ PostHog runs as a **same-origin reverse proxy** so analytics aren't ad-blocked: 
 | -------------------------- | -------- | ----------------------------------------------------------------------- |
 | `NEXT_PUBLIC_POSTHOG_KEY`  | No       | PostHog project key — PostHog is disabled (client + server) when absent |
 | `NEXT_PUBLIC_POSTHOG_HOST` | No       | UI host for links (default `https://us.i.posthog.com`)                  |
+| `NEXT_PUBLIC_VERCEL_ENV`   | No       | Set by Vercel when system environment variables are auto-exposed; drives `environment` (`local` when absent) |
 
-Both default to empty in [`.env.example`](../.env.example), so analytics stay off until a key is provided.
+The PostHog variables default to empty in [`.env.example`](../.env.example), so analytics stay off until a key is provided.

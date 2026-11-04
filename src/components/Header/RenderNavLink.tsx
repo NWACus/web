@@ -21,14 +21,14 @@ export const RenderNavLink = ({
   onClick,
   children,
 }: RenderNavLinkProps) => {
-  const { captureWithTenant } = useAnalytics()
+  const { capture } = useAnalytics()
 
   if (!link) {
     return null
   }
 
   const onClickWithCapture = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    captureWithTenant('navigation_click', {
+    capture('navigation_click', {
       menu_item: link.label,
       destination: link.url,
     })
