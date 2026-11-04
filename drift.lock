@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "e01d629c93efbcbc"
+sig = "2d8e411a611e7945"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1338,7 +1338,7 @@ sig = "7da7ca065ec53d40"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/components/PostHogAdminIdentity.client.tsx"
-sig = "45d3e12d393b856e"
+sig = "c7ead281d3cb7820"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1348,7 +1348,7 @@ sig = "06b88202763d2703"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/components/TrackPageNotFound.client.tsx"
-sig = "9ec2714b5da8c937"
+sig = "f4246a987c09c246"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1373,7 +1373,7 @@ sig = "8a52522b9f7edce5"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/utilities/getPostHogEnvironment.ts"
-sig = "b93f4874b0aed6bb"
+sig = "7d285dae64e96460"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1493,7 +1493,7 @@ sig = "a4824faf89f4051e"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/components/TrackPageNotFound.client.tsx"
-sig = "9ec2714b5da8c937"
+sig = "f4246a987c09c246"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -1803,7 +1803,7 @@ sig = "4fc2ad0bd4509765"
 [[bindings]]
 doc = "docs/testing.md"
 target = ".env.example"
-sig = "b0d735a488b91cb2"
+sig = "40c96e29a938a0d8"
 
 [[bindings]]
 doc = "docs/testing.md"

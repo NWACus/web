@@ -11,16 +11,11 @@ export function TrackPageNotFound() {
   const { capture } = useAnalytics()
 
   useEffect(() => {
-    // Child effects run before PostHogProvider's init effect, and posthog-js drops pre-init captures
-    const timeout = setTimeout(() =>
-      capture('page_not_found', {
-        path: window.location.pathname,
-        referrer: document.referrer,
-      }),
-    )
-    return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    capture('page_not_found', {
+      path: window.location.pathname,
+      referrer: document.referrer,
+    })
+  }, [capture])
 
   return null
 }

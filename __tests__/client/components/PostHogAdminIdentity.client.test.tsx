@@ -52,14 +52,25 @@ describe('PostHogAdminIdentity', () => {
     expect(posthog.unregister).toHaveBeenCalledWith('tenant')
   })
 
-  it('resets the browser identity when the user logs out', () => {
+  it('resets the browser identity on logout and re-registers the super properties reset wiped', () => {
     mockUseAuth.mockReturnValue({ user: admin })
+    mockUseTenantSelection.mockReturnValue({ selectedTenantSlug: 'sac' })
     const { rerender } = render(<PostHogAdminIdentity />)
+    jest.mocked(posthog.register).mockClear()
 
     mockUseAuth.mockReturnValue({ user: null })
     rerender(<PostHogAdminIdentity />)
 
     expect(posthog.reset).toHaveBeenCalledTimes(1)
+    const [resetOrder] = jest.mocked(posthog.reset).mock.invocationCallOrder
+    const registerOrders = jest.mocked(posthog.register).mock.invocationCallOrder
+    expect(registerOrders.every((order) => order > resetOrder)).toBe(true)
+    expect(posthog.register).toHaveBeenCalledWith({
+      source: 'nwacus/web',
+      platform: 'AvyWeb',
+      environment: 'local',
+    })
+    expect(posthog.register).toHaveBeenCalledWith({ center: 'SAC', tenant: 'sac' })
   })
 
   it('does not reset when the page loads logged out', () => {

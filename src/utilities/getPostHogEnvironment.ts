@@ -1,20 +1,16 @@
-export type PostHogEnvironment = 'production' | 'preview' | 'development' | 'local'
+const POSTHOG_ENVIRONMENTS = ['production', 'preview', 'development', 'local'] as const
+
+export type PostHogEnvironment = (typeof POSTHOG_ENVIRONMENTS)[number]
+
+function isPostHogEnvironment(value: string | undefined): value is PostHogEnvironment {
+  return POSTHOG_ENVIRONMENTS.some((environment) => environment === value)
+}
 
 /**
- * Environment label shared with AvyApp's PostHog events. Reads the `NEXT_PUBLIC_` copies of
- * Vercel's system variables because Next only inlines `NEXT_PUBLIC_` values into the browser bundle.
+ * Environment label shared with AvyApp's PostHog events. Set per deploy workflow at build time;
+ * Vercel's own `VERCEL_ENV` is server-only and our CLI builds never get the `NEXT_PUBLIC_` copies.
  */
 export function getPostHogEnvironment(): PostHogEnvironment {
-  const vercelEnv = process.env.NEXT_PUBLIC_VERCEL_ENV
-
-  if (vercelEnv === 'production') {
-    return 'production'
-  }
-
-  if (vercelEnv === 'preview') {
-    // Previews of main are the deployed dev environment (*.dev.avy-fx.org)
-    return process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF === 'main' ? 'development' : 'preview'
-  }
-
-  return 'local'
+  const environment = process.env.NEXT_PUBLIC_POSTHOG_ENVIRONMENT
+  return isPostHogEnvironment(environment) ? environment : 'local'
 }

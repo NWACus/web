@@ -111,6 +111,7 @@ jobs:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+          NEXT_PUBLIC_POSTHOG_ENVIRONMENT: development
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
