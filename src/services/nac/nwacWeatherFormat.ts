@@ -66,7 +66,7 @@ export function fmtQpf(qpf: number | null | undefined): string {
 
 export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
   if (cell?.speed == null) return DASH
-  if (cell.speed === 0) return `${cell.dir ?? ''} Calm`.trim()
+  if (windWording(cell.speed) === 'Calm') return `${cell.dir ?? ''} Calm`.trim()
   return `${cell.dir ?? ''} ${cell.speed}`.trim()
 }
 

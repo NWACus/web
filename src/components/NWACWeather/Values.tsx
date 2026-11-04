@@ -221,12 +221,8 @@ export function WindLegend() {
 }
 
 export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
-  if (!cell?.speed) return <span className="text-muted-foreground">{fmtWind(cell)}</span>
-  // The forecasters' calm band (0–4 mph) reads as Calm, as 0 does.
-  if (windWording(cell.speed) === 'Calm')
-    return (
-      <span className="text-muted-foreground">{[cell.dir, 'Calm'].filter(Boolean).join(' ')}</span>
-    )
+  if (cell?.speed == null || windWording(cell.speed) === 'Calm')
+    return <span className="text-muted-foreground">{fmtWind(cell)}</span>
   const bearing = windBearing(cell.dir)
   return (
     <span className="inline-flex flex-col items-center">

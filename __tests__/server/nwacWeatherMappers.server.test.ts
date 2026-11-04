@@ -113,6 +113,7 @@ describe('nwacWeatherFormat', () => {
     expect(fmtWind({ dir: 'SW', speed: 25 })).toBe('SW 25')
     expect(fmtWind({ dir: null, speed: 0 })).toBe('Calm')
     expect(fmtWind({ dir: 'SW', speed: 0 })).toBe('SW Calm')
+    expect(fmtWind({ dir: 'SW', speed: 3 })).toBe('SW Calm')
     expect(fmtWind(undefined)).toBe('—')
   })
 
