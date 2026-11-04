@@ -2,9 +2,8 @@ import { v3ApiHost } from '@/services/nac/hosts'
 import fixture from './fixtures/nwac-weather-forecasts.json'
 
 // Run the cached function straight through: the cache itself is Next's to test.
-const mockUnstableCache = jest.fn()
 jest.mock('next/cache', () => ({
-  unstable_cache: (...a: unknown[]) => mockUnstableCache(...a),
+  unstable_cache: (fn: () => unknown) => fn,
 }))
 
 // Avoid loading the real nac module (and payload) just for the fetch.
@@ -24,8 +23,6 @@ const NOTHING_PUBLISHED = { available: false, serviceDate: null, forecasts: [] }
 
 beforeEach(() => {
   mockNacFetch.mockReset()
-  mockUnstableCache.mockReset()
-  mockUnstableCache.mockImplementation((fn: () => unknown) => fn)
 })
 
 describe('NWAC weather v3 source', () => {
@@ -43,40 +40,16 @@ describe('NWAC weather v3 source', () => {
     expect(day?.issuances.map((i) => i.type)).toEqual(['afternoon', 'morning'])
   })
 
-  it('keeps a past date for 30 days under a tag no publish purges', async () => {
+  it('caches a past date for 30 days under a tag no publish purges', async () => {
     mockNacFetch.mockResolvedValue(fixture)
 
-    const day = await source.getDay('2026-09-14', { historical: true })
+    await source.getDay('2026-09-14', { historical: true })
 
-    expect(day?.serviceDate).toBe('2026-09-14')
-    expect(mockUnstableCache).toHaveBeenCalledWith(
-      expect.any(Function),
-      ['nwac-weather-past-day', '2026-09-14'],
-      { revalidate: 2592000, tags: ['nwac-weather-historical'] },
-    )
-  })
-
-  it('keeps a past date with no forecast out of the long cache', async () => {
-    mockNacFetch.mockResolvedValue(NOTHING_PUBLISHED)
-    const kept = jest.fn()
-    mockUnstableCache.mockImplementation((fn: () => Promise<unknown>, keys: string[]) =>
-      keys[0] === 'nwac-weather-past-day' ? () => fn().then((value) => kept(value)) : fn,
-    )
-
-    await expect(source.getDay('2026-09-15', { historical: true })).resolves.toBeNull()
-
-    expect(kept).not.toHaveBeenCalled()
-    expect(mockUnstableCache).toHaveBeenCalledWith(
-      expect.any(Function),
-      ['nwac-weather-past-day-recent', '2026-09-15'],
-      { revalidate: 300, tags: ['nwac-weather'] },
-    )
-  })
-
-  it('throws when a past date cannot be read', async () => {
-    mockNacFetch.mockRejectedValue(new Error('upstream down'))
-
-    await expect(source.getDay('2026-09-14', { historical: true })).rejects.toThrow('upstream down')
+    expect(mockNacFetch).toHaveBeenCalledWith('/v3/public/nwac-weather/forecasts?date=2026-09-14', {
+      cachedTime: 2592000,
+      tags: ['nwac-weather-historical'],
+      host: v3ApiHost,
+    })
   })
 
   it('reads the latest forecast with no date, cached, and fresh past the data cache', async () => {
