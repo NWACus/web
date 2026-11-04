@@ -58,7 +58,7 @@ describe('NACWidget', () => {
     expect(window.forecastWidgetData).not.toHaveProperty('height')
   })
 
-  it('hands the PostHog client to the widget when PostHog is configured', () => {
+  it('hands the widget a narrow PostHog handle when PostHog is configured', () => {
     process.env.NEXT_PUBLIC_POSTHOG_KEY = 'phc_test'
 
     render(
@@ -67,7 +67,15 @@ describe('NACWidget', () => {
       </NACWidgetsConfigProvider>,
     )
 
-    expect(window.forecastWidgetData?.posthog).toBe(posthog)
+    const handle = window.forecastWidgetData?.posthog
+    expect(handle).toBeDefined()
+    expect(handle).not.toHaveProperty('register')
+
+    handle?.capture('forecast_viewed', { zone: 'olympics' })
+    expect(posthog.capture).toHaveBeenCalledWith('forecast_viewed', {
+      zone: 'olympics',
+      host_source: 'nwacus/web',
+    })
   })
 
   it('omits the PostHog client when PostHog is not configured', () => {
