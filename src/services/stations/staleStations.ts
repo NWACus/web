@@ -3,7 +3,12 @@ import { stationKey } from '@/services/snowobs/stationKey'
 import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas'
 
 /** A station with no readings in the range shown, but an earlier report. */
-export type StaleStation = { name: string; lastReported: string }
+export type StaleStation = {
+  /** `source:stid` */
+  key: string
+  name: string
+  lastReported: string
+}
 
 export type LastDay = {
   station: StationRef
@@ -36,7 +41,7 @@ export function addStaleStations(
         },
       ],
     }
-    stale.push({ name: found.name ?? found.stid, lastReported: observedAt })
+    stale.push({ key, name: found.name ?? found.stid, lastReported: observedAt })
   }
   return { response: merged, stale }
 }

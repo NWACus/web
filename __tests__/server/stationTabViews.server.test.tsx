@@ -63,6 +63,36 @@ describe('the Table tab', () => {
     expect(content.props.tables.metric).toBeNull()
   })
 
+  it('leaves out the note for a stale station with every reading hidden', async () => {
+    const [station] = context.subject.stations
+    const stale = {
+      key: `${station.source}:${station.stid}`,
+      name: 'Hidden',
+      lastReported: '2026-10-27T19:00:00Z',
+    }
+    withStaleStationsMock.mockImplementation(async (_center, response) => ({
+      response,
+      stale: [stale],
+    }))
+    const view = await resolveTabView(context, 'table', {})
+    const content = view.tabContent
+    if (!isValidElement<{ stale: unknown[] }>(content)) throw new Error('expected the table view')
+    expect(content.props.stale).toEqual([])
+  })
+
+  it('keeps the note for a stale station with a column showing', async () => {
+    const stale = { key: 'nwac:1', name: 'Shown', lastReported: '2026-10-27T19:00:00Z' }
+    const station = { id: '1', stid: '1', source: 'nwac', observations: { air_temp: [] } }
+    withStaleStationsMock.mockImplementation(async (_center, response) => ({
+      response: { ...response, STATION: [station] },
+      stale: [stale],
+    }))
+    const view = await resolveTabView(context, 'table', {})
+    const content = view.tabContent
+    if (!isValidElement<{ stale: unknown[] }>(content)) throw new Error('expected the table view')
+    expect(content.props.stale).toEqual([stale])
+  })
+
   it('reads a valid custom range as whole days in the center zone', async () => {
     await resolveTabView(context, 'table', { from: '2026-01-03', to: '2026-01-09' })
     expect(fetchStationTimeseriesMock).toHaveBeenCalledWith(

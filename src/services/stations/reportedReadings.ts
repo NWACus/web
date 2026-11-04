@@ -47,9 +47,14 @@ async function fetchLastDays(
   return lastDays.filter((day) => day !== null)
 }
 
-function quietStations(response: SnowObsTimeseriesResponse, stations: StationRef[]): StationRef[] {
-  const readings = readingsByStation(response, stations)
-  return stations.filter((s) => readings[stationKey(s)].length === 0)
+// Battery counts here, though it's no table reading: a logger still sending it isn't down.
+function silentStations(response: SnowObsTimeseriesResponse, stations: StationRef[]): StationRef[] {
+  const reporting = new Set(
+    response.STATION.filter((s) => Object.keys(s.observations).some((v) => v !== 'date_time')).map(
+      stationKey,
+    ),
+  )
+  return stations.filter((s) => !reporting.has(stationKey(s)))
 }
 
 /**
@@ -65,7 +70,7 @@ export async function fetchReportedReadings(
     revalidate: 60,
   })
   const readings = readingsByStation(response, stations)
-  const quiet = quietStations(response, stations)
+  const quiet = stations.filter((s) => readings[stationKey(s)].length === 0)
   if (quiet.length === 0) return { readings, lastReported: {} }
 
   const lastReported: Record<string, string> = {}
@@ -85,8 +90,8 @@ export async function withStaleStations(
   stations: StationRef[],
   units?: StationUnits,
 ): Promise<{ response: SnowObsTimeseriesResponse; stale: StaleStation[] }> {
-  const quiet = quietStations(response, stations)
-  if (quiet.length === 0) return { response, stale: [] }
-  const lastDays = await fetchLastDays(center, quiet, units).catch(() => [])
+  const silent = silentStations(response, stations)
+  if (silent.length === 0) return { response, stale: [] }
+  const lastDays = await fetchLastDays(center, silent, units).catch(() => [])
   return addStaleStations(response, lastDays)
 }

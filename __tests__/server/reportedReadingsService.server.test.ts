@@ -10,7 +10,7 @@ jest.mock('../../src/services/snowobs/access', () => ({
   resolveSnowObsToken: async () => 'token',
 }))
 
-import { fetchReportedReadings } from '@/services/stations/reportedReadings'
+import { fetchReportedReadings, withStaleStations } from '@/services/stations/reportedReadings'
 
 function response(stations: { stid: string; source: string; variables: string[] }[]) {
   return {
@@ -104,5 +104,26 @@ describe('fetchReportedReadings', () => {
       readings: { 'nwac:48': ['snow_depth'] },
       lastReported: { 'nwac:48': '2026-01-07T23:00:00Z' },
     })
+  })
+})
+
+describe('withStaleStations', () => {
+  it('leaves a logger reporting only its battery alone', async () => {
+    const fetched = response([{ ...live, variables: ['battery_voltage'] }])
+
+    const kept = await withStaleStations('nwac', fetched, [live])
+
+    expect(kept).toEqual({ response: fetched, stale: [] })
+    expect(fetchCurrentObservationsMock).not.toHaveBeenCalled()
+  })
+
+  it('keeps a station with no readings at all as stale', async () => {
+    const observedAt = '2026-10-18T12:00:00Z'
+    fetchCurrentObservationsMock.mockResolvedValue(new Map([['nwac:48', { observedAt }]]))
+    fetchStationTimeseriesMock.mockResolvedValue(response([{ ...stale, variables: ['air_temp'] }]))
+
+    const kept = await withStaleStations('nwac', response([{ ...stale, variables: [] }]), [stale])
+
+    expect(kept.stale).toEqual([{ key: 'nwac:48', name: '48', lastReported: observedAt }])
   })
 })

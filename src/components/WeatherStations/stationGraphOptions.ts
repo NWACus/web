@@ -77,6 +77,12 @@ function degreeAxisOverrides(symbolsOnly: boolean): object {
 
 type Bounds = { min: number; max: number }
 
+export function hasReadings(series: GraphSeries): boolean {
+  return series.kind === 'daily'
+    ? series.days.length > 0
+    : series.points.some(([, value]) => value !== null)
+}
+
 function isFiniteNumber(v: number | null | undefined): v is number {
   return v !== null && v !== undefined && Number.isFinite(v)
 }

@@ -46,7 +46,7 @@ describe('addStaleStations', () => {
       elevation: 5000,
       observations: { date_time: [], air_temp: [], wind_direction: [] },
     })
-    expect(stale).toEqual([{ name: 'Stale', lastReported: observedAt }])
+    expect(stale).toEqual([{ key: 'nwac:2', name: 'Stale', lastReported: observedAt }])
   })
 
   it("adds the station's units and names without overriding the response's", () => {

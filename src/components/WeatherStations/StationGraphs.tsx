@@ -14,7 +14,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { EditViewProps, GraphRange } from './EditViewDialog'
 import { CompareChips, CompareSelect, EditViewDialog, GraphRangePicker } from './EditViewDialog'
 import { StaleStationsNote } from './StaleStationsNote'
-import { buildChartOption } from './stationGraphOptions'
+import { buildChartOption, hasReadings } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { presetFor } from './stationGraphPresets'
 import { clampNegativeValues } from './stationGraphUnits'
@@ -26,6 +26,8 @@ import { useChartArrangement } from './useChartArrangement'
 function ChartSkeleton() {
   return <div className="h-80 animate-pulse rounded-md bg-muted" />
 }
+
+const NO_DATA = 'No data reported for this period.'
 
 const EChart = dynamic(() => import('@/components/charts/EChart').then((m) => m.EChart), {
   ssr: false,
@@ -125,6 +127,14 @@ function PresetChart({
     () => buildChartOption(presetData, presetFor(preset, presetData.series[0]?.unit), primaryKeys),
     [presetData, preset, primaryKeys],
   )
+  if (!presetData.series.some(hasReadings)) {
+    return (
+      <div>
+        <h3 className="text-[15px] font-semibold">{preset.title}</h3>
+        <p className="mt-2 text-muted-foreground">{NO_DATA}</p>
+      </div>
+    )
+  }
   return <EChart option={option} group="station-graphs" />
 }
 
@@ -156,7 +166,7 @@ function GraphsCharts({
     return presets.map((preset) => <ChartSkeleton key={preset.key} />)
   }
   if (data.series.length === 0) {
-    return <p className="text-muted-foreground">No data reported for this period.</p>
+    return <p className="text-muted-foreground">{NO_DATA}</p>
   }
   return (
     <ChartFrame loading={loading}>

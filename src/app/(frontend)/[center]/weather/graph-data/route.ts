@@ -154,7 +154,8 @@ export async function GET(
       ? await withStaleStations(center, fetched, stations, units)
       : { response: fetched, stale: [] }
     const aggregated = windowExceedsThreshold(from, to)
-    const data = buildGraphData(center, response, stations, vars, aggregated, rounding)
+    const staleKeys = new Set(stale.map((s) => s.key))
+    const data = buildGraphData(center, response, stations, vars, aggregated, rounding, staleKeys)
     return NextResponse.json(
       { ...data, stale },
       {

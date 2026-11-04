@@ -14,9 +14,11 @@ import {
 import { Button } from '@payloadcms/ui'
 
 // What a station can show: its readings in the table's default window plus any it hid, which may
-// have gone quiet since. Table-ordered, battery excluded.
+// have gone quiet since. Table-ordered, battery excluded. Compass only follows wind direction, so
+// a hidden compass brings it along or the next save would lose that choice.
 export function readingChoices(entry: StationEntry, reported: string[]): string[] {
   const variables = new Set([...reported, ...(entry.hidden ?? [])])
+  if (variables.has(WIND_COMPASS)) variables.add(WIND_DIRECTION)
   return columnsFromReported([entry], () => variables).map((c) => c.variable)
 }
 

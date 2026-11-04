@@ -39,6 +39,21 @@ const response: SnowObsTimeseriesResponse = {
 const ref = (stid: string) => ({ stid, source: 'nwac' })
 
 describe('buildGraphData', () => {
+  const emptied: SnowObsTimeseriesResponse = {
+    ...response,
+    STATION: response.STATION.map((s) => ({
+      ...s,
+      observations: { date_time: [], air_temp: [] },
+    })),
+  }
+
+  it('keeps the empty series of a stale station only', () => {
+    const build = (staleKeys?: Set<string>) =>
+      buildGraphData('nwac', emptied, [ref('4')], ['air_temp'], false, {}, staleKeys).series
+    expect(build()).toEqual([])
+    expect(build(new Set(['nwac:4']))).toHaveLength(1)
+  })
+
   it('emits one raw series per station/variable with nulls preserved', () => {
     const data = buildGraphData('nwac', response, [ref('4')], ['air_temp', 'snow_depth'], false)
     expect(data.aggregated).toBe(false)

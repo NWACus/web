@@ -202,6 +202,7 @@ export function buildGraphData(
   variables: string[],
   aggregated: boolean,
   rounding: VariableRounding = {},
+  staleKeys: ReadonlySet<string> = new Set(),
 ): GraphData {
   const timeZone = centerTimezone(center)
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
@@ -210,6 +211,8 @@ export function buildGraphData(
     const station = byKey.get(stationKey(ref))
     if (!station) continue
     const times = parsedTimes(station)
+    // A stale station keeps its empty series so it stays in the legend.
+    if (times.length === 0 && !staleKeys.has(stationKey(ref))) continue
     for (const variable of variables) {
       const built = buildSeries(
         station,

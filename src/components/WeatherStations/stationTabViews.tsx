@@ -187,6 +187,7 @@ async function tableTabView(
   ])
   const metric = keptMetric?.response
   const columns = resolveColumns(standard, subject)
+  const shown = new Set(columns.map((c) => stationKey(c.station)))
   const tables = {
     default: buildStationTable(center, standard, columns, rounding),
     metric: metric
@@ -197,7 +198,7 @@ async function tableTabView(
     tabContent: (
       <StationTableView
         tables={tables}
-        stale={stale}
+        stale={stale.filter((s) => shown.has(s.key))}
         activePeriodKey={period.key}
         customRange={custom}
         timeZone={timeZone}

@@ -443,6 +443,35 @@ describe('StationGraphs chart arrangement', () => {
     expect(graphCheckbox('Relative Humidity')).toBeChecked()
   })
 
+  it('shows the message in a graph whose only station is stale, and draws the others', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...dataWithSeries,
+        series: [series('1', 'air_temp'), { ...series('2', 'relative_humidity'), points: [] }],
+      }),
+    })
+    renderGraphs()
+    expect(await screen.findByRole('heading', { name: 'Relative Humidity' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Temperature' })).not.toBeInTheDocument()
+    expect(screen.getAllByText('No data reported for this period.')).toHaveLength(1)
+  })
+
+  it('keeps every graph and the note when all its stations are stale', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...dataWithSeries,
+        series: dataWithSeries.series.map((s) => ({ ...s, points: [] })),
+        timezone: 'America/Los_Angeles',
+        stale: [{ key: 'nwac:1', name: 'Station 1', lastReported: '2026-10-27T19:00:00Z' }],
+      }),
+    })
+    renderGraphs()
+    expect(await screen.findAllByText('No data reported for this period.')).toHaveLength(2)
+    expect(screen.getByText(/Station 1 last reported/)).toBeInTheDocument()
+  })
+
   it('disables graphs whose variables no station reports', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
