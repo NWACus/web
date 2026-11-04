@@ -4,6 +4,8 @@ import { displayUnit } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
 import type { VariableRounding } from './stationTracking'
+import type { LatestObservation } from './tableHelpers'
+import { stationLatest } from './tableHelpers'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 import { roundTo, variableDecimals } from './units'
 
@@ -49,6 +51,10 @@ export type GraphData = {
   series: GraphSeries[]
   aggregated: boolean
   timezone: string
+  /** Each station's newest report in the range, by `source:stid`. */
+  latest?: Record<string, LatestObservation>
+  /** The requested window in ms, so a chart with no readings can still draw its time axis. */
+  range?: { min: number; max: number }
 }
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
@@ -167,7 +173,6 @@ function buildSeries(
   const values = station.observations[variable]
   if (!values) return null
   const points = rawPoints(times, values)
-  if (points.length === 0) return null
   const decimals = variableDecimals(variable, values, rounding)
   const base = {
     key: stationKey(station),
@@ -200,14 +205,20 @@ export function buildGraphData(
   variables: string[],
   aggregated: boolean,
   rounding: VariableRounding = {},
+  staleKeys: ReadonlySet<string> = new Set(),
 ): GraphData {
   const timeZone = centerTimezone(center)
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
   const series: GraphSeries[] = []
+  const latest: Record<string, LatestObservation> = {}
   for (const ref of stations) {
     const station = byKey.get(stationKey(ref))
     if (!station) continue
+    const stationReported = stationLatest(station, timeZone)
+    if (stationReported) latest[stationKey(ref)] = stationReported
     const times = parsedTimes(station)
+    // A stale station keeps its empty series so it stays in the legend.
+    if (times.length === 0 && !staleKeys.has(stationKey(ref))) continue
     for (const variable of variables) {
       const built = buildSeries(
         station,
@@ -221,5 +232,5 @@ export function buildGraphData(
       if (built) series.push(built)
     }
   }
-  return { series, aggregated, timezone: timeZone }
+  return { series, aggregated, timezone: timeZone, latest }
 }

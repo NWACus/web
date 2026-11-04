@@ -5,14 +5,14 @@ import type { StationUnits } from '@/services/snowobs/units'
 import { useRouter } from 'next/navigation'
 import type { ReactNode, RefObject } from 'react'
 import { useEffect, useRef } from 'react'
-import { StationLatestObservation } from './StationLatestObservation'
+import { TabsWithLatest } from './StationLatestObservation'
 import { StationNowTable } from './StationNowTable'
 import type { DateRange } from './stationPeriods'
 import {
+  isPastRange,
   resolveTablePeriod,
   TABLE_MAX_CUSTOM_DAYS,
   TABLE_PERIODS,
-  todayInZone,
 } from './stationPeriods'
 import { StationRangePicker } from './StationRangePicker'
 import { StationViewBar } from './StationViewBar'
@@ -63,22 +63,6 @@ function useBarHeightVar(
   }, [wrapperRef, barRef])
 }
 
-// A past range's last row is not the station's latest, so there is no staleness to flag.
-function LatestObservation({
-  table,
-  customRange,
-  timeZone,
-  className,
-}: {
-  table: StationTable
-  customRange: DateRange | null
-  timeZone: string
-  className?: string
-}) {
-  if (customRange && customRange.to < todayInZone(new Date(), timeZone)) return null
-  return <StationLatestObservation table={table} className={className} />
-}
-
 type StationTables = { default: StationTable; metric: StationTable | null }
 
 function shownTable(tables: StationTables, wanted: StationUnits): [StationTable, StationUnits] {
@@ -110,20 +94,13 @@ export function StationTableView({
   return (
     <div ref={wrapperRef} className="flex flex-col gap-2">
       <StationViewBar ref={barRef}>
-        {tabs}
-        {/* On a phone the picker and units share a line, with the latest
-            observation under them; wider, it sits between the two. */}
+        {/* A past range's last row is not the station's latest. */}
+        <TabsWithLatest tabs={tabs} latest={isPastRange(customRange, timeZone) ? null : table} />
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <TableRangePicker
             activePeriodKey={activePeriodKey}
             customRange={customRange}
             timeZone={timeZone}
-          />
-          <LatestObservation
-            table={table}
-            customRange={customRange}
-            timeZone={timeZone}
-            className="order-last basis-full sm:order-none sm:ml-auto sm:basis-auto"
           />
           {tables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
         </div>

@@ -3,6 +3,7 @@
 import type { GraphData } from '@/services/snowobs/graph'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
+import type { LatestObservation } from '@/services/snowobs/tableHelpers'
 import type { StationUnits } from '@/services/snowobs/units'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
@@ -13,11 +14,12 @@ import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import type { EditViewProps, GraphRange } from './EditViewDialog'
 import { CompareChips, CompareSelect, EditViewDialog, GraphRangePicker } from './EditViewDialog'
-import { buildChartOption } from './stationGraphOptions'
+import { buildChartOption, hasReadings } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { presetFor } from './stationGraphPresets'
 import { clampNegativeValues } from './stationGraphUnits'
-import { customRangeBounds, DEFAULT_GRAPH_PERIOD } from './stationPeriods'
+import { TabsWithLatest } from './StationLatestObservation'
+import { customRangeBounds, DEFAULT_GRAPH_PERIOD, isPastRange } from './stationPeriods'
 import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useStationUnits } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
@@ -25,6 +27,8 @@ import { useChartArrangement } from './useChartArrangement'
 function ChartSkeleton() {
   return <div className="h-80 animate-pulse rounded-md bg-muted" />
 }
+
+const NO_DATA = 'No data reported for this period.'
 
 const EChart = dynamic(() => import('@/components/charts/EChart').then((m) => m.EChart), {
   ssr: false,
@@ -124,7 +128,16 @@ function PresetChart({
     () => buildChartOption(presetData, presetFor(preset, presetData.series[0]?.unit), primaryKeys),
     [presetData, preset, primaryKeys],
   )
-  return <EChart option={option} group="station-graphs" />
+  return (
+    <div className="relative">
+      <EChart option={option} group="station-graphs" />
+      {!presetData.series.some(hasReadings) && (
+        <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground">
+          {NO_DATA}
+        </p>
+      )}
+    </div>
+  )
 }
 
 function emptyPresetKeys(data: GraphData | null, presets: GraphPreset[]): Set<string> {
@@ -155,7 +168,7 @@ function GraphsCharts({
     return presets.map((preset) => <ChartSkeleton key={preset.key} />)
   }
   if (data.series.length === 0) {
-    return <p className="text-muted-foreground">No data reported for this period.</p>
+    return <p className="text-muted-foreground">{NO_DATA}</p>
   }
   return (
     <ChartFrame loading={loading}>
@@ -181,11 +194,14 @@ function GraphsCharts({
 
 // On small screens the toolbar collapses to the Edit graphs button (plus any
 // compare chips); the dialog then hosts the period/units/compare controls.
-function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
+function GraphsToolbar({
+  latest,
+  ...props
+}: EditViewProps & { tabs?: ReactNode; latest: LatestObservation | null }) {
   const { compareSlugs, onCompareChange } = props
   return (
     <StationViewBar>
-      {props.tabs}
+      <TabsWithLatest tabs={props.tabs} latest={latest} />
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
         <div className="hidden sm:contents">
           <CompareSelect
@@ -217,6 +233,23 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
       </div>
     </StationViewBar>
   )
+}
+
+const NO_OBSERVATION: LatestObservation = {
+  timezoneLabel: '',
+  latestObservation: null,
+  latestDisplay: null,
+}
+
+// The page's own stations, as on the table; a compared station's report doesn't speak for them.
+function newestObservation(data: GraphData, primaryKeys: string[]): LatestObservation {
+  return primaryKeys
+    .flatMap((key) => data.latest?.[key] ?? [])
+    .reduce(
+      (newest, next) =>
+        (next.latestObservation ?? 0) > (newest.latestObservation ?? 0) ? next : newest,
+      NO_OBSERVATION,
+    )
 }
 
 function combinedStations(
@@ -281,6 +314,9 @@ export function StationGraphs({
 
   const arrangement = useChartArrangement(presets, emptyKeys)
 
+  const latest =
+    data && !isPastRange(graphRange.custom, timeZone) ? newestObservation(data, primaryKeys) : null
+
   if (presets.length === 0) {
     return <p className="text-muted-foreground">This station has no graphable sensors.</p>
   }
@@ -300,6 +336,7 @@ export function StationGraphs({
         onCompareChange={setCompareSlugs}
         arrangement={arrangement}
         emptyKeys={emptyKeys}
+        latest={latest}
       />
       <GraphsCharts
         presets={presets}

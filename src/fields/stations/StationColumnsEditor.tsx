@@ -1,5 +1,6 @@
 'use client'
 
+import { DERIVED_FROM } from '@/services/snowobs/constants'
 import { columnsFromReported } from '@/services/snowobs/deriveColumns'
 import type { StationEntry } from '@/services/stations/stationColumns'
 import {
@@ -11,10 +12,13 @@ import {
 } from '@/services/stations/stationColumns'
 import { Button } from '@payloadcms/ui'
 
-// What a station can show: its readings in the table's default window plus any it hid, which may
-// have gone quiet since. Table-ordered, battery excluded.
+// Its readings in the table's default window plus any it hid. A hidden derived column brings its
+// source along, as it's only listed with one and the next save would otherwise lose that choice.
 export function readingChoices(entry: StationEntry, reported: string[]): string[] {
   const variables = new Set([...reported, ...(entry.hidden ?? [])])
+  for (const variable of entry.hidden ?? []) {
+    if (variable in DERIVED_FROM) variables.add(DERIVED_FROM[variable])
+  }
   return columnsFromReported([entry], () => variables).map((c) => c.variable)
 }
 

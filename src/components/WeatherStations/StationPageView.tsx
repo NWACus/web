@@ -1,3 +1,4 @@
+import { StationLastReport } from '@/components/WeatherStations/StationLastReport'
 import { StationNotes } from '@/components/WeatherStations/StationNotes'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
@@ -50,7 +51,15 @@ function StationHeader({
 
 // Each dot sits in its item's left padding and the list hangs that far left in
 // a clipped box, so the dot that would start a wrapped line is cut off.
-function StationList({ stations }: { stations: StationSummary[] }) {
+function StationList({
+  stations,
+  showLastReport,
+  timeZone,
+}: {
+  stations: StationSummary[]
+  showLastReport: boolean
+  timeZone: string
+}) {
   return (
     <div className="container">
       <div className="overflow-hidden">
@@ -68,6 +77,9 @@ function StationList({ stations }: { stations: StationSummary[] }) {
                 <span className="text-muted-foreground">
                   {Math.round(station.elevation).toLocaleString()}&apos;
                 </span>
+              )}
+              {showLastReport && station.lastReport && (
+                <StationLastReport lastReport={station.lastReport} timeZone={timeZone} />
               )}
             </li>
           ))}
@@ -116,7 +128,9 @@ export function StationPageView({
     <div className="mb-10 flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <StationHeader page={page} pages={pages} details={details} />
-        {stations && <StationList stations={stations} />}
+        {stations && (
+          <StationList stations={stations} showLastReport={!page.archived} timeZone={timeZone} />
+        )}
       </div>
       {page.archived && <RetiredNotice lastReported={lastReported} timeZone={timeZone} />}
       {notes.length > 0 && (

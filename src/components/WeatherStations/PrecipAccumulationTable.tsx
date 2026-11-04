@@ -13,6 +13,7 @@ import { ALL_PRECIP_COLUMNS } from '@/services/stations/precipColumns'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { StationLatestObservation } from './StationLatestObservation'
 import { StationTableFrame } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
@@ -366,7 +367,8 @@ export function PrecipAccumulationTable({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center justify-end gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <StationLatestObservation table={table} />
         <UnitToggle unit={unit} onChange={onUnitChange} />
       </div>
       <StationTableFrame

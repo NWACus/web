@@ -2,6 +2,7 @@ import {
   MAX_COMPARE_STATIONS,
   STATION_GRAPH_PRESETS,
 } from '@/components/WeatherStations/stationGraphPresets'
+import { todayInZone } from '@/components/WeatherStations/stationPeriods'
 import { STATION_DATA_CACHE_CONTROL } from '@/services/snowobs/access'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
@@ -13,8 +14,9 @@ import type { StationUnits } from '@/services/snowobs/units'
 import { parseStationUnits } from '@/services/snowobs/units'
 import type { AssembledStationPage } from '@/services/stations/getStationPages'
 import { allStations, getStationPages } from '@/services/stations/getStationPages'
+import { withStaleStations } from '@/services/stations/reportedReadings'
 import { unknownCenterResponse } from '@/utilities/apiResponses'
-import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
+import { centerTimezone, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import config from '@payload-config'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
@@ -81,6 +83,11 @@ function dateParam(url: URL, name: string): Date {
   return new Date(url.searchParams.get(name) ?? '')
 }
 
+// The client ends a current range at the moment it asks and a past one the day before today.
+function reachesNow(to: Date, timeZone: string): boolean {
+  return todayInZone(to, timeZone) >= todayInZone(new Date(), timeZone)
+}
+
 type GraphQuery = {
   keys: string[]
   stations: StationRef[]
@@ -140,15 +147,29 @@ export async function GET(
   try {
     const rejected = await unknownStations(center, keys, pages)
     if (rejected) return rejected
-    const [response, rounding] = await Promise.all([
+    const [fetched, rounding] = await Promise.all([
       fetchStationTimeseries(center, stations, { start: from, end: to, units }),
       fetchVariableRounding(center),
     ])
+    const { response, stale } = reachesNow(to, centerTimezone(center))
+      ? await withStaleStations(center, fetched, stations, units)
+      : { response: fetched, stale: [] }
     const aggregated = windowExceedsThreshold(from, to)
-    const data = buildGraphData(center, response, stations, vars, aggregated, rounding)
-    return NextResponse.json(data, {
-      headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
-    })
+    const data = buildGraphData(
+      center,
+      response,
+      stations,
+      vars,
+      aggregated,
+      rounding,
+      new Set(stale),
+    )
+    return NextResponse.json(
+      { ...data, range: { min: from.getTime(), max: to.getTime() } },
+      {
+        headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
+      },
+    )
   } catch (error) {
     return upstreamError(center, error)
   }

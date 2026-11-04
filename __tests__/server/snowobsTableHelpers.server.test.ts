@@ -49,6 +49,7 @@ const ref = (stid: string) => ({ stid, source: 'nwac' })
 const columnConfig = [
   { station: ref('4'), variable: 'air_temp' },
   { station: ref('4'), variable: 'precip_accum_one_hour' },
+  { station: ref('4'), variable: 'precip_cumsum' },
   { station: ref('5'), variable: 'air_temp' },
 ]
 
@@ -70,7 +71,7 @@ describe('computePrecipCumsum', () => {
 describe('buildStationTable', () => {
   const table = buildStationTable('nwac', response, columnConfig)
 
-  it('auto-inserts a cumulative-precip column after hourly precip, in config order', () => {
+  it('builds the columns in config order', () => {
     expect(table.columns.map((c) => c.key)).toEqual([
       'nwac:4_air_temp',
       'nwac:4_precip_accum_one_hour',
@@ -139,6 +140,86 @@ describe('buildStationTable', () => {
   })
 })
 
+describe('buildStationTable with wind direction', () => {
+  const windResponse: SnowObsTimeseriesResponse = {
+    UNITS: { wind_direction: 'degrees' },
+    VARIABLES: [{ variable: 'wind_direction', long_name: 'Wind Direction' }],
+    STATION: [
+      {
+        ...response.STATION[0],
+        observations: { date_time: [T0], wind_direction: [225] },
+      },
+    ],
+  }
+  const windColumns = [
+    { station: ref('4'), variable: 'wind_direction' },
+    { station: ref('4'), variable: 'wind_direction_compass' },
+  ]
+  const table = buildStationTable('nwac', windResponse, windColumns)
+
+  it('reads the same degrees in a unitless compass column', () => {
+    expect(table.columns.map((c) => c.key)).toEqual([
+      'nwac:4_wind_direction',
+      'nwac:4_wind_direction_compass',
+    ])
+    expect(table.columns[0]).toMatchObject({ label: 'Dir', unit: 'deg' })
+    expect(table.columns[1]).toMatchObject({ label: 'Dir', unit: '' })
+    expect(table.rows[0].values['nwac:4_wind_direction_compass']).toBe(225)
+  })
+
+  it('keeps a listed compass column with no readings, so both unit systems match', () => {
+    const noWind: SnowObsTimeseriesResponse = {
+      ...windResponse,
+      VARIABLES: [],
+      STATION: [{ ...response.STATION[0], observations: { date_time: [T0] } }],
+    }
+    const { columns } = buildStationTable('nwac', noWind, windColumns)
+
+    expect(columns.map((c) => c.variable)).toEqual(['wind_direction_compass'])
+  })
+
+  it('shows a derived column without its source', () => {
+    const { columns, rows } = buildStationTable('nwac', windResponse, windColumns.slice(1))
+
+    expect(columns.map((c) => c.variable)).toEqual(['wind_direction_compass'])
+    expect(rows.length).toBeGreaterThan(0)
+  })
+
+  it('shows the compass column only where the columns list it', () => {
+    const { columns } = buildStationTable('nwac', windResponse, windColumns.slice(0, 1))
+
+    expect(columns.map((c) => c.variable)).toEqual(['wind_direction'])
+  })
+
+  it('keeps the compass column where the columns put it', () => {
+    const { columns } = buildStationTable('nwac', windResponse, [...windColumns].reverse())
+
+    expect(columns.map((c) => c.variable)).toEqual(['wind_direction_compass', 'wind_direction'])
+  })
+})
+
+describe('buildStationTable with a stale station', () => {
+  const stale: SnowObsTimeseriesResponse = {
+    UNITS: { air_temp: 'Fahrenheit' },
+    VARIABLES: [{ variable: 'air_temp', long_name: 'Air Temperature' }],
+    STATION: [
+      { ...response.STATION[0], observations: { date_time: [T0], air_temp: [30] } },
+      { ...response.STATION[0], stid: '5', observations: { date_time: [], air_temp: [] } },
+    ],
+  }
+
+  it('keeps its column, with no value in any row', () => {
+    const table = buildStationTable('nwac', stale, [
+      { station: ref('4'), variable: 'air_temp' },
+      { station: ref('5'), variable: 'air_temp' },
+    ])
+
+    expect(table.columns.map((c) => c.stid)).toEqual(['4', '5'])
+    expect(table.rows).toHaveLength(1)
+    expect(table.rows[0].values['nwac:5_air_temp'] ?? null).toBeNull()
+  })
+})
+
 describe('buildStationTable with stations on different schedules', () => {
   // A logger on the hour beside an airport reporting every few minutes, with a
   // rolling one-hour precip total.
@@ -182,6 +263,7 @@ describe('buildStationTable with stations on different schedules', () => {
     { station: { stid: '1', source: 'nwac' }, variable: 'air_temp' },
     { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'air_temp' },
     { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'precip_accum_one_hour' },
+    { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'precip_cumsum' },
   ]
   // 02:20Z: the 02:10 reading belongs to the 03:00 row, which hasn't come yet.
   const now = Date.parse('2026-07-07T02:20:00Z')

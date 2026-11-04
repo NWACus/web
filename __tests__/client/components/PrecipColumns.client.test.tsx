@@ -5,6 +5,8 @@ import { render, screen } from '@testing-library/react'
 
 const table: PrecipAccumulationData = {
   timezoneLabel: 'PST',
+  latestObservation: null,
+  latestDisplay: null,
   unit: 'in',
   decimals: 2,
   rows: [

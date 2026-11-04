@@ -2,12 +2,15 @@ import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
 import {
+  DERIVED_FROM,
   displayUnit,
   fallbackSensorLabel,
   PRECIP_CUMSUM,
   PRECIP_HOURLY,
   SENSOR_LABELS,
   timezoneAbbreviation,
+  WIND_COMPASS,
+  WIND_DIRECTION,
 } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
@@ -43,6 +46,11 @@ export type StationTable = {
   latestObservation: number | null
   latestDisplay: string | null
 }
+
+export type LatestObservation = Pick<
+  StationTable,
+  'timezoneLabel' | 'latestObservation' | 'latestDisplay'
+>
 
 // Running cumulative precip; nulls pass through and don't advance the total.
 export function computePrecipCumsum(
@@ -92,13 +100,20 @@ export type StationNote = {
   startDate: string | null
 }
 
-export type StationSummary = { key: string; name: string; elevation: number | null }
+export type StationSummary = {
+  key: string
+  name: string
+  elevation: number | null
+  /** Set when the station has gone quiet. */
+  lastReport?: string
+}
 
 // A page's stations in its own order, named from the response; a station
 // SnowObs didn't return falls back to its stid.
 export function stationSummaries(
   refs: StationRef[],
   stations: ResponseStation[],
+  lastReports: Record<string, string> = {},
 ): StationSummary[] {
   const byKey = new Map(stations.map((s) => [stationKey(s), s]))
   return refs.map((ref) => {
@@ -107,6 +122,7 @@ export function stationSummaries(
       key: stationKey(ref),
       name: found?.name ?? ref.stid,
       elevation: found?.elevation ?? null,
+      lastReport: lastReports[stationKey(ref)],
     }
   })
 }
@@ -151,6 +167,18 @@ function raisedAt(note: StationNote): number {
   return Number.isNaN(ms) ? -Infinity : ms
 }
 
+const DERIVED_NAMES: Record<string, string> = {
+  [PRECIP_CUMSUM]: 'Cumulative Precipitation',
+  [WIND_COMPASS]: 'Wind Direction (compass)',
+}
+
+const UNIT_OVERRIDES: Record<string, string> = {
+  [WIND_DIRECTION]: 'deg',
+  [WIND_COMPASS]: '',
+}
+
+const sourceVariable = (variable: string) => DERIVED_FROM[variable] ?? variable
+
 // Header metadata for a config column.
 function columnMeta(
   ref: StationRef,
@@ -161,18 +189,16 @@ function columnMeta(
   units: Record<string, string>,
   rounding: VariableRounding,
 ): TableColumn {
-  const isCumsum = variable === PRECIP_CUMSUM
+  const source = sourceVariable(variable)
   return {
     key: `${stationKey(ref)}_${variable}`,
     stid: ref.stid,
     source: ref.source,
     variable,
     label: SENSOR_LABELS[variable] ?? fallbackSensorLabel(variable),
-    longName: isCumsum
-      ? 'Cumulative Precipitation'
-      : (longNameByVariable.get(variable) ?? variable),
-    unit: displayUnit(units[isCumsum ? PRECIP_HOURLY : variable]),
-    decimals: variableDecimals(isCumsum ? PRECIP_HOURLY : variable, series ?? [], rounding),
+    longName: DERIVED_NAMES[variable] ?? longNameByVariable.get(variable) ?? variable,
+    unit: UNIT_OVERRIDES[variable] ?? displayUnit(units[source]),
+    decimals: variableDecimals(source, series ?? [], rounding),
     elevation: station?.elevation ?? null,
   }
 }
@@ -202,9 +228,8 @@ export type PrecipAccumulationRow = {
   notes: StationNote[]
 }
 
-export type PrecipAccumulationTable = {
+export type PrecipAccumulationTable = LatestObservation & {
   rows: PrecipAccumulationRow[]
-  timezoneLabel: string
   unit: string
   decimals: number
 }
@@ -313,6 +338,8 @@ export function buildPrecipAccumulationTable(
     timezoneLabel: withTimes
       ? timezoneLabelFor(timeSeries(withTimes.station.observations)[0], timeZone)
       : '',
+    latestObservation: anchorMs > 0 ? anchorMs : null,
+    latestDisplay: anchorMs > 0 ? formatDisplay(new Date(anchorMs).toISOString(), timeZone) : null,
     unit: displayUnit(response.UNITS[PRECIP_HOURLY]),
     decimals,
   }
@@ -372,13 +399,12 @@ function hourlyCumsum(
   return new Map(hours.map((h, i) => [h, sums[i]]))
 }
 
-// The series a column reads; cumulative precip is built from hourly precip.
 function columnSeries(
   station: ResponseStation | undefined,
   variable: string,
 ): (number | null)[] | undefined {
   if (!station) return undefined
-  return numericSeries(station.observations, variable === PRECIP_CUMSUM ? PRECIP_HOURLY : variable)
+  return numericSeries(station.observations, sourceVariable(variable))
 }
 
 // A column's value per row hour; cumulative precip runs over the hourly values.
@@ -395,9 +421,9 @@ function columnHours(
   return variable === PRECIP_CUMSUM ? hourlyCumsum(hourly, decimals) : hourly
 }
 
-function latestReading(response: SnowObsTimeseriesResponse): number | null {
+function latestReading(stations: SnowObsTimeseriesResponse['STATION']): number | null {
   let latest: number | null = null
-  for (const station of response.STATION) {
+  for (const station of stations) {
     for (const iso of timeSeries(station.observations)) {
       const t = new Date(iso).getTime()
       if (Number.isFinite(t) && (latest === null || t > latest)) latest = t
@@ -406,9 +432,22 @@ function latestReading(response: SnowObsTimeseriesResponse): number | null {
   return latest
 }
 
+export function stationLatest(
+  station: SnowObsTimeseriesResponse['STATION'][number],
+  timeZone: string,
+): LatestObservation | null {
+  const latest = latestReading([station])
+  if (latest === null) return null
+  const iso = new Date(latest).toISOString()
+  return {
+    timezoneLabel: timezoneLabelFor(iso, timeZone),
+    latestObservation: latest,
+    latestDisplay: formatDisplay(iso, timeZone),
+  }
+}
+
 // Builds a render-ready table: one newest-first row per hour, full-outer-joined
-// across the group's stations, with a cumulative-precip column after each
-// hourly-precip one. Hourly because stations report on different schedules
+// across the group's stations. Hourly because stations report on different schedules
 // (loggers on the hour, airports every few minutes); see ADR 021.
 export function buildStationTable(
   center: string,
@@ -428,14 +467,14 @@ export function buildStationTable(
 
   const addColumn = (ref: StationRef, variable: string) => {
     const key = `${stationKey(ref)}_${variable}`
-    if (valueByColumn.has(key)) return // de-dupe (e.g. explicit + auto-inserted cumsum)
+    if (valueByColumn.has(key)) return
 
     const station = byKey.get(stationKey(ref))
     const series = columnSeries(station, variable)
 
     // Unknown variable with no data and not in the response's variable list — skip
     // it, mirroring the legacy plugin which logs and drops such columns.
-    if (!series && !longNameByVariable.has(variable) && variable !== PRECIP_CUMSUM) return
+    if (!series && !longNameByVariable.has(variable) && !(variable in DERIVED_FROM)) return
 
     const column = columnMeta(
       ref,
@@ -453,9 +492,7 @@ export function buildStationTable(
   }
 
   for (const { station, variable } of columnConfig) {
-    if (variable === PRECIP_CUMSUM) continue // inserted automatically after hourly precip
     addColumn(station, variable)
-    if (variable === PRECIP_HOURLY) addColumn(station, PRECIP_CUMSUM)
   }
 
   const sortedHours = Array.from(allHours).sort((a, b) => b - a)
@@ -471,7 +508,7 @@ export function buildStationTable(
     }
   })
 
-  const latest = latestReading(response)
+  const latest = latestReading(response.STATION)
   return {
     columns,
     rows,
