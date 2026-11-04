@@ -38,7 +38,7 @@ describe('PostHogAdminIdentity', () => {
     render(<PostHogAdminIdentity />)
 
     expect(posthog.identify).toHaveBeenCalledWith('42', { email: admin.email, name: admin.name })
-    expect(posthog.register).toHaveBeenCalledWith({ center: 'SAC', tenant: 'sac' })
+    expect(posthog.register).toHaveBeenCalledWith({ center: 'SAC' })
     expect(posthog.reset).not.toHaveBeenCalled()
   })
 
@@ -49,7 +49,6 @@ describe('PostHogAdminIdentity', () => {
 
     expect(posthog.register).not.toHaveBeenCalled()
     expect(posthog.unregister).toHaveBeenCalledWith('center')
-    expect(posthog.unregister).toHaveBeenCalledWith('tenant')
   })
 
   it('resets the browser identity on logout and re-registers the super properties reset wiped', () => {
@@ -65,12 +64,8 @@ describe('PostHogAdminIdentity', () => {
     const [resetOrder] = jest.mocked(posthog.reset).mock.invocationCallOrder
     const registerOrders = jest.mocked(posthog.register).mock.invocationCallOrder
     expect(registerOrders.every((order) => order > resetOrder)).toBe(true)
-    expect(posthog.register).toHaveBeenCalledWith({
-      source: 'nwacus/web',
-      platform: 'AvyWeb',
-      environment: 'local',
-    })
-    expect(posthog.register).toHaveBeenCalledWith({ center: 'SAC', tenant: 'sac' })
+    expect(posthog.register).toHaveBeenCalledWith({ source: 'nwacus/web', environment: 'local' })
+    expect(posthog.register).toHaveBeenCalledWith({ center: 'SAC' })
   })
 
   it('does not reset when the page loads logged out', () => {

@@ -13,13 +13,13 @@ jest.mock('../../../src/providers/TenantProvider', () => ({
 }))
 
 describe('PostHogCenterRegister', () => {
-  it('registers the uppercased slug as center and keeps tenant for one release', () => {
+  it('registers the uppercased slug as center', () => {
     mockUseTenant.mockReturnValue({ tenant: { slug: 'nwac' } })
 
     render(<PostHogCenterRegister />)
 
     expect(posthog.register).toHaveBeenCalledTimes(1)
-    expect(posthog.register).toHaveBeenCalledWith({ center: 'NWAC', tenant: 'nwac' })
+    expect(posthog.register).toHaveBeenCalledWith({ center: 'NWAC' })
   })
 
   it('registers nothing without a tenant', () => {

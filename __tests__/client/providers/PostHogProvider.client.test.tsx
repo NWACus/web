@@ -48,7 +48,6 @@ describe('PostHogProvider', () => {
     expect(mockedRegister).toHaveBeenCalledTimes(2)
     expect(mockedRegister).toHaveBeenNthCalledWith(1, {
       source: 'nwacus/web',
-      platform: 'AvyWeb',
       environment: 'local',
     })
     expect(mockedRegister).toHaveBeenNthCalledWith(2, { center: 'NWAC' })

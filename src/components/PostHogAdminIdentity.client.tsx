@@ -47,7 +47,6 @@ export function PostHogAdminIdentity() {
       posthog.register(getPostHogCenterProperties(selectedTenantSlug))
     } else {
       posthog.unregister('center')
-      posthog.unregister('tenant')
     }
   }, [selectedTenantSlug])
 
