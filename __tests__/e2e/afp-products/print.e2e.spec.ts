@@ -325,7 +325,7 @@ test.describe('Printing a forecast', () => {
 
     const content = page.locator('[data-print-section="bottomLine"] [data-slot="card-content"]')
     const card = content.first().locator('xpath=..')
-    const icon = card.locator('> img')
+    const icon = card.getByRole('button', { name: /^Travel advice for / }).locator('img')
 
     await printWith(page)
     await page.emulateMedia({ media: 'print' })
