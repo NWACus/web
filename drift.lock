@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "ac1db6d90d4b6e11"
+sig = "0cf08712ac5072b7"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1359,6 +1359,11 @@ sig = "1910afa455f5574b"
 doc = "docs/error-tracking.md"
 target = "src/app/(payload)/layout.tsx"
 sig = "7da7ca065ec53d40"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "src/components/NACWidget/index.tsx"
+sig = "ea0acc8ee216b59d"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
