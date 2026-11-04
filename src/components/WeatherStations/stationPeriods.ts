@@ -78,6 +78,10 @@ export function toIsoDate(date: Date): string {
   return format(date, 'yyyy-MM-dd')
 }
 
+export function isPastRange(custom: DateRange | null, timeZone: string): boolean {
+  return custom !== null && custom.to < todayInZone(new Date(), timeZone)
+}
+
 export function todayInZone(now: Date, timeZone: string): string {
   return toIsoDate(new TZDate(now.getTime(), timeZone))
 }

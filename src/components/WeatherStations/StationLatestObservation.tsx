@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge'
-import type { StationTable } from '@/services/snowobs/tableHelpers'
+import type { LatestObservation } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 
 const STALE_THRESHOLD_MS = 2 * 60 * 60 * 1000
@@ -8,7 +8,7 @@ export function StationLatestObservation({
   table,
   className,
 }: {
-  table: StationTable
+  table: LatestObservation
   className?: string
 }) {
   const isStale =

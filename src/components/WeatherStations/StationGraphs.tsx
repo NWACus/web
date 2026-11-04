@@ -3,6 +3,7 @@
 import type { GraphData } from '@/services/snowobs/graph'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
+import type { LatestObservation } from '@/services/snowobs/tableHelpers'
 import type { StationUnits } from '@/services/snowobs/units'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
@@ -18,7 +19,8 @@ import { buildChartOption, hasReadings } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { presetFor } from './stationGraphPresets'
 import { clampNegativeValues } from './stationGraphUnits'
-import { customRangeBounds, DEFAULT_GRAPH_PERIOD } from './stationPeriods'
+import { StationLatestObservation } from './StationLatestObservation'
+import { customRangeBounds, DEFAULT_GRAPH_PERIOD, isPastRange } from './stationPeriods'
 import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useStationUnits } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
@@ -193,7 +195,10 @@ function GraphsCharts({
 
 // On small screens the toolbar collapses to the Edit graphs button (plus any
 // compare chips); the dialog then hosts the period/units/compare controls.
-function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
+function GraphsToolbar({
+  latest,
+  ...props
+}: EditViewProps & { tabs?: ReactNode; latest: LatestObservation | null }) {
   const { compareSlugs, onCompareChange } = props
   return (
     <StationViewBar>
@@ -221,14 +226,38 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
             value={props.graphRange}
             onChange={props.onRangeChange}
             timeZone={props.timeZone}
-            className="sm:ml-auto"
           />
+        </div>
+        {latest && (
+          <StationLatestObservation
+            table={latest}
+            className="order-last sm:order-none sm:ml-auto"
+          />
+        )}
+        <div className="hidden sm:contents">
           <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
         </div>
         <EditViewDialog {...props} />
       </div>
     </StationViewBar>
   )
+}
+
+const NO_OBSERVATION: LatestObservation = {
+  timezoneLabel: '',
+  latestObservation: null,
+  latestDisplay: null,
+}
+
+// The page's own stations, as on the table; a compared station's report doesn't speak for them.
+function newestObservation(data: GraphData, primaryKeys: string[]): LatestObservation {
+  return primaryKeys
+    .flatMap((key) => data.latest?.[key] ?? [])
+    .reduce(
+      (newest, next) =>
+        (next.latestObservation ?? 0) > (newest.latestObservation ?? 0) ? next : newest,
+      NO_OBSERVATION,
+    )
 }
 
 function combinedStations(
@@ -293,6 +322,9 @@ export function StationGraphs({
 
   const arrangement = useChartArrangement(presets, emptyKeys)
 
+  const latest =
+    data && !isPastRange(graphRange.custom, timeZone) ? newestObservation(data, primaryKeys) : null
+
   if (presets.length === 0) {
     return <p className="text-muted-foreground">This station has no graphable sensors.</p>
   }
@@ -312,6 +344,7 @@ export function StationGraphs({
         onCompareChange={setCompareSlugs}
         arrangement={arrangement}
         emptyKeys={emptyKeys}
+        latest={latest}
       />
       <GraphsCharts
         presets={presets}

@@ -47,6 +47,12 @@ describe('buildGraphData', () => {
     })),
   }
 
+  it('dates each station from its newest report', () => {
+    const { latest } = buildGraphData('nwac', response, [ref('4')], ['air_temp'], false)
+    expect(latest?.['nwac:4'].latestObservation).toBe(T0 + 2 * HOUR)
+    expect(buildGraphData('nwac', emptied, [ref('4')], ['air_temp'], false).latest).toEqual({})
+  })
+
   it('keeps the empty series of a stale station only', () => {
     const build = (staleKeys?: Set<string>) =>
       buildGraphData('nwac', emptied, [ref('4')], ['air_temp'], false, {}, staleKeys).series

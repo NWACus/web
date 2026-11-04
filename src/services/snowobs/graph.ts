@@ -5,6 +5,8 @@ import { displayUnit } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
 import type { VariableRounding } from './stationTracking'
+import type { LatestObservation } from './tableHelpers'
+import { stationLatest } from './tableHelpers'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 import { roundTo, variableDecimals } from './units'
 
@@ -52,6 +54,8 @@ export type GraphData = {
   timezone: string
   /** Stations kept in the legend with no line; only set for a range reaching now. */
   stale?: StaleStation[]
+  /** Each station's newest report in the range, by `source:stid`. */
+  latest?: Record<string, LatestObservation>
 }
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
@@ -207,9 +211,12 @@ export function buildGraphData(
   const timeZone = centerTimezone(center)
   const byKey = new Map(response.STATION.map((s) => [stationKey(s), s]))
   const series: GraphSeries[] = []
+  const latest: Record<string, LatestObservation> = {}
   for (const ref of stations) {
     const station = byKey.get(stationKey(ref))
     if (!station) continue
+    const stationReported = stationLatest(station, timeZone)
+    if (stationReported) latest[stationKey(ref)] = stationReported
     const times = parsedTimes(station)
     // A stale station keeps its empty series so it stays in the legend.
     if (times.length === 0 && !staleKeys.has(stationKey(ref))) continue
@@ -226,5 +233,5 @@ export function buildGraphData(
       if (built) series.push(built)
     }
   }
-  return { series, aggregated, timezone: timeZone }
+  return { series, aggregated, timezone: timeZone, latest }
 }

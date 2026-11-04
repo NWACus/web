@@ -469,7 +469,30 @@ describe('StationGraphs chart arrangement', () => {
     })
     renderGraphs()
     expect(await screen.findAllByText('No data reported for this period.')).toHaveLength(2)
-    expect(screen.getByText(/Station 1 last reported/)).toBeInTheDocument()
+    expect(screen.getByText('Station 1')).toBeInTheDocument()
+    expect(screen.getByText(/Last report Oct 27/)).toBeInTheDocument()
+    expect(screen.getByText('No recent observations')).toBeInTheDocument()
+  })
+
+  it("shows the newest report from the page's own stations, not a compared one", async () => {
+    const reported = (latestDisplay: string, latestObservation: number) => ({
+      timezoneLabel: 'PST',
+      latestObservation,
+      latestDisplay,
+    })
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...dataWithSeries,
+        latest: {
+          'nwac:1': reported('11/03 10:00', 1),
+          'nwac:2': reported('11/03 12:00', 2),
+          'nwac:99': reported('11/03 14:00', 3),
+        },
+      }),
+    })
+    renderGraphs()
+    expect(await screen.findByText(/Latest observation 11\/03 12:00 PST/)).toBeInTheDocument()
   })
 
   it('disables graphs whose variables no station reports', async () => {

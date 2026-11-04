@@ -46,6 +46,11 @@ export type StationTable = {
   latestDisplay: string | null
 }
 
+export type LatestObservation = Pick<
+  StationTable,
+  'timezoneLabel' | 'latestObservation' | 'latestDisplay'
+>
+
 // Running cumulative precip; nulls pass through and don't advance the total.
 export function computePrecipCumsum(
   values: (number | null)[],
@@ -153,7 +158,6 @@ function raisedAt(note: StationNote): number {
   return Number.isNaN(ms) ? -Infinity : ms
 }
 
-// Columns the table derives from another reading.
 const DERIVED_FROM: Record<string, string> = {
   [PRECIP_CUMSUM]: PRECIP_HOURLY,
   [WIND_COMPASS]: WIND_DIRECTION,
@@ -389,7 +393,6 @@ function hourlyCumsum(
   return new Map(hours.map((h, i) => [h, sums[i]]))
 }
 
-// The series a column reads; a derived column reads its source's.
 function columnSeries(
   station: ResponseStation | undefined,
   variable: string,
@@ -412,15 +415,29 @@ function columnHours(
   return variable === PRECIP_CUMSUM ? hourlyCumsum(hourly, decimals) : hourly
 }
 
-function latestReading(response: SnowObsTimeseriesResponse): number | null {
+function latestReading(stations: SnowObsTimeseriesResponse['STATION']): number | null {
   let latest: number | null = null
-  for (const station of response.STATION) {
+  for (const station of stations) {
     for (const iso of timeSeries(station.observations)) {
       const t = new Date(iso).getTime()
       if (Number.isFinite(t) && (latest === null || t > latest)) latest = t
     }
   }
   return latest
+}
+
+export function stationLatest(
+  station: SnowObsTimeseriesResponse['STATION'][number],
+  timeZone: string,
+): LatestObservation | null {
+  const latest = latestReading([station])
+  if (latest === null) return null
+  const iso = new Date(latest).toISOString()
+  return {
+    timezoneLabel: timezoneLabelFor(iso, timeZone),
+    latestObservation: latest,
+    latestDisplay: formatDisplay(iso, timeZone),
+  }
 }
 
 // Builds a render-ready table: one newest-first row per hour, full-outer-joined
@@ -490,7 +507,7 @@ export function buildStationTable(
     }
   })
 
-  const latest = latestReading(response)
+  const latest = latestReading(response.STATION)
   return {
     columns,
     rows,

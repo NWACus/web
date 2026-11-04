@@ -11,10 +11,10 @@ import { StationLatestObservation } from './StationLatestObservation'
 import { StationNowTable } from './StationNowTable'
 import type { DateRange } from './stationPeriods'
 import {
+  isPastRange,
   resolveTablePeriod,
   TABLE_MAX_CUSTOM_DAYS,
   TABLE_PERIODS,
-  todayInZone,
 } from './stationPeriods'
 import { StationRangePicker } from './StationRangePicker'
 import { StationViewBar } from './StationViewBar'
@@ -77,7 +77,7 @@ function LatestObservation({
   timeZone: string
   className?: string
 }) {
-  if (customRange && customRange.to < todayInZone(new Date(), timeZone)) return null
+  if (isPastRange(customRange, timeZone)) return null
   return <StationLatestObservation table={table} className={className} />
 }
 

@@ -22,7 +22,6 @@ export type StationReadings = {
 // A past day doesn't change; an hour matches the tracking feed that dates it.
 const PAST_DAY_REVALIDATE = 3600
 
-// The last day of each quiet station SnowObs has a report from.
 async function fetchLastDays(
   center: string,
   quiet: StationRef[],
@@ -81,9 +80,7 @@ export async function fetchReportedReadings(
   return { readings, lastReported }
 }
 
-/**
- * A response for a range reaching now, with any station that is quiet in it kept as stale. If the lookup fails the stations stay out, as the readings themselves still load.
- */
+// If the lookup fails the stations stay out, as the readings themselves still load.
 export async function withStaleStations(
   center: string,
   response: SnowObsTimeseriesResponse,

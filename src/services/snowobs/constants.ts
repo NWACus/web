@@ -75,7 +75,6 @@ export function displayUnit(rawUnit: string | undefined): string {
 export const PRECIP_HOURLY = 'precip_accum_one_hour'
 export const PRECIP_CUMSUM = 'precip_cumsum'
 
-// Wind direction, and the compass-point column the table derives from it.
 export const WIND_DIRECTION = 'wind_direction'
 export const WIND_COMPASS = 'wind_direction_compass'
 
