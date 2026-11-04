@@ -153,12 +153,11 @@ function raisedAt(note: StationNote): number {
   return Number.isNaN(ms) ? -Infinity : ms
 }
 
-// Columns the table derives from another reading, each inserted right after its source.
+// Columns the table derives from another reading.
 const DERIVED_FROM: Record<string, string> = {
   [PRECIP_CUMSUM]: PRECIP_HOURLY,
   [WIND_COMPASS]: WIND_DIRECTION,
 }
-const DERIVED_AFTER = new Map(Object.entries(DERIVED_FROM).map(([derived, src]) => [src, derived]))
 const DERIVED_NAMES: Record<string, string> = {
   [PRECIP_CUMSUM]: 'Cumulative Precipitation',
   [WIND_COMPASS]: 'Wind Direction (compass)',
@@ -426,7 +425,7 @@ function latestReading(response: SnowObsTimeseriesResponse): number | null {
 
 // Builds a render-ready table: one newest-first row per hour, full-outer-joined
 // across the group's stations, with a cumulative-precip column after each
-// hourly-precip one and a compass column after each wind direction. Hourly because stations report on different schedules
+// hourly-precip one. Hourly because stations report on different schedules
 // (loggers on the hour, airports every few minutes); see ADR 021.
 export function buildStationTable(
   center: string,
@@ -453,7 +452,7 @@ export function buildStationTable(
 
     // Unknown variable with no data and not in the response's variable list — skip
     // it, mirroring the legacy plugin which logs and drops such columns.
-    if (!series && !longNameByVariable.has(variable) && !(variable in DERIVED_FROM)) return
+    if (!series && !longNameByVariable.has(variable) && variable !== PRECIP_CUMSUM) return
 
     const column = columnMeta(
       ref,
@@ -471,11 +470,10 @@ export function buildStationTable(
   }
 
   for (const { station, variable } of columnConfig) {
-    if (variable in DERIVED_FROM) continue // inserted automatically after its source
+    if (variable === PRECIP_CUMSUM) continue // inserted automatically after hourly precip
     addColumn(station, variable)
-    const derived = DERIVED_AFTER.get(variable)
-    if (derived && valueByColumn.has(`${stationKey(station)}_${variable}`)) {
-      addColumn(station, derived)
+    if (variable === PRECIP_HOURLY && valueByColumn.has(`${stationKey(station)}_${variable}`)) {
+      addColumn(station, PRECIP_CUMSUM)
     }
   }
 

@@ -150,11 +150,13 @@ describe('buildStationTable with wind direction', () => {
       },
     ],
   }
-  const table = buildStationTable('nwac', windResponse, [
+  const windColumns = [
     { station: ref('4'), variable: 'wind_direction' },
-  ])
+    { station: ref('4'), variable: 'wind_direction_compass' },
+  ]
+  const table = buildStationTable('nwac', windResponse, windColumns)
 
-  it('auto-inserts a unitless compass column reading the same degrees', () => {
+  it('reads the same degrees in a unitless compass column', () => {
     expect(table.columns.map((c) => c.key)).toEqual([
       'nwac:4_wind_direction',
       'nwac:4_wind_direction_compass',
@@ -170,11 +172,21 @@ describe('buildStationTable with wind direction', () => {
       VARIABLES: [],
       STATION: [{ ...response.STATION[0], observations: { date_time: [T0] } }],
     }
-    const { columns } = buildStationTable('nwac', noWind, [
-      { station: ref('4'), variable: 'wind_direction' },
-    ])
+    const { columns } = buildStationTable('nwac', noWind, windColumns)
 
     expect(columns).toEqual([])
+  })
+
+  it('shows the compass column only where the columns list it', () => {
+    const { columns } = buildStationTable('nwac', windResponse, windColumns.slice(0, 1))
+
+    expect(columns.map((c) => c.variable)).toEqual(['wind_direction'])
+  })
+
+  it('keeps the compass column where the columns put it', () => {
+    const { columns } = buildStationTable('nwac', windResponse, [...windColumns].reverse())
+
+    expect(columns.map((c) => c.variable)).toEqual(['wind_direction_compass', 'wind_direction'])
   })
 })
 

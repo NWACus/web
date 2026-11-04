@@ -1103,7 +1103,7 @@ sig = "eedb2e82be6a7bed"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/fields/stations/StationColumnsEditor.tsx"
-sig = "0d2ae8f3f47d1e1b"
+sig = "eed849601ac63f41"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1148,7 +1148,7 @@ sig = "0501469f97a1a1fc"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/constants.ts"
-sig = "3699a09049552315"
+sig = "473f35f0dc8161a5"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1158,7 +1158,7 @@ sig = "1353e58c56145f0c"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/deriveColumns.ts"
-sig = "50b492245b1169c1"
+sig = "595f8f13392dfb0c"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1183,7 +1183,7 @@ sig = "199b48e5650d4e95"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/tableHelpers.ts"
-sig = "3e8cd8dc84c06e72"
+sig = "043e4a3fa9eef7a5"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1223,7 +1223,7 @@ sig = "ec2f6f857fdc7e79"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/stationColumns.ts"
-sig = "845fcd176306c630"
+sig = "6892cfaafe722669"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

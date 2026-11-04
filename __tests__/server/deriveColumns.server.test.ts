@@ -65,6 +65,68 @@ describe('deriveColumns', () => {
   })
 })
 
+describe('the compass column', () => {
+  it("follows each station's wind direction, once, whatever the response lists", () => {
+    const res = response(
+      station('1', ['wind_direction', 'wind_direction_compass']),
+      station('2', ['wind_direction']),
+    )
+
+    expect(deriveColumns(res, [ref('1'), ref('2')])).toEqual([
+      col('1', 'wind_direction'),
+      col('1', 'wind_direction_compass'),
+      col('2', 'wind_direction'),
+      col('2', 'wind_direction_compass'),
+    ])
+  })
+
+  it('stays out for a station with no wind direction', () => {
+    expect(deriveColumns(response(station('1', ['air_temp'])), [ref('1')])).toEqual([
+      col('1', 'air_temp'),
+    ])
+  })
+
+  const windy = response(station('1', ['air_temp', 'wind_direction']))
+
+  it('hides on its own, and with wind direction', () => {
+    const resolve = (hidden: string[]) =>
+      resolveColumns(windy, { stations: [{ ...ref('1'), hidden }], columnOrder: [] })
+
+    expect(resolve(['wind_direction_compass'])).toEqual([
+      col('1', 'air_temp'),
+      col('1', 'wind_direction'),
+    ])
+    expect(resolve(['wind_direction'])).toEqual([col('1', 'air_temp')])
+  })
+
+  it("lands after its station's wind direction in an order saved without it", () => {
+    const columnOrder = [
+      { ...ref('1'), variable: 'wind_direction' },
+      { ...ref('1'), variable: 'air_temp' },
+    ]
+
+    expect(resolveColumns(windy, { stations: [ref('1')], columnOrder })).toEqual([
+      col('1', 'wind_direction'),
+      col('1', 'wind_direction_compass'),
+      col('1', 'air_temp'),
+    ])
+  })
+
+  it('moves freely in a saved order', () => {
+    const columnOrder = [
+      { ...ref('1'), variable: 'wind_direction_compass' },
+      { ...ref('1'), variable: 'air_temp' },
+      { ...ref('1'), variable: 'wind_direction' },
+    ]
+
+    expect(resolveColumns(windy, { stations: [ref('1')], columnOrder })).toEqual([
+      col('1', 'wind_direction_compass'),
+      col('1', 'air_temp'),
+      col('1', 'wind_direction'),
+    ])
+  })
+})
+
 describe('resolveColumns', () => {
   const two = response(
     station('1', ['air_temp', 'wind_speed', 'snow_depth']),

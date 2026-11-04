@@ -1,5 +1,6 @@
 'use client'
 
+import { WIND_COMPASS, WIND_DIRECTION } from '@/services/snowobs/constants'
 import { columnsFromReported } from '@/services/snowobs/deriveColumns'
 import type { StationEntry } from '@/services/stations/stationColumns'
 import {
@@ -7,6 +8,7 @@ import {
   readingLabel,
   readingName,
   readingsSummary,
+  showsReading,
   withHiddenReadings,
 } from '@/services/stations/stationColumns'
 import { Button } from '@payloadcms/ui'
@@ -105,7 +107,8 @@ function StationColumnsEditor({ id, entry, reported, lastReported, onChange }: E
             <input
               id={`${id}-${variable}`}
               type="checkbox"
-              checked={!hidden.has(variable)}
+              checked={showsReading(entry, variable)}
+              disabled={variable === WIND_COMPASS && hidden.has(WIND_DIRECTION)}
               onChange={(e) => toggle(variable, e.target.checked)}
             />
             {readingName(variable)}

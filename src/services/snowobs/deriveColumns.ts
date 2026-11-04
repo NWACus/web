@@ -1,6 +1,6 @@
 import type { ColumnOrderEntry, StationEntry } from '@/services/stations/stationColumns'
 import { orderColumns, selectColumns } from '@/services/stations/stationColumns'
-import { TABLE_VARIABLE_ORDER } from './constants'
+import { TABLE_VARIABLE_ORDER, WIND_COMPASS, WIND_DIRECTION } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
 import type { StationColumnConfig } from './tableHelpers'
@@ -10,7 +10,8 @@ import type { SnowObsTimeseriesResponse } from './types/schemas'
 // graph and, later, the alerting, not next to the weather.
 export const HIDDEN_TABLE_VARIABLES: ReadonlySet<string> = new Set(['battery_voltage'])
 
-const NOT_A_READING: ReadonlySet<string> = new Set(['date_time'])
+// The compass column is added after each station's wind direction, so never comes from a report.
+const NOT_A_READING: ReadonlySet<string> = new Set(['date_time', WIND_COMPASS])
 
 function rank(variable: string): number {
   const index = TABLE_VARIABLE_ORDER.findIndex((known) => known === variable)
@@ -46,6 +47,7 @@ export function columnsFromReported(
     for (const station of stations) {
       if (variablesByStation.get(stationKey(station))?.has(variable)) {
         columns.push({ station, variable })
+        if (variable === WIND_DIRECTION) columns.push({ station, variable: WIND_COMPASS })
       }
     }
   }

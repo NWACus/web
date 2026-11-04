@@ -32,6 +32,7 @@ export const READING_NAMES: Record<string, string> = {
   wind_speed: 'Wind speed',
   wind_gust: 'Wind gust',
   wind_direction: 'Wind direction',
+  wind_direction_compass: 'Wind direction (compass)',
   precip_accum_one_hour: 'Hourly precipitation',
   snow_depth_24h: '24-hour snowfall',
   snow_depth: 'Snow depth',

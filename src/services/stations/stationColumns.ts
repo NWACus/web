@@ -1,4 +1,9 @@
-import { READING_NAMES, SENSOR_LABELS } from '@/services/snowobs/constants'
+import {
+  READING_NAMES,
+  SENSOR_LABELS,
+  WIND_COMPASS,
+  WIND_DIRECTION,
+} from '@/services/snowobs/constants'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
@@ -11,7 +16,9 @@ export type StationEntry = StationRef & { hidden?: string[] }
 /** One table column in a page's chosen order. */
 export type ColumnOrderEntry = StationRef & { variable: string }
 
+// The table heads both wind direction columns Dir; the admin needs to tell them apart.
 export function readingLabel(variable: string): string {
+  if (variable === WIND_COMPASS) return 'Compass'
   return SENSOR_LABELS[variable] ?? variable
 }
 
@@ -24,7 +31,7 @@ export function readingsSummary(station: StationEntry, choices: string[]): strin
   const hidden = station.hidden ?? []
   if (hidden.length === 0)
     return choices.length > 0 ? `All readings · ${choices.length}` : 'All readings'
-  if (choices.every((v) => hidden.includes(v))) return 'None'
+  if (!choices.some((v) => showsReading(station, v))) return 'None'
   return `All except ${hidden.map(readingLabel).join(', ')}`
 }
 
@@ -37,7 +44,9 @@ export function formatLastReported(iso: string): string {
 }
 
 export function showsReading(station: StationEntry, variable: string): boolean {
-  return !station.hidden?.includes(variable)
+  const hidden = station.hidden ?? []
+  if (variable === WIND_COMPASS && hidden.includes(WIND_DIRECTION)) return false
+  return !hidden.includes(variable)
 }
 
 export function withHiddenReadings(station: StationEntry, hidden: string[]): StationEntry {
@@ -85,7 +94,9 @@ export function selectColumns(
 /**
  * The columns in the page's chosen order. A column the order does not list, such as a reading
  * just shown again or a sensor that started reporting, goes after the last column for its reading, or
- * at the end if there is none; an order entry with no column behind it is ignored.
+ * at the end if there is none; a compass column goes after its station's wind direction, which
+ * also places it in orders saved before it could be listed. An order entry with no column behind
+ * it is ignored.
  */
 export function orderColumns(
   columns: StationColumnConfig[],
@@ -97,7 +108,13 @@ export function orderColumns(
   const listed = new Set(ordered)
   for (const column of columns) {
     if (listed.has(column)) continue
-    const last = ordered.map((c) => c.variable).lastIndexOf(column.variable)
+    const last =
+      column.variable === WIND_COMPASS
+        ? ordered.findIndex(
+            (c) =>
+              c.variable === WIND_DIRECTION && stationKey(c.station) === stationKey(column.station),
+          )
+        : ordered.map((c) => c.variable).lastIndexOf(column.variable)
     if (last === -1) ordered.push(column)
     else ordered.splice(last + 1, 0, column)
   }
