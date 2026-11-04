@@ -1,6 +1,6 @@
 'use client'
 
-import { WIND_COMPASS, WIND_DIRECTION } from '@/services/snowobs/constants'
+import { DERIVED_FROM } from '@/services/snowobs/constants'
 import { columnsFromReported } from '@/services/snowobs/deriveColumns'
 import type { StationEntry } from '@/services/stations/stationColumns'
 import {
@@ -8,16 +8,17 @@ import {
   readingLabel,
   readingName,
   readingsSummary,
-  showsReading,
   withHiddenReadings,
 } from '@/services/stations/stationColumns'
 import { Button } from '@payloadcms/ui'
 
-// Its readings in the table's default window plus any it hid. A hidden compass brings wind
-// direction along, as compass only follows it and the next save would otherwise lose that choice.
+// Its readings in the table's default window plus any it hid. A hidden derived column brings its
+// source along, as it's only listed with one and the next save would otherwise lose that choice.
 export function readingChoices(entry: StationEntry, reported: string[]): string[] {
   const variables = new Set([...reported, ...(entry.hidden ?? [])])
-  if (variables.has(WIND_COMPASS)) variables.add(WIND_DIRECTION)
+  for (const variable of entry.hidden ?? []) {
+    if (variable in DERIVED_FROM) variables.add(DERIVED_FROM[variable])
+  }
   return columnsFromReported([entry], () => variables).map((c) => c.variable)
 }
 
@@ -108,8 +109,7 @@ function StationColumnsEditor({ id, entry, reported, lastReported, onChange }: E
             <input
               id={`${id}-${variable}`}
               type="checkbox"
-              checked={showsReading(entry, variable)}
-              disabled={variable === WIND_COMPASS && hidden.has(WIND_DIRECTION)}
+              checked={!hidden.has(variable)}
               onChange={(e) => toggle(variable, e.target.checked)}
             />
             {readingName(variable)}

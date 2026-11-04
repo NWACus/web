@@ -49,6 +49,7 @@ const ref = (stid: string) => ({ stid, source: 'nwac' })
 const columnConfig = [
   { station: ref('4'), variable: 'air_temp' },
   { station: ref('4'), variable: 'precip_accum_one_hour' },
+  { station: ref('4'), variable: 'precip_cumsum' },
   { station: ref('5'), variable: 'air_temp' },
 ]
 
@@ -70,7 +71,7 @@ describe('computePrecipCumsum', () => {
 describe('buildStationTable', () => {
   const table = buildStationTable('nwac', response, columnConfig)
 
-  it('auto-inserts a cumulative-precip column after hourly precip, in config order', () => {
+  it('builds the columns in config order', () => {
     expect(table.columns.map((c) => c.key)).toEqual([
       'nwac:4_air_temp',
       'nwac:4_precip_accum_one_hour',
@@ -166,7 +167,7 @@ describe('buildStationTable with wind direction', () => {
     expect(table.rows[0].values['nwac:4_wind_direction_compass']).toBe(225)
   })
 
-  it('adds no compass column when the wind direction column is dropped', () => {
+  it('keeps a listed compass column with no readings, so both unit systems match', () => {
     const noWind: SnowObsTimeseriesResponse = {
       ...windResponse,
       VARIABLES: [],
@@ -174,7 +175,14 @@ describe('buildStationTable with wind direction', () => {
     }
     const { columns } = buildStationTable('nwac', noWind, windColumns)
 
-    expect(columns).toEqual([])
+    expect(columns.map((c) => c.variable)).toEqual(['wind_direction_compass'])
+  })
+
+  it('shows a derived column without its source', () => {
+    const { columns, rows } = buildStationTable('nwac', windResponse, windColumns.slice(1))
+
+    expect(columns.map((c) => c.variable)).toEqual(['wind_direction_compass'])
+    expect(rows.length).toBeGreaterThan(0)
   })
 
   it('shows the compass column only where the columns list it', () => {
@@ -255,6 +263,7 @@ describe('buildStationTable with stations on different schedules', () => {
     { station: { stid: '1', source: 'nwac' }, variable: 'air_temp' },
     { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'air_temp' },
     { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'precip_accum_one_hour' },
+    { station: { stid: 'KSEA', source: 'mesowest' }, variable: 'precip_cumsum' },
   ]
   // 02:20Z: the 02:10 reading belongs to the 03:00 row, which hasn't come yet.
   const now = Date.parse('2026-07-07T02:20:00Z')

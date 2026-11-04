@@ -2,6 +2,16 @@ import { readingChoices, withoutReading } from '@/fields/stations/StationColumns
 
 jest.mock('@payloadcms/ui', () => ({ Button: () => null }))
 
+describe('a hidden precip total on a station no longer reporting hourly precip', () => {
+  it('stays a choice, after hourly precip', () => {
+    const entry = { stid: '1', source: 'nwac', hidden: ['precip_cumsum'] }
+
+    expect(readingChoices(entry, ['air_temp'])).toEqual(
+      expect.arrayContaining(['precip_accum_one_hour', 'precip_cumsum']),
+    )
+  })
+})
+
 describe('a hidden compass on a station no longer reporting wind direction', () => {
   const entry = { stid: '1', source: 'nwac', hidden: ['wind_direction_compass'] }
 

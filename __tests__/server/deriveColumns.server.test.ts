@@ -31,6 +31,7 @@ describe('deriveColumns', () => {
       col('1', 'relative_humidity'),
       col('3', 'wind_speed'),
       col('1', 'precip_accum_one_hour'),
+      col('1', 'precip_cumsum'),
     ])
   })
 
@@ -88,7 +89,7 @@ describe('the compass column', () => {
 
   const windy = response(station('1', ['air_temp', 'wind_direction']))
 
-  it('hides on its own, and with wind direction', () => {
+  it('hides separately from wind direction', () => {
     const resolve = (hidden: string[]) =>
       resolveColumns(windy, { stations: [{ ...ref('1'), hidden }], columnOrder: [] })
 
@@ -96,7 +97,10 @@ describe('the compass column', () => {
       col('1', 'air_temp'),
       col('1', 'wind_direction'),
     ])
-    expect(resolve(['wind_direction'])).toEqual([col('1', 'air_temp')])
+    expect(resolve(['wind_direction'])).toEqual([
+      col('1', 'air_temp'),
+      col('1', 'wind_direction_compass'),
+    ])
   })
 
   it("lands after its station's wind direction in an order saved without it", () => {
@@ -123,6 +127,53 @@ describe('the compass column', () => {
       col('1', 'wind_direction_compass'),
       col('1', 'air_temp'),
       col('1', 'wind_direction'),
+    ])
+  })
+})
+
+describe('the running precip total', () => {
+  const wet = response(station('1', ['air_temp', 'precip_accum_one_hour']))
+  const entry = (variable: string) => ({ ...ref('1'), variable })
+
+  it('is its own column after hourly precip', () => {
+    expect(deriveColumns(wet, [ref('1')])).toEqual([
+      col('1', 'air_temp'),
+      col('1', 'precip_accum_one_hour'),
+      col('1', 'precip_cumsum'),
+    ])
+  })
+
+  it('hides separately from hourly precip', () => {
+    const resolve = (hidden: string[]) =>
+      resolveColumns(wet, { stations: [{ ...ref('1'), hidden }], columnOrder: [] })
+
+    expect(resolve(['precip_cumsum'])).toEqual([
+      col('1', 'air_temp'),
+      col('1', 'precip_accum_one_hour'),
+    ])
+    expect(resolve(['precip_accum_one_hour'])).toEqual([
+      col('1', 'air_temp'),
+      col('1', 'precip_cumsum'),
+    ])
+  })
+
+  it('moves freely in a saved order', () => {
+    const columnOrder = [entry('precip_cumsum'), entry('air_temp'), entry('precip_accum_one_hour')]
+
+    expect(resolveColumns(wet, { stations: [ref('1')], columnOrder })).toEqual([
+      col('1', 'precip_cumsum'),
+      col('1', 'air_temp'),
+      col('1', 'precip_accum_one_hour'),
+    ])
+  })
+
+  it("lands after its station's hourly precip in an order saved without it", () => {
+    const columnOrder = [entry('precip_accum_one_hour'), entry('air_temp')]
+
+    expect(resolveColumns(wet, { stations: [ref('1')], columnOrder })).toEqual([
+      col('1', 'precip_accum_one_hour'),
+      col('1', 'precip_cumsum'),
+      col('1', 'air_temp'),
     ])
   })
 })

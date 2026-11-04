@@ -34,6 +34,7 @@ export const READING_NAMES: Record<string, string> = {
   wind_direction: 'Wind direction',
   wind_direction_compass: 'Wind direction (compass)',
   precip_accum_one_hour: 'Hourly precipitation',
+  precip_cumsum: 'Cumulative precipitation',
   snow_depth_24h: '24-hour snowfall',
   snow_depth: 'Snow depth',
   intermittent_snow: 'Intermittent snow',
@@ -77,6 +78,12 @@ export const PRECIP_CUMSUM = 'precip_cumsum'
 
 export const WIND_DIRECTION = 'wind_direction'
 export const WIND_COMPASS = 'wind_direction_compass'
+
+// Columns the table computes, by the reading each reads. Each is a column in its own right.
+export const DERIVED_FROM: Record<string, string> = {
+  [PRECIP_CUMSUM]: PRECIP_HOURLY,
+  [WIND_COMPASS]: WIND_DIRECTION,
+}
 
 // Derive a fallback header label the way the legacy plugin did: initials of the
 // underscore/space-separated variable name, uppercased (e.g. "foo_bar" -> "FB").

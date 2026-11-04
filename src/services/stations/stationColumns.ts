@@ -1,8 +1,8 @@
 import {
+  DERIVED_FROM,
   READING_NAMES,
   SENSOR_LABELS,
   WIND_COMPASS,
-  WIND_DIRECTION,
 } from '@/services/snowobs/constants'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
@@ -44,9 +44,7 @@ export function formatLastReported(iso: string): string {
 }
 
 export function showsReading(station: StationEntry, variable: string): boolean {
-  const hidden = station.hidden ?? []
-  if (variable === WIND_COMPASS && hidden.includes(WIND_DIRECTION)) return false
-  return !hidden.includes(variable)
+  return !station.hidden?.includes(variable)
 }
 
 export function withHiddenReadings(station: StationEntry, hidden: string[]): StationEntry {
@@ -93,25 +91,27 @@ export function selectColumns(
 
 // The index an unlisted column goes after, or -1 for the end.
 function placeAfter(ordered: StationColumnConfig[], column: StationColumnConfig): number {
-  if (column.variable === WIND_COMPASS) {
-    return ordered.findIndex(
-      (c) => c.variable === WIND_DIRECTION && stationKey(c.station) === stationKey(column.station),
-    )
-  }
+  const sameStation = (a: StationRef, b: StationRef) => stationKey(a) === stationKey(b)
+  const source = DERIVED_FROM[column.variable]
+  const own = ordered.findIndex(
+    (c) => c.variable === source && sameStation(c.station, column.station),
+  )
+  if (own !== -1) return own
   const last = ordered.map((c) => c.variable).lastIndexOf(column.variable)
-  if (last === -1 || column.variable !== WIND_DIRECTION) return last
-  // Both read Dir, so a column between a station's pair would pass for its wind direction.
+  if (last === -1) return last
+  // Not between another station's reading and the column derived from it.
   const next = ordered[last + 1]
   const paired =
-    next?.variable === WIND_COMPASS &&
-    stationKey(next.station) === stationKey(ordered[last].station)
+    next !== undefined &&
+    DERIVED_FROM[next.variable] === column.variable &&
+    sameStation(next.station, ordered[last].station)
   return paired ? last + 1 : last
 }
 
 /**
  * The columns in the page's chosen order. A column the order does not list, such as a reading
  * just shown again or a sensor that started reporting, goes after the last column for its reading, or
- * at the end if there is none; a compass column goes after its station's wind direction, which
+ * at the end if there is none; a derived column goes after its station's source reading, which
  * also places it in orders saved before it could be listed. An order entry with no column behind
  * it is ignored.
  */

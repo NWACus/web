@@ -2,6 +2,7 @@ import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
 import {
+  DERIVED_FROM,
   displayUnit,
   fallbackSensorLabel,
   PRECIP_CUMSUM,
@@ -166,10 +167,6 @@ function raisedAt(note: StationNote): number {
   return Number.isNaN(ms) ? -Infinity : ms
 }
 
-const DERIVED_FROM: Record<string, string> = {
-  [PRECIP_CUMSUM]: PRECIP_HOURLY,
-  [WIND_COMPASS]: WIND_DIRECTION,
-}
 const DERIVED_NAMES: Record<string, string> = {
   [PRECIP_CUMSUM]: 'Cumulative Precipitation',
   [WIND_COMPASS]: 'Wind Direction (compass)',
@@ -450,8 +447,7 @@ export function stationLatest(
 }
 
 // Builds a render-ready table: one newest-first row per hour, full-outer-joined
-// across the group's stations, with a cumulative-precip column after each
-// hourly-precip one. Hourly because stations report on different schedules
+// across the group's stations. Hourly because stations report on different schedules
 // (loggers on the hour, airports every few minutes); see ADR 021.
 export function buildStationTable(
   center: string,
@@ -471,14 +467,14 @@ export function buildStationTable(
 
   const addColumn = (ref: StationRef, variable: string) => {
     const key = `${stationKey(ref)}_${variable}`
-    if (valueByColumn.has(key)) return // de-dupe (e.g. explicit + auto-inserted cumsum)
+    if (valueByColumn.has(key)) return
 
     const station = byKey.get(stationKey(ref))
     const series = columnSeries(station, variable)
 
     // Unknown variable with no data and not in the response's variable list — skip
     // it, mirroring the legacy plugin which logs and drops such columns.
-    if (!series && !longNameByVariable.has(variable) && variable !== PRECIP_CUMSUM) return
+    if (!series && !longNameByVariable.has(variable) && !(variable in DERIVED_FROM)) return
 
     const column = columnMeta(
       ref,
@@ -496,11 +492,7 @@ export function buildStationTable(
   }
 
   for (const { station, variable } of columnConfig) {
-    if (variable === PRECIP_CUMSUM) continue // inserted automatically after hourly precip
     addColumn(station, variable)
-    if (variable === PRECIP_HOURLY && valueByColumn.has(`${stationKey(station)}_${variable}`)) {
-      addColumn(station, PRECIP_CUMSUM)
-    }
   }
 
   const sortedHours = Array.from(allHours).sort((a, b) => b - a)

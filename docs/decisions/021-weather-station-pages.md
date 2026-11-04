@@ -37,7 +37,7 @@ A stid is unique only within a source, and SnowObs tags each station in a respon
 
 `deriveColumns()` builds a page's table from the variables its loggers actually report: every reported variable in a fixed variable-major order (`TABLE_VARIABLE_ORDER`), loggers in page order within each, `battery_voltage` and the timestamp series excluded. An unknown variable lands after the known ones, alphabetically. This reproduces the legacy layout for 30 of the 32 pages; the two that hand-interleaved a pair of snow readings now read variable-major like the rest.
 
-The table adds two columns of its own. The running precip total follows hourly precip automatically: it isn't stored or listed in `columnOrder`, so hiding or moving its source takes it along, and a source with no column gets none. The compass point starts right after each station's wind direction but is a column like any other in the admin, so editors can move or hide it; hiding wind direction hides it too, and an order saved before it was listed places it after its station's wind direction.
+The table adds two columns of its own: the running precip total after each station's hourly precip, and the compass point after its wind direction. Each is a column like any other in the admin, so editors can move or hide it separately from the reading it comes from, and either can show without that reading. An order saved before they were listed places them after their station's source reading.
 
 Derivation is the default because a new sensor appearing on its own is what forecasters want, and a stored list is the one thing on a page an admin must maintain by hand. Two optional choices narrow and reorder it (`resolveColumns()`):
 
