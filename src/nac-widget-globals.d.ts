@@ -8,6 +8,8 @@ interface Window {
     controlledMount?: boolean
     /** Danger map only: pixel height of the map container. */
     height?: number
+    /** Host page's initialized PostHog client, so the widget reuses it instead of creating its own. */
+    posthog?: import('posthog-js').PostHog
   }
   mediaWidgetData?: (typeof Window)['mediaWidgetData']
   forecastWidgetData?: (typeof Window)['mapWidgetData']
