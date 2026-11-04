@@ -56,6 +56,8 @@ export type GraphData = {
   stale?: StaleStation[]
   /** Each station's newest report in the range, by `source:stid`. */
   latest?: Record<string, LatestObservation>
+  /** The requested window in ms, so a chart with no readings can still draw its time axis. */
+  range?: { min: number; max: number }
 }
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]

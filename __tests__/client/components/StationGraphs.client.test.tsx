@@ -1,6 +1,6 @@
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { buildChartOption } from '@/components/WeatherStations/stationGraphOptions'
-import type { GraphData } from '@/services/snowobs/graph'
+import type { GraphData, RawGraphSeries } from '@/services/snowobs/graph'
 import type { StationPageSummary } from '@/services/stations/stationPages'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
@@ -76,7 +76,7 @@ function pickOption(name: string) {
   fireEvent.click(screen.getByRole('option', { name }))
 }
 
-function series(stid: string, variable = 'air_temp', decimals = 1): GraphData['series'][number] {
+function series(stid: string, variable = 'air_temp', decimals = 1): RawGraphSeries {
   return {
     kind: 'raw',
     key: `nwac:${stid}`,
@@ -113,6 +113,23 @@ function chartSeries(option: Record<string, unknown>): ChartSeries[] {
 function seriesLineTypes(option: Record<string, unknown>): (string | undefined)[] {
   return chartSeries(option).map((s) => s.lineStyle?.type)
 }
+
+describe('buildChartOption with no readings', () => {
+  it('draws the requested window on a blank scale', () => {
+    const range = { min: 1_700_000_000_000, max: 1_700_600_000_000 }
+    const data: GraphData = {
+      series: [{ ...series('1'), points: [] }],
+      aggregated: false,
+      timezone: 'x',
+      range,
+    }
+    const option = buildChartOption(data, TEMP_PRESET)
+    expect(option.xAxis).toMatchObject(range)
+    expect(option.yAxis).toEqual([
+      expect.objectContaining({ min: 0, max: 1, axisLabel: { show: false } }),
+    ])
+  })
+})
 
 describe('buildChartOption comparison styling', () => {
   const data: GraphData = { series: [series('1'), series('9')], aggregated: false, timezone: 'x' }
@@ -452,9 +469,7 @@ describe('StationGraphs chart arrangement', () => {
       }),
     })
     renderGraphs()
-    expect(await screen.findByRole('heading', { name: 'Relative Humidity' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Temperature' })).not.toBeInTheDocument()
-    expect(screen.getAllByText('No data reported for this period.')).toHaveLength(1)
+    expect(await screen.findAllByText('No data reported for this period.')).toHaveLength(1)
   })
 
   it('keeps every graph and the note when all its stations are stale', async () => {
@@ -469,8 +484,8 @@ describe('StationGraphs chart arrangement', () => {
     })
     renderGraphs()
     expect(await screen.findAllByText('No data reported for this period.')).toHaveLength(2)
-    expect(screen.getByText('Station 1')).toBeInTheDocument()
-    expect(screen.getByText(/Last report Oct 27/)).toBeInTheDocument()
+    expect(screen.getByText(/Last report from Station 1/)).toBeInTheDocument()
+    expect(screen.getByText('Oct 27, 2026')).toBeInTheDocument()
     expect(screen.getByText('No recent observations')).toBeInTheDocument()
   })
 

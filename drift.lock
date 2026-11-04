@@ -1023,7 +1023,7 @@ sig = "bcf5b0e73d294432"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/graph-data/route.ts"
-sig = "e26c3e9bfae679be"
+sig = "47a67bb63921855f"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1083,12 +1083,12 @@ sig = "17e793d8f1c3db4e"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StaleStationsNote.tsx"
-sig = "153f722c75004800"
+sig = "c1c2342ad44b83ff"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationGraphs.tsx"
-sig = "525906f02e15f04d"
+sig = "5e1bb16b82926331"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1178,7 +1178,7 @@ sig = "595f8f13392dfb0c"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/graph.ts"
-sig = "142152daf3ed3e0a"
+sig = "c828b8b31c2d5fe3"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

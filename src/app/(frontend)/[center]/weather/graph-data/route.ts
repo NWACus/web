@@ -157,7 +157,7 @@ export async function GET(
     const staleKeys = new Set(stale.map((s) => s.key))
     const data = buildGraphData(center, response, stations, vars, aggregated, rounding, staleKeys)
     return NextResponse.json(
-      { ...data, stale },
+      { ...data, stale, range: { min: from.getTime(), max: to.getTime() } },
       {
         headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
       },

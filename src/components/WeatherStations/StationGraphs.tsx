@@ -129,15 +129,16 @@ function PresetChart({
     () => buildChartOption(presetData, presetFor(preset, presetData.series[0]?.unit), primaryKeys),
     [presetData, preset, primaryKeys],
   )
-  if (!presetData.series.some(hasReadings)) {
-    return (
-      <div>
-        <h3 className="text-[15px] font-semibold">{preset.title}</h3>
-        <p className="mt-2 text-muted-foreground">{NO_DATA}</p>
-      </div>
-    )
-  }
-  return <EChart option={option} group="station-graphs" />
+  return (
+    <div className="relative">
+      <EChart option={option} group="station-graphs" />
+      {!presetData.series.some(hasReadings) && (
+        <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground">
+          {NO_DATA}
+        </p>
+      )}
+    </div>
+  )
 }
 
 function emptyPresetKeys(data: GraphData | null, presets: GraphPreset[]): Set<string> {
@@ -228,12 +229,9 @@ function GraphsToolbar({
             timeZone={props.timeZone}
           />
         </div>
-        {latest && (
-          <StationLatestObservation
-            table={latest}
-            className="order-last sm:order-none sm:ml-auto"
-          />
-        )}
+        <div className="order-last sm:order-none sm:ml-auto">
+          {latest && <StationLatestObservation table={latest} />}
+        </div>
         <div className="hidden sm:contents">
           <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
         </div>
