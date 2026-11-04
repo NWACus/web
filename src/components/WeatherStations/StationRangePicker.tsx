@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/utilities/ui'
-import { differenceInCalendarDays, format, parseISO, subMonths } from 'date-fns'
+import { differenceInCalendarDays, format, parseISO } from 'date-fns'
 import { CalendarDays, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
@@ -101,14 +101,12 @@ function RangeCalendar({
   maxDays: number
   today: Date
 }) {
-  const narrow = useIsNarrowViewport()
   const { earliest, latest } = selectableBounds(draft, today, maxDays)
   return (
     <Calendar
       mode="range"
       selected={draft}
       onSelect={(_range, day) => onDraftChange(nextDraft(draft, day))}
-      numberOfMonths={narrow ? 1 : 2}
       month={month}
       onMonthChange={onMonthChange}
       startMonth={parseISO(EARLIEST_CUSTOM_DATE)}
@@ -117,7 +115,6 @@ function RangeCalendar({
       // Marks today in the center's zone, the last day that can be picked.
       today={today}
       captionLayout="dropdown"
-      // Two months side by side would otherwise highlight the same days twice.
       showOutsideDays={false}
     />
   )
@@ -213,12 +210,9 @@ function useRangeDraft({
   maxDays: number
   onComplete: (range: DateRange) => void
 }) {
-  const narrow = useIsNarrowViewport()
   const [draft, setDraftState] = useState(() => toDraft(value))
   const [month, setMonth] = useState(today)
-  // Shows the draft's start, with the month after it beside it when there is room.
-  const showFrom = (from: Date | undefined) =>
-    setMonth(from ?? (narrow ? today : subMonths(today, 1)))
+  const showFrom = (from: Date | undefined) => setMonth(from ?? today)
   const edit = (next: DayPickerRange, apply = true) => {
     setDraftState(next)
     const range = apply && next.to ? applicableRange(next, maxDays, toIsoDate(today)) : null
@@ -235,7 +229,7 @@ function useRangeDraft({
   }
   const setTo = (to: Date, apply: boolean) => {
     edit({ from: draft?.from && draft.from <= to ? draft.from : to, to }, apply)
-    setMonth(narrow ? to : subMonths(to, 1))
+    setMonth(to)
   }
   return { draft, edit, month, setMonth, reset, setFrom, setTo }
 }
@@ -301,13 +295,14 @@ function RangeBody({
 }
 
 type ShellProps = {
+  align: 'start' | 'center'
   open: boolean
   onOpenChange: (open: boolean) => void
   label: string
   children: ReactNode
 }
 
-function RangeDialog({ open, onOpenChange, label, children }: ShellProps) {
+function RangeDialog({ open, onOpenChange, label, children }: Omit<ShellProps, 'align'>) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -321,13 +316,20 @@ function RangeDialog({ open, onOpenChange, label, children }: ShellProps) {
   )
 }
 
-function RangePopover({ open, onOpenChange, label, children }: ShellProps) {
+function RangePopover({ align, open, onOpenChange, label, children }: ShellProps) {
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <RangeButton label={label} />
       </PopoverTrigger>
-      <PopoverContent className="flex w-auto flex-row p-0" align="center" collisionPadding={8}>
+      {/* Room below never counts as a collision, so the popover always opens below the button
+          instead of flipping with scroll position, while still shifting sideways to stay on screen. */}
+      <PopoverContent
+        className="flex w-auto flex-row p-0"
+        side="bottom"
+        align={align}
+        collisionPadding={{ top: 8, right: 8, bottom: -Infinity, left: 8 }}
+      >
         {children}
       </PopoverContent>
     </Popover>
@@ -346,6 +348,7 @@ export function StationRangePicker({
   onApplyCustom,
   maxDays,
   timeZone,
+  align = 'center',
   className,
   ...target
 }: PeriodTarget & {
@@ -356,6 +359,8 @@ export function StationRangePicker({
   onApplyCustom: (range: DateRange) => void
   maxDays: number
   timeZone: string
+  /** Where the popover lines up with the button on wider screens. */
+  align?: 'start' | 'center'
   className?: string
 }) {
   const narrow = useIsNarrowViewport()
@@ -393,7 +398,7 @@ export function StationRangePicker({
   const Shell = narrow ? RangeDialog : RangePopover
   return (
     <div className={className}>
-      <Shell open={open} onOpenChange={changeOpen} label={label}>
+      <Shell align={align} open={open} onOpenChange={changeOpen} label={label}>
         {body}
       </Shell>
     </div>

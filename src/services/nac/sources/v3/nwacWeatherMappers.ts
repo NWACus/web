@@ -9,6 +9,7 @@ import type {
   NWACWeatherForecastWire,
   NWACWeatherForecastsWire,
 } from '../../types/nwacWeatherSchemas'
+import { deployedZoneId } from './stagingZoneIds'
 
 function grid<Row, Cell>(
   rows: Row[],
@@ -27,8 +28,8 @@ function grid<Row, Cell>(
 export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWeatherIssuance {
   const extendedKeys = new Set(wire.extendedBlocks.map((b) => b.key))
   const level = (row: NWACWeatherForecastWire['snowLevel'][number]): NWACWeatherLevelCell => ({
-    freezing: row.freezing ?? null,
-    mode: row.mode ?? null,
+    freezing: row.freezing,
+    mode: row.mode,
   })
 
   return {
@@ -42,14 +43,14 @@ export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWea
     zones: wire.zones.map((z) => ({
       id: z.id,
       name: z.name,
-      avalancheZoneId: z.avalancheZoneId ?? null,
+      avalancheZoneId: deployedZoneId(z.avalancheZoneId ?? null),
     })),
     points: wire.points.map((p) => ({
       code: p.code,
       name: p.name,
       zoneId: p.zoneId ?? null,
       zoneName: p.zone ?? '',
-      avalancheZoneId: p.avalancheZoneId ?? null,
+      avalancheZoneId: deployedZoneId(p.avalancheZoneId ?? null),
     })),
     periods: wire.periods.map((p) => ({
       key: p.key,
@@ -75,19 +76,19 @@ export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWea
       wire.precip,
       (r) => r.point,
       (r) => r.period,
-      (r) => ({ qpf: r.qpf ?? null, density: r.density ?? null }),
+      (r) => ({ qpf: r.qpf, slr: r.slr }),
     ),
     temp: grid(
       wire.temp,
       (r) => r.zone,
       (r) => r.period,
-      (r) => ({ high: r.high ?? null, low: r.low ?? null }),
+      (r) => ({ high: r.high, low: r.low }),
     ),
     wind: grid(
       wire.wind,
       (r) => r.zone,
       (r) => r.block,
-      (r) => ({ dir: r.dir ?? null, speed: r.speed ?? null }),
+      (r) => ({ dir: r.dir, speed: r.speed }),
     ),
     // The wire folds the extended outlook's levels into `snowLevel`; the extended block keys
     // are the only thing telling them apart.

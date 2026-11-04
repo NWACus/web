@@ -265,9 +265,12 @@ describe('levelFill', () => {
 })
 
 describe('WindValue', () => {
-  it("reads the forecasters' calm band as Calm alone, as 0 does", () => {
+  it("reads the forecasters' calm band as Calm with the direction in front, as 0 does", () => {
     const { container } = render(<WindValue cell={{ dir: 'S', speed: 3 }} />)
-    expect(container).toHaveTextContent(/^Calm$/)
+    expect(container).toHaveTextContent(/^S Calm$/)
+    expect(render(<WindValue cell={{ dir: null, speed: 0 }} />).container).toHaveTextContent(
+      /^Calm$/,
+    )
   })
 })
 
