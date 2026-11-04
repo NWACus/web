@@ -13,6 +13,7 @@ import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import type { EditViewProps, GraphRange } from './EditViewDialog'
 import { CompareChips, CompareSelect, EditViewDialog, GraphRangePicker } from './EditViewDialog'
+import { StaleStationsNote } from './StaleStationsNote'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { presetFor } from './stationGraphPresets'
@@ -160,6 +161,7 @@ function GraphsCharts({
   return (
     <ChartFrame loading={loading}>
       <div className="flex flex-col gap-6">
+        <StaleStationsNote stale={data.stale ?? []} timeZone={data.timezone} />
         {arrangement.visiblePresets.map((preset) => (
           <div key={preset.key} className="relative">
             <button

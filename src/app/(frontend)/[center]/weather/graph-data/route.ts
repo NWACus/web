@@ -13,6 +13,7 @@ import type { StationUnits } from '@/services/snowobs/units'
 import { parseStationUnits } from '@/services/snowobs/units'
 import type { AssembledStationPage } from '@/services/stations/getStationPages'
 import { allStations, getStationPages } from '@/services/stations/getStationPages'
+import { withStaleStations } from '@/services/stations/reportedReadings'
 import { unknownCenterResponse } from '@/utilities/apiResponses'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import config from '@payload-config'
@@ -81,6 +82,11 @@ function dateParam(url: URL, name: string): Date {
   return new Date(url.searchParams.get(name) ?? '')
 }
 
+// The client ends a current range at the moment it asks, a few seconds or a cached minute ago.
+function reachesNow(to: Date): boolean {
+  return Date.now() - to.getTime() < 60 * 60 * 1000
+}
+
 type GraphQuery = {
   keys: string[]
   stations: StationRef[]
@@ -140,15 +146,21 @@ export async function GET(
   try {
     const rejected = await unknownStations(center, keys, pages)
     if (rejected) return rejected
-    const [response, rounding] = await Promise.all([
+    const [fetched, rounding] = await Promise.all([
       fetchStationTimeseries(center, stations, { start: from, end: to, units }),
       fetchVariableRounding(center),
     ])
+    const { response, stale } = reachesNow(to)
+      ? await withStaleStations(center, fetched, stations, units)
+      : { response: fetched, stale: [] }
     const aggregated = windowExceedsThreshold(from, to)
     const data = buildGraphData(center, response, stations, vars, aggregated, rounding)
-    return NextResponse.json(data, {
-      headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
-    })
+    return NextResponse.json(
+      { ...data, stale },
+      {
+        headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
+      },
+    )
   } catch (error) {
     return upstreamError(center, error)
   }

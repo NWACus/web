@@ -16,6 +16,7 @@ const table: StationTable = {
 function renderView(metric: StationTable | null) {
   render(
     <StationTableView
+      stale={[]}
       tables={{ default: table, metric }}
       activePeriodKey="24h"
       customRange={null}

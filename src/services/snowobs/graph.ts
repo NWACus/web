@@ -1,3 +1,4 @@
+import type { StaleStation } from '@/services/stations/staleStations'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { differenceInHours } from 'date-fns'
 import { displayUnit } from './constants'
@@ -49,6 +50,8 @@ export type GraphData = {
   series: GraphSeries[]
   aggregated: boolean
   timezone: string
+  /** Stations kept in the legend with no line; only set for a range reaching now. */
+  stale?: StaleStation[]
 }
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
@@ -167,7 +170,6 @@ function buildSeries(
   const values = station.observations[variable]
   if (!values) return null
   const points = rawPoints(times, values)
-  if (points.length === 0) return null
   const decimals = variableDecimals(variable, values, rounding)
   const base = {
     key: stationKey(station),

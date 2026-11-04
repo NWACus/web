@@ -5,6 +5,10 @@ jest.mock('../../src/services/snowobs/snowobs', () => ({
 jest.mock('../../src/services/snowobs/stationTracking', () => ({
   fetchVariableRounding: jest.fn(async () => ({})),
 }))
+const withStaleStationsMock = jest.fn()
+jest.mock('../../src/services/stations/reportedReadings', () => ({
+  withStaleStations: (...args: unknown[]) => withStaleStationsMock(...args),
+}))
 
 import type { StationTabContext } from '@/components/WeatherStations/stationTabViews'
 import { resolveTabView } from '@/components/WeatherStations/stationTabViews'
@@ -27,6 +31,8 @@ const context: StationTabContext = {
 beforeEach(() => {
   fetchStationTimeseriesMock.mockReset()
   fetchStationTimeseriesMock.mockResolvedValue({ UNITS: {}, VARIABLES: [], STATION: [] })
+  withStaleStationsMock.mockReset()
+  withStaleStationsMock.mockImplementation(async (_center, response) => ({ response, stale: [] }))
 })
 
 describe('the Table tab', () => {

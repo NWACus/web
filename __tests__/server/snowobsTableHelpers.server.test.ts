@@ -190,6 +190,28 @@ describe('buildStationTable with wind direction', () => {
   })
 })
 
+describe('buildStationTable with a stale station', () => {
+  const stale: SnowObsTimeseriesResponse = {
+    UNITS: { air_temp: 'Fahrenheit' },
+    VARIABLES: [{ variable: 'air_temp', long_name: 'Air Temperature' }],
+    STATION: [
+      { ...response.STATION[0], observations: { date_time: [T0], air_temp: [30] } },
+      { ...response.STATION[0], stid: '5', observations: { date_time: [], air_temp: [] } },
+    ],
+  }
+
+  it('keeps its column, with no value in any row', () => {
+    const table = buildStationTable('nwac', stale, [
+      { station: ref('4'), variable: 'air_temp' },
+      { station: ref('5'), variable: 'air_temp' },
+    ])
+
+    expect(table.columns.map((c) => c.stid)).toEqual(['4', '5'])
+    expect(table.rows).toHaveLength(1)
+    expect(table.rows[0].values['nwac:5_air_temp'] ?? null).toBeNull()
+  })
+})
+
 describe('buildStationTable with stations on different schedules', () => {
   // A logger on the hour beside an airport reporting every few minutes, with a
   // rolling one-hour precip total.

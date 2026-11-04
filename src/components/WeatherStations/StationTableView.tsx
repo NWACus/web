@@ -2,9 +2,11 @@
 
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import type { StationUnits } from '@/services/snowobs/units'
+import type { StaleStation } from '@/services/stations/staleStations'
 import { useRouter } from 'next/navigation'
 import type { ReactNode, RefObject } from 'react'
 import { useEffect, useRef } from 'react'
+import { StaleStationsNote } from './StaleStationsNote'
 import { StationLatestObservation } from './StationLatestObservation'
 import { StationNowTable } from './StationNowTable'
 import type { DateRange } from './stationPeriods'
@@ -88,6 +90,7 @@ function shownTable(tables: StationTables, wanted: StationUnits): [StationTable,
 
 export function StationTableView({
   tables,
+  stale,
   activePeriodKey,
   customRange,
   timeZone,
@@ -95,6 +98,7 @@ export function StationTableView({
 }: {
   /** Built server-side so the toggle is instant; metric is null if its read failed. */
   tables: StationTables
+  stale: StaleStation[]
   /** The preset in force; a valid custom range overrides it. */
   activePeriodKey: string
   customRange: DateRange | null
@@ -127,6 +131,7 @@ export function StationTableView({
           {tables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
         </div>
       </StationViewBar>
+      <StaleStationsNote stale={stale} timeZone={timeZone} />
       <StationNowTable table={table} elevationUnit={units === 'metric' ? ' m' : undefined} />
     </div>
   )

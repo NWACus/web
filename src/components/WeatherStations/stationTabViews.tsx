@@ -20,7 +20,10 @@ import { stationKey } from '@/services/snowobs/stationKey'
 import { fetchVariableRounding } from '@/services/snowobs/stationTracking'
 import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
 import { buildStationTable, stationNotes, stationSummaries } from '@/services/snowobs/tableHelpers'
+import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas'
+import type { StationUnits } from '@/services/snowobs/units'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
+import { withStaleStations } from '@/services/stations/reportedReadings'
 import type { ColumnOrderEntry, StationEntry } from '@/services/stations/stationColumns'
 import type { StationTabKey } from '@/services/stations/stationTabs'
 import { resolveStationTab } from '@/services/stations/stationTabs'
@@ -165,13 +168,24 @@ async function tableTabView(
   const custom = parseCustomRange(params.from, params.to, TABLE_MAX_CUSTOM_DAYS, timeZone, now)
   const range = tableWindow(period, custom, timeZone, now)
   // Both systems, so the toggle is instant; a failed metric read just drops the toggle.
-  const [standard, metric, rounding] = await Promise.all([
+  const [fetchedStandard, fetchedMetric, rounding] = await Promise.all([
     fetchStationTimeseries(center, subject.stations, { ...range, units: 'default' }),
     fetchStationTimeseries(center, subject.stations, { ...range, units: 'metric' }).catch(
       () => null,
     ),
     fetchVariableRounding(center),
   ])
+  // A range that ended before today isn't missing a station that has since gone quiet.
+  const reachesNow = !('end' in range)
+  const keepStale = async (response: SnowObsTimeseriesResponse, units: StationUnits) =>
+    reachesNow
+      ? withStaleStations(center, response, subject.stations, units)
+      : { response, stale: [] }
+  const [{ response: standard, stale }, keptMetric] = await Promise.all([
+    keepStale(fetchedStandard, 'default'),
+    fetchedMetric && keepStale(fetchedMetric, 'metric'),
+  ])
+  const metric = keptMetric?.response
   const columns = resolveColumns(standard, subject)
   const tables = {
     default: buildStationTable(center, standard, columns, rounding),
@@ -183,6 +197,7 @@ async function tableTabView(
     tabContent: (
       <StationTableView
         tables={tables}
+        stale={stale}
         activePeriodKey={period.key}
         customRange={custom}
         timeZone={timeZone}
