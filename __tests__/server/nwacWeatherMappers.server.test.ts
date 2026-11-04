@@ -28,6 +28,11 @@ import {
   nwacWeatherForecastResponseSchema,
   nwacWeatherForecastSchema,
   nwacWeatherForecastsResponseSchema,
+  nwacWeatherLevelRowSchema,
+  nwacWeatherPrecipRowSchema,
+  nwacWeatherSensibleRowSchema,
+  nwacWeatherTempRowSchema,
+  nwacWeatherWindRowSchema,
 } from '@/services/nac/types/nwacWeatherSchemas'
 import fixture from './fixtures/nwac-weather-forecasts.json'
 
@@ -204,6 +209,34 @@ describe('zoneSnow', () => {
     }
     expect(pointSnow(issuance, 'B', 'n1')).toBe(0)
     expect(zoneSnow(issuance, zone.id, 'n1')).toBe(3)
+  })
+})
+
+describe('NWAC weather row schemas', () => {
+  it.each([
+    [
+      'precip',
+      nwacWeatherPrecipRowSchema,
+      { point: 'A', period: 'n1', qpf: null, slr: null },
+      'slr',
+    ],
+    ['temp', nwacWeatherTempRowSchema, { zone: 'z', period: 'n1', high: null, low: null }, 'low'],
+    ['wind', nwacWeatherWindRowSchema, { zone: 'z', block: 'b', dir: null, speed: null }, 'speed'],
+    [
+      'level',
+      nwacWeatherLevelRowSchema,
+      { zone: 'z', block: 'b', freezing: null, mode: null },
+      'mode',
+    ],
+    ['sensible', nwacWeatherSensibleRowSchema, { zone: 'z', slot: 's', text: null }, 'text'],
+  ])('%s rows take null but reject a missing value key', (_, schema, row, key) => {
+    expect(schema.safeParse(row).success).toBe(true)
+    expect(schema.safeParse({ ...row, [key]: undefined }).success).toBe(false)
+  })
+
+  it('rejects the old density key', () => {
+    const row = { point: 'A', period: 'n1', qpf: 0.5, density: 12 }
+    expect(nwacWeatherPrecipRowSchema.safeParse(row).success).toBe(false)
   })
 })
 
