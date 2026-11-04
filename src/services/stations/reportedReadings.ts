@@ -15,17 +15,14 @@ import { addStaleStations } from './staleStations'
 export type StationReadings = {
   /** Each station's table readings, by `source:stid`. */
   readings: Record<string, string[]>
-  /** When a recently silent station last reported, by `source:stid`. */
+  /** When a silent station last reported, by `source:stid`. */
   lastReported: Record<string, string>
 }
 
 // A past day doesn't change; an hour matches the tracking feed that dates it.
 const PAST_DAY_REVALIDATE = 3600
-// Long enough for a once-a-day station between reports; a station quiet longer is down, and shows
-// nothing until it reports again.
-const RECENT_REPORT_HOURS = 48
 
-// The last day of each quiet station that reported recently.
+// The last day of each quiet station SnowObs has a report from.
 async function fetchLastDays(
   center: string,
   quiet: StationRef[],
@@ -37,7 +34,6 @@ async function fetchLastDays(
       const observedAt = current.get(stationKey(station))?.observedAt
       if (!observedAt) return null
       const end = new Date(observedAt)
-      if (end < subHours(new Date(), RECENT_REPORT_HOURS)) return null
       // One station's old data failing shouldn't hide every other station's readings.
       const response = await fetchStationTimeseries(center, [station], {
         start: subHours(end, 24),
@@ -58,7 +54,7 @@ function quietStations(response: SnowObsTimeseriesResponse, stations: StationRef
 
 /**
  * The readings the admin lists for a page's stations: the table's default view (same fetch, so it
- * shares the cache), or for a station that reported recently but not in it, its last day.
+ * shares the cache), or for a station with nothing in it, its last day.
  */
 export async function fetchReportedReadings(
   center: string,
@@ -81,8 +77,7 @@ export async function fetchReportedReadings(
 }
 
 /**
- * A response for a range reaching now, with any station that is quiet in it but reported recently
- * kept as stale. If the lookup fails the stations stay out, as the readings themselves still load.
+ * A response for a range reaching now, with any station that is quiet in it kept as stale. If the lookup fails the stations stay out, as the readings themselves still load.
  */
 export async function withStaleStations(
   center: string,

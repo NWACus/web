@@ -54,7 +54,7 @@ describe('fetchReportedReadings', () => {
     expect(fetchCurrentObservationsMock).not.toHaveBeenCalled()
   })
 
-  it('falls back to the last day of a station that reported in the last 48 hours, and dates it', async () => {
+  it('falls back to the last day of a quiet station, and dates it', async () => {
     fetchStationTimeseriesMock
       .mockResolvedValueOnce(response([{ ...live, variables: ['air_temp'] }]))
       .mockResolvedValueOnce(response([{ ...stale, variables: ['snow_depth', 'air_temp'] }]))
@@ -92,15 +92,17 @@ describe('fetchReportedReadings', () => {
     })
   })
 
-  it('lists nothing for a station quiet longer than 48 hours', async () => {
+  it('falls back however long ago the station last reported', async () => {
     fetchStationTimeseriesMock.mockResolvedValueOnce(response([]))
+    fetchStationTimeseriesMock.mockResolvedValueOnce(
+      response([{ ...stale, variables: ['snow_depth'] }]),
+    )
     fetchCurrentObservationsMock.mockResolvedValue(
-      new Map([['nwac:48', { variables: [], observedAt: '2026-10-07T23:00:00Z' }]]),
+      new Map([['nwac:48', { variables: [], observedAt: '2026-01-07T23:00:00Z' }]]),
     )
     expect(await fetchReportedReadings('nwac', [stale])).toEqual({
-      readings: { 'nwac:48': [] },
-      lastReported: {},
+      readings: { 'nwac:48': ['snow_depth'] },
+      lastReported: { 'nwac:48': '2026-01-07T23:00:00Z' },
     })
-    expect(fetchStationTimeseriesMock).toHaveBeenCalledTimes(1)
   })
 })

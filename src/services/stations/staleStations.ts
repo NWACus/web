@@ -2,7 +2,7 @@ import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
 import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas'
 
-/** A station with no readings in the range shown, but a recent report. */
+/** A station with no readings in the range shown, but an earlier report. */
 export type StaleStation = { name: string; lastReported: string }
 
 export type LastDay = {
