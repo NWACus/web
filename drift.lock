@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "32516e7a83db7e9a"
+sig = "46376e6a77a74129"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1403,7 +1403,7 @@ sig = "7da7ca065ec53d40"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/components/NACWidget/index.tsx"
-sig = "d49af70826e09bce"
+sig = "1560d756a5533f3d"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1449,6 +1449,11 @@ sig = "86ae0e3ed2cff54e"
 doc = "docs/error-tracking.md"
 target = "src/utilities/useAnalytics.ts"
 sig = "a3bf27e184651576"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "src/utilities/widgetPostHogClient.ts"
+sig = "982b9a081078b171"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
