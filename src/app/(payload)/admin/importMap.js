@@ -37,6 +37,7 @@ import { PublishChangesButton as PublishChangesButton_733c9fec647d0760a6b62cbe16
 import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } from '@/collections/Posts/components/ViewPostButton'
 import { DescriptionWithCharCount as DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b } from '@/components/DescriptionWithCharCount'
 import { InitialTimezoneSetter as InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643 } from '@/fields/startAndEndDateField/components/InitialTimezoneSetter'
+import { CoordinatesPicker as CoordinatesPicker_c471a56056f9110f371000bb3e19a92c } from '@/fields/location/components/CoordinatesPicker'
 import { CourseTypeField as CourseTypeField_348fff62462d32a00f93a0ac5be86e99 } from '@/collections/Courses/components/CourseTypeField'
 import { UserStatusCell as UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee } from '@/collections/Users/components/UserStatusCell'
 import { InviteUser as InviteUser_6042b6804e11048cd4fbe6206cbc2b0f } from '@/collections/Users/components/InviteUser'
@@ -116,6 +117,7 @@ export const importMap = {
   "@/collections/Posts/components/ViewPostButton#ViewPostButton": ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
   "@/components/DescriptionWithCharCount#DescriptionWithCharCount": DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b,
   "@/fields/startAndEndDateField/components/InitialTimezoneSetter#InitialTimezoneSetter": InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643,
+  "@/fields/location/components/CoordinatesPicker#CoordinatesPicker": CoordinatesPicker_c471a56056f9110f371000bb3e19a92c,
   "@/collections/Courses/components/CourseTypeField#CourseTypeField": CourseTypeField_348fff62462d32a00f93a0ac5be86e99,
   "@/collections/Users/components/UserStatusCell#UserStatusCell": UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee,
   "@/collections/Users/components/InviteUser#InviteUser": InviteUser_6042b6804e11048cd4fbe6206cbc2b0f,

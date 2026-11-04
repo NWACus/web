@@ -22,6 +22,10 @@ interface InfiniteListOptions<T extends ListItem, R extends ListResult> {
   filterKeys: readonly string[]
   /** Values for filters missing from the page URL. */
   filterDefaults?: Record<string, string>
+  /** Filters the page sets itself rather than reads from its URL; an empty value leaves one out. */
+  filters?: Record<string, string>
+  /** The `filters` the server rendered the first page with, where they differ from `filters`. */
+  initialFilters?: Record<string, string>
   /** Pulls the page's items out of the endpoint's result. Keep it stable: it's an effect dependency. */
   itemsOf: (result: R) => T[]
   /** Plural label for the list's messages, e.g. "events". */
@@ -30,7 +34,8 @@ interface InfiniteListOptions<T extends ListItem, R extends ListResult> {
 
 interface InfiniteListProps<T extends ListItem, R extends ListResult>
   extends InfiniteListOptions<T, R> {
-  renderItem: (item: T) => ReactNode
+  /** `loadedQuery` is the filter query the shown items were loaded for. */
+  renderItem: (item: T, index: number, list: { items: T[]; loadedQuery: string }) => ReactNode
   className?: string
 }
 
@@ -72,14 +77,41 @@ const appendNew = <T extends ListItem>(shown: T[], page: T[]): T[] => {
   return [...shown, ...page.filter((item) => !shownIds.has(item.id))]
 }
 
-const useFilterQuery = (filterKeys: readonly string[], filterDefaults: Record<string, string>) => {
-  const searchParams = useSearchParams()
+const buildFilterQuery = (
+  searchParams: Pick<URLSearchParams, 'get'>,
+  filterKeys: readonly string[],
+  filterDefaults: Record<string, string>,
+  filters: Record<string, string>,
+) => {
   const query = new URLSearchParams()
   for (const key of filterKeys) {
     const value = searchParams.get(key) || filterDefaults[key]
     if (value) query.set(key, value)
   }
+  for (const [key, value] of Object.entries(filters)) {
+    if (value) query.set(key, value)
+  }
   return query.toString()
+}
+
+/** The filter query now, and the one the server rendered the first page with. */
+const useFilterQueries = ({
+  filterKeys,
+  filterDefaults = {},
+  filters = {},
+  initialFilters = filters,
+}: Pick<
+  InfiniteListOptions<ListItem, ListResult>,
+  'filterKeys' | 'filterDefaults' | 'filters' | 'initialFilters'
+>) => {
+  const searchParams = useSearchParams()
+  const [initialQuery] = useState(() =>
+    buildFilterQuery(searchParams, filterKeys, filterDefaults, initialFilters),
+  )
+  return {
+    filterQuery: buildFilterQuery(searchParams, filterKeys, filterDefaults, filters),
+    initialQuery,
+  }
 }
 
 const useInfiniteList = <T extends ListItem, R extends ListResult>({
@@ -87,18 +119,18 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
   initialHasMore,
   initialError,
   endpoint,
-  filterKeys,
-  filterDefaults = {},
   itemsOf,
   itemsLabel,
+  ...filterOptions
 }: InfiniteListOptions<T, R>) => {
   const [items, setItems] = useState<T[]>(initialItems)
   const [offset, setOffset] = useState(initialItems.length)
   const [hasMoreData, setHasMoreData] = useState(initialHasMore)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(initialError || null)
-  const filterQuery = useFilterQuery(filterKeys, filterDefaults)
-  const previousFilterQueryRef = useRef(filterQuery)
+  const { filterQuery, initialQuery } = useFilterQueries(filterOptions)
+  const previousFilterQueryRef = useRef(initialQuery)
+  const [loadedQuery, setLoadedQuery] = useState(initialQuery)
   const requestRef = useRef<AbortController | null>(null)
   const { setTotal } = useFiltersTotalContext()
   const { ref, inView } = useInView({ threshold: 0, triggerOnce: false })
@@ -134,6 +166,7 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
         setOffset(page.length)
         setHasMoreData(result.hasMore)
         setTotal(result.total)
+        setLoadedQuery(filterQuery)
       } catch (_error) {
         if (request.signal.aborted) return
         setError('An unexpected error occurred. Please try again.')
@@ -175,7 +208,7 @@ const useInfiniteList = <T extends ListItem, R extends ListResult>({
     loadMore()
   }, [inView, hasMoreData, isLoading, offset, endpoint, filterQuery, itemsOf, itemsLabel])
 
-  return { items, hasMoreData, isLoading, error, ref }
+  return { items, loadedQuery, hasMoreData, isLoading, error, ref }
 }
 
 const ListError = ({ itemsLabel, error }: { itemsLabel: string; error: string }) => (
@@ -196,7 +229,7 @@ export const InfiniteList = <T extends ListItem, R extends ListResult>({
   className,
   ...options
 }: InfiniteListProps<T, R>) => {
-  const { items, hasMoreData, isLoading, error, ref } = useInfiniteList(options)
+  const { items, loadedQuery, hasMoreData, isLoading, error, ref } = useInfiniteList(options)
 
   if (error) {
     return <ListError itemsLabel={options.itemsLabel} error={error} />
@@ -214,7 +247,7 @@ export const InfiniteList = <T extends ListItem, R extends ListResult>({
 
   return (
     <div className={className}>
-      {items.map(renderItem)}
+      {items.map((item, index) => renderItem(item, index, { items, loadedQuery }))}
 
       {hasMoreData && (
         <div ref={ref} className="flex justify-center py-8">

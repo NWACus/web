@@ -1,0 +1,167 @@
+'use client'
+
+import type { AddressParts, GeocodeResult } from '@/services/geocodio'
+import { isRecord } from '@/utilities/isRecord'
+import { Button, FieldDescription, FieldLabel, toast, useField, useForm } from '@payloadcms/ui'
+import dynamic from 'next/dynamic'
+import type { UIFieldClientComponent } from 'payload'
+import { useMemo, useState } from 'react'
+import type { GeocodeStatus } from '../coordinatesField'
+
+// mapbox-gl touches `window` when imported, so the map only loads in the browser.
+const PickerMap = dynamic(() => import('./PickerMap.client').then((mod) => mod.PickerMap), {
+  ssr: false,
+  loading: () => (
+    <div className="h-72 w-full rounded-[var(--style-radius-s)] bg-[var(--theme-elevation-50)]" />
+  ),
+})
+
+const STATUS_TEXT: Record<GeocodeStatus, string> = {
+  geocoded: 'Placed from the address. Drag the pin if it is off.',
+  approximate:
+    'Approximate: the address only matched a street, city or ZIP. Drag the pin to the exact spot.',
+  manual: 'Placed by hand. Saving won’t move it unless the address changes.',
+  failed: 'The address couldn’t be found. Click the map to place the pin.',
+}
+
+const LOOKUP_FAILURE: Record<'no-match' | 'unavailable', string> = {
+  'no-match': 'No match for that address. Add a city and state or a ZIP, or click the map.',
+  unavailable: 'Address lookup is unavailable right now. Click the map to place the pin.',
+}
+
+function announce(result: GeocodeResult) {
+  if (result.status !== 'found') return toast.error(LOOKUP_FAILURE[result.status])
+  if (result.precision === 'exact') return toast.success('Placed the pin at the address.')
+  toast.warning('Only an approximate match (street, city or ZIP). Drag the pin to the exact spot.')
+}
+
+/** `a.b.c` → `a.b`; a top-level path has no parent. */
+const parentOf = (path: string) => path.slice(0, Math.max(path.lastIndexOf('.'), 0))
+const join = (parent: string, name: string) => (parent ? `${parent}.${name}` : name)
+
+// Six decimals is about 10 cm, more than enough for a meeting spot.
+const round = (value: number) => Math.round(value * 1e6) / 1e6
+
+type Point = { latitude: number; longitude: number }
+
+const pointFrom = (latitude: unknown, longitude: unknown): Point | null =>
+  typeof latitude === 'number' && typeof longitude === 'number' ? { latitude, longitude } : null
+
+const MISSED: ReadonlySet<unknown> = new Set(['no-match', 'unavailable'])
+
+function isGeocodeResult(body: unknown): body is GeocodeResult {
+  if (!isRecord(body)) return false
+  if (body.status !== 'found') return MISSED.has(body.status)
+  return typeof body.latitude === 'number' && typeof body.longitude === 'number'
+}
+
+async function requestGeocode(parts: AddressParts): Promise<GeocodeResult> {
+  const params = new URLSearchParams(
+    Object.entries(parts).flatMap(([key, value]) => (value ? [[key, value]] : [])),
+  )
+  try {
+    const response = await fetch(`/api/events/geocode?${params}`, { credentials: 'include' })
+    const body: unknown = await response.json()
+    if (response.ok && isGeocodeResult(body)) return body
+    return { status: 'unavailable', reason: `request failed (${response.status})` }
+  } catch {
+    return { status: 'unavailable', reason: 'request failed' }
+  }
+}
+
+// A cleared point keeps its old status until saved, so only `failed` still describes no pin.
+const UNPLACED_TEXT = 'No pin. Click the map or use “Find from address” to place one.'
+
+const DESCRIPTION: Record<'placed' | 'unplaced', Record<GeocodeStatus | 'none', string>> = {
+  placed: { ...STATUS_TEXT, none: 'Drag the pin or click the map to adjust.' },
+  unplaced: {
+    geocoded: UNPLACED_TEXT,
+    approximate: UNPLACED_TEXT,
+    manual: UNPLACED_TEXT,
+    failed: STATUS_TEXT.failed,
+    none: 'Saving places the pin from the address. You can also click the map.',
+  },
+}
+
+const describeStatus = (status: GeocodeStatus | null, placed: boolean) =>
+  DESCRIPTION[placed ? 'placed' : 'unplaced'][status ?? 'none']
+
+function FindButton(props: { finding: boolean; disabled: boolean; onClick: () => void }) {
+  return (
+    <Button
+      buttonStyle="secondary"
+      size="small"
+      margin={false}
+      disabled={props.finding || props.disabled}
+      onClick={props.onClick}
+    >
+      {props.finding ? 'Finding…' : 'Find from address'}
+    </Button>
+  )
+}
+
+export const CoordinatesPicker: UIFieldClientComponent = ({
+  path,
+  readOnly: readOnlyFromProps,
+}) => {
+  // The picker lives in the `coordinates` group, which sits in the location group with the address.
+  const coordinates = parentOf(path)
+  const location = parentOf(coordinates)
+
+  const latitude = useField<number | null>({ path: join(coordinates, 'latitude') })
+  const longitude = useField<number | null>({ path: join(coordinates, 'longitude') })
+  const status = useField<GeocodeStatus | null>({ path: join(coordinates, 'geocodeStatus') })
+  const address = useField<string>({ path: join(location, 'address') })
+  const city = useField<string>({ path: join(location, 'city') })
+  const state = useField<string>({ path: join(location, 'state') })
+  const zip = useField<string>({ path: join(location, 'zip') })
+
+  // A ui field's props are rendered once; the form's `disabled` follows take-overs and permissions.
+  const { disabled: formDisabled } = useForm()
+  const readOnly = Boolean(readOnlyFromProps) || formDisabled || latitude.disabled
+  const [finding, setFinding] = useState(false)
+  const [focus, setFocus] = useState<Point | null>(null)
+
+  const point = useMemo(
+    () => pointFrom(latitude.value, longitude.value),
+    [latitude.value, longitude.value],
+  )
+
+  const setPoint = (next: Point, nextStatus: GeocodeStatus) => {
+    latitude.setValue(round(next.latitude))
+    longitude.setValue(round(next.longitude))
+    status.setValue(nextStatus)
+  }
+
+  const findFromAddress = async () => {
+    setFinding(true)
+    const result = await requestGeocode({
+      address: address.value,
+      city: city.value,
+      state: state.value,
+      zip: zip.value,
+    })
+    setFinding(false)
+    announce(result)
+    if (result.status === 'found') {
+      setPoint(result, result.precision === 'exact' ? 'geocoded' : 'approximate')
+      setFocus({ latitude: result.latitude, longitude: result.longitude })
+    }
+  }
+
+  return (
+    <div className="field-type flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-4">
+        <FieldLabel label="Map location" />
+        <FindButton finding={finding} disabled={readOnly} onClick={findFromAddress} />
+      </div>
+      <PickerMap
+        point={point}
+        focus={focus}
+        readOnly={readOnly}
+        onPick={(next) => setPoint(next, 'manual')}
+      />
+      <FieldDescription path={path} description={describeStatus(status.value, point !== null)} />
+    </div>
+  )
+}

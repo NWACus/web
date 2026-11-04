@@ -918,6 +918,11 @@ export interface Event {
       | null;
     zip?: string | null;
     country?: 'US' | null;
+    coordinates?: {
+      latitude?: number | null;
+      longitude?: number | null;
+      geocodeStatus?: ('geocoded' | 'approximate' | 'manual' | 'failed') | null;
+    };
     /**
      * URL for virtual event (Zoom, Teams, etc.)
      */
@@ -4524,6 +4529,13 @@ export interface EventsSelect<T extends boolean = true> {
         state?: T;
         zip?: T;
         country?: T;
+        coordinates?:
+          | T
+          | {
+              latitude?: T;
+              longitude?: T;
+              geocodeStatus?: T;
+            };
         virtualUrl?: T;
         extraInfo?: T;
       };
