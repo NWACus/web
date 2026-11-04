@@ -29,14 +29,14 @@ describe('StationLatestObservation', () => {
   it('renders the latest observation with the timezone label', () => {
     render(<StationLatestObservation table={buildTable()} />)
 
-    expect(screen.getByText(/Latest observation 11\/14 12:00 PST/)).toBeInTheDocument()
+    expect(screen.getByText(/Last updated 11\/14 12:00 PST/)).toBeInTheDocument()
     expect(screen.queryByText('Data may be stale')).not.toBeInTheDocument()
   })
 
   it('omits the timezone label when it is empty', () => {
     render(<StationLatestObservation table={buildTable({ timezoneLabel: '' })} />)
 
-    expect(screen.getByText('Latest observation 11/14 12:00')).toBeInTheDocument()
+    expect(screen.getByText('Last updated 11/14 12:00')).toBeInTheDocument()
   })
 
   it('shows a fallback when there are no observations', () => {

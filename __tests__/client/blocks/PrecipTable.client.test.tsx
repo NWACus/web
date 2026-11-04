@@ -10,6 +10,8 @@ const STATIONS = [
 
 const TABLE: PrecipAccumulationTable = {
   timezoneLabel: 'PST',
+  latestObservation: null,
+  latestDisplay: null,
   unit: 'in',
   decimals: 2,
   rows: [

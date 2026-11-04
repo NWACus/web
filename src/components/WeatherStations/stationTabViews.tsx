@@ -23,7 +23,7 @@ import { buildStationTable, stationNotes, stationSummaries } from '@/services/sn
 import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas'
 import type { StationUnits } from '@/services/snowobs/units'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
-import { withStaleStations } from '@/services/stations/reportedReadings'
+import { fetchLastReports, withStaleStations } from '@/services/stations/reportedReadings'
 import type { ColumnOrderEntry, StationEntry } from '@/services/stations/stationColumns'
 import type { StationTabKey } from '@/services/stations/stationTabs'
 import { resolveStationTab } from '@/services/stations/stationTabs'
@@ -75,13 +75,16 @@ export async function loadStationMeta(
   center: string,
   stations: StationRef[],
 ): Promise<{ notes: StationNote[]; stations: StationSummary[] }> {
-  const meta = await fetchStationTimeseries(center, stations, {
-    revalidate: METADATA_REVALIDATE,
-    windowHours: 1,
-  })
+  const [meta, lastReports] = await Promise.all([
+    fetchStationTimeseries(center, stations, {
+      revalidate: METADATA_REVALIDATE,
+      windowHours: 1,
+    }),
+    fetchLastReports(center, stations),
+  ])
   return {
     notes: stationNotes(meta.STATION),
-    stations: stationSummaries(stations, meta.STATION),
+    stations: stationSummaries(stations, meta.STATION, lastReports),
   }
 }
 
@@ -178,16 +181,13 @@ async function tableTabView(
   // A range that ended before today isn't missing a station that has since gone quiet.
   const reachesNow = !('end' in range)
   const keepStale = async (response: SnowObsTimeseriesResponse, units: StationUnits) =>
-    reachesNow
-      ? withStaleStations(center, response, subject.stations, units)
-      : { response, stale: [] }
-  const [{ response: standard, stale }, keptMetric] = await Promise.all([
+    reachesNow ? withStaleStations(center, response, subject.stations, units) : { response }
+  const [{ response: standard }, keptMetric] = await Promise.all([
     keepStale(fetchedStandard, 'default'),
     fetchedMetric && keepStale(fetchedMetric, 'metric'),
   ])
   const metric = keptMetric?.response
   const columns = resolveColumns(standard, subject)
-  const shown = new Set(columns.map((c) => stationKey(c.station)))
   const tables = {
     default: buildStationTable(center, standard, columns, rounding),
     metric: metric
@@ -198,7 +198,6 @@ async function tableTabView(
     tabContent: (
       <StationTableView
         tables={tables}
-        stale={stale.filter((s) => shown.has(s.key))}
         activePeriodKey={period.key}
         customRange={custom}
         timeZone={timeZone}

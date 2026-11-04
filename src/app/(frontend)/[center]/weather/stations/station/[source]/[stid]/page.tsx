@@ -2,6 +2,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationAreaLinks } from '@/components/WeatherStations/StationAreaLinks'
+import { StationLastReport } from '@/components/WeatherStations/StationLastReport'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import type {
   StationViewSubject,
@@ -65,10 +66,11 @@ export default async function Page({ params, searchParams }: Args) {
   }
   const timeZone = centerTimezone(center)
   const csv = { action: `${path}/csv`, filePrefix: station.source }
-  const [view, { notes }] = await Promise.all([
+  const [view, { notes, stations }] = await Promise.all([
     resolveTabView({ center, subject, pages, timeZone, csv }, rangeParam, tableParams),
     loadStationMeta(center, subject.stations),
   ])
+  const lastReport = stations[0]?.lastReport
 
   return (
     <>
@@ -86,7 +88,9 @@ export default async function Page({ params, searchParams }: Args) {
         timeZone={timeZone}
         details={
           <>
-            <TrackedStationDetails station={station} />
+            <TrackedStationDetails station={station}>
+              {lastReport && <StationLastReport lastReport={lastReport} timeZone={timeZone} />}
+            </TrackedStationDetails>
             {area && <StationAreaLinks href={stationPagePath(area.slug)} className="mt-3" />}
           </>
         }

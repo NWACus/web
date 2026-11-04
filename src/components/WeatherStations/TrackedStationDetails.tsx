@@ -1,13 +1,16 @@
 import { normalizeSource, sourceLabel } from '@/services/snowobs/stationMap/format'
 import type { TrackedStation } from '@/services/snowobs/stationTracking'
 import { Handshake, Mountain, Tag } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 // The legacy station modal's metadata line: network, elevation and, where
 // there is one, the partner that runs the station.
 export function TrackedStationDetails({
   station,
+  children,
 }: {
   station: Pick<TrackedStation, 'source' | 'elevation' | 'partner'>
+  children?: ReactNode
 }) {
   return (
     <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -29,6 +32,7 @@ export function TrackedStationDetails({
           {station.partner}
         </span>
       )}
+      {children}
     </div>
   )
 }

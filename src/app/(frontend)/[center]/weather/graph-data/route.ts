@@ -154,10 +154,17 @@ export async function GET(
       ? await withStaleStations(center, fetched, stations, units)
       : { response: fetched, stale: [] }
     const aggregated = windowExceedsThreshold(from, to)
-    const staleKeys = new Set(stale.map((s) => s.key))
-    const data = buildGraphData(center, response, stations, vars, aggregated, rounding, staleKeys)
+    const data = buildGraphData(
+      center,
+      response,
+      stations,
+      vars,
+      aggregated,
+      rounding,
+      new Set(stale),
+    )
     return NextResponse.json(
-      { ...data, stale, range: { min: from.getTime(), max: to.getTime() } },
+      { ...data, range: { min: from.getTime(), max: to.getTime() } },
       {
         headers: { 'Cache-Control': STATION_DATA_CACHE_CONTROL },
       },

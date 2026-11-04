@@ -99,13 +99,20 @@ export type StationNote = {
   startDate: string | null
 }
 
-export type StationSummary = { key: string; name: string; elevation: number | null }
+export type StationSummary = {
+  key: string
+  name: string
+  elevation: number | null
+  /** Set when the station has gone quiet. */
+  lastReport?: string
+}
 
 // A page's stations in its own order, named from the response; a station
 // SnowObs didn't return falls back to its stid.
 export function stationSummaries(
   refs: StationRef[],
   stations: ResponseStation[],
+  lastReports: Record<string, string> = {},
 ): StationSummary[] {
   const byKey = new Map(stations.map((s) => [stationKey(s), s]))
   return refs.map((ref) => {
@@ -114,6 +121,7 @@ export function stationSummaries(
       key: stationKey(ref),
       name: found?.name ?? ref.stid,
       elevation: found?.elevation ?? null,
+      lastReport: lastReports[stationKey(ref)],
     }
   })
 }
@@ -223,9 +231,8 @@ export type PrecipAccumulationRow = {
   notes: StationNote[]
 }
 
-export type PrecipAccumulationTable = {
+export type PrecipAccumulationTable = LatestObservation & {
   rows: PrecipAccumulationRow[]
-  timezoneLabel: string
   unit: string
   decimals: number
 }
@@ -334,6 +341,8 @@ export function buildPrecipAccumulationTable(
     timezoneLabel: withTimes
       ? timezoneLabelFor(timeSeries(withTimes.station.observations)[0], timeZone)
       : '',
+    latestObservation: anchorMs > 0 ? anchorMs : null,
+    latestDisplay: anchorMs > 0 ? formatDisplay(new Date(anchorMs).toISOString(), timeZone) : null,
     unit: displayUnit(response.UNITS[PRECIP_HOURLY]),
     decimals,
   }

@@ -112,7 +112,14 @@ describe('station data routes', () => {
       params,
     })
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({ rows: [], timezoneLabel: '', unit: '', decimals: 0 })
+    expect(await res.json()).toEqual({
+      rows: [],
+      timezoneLabel: '',
+      latestObservation: null,
+      latestDisplay: null,
+      unit: '',
+      decimals: 0,
+    })
     expect(fetchStationTimeseries).not.toHaveBeenCalled()
   })
 })

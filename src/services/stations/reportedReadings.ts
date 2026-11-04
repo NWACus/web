@@ -9,7 +9,7 @@ import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas
 import type { StationUnits } from '@/services/snowobs/units'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { subHours } from 'date-fns'
-import type { LastDay, StaleStation } from './staleStations'
+import type { LastDay } from './staleStations'
 import { addStaleStations } from './staleStations'
 
 export type StationReadings = {
@@ -86,9 +86,38 @@ export async function withStaleStations(
   response: SnowObsTimeseriesResponse,
   stations: StationRef[],
   units?: StationUnits,
-): Promise<{ response: SnowObsTimeseriesResponse; stale: StaleStation[] }> {
+): Promise<{ response: SnowObsTimeseriesResponse; stale: string[] }> {
   const silent = silentStations(response, stations)
   if (silent.length === 0) return { response, stale: [] }
   const lastDays = await fetchLastDays(center, silent, units).catch(() => [])
   return addStaleStations(response, lastDays)
+}
+
+async function lastReportsOf(
+  center: string,
+  stations: StationRef[],
+): Promise<Record<string, string>> {
+  const response = await fetchStationTimeseries(center, stations, {
+    windowHours: resolveTablePeriod(undefined).hoursBack(new Date(), centerTimezone(center)),
+    units: 'default',
+    revalidate: 60,
+  })
+  const silent = silentStations(response, stations)
+  if (silent.length === 0) return {}
+  const current = await fetchCurrentObservations(await resolveSnowObsToken(center))
+  return Object.fromEntries(
+    silent.flatMap((station) => {
+      const observedAt = current.get(stationKey(station))?.observedAt
+      return observedAt ? [[stationKey(station), observedAt]] : []
+    }),
+  )
+}
+
+// When each station silent over the table's default window last reported, by `source:stid`. The
+// same fetch as that table, so they share the cache; a failure only leaves the page without it.
+export function fetchLastReports(
+  center: string,
+  stations: StationRef[],
+): Promise<Record<string, string>> {
+  return lastReportsOf(center, stations).catch(() => ({}))
 }

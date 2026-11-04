@@ -14,12 +14,11 @@ import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import type { EditViewProps, GraphRange } from './EditViewDialog'
 import { CompareChips, CompareSelect, EditViewDialog, GraphRangePicker } from './EditViewDialog'
-import { StaleStationsNote } from './StaleStationsNote'
 import { buildChartOption, hasReadings } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { presetFor } from './stationGraphPresets'
 import { clampNegativeValues } from './stationGraphUnits'
-import { StationLatestObservation } from './StationLatestObservation'
+import { TabsWithLatest } from './StationLatestObservation'
 import { customRangeBounds, DEFAULT_GRAPH_PERIOD, isPastRange } from './stationPeriods'
 import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useStationUnits } from './UnitToggle'
@@ -174,7 +173,6 @@ function GraphsCharts({
   return (
     <ChartFrame loading={loading}>
       <div className="flex flex-col gap-6">
-        <StaleStationsNote stale={data.stale ?? []} timeZone={data.timezone} />
         {arrangement.visiblePresets.map((preset) => (
           <div key={preset.key} className="relative">
             <button
@@ -203,7 +201,7 @@ function GraphsToolbar({
   const { compareSlugs, onCompareChange } = props
   return (
     <StationViewBar>
-      {props.tabs}
+      <TabsWithLatest tabs={props.tabs} latest={latest} />
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
         <div className="hidden sm:contents">
           <CompareSelect
@@ -227,12 +225,8 @@ function GraphsToolbar({
             value={props.graphRange}
             onChange={props.onRangeChange}
             timeZone={props.timeZone}
+            className="sm:ml-auto"
           />
-        </div>
-        <div className="order-last sm:order-none sm:ml-auto">
-          {latest && <StationLatestObservation table={latest} />}
-        </div>
-        <div className="hidden sm:contents">
           <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
         </div>
         <EditViewDialog {...props} />

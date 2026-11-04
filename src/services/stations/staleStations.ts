@@ -2,13 +2,6 @@ import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
 import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas'
 
-export type StaleStation = {
-  /** `source:stid` */
-  key: string
-  name: string
-  lastReported: string
-}
-
 export type LastDay = {
   station: StationRef
   observedAt: string
@@ -20,10 +13,10 @@ export type LastDay = {
 export function addStaleStations(
   response: SnowObsTimeseriesResponse,
   lastDays: LastDay[],
-): { response: SnowObsTimeseriesResponse; stale: StaleStation[] } {
-  const stale: StaleStation[] = []
+): { response: SnowObsTimeseriesResponse; stale: string[] } {
+  const stale: string[] = []
   let merged = response
-  for (const { station, observedAt, response: lastDay } of lastDays) {
+  for (const { station, response: lastDay } of lastDays) {
     const key = stationKey(station)
     const found = lastDay.STATION.find((s) => stationKey(s) === key)
     if (!found) continue
@@ -40,7 +33,7 @@ export function addStaleStations(
         },
       ],
     }
-    stale.push({ key, name: found.name ?? found.stid, lastReported: observedAt })
+    stale.push(key)
   }
   return { response: merged, stale }
 }

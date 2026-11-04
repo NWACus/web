@@ -472,20 +472,16 @@ describe('StationGraphs chart arrangement', () => {
     expect(await screen.findAllByText('No data reported for this period.')).toHaveLength(1)
   })
 
-  it('keeps every graph and the note when all its stations are stale', async () => {
+  it('keeps every graph when all its stations are stale', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
         ...dataWithSeries,
         series: dataWithSeries.series.map((s) => ({ ...s, points: [] })),
-        timezone: 'America/Los_Angeles',
-        stale: [{ key: 'nwac:1', name: 'Station 1', lastReported: '2026-10-27T19:00:00Z' }],
       }),
     })
     renderGraphs()
     expect(await screen.findAllByText('No data reported for this period.')).toHaveLength(2)
-    expect(screen.getByText(/Last report from Station 1/)).toBeInTheDocument()
-    expect(screen.getByText('Oct 27, 2026')).toBeInTheDocument()
     expect(screen.getByText('No recent observations')).toBeInTheDocument()
   })
 
@@ -507,7 +503,7 @@ describe('StationGraphs chart arrangement', () => {
       }),
     })
     renderGraphs()
-    expect(await screen.findByText(/Latest observation 11\/03 12:00 PST/)).toBeInTheDocument()
+    expect(await screen.findByText(/Last updated 11\/03 12:00 PST/)).toBeInTheDocument()
   })
 
   it('disables graphs whose variables no station reports', async () => {

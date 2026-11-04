@@ -56,10 +56,12 @@ export function GraphRangePicker({
   value,
   onChange,
   timeZone,
+  className,
 }: {
   value: GraphRange
   onChange: (range: GraphRange) => void
   timeZone: string
+  className?: string
 }) {
   return (
     <StationRangePicker
@@ -75,6 +77,7 @@ export function GraphRangePicker({
       onApplyCustom={(custom) => onChange({ ...value, custom })}
       maxDays={GRAPH_MAX_CUSTOM_DAYS}
       timeZone={timeZone}
+      className={className}
     />
   )
 }

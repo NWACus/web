@@ -1,4 +1,3 @@
-import type { StaleStation } from '@/services/stations/staleStations'
 import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { differenceInHours } from 'date-fns'
 import { displayUnit } from './constants'
@@ -52,8 +51,6 @@ export type GraphData = {
   series: GraphSeries[]
   aggregated: boolean
   timezone: string
-  /** Stations kept in the legend with no line; only set for a range reaching now. */
-  stale?: StaleStation[]
   /** Each station's newest report in the range, by `source:stid`. */
   latest?: Record<string, LatestObservation>
   /** The requested window in ms, so a chart with no readings can still draw its time axis. */

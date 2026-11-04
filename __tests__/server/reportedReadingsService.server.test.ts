@@ -10,7 +10,11 @@ jest.mock('../../src/services/snowobs/access', () => ({
   resolveSnowObsToken: async () => 'token',
 }))
 
-import { fetchReportedReadings, withStaleStations } from '@/services/stations/reportedReadings'
+import {
+  fetchLastReports,
+  fetchReportedReadings,
+  withStaleStations,
+} from '@/services/stations/reportedReadings'
 
 function response(stations: { stid: string; source: string; variables: string[] }[]) {
   return {
@@ -124,6 +128,28 @@ describe('withStaleStations', () => {
 
     const kept = await withStaleStations('nwac', response([{ ...stale, variables: [] }]), [stale])
 
-    expect(kept.stale).toEqual([{ key: 'nwac:48', name: '48', lastReported: observedAt }])
+    expect(kept.stale).toEqual(['nwac:48'])
+  })
+})
+
+describe('fetchLastReports', () => {
+  const observedAt = '2026-10-18T12:00:00Z'
+
+  it('dates only the stations silent in the default window, from the tracking feed', async () => {
+    fetchCurrentObservationsMock.mockResolvedValue(new Map([['nwac:48', { observedAt }]]))
+    fetchStationTimeseriesMock.mockResolvedValue(
+      response([
+        { ...live, variables: ['air_temp'] },
+        { ...stale, variables: [] },
+      ]),
+    )
+
+    expect(await fetchLastReports('nwac', [live, stale])).toEqual({ 'nwac:48': observedAt })
+  })
+
+  it('leaves the page without dates when the lookup fails', async () => {
+    fetchStationTimeseriesMock.mockRejectedValue(new Error('down'))
+
+    expect(await fetchLastReports('nwac', [live])).toEqual({})
   })
 })
