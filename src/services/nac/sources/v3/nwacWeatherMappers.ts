@@ -9,7 +9,6 @@ import type {
   NWACWeatherForecastWire,
   NWACWeatherForecastsWire,
 } from '../../types/nwacWeatherSchemas'
-import { deployedZoneId } from './stagingZoneIds'
 
 function grid<Row, Cell>(
   rows: Row[],
@@ -43,14 +42,14 @@ export function mapV3NWACWeatherIssuance(wire: NWACWeatherForecastWire): NWACWea
     zones: wire.zones.map((z) => ({
       id: z.id,
       name: z.name,
-      avalancheZoneId: deployedZoneId(z.avalancheZoneId ?? null),
+      avalancheZoneId: z.avalancheZoneId ?? null,
     })),
     points: wire.points.map((p) => ({
       code: p.code,
       name: p.name,
       zoneId: p.zoneId ?? null,
       zoneName: p.zone ?? '',
-      avalancheZoneId: deployedZoneId(p.avalancheZoneId ?? null),
+      avalancheZoneId: p.avalancheZoneId ?? null,
     })),
     periods: wire.periods.map((p) => ({
       key: p.key,
