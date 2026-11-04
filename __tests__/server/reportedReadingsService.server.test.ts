@@ -147,6 +147,24 @@ describe('fetchLastReports', () => {
     expect(await fetchLastReports('nwac', [live, stale])).toEqual({ 'nwac:48': observedAt })
   })
 
+  it('leaves out a station the tracking feed saw inside the window, as SnowObs only dropped it', async () => {
+    fetchCurrentObservationsMock.mockResolvedValue(
+      new Map([['nwac:48', { observedAt: '2026-10-19T11:45:00Z' }]]),
+    )
+    fetchStationTimeseriesMock.mockResolvedValue(response([{ ...live, variables: ['air_temp'] }]))
+
+    expect(await fetchLastReports('nwac', [live, stale])).toEqual({})
+  })
+
+  it("leaves out a date that won't parse", async () => {
+    fetchCurrentObservationsMock.mockResolvedValue(
+      new Map([['nwac:48', { observedAt: 'not a date' }]]),
+    )
+    fetchStationTimeseriesMock.mockResolvedValue(response([{ ...live, variables: ['air_temp'] }]))
+
+    expect(await fetchLastReports('nwac', [live, stale])).toEqual({})
+  })
+
   it('leaves the page without dates when the lookup fails', async () => {
     fetchStationTimeseriesMock.mockRejectedValue(new Error('down'))
 

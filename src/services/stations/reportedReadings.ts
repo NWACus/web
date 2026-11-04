@@ -97,8 +97,10 @@ async function lastReportsOf(
   center: string,
   stations: StationRef[],
 ): Promise<Record<string, string>> {
+  const now = new Date()
+  const windowHours = resolveTablePeriod(undefined).hoursBack(now, centerTimezone(center))
   const response = await fetchStationTimeseries(center, stations, {
-    windowHours: resolveTablePeriod(undefined).hoursBack(new Date(), centerTimezone(center)),
+    windowHours,
     units: 'default',
     revalidate: 60,
   })
@@ -108,7 +110,9 @@ async function lastReportsOf(
   return Object.fromEntries(
     silent.flatMap((station) => {
       const observedAt = current.get(stationKey(station))?.observedAt
-      return observedAt ? [[stationKey(station), observedAt]] : []
+      // Newer than the window means SnowObs dropped a live station; a bad date fails this too.
+      const quiet = observedAt && new Date(observedAt) <= subHours(now, windowHours)
+      return quiet ? [[stationKey(station), observedAt]] : []
     }),
   )
 }

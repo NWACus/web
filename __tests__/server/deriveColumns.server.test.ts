@@ -127,6 +127,43 @@ describe('the compass column', () => {
   })
 })
 
+describe("a station's wind direction shown again in a saved order", () => {
+  const windy = response(station('1', ['wind_direction']), station('2', ['wind_direction']))
+
+  it("goes after another station's compass, not between its pair", () => {
+    expect(
+      resolveColumns(windy, {
+        stations: [ref('1'), ref('2')],
+        columnOrder: [
+          { ...ref('1'), variable: 'wind_direction' },
+          { ...ref('1'), variable: 'wind_direction_compass' },
+        ],
+      }),
+    ).toEqual([
+      col('1', 'wind_direction'),
+      col('1', 'wind_direction_compass'),
+      col('2', 'wind_direction'),
+      col('2', 'wind_direction_compass'),
+    ])
+  })
+
+  it('goes right after the last wind direction when that compass was moved away', () => {
+    expect(
+      resolveColumns(windy, {
+        stations: [ref('1'), { ...ref('2'), hidden: ['wind_direction_compass'] }],
+        columnOrder: [
+          { ...ref('1'), variable: 'wind_direction_compass' },
+          { ...ref('1'), variable: 'wind_direction' },
+        ],
+      }),
+    ).toEqual([
+      col('1', 'wind_direction_compass'),
+      col('1', 'wind_direction'),
+      col('2', 'wind_direction'),
+    ])
+  })
+})
+
 describe('resolveColumns', () => {
   const two = response(
     station('1', ['air_temp', 'wind_speed', 'snow_depth']),

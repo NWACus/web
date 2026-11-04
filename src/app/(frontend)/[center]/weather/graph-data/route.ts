@@ -2,6 +2,7 @@ import {
   MAX_COMPARE_STATIONS,
   STATION_GRAPH_PRESETS,
 } from '@/components/WeatherStations/stationGraphPresets'
+import { todayInZone } from '@/components/WeatherStations/stationPeriods'
 import { STATION_DATA_CACHE_CONTROL } from '@/services/snowobs/access'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
@@ -15,7 +16,7 @@ import type { AssembledStationPage } from '@/services/stations/getStationPages'
 import { allStations, getStationPages } from '@/services/stations/getStationPages'
 import { withStaleStations } from '@/services/stations/reportedReadings'
 import { unknownCenterResponse } from '@/utilities/apiResponses'
-import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
+import { centerTimezone, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import config from '@payload-config'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
@@ -82,9 +83,9 @@ function dateParam(url: URL, name: string): Date {
   return new Date(url.searchParams.get(name) ?? '')
 }
 
-// The client ends a current range at the moment it asks, a few seconds or a cached minute ago.
-function reachesNow(to: Date): boolean {
-  return Date.now() - to.getTime() < 60 * 60 * 1000
+// The client ends a current range at the moment it asks and a past one the day before today.
+function reachesNow(to: Date, timeZone: string): boolean {
+  return todayInZone(to, timeZone) >= todayInZone(new Date(), timeZone)
 }
 
 type GraphQuery = {
@@ -150,7 +151,7 @@ export async function GET(
       fetchStationTimeseries(center, stations, { start: from, end: to, units }),
       fetchVariableRounding(center),
     ])
-    const { response, stale } = reachesNow(to)
+    const { response, stale } = reachesNow(to, centerTimezone(center))
       ? await withStaleStations(center, fetched, stations, units)
       : { response: fetched, stale: [] }
     const aggregated = windowExceedsThreshold(from, to)

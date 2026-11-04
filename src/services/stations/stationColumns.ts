@@ -91,6 +91,23 @@ export function selectColumns(
   })
 }
 
+// The index an unlisted column goes after, or -1 for the end.
+function placeAfter(ordered: StationColumnConfig[], column: StationColumnConfig): number {
+  if (column.variable === WIND_COMPASS) {
+    return ordered.findIndex(
+      (c) => c.variable === WIND_DIRECTION && stationKey(c.station) === stationKey(column.station),
+    )
+  }
+  const last = ordered.map((c) => c.variable).lastIndexOf(column.variable)
+  if (last === -1 || column.variable !== WIND_DIRECTION) return last
+  // Both read Dir, so a column between a station's pair would pass for its wind direction.
+  const next = ordered[last + 1]
+  const paired =
+    next?.variable === WIND_COMPASS &&
+    stationKey(next.station) === stationKey(ordered[last].station)
+  return paired ? last + 1 : last
+}
+
 /**
  * The columns in the page's chosen order. A column the order does not list, such as a reading
  * just shown again or a sensor that started reporting, goes after the last column for its reading, or
@@ -108,13 +125,7 @@ export function orderColumns(
   const listed = new Set(ordered)
   for (const column of columns) {
     if (listed.has(column)) continue
-    const last =
-      column.variable === WIND_COMPASS
-        ? ordered.findIndex(
-            (c) =>
-              c.variable === WIND_DIRECTION && stationKey(c.station) === stationKey(column.station),
-          )
-        : ordered.map((c) => c.variable).lastIndexOf(column.variable)
+    const last = placeAfter(ordered, column)
     if (last === -1) ordered.push(column)
     else ordered.splice(last + 1, 0, column)
   }
