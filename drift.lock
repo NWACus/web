@@ -1413,7 +1413,7 @@ sig = "a3bf27e184651576"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/utilities/widgetPostHogClient.ts"
-sig = "982b9a081078b171"
+sig = "8ab37552aa596073"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

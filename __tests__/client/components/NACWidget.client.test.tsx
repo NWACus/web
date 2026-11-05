@@ -72,10 +72,11 @@ describe('NACWidget', () => {
     expect(handle).not.toHaveProperty('register')
 
     handle?.capture('forecast_viewed', { zone: 'olympics' })
-    expect(posthog.capture).toHaveBeenCalledWith('forecast_viewed', {
-      zone: 'olympics',
-      host_source: 'nwacus/web',
-    })
+    expect(posthog.capture).toHaveBeenCalledWith(
+      'forecast_viewed',
+      { zone: 'olympics', host_source: 'nwacus/web' },
+      undefined,
+    )
   })
 
   it('omits the PostHog client when PostHog is not configured', () => {

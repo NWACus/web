@@ -26,11 +26,28 @@ describe('createWidgetPostHogClient', () => {
 
     client.capture('observation_opened', { observation_id: '42', widget: 'observations' })
 
-    expect(fake.capture).toHaveBeenCalledWith('observation_opened', {
-      observation_id: '42',
-      widget: 'observations',
-      host_source: POSTHOG_SOURCE,
-    })
+    expect(fake.capture).toHaveBeenCalledWith(
+      'observation_opened',
+      {
+        observation_id: '42',
+        widget: 'observations',
+        host_source: POSTHOG_SOURCE,
+      },
+      undefined,
+    )
+  })
+
+  it('forwards capture options, e.g. send_instantly for clicks that navigate away', () => {
+    const fake = fakePostHog()
+    const client = createWidgetPostHogClient(asPostHog(fake))
+
+    client.capture('weather_forecast_link_clicked', {}, { send_instantly: true })
+
+    expect(fake.capture).toHaveBeenCalledWith(
+      'weather_forecast_link_clicked',
+      { host_source: POSTHOG_SOURCE },
+      { send_instantly: true },
+    )
   })
 
   it('does not let the widget override host_source', () => {
@@ -39,7 +56,11 @@ describe('createWidgetPostHogClient', () => {
 
     client.capture('forecast_viewed', { host_source: 'somewhere-else' })
 
-    expect(fake.capture).toHaveBeenCalledWith('forecast_viewed', { host_source: POSTHOG_SOURCE })
+    expect(fake.capture).toHaveBeenCalledWith(
+      'forecast_viewed',
+      { host_source: POSTHOG_SOURCE },
+      undefined,
+    )
   })
 
   it('exposes read-only accessors and nothing that mutates host state', () => {
