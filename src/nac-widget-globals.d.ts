@@ -8,20 +8,25 @@ interface Window {
     controlledMount?: boolean
     /** Danger map only: pixel height of the map container. */
     height?: number
+    /** Narrow handle on the host page's PostHog client, so the widget reuses it instead of creating its own. */
+    posthog?: import('./utilities/widgetPostHogClient').WidgetPostHogClient
   }
-  mediaWidgetData?: (typeof Window)['mediaWidgetData']
-  forecastWidgetData?: (typeof Window)['mapWidgetData']
-  warningWidgetData?: (typeof Window)['mapWidgetData']
-  stationWidgetData?: (typeof Window)['mapWidgetData']
-  obsWidgetData?: (typeof Window)['mapWidgetData']
+  mediaWidgetData?: Window['mapWidgetData'] & {
+    /** Media widget only: layout mode. */
+    mode?: 'carousel' | 'grid'
+  }
+  forecastWidgetData?: Window['mapWidgetData']
+  warningWidgetData?: Window['mapWidgetData']
+  stationWidgetData?: Window['mapWidgetData']
+  obsWidgetData?: Window['mapWidgetData']
   mapWidget?: {
     mount: () => void
     unmount: () => void
     _mounted: boolean
   }
-  mediaWidget?: (typeof Window)['mediaWidget']
-  forecastWidget?: (typeof Window)['mapWidget']
-  warningsWidget?: (typeof Window)['mapWidget']
-  stationWidget?: (typeof Window)['mapWidget']
-  obsWidget?: (typeof Window)['mapWidget']
+  mediaWidget?: Window['mapWidget']
+  forecastWidget?: Window['mapWidget']
+  warningsWidget?: Window['mapWidget']
+  stationWidget?: Window['mapWidget']
+  obsWidget?: Window['mapWidget']
 }
