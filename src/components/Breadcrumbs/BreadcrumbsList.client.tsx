@@ -71,11 +71,11 @@ function useHorizontalScrollState(items: BreadcrumbItemData[]) {
 }
 
 export function BreadcrumbsList({ items }: { items: BreadcrumbItemData[] }) {
-  const { captureWithTenant } = useAnalytics()
+  const { capture } = useAnalytics()
   const scroll = useHorizontalScrollState(items)
 
   const onClick = (item: BreadcrumbItemData, depth: string) => {
-    captureWithTenant('breadcrumb_click', {
+    capture('breadcrumb_click', {
       breadcrumb_name: item.name,
       from_page: window.location.pathname,
       to_page: item.href ?? '',

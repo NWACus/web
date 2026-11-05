@@ -25,7 +25,7 @@ const ButtonLink = React.forwardRef<HTMLButtonElement, ButtonLinkProps>(
     { href: hrefProp, newTab = false, children, className, label, reference, type, url, ...props },
     ref,
   ) => {
-    const { captureWithTenant } = useAnalytics()
+    const { capture } = useAnalytics()
 
     // Determine href from either direct prop or CMS reference
     if (reference && !type) return null
@@ -46,7 +46,7 @@ const ButtonLink = React.forwardRef<HTMLButtonElement, ButtonLinkProps>(
       : {}
 
     const handleClick = () => {
-      captureWithTenant('button_click', {
+      capture('button_click', {
         button_label: buttonLabel,
         from_page: window.location.pathname,
         to_page: href || '',

@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 jest.mock('../../../src/utilities/useAnalytics', () => ({
-  useAnalytics: () => ({ captureWithTenant: jest.fn() }),
+  useAnalytics: () => ({ capture: jest.fn() }),
 }))
 
 describe('Breadcrumbs', () => {

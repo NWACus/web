@@ -17,7 +17,7 @@ jest.mock('../../../src/providers/AvalancheCenterProvider', () => ({
 }))
 
 jest.mock('../../../src/utilities/useAnalytics', () => ({
-  useAnalytics: () => ({ captureWithTenant: jest.fn() }),
+  useAnalytics: () => ({ capture: jest.fn() }),
 }))
 
 jest.mock('next/navigation', () => ({
