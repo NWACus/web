@@ -112,7 +112,7 @@ const nativeProductsByTenant: Record<
 > = {
   snfac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
   nwac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
-  sac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: true },
+  sac: { forecast: true, warning: false, dangerMap: false, weather: false, stationMap: true },
 }
 
 // Next.js revalidation errors are normal when seeding the database without a server running
@@ -588,7 +588,7 @@ export const seed = async ({
           tenant: tenant.id,
           description: data.description,
           nativeProducts: nativeProductsByTenant[tenant.slug] ?? {
-            forecast: false,
+            forecast: true,
             warning: false,
             dangerMap: false,
             weather: false,
