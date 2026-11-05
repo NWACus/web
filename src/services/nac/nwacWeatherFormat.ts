@@ -244,6 +244,15 @@ export function sensibleSlots(issuance: NWACWeatherIssuance) {
   }))
 }
 
+/**
+ * The sensible text's two slots are the issuance's first two half-days: Today and Tonight on a
+ * morning, Tonight and Tomorrow on an afternoon. The slot holding `periodKey`'s text, if any.
+ */
+export function sensibleSlotFor(issuance: NWACWeatherIssuance, periodKey: string): string | null {
+  const index = issuance.periods.findIndex((p) => p.key === periodKey)
+  return SENSIBLE_SLOTS[index]?.key ?? null
+}
+
 export function issuanceLabel(type: NWACWeatherIssuance['type']): string {
   return type === 'morning' ? 'Morning Forecast' : 'Afternoon Forecast'
 }

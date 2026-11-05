@@ -1,6 +1,7 @@
 /**
- * One zone's forecast: its sensible weather, then one table by 12h period (6h snow level and wind
- * inside), or on a phone a tab per date of labeled cards.
+ * One zone's weather beside an avalanche forecast, for the periods of that forecast's Day 1: its
+ * sensible weather, then a short table by 12h period (6h snow level and wind inside), or on a phone
+ * a labeled card per period. The zone's snow, not each point's: the whole forecast is a link away.
  */
 import type {
   NWACWeatherBlock,
@@ -13,19 +14,15 @@ import {
   deriveSnowLevel,
   fmtCalendarDate,
   levelKind,
-  periodDateGroups,
-  pointSnow,
-  sensibleSlots,
+  sensibleSlotFor,
   snowRange,
   tempPeriods,
   windBlocks,
-  zonePoints,
   zoneSnow,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
-import { DayTabs } from './DayTabs.client'
 import {
   DayNightDate,
   SnowKeys,
@@ -57,8 +54,12 @@ interface BlockView {
   wind: NWACWeatherWindCell | undefined
 }
 
-/** Periods with their 6h blocks; a period the wire gives no blocks still takes one column. */
-function periodViews(issuance: NWACWeatherIssuance, zone: NWACWeatherZone): PeriodView[] {
+/** The periods shown, with their 6h blocks; one the wire gives no blocks still takes a column. */
+function periodViews(
+  issuance: NWACWeatherIssuance,
+  zone: NWACWeatherZone,
+  periodKeys: string[],
+): PeriodView[] {
   const levels = issuance.blocks.map((b) => {
     const cell = issuance.snowLevel[zone.id]?.[b.key]
     return deriveSnowLevel(cell?.freezing)
@@ -69,7 +70,8 @@ function periodViews(issuance: NWACWeatherIssuance, zone: NWACWeatherZone): Peri
     snow: levelKind(issuance, zone.id, block) === 'snow',
     wind: issuance.wind[zone.id]?.[block.key],
   }))
-  return issuance.periods.map((period) => ({
+  const shown = issuance.periods.filter((p) => periodKeys.includes(p.key))
+  return shown.map((period) => ({
     period,
     night: period.kind === 'night',
     label: fmtCalendarDate(period.date),
@@ -94,40 +96,33 @@ function SnowAmount({ snow, chip = false }: { snow: number | null; chip?: boolea
   return fill ? <span className={cn('rounded px-1.5 py-0.5', fill)}>{value}</span> : value
 }
 
-/**
- * The points behind a zone's snow, when there is more than one: the zone row is their mean in a
- * public range, so each point's own amount sits beneath it.
- */
-function snowPoints(issuance: NWACWeatherIssuance, zone: NWACWeatherZone) {
-  const points = zonePoints(issuance, zone.id)
-  return points.length > 1 ? points : []
-}
-
-/** The zone's sensible weather, one card per day it has text for. */
+/** The zone's sensible weather, one card per period shown that has text. */
 function SensibleCards({
   issuance,
   zone,
+  periods,
 }: {
   issuance: NWACWeatherIssuance
   zone: NWACWeatherZone
+  periods: PeriodView[]
 }) {
   const sensible = issuance.sensible[zone.id] ?? {}
-  const cards = sensibleSlots(issuance)
-    .map((slot) => ({ ...slot, text: sensible[slot.key]?.trim() }))
-    .filter((c) => c.text)
+  const cards = periods.flatMap((p) => {
+    const slot = sensibleSlotFor(issuance, p.period.key)
+    const text = slot ? sensible[slot]?.trim() : null
+    return text ? [{ ...p, text }] : []
+  })
   if (cards.length === 0) return null
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {cards.map((c) => (
-        <section key={c.key} className="space-y-1">
+        <section key={c.period.key} className="space-y-1">
           <div className="flex items-baseline gap-2">
-            <h4 className="font-semibold">{c.label}</h4>
-            {c.date && (
-              <span className="text-muted-foreground">
-                <span aria-hidden="true">· </span>
-                {fmtCalendarDate(c.date)}
-              </span>
-            )}
+            <h4 className="font-semibold">{c.night ? 'Night' : 'Day'}</h4>
+            <span className="text-muted-foreground">
+              <span aria-hidden="true">· </span>
+              {c.label}
+            </span>
           </div>
           <p className="whitespace-pre-line">{c.text}</p>
         </section>
@@ -206,7 +201,6 @@ function PeriodRow({
   cell,
   fill,
   covered = periods.length,
-  sub = false,
 }: {
   label: string
   unit?: string
@@ -215,12 +209,10 @@ function PeriodRow({
   /** A cell's background (the snow fills). */
   fill?: (p: PeriodView) => string | undefined
   covered?: number
-  /** A point under the zone's row: indented, lighter and not bold. */
-  sub?: boolean
 }) {
   return (
-    <tr className={cn(sub && 'text-muted-foreground')}>
-      <th scope="row" className={cn(ROW_LABEL, sub && 'pl-6 font-normal')}>
+    <tr>
+      <th scope="row" className={ROW_LABEL}>
         {label}
         {unit && <Unit>{unit}</Unit>}
       </th>
@@ -304,15 +296,6 @@ function PeriodTable({
             periods={periods}
             {...snowCells(periods, (key) => zoneSnow(issuance, zone.id, key))}
           />
-          {snowPoints(issuance, zone).map((point) => (
-            <PeriodRow
-              key={point.code}
-              label={point.name}
-              periods={periods}
-              sub
-              {...snowCells(periods, (key) => pointSnow(issuance, point.code, key))}
-            />
-          ))}
           <PeriodRow
             label="Snow level"
             unit="ft"
@@ -362,23 +345,15 @@ function NotCoveredChip() {
 function CardLine({
   label,
   unit,
-  sub = false,
   children,
 }: {
   label: string
   unit?: string
-  /** A point under the zone's snow: indented and lighter. */
-  sub?: boolean
   children: ReactNode
 }) {
   return (
-    <div
-      className={cn(
-        'flex items-center justify-between gap-3 px-3 py-2',
-        sub && 'pl-6 text-muted-foreground',
-      )}
-    >
-      <dt className={cn(!sub && 'font-semibold')}>
+    <div className="flex items-center justify-between gap-3 px-3 py-2">
+      <dt className="font-semibold">
         {label}
         {unit && <Unit>{unit}</Unit>}
       </dt>
@@ -387,7 +362,7 @@ function CardLine({
   )
 }
 
-/** A phone card's labeled lines: the zone's snow, each point's under it, the temps. */
+/** A phone card's labeled lines: the zone's snow and the temps. */
 function CardSummary({
   issuance,
   zone,
@@ -409,11 +384,6 @@ function CardSummary({
       <CardLine label="Snow" unit="in">
         <SnowAmount snow={zoneSnow(issuance, zone.id, p.period.key)} chip />
       </CardLine>
-      {snowPoints(issuance, zone).map((point) => (
-        <CardLine key={point.code} label={point.name} sub>
-          <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} chip />
-        </CardLine>
-      ))}
       <CardLine label="5000' Temperatures" unit="°F">
         {temp}
       </CardLine>
@@ -496,6 +466,7 @@ function PeriodCard({
       <h4 className="flex items-center gap-2 bg-muted px-3 py-2 text-base font-semibold">
         <DayNightDate date={null} night={p.night} label={false} />
         {p.night ? 'Night' : 'Day'}
+        <span className="font-normal text-muted-foreground">{p.label}</span>
       </h4>
       <CardSummary issuance={issuance} zone={zone} p={p} tempOut={tempOut} />
       <CardBlocks p={p} windOut={windOut} />
@@ -503,7 +474,7 @@ function PeriodCard({
   )
 }
 
-/** The phone layout, in place of the table: a tab per date of that date's period cards. */
+/** The phone layout, in place of the table: a card per period. */
 function PeriodCards({
   issuance,
   zone,
@@ -515,28 +486,18 @@ function PeriodCards({
 }) {
   const covered = coverage(issuance, periods)
   const windOut = blocksPast(periods, covered.winds)
-  const card = (p: PeriodView) => (
-    <PeriodCard
-      key={p.period.key}
-      issuance={issuance}
-      zone={zone}
-      p={p}
-      tempOut={periods.indexOf(p) >= covered.temps}
-      windOut={windOut}
-    />
-  )
-  const days = periodDateGroups(issuance.periods).map(({ date }) => {
-    const [dow, ...rest] = fmtCalendarDate(date).split(' ')
-    return {
-      key: date,
-      dow,
-      date: rest.join(' '),
-      content: periods.filter((p) => p.period.date === date).map(card),
-    }
-  })
   return (
-    <div className="md:hidden print:hidden">
-      <DayTabs days={days} />
+    <div className="space-y-3 md:hidden print:hidden">
+      {periods.map((p, i) => (
+        <PeriodCard
+          key={p.period.key}
+          issuance={issuance}
+          zone={zone}
+          p={p}
+          tempOut={i >= covered.temps}
+          windOut={windOut}
+        />
+      ))}
     </div>
   )
 }
@@ -544,18 +505,21 @@ function PeriodCards({
 export function ZoneTable({
   issuance,
   zone,
+  periodKeys,
   heading = true,
 }: {
   issuance: NWACWeatherIssuance
   zone: NWACWeatherZone
+  /** The periods to show, the forecast's Day 1. */
+  periodKeys: string[]
   /** The zone's name as a heading; off when the page already names the zone. */
   heading?: boolean
 }) {
-  const periods = periodViews(issuance, zone)
+  const periods = periodViews(issuance, zone, periodKeys)
   return (
     <section aria-label={zone.name} className="space-y-4">
       {heading && <h3 className="text-lg font-semibold">{zone.name}</h3>}
-      <SensibleCards issuance={issuance} zone={zone} />
+      <SensibleCards issuance={issuance} zone={zone} periods={periods} />
       <div className="space-y-2">
         <PeriodTable issuance={issuance} zone={zone} periods={periods} />
         <PeriodCards issuance={issuance} zone={zone} periods={periods} />
