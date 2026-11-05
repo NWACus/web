@@ -7,8 +7,8 @@ function isPostHogEnvironment(value: string | undefined): value is PostHogEnviro
 }
 
 /**
- * Environment label shared with AvyApp's PostHog events. Set per deploy workflow at build time;
- * Vercel's own `VERCEL_ENV` is server-only and our CLI builds never get the `NEXT_PUBLIC_` copies.
+ * Environment label shared with AvyApp's PostHog events, set per Vercel environment. Vercel's own
+ * `VERCEL_ENV` is server-only and our CLI builds never get the `NEXT_PUBLIC_` copies.
  */
 export function getPostHogEnvironment(): PostHogEnvironment {
   const environment = process.env.NEXT_PUBLIC_POSTHOG_ENVIRONMENT
