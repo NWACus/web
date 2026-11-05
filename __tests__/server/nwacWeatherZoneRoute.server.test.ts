@@ -55,15 +55,40 @@ describe('nwac-weather-zone route', () => {
     expect(mockGetDay).toHaveBeenCalledWith('2026-09-13', { historical: true })
   })
 
-  it('picks the newest issuance published before the forecast, as nwac.us did', async () => {
-    // 6 pm PDT: the afternoon issuance, not the next day's morning one.
-    expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)).toEqual([
+  it('reads today too while the forecast is in force, so a later issuance can show', async () => {
+    await ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)
+
+    expect(mockGetDay).toHaveBeenCalledWith('2026-09-15', { historical: false })
+  })
+
+  it('picks the newest issuance published so far for a forecast in force', async () => {
+    // 1 pm PDT the 14th, for the 15th, read on the 15th: the afternoon issuance came after it.
+    expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-14T20:00:00Z`)).toEqual([
       'afternoon',
     ])
-    // 1 pm PDT: the morning issuance; the afternoon one isn't out yet.
+    // Read at 2 pm PDT on the 14th, the afternoon issuance isn't out yet.
+    jest.setSystemTime(new Date('2026-09-14T21:00:00Z'))
     expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-14T20:00:00Z`)).toEqual([
       'morning',
     ])
+  })
+
+  it('keeps a past forecast on the issuance it was written against, as nwac.us did', async () => {
+    jest.setSystemTime(new Date('2026-09-20T15:00:00Z'))
+    // 1 pm PDT: the morning issuance, though the afternoon one was out by its valid date.
+    expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-14T20:00:00Z`)).toEqual([
+      'morning',
+    ])
+    // 6 pm PDT: the afternoon issuance.
+    expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)).toEqual([
+      'afternoon',
+    ])
+  })
+
+  it('answers with the Day 1 periods of the issuance it picked', async () => {
+    const body = await (await ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)).json()
+
+    expect(body.day.dayOne).toEqual({ day: 'd2', night: 'n1', rollsOn: '2026-09-15' })
   })
 
   it('finds nothing before the first issuance or more than a day after the last', async () => {
@@ -73,11 +98,13 @@ describe('nwac-weather-zone route', () => {
     expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-15T23:00:00Z`)).toBeNull()
   })
 
-  it('caches a forecast from today briefly and one from a past day long', async () => {
-    const today = await ask(`?zone=${OLYMPICS}&published=2026-09-15T14:30:00Z`)
-    expect(today.headers.get('Cache-Control')).toBe(
+  it('caches a forecast in force briefly and one past its valid date long', async () => {
+    // Published yesterday afternoon, valid today: a new issuance can still change it.
+    const inForce = await ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)
+    expect(inForce.headers.get('Cache-Control')).toBe(
       'public, s-maxage=300, stale-while-revalidate=600',
     )
+    jest.setSystemTime(new Date('2026-09-16T15:00:00Z'))
     const past = await ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)
     expect(past.headers.get('Cache-Control')).toBe(
       'public, s-maxage=86400, stale-while-revalidate=604800',

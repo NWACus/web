@@ -33,6 +33,33 @@ describe('getNWACWeatherForForecast', () => {
     expect(found?.issuances.map((i) => i.type)).toEqual(['afternoon'])
   })
 
+  it('holds a forecast marked archived to what it was written against, even on its day', async () => {
+    // 1 pm PDT, for the 15th, read on the 15th: the afternoon issuance is out but came after it.
+    const found = await getNWACWeatherForForecast('nwac', OLYMPICS, '2026-09-14T20:00:00Z', TZ, {
+      archived: true,
+    })
+
+    expect(found?.issuances.map((i) => i.type)).toEqual(['morning'])
+    expect(found?.dayOne).toEqual({ day: 'd2', night: 'n1', rollsOn: null })
+    expect(mockGetDay).not.toHaveBeenCalledWith('2026-09-15', expect.anything())
+  })
+
+  it("passes over an issuance that doesn't forecast Day 1", async () => {
+    // 8 am PDT the 15th: the 14th's morning issuance has Day 1, but a later one without it doesn't count.
+    const [afternoon, morning] = day?.issuances ?? []
+    const withoutDayOne = {
+      ...afternoon,
+      periods: afternoon.periods.filter((p) => p.date !== '2026-09-15'),
+    }
+    mockGetDay.mockImplementation(async (date: string) =>
+      date === '2026-09-14' && day ? { ...day, issuances: [withoutDayOne, morning] } : null,
+    )
+
+    const found = await getNWACWeatherForForecast('nwac', OLYMPICS, '2026-09-15T01:00:00Z', TZ)
+
+    expect(found?.issuances.map((i) => i.type)).toEqual(['morning'])
+  })
+
   it('reads nothing for any other center', async () => {
     expect(await getNWACWeatherForForecast('sac', OLYMPICS, '2026-09-15T01:00:00Z', TZ)).toBeNull()
     expect(mockGetDay).not.toHaveBeenCalled()

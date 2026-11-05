@@ -5,7 +5,9 @@ import '@testing-library/jest-dom'
 import { act, render, waitFor, within } from '@testing-library/react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
-const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
+const mapped = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
+if (!mapped) throw new Error('fixture should map to a forecast day')
+const day = { ...mapped, dayOne: { day: 'd2', night: 'n1', rollsOn: null } }
 const OLYMPICS = 1645
 
 function renderInWidget() {
