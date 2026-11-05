@@ -46,9 +46,7 @@ function CenterRow({ center }: { center: DirectoryCenter }) {
           </span>
         </a>
         {center.description && (
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-600">
-            {center.description}
-          </p>
+          <p className="mt-4 text-sm leading-relaxed text-slate-600">{center.description}</p>
         )}
       </div>
 
