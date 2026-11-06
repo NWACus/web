@@ -29,7 +29,9 @@ describe('Overall', () => {
     expect(screen.getAllByText('Olympics').length).toBeGreaterThan(0)
     // 53 / 47 °F for Olympics on Night 1, as entered.
     const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
-    const olympics = within(temps).getByRole('rowheader', { name: 'Olympics' }).closest('tr')
+    const [olympics] = within(temps)
+      .getAllByRole('rowheader', { name: 'Olympics' })
+      .map((label) => label.closest('tr'))
     expect(olympics).toHaveTextContent('53 / 47')
   })
 
@@ -261,6 +263,32 @@ describe('levelFill', () => {
     expect(levelFill(6500)).toContain('bg-yellow-50')
     expect(levelFill(8000)).toContain('bg-orange-200')
     expect(levelFill(10500)).toContain('bg-red-300')
+  })
+})
+
+describe('the paired temperature and wind tables', () => {
+  const table = (name: string) =>
+    within(screen.getByRole('region', { name })).getAllByRole('table')[0]
+
+  it('stripes every other row, the sticky label with it', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    for (const name of ["5000' Temperatures (°F)", 'Ridgeline Winds (mph)']) {
+      const [first, second] = within(table(name)).getAllByRole('row').slice(2)
+      expect(first.className).not.toContain('color-mix')
+      expect(second.className).toContain('color-mix')
+      expect(within(second).getByRole('rowheader').className).toContain('color-mix')
+    }
+  })
+
+  it('shows a phone one date of a table at a time', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const wind = screen.getByRole('region', { name: 'Ridgeline Winds (mph)' })
+    const [first, second] = within(wind).getAllByRole('tab')
+    expect(first).toHaveAttribute('aria-selected', 'true')
+    expect(within(wind).getAllByRole('tabpanel')).toHaveLength(1)
+    fireEvent.click(second)
+    expect(second).toHaveAttribute('aria-selected', 'true')
+    expect(within(wind).getByRole('tabpanel')).toHaveAttribute('aria-labelledby', second.id)
   })
 })
 

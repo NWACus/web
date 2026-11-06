@@ -4,7 +4,6 @@ import { Moon, Navigation2, Snowflake, Sun } from 'lucide-react'
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import {
   DASH,
-  fmtWind,
   SNOW_TIER_LABELS,
   snowTier,
   windBearing,
@@ -157,7 +156,7 @@ export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
     <span className="whitespace-nowrap tabular-nums">
       <span className="font-semibold">{cell.high}</span>
       <span className="text-muted-foreground"> / </span>
-      <span className="font-semibold">{cell.low}</span>
+      <span>{cell.low}</span>
     </span>
   )
 }
@@ -184,7 +183,12 @@ export function SnowLevelValue({
         pill && levelFill(level),
       )}
     >
-      <span className="grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5">
+      <span
+        className={cn(
+          'grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5',
+          !pill && 'max-md:grid-cols-[0.875rem_2.75rem] max-md:gap-0.5 max-md:text-xs',
+        )}
+      >
         <span>{snow && <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />}</span>
         <span className="text-right">
           {level.toLocaleString('en-US')}&apos;
@@ -209,7 +213,7 @@ export function TempLegend() {
   return (
     <p className="text-xs text-muted-foreground">
       <span className="font-semibold text-foreground">44</span> /{' '}
-      <span className="font-semibold text-foreground">35</span> is the high / low
+      <span className="text-foreground">35</span> is the high / low
     </p>
   )
 }
@@ -227,13 +231,32 @@ export function WindLegend() {
   )
 }
 
-export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
-  if (cell?.speed == null || windWording(cell.speed) === 'Calm')
-    return <span className="text-muted-foreground">{fmtWind(cell)}</span>
+export function WindValue({
+  cell,
+  stacked = false,
+}: {
+  cell: NWACWeatherWindCell | undefined
+  /** Speed under the direction on a phone, for a narrow column. */
+  stacked?: boolean
+}) {
+  if (cell?.speed == null) return <span className="text-muted-foreground">{DASH}</span>
+  if (windWording(cell.speed) === 'Calm') {
+    return (
+      <span className="whitespace-nowrap">
+        {cell.dir && `${cell.dir} `}
+        <span className="font-semibold">Calm</span>
+      </span>
+    )
+  }
   const bearing = windBearing(cell.dir)
   return (
     <span className="inline-flex flex-col items-center">
-      <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap tabular-nums">
+      <span
+        className={cn(
+          'inline-flex flex-wrap items-center justify-center gap-x-1.5 whitespace-nowrap tabular-nums',
+          stacked && 'max-md:gap-x-1',
+        )}
+      >
         {bearing != null && (
           // Points the way the wind blows: a north wind points down.
           <Navigation2
@@ -242,14 +265,17 @@ export function WindValue({ cell }: { cell: NWACWeatherWindCell | undefined }) {
             style={{ transform: `rotate(${bearing + 180}deg)` }}
           />
         )}
-        <span className="text-xs text-muted-foreground">{cell.dir}</span>
-        <span
-          className={cn(cell.speed >= 25 ? 'font-bold' : cell.speed >= 15 ? 'font-semibold' : '')}
-        >
+        <span>{cell.dir}</span>
+        <span className={cn('font-semibold', stacked && 'max-md:w-full')}>
           {windRange(cell.speed)}
         </span>
       </span>
-      <span className="text-center text-xs leading-tight text-muted-foreground">
+      <span
+        className={cn(
+          'text-center text-xs leading-tight text-muted-foreground',
+          stacked && 'max-md:text-[11px]',
+        )}
+      >
         {windWording(cell.speed)}
       </span>
     </span>

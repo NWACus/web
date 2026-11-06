@@ -65,12 +65,6 @@ export function fmtQpf(qpf: number | null | undefined): string {
   return `${qpf}"`
 }
 
-export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
-  if (cell?.speed == null) return DASH
-  if (windWording(cell.speed) === 'Calm') return `${cell.dir ?? ''} Calm`.trim()
-  return `${cell.dir ?? ''} ${cell.speed}`.trim()
-}
-
 /** Each band's top forecast speed (mph), the range the public reads and its sensible wording. */
 const WIND_BANDS: { top: number; range: string; wording: string }[] = [
   { top: 4, range: '0–5', wording: 'Calm' },

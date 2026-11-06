@@ -5,7 +5,6 @@ import {
   deriveSnowLevel,
   fmtCalendarDate,
   fmtSnowAmount,
-  fmtWind,
   levelKind,
   periodDateGroups,
   pointSnow,
@@ -116,11 +115,6 @@ describe('nwacWeatherFormat', () => {
     expect(fmtSnowAmount(3.4)).toBe('3"')
     expect(fmtSnowAmount(0.2)).toBe('0')
     expect(fmtSnowAmount(null)).toBe('—')
-    expect(fmtWind({ dir: 'SW', speed: 25 })).toBe('SW 25')
-    expect(fmtWind({ dir: null, speed: 0 })).toBe('Calm')
-    expect(fmtWind({ dir: 'SW', speed: 0 })).toBe('SW Calm')
-    expect(fmtWind({ dir: 'SW', speed: 3 })).toBe('SW Calm')
-    expect(fmtWind(undefined)).toBe('—')
   })
 
   it('reads snow and wind to the public as ranges', () => {
