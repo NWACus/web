@@ -308,7 +308,7 @@ sig = "c5dd4dda38e40915"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/NWACWeather/DatePicker.client.tsx"
-sig = "2e85ab4272af86fd"
+sig = "c2429d68ba28eec6"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -1072,6 +1072,11 @@ sig = "64928701e7b1ff21"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/SeasonRail.tsx"
+sig = "0e1f1797e782df54"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/EditViewDialog.tsx"
 sig = "ced97eec8fa8d0e7"
 
@@ -1114,6 +1119,11 @@ sig = "3be616b30d19eef1"
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationTabViews.tsx"
 sig = "4155e6ad6f83b08a"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/seasonCalendar.ts"
+sig = "390e32e540cfecab"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

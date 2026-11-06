@@ -76,11 +76,10 @@ describe('DatePicker', () => {
     })
     global.fetch = fetchMock
 
-    renderPicker('2026-09-17')
-    fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
-    // August is in the initial window; July is not.
-    fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
+    renderPicker('2026-08-20')
+    fireEvent.click(screen.getByRole('button', { name: /Aug 20, 2026/ }))
     expect(fetchMock).not.toHaveBeenCalled()
+    // August is in the initial window; July is not.
     fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
 
     await waitFor(() =>
@@ -96,5 +95,36 @@ describe('DatePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: /next month/i }))
     fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
     expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('offers the seasons back to 2019–20, and moves the calendar without changing the date', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ dates: ['2023-09-12'] }),
+    })
+
+    renderPicker('2026-09-17')
+    fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
+    expect(screen.getByRole('button', { name: '2019–20' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '2018–19' })).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: '2023–24' }))
+
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: 'Tue Sep 12 2023' })).toBeInTheDocument(),
+    )
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/nwac/nwac-weather-dates?from=2023-09-01&to=2023-09-30',
+    )
+    expect(screen.getByRole('button', { name: /Sep 17, 2026/ })).toBeInTheDocument()
+  })
+
+  it('stops the calendar at the season edges', () => {
+    renderPicker('2026-09-17')
+    fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
+    expect(screen.getByRole('button', { name: /previous month/i })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
   })
 })

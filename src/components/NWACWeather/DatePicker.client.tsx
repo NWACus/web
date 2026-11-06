@@ -2,8 +2,8 @@
 
 /**
  * Steps between the dates with a published Mountain Weather forecast, or picks one from a
- * calendar that offers only those. Looks like the avalanche forecast's picker, without the danger
- * colors, and loads months the same way: the server seeds an initial window, and the calendar
+ * calendar of one season that offers only those, with a rail to move between seasons. Loads months
+ * the way the avalanche forecast's picker does: the server seeds an initial window, and the calendar
  * fetches further months from `/api/nwac/nwac-weather-dates` as the reader pages into them, so a
  * dated page never ships the whole list. Today lives at `/weather/forecast`; any other date at
  * `/weather/forecast/<date>`.
@@ -15,6 +15,12 @@ import { createContext, useContext, useEffect, useMemo, useState, type Component
 import type { DayButton } from 'react-day-picker'
 
 import {
+  adjacentForecastHrefs,
+  dayKey,
+  forecastHref,
+  triggerLabel,
+} from '@/components/forecast/datePickerNavigation'
+import {
   DAY_CELL,
   DatePickerBar,
   DatePickerPopover,
@@ -22,16 +28,20 @@ import {
   useMonthLoader,
 } from '@/components/forecast/DatePickerParts.client'
 import {
-  adjacentForecastHrefs,
-  dayKey,
-  forecastHref,
-  triggerLabel,
-} from '@/components/forecast/datePickerNavigation'
+  sameMonthInSeason,
+  seasonBounds,
+  seasonName,
+  seasonOfMonth,
+  seasonsSince,
+} from '@/components/seasonCalendar'
+import { SeasonRail } from '@/components/SeasonRail'
 import { Calendar } from '@/components/ui/calendar'
 import { cn } from '@/utilities/ui'
 
 const BASE = '/weather/forecast'
 const DATES_ENDPOINT = '/api/nwac/nwac-weather-dates'
+// The oldest season the calendar offers: 2019–20.
+const FIRST_SEASON = 2020
 
 export function dateHref(date: string, today: string) {
   return forecastHref(BASE, today, date)
@@ -102,7 +112,7 @@ function Day({ day, className }: ComponentProps<typeof DayButton>) {
   )
 }
 
-/** The month grid, with a spinner over it while a month's dates load. */
+/** One season's month grid beside the seasons, with a spinner over it while a month's dates load. */
 function PublishedCalendar({
   month,
   onMonthChange,
@@ -114,20 +124,34 @@ function PublishedCalendar({
   today: string
   loading: boolean
 }) {
+  const shownSeason = seasonOfMonth(month)
+  const { from, to } = seasonBounds(shownSeason, today)
+  const items = seasonsSince(FIRST_SEASON, today).map((season) => ({
+    key: String(season),
+    label: seasonName(season),
+    active: season === shownSeason,
+    onSelect: () => onMonthChange(sameMonthInSeason(month, season, parseISO(today))),
+  }))
   return (
-    <div className="relative">
-      <Calendar
-        mode="single"
-        month={month}
-        onMonthChange={onMonthChange}
-        endMonth={parseISO(today)}
-        components={{ DayButton: Day }}
-      />
-      {loading && (
-        <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin" />
-        </div>
-      )}
+    <div className="sm:grid sm:auto-cols-auto sm:grid-flow-col">
+      <SeasonRail label="Seasons" sections={[{ title: 'Seasons', items }]} />
+      <div className="relative">
+        <Calendar
+          mode="single"
+          month={month}
+          onMonthChange={onMonthChange}
+          startMonth={parseISO(from)}
+          endMonth={parseISO(to)}
+          captionLayout="dropdown"
+          showOutsideDays={false}
+          components={{ DayButton: Day }}
+        />
+        {loading && (
+          <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
