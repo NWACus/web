@@ -108,6 +108,8 @@ interface Table {
   paired?: boolean
   /** One date's columns for a phone: the switch over it names the date, so no date row. */
   day?: boolean
+  /** Narrow enough to show every date on a phone, so it needs no date switch. */
+  fitsPhone?: boolean
 }
 
 /** Avalanche zone id → the path of that zone's forecast page. */
@@ -219,7 +221,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       unit: '°F',
       detail: TEMPS_DETAIL,
       legend: <TempLegend />,
-      labelVars: '[--label:8.5rem] md:[--label:10.5rem]',
+      labelVars: '[--label:6.5rem] md:[--label:10.5rem]',
+      fitsPhone: true,
       paired: true,
       rowLabel: 'Zone',
       columns: temps.map(periodColumn),
@@ -529,7 +532,10 @@ function GroupedHead({ table: t }: { table: Table }) {
               key={g.key}
               scope="colgroup"
               colSpan={g.span}
-              className="border-l px-2 pb-0.5 pt-2 text-center font-semibold whitespace-nowrap"
+              className={cn(
+                'border-l px-2 pb-0.5 pt-2 text-center font-semibold whitespace-nowrap',
+                t.fitsPhone && 'max-md:whitespace-normal max-md:px-0.5 max-md:text-xs',
+              )}
             >
               <DayNightDate date={g.first.date} night={g.night} />
             </th>
@@ -548,9 +554,10 @@ function GroupedHead({ table: t }: { table: Table }) {
                 i === 0 && 'border-l',
                 t.groupColumn && 'min-w-24 px-4',
                 t.day && 'px-0 pt-2 align-bottom',
+                t.fitsPhone && 'max-md:px-0',
               )}
             >
-              <span className={cn(SUB, t.day && 'text-xs')}>
+              <span className={cn(SUB, t.day && 'text-xs', t.fitsPhone && 'max-md:text-xs')}>
                 {c.dayNightOnSub ? (
                   <DayNightDate date={c.sub} night={c.night} label={false} />
                 ) : (
@@ -822,7 +829,7 @@ function labels(t: Table) {
  * table at exactly its columns' width, the others across the page down to a scrolling minimum.
  */
 function tableWidth(t: Table) {
-  if (t.day) return { width: '100%' }
+  if (t.day || t.fitsPhone) return { width: '100%' }
   const n = t.columns.length
   if (isSplit(t)) return { width: '100%', minWidth: `calc(${labels(t)} + ${n * SPLIT_COL_REM}rem)` }
   return t.groupColumn
@@ -862,18 +869,24 @@ function GridTable({
       )}
     >
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
-      <div className="hidden min-w-0 md:block print:block">
+      {t.fitsPhone ? (
         <TableBox table={t} />
-      </div>
-      <DaySwitch
-        label={t.title}
-        className="md:hidden print:hidden"
-        days={dayTables(t).map((d) => ({
-          key: d.label,
-          label: d.label,
-          content: <TableBox table={d.table} />,
-        }))}
-      />
+      ) : (
+        <>
+          <div className="hidden min-w-0 md:block print:block">
+            <TableBox table={t} />
+          </div>
+          <DaySwitch
+            label={t.title}
+            className="md:hidden print:hidden"
+            days={dayTables(t).map((d) => ({
+              key: d.label,
+              label: d.label,
+              content: <TableBox table={d.table} />,
+            }))}
+          />
+        </>
+      )}
       {t.legend}
     </section>
   )

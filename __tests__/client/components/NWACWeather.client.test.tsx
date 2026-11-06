@@ -280,6 +280,13 @@ describe('the paired temperature and wind tables', () => {
     }
   })
 
+  it('shows a phone every date of the temperatures, with no date switch', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
+    expect(within(temps).queryByRole('tab')).not.toBeInTheDocument()
+    expect(within(temps).getAllByRole('table')).toHaveLength(1)
+  })
+
   it('shows a phone one date of a table at a time', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     const wind = screen.getByRole('region', { name: 'Ridgeline Winds (mph)' })
