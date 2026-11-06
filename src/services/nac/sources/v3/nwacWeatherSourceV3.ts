@@ -1,4 +1,5 @@
 /** NWAC's Mountain Weather Forecast from products-api v3 (`/v3/public/nwac-weather/…`). */
+import { format, parseISO, subDays } from 'date-fns'
 import { unstable_cache } from 'next/cache'
 
 import type { NWACWeatherForecastDay } from '../../model/nwacWeather'
@@ -18,6 +19,9 @@ const HISTORICAL_CACHE = { cachedTime: 30 * 24 * 60 * 60, tags: [nwacWeatherHist
 
 // With no date, v3 answers with the latest date that has a forecast.
 const LATEST_PATH = 'nwac-weather/forecasts'
+
+// Older than any forecast, so the archive's `from` never limits the walk back.
+const ARCHIVE_START = '2000-01-01'
 
 function dayPath(date: string) {
   return `${LATEST_PATH}?${new URLSearchParams({ date })}`
@@ -61,5 +65,33 @@ export const nwacWeatherSourceV3: NWACWeatherSource = {
       historical ? HISTORICAL_CACHE : CACHE,
     )
     return [...new Set(rows.map((r) => r.serviceDate))].sort()
+  },
+
+  // v3 has no oldest-first read and caps the archive at its newest 400 rows, so this walks back
+  // until a window comes up empty. Cached for a day, since a backfill can still move the date.
+  async getEarliestDate() {
+    const getCached = unstable_cache(
+      async (): Promise<string | null> => {
+        let earliest: string | null = null
+        let to = format(new Date(), 'yyyy-MM-dd')
+        for (;;) {
+          const params = new URLSearchParams({ from: ARCHIVE_START, to })
+          const rows = await v3Fetch(
+            `nwac-weather/forecast/archive?${params}`,
+            nwacWeatherArchiveSchema,
+            {
+              noStore: true,
+            },
+          )
+          if (rows.length === 0) return earliest
+          earliest = rows.map((r) => r.serviceDate).sort()[0] ?? null
+          if (!earliest) return null
+          to = format(subDays(parseISO(earliest), 1), 'yyyy-MM-dd')
+        }
+      },
+      ['nwac-weather-earliest-date'],
+      { revalidate: 24 * 60 * 60, tags: [nwacWeatherHistoricalCacheTag] },
+    )
+    return getCached()
   },
 }

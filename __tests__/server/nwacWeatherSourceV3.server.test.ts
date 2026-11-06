@@ -121,4 +121,28 @@ describe('NWAC weather v3 source', () => {
       { cachedTime: 300, tags: ['nwac-weather'], host: v3ApiHost },
     )
   })
+
+  it('walks the capped archive back to the earliest date', async () => {
+    mockNacFetch
+      .mockResolvedValueOnce([{ serviceDate: '2026-09-14' }, { serviceDate: '2025-02-28' }])
+      .mockResolvedValueOnce([{ serviceDate: '2021-02-06' }, { serviceDate: '2020-12-10' }])
+      .mockResolvedValueOnce([])
+
+    await expect(source.getEarliestDate()).resolves.toBe('2020-12-10')
+    expect(mockNacFetch).toHaveBeenNthCalledWith(
+      2,
+      '/v3/public/nwac-weather/forecast/archive?from=2000-01-01&to=2025-02-27',
+      { noStore: true, host: v3ApiHost },
+    )
+    expect(mockNacFetch).toHaveBeenLastCalledWith(
+      '/v3/public/nwac-weather/forecast/archive?from=2000-01-01&to=2020-12-09',
+      { noStore: true, host: v3ApiHost },
+    )
+  })
+
+  it('has no earliest date when nothing is published', async () => {
+    mockNacFetch.mockResolvedValue([])
+
+    await expect(source.getEarliestDate()).resolves.toBeNull()
+  })
 })

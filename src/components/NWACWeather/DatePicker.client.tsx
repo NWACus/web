@@ -8,7 +8,8 @@
  * dated page never ships the whole list. Today lives at `/weather/forecast`; any other date at
  * `/weather/forecast/<date>`.
  */
-import { parseISO, startOfMonth } from 'date-fns'
+import { seasonOfDate } from '@/services/nac/forecastArchive'
+import { max, parseISO, startOfMonth } from 'date-fns'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useEffect, useMemo, useState, type ComponentProps } from 'react'
@@ -40,8 +41,6 @@ import { cn } from '@/utilities/ui'
 
 const BASE = '/weather/forecast'
 const DATES_ENDPOINT = '/api/nwac/nwac-weather-dates'
-// The oldest season the calendar offers: 2019–20.
-const FIRST_SEASON = 2020
 
 export function dateHref(date: string, today: string) {
   return forecastHref(BASE, today, date)
@@ -117,20 +116,24 @@ function PublishedCalendar({
   month,
   onMonthChange,
   today,
+  firstDate,
   loading,
 }: {
   month: Date
   onMonthChange: (next: Date) => void
   today: string
+  firstDate: string
   loading: boolean
 }) {
+  const firstMonth = startOfMonth(parseISO(firstDate))
   const shownSeason = seasonOfMonth(month)
   const { from, to } = seasonBounds(shownSeason, today)
-  const items = seasonsSince(FIRST_SEASON, today).map((season) => ({
+  const items = seasonsSince(seasonOfDate(firstDate), today).map((season) => ({
     key: String(season),
     label: seasonName(season),
     active: season === shownSeason,
-    onSelect: () => onMonthChange(sameMonthInSeason(month, season, parseISO(today))),
+    onSelect: () =>
+      onMonthChange(max([sameMonthInSeason(month, season, parseISO(today)), firstMonth])),
   }))
   return (
     <div className="sm:grid sm:auto-cols-auto sm:grid-flow-col">
@@ -140,7 +143,7 @@ function PublishedCalendar({
           mode="single"
           month={month}
           onMonthChange={onMonthChange}
-          startMonth={parseISO(from)}
+          startMonth={max([parseISO(from), firstMonth])}
           endMonth={parseISO(to)}
           captionLayout="dropdown"
           showOutsideDays={false}
@@ -159,6 +162,7 @@ function PublishedCalendar({
 export function DatePicker({
   date,
   today: renderedToday,
+  firstDate,
   initialDates,
   initialRange,
 }: {
@@ -166,6 +170,8 @@ export function DatePicker({
   date: string
   /** Today when the page rendered; dated pages are cached for weeks, so the client re-reads it. */
   today: string
+  /** The oldest date the calendar reaches, which sets its first season and first month. */
+  firstDate: string
   /** Dates with a published forecast inside `initialRange`, oldest first. */
   initialDates: string[]
   /** The `from`/`to` window `initialDates` covers. */
@@ -190,6 +196,7 @@ export function DatePicker({
             month={month}
             onMonthChange={showMonth}
             today={today}
+            firstDate={firstDate}
             loading={loading}
           />
         </DayContext.Provider>

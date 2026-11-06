@@ -5,6 +5,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 const DATES = ['2026-09-15', '2026-09-17', '2026-09-22', '2026-09-23']
 const RANGE = { from: '2026-08-01', to: '2026-09-30' }
 const TODAY = '2026-09-23'
+const FIRST_DATE = '2020-12-10'
 
 // The picker re-reads today from the clock after mount; only Date is faked, so waitFor still runs.
 beforeEach(() => {
@@ -31,7 +32,15 @@ afterEach(() => {
 })
 
 function renderPicker(date: string) {
-  return render(<DatePicker date={date} today={TODAY} initialDates={DATES} initialRange={RANGE} />)
+  return render(
+    <DatePicker
+      date={date}
+      today={TODAY}
+      firstDate={FIRST_DATE}
+      initialDates={DATES}
+      initialRange={RANGE}
+    />,
+  )
 }
 
 describe('dateHref', () => {
@@ -97,7 +106,7 @@ describe('DatePicker', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
-  it('offers the seasons back to 2019–20, and moves the calendar without changing the date', async () => {
+  it('offers the seasons back to the earliest forecast, and moves the calendar without changing the date', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ dates: ['2023-09-12'] }),
@@ -105,8 +114,8 @@ describe('DatePicker', () => {
 
     renderPicker('2026-09-17')
     fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
-    expect(screen.getByRole('button', { name: '2019–20' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: '2018–19' })).toBeNull()
+    expect(screen.getByRole('button', { name: '2020–21' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '2019–20' })).toBeNull()
 
     fireEvent.click(screen.getByRole('button', { name: '2023–24' }))
 
@@ -117,6 +126,24 @@ describe('DatePicker', () => {
       '/api/nwac/nwac-weather-dates?from=2023-09-01&to=2023-09-30',
     )
     expect(screen.getByRole('button', { name: /Sep 17, 2026/ })).toBeInTheDocument()
+  })
+
+  it('opens the first season no earlier than the month of the earliest forecast', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ dates: [] }) })
+
+    renderPicker('2026-09-17')
+    fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
+    fireEvent.click(screen.getByRole('button', { name: '2020–21' }))
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/nwac/nwac-weather-dates?from=2020-12-01&to=2020-12-31',
+      ),
+    )
+    expect(screen.getByRole('button', { name: /previous month/i })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
   })
 
   it('stops the calendar at the season edges', () => {

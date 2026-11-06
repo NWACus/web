@@ -81,13 +81,20 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
   const window = pickerWindow(date ?? today, today)
   // Either read throws on an upstream failure, so ISR keeps the last good page instead of caching
   // "nothing published".
-  const [{ day, shown }, dates, zonePaths] = await Promise.all([
+  const [{ day, shown }, dates, earliest, zonePaths] = await Promise.all([
     readShown(date, today),
     getNWACWeatherSource().getDates(window.from, window.to, { historical: window.to < today }),
+    getNWACWeatherSource().getEarliestDate(),
     zonePathsOf(centerSlug, date),
   ])
   const picker = (
-    <DatePicker date={shown} today={today} initialDates={dates} initialRange={window} />
+    <DatePicker
+      date={shown}
+      today={today}
+      firstDate={earliest && earliest < shown ? earliest : shown}
+      initialDates={dates}
+      initialRange={window}
+    />
   )
   // Today's page only: it is the one a correction, a new issuance or a withdrawal can change.
   const freshness = date ? null : (
