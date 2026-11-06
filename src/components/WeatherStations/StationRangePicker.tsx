@@ -80,6 +80,8 @@ function RangeCalendar({
       today={today}
       captionLayout="dropdown"
       showOutsideDays={false}
+      // The date fields below are wider than the calendar's natural size.
+      classNames={{ root: 'w-full' }}
     />
   )
 }
