@@ -116,6 +116,18 @@ describe('StationRangePicker', () => {
     expect(screen.getByRole('grid', { name: 'October 2026' })).toBeInTheDocument()
   })
 
+  it('reopens on the range in view after browsing elsewhere', () => {
+    renderPicker()
+    fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
+    expect(screen.getByRole('grid', { name: 'September 2026' })).toBeInTheDocument()
+
+    const trigger = screen.getByRole('button', { name: 'Date range: 7 days' })
+    fireEvent.click(trigger)
+    fireEvent.click(trigger)
+
+    expect(screen.getByRole('grid', { name: 'October 2026' })).toBeInTheDocument()
+  })
+
   it('names a range that matches a season', () => {
     render(
       <StationRangePicker

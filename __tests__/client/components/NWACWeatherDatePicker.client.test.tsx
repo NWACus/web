@@ -146,6 +146,22 @@ describe('DatePicker', () => {
     )
   })
 
+  it('reopens on the date shown after browsing elsewhere', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ dates: [] }) })
+
+    renderPicker('2026-09-17')
+    const trigger = screen.getByRole('button', { name: /Sep 17, 2026/ })
+    fireEvent.click(trigger)
+    fireEvent.click(screen.getByRole('button', { name: '2023–24' }))
+    await waitFor(() => expect(screen.getByRole('grid', { name: 'September 2023' })).toBeVisible())
+
+    fireEvent.click(trigger)
+    await waitFor(() => expect(screen.queryByRole('grid')).toBeNull())
+    fireEvent.click(trigger)
+
+    expect(await screen.findByRole('grid', { name: 'September 2026' })).toBeInTheDocument()
+  })
+
   it('stops the calendar at the season edges', () => {
     renderPicker('2026-09-17')
     fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))

@@ -190,7 +190,11 @@ export function DatePicker({
       olderLabel="Older forecast"
       newerLabel="Newer forecast"
     >
-      <DatePickerPopover label={triggerLabel(date)}>
+      {/* Reopens on the date shown, wherever the calendar was browsed to before it closed. */}
+      <DatePickerPopover
+        label={triggerLabel(date)}
+        onOpen={() => showMonth(startOfMonth(parseISO(date)))}
+      >
         <DayContext.Provider value={{ published, date, today }}>
           <PublishedCalendar
             month={month}

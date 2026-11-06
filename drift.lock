@@ -308,7 +308,7 @@ sig = "c5dd4dda38e40915"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/NWACWeather/DatePicker.client.tsx"
-sig = "14117d57ad8d4d28"
+sig = "d7bee8889b854240"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
