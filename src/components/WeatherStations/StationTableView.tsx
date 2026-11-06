@@ -2,6 +2,8 @@
 
 import type { StationTable, StationTables } from '@/services/snowobs/tableHelpers'
 import type { StationUnits } from '@/services/snowobs/units'
+import { tz } from '@date-fns/tz'
+import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import type { ReactNode, RefObject } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
@@ -107,7 +109,15 @@ export function StationTableView({
           {tables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
         </div>
       </StationViewBar>
-      <StationNowTable table={table} elevationUnit={units === 'metric' ? ' m' : undefined} />
+      <StationNowTable
+        table={table}
+        elevationUnit={units === 'metric' ? ' m' : undefined}
+        formatTime={
+          customRange
+            ? (timestamp) => format(timestamp, 'MM/dd/yyyy HH:mm', { in: tz(timeZone) })
+            : undefined
+        }
+      />
       <OlderTableRows rows={olderRows} />
     </div>
   )

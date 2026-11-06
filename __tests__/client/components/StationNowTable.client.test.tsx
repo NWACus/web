@@ -58,6 +58,13 @@ describe('StationNowTable', () => {
     expect(screen.getByText('–')).toHaveClass('text-muted-foreground')
   })
 
+  it('uses the given time format over the short one', () => {
+    render(<StationNowTable table={TABLE} formatTime={() => '11/14/2025 12:00'} />)
+
+    expect(screen.getByText('11/14/2025 12:00')).toBeInTheDocument()
+    expect(screen.queryByText('11/14 12:00')).not.toBeInTheDocument()
+  })
+
   it('keeps a blank unit line under a unitless label so headers stay level', () => {
     render(<StationNowTable table={TABLE} />)
 

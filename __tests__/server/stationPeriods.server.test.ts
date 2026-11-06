@@ -66,15 +66,13 @@ describe('customRangeBounds', () => {
 })
 
 describe('formatRangeLabel', () => {
-  it('omits the year within the current year', () => {
-    expect(formatRangeLabel({ from: '2026-01-03', to: '2026-01-09' }, now, zone)).toBe(
-      'Jan 3 – Jan 9',
-    )
-    expect(formatRangeLabel({ from: '2026-01-03', to: '2026-01-03' }, now, zone)).toBe('Jan 3')
+  it('names the year once within a year', () => {
+    expect(formatRangeLabel({ from: '2026-01-03', to: '2026-01-09' })).toBe('Jan 3 – Jan 9, 2026')
+    expect(formatRangeLabel({ from: '2026-01-03', to: '2026-01-03' })).toBe('Jan 3, 2026')
   })
 
-  it('shows years when the range leaves the current year', () => {
-    expect(formatRangeLabel({ from: '2024-12-01', to: '2025-03-31' }, now, zone)).toBe(
+  it('names both years when the range crosses one', () => {
+    expect(formatRangeLabel({ from: '2024-12-01', to: '2025-03-31' })).toBe(
       'Dec 1, 2024 – Mar 31, 2025',
     )
   })

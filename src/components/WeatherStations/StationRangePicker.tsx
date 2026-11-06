@@ -367,7 +367,7 @@ export function StationRangePicker({
     },
   ]
   const customLabel = (range: DateRange) =>
-    activeSeason ? seasonName(activeSeason) : formatRangeLabel(range, now, timeZone)
+    activeSeason ? seasonName(activeSeason) : formatRangeLabel(range)
   const label = custom ? customLabel(custom) : activePeriod.label
   const body = <RangeBody sections={sections} range={range} maxDays={maxDays} todayIso={todayIso} />
 

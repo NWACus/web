@@ -132,12 +132,13 @@ export function customRangeBounds(
   return { from, to: subMinutes(startOfDayInZone(dayAfter, timeZone), 1) }
 }
 
-export function formatRangeLabel(range: DateRange, now: Date, timeZone: string): string {
-  const thisYear = todayInZone(now, timeZone).slice(0, 4)
-  const showYear = range.from.slice(0, 4) !== thisYear || range.to.slice(0, 4) !== thisYear
-  const pattern = showYear ? 'MMM d, yyyy' : 'MMM d'
-  const from = format(parseISO(range.from), pattern)
-  return range.from === range.to ? from : `${from} – ${format(parseISO(range.to), pattern)}`
+/** "Sep 6 – Sep 7, 2025", naming the first year too when the range crosses into another. */
+export function formatRangeLabel(range: DateRange): string {
+  const from = parseISO(range.from)
+  const to = format(parseISO(range.to), 'MMM d, yyyy')
+  if (range.from === range.to) return to
+  const sameYear = range.from.slice(0, 4) === range.to.slice(0, 4)
+  return `${format(from, sameYear ? 'MMM d' : 'MMM d, yyyy')} – ${to}`
 }
 
 /** The calendar days a rolling preset touches, for labelling it like a custom range. */
