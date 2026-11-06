@@ -1,6 +1,5 @@
 import {
   resolveTablePeriod,
-  seasonHours,
   TABLE_PERIODS,
 } from '../../src/components/WeatherStations/stationPeriods'
 import { withElevationsIn } from '../../src/components/WeatherStations/stationTableUnits'
@@ -160,27 +159,6 @@ describe('resolveTablePeriod', () => {
 
   it('caps table periods at 30 days', () => {
     expect(TABLE_PERIODS.map((p) => p.key)).toEqual(['24h', '48h', '72h', '7d', '30d'])
-  })
-})
-
-describe('seasonHours', () => {
-  it('anchors on the most recent Oct 1 in the given zone', () => {
-    // 05:00 UTC on Oct 1 is still Sep 30 in Pacific, so its season began a year earlier.
-    const justAfterUtcMidnight = new Date('2026-10-01T05:00:00Z')
-    expect(seasonHours(justAfterUtcMidnight, 'America/Los_Angeles')).toBeGreaterThan(8000)
-    expect(seasonHours(justAfterUtcMidnight, 'Pacific/Honolulu')).toBeGreaterThan(8000)
-  })
-
-  it('measures from the zone-local Oct 1 midnight', () => {
-    const midSeason = new Date('2026-12-01T20:00:00Z')
-    const pacific = seasonHours(midSeason, 'America/Los_Angeles')
-    const mountain = seasonHours(midSeason, 'America/Denver')
-    // Mountain reaches Oct 1 midnight an hour before Pacific does, so its season is an hour longer.
-    expect(mountain - pacific).toBe(1)
-  })
-
-  it('never reports less than a day', () => {
-    expect(seasonHours(new Date('2026-10-01T08:30:00Z'), 'America/Los_Angeles')).toBe(24)
   })
 })
 

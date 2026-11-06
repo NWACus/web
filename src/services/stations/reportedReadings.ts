@@ -7,7 +7,6 @@ import { stationKey } from '@/services/snowobs/stationKey'
 import { fetchCurrentObservations } from '@/services/snowobs/stationTracking'
 import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas'
 import type { StationUnits } from '@/services/snowobs/units'
-import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
 import { subHours } from 'date-fns'
 import type { LastDay } from './staleStations'
 import { addStaleStations } from './staleStations'
@@ -65,7 +64,7 @@ export async function fetchReportedReadings(
   stations: StationRef[],
 ): Promise<StationReadings> {
   const response = await fetchStationTimeseries(center, stations, {
-    windowHours: resolveTablePeriod(undefined).hoursBack(new Date(), centerTimezone(center)),
+    windowHours: resolveTablePeriod(undefined).hours,
     revalidate: 60,
   })
   const readings = readingsByStation(response, stations)
@@ -98,7 +97,7 @@ async function lastReportsOf(
   stations: StationRef[],
 ): Promise<Record<string, string>> {
   const now = new Date()
-  const windowHours = resolveTablePeriod(undefined).hoursBack(now, centerTimezone(center))
+  const windowHours = resolveTablePeriod(undefined).hours
   const response = await fetchStationTimeseries(center, stations, {
     windowHours,
     units: 'default',

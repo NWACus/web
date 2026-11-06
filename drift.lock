@@ -1023,7 +1023,7 @@ sig = "bcf5b0e73d294432"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/graph-data/route.ts"
-sig = "16e20f28260a35a0"
+sig = "1e7c9dae996a8c8e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1034,6 +1034,11 @@ sig = "ca0903f77eb25256"
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/app/(frontend)/[center]/weather/stations/station/[source]/[stid]/page.tsx"
 sig = "fdc53fb45182b64b"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/app/(frontend)/[center]/weather/table-data/route.ts"
+sig = "b3e56b91db0f7b5e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1078,7 +1083,12 @@ sig = "0e1f1797e782df54"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/EditViewDialog.tsx"
-sig = "ced97eec8fa8d0e7"
+sig = "92a305ddb928434f"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/OlderTableRows.tsx"
+sig = "1886578c7a22fa16"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1088,7 +1098,7 @@ sig = "4a4aeff4c50e1a46"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationGraphs.tsx"
-sig = "d273c45bdeb7f650"
+sig = "6adf0715a4a8b2d4"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1098,27 +1108,32 @@ sig = "4e49dde756e6741a"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationRangePicker.tsx"
-sig = "1c90fb85fa507a08"
+sig = "5783a2f3d1423aaa"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationTableView.tsx"
-sig = "909eb63a7d3330e0"
+sig = "21a0a6310a7ce259"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationPeriods.ts"
-sig = "4e5daf850efff3cf"
+sig = "65365ee97fb1e94e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationRangeDraft.ts"
-sig = "3be616b30d19eef1"
+sig = "4b516157b8004548"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/stationTabViews.tsx"
-sig = "4155e6ad6f83b08a"
+sig = "359086da42f44bde"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/components/WeatherStations/stationTableMerge.ts"
+sig = "38728873c97597c0"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1213,7 +1228,7 @@ sig = "199b48e5650d4e95"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/snowobs/tableHelpers.ts"
-sig = "a5b0fad233b726e9"
+sig = "d39838f842297d1e"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1238,7 +1253,7 @@ sig = "6ec05c29260eebd3"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/reportedReadings.ts"
-sig = "d3c4ca14b17c2e6c"
+sig = "79946cc1d29aee09"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
@@ -1262,8 +1277,18 @@ sig = "c06386925b532eca"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/stationDataError.ts"
+sig = "9041f96ada9f3f09"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/services/stations/stationPages.ts"
 sig = "a42258b3584f84de"
+
+[[bindings]]
+doc = "docs/decisions/021-weather-station-pages.md"
+target = "src/services/stations/stationTableData.ts"
+sig = "25631e73c2879dff"
 
 [[bindings]]
 doc = "docs/decisions/022-shared-content.md"

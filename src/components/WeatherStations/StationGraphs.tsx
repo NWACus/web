@@ -40,7 +40,7 @@ const CACHE_BUCKET_MS = 60 * 1000
 
 function graphWindow(range: GraphRange, timeZone: string): { from: Date; to: Date } {
   const now = new Date(Math.floor(Date.now() / CACHE_BUCKET_MS) * CACHE_BUCKET_MS)
-  if (!range.custom) return { from: subHours(now, range.period.hoursBack(now, timeZone)), to: now }
+  if (!range.custom) return { from: subHours(now, range.period.hours), to: now }
   const { from, to } = customRangeBounds(range.custom, timeZone, now)
   return { from, to: to ?? now }
 }
@@ -204,6 +204,12 @@ function GraphsToolbar({
       <TabsWithLatest tabs={props.tabs} latest={latest} />
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
         <div className="hidden sm:contents">
+          <GraphRangePicker
+            value={props.graphRange}
+            onChange={props.onRangeChange}
+            timeZone={props.timeZone}
+            align="start"
+          />
           <CompareSelect
             pages={props.pages}
             currentSlug={props.currentSlug}
@@ -220,13 +226,7 @@ function GraphsToolbar({
             />
           </div>
         )}
-        <div className="hidden sm:contents">
-          <GraphRangePicker
-            value={props.graphRange}
-            onChange={props.onRangeChange}
-            timeZone={props.timeZone}
-            className="sm:ml-auto"
-          />
+        <div className="hidden sm:ml-auto sm:block">
           <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
         </div>
         <EditViewDialog {...props} />

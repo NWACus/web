@@ -16,7 +16,7 @@ function renderPicker() {
       custom={null}
       onSelectPeriod={onSelectPeriod}
       onApplyCustom={onApplyCustom}
-      maxDays={92}
+      maxDays={30}
       timeZone={TZ}
     />,
   )
@@ -62,9 +62,9 @@ describe('StationRangePicker', () => {
 
   it('does not apply a typed range past the cap, and says why', () => {
     const { onApplyCustom } = renderPicker()
-    fireEvent.keyDown(typeInto('Start date', '1/1/26'), { key: 'Enter' })
+    fireEvent.keyDown(typeInto('Start date', '9/1/26'), { key: 'Enter' })
     expect(onApplyCustom).not.toHaveBeenCalled()
-    expect(screen.getByRole('alert')).toHaveTextContent('Pick a range of up to 92 days.')
+    expect(screen.getByRole('alert')).toHaveTextContent('Pick a range of up to 30 days.')
   })
 
   it('reverts text that is not a date', () => {
@@ -75,8 +75,42 @@ describe('StationRangePicker', () => {
 
   it('picks a preset from the list', () => {
     const { onSelectPeriod, onApplyCustom } = renderPicker()
-    fireEvent.click(screen.getByRole('button', { name: 'Season' }))
-    expect(onSelectPeriod).toHaveBeenCalledWith('season')
+    fireEvent.click(screen.getByRole('button', { name: '30 days' }))
+    expect(onSelectPeriod).toHaveBeenCalledWith('30d')
     expect(onApplyCustom).not.toHaveBeenCalled()
+  })
+
+  it('applies a whole season, up to today for the current one', () => {
+    const { onApplyCustom } = renderPicker()
+    fireEvent.click(screen.getByRole('button', { name: '2026–27' }))
+    expect(onApplyCustom).toHaveBeenCalledWith({ from: '2026-09-01', to: '2026-10-18' })
+  })
+
+  it('offers the current season and last season only', () => {
+    const { onApplyCustom } = renderPicker()
+    expect(screen.queryByRole('button', { name: '2024–25' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: '2025–26' }))
+    expect(onApplyCustom).toHaveBeenCalledWith({ from: '2025-09-01', to: '2026-08-31' })
+  })
+
+  it('reverts a typed date outside the season in view', () => {
+    renderPicker()
+    fireEvent.blur(typeInto('Start date', '8/15/26'))
+    expect(screen.getByRole('textbox', { name: 'Start date' })).toHaveValue('Oct 11, 2026')
+  })
+
+  it('names a range that matches a season', () => {
+    render(
+      <StationRangePicker
+        periods={STATION_PERIODS}
+        activePeriod={WEEK}
+        custom={{ from: '2025-09-01', to: '2026-08-31' }}
+        onSelectPeriod={jest.fn()}
+        onApplyCustom={jest.fn()}
+        maxDays={366}
+        timeZone={TZ}
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'Date range: 2025–26' })).toBeInTheDocument()
   })
 })

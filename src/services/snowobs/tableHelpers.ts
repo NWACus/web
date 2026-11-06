@@ -47,6 +47,9 @@ export type StationTable = {
   latestDisplay: string | null
 }
 
+/** A table in both unit systems; metric is null if its read failed. */
+export type StationTables = { default: StationTable; metric: StationTable | null }
+
 export type LatestObservation = Pick<
   StationTable,
   'timezoneLabel' | 'latestObservation' | 'latestDisplay'

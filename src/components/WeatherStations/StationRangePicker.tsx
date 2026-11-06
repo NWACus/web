@@ -1,24 +1,25 @@
 'use client'
 
 import { useIsNarrowViewport } from '@/components/charts/useIsNarrowViewport'
+import { seasonBounds, seasonName, seasonOfMonth } from '@/components/seasonCalendar'
+import type { RailSection } from '@/components/SeasonRail'
+import { SeasonRail } from '@/components/SeasonRail'
 import type { ButtonProps } from '@/components/ui/button'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/utilities/ui'
 import { differenceInCalendarDays, format, parseISO } from 'date-fns'
 import { CalendarDays, ChevronDown } from 'lucide-react'
-import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { forwardRef, useEffect, useState } from 'react'
 import type { DateRange as DayPickerRange } from 'react-day-picker'
 import type { DateRange, StationPeriod } from './stationPeriods'
 import {
-  EARLIEST_CUSTOM_DATE,
   formatRangeLabel,
   presetRange,
+  stationSeasons,
   todayInZone,
   toIsoDate,
 } from './stationPeriods'
@@ -31,59 +32,20 @@ import {
   toDraft,
 } from './stationRangeDraft'
 
-/** How a preset is picked: by navigating to its link, or through a callback. */
-type PeriodTarget =
-  | { periodHref: (key: string) => string; onSelectPeriod?: never }
-  | { onSelectPeriod: (key: string) => void; periodHref?: never }
+/** The offered season a range covers exactly, if any. */
+function matchingSeason(range: DateRange | null, today: string): number | null {
+  const covers = (season: number) => {
+    const bounds = seasonBounds(season, today)
+    return range?.from === bounds.from && range.to === bounds.to
+  }
+  return stationSeasons(today).find(covers) ?? null
+}
 
-function PeriodList({
-  periods,
-  activeKey,
-  target,
-  onPicked,
-}: {
-  periods: StationPeriod[]
-  activeKey: string | null
-  target: PeriodTarget
-  onPicked: () => void
-}) {
-  const itemClass = (key: string) =>
-    cn(
-      'whitespace-nowrap rounded-md px-3 py-1.5 text-left text-sm hover:bg-muted',
-      key === activeKey && 'bg-muted font-medium',
-    )
-  return (
-    <nav
-      aria-label="Preset ranges"
-      className="flex flex-wrap gap-1 border-b p-2 sm:flex-col sm:flex-nowrap sm:border-b-0 sm:border-r"
-    >
-      {periods.map((period) =>
-        target.periodHref ? (
-          <Link
-            key={period.key}
-            href={target.periodHref(period.key)}
-            scroll={false}
-            onClick={onPicked}
-            className={itemClass(period.key)}
-          >
-            {period.label}
-          </Link>
-        ) : (
-          <button
-            key={period.key}
-            type="button"
-            onClick={() => {
-              target.onSelectPeriod(period.key)
-              onPicked()
-            }}
-            className={itemClass(period.key)}
-          >
-            {period.label}
-          </button>
-        ),
-      )}
-    </nav>
-  )
+// A range straddling two seasons, like 30 days in early September, opens on the newer season.
+function monthToShow(draft: DayPickerRange | undefined, today: Date): Date {
+  const { from, to } = draft ?? {}
+  if (!from) return today
+  return to && seasonOfMonth(from) !== seasonOfMonth(to) ? to : from
 }
 
 function RangeCalendar({
@@ -92,6 +54,7 @@ function RangeCalendar({
   month,
   onMonthChange,
   maxDays,
+  season,
   today,
 }: {
   draft: DayPickerRange | undefined
@@ -99,9 +62,10 @@ function RangeCalendar({
   month: Date
   onMonthChange: (month: Date) => void
   maxDays: number
+  season: DateRange
   today: Date
 }) {
-  const { earliest, latest } = selectableBounds(draft, today, maxDays)
+  const { earliest, latest } = selectableBounds(draft, season, maxDays)
   return (
     <Calendar
       mode="range"
@@ -109,8 +73,8 @@ function RangeCalendar({
       onSelect={(_range, day) => onDraftChange(nextDraft(draft, day))}
       month={month}
       onMonthChange={onMonthChange}
-      startMonth={parseISO(EARLIEST_CUSTOM_DATE)}
-      endMonth={today}
+      startMonth={parseISO(season.from)}
+      endMonth={parseISO(season.to)}
       disabled={{ before: earliest, after: latest }}
       // Marks today in the center's zone, the last day that can be picked.
       today={today}
@@ -127,12 +91,12 @@ function RangeCalendar({
 function DateField({
   label,
   value,
-  today,
+  season,
   onChange,
 }: {
   label: string
   value: Date | undefined
-  today: string
+  season: DateRange
   onChange: (date: Date, apply: boolean) => void
 }) {
   const shown = value ? format(value, FIELD_FORMAT) : ''
@@ -142,7 +106,7 @@ function DateField({
   const commit = (apply: boolean) => {
     const date = parseTyped(text)
     const iso = date && toIsoDate(date)
-    if (date && iso && iso >= EARLIEST_CUSTOM_DATE && iso <= today) onChange(date, apply)
+    if (date && iso && iso >= season.from && iso <= season.to) onChange(date, apply)
     else setText(shown)
   }
 
@@ -157,39 +121,35 @@ function DateField({
       onKeyDown={(event) => {
         if (event.key === 'Enter') commit(true)
       }}
-      className="h-9 w-full sm:w-36"
+      className="h-8 w-28 px-1.5 text-center text-sm"
     />
   )
 }
 
-function capLabel(maxDays: number): string {
-  return maxDays > 366 ? `${Math.round(maxDays / 365)} years` : `${maxDays} days`
-}
-
 function RangeFields({
   draft,
-  today,
+  season,
   maxDays,
   onFromChange,
   onToChange,
 }: {
   draft: DayPickerRange | undefined
-  today: string
+  season: DateRange
   maxDays: number
   onFromChange: (date: Date, apply: boolean) => void
   onToChange: (date: Date, apply: boolean) => void
 }) {
   return (
     <div className="flex flex-col gap-2 border-t p-3">
-      <div className="flex items-center gap-2">
-        <DateField label="Start date" value={draft?.from} today={today} onChange={onFromChange} />
+      <div className="flex items-center justify-center gap-1.5">
+        <DateField label="Start date" value={draft?.from} season={season} onChange={onFromChange} />
         <span aria-hidden="true">–</span>
-        <DateField label="End date" value={draft?.to} today={today} onChange={onToChange} />
+        <DateField label="End date" value={draft?.to} season={season} onChange={onToChange} />
       </div>
       {/* Typed dates can overshoot the cap the calendar greys out, so say why nothing applied. */}
       {draft?.from && draft.to && differenceInCalendarDays(draft.to, draft.from) >= maxDays && (
         <p role="alert" className="text-xs text-destructive">
-          Pick a range of up to {capLabel(maxDays)}.
+          Pick a range of up to {maxDays} days.
         </p>
       )}
     </div>
@@ -211,27 +171,27 @@ function useRangeDraft({
   onComplete: (range: DateRange) => void
 }) {
   const [draft, setDraftState] = useState(() => toDraft(value))
-  const [month, setMonth] = useState(today)
-  const showFrom = (from: Date | undefined) => setMonth(from ?? today)
+  const [month, setMonth] = useState(() => monthToShow(toDraft(value), today))
+  const season = seasonBounds(seasonOfMonth(month), toIsoDate(today))
   const edit = (next: DayPickerRange, apply = true) => {
     setDraftState(next)
-    const range = apply && next.to ? applicableRange(next, maxDays, toIsoDate(today)) : null
+    const range = apply && next.to ? applicableRange(next, maxDays, season) : null
     if (range) onComplete(range)
   }
   const reset = () => {
     const next = toDraft(value)
     setDraftState(next)
-    showFrom(next?.from)
+    setMonth(monthToShow(next, today))
   }
   const setFrom = (from: Date, apply: boolean) => {
     edit({ from, to: draft?.to && draft.to >= from ? draft.to : undefined }, apply)
-    showFrom(from)
+    setMonth(from)
   }
   const setTo = (to: Date, apply: boolean) => {
     edit({ from: draft?.from && draft.from <= to ? draft.from : to, to }, apply)
     setMonth(to)
   }
-  return { draft, edit, month, setMonth, reset, setFrom, setTo }
+  return { draft, edit, month, season, setMonth, reset, setFrom, setTo }
 }
 
 const RangeButton = forwardRef<HTMLButtonElement, ButtonProps & { label: string }>(
@@ -254,25 +214,19 @@ const RangeButton = forwardRef<HTMLButtonElement, ButtonProps & { label: string 
 )
 
 function RangeBody({
-  periods,
-  activeKey,
-  target,
+  sections,
   range,
   maxDays,
   todayIso,
-  onClose,
 }: {
-  periods: StationPeriod[]
-  activeKey: string | null
-  target: PeriodTarget
+  sections: RailSection[]
   range: ReturnType<typeof useRangeDraft>
   maxDays: number
   todayIso: string
-  onClose: () => void
 }) {
   return (
     <>
-      <PeriodList periods={periods} activeKey={activeKey} target={target} onPicked={onClose} />
+      <SeasonRail label="Ranges and seasons" sections={sections} />
       <div className="flex flex-col items-center sm:items-stretch">
         <RangeCalendar
           draft={range.draft}
@@ -280,11 +234,12 @@ function RangeBody({
           month={range.month}
           onMonthChange={range.setMonth}
           maxDays={maxDays}
+          season={range.season}
           today={parseISO(todayIso)}
         />
         <RangeFields
           draft={range.draft}
-          today={todayIso}
+          season={range.season}
           maxDays={maxDays}
           onFromChange={range.setFrom}
           onToChange={range.setTo}
@@ -325,7 +280,7 @@ function RangePopover({ align, open, onOpenChange, label, children }: ShellProps
       {/* Room below never counts as a collision, so the popover always opens below the button
           instead of flipping with scroll position, while still shifting sideways to stay on screen. */}
       <PopoverContent
-        className="flex w-auto flex-row p-0"
+        className="grid w-auto auto-cols-auto grid-flow-col p-0"
         side="bottom"
         align={align}
         collisionPadding={{ top: 8, right: 8, bottom: -Infinity, left: 8 }}
@@ -337,25 +292,26 @@ function RangePopover({ align, open, onOpenChange, label, children }: ShellProps
 }
 
 /**
- * A button naming the range in view (a preset's name or custom dates) that opens every preset
- * beside a range calendar. Custom dates are whole days in the center's zone, applied as soon as
- * both ends are picked or typed.
+ * A button naming the range in view (a range's name, a season, or custom dates) that opens the
+ * ranges and seasons beside a calendar of one season. Custom dates are whole days in the center's
+ * zone, inside one season, applied as soon as both ends are picked or typed.
  */
 export function StationRangePicker({
   periods,
   activePeriod,
   custom,
+  onSelectPeriod,
   onApplyCustom,
   maxDays,
   timeZone,
   align = 'center',
   className,
-  ...target
-}: PeriodTarget & {
-  /** Every preset, listed in the popover. */
+}: {
+  /** The quick ranges listed in the rail. */
   periods: StationPeriod[]
   activePeriod: StationPeriod
   custom: DateRange | null
+  onSelectPeriod: (key: string) => void
   onApplyCustom: (range: DateRange) => void
   maxDays: number
   timeZone: string
@@ -381,18 +337,37 @@ export function StationRangePicker({
     if (next) range.reset()
     setOpen(next)
   }
-  const label = custom ? formatRangeLabel(custom, now, timeZone) : activePeriod.label
-  const body = (
-    <RangeBody
-      periods={periods}
-      activeKey={custom ? null : activePeriod.key}
-      target={target}
-      range={range}
-      maxDays={maxDays}
-      todayIso={todayIso}
-      onClose={() => setOpen(false)}
-    />
-  )
+  const activeSeason = matchingSeason(custom, todayIso)
+  const sections: RailSection[] = [
+    {
+      title: 'Ranges',
+      items: periods.map((period) => ({
+        key: period.key,
+        label: period.label,
+        active: !custom && period.key === activePeriod.key,
+        onSelect: () => {
+          onSelectPeriod(period.key)
+          setOpen(false)
+        },
+      })),
+    },
+    {
+      title: 'Seasons',
+      items: stationSeasons(todayIso).map((season) => ({
+        key: String(season),
+        label: seasonName(season),
+        active: season === activeSeason,
+        onSelect: () => {
+          onApplyCustom(seasonBounds(season, todayIso))
+          setOpen(false)
+        },
+      })),
+    },
+  ]
+  const customLabel = (range: DateRange) =>
+    activeSeason ? seasonName(activeSeason) : formatRangeLabel(range, now, timeZone)
+  const label = custom ? customLabel(custom) : activePeriod.label
+  const body = <RangeBody sections={sections} range={range} maxDays={maxDays} todayIso={todayIso} />
 
   // A phone has no room for a popover beside the button, so the picker opens as a dialog.
   const Shell = narrow ? RangeDialog : RangePopover
