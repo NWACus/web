@@ -99,6 +99,23 @@ describe('StationRangePicker', () => {
     expect(screen.getByRole('textbox', { name: 'Start date' })).toHaveValue('Oct 11, 2026')
   })
 
+  it('opens on the month a range ends in', () => {
+    render(
+      <StationRangePicker
+        periods={STATION_PERIODS}
+        activePeriod={WEEK}
+        custom={{ from: '2026-09-28', to: '2026-10-05' }}
+        onSelectPeriod={jest.fn()}
+        onApplyCustom={jest.fn()}
+        maxDays={30}
+        timeZone={TZ}
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: /Date range/ }))
+
+    expect(screen.getByRole('grid', { name: 'October 2026' })).toBeInTheDocument()
+  })
+
   it('names a range that matches a season', () => {
     render(
       <StationRangePicker

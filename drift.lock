@@ -1108,7 +1108,7 @@ sig = "4e49dde756e6741a"
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"
 target = "src/components/WeatherStations/StationRangePicker.tsx"
-sig = "722dde7e661d9c6c"
+sig = "27f7fc5947c49af3"
 
 [[bindings]]
 doc = "docs/decisions/021-weather-station-pages.md"

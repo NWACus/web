@@ -41,11 +41,10 @@ function matchingSeason(range: DateRange | null, today: string): number | null {
   return stationSeasons(today).find(covers) ?? null
 }
 
-// A range straddling two seasons, like 30 days in early September, opens on the newer season.
+// Opens on the end of the range, so a recent one lands on today and one straddling two seasons,
+// like 30 days in early September, opens on the newer season.
 function monthToShow(draft: DayPickerRange | undefined, today: Date): Date {
-  const { from, to } = draft ?? {}
-  if (!from) return today
-  return to && seasonOfMonth(from) !== seasonOfMonth(to) ? to : from
+  return draft?.to ?? draft?.from ?? today
 }
 
 function RangeCalendar({
