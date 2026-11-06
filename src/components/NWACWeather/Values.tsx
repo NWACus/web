@@ -83,7 +83,7 @@ function SegmentedBar({
 
 // Labels sit level with their bars' tops, so the tick labels hang below the line.
 const KEY_LINE =
-  'flex flex-nowrap items-start gap-3 overflow-x-auto whitespace-nowrap text-xs leading-3 text-muted-foreground'
+  'flex flex-wrap items-start gap-3 whitespace-nowrap text-xs leading-3 text-muted-foreground'
 
 function SnowFillKey() {
   return (
@@ -117,7 +117,7 @@ function SnowLevelKey() {
   )
 }
 
-/** The snow shading's key under a table, on one line. */
+/** The snow shading's key under a table. */
 export function SnowFillLegend() {
   return (
     <p className={KEY_LINE}>
@@ -126,7 +126,7 @@ export function SnowFillLegend() {
   )
 }
 
-/** Both snow keys on one line, under a table that shows snow and snow levels together. */
+/** Both snow keys, under a table that shows snow and snow levels together. */
 export function SnowKeys() {
   return (
     <p className={cn(KEY_LINE, 'gap-x-6')}>
@@ -195,7 +195,7 @@ export function SnowLevelValue({
   )
 }
 
-/** What the snow and freezing level cells mean, under a table, on one line. */
+/** What the snow and freezing level cells mean, under a table. */
 export function SnowLevelLegend() {
   return (
     <p className={KEY_LINE}>
