@@ -22,36 +22,27 @@ async function fetchChunk(older: OlderRows, chunk: DateRange): Promise<StationTa
   return response.json()
 }
 
-type Loaded = { key: string; chunks: StationTables[]; before: string | null }
-type Progress = { key: string; status: 'idle' | 'loading' | 'failed' }
-
-/** Loads a range's older days a chunk at a time, starting over when the range changes. */
+/** Loads a range's older days a chunk at a time. Key the owner by range to start over. */
 export function useOlderTableRows(older: OlderRows | null) {
-  const key = older ? `${older.range.from}/${older.range.to}/${older.before}` : ''
-  const [loaded, setLoaded] = useState<Loaded>({ key, chunks: [], before: older?.before ?? null })
-  const [progress, setProgress] = useState<Progress>({ key, status: 'idle' })
-  const status = progress.key === key ? progress.status : 'idle'
-  const current: Loaded =
-    loaded.key === key ? loaded : { key, chunks: [], before: older?.before ?? null }
+  const [chunks, setChunks] = useState<StationTables[]>([])
+  const [before, setBefore] = useState(older?.before ?? null)
+  const [status, setStatus] = useState<'idle' | 'loading' | 'failed'>('idle')
 
-  const { before } = current
   const load = useCallback(async () => {
     if (!older || !before) return
-    setProgress({ key, status: 'loading' })
+    setStatus('loading')
     const { chunk, next } = tableChunk(older.range, before)
     try {
       const tables = await fetchChunk(older, chunk)
-      setLoaded({ key, chunks: [...current.chunks, tables], before: next })
-      setProgress({ key, status: 'idle' })
+      setChunks((loaded) => [...loaded, tables])
+      setBefore(next)
+      setStatus('idle')
     } catch {
-      setProgress({ key, status: 'failed' })
+      setStatus('failed')
     }
-  }, [older, before, key, current.chunks])
+  }, [older, before])
 
-  const merged = useCallback(
-    (tables: StationTables) => mergeTables(tables, current.chunks),
-    [current.chunks],
-  )
+  const merged = useCallback((tables: StationTables) => mergeTables(tables, chunks), [chunks])
   return useMemo(() => ({ before, status, load, merged }), [before, status, load, merged])
 }
 

@@ -105,5 +105,6 @@ describe('the Table tab', () => {
       throw new Error('expected the table view')
     }
     expect(content.props.older?.before).toBe('2026-01-02')
+    expect(content.key).toContain('2025-09-01/2026-01-31')
   })
 })

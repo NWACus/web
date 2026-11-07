@@ -157,12 +157,14 @@ async function tableTabView(
   const { shown, older } = tableChunks(custom, subject)
   const window = shown ? windowForDays(shown, timeZone, now) : tableWindow(period)
   const tables = await loadStationTables(center, subject, window, {
-    chunked: shown !== custom,
+    chunked: older !== null,
     showYear: custom !== null,
   })
   return {
     tabContent: (
       <StationTableView
+        // A new range starts over, dropping the older rows the last one loaded.
+        key={`${subject.slug}/${custom?.from}/${custom?.to}`}
         tables={tables}
         activePeriodKey={period.key}
         customRange={custom}
