@@ -249,8 +249,8 @@ export function TempLegend() {
 /** How to read the wind cells, under the table. */
 export function WindLegend() {
   return (
-    <div className="space-y-2">
-      <p className={KEY_LINE}>
+    <p className={cn(KEY_LINE, 'gap-x-6')}>
+      <span className="inline-flex items-start gap-3">
         Wind
         <SegmentedBar
           fills={WIND_STEPS.map((s) => s.fill)}
@@ -258,15 +258,13 @@ export function WindLegend() {
           labels={WIND_STEPS.map((s) => s.label)}
           cols="grid-cols-7"
         />
-      </p>
-      <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <Navigation2 aria-hidden="true" className="size-4 text-primary" />
-          Points the way the wind blows
-        </span>
-        <span>VAR: variable</span>
-      </p>
-    </div>
+      </span>
+      <span className="inline-flex items-center gap-1">
+        <Navigation2 aria-hidden="true" className="size-3.5 text-primary" />
+        Points the way the wind blows
+      </span>
+      <span>VAR: variable</span>
+    </p>
   )
 }
 
@@ -289,7 +287,7 @@ export function WindValue({
   }
   const bearing = windBearing(cell.dir)
   return (
-    <span className="inline-flex flex-col items-center">
+    <span className={cn('flex-col items-center', compact ? 'flex' : 'inline-flex')}>
       <span
         className={cn(
           'inline-flex flex-wrap items-center justify-center gap-x-1.5 whitespace-nowrap tabular-nums',

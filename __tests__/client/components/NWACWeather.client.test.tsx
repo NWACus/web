@@ -346,19 +346,6 @@ describe('levelFill', () => {
 })
 
 describe('the paired temperature and wind tables', () => {
-  const table = (name: string) =>
-    within(screen.getByRole('region', { name })).getAllByRole('table')[0]
-
-  it('stripes every other row, the sticky label with it', () => {
-    render(<Overall parts={overallParts(afternoon)} />)
-    for (const name of ["5000' Temperatures (°F)", 'Ridgeline Winds (mph)']) {
-      const [first, second] = within(table(name)).getAllByRole('row').slice(2)
-      expect(first.className).not.toContain('color-mix')
-      expect(second.className).toContain('color-mix')
-      expect(within(second).getByRole('rowheader').className).toContain('color-mix')
-    }
-  })
-
   it('shows a phone every date of the temperatures, with no date switch', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })

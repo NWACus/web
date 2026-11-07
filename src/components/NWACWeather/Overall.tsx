@@ -109,7 +109,7 @@ interface Table {
   labelVars?: string
   /** The narrowest a data column gets before the table scrolls, in place of `MIN_COL_REM`. */
   minColRem?: number
-  /** One of the side-by-side tables: striped, ruled by date, its rows the same height as its pair's. */
+  /** One of the side-by-side tables: ruled by date, sharing grid rows with its pair. */
   paired?: boolean
   /** One date's columns for a phone: the switch over it names the date, so no date row. */
   day?: boolean
@@ -736,9 +736,6 @@ function GroupColumnBody({ table: t }: { table: Table }) {
   )
 }
 
-// Opaque so the sticky row label hides the values scrolling under it.
-const STRIPE = 'bg-[color-mix(in_srgb,var(--muted)_40%,var(--card))]'
-
 /** The rule before a body cell: a paired table's carry its header's date rules down. */
 function bodyRule(t: Table, i: number) {
   const c = t.columns[i]
@@ -765,32 +762,28 @@ function TableBody({ table: t }: { table: Table }) {
               </th>
             </tr>
           )}
-          {g.rows.map((r, row) => {
-            const stripe = t.paired && row % 2 === 1 ? STRIPE : undefined
-            return (
-              <tr key={r.key} className={cn(t.paired && 'h-12', stripe)}>
-                <th
-                  scope="row"
-                  className={cn(
-                    STICKY,
-                    'border-t p-2 pl-3 text-left align-middle font-semibold',
-                    t.day && 'px-2 text-xs',
-                    stripe ?? 'bg-card',
-                  )}
+          {g.rows.map((r) => (
+            <tr key={r.key}>
+              <th
+                scope="row"
+                className={cn(
+                  STICKY,
+                  'border-t bg-card p-2 pl-3 text-left align-middle font-semibold',
+                  (t.day || t.narrow) && 'px-2 text-xs',
+                )}
+              >
+                {r.label}
+              </th>
+              {r.cells.map((cell, i) => (
+                <td
+                  key={t.columns[i]?.key ?? i}
+                  className={cn('border-t', cellClass, r.fills?.[i], bodyRule(t, i))}
                 >
-                  {r.label}
-                </th>
-                {r.cells.map((cell, i) => (
-                  <td
-                    key={t.columns[i]?.key ?? i}
-                    className={cn('border-t', cellClass, r.fills?.[i], bodyRule(t, i))}
-                  >
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            )
-          })}
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
         </Fragment>
       ))}
     </tbody>
