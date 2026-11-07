@@ -24,6 +24,14 @@ const table = (keys: string[], hours: number[]): StationTable => ({
 const keysOf = (shown: StationTable) => shown.columns.map((c) => c.key)
 
 describe('mergeTables', () => {
+  it('names the zone without standard or daylight when chunks span a clock change', () => {
+    const older = { ...table(['a'], [1]), timezoneLabel: 'PDT' }
+    const merged = mergeTables({ default: table(['a'], [2]), metric: null }, [
+      { default: older, metric: null },
+    ])
+    expect(merged.default.timezoneLabel).toBe('PT')
+  })
+
   it('adds older rows after the shown ones, once each', () => {
     const merged = mergeTables({ default: table(['a'], [3, 2]), metric: null }, [
       { default: table(['a'], [2, 1]), metric: null },

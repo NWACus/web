@@ -4,6 +4,7 @@ import { windDirectionLabel } from '@/services/snowobs/stationMap/format'
 import type { StationTable, TableColumn } from '@/services/snowobs/tableHelpers'
 import { formatReading } from '@/services/snowobs/units'
 import { cn } from '@/utilities/ui'
+import { memo } from 'react'
 import { StationTableFrame } from './StationTableFrame'
 
 function cellText(column: TableColumn, value: number | null | undefined): string {
@@ -16,15 +17,13 @@ function cellText(column: TableColumn, value: number | null | undefined): string
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
-export function StationNowTable({
+// A long range holds thousands of rows, so skip re-rendering them when only the view around changes.
+export const StationNowTable = memo(function StationNowTable({
   table,
   elevationUnit = "'",
-  formatTime,
 }: {
   table: StationTable
   elevationUnit?: string
-  /** Replaces a row's short time, for ranges where the year matters. */
-  formatTime?: (timestamp: number) => string
 }) {
   if (table.rows.length === 0) {
     return <p className="text-muted-foreground">No station observations in this period.</p>
@@ -67,7 +66,7 @@ export function StationNowTable({
         {table.rows.map((row) => (
           <TableRow key={row.timestamp} className="bg-background even:bg-muted">
             <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-1 py-1 font-medium sm:px-2 sm:py-1.5">
-              {formatTime ? formatTime(row.timestamp) : row.display}
+              {row.display}
             </TableCell>
             {table.columns.map((column) => {
               const text = cellText(column, row.values[column.key])
@@ -88,4 +87,4 @@ export function StationNowTable({
       </TableBody>
     </StationTableFrame>
   )
-}
+})

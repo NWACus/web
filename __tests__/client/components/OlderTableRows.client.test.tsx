@@ -57,4 +57,16 @@ describe('OlderTableRows', () => {
     expect(await screen.findByRole('button', { name: 'Try again' })).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent("Older days didn't load.")
   })
+
+  it('forgets a failure when the range changes', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 502 })
+    const { rerender } = render(<Harness older={OLDER} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Load older days' }))
+    await screen.findByRole('button', { name: 'Try again' })
+
+    rerender(<Harness older={{ ...OLDER, before: '2025-09-15' }} />)
+
+    expect(screen.queryByRole('alert')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Load older days' })).toBeInTheDocument()
+  })
 })

@@ -31,6 +31,12 @@ export function selectableBounds(
   }
 }
 
+/** Whether a whole draft sits inside the season. */
+export function withinSeason(draft: DayPickerRange, season: DateRange): boolean {
+  const { from, to } = draft
+  return !!from && toIsoDate(from) >= season.from && toIsoDate(to ?? from) <= season.to
+}
+
 /** The draft as a range to apply, or null when it is incomplete or outside the season. */
 export function applicableRange(
   draft: DayPickerRange | undefined,
@@ -39,8 +45,9 @@ export function applicableRange(
 ): DateRange | null {
   if (!draft?.from) return null
   const range = { from: toIsoDate(draft.from), to: toIsoDate(draft.to ?? draft.from) }
-  const inBounds = range.from >= season.from && range.to <= season.to
-  return inBounds && range.from <= range.to && rangeDays(range) <= maxDays ? range : null
+  return withinSeason(draft, season) && range.from <= range.to && rangeDays(range) <= maxDays
+    ? range
+    : null
 }
 
 export const FIELD_FORMAT = 'MMM d, yyyy'

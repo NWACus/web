@@ -6,12 +6,15 @@ import { resolveColumns } from '@/services/snowobs/deriveColumns'
 import type { FetchOptions } from '@/services/snowobs/snowobs'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { fetchVariableRounding } from '@/services/snowobs/stationTracking'
-import type { StationTables } from '@/services/snowobs/tableHelpers'
+import type { StationTable, StationTables } from '@/services/snowobs/tableHelpers'
 import { buildStationTable } from '@/services/snowobs/tableHelpers'
 import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas'
 import type { StationUnits } from '@/services/snowobs/units'
 import { withStaleStations } from '@/services/stations/reportedReadings'
 import type { ColumnOrderEntry, StationEntry } from '@/services/stations/stationColumns'
+import { centerTimezone } from '@/utilities/tenancy/avalancheCenters'
+import { tz } from '@date-fns/tz'
+import { format } from 'date-fns'
 
 // SnowObs caches each response for 60s, so holding the table's for as long
 // costs no freshness and spares a function waiting on it per view.
@@ -31,12 +34,21 @@ export function windowForDays(days: DateRange, timeZone: string, now: Date): Fet
     : { start: from, revalidate: TABLE_REVALIDATE }
 }
 
+function withYears(table: StationTable, center: string): StationTable {
+  const zone = tz(centerTimezone(center))
+  const rows = table.rows.map((row) => ({
+    ...row,
+    display: format(row.timestamp, 'MM/dd/yyyy HH:mm', { in: zone }),
+  }))
+  return { ...table, rows }
+}
+
 /** The Table tab's rows for a window, in both unit systems so the toggle is instant. */
 export async function loadStationTables(
   center: string,
   subject: { stations: StationEntry[]; columnOrder: ColumnOrderEntry[] },
   window: FetchOptions,
-  { chunked }: { chunked: boolean },
+  { chunked, showYear }: { chunked: boolean; showYear: boolean },
 ): Promise<StationTables> {
   // A failed metric read just drops the toggle.
   const [fetchedStandard, fetchedMetric, rounding] = await Promise.all([
@@ -58,10 +70,11 @@ export async function loadStationTables(
   const resolved = resolveColumns(standard, subject)
   // A running total can't start partway through a range, so a chunked table leaves it out.
   const columns = chunked ? resolved.filter((c) => c.variable !== PRECIP_CUMSUM) : resolved
+  const finish = (table: StationTable) => (showYear ? withYears(table, center) : table)
   return {
-    default: buildStationTable(center, standard, columns, rounding),
+    default: finish(buildStationTable(center, standard, columns, rounding)),
     metric: metric
-      ? withElevationsIn(buildStationTable(center, metric, columns, rounding), 'metric')
+      ? finish(withElevationsIn(buildStationTable(center, metric, columns, rounding), 'metric'))
       : null,
   }
 }

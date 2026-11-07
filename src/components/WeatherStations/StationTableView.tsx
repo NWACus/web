@@ -2,8 +2,6 @@
 
 import type { StationTable, StationTables } from '@/services/snowobs/tableHelpers'
 import type { StationUnits } from '@/services/snowobs/units'
-import { tz } from '@date-fns/tz'
-import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import type { ReactNode, RefObject } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
@@ -90,7 +88,8 @@ export function StationTableView({
 }) {
   const [unitSystem, changeStationUnits] = useStationUnits()
   const olderRows = useOlderTableRows(older)
-  const allTables = useMemo(() => olderRows.merged(tables), [olderRows, tables])
+  const { merged } = olderRows
+  const allTables = useMemo(() => merged(tables), [merged, tables])
   const [table, units] = shownTable(allTables, unitSystem)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const barRef = useRef<HTMLDivElement>(null)
@@ -106,18 +105,10 @@ export function StationTableView({
             customRange={customRange}
             timeZone={timeZone}
           />
-          {tables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
+          {allTables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
         </div>
       </StationViewBar>
-      <StationNowTable
-        table={table}
-        elevationUnit={units === 'metric' ? ' m' : undefined}
-        formatTime={
-          customRange
-            ? (timestamp) => format(timestamp, 'MM/dd/yyyy HH:mm', { in: tz(timeZone) })
-            : undefined
-        }
-      />
+      <StationNowTable table={table} elevationUnit={units === 'metric' ? ' m' : undefined} />
       <OlderTableRows rows={olderRows} />
     </div>
   )

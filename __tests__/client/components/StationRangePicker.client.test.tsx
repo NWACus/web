@@ -128,6 +128,31 @@ describe('StationRangePicker', () => {
     expect(screen.getByRole('grid', { name: 'October 2026' })).toBeInTheDocument()
   })
 
+  it('says why an edit to a range crossing two seasons did not apply', () => {
+    jest.setSystemTime(new Date('2026-09-10T19:00:00Z'))
+    const onApplyCustom = jest.fn()
+    render(
+      <StationRangePicker
+        periods={STATION_PERIODS}
+        activePeriod={WEEK}
+        custom={{ from: '2026-08-20', to: '2026-09-05' }}
+        onSelectPeriod={jest.fn()}
+        onApplyCustom={onApplyCustom}
+        maxDays={30}
+        timeZone={TZ}
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: /Date range/ }))
+    expect(screen.queryByRole('alert')).toBeNull()
+
+    const end = typeInto('End date', 'Sep 3, 2026')
+    fireEvent.keyDown(end, { key: 'Enter' })
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Pick dates within one season.')
+    expect(onApplyCustom).not.toHaveBeenCalled()
+    jest.setSystemTime(new Date('2026-10-18T19:00:00Z'))
+  })
+
   it('names a range that matches a season', () => {
     render(
       <StationRangePicker

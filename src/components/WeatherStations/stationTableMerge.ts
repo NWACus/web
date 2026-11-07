@@ -1,3 +1,4 @@
+import { spanningTimezoneLabel } from '@/services/snowobs/constants'
 import type { StationTable, StationTables, TableColumn } from '@/services/snowobs/tableHelpers'
 
 // A column only an older chunk reports slots in after the column it follows there, so the order
@@ -18,7 +19,7 @@ function mergeTable(shown: StationTable, older: StationTable): StationTable {
     ...shown,
     columns: mergeColumns(shown.columns, older.columns),
     rows: [...shown.rows, ...older.rows.filter((row) => !hours.has(row.timestamp))],
-    timezoneLabel: shown.timezoneLabel || older.timezoneLabel,
+    timezoneLabel: spanningTimezoneLabel(shown.timezoneLabel, older.timezoneLabel),
   }
 }
 

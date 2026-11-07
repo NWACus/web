@@ -140,6 +140,13 @@ describe('NWAC weather v3 source', () => {
     )
   })
 
+  it('stops walking if the archive ignores the window', async () => {
+    mockNacFetch.mockResolvedValue([{ serviceDate: '2026-09-14' }])
+
+    await expect(source.getEarliestDate()).resolves.toBe('2026-09-14')
+    expect(mockNacFetch).toHaveBeenCalledTimes(2)
+  })
+
   it('has no earliest date when nothing is published', async () => {
     mockNacFetch.mockResolvedValue([])
 

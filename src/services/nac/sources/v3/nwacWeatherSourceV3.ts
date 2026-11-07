@@ -23,8 +23,20 @@ const LATEST_PATH = 'nwac-weather/forecasts'
 // Older than any forecast, so the archive's `from` never limits the walk back.
 const ARCHIVE_START = '2000-01-01'
 
+type ArchiveOptions = Parameters<typeof v3Fetch>[2]
+
 function dayPath(date: string) {
   return `${LATEST_PATH}?${new URLSearchParams({ date })}`
+}
+
+async function archiveDates(from: string, to: string, options: ArchiveOptions): Promise<string[]> {
+  const params = new URLSearchParams({ from, to })
+  const rows = await v3Fetch(
+    `nwac-weather/forecast/archive?${params}`,
+    nwacWeatherArchiveSchema,
+    options,
+  )
+  return [...new Set(rows.map((r) => r.serviceDate))].sort()
 }
 
 export const nwacWeatherSourceV3: NWACWeatherSource = {
@@ -57,14 +69,8 @@ export const nwacWeatherSourceV3: NWACWeatherSource = {
     return getCached()
   },
 
-  async getDates(from, to, { historical = false } = {}) {
-    const params = new URLSearchParams({ from, to })
-    const rows = await v3Fetch(
-      `nwac-weather/forecast/archive?${params}`,
-      nwacWeatherArchiveSchema,
-      historical ? HISTORICAL_CACHE : CACHE,
-    )
-    return [...new Set(rows.map((r) => r.serviceDate))].sort()
+  getDates(from, to, { historical = false } = {}) {
+    return archiveDates(from, to, historical ? HISTORICAL_CACHE : CACHE)
   },
 
   // v3 has no oldest-first read and caps the archive at its newest 400 rows, so this walks back
@@ -75,18 +81,11 @@ export const nwacWeatherSourceV3: NWACWeatherSource = {
         let earliest: string | null = null
         let to = format(new Date(), 'yyyy-MM-dd')
         for (;;) {
-          const params = new URLSearchParams({ from: ARCHIVE_START, to })
-          const rows = await v3Fetch(
-            `nwac-weather/forecast/archive?${params}`,
-            nwacWeatherArchiveSchema,
-            {
-              noStore: true,
-            },
-          )
-          if (rows.length === 0) return earliest
-          earliest = rows.map((r) => r.serviceDate).sort()[0] ?? null
-          if (!earliest) return null
-          to = format(subDays(parseISO(earliest), 1), 'yyyy-MM-dd')
+          const [oldest] = await archiveDates(ARCHIVE_START, to, { noStore: true })
+          // A date past `to` means the window was ignored, and walking on would never end.
+          if (!oldest || oldest > to) return earliest
+          earliest = oldest
+          to = format(subDays(parseISO(oldest), 1), 'yyyy-MM-dd')
         }
       },
       ['nwac-weather-earliest-date'],

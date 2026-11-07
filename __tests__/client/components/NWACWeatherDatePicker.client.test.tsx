@@ -162,6 +162,20 @@ describe('DatePicker', () => {
     expect(await screen.findByRole('grid', { name: 'September 2026' })).toBeInTheDocument()
   })
 
+  it('keeps the arrows on the page window after browsing another season', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ dates: ['2023-09-12'] }),
+    })
+
+    renderPicker('2026-09-15')
+    fireEvent.click(screen.getByRole('button', { name: /Sep 15, 2026/ }))
+    fireEvent.click(screen.getByRole('button', { name: '2023–24' }))
+    await screen.findByRole('link', { name: 'Tue Sep 12 2023' })
+
+    expect(screen.queryByRole('link', { name: 'Older forecast' })).toBeNull()
+  })
+
   it('stops the calendar at the season edges', () => {
     renderPicker('2026-09-17')
     fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))

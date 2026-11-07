@@ -61,7 +61,10 @@ export async function GET(
     const subject = await subjectOf(center, query)
     if (!subject) return NextResponse.json({ error: 'unknown stations' }, { status: 404 })
     const window = windowForDays(days, timeZone, now)
-    const tables = await loadStationTables(center, subject, window, { chunked: true })
+    const tables = await loadStationTables(center, subject, window, {
+      chunked: true,
+      showYear: true,
+    })
     const pastCache = `public, s-maxage=${PAST_RANGE_REVALIDATE}, stale-while-revalidate=${PAST_RANGE_REVALIDATE}`
     return NextResponse.json(tables, {
       headers: {

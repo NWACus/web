@@ -156,7 +156,10 @@ async function tableTabView(
   const custom = parseCustomRange(params.from, params.to, TABLE_MAX_CUSTOM_DAYS, timeZone, now)
   const { shown, older } = tableChunks(custom, subject)
   const window = shown ? windowForDays(shown, timeZone, now) : tableWindow(period)
-  const tables = await loadStationTables(center, subject, window, { chunked: shown !== custom })
+  const tables = await loadStationTables(center, subject, window, {
+    chunked: shown !== custom,
+    showYear: custom !== null,
+  })
   return {
     tabContent: (
       <StationTableView

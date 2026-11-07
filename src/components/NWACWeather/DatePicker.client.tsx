@@ -12,7 +12,7 @@ import { seasonOfDate } from '@/services/nac/forecastArchive'
 import { max, parseISO, startOfMonth } from 'date-fns'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { createContext, useContext, useEffect, useMemo, useState, type ComponentProps } from 'react'
+import { createContext, useContext, useEffect, useState, type ComponentProps } from 'react'
 import type { DayButton } from 'react-day-picker'
 
 import {
@@ -180,8 +180,8 @@ export function DatePicker({
   const { published, loading, loadMonth } = usePublishedDates(initialDates, initialRange)
   const today = useToday(renderedToday)
   const { month, showMonth } = useCalendarMonth(date, loadMonth)
-  const loaded = useMemo(() => [...published], [published])
-  const { olderHref, newerHref } = adjacentForecastHrefs(loaded, date, today, BASE)
+  // The page's own window: browsing elsewhere loads far-off dates that aren't this date's neighbors.
+  const { olderHref, newerHref } = adjacentForecastHrefs(initialDates, date, today, BASE)
 
   return (
     <DatePickerBar

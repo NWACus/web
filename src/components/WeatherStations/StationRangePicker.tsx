@@ -30,6 +30,7 @@ import {
   parseTyped,
   selectableBounds,
   toDraft,
+  withinSeason,
 } from './stationRangeDraft'
 
 /** The offered season a range covers exactly, if any. */
@@ -131,12 +132,14 @@ function RangeFields({
   draft,
   season,
   maxDays,
+  crossesSeasons,
   onFromChange,
   onToChange,
 }: {
   draft: DayPickerRange | undefined
   season: DateRange
   maxDays: number
+  crossesSeasons: boolean
   onFromChange: (date: Date, apply: boolean) => void
   onToChange: (date: Date, apply: boolean) => void
 }) {
@@ -151,6 +154,11 @@ function RangeFields({
       {draft?.from && draft.to && differenceInCalendarDays(draft.to, draft.from) >= maxDays && (
         <p role="alert" className="text-xs text-destructive">
           Pick a range of up to {maxDays} days.
+        </p>
+      )}
+      {crossesSeasons && (
+        <p role="alert" className="text-xs text-destructive">
+          Pick dates within one season.
         </p>
       )}
     </div>
@@ -173,15 +181,18 @@ function useRangeDraft({
 }) {
   const [draft, setDraftState] = useState(() => toDraft(value))
   const [month, setMonth] = useState(() => monthToShow(toDraft(value), today))
+  const [crossesSeasons, setCrossesSeasons] = useState(false)
   const season = seasonBounds(seasonOfMonth(month), toIsoDate(today))
   const edit = (next: DayPickerRange, apply = true) => {
     setDraftState(next)
+    setCrossesSeasons(apply && !!next.to && !withinSeason(next, season))
     const range = apply && next.to ? applicableRange(next, maxDays, season) : null
     if (range) onComplete(range)
   }
   const reset = () => {
     const next = toDraft(value)
     setDraftState(next)
+    setCrossesSeasons(false)
     setMonth(monthToShow(next, today))
   }
   const setFrom = (from: Date, apply: boolean) => {
@@ -192,7 +203,7 @@ function useRangeDraft({
     edit({ from: draft?.from && draft.from <= to ? draft.from : to, to }, apply)
     setMonth(to)
   }
-  return { draft, edit, month, season, setMonth, reset, setFrom, setTo }
+  return { draft, edit, month, season, crossesSeasons, setMonth, reset, setFrom, setTo }
 }
 
 const RangeButton = forwardRef<HTMLButtonElement, ButtonProps & { label: string }>(
@@ -242,6 +253,7 @@ function RangeBody({
           draft={range.draft}
           season={range.season}
           maxDays={maxDays}
+          crossesSeasons={range.crossesSeasons}
           onFromChange={range.setFrom}
           onToChange={range.setTo}
         />

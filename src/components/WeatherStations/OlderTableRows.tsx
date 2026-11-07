@@ -23,38 +23,36 @@ async function fetchChunk(older: OlderRows, chunk: DateRange): Promise<StationTa
 }
 
 type Loaded = { key: string; chunks: StationTables[]; before: string | null }
+type Progress = { key: string; status: 'idle' | 'loading' | 'failed' }
 
 /** Loads a range's older days a chunk at a time, starting over when the range changes. */
 export function useOlderTableRows(older: OlderRows | null) {
   const key = older ? `${older.range.from}/${older.range.to}/${older.before}` : ''
   const [loaded, setLoaded] = useState<Loaded>({ key, chunks: [], before: older?.before ?? null })
-  const [status, setStatus] = useState<'idle' | 'loading' | 'failed'>('idle')
+  const [progress, setProgress] = useState<Progress>({ key, status: 'idle' })
+  const status = progress.key === key ? progress.status : 'idle'
   const current: Loaded =
     loaded.key === key ? loaded : { key, chunks: [], before: older?.before ?? null }
 
   const { before } = current
   const load = useCallback(async () => {
     if (!older || !before) return
-    setStatus('loading')
+    setProgress({ key, status: 'loading' })
     const { chunk, next } = tableChunk(older.range, before)
     try {
       const tables = await fetchChunk(older, chunk)
       setLoaded({ key, chunks: [...current.chunks, tables], before: next })
-      setStatus('idle')
+      setProgress({ key, status: 'idle' })
     } catch {
-      setStatus('failed')
+      setProgress({ key, status: 'failed' })
     }
   }, [older, before, key, current.chunks])
 
-  return useMemo(
-    () => ({
-      before,
-      status,
-      load,
-      merged: (tables: StationTables) => mergeTables(tables, current.chunks),
-    }),
-    [before, status, load, current.chunks],
+  const merged = useCallback(
+    (tables: StationTables) => mergeTables(tables, current.chunks),
+    [current.chunks],
   )
+  return useMemo(() => ({ before, status, load, merged }), [before, status, load, merged])
 }
 
 /** Loads the next rows as the reader nears the table's end; the button covers everyone else. */

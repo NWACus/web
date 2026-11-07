@@ -79,12 +79,15 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
   // The picker opens populated for the shown month, the one before and the one after (so the
   // Newer arrow has a target from a month's last date); it loads other months itself.
   const window = pickerWindow(date ?? today, today)
-  // Either read throws on an upstream failure, so ISR keeps the last good page instead of caching
+  // The day and date reads throw on an upstream failure, so ISR keeps the last good page instead of caching
   // "nothing published".
   const [{ day, shown }, dates, earliest, zonePaths] = await Promise.all([
     readShown(date, today),
     getNWACWeatherSource().getDates(window.from, window.to, { historical: window.to < today }),
-    getNWACWeatherSource().getEarliestDate(),
+    // Only sets the calendar's reach, so a failure shouldn't cost the reader the forecast.
+    getNWACWeatherSource()
+      .getEarliestDate()
+      .catch(() => null),
     zonePathsOf(centerSlug, date),
   ])
   const picker = (
