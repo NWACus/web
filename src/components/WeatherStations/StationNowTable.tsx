@@ -4,6 +4,7 @@ import { windDirectionLabel } from '@/services/snowobs/stationMap/format'
 import type { StationTable, TableColumn } from '@/services/snowobs/tableHelpers'
 import { formatReading } from '@/services/snowobs/units'
 import { cn } from '@/utilities/ui'
+import { memo } from 'react'
 import { StationTableFrame } from './StationTableFrame'
 
 function cellText(column: TableColumn, value: number | null | undefined): string {
@@ -16,7 +17,8 @@ function cellText(column: TableColumn, value: number | null | undefined): string
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
-export function StationNowTable({
+// A long range holds thousands of rows, so skip re-rendering them when only the view around changes.
+export const StationNowTable = memo(function StationNowTable({
   table,
   elevationUnit = "'",
 }: {
@@ -85,4 +87,4 @@ export function StationNowTable({
       </TableBody>
     </StationTableFrame>
   )
-}
+})

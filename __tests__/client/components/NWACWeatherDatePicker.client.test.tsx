@@ -76,11 +76,10 @@ describe('DatePicker', () => {
     })
     global.fetch = fetchMock
 
-    renderPicker('2026-09-17')
-    fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
-    // August is in the initial window; July is not.
-    fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
+    renderPicker('2026-08-20')
+    fireEvent.click(screen.getByRole('button', { name: /Aug 20, 2026/ }))
     expect(fetchMock).not.toHaveBeenCalled()
+    // August is in the initial window; July is not.
     fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
 
     await waitFor(() =>
@@ -96,5 +95,84 @@ describe('DatePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: /next month/i }))
     fireEvent.click(screen.getByRole('button', { name: /previous month/i }))
     expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('offers the seasons back to the earliest forecast, and moves the calendar without changing the date', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ dates: ['2023-09-12'] }),
+    })
+
+    renderPicker('2026-09-17')
+    fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
+    expect(screen.getByRole('button', { name: '2020–21' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '2019–20' })).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: '2023–24' }))
+
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: 'Tue Sep 12 2023' })).toBeInTheDocument(),
+    )
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/nwac/nwac-weather-dates?from=2023-09-01&to=2023-09-30',
+    )
+    expect(screen.getByRole('button', { name: /Sep 17, 2026/ })).toBeInTheDocument()
+  })
+
+  it('opens the first season no earlier than the month of the earliest forecast', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ dates: [] }) })
+
+    renderPicker('2026-09-17')
+    fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
+    fireEvent.click(screen.getByRole('button', { name: '2020–21' }))
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/nwac/nwac-weather-dates?from=2020-12-01&to=2020-12-31',
+      ),
+    )
+    expect(screen.getByRole('button', { name: /previous month/i })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
+  })
+
+  it('reopens on the date shown after browsing elsewhere', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ dates: [] }) })
+
+    renderPicker('2026-09-17')
+    const trigger = screen.getByRole('button', { name: /Sep 17, 2026/ })
+    fireEvent.click(trigger)
+    fireEvent.click(screen.getByRole('button', { name: '2023–24' }))
+    await waitFor(() => expect(screen.getByRole('grid', { name: 'September 2023' })).toBeVisible())
+
+    fireEvent.click(trigger)
+    await waitFor(() => expect(screen.queryByRole('grid')).toBeNull())
+    fireEvent.click(trigger)
+
+    expect(await screen.findByRole('grid', { name: 'September 2026' })).toBeInTheDocument()
+  })
+
+  it('keeps the arrows on the page window after browsing another season', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ dates: ['2023-09-12'] }),
+    })
+
+    renderPicker('2026-09-15')
+    fireEvent.click(screen.getByRole('button', { name: /Sep 15, 2026/ }))
+    fireEvent.click(screen.getByRole('button', { name: '2023–24' }))
+    await screen.findByRole('link', { name: 'Tue Sep 12 2023' })
+
+    expect(screen.queryByRole('link', { name: 'Older forecast' })).toBeNull()
+  })
+
+  it('stops the calendar at the season edges', () => {
+    renderPicker('2026-09-17')
+    fireEvent.click(screen.getByRole('button', { name: /Sep 17, 2026/ }))
+    expect(screen.getByRole('button', { name: /previous month/i })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
   })
 })

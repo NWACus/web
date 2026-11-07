@@ -15,11 +15,10 @@ import { parseStationUnits } from '@/services/snowobs/units'
 import type { AssembledStationPage } from '@/services/stations/getStationPages'
 import { allStations, getStationPages } from '@/services/stations/getStationPages'
 import { withStaleStations } from '@/services/stations/reportedReadings'
+import { stationDataError } from '@/services/stations/stationDataError'
 import { unknownCenterResponse } from '@/utilities/apiResponses'
 import { centerTimezone, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
-import config from '@payload-config'
 import { NextResponse } from 'next/server'
-import { getPayload } from 'payload'
 
 // Serves the station Graphs tab. Reads SnowObs server-side (token stays
 // hidden); windows longer than 30 days aggregate to daily min/mean/max.
@@ -123,13 +122,6 @@ async function unknownStations(
   return unknown.length > 0 ? badRequest(`unknown stations: ${unknown.join(',')}`) : null
 }
 
-// Generic, as precip-data's is: a missing token or a SnowObs fault is ours to read in the log.
-async function upstreamError(center: string, error: unknown): Promise<NextResponse> {
-  const payload = await getPayload({ config })
-  payload.logger.error({ err: error, center }, 'graph-data failed')
-  return NextResponse.json({ error: 'failed to load station data' }, { status: 502 })
-}
-
 // CRAP is inflated by the lack of unit coverage on this route handler.
 // fallow-ignore-next-line complexity
 export async function GET(
@@ -171,6 +163,6 @@ export async function GET(
       },
     )
   } catch (error) {
-    return upstreamError(center, error)
+    return stationDataError('graph-data', center, error)
   }
 }

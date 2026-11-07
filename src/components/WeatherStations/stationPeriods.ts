@@ -1,12 +1,12 @@
+import { seasonOfDate } from '@/services/nac/forecastArchive'
 import { TZDate } from '@date-fns/tz'
 import {
   addDays,
-  addMinutes,
   differenceInCalendarDays,
-  differenceInHours,
   format,
   isValid,
   parseISO,
+  subDays,
   subHours,
   subMinutes,
 } from 'date-fns'
@@ -14,41 +14,26 @@ import {
 export type StationPeriod = {
   key: string
   label: string
-  hoursBack: (now: Date, timeZone: string) => number
+  hours: number
 }
 
-// Hours back to the most recent Oct 1, the season anchor in the center's zone.
-export function seasonHours(now: Date, timeZone: string): number {
-  const local = new TZDate(now.getTime(), timeZone)
-  const year = local.getMonth() >= 9 ? local.getFullYear() : local.getFullYear() - 1
-  const seasonStart = new TZDate(year, 9, 1, timeZone)
-  return Math.max(24, differenceInHours(now, seasonStart, { roundingMethod: 'ceil' }))
-}
-
-const WEEK_PERIOD: StationPeriod = { key: '7d', label: '7 days', hoursBack: () => 7 * 24 }
+const WEEK_PERIOD: StationPeriod = { key: '7d', label: '7 days', hours: 7 * 24 }
 
 export const STATION_PERIODS: StationPeriod[] = [
-  { key: '24h', label: '24 hours', hoursBack: () => 24 },
-  { key: '48h', label: '48 hours', hoursBack: () => 48 },
-  { key: '72h', label: '72 hours', hoursBack: () => 72 },
+  { key: '24h', label: '24 hours', hours: 24 },
+  { key: '48h', label: '48 hours', hours: 48 },
+  { key: '72h', label: '72 hours', hours: 72 },
   WEEK_PERIOD,
-  { key: '30d', label: '30 days', hoursBack: () => 30 * 24 },
-  { key: '3m', label: '3 months', hoursBack: () => 91 * 24 },
-  { key: '6m', label: '6 months', hoursBack: () => 182 * 24 },
-  { key: 'season', label: 'Season', hoursBack: seasonHours },
+  { key: '30d', label: '30 days', hours: 30 * 24 },
 ]
 
+// One list today, kept apart so the tabs can offer different ranges later.
 export const GRAPH_PERIODS = STATION_PERIODS
+export const TABLE_PERIODS = STATION_PERIODS
 
 export const DEFAULT_GRAPH_PERIOD = WEEK_PERIOD
 
-// Table presets stop at 30 days: longer graph periods aggregate to daily rows, which a
-// row-per-observation table can't do. Custom table ranges have their own cap below.
-export const TABLE_PERIODS = STATION_PERIODS.filter((p) =>
-  ['24h', '48h', '72h', '7d', '30d'].includes(p.key),
-)
-
-// Legacy `?range=24h`/`?range=7d` URLs resolve as period keys.
+// Legacy `?range=24h`/`?range=7d` URLs resolve as period keys; retired keys get the default.
 export function resolveTablePeriod(param: string | undefined): StationPeriod {
   return TABLE_PERIODS.find((p) => p.key === param) ?? TABLE_PERIODS[0]
 }
@@ -56,12 +41,17 @@ export function resolveTablePeriod(param: string | undefined): StationPeriod {
 /** A custom range of whole days in the center's zone, both ends inclusive (`yyyy-MM-dd`). */
 export type DateRange = { from: string; to: string }
 
-// A safety bound, not a UX one: tables render every observation server-side.
-export const TABLE_MAX_CUSTOM_DAYS = 92
-// Five years including a leap day; graph-data enforces the same window.
-export const GRAPH_MAX_CUSTOM_DAYS = 5 * 365 + 1
-// NWAC's own loggers report to SnowObs from mid-2015.
-export const EARLIEST_CUSTOM_DATE = '2015-10-01'
+// A season at most, leap day included. Kept apart so the tabs can have different limits later.
+export const TABLE_MAX_CUSTOM_DAYS = 366
+export const GRAPH_MAX_CUSTOM_DAYS = 366
+// The Table tab renders this many days at a time; older ones load as the reader scrolls.
+export const TABLE_CHUNK_DAYS = 30
+
+/** The seasons a station page offers: the current one and the one before, newest first. */
+export function stationSeasons(today: string): number[] {
+  const current = seasonOfDate(today)
+  return [current, current - 1]
+}
 
 // A whole-string yyyy-MM-dd date, the only form a custom range takes in the URL.
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
@@ -102,8 +92,25 @@ export function parseCustomRange(
 ): DateRange | null {
   if (!isIsoDate(from) || !isIsoDate(to)) return null
   const range = { from, to }
-  if (from > to || to > todayInZone(now, timeZone)) return null
-  return rangeDays(range) > maxDays ? null : range
+  const today = todayInZone(now, timeZone)
+  if (from > to || to > today) return null
+  const inOneOfferedSeason =
+    seasonOfDate(from) === seasonOfDate(to) && stationSeasons(today).includes(seasonOfDate(from))
+  return inOneOfferedSeason && rangeDays(range) <= maxDays ? range : null
+}
+
+/**
+ * The newest days of a range ending before `before` (or the whole range's end), and the `before`
+ * that asks for the next older chunk, null once the range is covered.
+ */
+export function tableChunk(
+  range: DateRange,
+  before: string | null,
+): { chunk: DateRange; next: string | null } {
+  const end = before ? subDays(parseISO(before), 1) : parseISO(range.to)
+  const earliest = toIsoDate(subDays(end, TABLE_CHUNK_DAYS - 1))
+  const from = earliest > range.from ? earliest : range.from
+  return { chunk: { from, to: toIsoDate(end) }, next: from > range.from ? from : null }
 }
 
 // A plain Date, so its ISO string is UTC like the presets' and graph-data URLs share a cache key.
@@ -125,18 +132,17 @@ export function customRangeBounds(
   return { from, to: subMinutes(startOfDayInZone(dayAfter, timeZone), 1) }
 }
 
-export function formatRangeLabel(range: DateRange, now: Date, timeZone: string): string {
-  const thisYear = todayInZone(now, timeZone).slice(0, 4)
-  const showYear = range.from.slice(0, 4) !== thisYear || range.to.slice(0, 4) !== thisYear
-  const pattern = showYear ? 'MMM d, yyyy' : 'MMM d'
-  const from = format(parseISO(range.from), pattern)
-  return range.from === range.to ? from : `${from} – ${format(parseISO(range.to), pattern)}`
+/** "Sep 6 – Sep 7, 2025", naming the first year too when the range crosses into another. */
+export function formatRangeLabel(range: DateRange): string {
+  const from = parseISO(range.from)
+  const to = format(parseISO(range.to), 'MMM d, yyyy')
+  if (range.from === range.to) return to
+  const sameYear = range.from.slice(0, 4) === range.to.slice(0, 4)
+  return `${format(from, sameYear ? 'MMM d' : 'MMM d, yyyy')} – ${to}`
 }
 
 /** The calendar days a rolling preset touches, for labelling it like a custom range. */
 export function presetRange(period: StationPeriod, timeZone: string, now: Date): DateRange {
-  // hoursBack rounds up to whole hours (Season starts up to 59 minutes before Oct 1), so the
-  // label steps forward to the day the readings start.
-  const start = addMinutes(subHours(now, period.hoursBack(now, timeZone)), 59)
+  const start = subHours(now, period.hours)
   return { from: todayInZone(start, timeZone), to: todayInZone(now, timeZone) }
 }

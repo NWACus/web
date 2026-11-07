@@ -1,10 +1,11 @@
 'use client'
 
-import type { StationTable } from '@/services/snowobs/tableHelpers'
+import type { StationTable, StationTables } from '@/services/snowobs/tableHelpers'
 import type { StationUnits } from '@/services/snowobs/units'
 import { useRouter } from 'next/navigation'
 import type { ReactNode, RefObject } from 'react'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
+import { OlderTableRows, useOlderTableRows, type OlderRows } from './OlderTableRows'
 import { TabsWithLatest } from './StationLatestObservation'
 import { StationNowTable } from './StationNowTable'
 import type { DateRange } from './stationPeriods'
@@ -17,8 +18,6 @@ import {
 import { StationRangePicker } from './StationRangePicker'
 import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useStationUnits } from './UnitToggle'
-
-const tableHref = (key: string) => `?range=table&period=${key}`
 
 function TableRangePicker({
   activePeriodKey,
@@ -35,7 +34,7 @@ function TableRangePicker({
       periods={TABLE_PERIODS}
       activePeriod={resolveTablePeriod(activePeriodKey)}
       custom={customRange}
-      periodHref={tableHref}
+      onSelectPeriod={(key) => router.push(`?range=table&period=${key}`, { scroll: false })}
       onApplyCustom={({ from, to }) =>
         router.push(`?range=table&from=${from}&to=${to}`, { scroll: false })
       }
@@ -63,8 +62,6 @@ function useBarHeightVar(
   }, [wrapperRef, barRef])
 }
 
-type StationTables = { default: StationTable; metric: StationTable | null }
-
 function shownTable(tables: StationTables, wanted: StationUnits): [StationTable, StationUnits] {
   return wanted === 'metric' && tables.metric
     ? [tables.metric, 'metric']
@@ -75,6 +72,7 @@ export function StationTableView({
   tables,
   activePeriodKey,
   customRange,
+  older = null,
   timeZone,
   tabs,
 }: {
@@ -83,11 +81,16 @@ export function StationTableView({
   /** The preset in force; a valid custom range overrides it. */
   activePeriodKey: string
   customRange: DateRange | null
+  /** A long range's rows that weren't rendered with the page. */
+  older?: OlderRows | null
   timeZone: string
   tabs?: ReactNode
 }) {
   const [unitSystem, changeStationUnits] = useStationUnits()
-  const [table, units] = shownTable(tables, unitSystem)
+  const olderRows = useOlderTableRows(older)
+  const { merged } = olderRows
+  const allTables = useMemo(() => merged(tables), [merged, tables])
+  const [table, units] = shownTable(allTables, unitSystem)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const barRef = useRef<HTMLDivElement>(null)
   useBarHeightVar(wrapperRef, barRef)
@@ -102,10 +105,11 @@ export function StationTableView({
             customRange={customRange}
             timeZone={timeZone}
           />
-          {tables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
+          {allTables.metric && <UnitToggle unit={unitSystem} onChange={changeStationUnits} />}
         </div>
       </StationViewBar>
       <StationNowTable table={table} elevationUnit={units === 'metric' ? ' m' : undefined} />
+      <OlderTableRows rows={olderRows} />
     </div>
   )
 }

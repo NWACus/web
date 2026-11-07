@@ -109,6 +109,13 @@ export function timezoneAbbreviation(date: Date, timeZone: string): string {
   return zonedParts(date, timeZone, { timeZoneName: 'short' })('timeZoneName')
 }
 
+/** One label for times on both sides of a clock change: PST and PDT read as PT. */
+export function spanningTimezoneLabel(newest: string, oldest: string): string {
+  if (!newest || !oldest || newest === oldest) return newest || oldest
+  // Drops the standard/daylight letter from a two-part abbreviation's end.
+  return newest.replace(/[SD]T$/, 'T')
+}
+
 // Left-to-right order of readings in a station table. Variable-major, the way
 // the legacy nwac.us tables read: every logger's temperature, then every
 // logger's humidity, and so on down the list. A reading SnowObs starts sending

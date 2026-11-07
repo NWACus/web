@@ -35,6 +35,14 @@ beforeEach(() => {
   withStaleStationsMock.mockImplementation(async (_center, response) => ({ response, stale: [] }))
 })
 
+beforeAll(() => {
+  jest.useFakeTimers({ now: new Date('2026-11-05T20:00:00Z'), doNotFake: ['queueMicrotask'] })
+})
+
+afterAll(() => {
+  jest.useRealTimers()
+})
+
 describe('the Table tab', () => {
   it('reads both unit systems, each cached for 60 seconds as SnowObs does', async () => {
     await resolveTabView(context, 'table', {})
@@ -77,11 +85,26 @@ describe('the Table tab', () => {
   })
 
   it('falls back to the default period when the custom range is invalid', async () => {
-    await resolveTabView(context, 'table', { from: '2026-01-01', to: '2026-06-01' })
+    await resolveTabView(context, 'table', { from: '2024-01-01', to: '2024-01-09' })
     expect(fetchStationTimeseriesMock).toHaveBeenCalledWith(
       'nwac',
       context.subject.stations,
       expect.objectContaining({ windowHours: 24 }),
     )
+  })
+
+  it('reads only the newest 30 days of a long range, and leaves the rest for scrolling', async () => {
+    const view = await resolveTabView(context, 'table', { from: '2025-09-01', to: '2026-01-31' })
+    expect(fetchStationTimeseriesMock).toHaveBeenCalledWith(
+      'nwac',
+      context.subject.stations,
+      expect.objectContaining({ start: new Date('2026-01-02T08:00:00Z') }),
+    )
+    const content = view.tabContent
+    if (!isValidElement<{ older: { before: string } | null }>(content)) {
+      throw new Error('expected the table view')
+    }
+    expect(content.props.older?.before).toBe('2026-01-02')
+    expect(content.key).toContain('2025-09-01/2026-01-31')
   })
 })

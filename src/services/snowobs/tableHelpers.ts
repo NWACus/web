@@ -8,6 +8,7 @@ import {
   PRECIP_CUMSUM,
   PRECIP_HOURLY,
   SENSOR_LABELS,
+  spanningTimezoneLabel,
   timezoneAbbreviation,
   WIND_COMPASS,
   WIND_DIRECTION,
@@ -46,6 +47,9 @@ export type StationTable = {
   latestObservation: number | null
   latestDisplay: string | null
 }
+
+/** A table in both unit systems; metric is null if its read failed. */
+export type StationTables = { default: StationTable; metric: StationTable | null }
 
 export type LatestObservation = Pick<
   StationTable,
@@ -514,7 +518,10 @@ export function buildStationTable(
     rows,
     timezoneLabel:
       sortedHours.length > 0
-        ? timezoneLabelFor(new Date(sortedHours[0]).toISOString(), timeZone)
+        ? spanningTimezoneLabel(
+            timezoneLabelFor(new Date(sortedHours[0]).toISOString(), timeZone),
+            timezoneLabelFor(new Date(sortedHours[sortedHours.length - 1]).toISOString(), timeZone),
+          )
         : '',
     latestObservation: latest,
     latestDisplay: latest !== null ? formatDisplay(new Date(latest).toISOString(), timeZone) : null,
