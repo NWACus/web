@@ -10,7 +10,11 @@ jest.mock('../../src/services/snowobs/access', () => ({
   resolveSnowObsToken: async () => 'token',
 }))
 
-import { fetchReportedReadings } from '@/services/stations/reportedReadings'
+import {
+  fetchLastReports,
+  fetchReportedReadings,
+  withStaleStations,
+} from '@/services/stations/reportedReadings'
 
 function response(stations: { stid: string; source: string; variables: string[] }[]) {
   return {
@@ -54,7 +58,7 @@ describe('fetchReportedReadings', () => {
     expect(fetchCurrentObservationsMock).not.toHaveBeenCalled()
   })
 
-  it('falls back to the last day of a station that reported in the last 48 hours, and dates it', async () => {
+  it('falls back to the last day of a quiet station, and dates it', async () => {
     fetchStationTimeseriesMock
       .mockResolvedValueOnce(response([{ ...live, variables: ['air_temp'] }]))
       .mockResolvedValueOnce(response([{ ...stale, variables: ['snow_depth', 'air_temp'] }]))
@@ -92,15 +96,78 @@ describe('fetchReportedReadings', () => {
     })
   })
 
-  it('lists nothing for a station quiet longer than 48 hours', async () => {
+  it('falls back however long ago the station last reported', async () => {
     fetchStationTimeseriesMock.mockResolvedValueOnce(response([]))
+    fetchStationTimeseriesMock.mockResolvedValueOnce(
+      response([{ ...stale, variables: ['snow_depth'] }]),
+    )
     fetchCurrentObservationsMock.mockResolvedValue(
-      new Map([['nwac:48', { variables: [], observedAt: '2026-10-07T23:00:00Z' }]]),
+      new Map([['nwac:48', { variables: [], observedAt: '2026-01-07T23:00:00Z' }]]),
     )
     expect(await fetchReportedReadings('nwac', [stale])).toEqual({
-      readings: { 'nwac:48': [] },
-      lastReported: {},
+      readings: { 'nwac:48': ['snow_depth'] },
+      lastReported: { 'nwac:48': '2026-01-07T23:00:00Z' },
     })
-    expect(fetchStationTimeseriesMock).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('withStaleStations', () => {
+  it('leaves a logger reporting only its battery alone', async () => {
+    const fetched = response([{ ...live, variables: ['battery_voltage'] }])
+
+    const kept = await withStaleStations('nwac', fetched, [live])
+
+    expect(kept).toEqual({ response: fetched, stale: [] })
+    expect(fetchCurrentObservationsMock).not.toHaveBeenCalled()
+  })
+
+  it('keeps a station with no readings at all as stale', async () => {
+    const observedAt = '2026-10-18T12:00:00Z'
+    fetchCurrentObservationsMock.mockResolvedValue(new Map([['nwac:48', { observedAt }]]))
+    fetchStationTimeseriesMock.mockResolvedValue(response([{ ...stale, variables: ['air_temp'] }]))
+
+    const kept = await withStaleStations('nwac', response([{ ...stale, variables: [] }]), [stale])
+
+    expect(kept.stale).toEqual(['nwac:48'])
+  })
+})
+
+describe('fetchLastReports', () => {
+  const observedAt = '2026-10-18T12:00:00Z'
+
+  it('dates only the stations silent in the default window, from the tracking feed', async () => {
+    fetchCurrentObservationsMock.mockResolvedValue(new Map([['nwac:48', { observedAt }]]))
+    fetchStationTimeseriesMock.mockResolvedValue(
+      response([
+        { ...live, variables: ['air_temp'] },
+        { ...stale, variables: [] },
+      ]),
+    )
+
+    expect(await fetchLastReports('nwac', [live, stale])).toEqual({ 'nwac:48': observedAt })
+  })
+
+  it('leaves out a station the tracking feed saw inside the window, as SnowObs only dropped it', async () => {
+    fetchCurrentObservationsMock.mockResolvedValue(
+      new Map([['nwac:48', { observedAt: '2026-10-19T11:45:00Z' }]]),
+    )
+    fetchStationTimeseriesMock.mockResolvedValue(response([{ ...live, variables: ['air_temp'] }]))
+
+    expect(await fetchLastReports('nwac', [live, stale])).toEqual({})
+  })
+
+  it("leaves out a date that won't parse", async () => {
+    fetchCurrentObservationsMock.mockResolvedValue(
+      new Map([['nwac:48', { observedAt: 'not a date' }]]),
+    )
+    fetchStationTimeseriesMock.mockResolvedValue(response([{ ...live, variables: ['air_temp'] }]))
+
+    expect(await fetchLastReports('nwac', [live, stale])).toEqual({})
+  })
+
+  it('leaves the page without dates when the lookup fails', async () => {
+    fetchStationTimeseriesMock.mockRejectedValue(new Error('down'))
+
+    expect(await fetchLastReports('nwac', [live])).toEqual({})
   })
 })

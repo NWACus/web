@@ -6,7 +6,7 @@ import { Announcements } from '@/components/Announcements/Announcements'
 import { Footer } from '@/components/Footer/Footer'
 import { Header } from '@/components/Header/Header'
 
-import { PostHogTenantRegister } from '@/components/PostHogTenantRegister.client'
+import { PostHogCenterRegister } from '@/components/PostHogCenterRegister.client'
 import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
 import { NACWidgetsConfigProvider } from '@/providers/NACWidgetsConfigProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
@@ -82,7 +82,7 @@ export default async function RootLayout({ children, params }: Args) {
 
   return (
     <TenantProvider tenant={tenant}>
-      <PostHogTenantRegister />
+      <PostHogCenterRegister />
       <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
         <NACWidgetsConfigProvider config={nacWidgetsConfig}>
           <div className={cn('flex flex-col min-h-screen max-w-screen overflow-x-clip', center)}>

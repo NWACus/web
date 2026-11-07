@@ -19,7 +19,7 @@ const underlineHoverClassName =
 
 export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNavItem[] }) => {
   return (
-    <NavigationMenu delayDuration={100} className="z-50">
+    <NavigationMenu delayDuration={100} className="z-[60]">
       <NavigationMenuList>
         {topLevelNavItems.map((navItem) => {
           const label = navItem.label || navItem.link?.label

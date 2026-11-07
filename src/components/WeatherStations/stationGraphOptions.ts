@@ -1,5 +1,6 @@
 import type { EChartOption } from '@/components/charts/EChart'
 import type { GraphData, GraphSeries } from '@/services/snowobs/graph'
+import { windDirectionLabel } from '@/services/snowobs/stationMap/format'
 import { formatReading } from '@/services/snowobs/units'
 import { format } from 'date-fns'
 import type { GraphPreset } from './stationGraphPresets'
@@ -52,8 +53,6 @@ function seriesFor(
 }
 
 const AXIS_CARDINALS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
-// prettier-ignore
-const ROSE_16 = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW']
 
 // Axis ticks land on 45° multiples — 8-wind keeps them readable.
 export function degreesToCardinal(deg: number): string {
@@ -63,7 +62,7 @@ export function degreesToCardinal(deg: number): string {
 // Hover labels use the 16-wind rose (22.5° sectors), matching the legacy plots.
 export function degreesToRose(deg: number): string {
   if (deg < 0 || deg > 360) return 'INV'
-  return ROSE_16[Math.round(deg / 22.5) % 16]
+  return windDirectionLabel(deg) ?? 'INV'
 }
 
 function degreeAxisOverrides(symbolsOnly: boolean): object {
@@ -77,6 +76,15 @@ function degreeAxisOverrides(symbolsOnly: boolean): object {
 }
 
 type Bounds = { min: number; max: number }
+
+// Gridlines with no numbers: with no readings there is no scale to claim.
+const BLANK_VALUE_AXIS = { min: 0, max: 1, axisLabel: { show: false } }
+
+export function hasReadings(series: GraphSeries): boolean {
+  return series.kind === 'daily'
+    ? series.days.length > 0
+    : series.points.some(([, value]) => value !== null)
+}
 
 function isFiniteNumber(v: number | null | undefined): v is number {
   return v !== null && v !== undefined && Number.isFinite(v)
@@ -251,6 +259,7 @@ export function buildChartOption(
   primaryKeys?: string[],
 ): EChartOption {
   const title = preset.title
+  const empty = !data.series.some(hasReadings)
   const symbolsOnly = preset.symbolsOnly ?? false
   const minValueSpan = (data.aggregated ? 6 * 24 : 6) * 60 * 60 * 1000
   const bands = preset.band
@@ -298,6 +307,7 @@ export function buildChartOption(
     grid: { left: 64, right: axes.length > 1 ? 64 : 16, top: 64, bottom: 64 },
     xAxis: {
       type: 'time',
+      ...(empty ? data.range : {}),
       axisLabel: {
         hideOverlap: true,
         // Ticks lead with the day of week — forecasters think in storm days.
@@ -327,6 +337,7 @@ export function buildChartOption(
         data.series.filter((s) => axisIndexFor(s.unit, axes) === i),
         i === 0 ? preset.axis : undefined,
       ),
+      ...(empty ? BLANK_VALUE_AXIS : {}),
       ...degreeAxisOverrides(symbolsOnly),
     })),
     dataZoom: [

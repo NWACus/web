@@ -38,38 +38,38 @@ describe('nextDraft', () => {
   })
 })
 
-describe('selectableBounds', () => {
-  const today = day('2026-10-18')
+const SEASON = { from: '2026-09-01', to: '2026-10-18' }
 
-  it('allows the whole history up to today until a start is picked', () => {
-    expect(selectableBounds(undefined, today, 92)).toEqual({
-      earliest: day('2015-10-01'),
-      latest: today,
+describe('selectableBounds', () => {
+  it('allows the whole season until a start is picked', () => {
+    expect(selectableBounds(undefined, SEASON, 92)).toEqual({
+      earliest: day('2026-09-01'),
+      latest: day('2026-10-18'),
     })
   })
 
   it('limits the other end to the cap around a picked start', () => {
-    expect(selectableBounds({ from: day('2026-06-01') }, today, 10)).toEqual({
-      earliest: day('2026-05-23'),
-      latest: day('2026-06-10'),
+    expect(selectableBounds({ from: day('2026-10-01') }, SEASON, 10)).toEqual({
+      earliest: day('2026-09-22'),
+      latest: day('2026-10-10'),
     })
   })
 })
 
 describe('applicableRange', () => {
   it('reads an incomplete draft as a one-day range', () => {
-    expect(applicableRange({ from: day('2026-10-05') }, 92, '2026-10-18')).toEqual({
+    expect(applicableRange({ from: day('2026-10-05') }, 92, SEASON)).toEqual({
       from: '2026-10-05',
       to: '2026-10-05',
     })
   })
 
-  it('rejects ranges past the cap, in the future or before the records', () => {
+  it('rejects ranges past the cap or outside the season', () => {
     const span = (from: string, to: string) => ({ from: day(from), to: day(to) })
-    expect(applicableRange(span('2026-01-01', '2026-04-02'), 92, '2026-10-18')).not.toBeNull()
-    expect(applicableRange(span('2026-01-01', '2026-04-03'), 92, '2026-10-18')).toBeNull()
-    expect(applicableRange(span('2026-10-10', '2026-10-19'), 92, '2026-10-18')).toBeNull()
-    expect(applicableRange(span('2015-09-30', '2015-10-05'), 92, '2026-10-18')).toBeNull()
+    expect(applicableRange(span('2026-09-01', '2026-09-10'), 10, SEASON)).not.toBeNull()
+    expect(applicableRange(span('2026-09-01', '2026-09-11'), 10, SEASON)).toBeNull()
+    expect(applicableRange(span('2026-10-10', '2026-10-19'), 92, SEASON)).toBeNull()
+    expect(applicableRange(span('2026-08-30', '2026-09-05'), 92, SEASON)).toBeNull()
   })
 })
 

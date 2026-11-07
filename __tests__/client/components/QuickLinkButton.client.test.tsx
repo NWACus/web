@@ -2,10 +2,10 @@ import QuickLinkButton from '@/components/QuickLinkButton'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
 
-const mockCaptureWithTenant = jest.fn()
+const mockCapture = jest.fn()
 
 jest.mock('../../../src/utilities/useAnalytics', () => ({
-  useAnalytics: () => ({ captureWithTenant: mockCaptureWithTenant }),
+  useAnalytics: () => ({ capture: mockCapture }),
 }))
 
 jest.mock('../../../src/utilities/handleReferenceURL', () => ({
@@ -143,7 +143,7 @@ describe('QuickLinkButton', () => {
 
     fireEvent.click(screen.getByRole('link'))
 
-    expect(mockCaptureWithTenant).toHaveBeenCalledWith(
+    expect(mockCapture).toHaveBeenCalledWith(
       'home_page_quick_links',
       expect.objectContaining({ name: 'Avalanche Forecast' }),
     )

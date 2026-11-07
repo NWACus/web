@@ -1,6 +1,6 @@
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { buildChartOption } from '@/components/WeatherStations/stationGraphOptions'
-import type { GraphData } from '@/services/snowobs/graph'
+import type { GraphData, RawGraphSeries } from '@/services/snowobs/graph'
 import type { StationPageSummary } from '@/services/stations/stationPages'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
@@ -76,7 +76,7 @@ function pickOption(name: string) {
   fireEvent.click(screen.getByRole('option', { name }))
 }
 
-function series(stid: string, variable = 'air_temp', decimals = 1): GraphData['series'][number] {
+function series(stid: string, variable = 'air_temp', decimals = 1): RawGraphSeries {
   return {
     kind: 'raw',
     key: `nwac:${stid}`,
@@ -113,6 +113,23 @@ function chartSeries(option: Record<string, unknown>): ChartSeries[] {
 function seriesLineTypes(option: Record<string, unknown>): (string | undefined)[] {
   return chartSeries(option).map((s) => s.lineStyle?.type)
 }
+
+describe('buildChartOption with no readings', () => {
+  it('draws the requested window on a blank scale', () => {
+    const range = { min: 1_700_000_000_000, max: 1_700_600_000_000 }
+    const data: GraphData = {
+      series: [{ ...series('1'), points: [] }],
+      aggregated: false,
+      timezone: 'x',
+      range,
+    }
+    const option = buildChartOption(data, TEMP_PRESET)
+    expect(option.xAxis).toMatchObject(range)
+    expect(option.yAxis).toEqual([
+      expect.objectContaining({ min: 0, max: 1, axisLabel: { show: false } }),
+    ])
+  })
+})
 
 describe('buildChartOption comparison styling', () => {
   const data: GraphData = { series: [series('1'), series('9')], aggregated: false, timezone: 'x' }
@@ -441,6 +458,52 @@ describe('StationGraphs chart arrangement', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reset to defaults' }))
     await expectRowOrder(['Temperature', 'Relative Humidity'])
     expect(graphCheckbox('Relative Humidity')).toBeChecked()
+  })
+
+  it('shows the message in a graph whose only station is stale, and draws the others', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...dataWithSeries,
+        series: [series('1', 'air_temp'), { ...series('2', 'relative_humidity'), points: [] }],
+      }),
+    })
+    renderGraphs()
+    expect(await screen.findAllByText('No data reported for this period.')).toHaveLength(1)
+  })
+
+  it('keeps every graph when all its stations are stale', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...dataWithSeries,
+        series: dataWithSeries.series.map((s) => ({ ...s, points: [] })),
+      }),
+    })
+    renderGraphs()
+    expect(await screen.findAllByText('No data reported for this period.')).toHaveLength(2)
+    expect(screen.getByText('No recent observations')).toBeInTheDocument()
+  })
+
+  it("shows the newest report from the page's own stations, not a compared one", async () => {
+    const reported = (latestDisplay: string, latestObservation: number) => ({
+      timezoneLabel: 'PST',
+      latestObservation,
+      latestDisplay,
+    })
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...dataWithSeries,
+        latest: {
+          'nwac:1': reported('11/03 10:00', 1),
+          'nwac:2': reported('11/03 12:00', 2),
+          'nwac:99': reported('11/03 14:00', 3),
+        },
+      }),
+    })
+    renderGraphs()
+    expect(await screen.findByText(/Last updated 11\/03 12:00 PST/)).toBeInTheDocument()
   })
 
   it('disables graphs whose variables no station reports', async () => {

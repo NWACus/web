@@ -22,7 +22,7 @@ export default function QuickLinkButton({
   reference,
   url,
 }: QuickLinkButtonProps) {
-  const { captureWithTenant } = useAnalytics()
+  const { capture } = useAnalytics()
 
   const href = handleReferenceURL({ type, reference, url })
   if (!href) return null
@@ -34,7 +34,7 @@ export default function QuickLinkButton({
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
   const linkDestination = href || url || ''
   const onClickWithCapture = () => {
-    captureWithTenant('home_page_quick_links', {
+    capture('home_page_quick_links', {
       name: displayLabel,
       from_page: window.location.pathname,
       to_page: linkDestination,

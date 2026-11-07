@@ -2,18 +2,25 @@
 
 /**
  * Steps between the dates with a published Mountain Weather forecast, or picks one from a
- * calendar that offers only those. Looks like the avalanche forecast's picker, without the danger
- * colors, and loads months the same way: the server seeds an initial window, and the calendar
+ * calendar of one season that offers only those, with a rail to move between seasons. Loads months
+ * the way the avalanche forecast's picker does: the server seeds an initial window, and the calendar
  * fetches further months from `/api/nwac/nwac-weather-dates` as the reader pages into them, so a
  * dated page never ships the whole list. Today lives at `/weather/forecast`; any other date at
  * `/weather/forecast/<date>`.
  */
-import { parseISO, startOfMonth } from 'date-fns'
+import { seasonOfDate } from '@/services/nac/forecastArchive'
+import { max, parseISO, startOfMonth } from 'date-fns'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { createContext, useContext, useEffect, useMemo, useState, type ComponentProps } from 'react'
+import { createContext, useContext, useEffect, useState, type ComponentProps } from 'react'
 import type { DayButton } from 'react-day-picker'
 
+import {
+  adjacentForecastHrefs,
+  dayKey,
+  forecastHref,
+  triggerLabel,
+} from '@/components/forecast/datePickerNavigation'
 import {
   DAY_CELL,
   DatePickerBar,
@@ -22,16 +29,20 @@ import {
   useMonthLoader,
 } from '@/components/forecast/DatePickerParts.client'
 import {
-  adjacentForecastHrefs,
-  dayKey,
-  forecastHref,
-  triggerLabel,
-} from '@/components/forecast/datePickerNavigation'
+  sameMonthInSeason,
+  seasonBounds,
+  seasonName,
+  seasonOfMonth,
+  seasonsSince,
+} from '@/components/seasonCalendar'
+import { SeasonRail } from '@/components/SeasonRail'
 import { Calendar } from '@/components/ui/calendar'
 import { cn } from '@/utilities/ui'
 
 const BASE = '/weather/forecast'
 const DATES_ENDPOINT = '/api/nwac/nwac-weather-dates'
+// The archive's first forecast. v3 can't read oldest-first, so the date is kept here.
+const FIRST_FORECAST = '2020-12-10'
 
 export function dateHref(date: string, today: string) {
   return forecastHref(BASE, today, date)
@@ -102,32 +113,50 @@ function Day({ day, className }: ComponentProps<typeof DayButton>) {
   )
 }
 
-/** The month grid, with a spinner over it while a month's dates load. */
+/** One season's month grid beside the seasons, with a spinner over it while a month's dates load. */
 function PublishedCalendar({
   month,
   onMonthChange,
   today,
+  firstDate,
   loading,
 }: {
   month: Date
   onMonthChange: (next: Date) => void
   today: string
+  firstDate: string
   loading: boolean
 }) {
+  const firstMonth = startOfMonth(parseISO(firstDate))
+  const shownSeason = seasonOfMonth(month)
+  const { from, to } = seasonBounds(shownSeason, today)
+  const items = seasonsSince(seasonOfDate(firstDate), today).map((season) => ({
+    key: String(season),
+    label: seasonName(season),
+    active: season === shownSeason,
+    onSelect: () =>
+      onMonthChange(max([sameMonthInSeason(month, season, parseISO(today)), firstMonth])),
+  }))
   return (
-    <div className="relative">
-      <Calendar
-        mode="single"
-        month={month}
-        onMonthChange={onMonthChange}
-        endMonth={parseISO(today)}
-        components={{ DayButton: Day }}
-      />
-      {loading && (
-        <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin" />
-        </div>
-      )}
+    <div className="sm:grid sm:auto-cols-auto sm:grid-flow-col">
+      <SeasonRail label="Seasons" sections={[{ title: 'Seasons', items }]} />
+      <div className="relative">
+        <Calendar
+          mode="single"
+          month={month}
+          onMonthChange={onMonthChange}
+          startMonth={max([parseISO(from), firstMonth])}
+          endMonth={parseISO(to)}
+          captionLayout="dropdown"
+          showOutsideDays={false}
+          components={{ DayButton: Day }}
+        />
+        {loading && (
+          <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -150,8 +179,8 @@ export function DatePicker({
   const { published, loading, loadMonth } = usePublishedDates(initialDates, initialRange)
   const today = useToday(renderedToday)
   const { month, showMonth } = useCalendarMonth(date, loadMonth)
-  const loaded = useMemo(() => [...published], [published])
-  const { olderHref, newerHref } = adjacentForecastHrefs(loaded, date, today, BASE)
+  // The page's own window: browsing elsewhere loads far-off dates that aren't this date's neighbors.
+  const { olderHref, newerHref } = adjacentForecastHrefs(initialDates, date, today, BASE)
 
   return (
     <DatePickerBar
@@ -160,12 +189,17 @@ export function DatePicker({
       olderLabel="Older forecast"
       newerLabel="Newer forecast"
     >
-      <DatePickerPopover label={triggerLabel(date)}>
+      {/* Reopens on the date shown, wherever the calendar was browsed to before it closed. */}
+      <DatePickerPopover
+        label={triggerLabel(date)}
+        onOpen={() => showMonth(startOfMonth(parseISO(date)))}
+      >
         <DayContext.Provider value={{ published, date, today }}>
           <PublishedCalendar
             month={month}
             onMonthChange={showMonth}
             today={today}
+            firstDate={date < FIRST_FORECAST ? date : FIRST_FORECAST}
             loading={loading}
           />
         </DayContext.Provider>

@@ -1,4 +1,9 @@
-import { READING_NAMES, SENSOR_LABELS } from '@/services/snowobs/constants'
+import {
+  DERIVED_FROM,
+  READING_NAMES,
+  SENSOR_LABELS,
+  WIND_COMPASS,
+} from '@/services/snowobs/constants'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
 import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
@@ -11,7 +16,9 @@ export type StationEntry = StationRef & { hidden?: string[] }
 /** One table column in a page's chosen order. */
 export type ColumnOrderEntry = StationRef & { variable: string }
 
+// The table heads both wind direction columns Dir; the admin needs to tell them apart.
 export function readingLabel(variable: string): string {
+  if (variable === WIND_COMPASS) return 'Compass'
   return SENSOR_LABELS[variable] ?? variable
 }
 
@@ -24,7 +31,7 @@ export function readingsSummary(station: StationEntry, choices: string[]): strin
   const hidden = station.hidden ?? []
   if (hidden.length === 0)
     return choices.length > 0 ? `All readings · ${choices.length}` : 'All readings'
-  if (choices.every((v) => hidden.includes(v))) return 'None'
+  if (!choices.some((v) => showsReading(station, v))) return 'None'
   return `All except ${hidden.map(readingLabel).join(', ')}`
 }
 
@@ -82,10 +89,31 @@ export function selectColumns(
   })
 }
 
+// The index an unlisted column goes after, or -1 for the end.
+function placeAfter(ordered: StationColumnConfig[], column: StationColumnConfig): number {
+  const sameStation = (a: StationRef, b: StationRef) => stationKey(a) === stationKey(b)
+  const source = DERIVED_FROM[column.variable]
+  const own = ordered.findIndex(
+    (c) => c.variable === source && sameStation(c.station, column.station),
+  )
+  if (own !== -1) return own
+  const last = ordered.map((c) => c.variable).lastIndexOf(column.variable)
+  if (last === -1) return last
+  // Not between another station's reading and the column derived from it.
+  const next = ordered[last + 1]
+  const paired =
+    next !== undefined &&
+    DERIVED_FROM[next.variable] === column.variable &&
+    sameStation(next.station, ordered[last].station)
+  return paired ? last + 1 : last
+}
+
 /**
  * The columns in the page's chosen order. A column the order does not list, such as a reading
  * just shown again or a sensor that started reporting, goes after the last column for its reading, or
- * at the end if there is none; an order entry with no column behind it is ignored.
+ * at the end if there is none; a derived column goes after its station's source reading, which
+ * also places it in orders saved before it could be listed. An order entry with no column behind
+ * it is ignored.
  */
 export function orderColumns(
   columns: StationColumnConfig[],
@@ -97,7 +125,7 @@ export function orderColumns(
   const listed = new Set(ordered)
   for (const column of columns) {
     if (listed.has(column)) continue
-    const last = ordered.map((c) => c.variable).lastIndexOf(column.variable)
+    const last = placeAfter(ordered, column)
     if (last === -1) ordered.push(column)
     else ordered.splice(last + 1, 0, column)
   }

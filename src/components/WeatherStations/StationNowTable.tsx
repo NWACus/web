@@ -1,12 +1,24 @@
 import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
-import type { StationTable } from '@/services/snowobs/tableHelpers'
+import { WIND_COMPASS } from '@/services/snowobs/constants'
+import { windDirectionLabel } from '@/services/snowobs/stationMap/format'
+import type { StationTable, TableColumn } from '@/services/snowobs/tableHelpers'
 import { formatReading } from '@/services/snowobs/units'
 import { cn } from '@/utilities/ui'
+import { memo } from 'react'
 import { StationTableFrame } from './StationTableFrame'
+
+function cellText(column: TableColumn, value: number | null | undefined): string {
+  if (value == null) return '–'
+  if (column.variable === WIND_COMPASS) {
+    return value >= 0 && value <= 360 ? (windDirectionLabel(value) ?? '–') : '–'
+  }
+  return formatReading(value, column.decimals)
+}
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
-export function StationNowTable({
+// A long range holds thousands of rows, so skip re-rendering them when only the view around changes.
+export const StationNowTable = memo(function StationNowTable({
   table,
   elevationUnit = "'",
 }: {
@@ -35,11 +47,10 @@ export function StationNowTable({
               className="whitespace-nowrap px-1 text-right align-bottom sm:px-2"
             >
               <div className="font-semibold text-foreground">{column.label}</div>
-              {column.unit && (
-                <div className="text-xs font-normal text-muted-foreground sm:text-sm">
-                  {column.unit}
-                </div>
-              )}
+              {/* A blank line keeps unitless labels level with the others, as headers align to the bottom. */}
+              <div className="text-xs font-normal text-muted-foreground sm:text-sm">
+                {column.unit || '\u00A0'}
+              </div>
               {column.elevation != null && (
                 <div className="text-xs font-normal text-muted-foreground sm:text-sm">
                   {column.elevation}
@@ -58,16 +69,16 @@ export function StationNowTable({
               {row.display}
             </TableCell>
             {table.columns.map((column) => {
-              const value = row.values[column.key]
+              const text = cellText(column, row.values[column.key])
               return (
                 <TableCell
                   key={column.key}
                   className={cn(
                     'px-1 py-1 text-right sm:px-2 sm:py-1.5',
-                    value == null && 'text-muted-foreground',
+                    text === '–' && 'text-muted-foreground',
                   )}
                 >
-                  {value == null ? '–' : formatReading(value, column.decimals)}
+                  {text}
                 </TableCell>
               )
             })}
@@ -76,4 +87,4 @@ export function StationNowTable({
       </TableBody>
     </StationTableFrame>
   )
-}
+})

@@ -42,6 +42,8 @@ Forecast pages are determined by AFP zone data\*. Non-forecast pages come from t
 
 Zone slugs come from the last path segment of each AFP zone's `url`, so confirm with the NAC that those URLs are AvyWeb paths (`https://<domain>/forecasts/avalanche/<zone>`) before creating the tenant. A URL with no zone path, like a bare domain, produces a wrong forecast page.
 
+Provisioned built-in pages are a snapshot: they don't update when the center's AFP zones or NAC platforms change later, so add, rename, or remove them by hand. Only super admins can edit Built-In Pages.
+
 | Title | URL | Source |
 |-------|-----|--------|
 | All Forecasts | `/forecasts/avalanche` | AFP (multi-zone) |
@@ -72,10 +74,12 @@ Provisioning fills Website Settings with placeholder images. Ask the center for 
 
 ### Theme
 
-Optional — the default theme works but centers will likely want their brand colors.
+Optional — the default theme works but centers will likely want their brand colors. Centers can't set colors in the admin panel, so ask them for hex values.
 
 - [ ] Add center's theme to `src/app/(frontend)/colors.css`
-- [ ] Add center's colors to `centerColorMap` in `src/app/api/[center]/og/centerColorMap.ts` (use header colors)
+- [ ] Add center's colors to `centerColorMap` in `src/app/api/[center]/og/centerColorMap.ts` (use header colors) so link previews use their colors
+- [ ] Check that every `--brand-foreground-*` text color has at least 4.5:1 contrast with its `--brand-*` background
+- [ ] Review the result at `/{slug}/theme-preview` on a preview deployment (the page returns a 404 in production)
 
 
 #### Required colors
@@ -103,6 +107,42 @@ Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend
 | `--brand-50` through `--brand-950` | Brand color range used for block backgrounds |
 | `--brand-foreground-50` through `--brand-foreground-950` | Text colors for each brand background. If you override `--brand-*`, set these too: each must reach 4.5:1 (WCAG AA) against its shade, and `brand-foreground-700`–`950` must be light so `--link-on-dark` works |
 
+### Footer form
+
+Centers set their subscribe form under Website Settings > Footer Form. Restyle it to match their theme, then check it on their `{slug}.avy-fx.org` site before launch.
+
+**Embedded form** (Mailchimp or another provider; most centers):
+
+1. Get the provider's embed code from the center.
+2. Strip the provider's own look: remove linked stylesheets and any rules that set fonts, colors, or widths. Remove `html` and `body` rules too; they can't leak out of the form, but they no longer do anything. Keep the provider's scripts, such as the ones that validate the form.
+3. Restyle the form in its `<style>` block with the site's theme variables, so it matches the footer and follows any later color changes. For Mailchimp:
+
+   ```css
+   #mc_embed_signup { color: var(--footer-foreground); font: inherit; }
+   #mc_embed_signup input[type="email"],
+   #mc_embed_signup input[type="text"] {
+     width: 100%; padding: 0.5rem 0.75rem;
+     border: 1px solid var(--border); border-radius: var(--radius);
+     background: #fff; color: #000;
+   }
+   #mc_embed_signup input[type="submit"] {
+     background: var(--secondary); color: var(--secondary-foreground);
+     border: 0; border-radius: var(--radius);
+     padding: 0.5rem 1rem; font-weight: 500; cursor: pointer;
+   }
+   #mc_embed_signup input[type="submit"]:hover { background: var(--secondary-hover); }
+   ```
+
+4. Set the type to **Embedded**, paste the code into **Custom embed form**, and fill in **Title** and **Subtitle**.
+5. Check it on desktop and mobile:
+   - [ ] Text and button contrast against their footer color
+   - [ ] Success and error messages are readable
+   - [ ] A test signup reaches their mailing list
+
+The form's CSS is scoped to the form itself, but its scripts run directly on the page ([ADR 017](decisions/017-form-embeds-in-page.md)). Only paste code from the provider, not code someone edited.
+
+**Form builder**: create the form under Content > Forms with Confirmation Type set to **Message**, then set the type to **Form** and pick it under **Choose form**. It uses the site's styles, but check how it looks in the footer: on NWAC's dark footer it rendered inside a light-bordered card and the navy Submit button nearly disappeared. If it clashes, use an embed instead or fix the styling in code.
+
 ### Configuring a custom domain in production
 
 1. Update the `PRODUCTION_TENANTS` env var to include the tenant's slug. This should be a comma separated list of slugs (see `src/utilities/tenancy/tenants.ts`). It is also read at build time to allow the tenant's custom domain in `next/image` `remotePatterns` (see `next.config.ts`), so redeploy after changing it.
@@ -110,4 +150,7 @@ Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend
 3. Add this domain to our [list of domains](https://vercel.com/nwac/avy/settings/domains) for avy in Vercel.
 4. For domains not managed on Vercel, we'll need to coordinate with the avalanche center to set the appropriate DNS record in their DNS provider's console. Adding a non-Vercel-managed domain will display the records to add and once verified Vercel will automatically generate an SSL certificate. We should include the apex domain -> www. redirect for these custom domains.
 5. Add the tenant's custom domain to the list of authorized web analytics urls in PostHog under Settings -> Environment (/settings/environment#web-analytics-authorized-urls)
-6. After cutover, run the [post-launch 404 report](not-found-report.md) at launch, about 1 week later, and about 1 month later, and turn the real 404s into redirects.
+6. Point the AFP at the new site. In the AFP Dashboard, copy each zone's forecast URL from the website into Settings > Forecast Zones (zone polygons on the national and website danger maps link there), and the observation viewer and form URLs into Settings > Observations.
+7. For a center new to AvyWeb, send its subdomain and custom domain to the NAC to add to their CORS allowlist (`Origin` header).
+8. Add the tenant's domain to the hostnames of the Cloudflare Turnstile widget behind `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (Cloudflare dashboard -> Turnstile -> the widget -> Hostname Management). Without it the captcha on the station Download tab errors and CSV downloads fail (`src/services/turnstile.ts`). Use the apex domain (`deathvalleyavalanchecenter.com`), which also covers `www.`, and check the widget's hostname limit first.
+9. After cutover, run the [post-launch 404 report](not-found-report.md) at launch, about 1 week later, and about 1 month later, and turn the real 404s into redirects.

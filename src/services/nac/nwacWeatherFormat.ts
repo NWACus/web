@@ -32,10 +32,14 @@ export function levelKind(
   return wet ? 'snow' : 'freezing'
 }
 
-/** New snow in inches from water equivalent and snow-to-liquid ratio (density 10 → 10:1). */
-export function deriveSnow(qpf: number | null | undefined, density: number | null | undefined) {
-  if (qpf == null || density == null || density <= 0) return null
-  return Math.round(((qpf * 100) / density) * 10) / 10
+/**
+ * New snow in inches from water equivalent and snow-to-liquid ratio (slr 12 → 12:1). A dry period
+ * (qpf 0, which needs no ratio) and the rain marker (slr 0) both derive 0, not "not forecast".
+ */
+export function deriveSnow(qpf: number | null | undefined, slr: number | null | undefined) {
+  if (qpf === 0) return 0
+  if (qpf == null || slr == null || slr < 0) return null
+  return Math.round(qpf * slr * 10) / 10
 }
 
 /**
@@ -63,7 +67,7 @@ export function fmtQpf(qpf: number | null | undefined): string {
 
 export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
   if (cell?.speed == null) return DASH
-  if (cell.speed === 0) return 'Calm'
+  if (windWording(cell.speed) === 'Calm') return `${cell.dir ?? ''} Calm`.trim()
   return `${cell.dir ?? ''} ${cell.speed}`.trim()
 }
 
@@ -299,14 +303,14 @@ export function snowTier(snow: number | null | undefined): number | null {
   return 3
 }
 
-/** One point's snow for one period, from its water amount and density. */
+/** One point's snow for one period, from its water amount and ratio. */
 export function pointSnow(
   issuance: NWACWeatherIssuance,
   pointCode: string,
   periodKey: string,
 ): number | null {
   const cell = issuance.precip[pointCode]?.[periodKey]
-  return deriveSnow(cell?.qpf, cell?.density)
+  return deriveSnow(cell?.qpf, cell?.slr)
 }
 
 /** The points that forecast a zone's snow, in the issuance's order. */

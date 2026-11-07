@@ -48,6 +48,8 @@ const mist = buildRow({
 const table: PrecipAccumulationData = {
   rows: [zeta, alta, mist],
   timezoneLabel: 'PDT',
+  latestObservation: null,
+  latestDisplay: null,
   unit: 'in',
   decimals: 2,
 }
@@ -154,7 +156,14 @@ describe('PrecipAccumulationTable', () => {
   it('renders an empty state when there are no rows', () => {
     render(
       <PrecipAccumulationTable
-        table={{ rows: [], timezoneLabel: '', unit: '', decimals: 0 }}
+        table={{
+          rows: [],
+          timezoneLabel: '',
+          latestObservation: null,
+          latestDisplay: null,
+          unit: '',
+          decimals: 0,
+        }}
         unit="default"
         onUnitChange={jest.fn()}
       />,

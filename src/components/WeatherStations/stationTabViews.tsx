@@ -2,26 +2,26 @@ import type { Datalogger } from '@/components/WeatherStations/StationCsvForm'
 import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
 import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
-import type { DateRange } from '@/components/WeatherStations/stationPeriods'
 import {
-  customRangeBounds,
   parseCustomRange,
+  rangeDays,
   resolveTablePeriod,
+  TABLE_CHUNK_DAYS,
   TABLE_MAX_CUSTOM_DAYS,
+  tableChunk,
 } from '@/components/WeatherStations/stationPeriods'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
-import { withElevationsIn } from '@/components/WeatherStations/stationTableUnits'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
-import { resolveColumns } from '@/services/snowobs/deriveColumns'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationRef } from '@/services/snowobs/stationKey'
 import { stationKey } from '@/services/snowobs/stationKey'
-import { fetchVariableRounding } from '@/services/snowobs/stationTracking'
 import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
-import { buildStationTable, stationNotes, stationSummaries } from '@/services/snowobs/tableHelpers'
+import { stationNotes, stationSummaries } from '@/services/snowobs/tableHelpers'
 import type { StationPageSummary } from '@/services/stations/getStationPages'
+import { fetchLastReports } from '@/services/stations/reportedReadings'
 import type { ColumnOrderEntry, StationEntry } from '@/services/stations/stationColumns'
+import { loadStationTables, tableWindow, windowForDays } from '@/services/stations/stationTableData'
 import type { StationTabKey } from '@/services/stations/stationTabs'
 import { resolveStationTab } from '@/services/stations/stationTabs'
 import type { ReactNode } from 'react'
@@ -31,13 +31,6 @@ import type { ReactNode } from 'react'
 
 // Station pages render per request (they read searchParams); only metadata is cached.
 const METADATA_REVALIDATE = 600
-// SnowObs caches each response for 60s, so holding the table's for as long
-// costs no freshness and spares a function waiting on it per view.
-const TABLE_REVALIDATE = 60
-// A custom range that ended before today holds readings that won't change, so hold it a day.
-// Responses over the data cache's 2 MB limit (long ranges of many stations) aren't cached at all.
-const PAST_RANGE_REVALIDATE = 24 * 60 * 60
-
 /** What the views show: a station page, or one tracked station assembled on the fly. */
 export type StationViewSubject = {
   /** The station page's slug; null for a station no page lists. */
@@ -72,13 +65,16 @@ export async function loadStationMeta(
   center: string,
   stations: StationRef[],
 ): Promise<{ notes: StationNote[]; stations: StationSummary[] }> {
-  const meta = await fetchStationTimeseries(center, stations, {
-    revalidate: METADATA_REVALIDATE,
-    windowHours: 1,
-  })
+  const [meta, lastReports] = await Promise.all([
+    fetchStationTimeseries(center, stations, {
+      revalidate: METADATA_REVALIDATE,
+      windowHours: 1,
+    }),
+    fetchLastReports(center, stations),
+  ])
   return {
     notes: stationNotes(meta.STATION),
-    stations: stationSummaries(stations, meta.STATION),
+    stations: stationSummaries(stations, meta.STATION, lastReports),
   }
 }
 
@@ -142,18 +138,13 @@ function graphsTabView({ subject, pages, timeZone }: StationTabContext): Station
 /** The table's query params: a preset `period`, or a custom `from`/`to` that wins when valid. */
 export type TableRangeParams = { period?: string; from?: string; to?: string }
 
-function tableWindow(
-  period: ReturnType<typeof resolveTablePeriod>,
-  custom: DateRange | null,
-  timeZone: string,
-  now: Date,
-) {
-  if (!custom) return { windowHours: period.hoursBack(now, timeZone), revalidate: TABLE_REVALIDATE }
-  const { from, to } = customRangeBounds(custom, timeZone, now)
-  // A range ending today leaves `end` unset so the fetch keeps its cache bucket.
-  return to
-    ? { start: from, end: to, revalidate: PAST_RANGE_REVALIDATE }
-    : { start: from, revalidate: TABLE_REVALIDATE }
+// A long range opens on its newest days; the table asks for older ones as the reader scrolls.
+function tableChunks(custom: ReturnType<typeof parseCustomRange>, subject: StationViewSubject) {
+  if (!custom || rangeDays(custom) <= TABLE_CHUNK_DAYS) return { shown: custom, older: null }
+  const { chunk, next } = tableChunk(custom, null)
+  const station = subject.stations[0]
+  const source = subject.slug ? { page: subject.slug } : { station: stationKey(station) }
+  return { shown: chunk, older: next ? { range: custom, before: next, source } : null }
 }
 
 async function tableTabView(
@@ -163,28 +154,21 @@ async function tableTabView(
   const now = new Date()
   const period = resolveTablePeriod(params.period)
   const custom = parseCustomRange(params.from, params.to, TABLE_MAX_CUSTOM_DAYS, timeZone, now)
-  const range = tableWindow(period, custom, timeZone, now)
-  // Both systems, so the toggle is instant; a failed metric read just drops the toggle.
-  const [standard, metric, rounding] = await Promise.all([
-    fetchStationTimeseries(center, subject.stations, { ...range, units: 'default' }),
-    fetchStationTimeseries(center, subject.stations, { ...range, units: 'metric' }).catch(
-      () => null,
-    ),
-    fetchVariableRounding(center),
-  ])
-  const columns = resolveColumns(standard, subject)
-  const tables = {
-    default: buildStationTable(center, standard, columns, rounding),
-    metric: metric
-      ? withElevationsIn(buildStationTable(center, metric, columns, rounding), 'metric')
-      : null,
-  }
+  const { shown, older } = tableChunks(custom, subject)
+  const window = shown ? windowForDays(shown, timeZone, now) : tableWindow(period)
+  const tables = await loadStationTables(center, subject, window, {
+    chunked: older !== null,
+    showYear: custom !== null,
+  })
   return {
     tabContent: (
       <StationTableView
+        // A new range starts over, dropping the older rows the last one loaded.
+        key={`${subject.slug}/${custom?.from}/${custom?.to}`}
         tables={tables}
         activePeriodKey={period.key}
         customRange={custom}
+        older={older}
         timeZone={timeZone}
         tabs={<StationRangeTabs activeKey="table" tabs={subject.tabs} />}
       />

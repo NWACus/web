@@ -48,7 +48,7 @@ export function ForecastPrint({
   centerName,
   centerUrl,
 }: ForecastPrintProps) {
-  const { captureWithTenant } = useAnalytics()
+  const { capture } = useAnalytics()
   const printSelection = usePrintSelection(filename)
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<PrintSection[]>(() =>
@@ -65,10 +65,10 @@ export function ForecastPrint({
   }, [])
 
   const print = useCallback(() => {
-    captureWithTenant('forecast_print', { sections: selected.join(',') })
+    capture('forecast_print', { sections: selected.join(',') })
     setOpen(false)
     printSelection(selected)
-  }, [captureWithTenant, printSelection, selected])
+  }, [capture, printSelection, selected])
 
   // A product with nothing printable offers no print. In practice unreachable — every product
   // has at least a bottom line or danger ratings — but printing an empty page helps nobody.

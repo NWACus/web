@@ -9,6 +9,7 @@ export const SENSOR_LABELS: Record<string, string> = {
   wind_speed_min: 'Min',
   wind_gust: 'Gust',
   wind_direction: 'Dir',
+  wind_direction_compass: 'Dir',
   precip_accum_one_hour: 'Pcp1',
   precip_accum_24hr: 'Pcp24',
   precip_cumsum: 'PcpSum',
@@ -31,7 +32,9 @@ export const READING_NAMES: Record<string, string> = {
   wind_speed: 'Wind speed',
   wind_gust: 'Wind gust',
   wind_direction: 'Wind direction',
+  wind_direction_compass: 'Wind direction (compass)',
   precip_accum_one_hour: 'Hourly precipitation',
+  precip_cumsum: 'Cumulative precipitation',
   snow_depth_24h: '24-hour snowfall',
   snow_depth: 'Snow depth',
   intermittent_snow: 'Intermittent snow',
@@ -73,6 +76,15 @@ export function displayUnit(rawUnit: string | undefined): string {
 export const PRECIP_HOURLY = 'precip_accum_one_hour'
 export const PRECIP_CUMSUM = 'precip_cumsum'
 
+export const WIND_DIRECTION = 'wind_direction'
+export const WIND_COMPASS = 'wind_direction_compass'
+
+// Columns the table computes, by the reading each reads. Each is a column in its own right.
+export const DERIVED_FROM: Record<string, string> = {
+  [PRECIP_CUMSUM]: PRECIP_HOURLY,
+  [WIND_COMPASS]: WIND_DIRECTION,
+}
+
 // Derive a fallback header label the way the legacy plugin did: initials of the
 // underscore/space-separated variable name, uppercased (e.g. "foo_bar" -> "FB").
 export function fallbackSensorLabel(variable: string): string {
@@ -95,6 +107,13 @@ export function zonedParts(
 // The zone abbreviation a center's readers expect, e.g. "PDT" or "MST".
 export function timezoneAbbreviation(date: Date, timeZone: string): string {
   return zonedParts(date, timeZone, { timeZoneName: 'short' })('timeZoneName')
+}
+
+/** One label for times on both sides of a clock change: PST and PDT read as PT. */
+export function spanningTimezoneLabel(newest: string, oldest: string): string {
+  if (!newest || !oldest || newest === oldest) return newest || oldest
+  // Drops the standard/daylight letter from a two-part abbreviation's end.
+  return newest.replace(/[SD]T$/, 'T')
 }
 
 // Left-to-right order of readings in a station table. Variable-major, the way

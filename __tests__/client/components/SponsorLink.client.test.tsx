@@ -2,10 +2,10 @@ import { SponsorLink } from '@/blocks/Sponsors/components/SponsorLink'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
 
-const mockCaptureWithTenant = jest.fn()
+const mockCapture = jest.fn()
 
 jest.mock('../../../src/utilities/useAnalytics', () => ({
-  useAnalytics: () => ({ captureWithTenant: mockCaptureWithTenant }),
+  useAnalytics: () => ({ capture: mockCapture }),
 }))
 
 const sponsor = {
@@ -16,7 +16,7 @@ const sponsor = {
 
 describe('SponsorLink', () => {
   beforeEach(() => {
-    mockCaptureWithTenant.mockClear()
+    mockCapture.mockClear()
   })
 
   it('captures a sponsor_impression once on mount', () => {
@@ -26,8 +26,8 @@ describe('SponsorLink', () => {
       </SponsorLink>,
     )
 
-    expect(mockCaptureWithTenant).toHaveBeenCalledTimes(1)
-    expect(mockCaptureWithTenant).toHaveBeenCalledWith('sponsor_impression', {
+    expect(mockCapture).toHaveBeenCalledTimes(1)
+    expect(mockCapture).toHaveBeenCalledWith('sponsor_impression', {
       sponsor_id: '7',
       sponsor_name: 'Acme Outfitters',
     })
@@ -42,7 +42,7 @@ describe('SponsorLink', () => {
 
     fireEvent.click(screen.getByRole('link'))
 
-    expect(mockCaptureWithTenant).toHaveBeenCalledWith('sponsor_click', {
+    expect(mockCapture).toHaveBeenCalledWith('sponsor_click', {
       sponsor_id: '7',
       sponsor_name: 'Acme Outfitters',
     })
