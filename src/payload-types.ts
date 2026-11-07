@@ -2361,7 +2361,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2452,7 +2452,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2547,7 +2547,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2642,7 +2642,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2737,7 +2737,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2832,7 +2832,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2927,7 +2927,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -3022,7 +3022,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -3117,7 +3117,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -3212,7 +3212,7 @@ export interface Navigation {
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {

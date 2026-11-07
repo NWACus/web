@@ -48,6 +48,24 @@ authTest.describe('ViewDocumentButton on published documents', () => {
 
     await expect(adminPage.locator('#view-document-button')).toBeVisible()
   })
+
+  authTest(
+    'shows live document button on a published page not in the nav',
+    async ({ adminPage }) => {
+      const pagesUrl = new AdminUrlUtil(SERVER_URL, 'pages')
+      await setTenantCookie(adminPage.context(), TenantSlugs.nwac)
+
+      // The seeded all-blocks page isn't linked from any navigation
+      const res = await adminPage.request.get(
+        `${SERVER_URL}/api/pages?where[slug][equals]=blocks&where[tenant][equals]=${TenantIds.nwac}&limit=1&depth=0`,
+      )
+      const pageId = (await res.json()).docs?.[0]?.id
+      expect(pageId, 'seeded blocks page not found').toBeTruthy()
+      await adminPage.goto(pagesUrl.edit(pageId))
+
+      await expect(adminPage.locator('#view-document-button')).toBeVisible()
+    },
+  )
 })
 
 authTest.describe('ViewDocumentButton hidden on draft documents', () => {
