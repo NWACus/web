@@ -5,6 +5,7 @@ import type {
   NWACWeatherGrid,
   NWACWeatherIssuance,
   NWACWeatherPeriod,
+  NWACWeatherPrecipCell,
 } from './model/nwacWeather'
 
 export const DASH = '—'
@@ -42,6 +43,11 @@ export function deriveSnow(qpf: number | null | undefined, slr: number | null | 
   return Math.round(qpf * slr * 10) / 10
 }
 
+/** Precipitation with no snow amount: anything summed or averaged over it is unknown too. */
+export function isSnowUnknown(cell: NWACWeatherPrecipCell | undefined) {
+  return (cell?.qpf ?? 0) > 0 && deriveSnow(cell?.qpf, cell?.slr) == null
+}
+
 /**
  * The level as the forecaster typed it, with the snow/freezing designation as its label (the
  * old 1,000 ft "drop" derivation is retired; the API folds any stored drop in before serving).
@@ -63,12 +69,6 @@ export function fmtQpf(qpf: number | null | undefined): string {
   if (qpf == null) return DASH
   if (qpf <= 0) return '0'
   return `${qpf}"`
-}
-
-export function fmtWind(cell: { dir: string | null; speed: number | null } | undefined) {
-  if (cell?.speed == null) return DASH
-  if (windWording(cell.speed) === 'Calm') return `${cell.dir ?? ''} Calm`.trim()
-  return `${cell.dir ?? ''} ${cell.speed}`.trim()
 }
 
 /** Each band's top forecast speed (mph), the range the public reads and its sensible wording. */
@@ -166,6 +166,17 @@ export function dayGroups(periods: NWACWeatherPeriod[]): PeriodGroup[] {
 /** The periods the issuance forecasts precipitation for. */
 export function precipPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] {
   return issuance.periods.filter((p) => p.precip)
+}
+
+/**
+ * False when precipitation is forecast but none of it has a snow amount: older forecasts never
+ * computed one. An issuance with no precipitation can't tell, and its zeros are true either way.
+ */
+export function hasSnowAmounts(issuance: NWACWeatherIssuance): boolean {
+  const wet = precipPeriods(issuance)
+    .flatMap((period) => issuance.points.map((p) => issuance.precip[p.code]?.[period.key]))
+    .filter((cell) => (cell?.qpf ?? 0) > 0)
+  return wet.length === 0 || !wet.every(isSnowUnknown)
 }
 
 /** The 6h blocks with a value for any zone, else the whole window; the wire doesn't say. */
@@ -323,7 +334,9 @@ export function zoneSnow(
   zoneId: string,
   periodKey: string,
 ): number | null {
-  const snows = zonePoints(issuance, zoneId)
+  const points = zonePoints(issuance, zoneId)
+  if (points.some((p) => isSnowUnknown(issuance.precip[p.code]?.[periodKey]))) return null
+  const snows = points
     .map((p) => pointSnow(issuance, p.code, periodKey))
     .filter((s): s is number => s != null)
   if (snows.length === 0) return null

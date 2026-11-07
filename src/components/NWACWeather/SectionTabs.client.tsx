@@ -61,7 +61,7 @@ export function SectionTabs({ links }: { links: SectionLink[] }) {
     <nav
       ref={nav}
       aria-label="Forecast sections"
-      className="z-20 overflow-x-auto rounded-t-lg border-b bg-card px-6 lg:sticky lg:top-0 print:hidden"
+      className="z-20 overflow-x-auto overflow-y-hidden rounded-t-lg border-b bg-card px-6 max-md:px-0 lg:sticky lg:top-0 print:hidden"
     >
       <ul className="flex gap-6">
         {links.map((l) => {
