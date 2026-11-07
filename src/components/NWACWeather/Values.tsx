@@ -79,6 +79,7 @@ function SegmentedBar({
   labels,
   cols,
   centered = false,
+  width = 'w-56',
 }: {
   fills: string[]
   names: readonly string[]
@@ -87,9 +88,11 @@ function SegmentedBar({
   cols: string
   /** Center each label under its segment, for labels that name the segment, not a tick. */
   centered?: boolean
+  /** The bar's width as static classes, so Tailwind sees them. */
+  width?: string
 }) {
   return (
-    <span className="inline-flex w-56 shrink-0 flex-col gap-0.5">
+    <span className={cn('inline-flex shrink-0 flex-col gap-0.5', width)}>
       <span className="sr-only">{names.join(', ')}</span>
       <span aria-hidden="true" className={cn('grid h-2.5 overflow-hidden rounded-sm', cols)}>
         {fills.map((fill, i) => (
@@ -112,7 +115,7 @@ function SegmentedBar({
 const KEY_LINE =
   'flex flex-wrap items-start gap-3 whitespace-nowrap text-xs leading-3 text-muted-foreground'
 
-function SnowFillKey() {
+function SnowFillKey({ width }: { width?: string }) {
   return (
     <>
       Snow
@@ -122,6 +125,7 @@ function SnowFillKey() {
         labels={SNOW_TIER_LABELS}
         cols="grid-cols-4"
         centered
+        width={width}
       />
     </>
   )
@@ -148,7 +152,8 @@ function SnowLevelKey() {
 export function SnowFillLegend() {
   return (
     <p className={KEY_LINE}>
-      <SnowFillKey />
+      {/* Narrower on a phone, to leave room for the hours toggle across from it. */}
+      <SnowFillKey width="w-40 sm:w-56" />
     </p>
   )
 }
@@ -249,8 +254,13 @@ export function TempLegend() {
 /** How to read the wind cells, under the table. */
 export function WindLegend() {
   return (
-    <p className={cn(KEY_LINE, 'gap-x-6')}>
-      <span className="inline-flex items-start gap-3">
+    <p className={cn(KEY_LINE, 'items-center gap-x-6')}>
+      <span className="inline-flex items-center gap-1">
+        <Navigation2 aria-hidden="true" className="size-3.5 text-primary" />
+        Points the way the wind blows
+      </span>
+      <span>VAR: variable</span>
+      <span className="inline-flex items-center gap-3">
         Wind
         <SegmentedBar
           fills={WIND_STEPS.map((s) => s.fill)}
@@ -259,11 +269,6 @@ export function WindLegend() {
           cols="grid-cols-7"
         />
       </span>
-      <span className="inline-flex items-center gap-1">
-        <Navigation2 aria-hidden="true" className="size-3.5 text-primary" />
-        Points the way the wind blows
-      </span>
-      <span>VAR: variable</span>
     </p>
   )
 }

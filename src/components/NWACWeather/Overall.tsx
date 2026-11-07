@@ -95,13 +95,13 @@ interface Table {
   rowLabel: string
   columns: Column[]
   groups: Group[]
-  /** Its dates are ranges too long for one line over a single column. */
+  /** Precipitation alone, by 24 hours: stretched, as its few columns would leave a gap. */
   dateRanges?: boolean
   /** Cells whose content fills them (shaded snow levels) take less padding. */
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
-  /** Beside the title, bottom-aligned: a control for the table. */
+  /** Under the table, across from its key: a control for the table. */
   aside?: ReactNode
   /** After the description, over the table: what the shading means. */
   legend?: ReactNode
@@ -365,10 +365,10 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Tab
       : 'Precipitation (liquid, in) by station; Total covers the whole forecast. This forecast doesn’t include snow amounts.',
     detail: PRECIP_DETAIL,
     legend: withSnow ? <SnowFillLegend /> : undefined,
-    aside: <PrecipHoursToggle />,
+    aside: withSnow ? <PrecipHoursToggle /> : undefined,
     rowLabel: 'Station',
     groupColumn: 'Zone',
-    dateRanges: !withSnow && hours === '24',
+    dateRanges: !withSnow,
     columns: [
       ...slots.map((s) => s.column).flatMap(split),
       ...split({ key: 'total', date: 'Total', sub: null, group: 'total', total: true }),
@@ -802,18 +802,13 @@ function TableTitle({
   const [first, ...rest] = t.detail ?? []
   return (
     <div className={cn(t.paired && 'xl:pb-3')}>
-      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
-        <Heading
-          id={headingId}
-          className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
-        >
-          {t.title}
-          {t.unit && (
-            <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
-          )}
-        </Heading>
-        {t.aside}
-      </div>
+      <Heading
+        id={headingId}
+        className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
+      >
+        {t.title}
+        {t.unit && <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>}
+      </Heading>
       {(t.note || first) && (
         <div className="space-y-1 text-sm text-muted-foreground">
           <p>{[t.note, first].filter(Boolean).join(' ')}</p>
@@ -851,10 +846,11 @@ function tableWidth(t: Table) {
   if (t.day || t.narrow) return { width: '100%' }
   const n = t.columns.length
   if (isSplit(t)) return { width: '100%', minWidth: `calc(${labels(t)} + ${n * SPLIT_COL_REM}rem)` }
+  if (t.dateRanges) {
+    return { width: '100%', minWidth: `calc(${labels(t)} + ${n * DATE_RANGE_COL_REM}rem)` }
+  }
   return t.groupColumn
-    ? {
-        width: `calc(${labels(t)} + ${n * (t.dateRanges ? DATE_RANGE_COL_REM : GROUPED_COL_REM)}rem)`,
-      }
+    ? { width: `calc(${labels(t)} + ${n * GROUPED_COL_REM}rem)` }
     : { width: '100%', minWidth: `calc(${labels(t)} + ${n * (t.minColRem ?? MIN_COL_REM)}rem)` }
 }
 
@@ -906,7 +902,14 @@ function GridTable({
           }))}
         />
       )}
-      {t.legend}
+      {t.aside ? (
+        <div className="flex items-center justify-between gap-3">
+          {t.legend}
+          {t.aside}
+        </div>
+      ) : (
+        t.legend
+      )}
     </section>
   )
 }
@@ -919,7 +922,7 @@ function TableBox({ table: t, className }: { table: Table; className?: string })
         // `relative` makes the box the containing block of the headers' screen-reader labels
         // (absolutely positioned), so they are clipped with the table instead of widening the page.
         'relative overflow-x-auto rounded-md border',
-        t.groupColumn && !isSplit(t) && 'w-fit max-w-full',
+        t.groupColumn && !isSplit(t) && !t.dateRanges && 'w-fit max-w-full',
         className,
       )}
     >
@@ -1109,6 +1112,7 @@ export function OverallSectionTabs({ parts }: { parts: OverallParts }) {
 
 export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePaths?: ZonePaths }) {
   const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, precipSnow, ext } = parts
+  const hasSnow = hasSnowAmounts(issuance)
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
   const tempsOrWind = hasContent(temps) || hasContent(wind)
@@ -1132,16 +1136,21 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
           )
         }
       />
-      {hasContent(precipSnow['12']) && (
-        <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
-          <PrecipHoursPanel hours="12">
-            <GridTable table={precipSnow['12']} anchor={anchor} />
-          </PrecipHoursPanel>
-          <PrecipHoursPanel hours="24">
+      {hasContent(precipSnow['12']) &&
+        (hasSnow ? (
+          <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
+            <PrecipHoursPanel hours="12">
+              <GridTable table={precipSnow['12']} anchor={anchor} />
+            </PrecipHoursPanel>
+            <PrecipHoursPanel hours="24">
+              <GridTable table={precipSnow['24']} anchor={anchor} />
+            </PrecipHoursPanel>
+          </PrecipHoursSwitch>
+        ) : (
+          <div id={`${anchor}-precip-snow`} className="scroll-mt-24">
             <GridTable table={precipSnow['24']} anchor={anchor} />
-          </PrecipHoursPanel>
-        </PrecipHoursSwitch>
-      )}
+          </div>
+        ))}
       <MaybeTable table={snowLevel} anchor={anchor} />
       {tempsOrWind && (
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:gap-y-2">

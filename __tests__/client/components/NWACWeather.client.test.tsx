@@ -2,7 +2,7 @@ import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
 import { SnowLevelLegend, WindValue, levelFill, windFill } from '@/components/NWACWeather/Values'
 import type { NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
-import { fmtQpf, hasSnowAmounts, precipPeriods } from '@/services/nac/nwacWeatherFormat'
+import { dayGroups, fmtQpf, hasSnowAmounts, precipPeriods } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
@@ -169,7 +169,7 @@ describe('Overall precipitation without snow amounts', () => {
   const first = afternoon.points[0].name
   const second = afternoon.points[1].name
 
-  it('shows precipitation alone: no snow columns, legend, or snow in the title', () => {
+  it('shows precipitation alone by 24 hours: no snow columns, legend, toggle, or snow in the title', () => {
     const parts = overallParts(withPrecip({ '0:0': { qpf: 0.25, slr: null } }))
     render(<Overall parts={parts} />)
     const region = screen.getByRole('region', { name: 'Precipitation (in)' })
@@ -177,10 +177,11 @@ describe('Overall precipitation without snow amounts', () => {
     expect(within(wide).queryByRole('columnheader', { name: 'Snow' })).toBeNull()
     expect(within(wide).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
     const cells = stationCells(wide, first)
-    expect(cells).toHaveLength(precipPeriods(afternoon).length + 1)
+    expect(cells).toHaveLength(dayGroups(precipPeriods(afternoon)).length + 1)
     expect(cells[0]).toBe('0.25"')
     expect(cells.at(-1)).toBe('0.25"')
-    expect(screen.getAllByText(/doesn’t include snow amounts/)).toHaveLength(2)
+    expect(within(region).queryByRole('group', { name: 'Period length' })).toBeNull()
+    expect(screen.getAllByText(/doesn’t include snow amounts/)).toHaveLength(1)
   })
 
   it('names the section link Precipitation', () => {
