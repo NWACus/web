@@ -204,6 +204,35 @@ describe('zoneSnow', () => {
     expect(pointSnow(issuance, 'B', 'n1')).toBe(0)
     expect(zoneSnow(issuance, zone.id, 'n1')).toBe(3)
   })
+
+  it.each([
+    ['dry', { qpf: 0, slr: null }],
+    ['snowy', { qpf: 0.5, slr: 12 }],
+  ])('is unknown when a wet point has no ratio, beside a %s point', (_, cell) => {
+    const [zone] = afternoon.zones
+    const issuance = {
+      ...afternoon,
+      points: [
+        { ...afternoon.points[0], code: 'A', zoneId: zone.id },
+        { ...afternoon.points[0], code: 'B', zoneId: zone.id },
+      ],
+      precip: { A: { n1: { qpf: 0.01, slr: null } }, B: { n1: cell } },
+    }
+    expect(zoneSnow(issuance, zone.id, 'n1')).toBeNull()
+  })
+
+  it('leaves out a point with no precipitation forecast', () => {
+    const [zone] = afternoon.zones
+    const issuance = {
+      ...afternoon,
+      points: [
+        { ...afternoon.points[0], code: 'A', zoneId: zone.id },
+        { ...afternoon.points[0], code: 'B', zoneId: zone.id },
+      ],
+      precip: { A: { n1: { qpf: 0.5, slr: 12 } }, B: { n1: { qpf: null, slr: null } } },
+    }
+    expect(zoneSnow(issuance, zone.id, 'n1')).toBe(6)
+  })
 })
 
 describe('NWAC weather row schemas', () => {

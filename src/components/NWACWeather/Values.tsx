@@ -39,6 +39,34 @@ export function snowFill(snow: number | null): string | undefined {
   return tier == null ? undefined : SNOW_FILLS[tier]
 }
 
+/** Wind fills, one step per strength: violet deepening to Strong, rose from there. */
+const WIND_STEPS: { fill: string; name: string; wordings: string[]; label: string | null }[] = [
+  { fill: 'bg-violet-50', name: 'Light', wordings: ['Light'], label: 'Light' },
+  {
+    fill: 'bg-violet-100',
+    name: 'Light to Moderate',
+    wordings: ['Light to occasionally Moderate', 'Light to Moderate'],
+    label: null,
+  },
+  { fill: 'bg-violet-200', name: 'Moderate', wordings: ['Moderate'], label: 'Moderate' },
+  {
+    fill: 'bg-violet-300',
+    name: 'Moderate to Strong',
+    wordings: ['Moderate to Strong'],
+    label: null,
+  },
+  { fill: 'bg-violet-400', name: 'Strong', wordings: ['Strong'], label: 'Strong' },
+  { fill: 'bg-rose-300', name: 'Strong to Extreme', wordings: ['Strong to Extreme'], label: null },
+  { fill: 'bg-rose-400', name: 'Extreme', wordings: ['Extreme'], label: 'Extreme' },
+]
+
+/** A wind cell's fill by its wording; none for calm or no wind. */
+export function windFill(speed: number | null | undefined): string | undefined {
+  const wording = windWording(speed)
+  const step = WIND_STEPS.find((s) => wording && s.wordings.includes(wording))
+  return step && `${step.fill} text-stone-900`
+}
+
 const LEVEL_KEY_LABELS = [null, "2k'", null, "4k'", null, "6k'", null, "8k'", null, "10k'+"]
 
 /**
@@ -221,23 +249,34 @@ export function TempLegend() {
 /** How to read the wind cells, under the table. */
 export function WindLegend() {
   return (
-    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-      <span className="inline-flex items-center gap-1">
-        <Navigation2 aria-hidden="true" className="size-4 text-primary" />
-        Points the way the wind blows
-      </span>
-      <span>VAR: variable</span>
-    </p>
+    <div className="space-y-2">
+      <p className={KEY_LINE}>
+        Wind
+        <SegmentedBar
+          fills={WIND_STEPS.map((s) => s.fill)}
+          names={WIND_STEPS.map((s) => s.name)}
+          labels={WIND_STEPS.map((s) => s.label)}
+          cols="grid-cols-7"
+        />
+      </p>
+      <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <Navigation2 aria-hidden="true" className="size-4 text-primary" />
+          Points the way the wind blows
+        </span>
+        <span>VAR: variable</span>
+      </p>
+    </div>
   )
 }
 
 export function WindValue({
   cell,
-  stacked = false,
+  compact = false,
 }: {
   cell: NWACWeatherWindCell | undefined
-  /** Speed under the direction on a phone, for a narrow column. */
-  stacked?: boolean
+  /** No wording, and the speed drops under the direction in a narrow column. */
+  compact?: boolean
 }) {
   if (cell?.speed == null) return <span className="text-muted-foreground">{DASH}</span>
   if (windWording(cell.speed) === 'Calm') {
@@ -254,26 +293,26 @@ export function WindValue({
       <span
         className={cn(
           'inline-flex flex-wrap items-center justify-center gap-x-1.5 whitespace-nowrap tabular-nums',
-          stacked && 'max-md:gap-x-1',
+          compact && 'max-md:gap-x-1',
         )}
       >
-        {bearing != null && (
-          // Points the way the wind blows: a north wind points down.
-          <Navigation2
-            aria-hidden="true"
-            className="size-4 shrink-0 text-primary"
-            style={{ transform: `rotate(${bearing + 180}deg)` }}
-          />
-        )}
-        <span>{cell.dir}</span>
-        <span className={cn('font-semibold', stacked && 'max-md:w-full')}>
-          {windRange(cell.speed)}
+        <span className="inline-flex items-center gap-1.5">
+          {bearing != null && (
+            // Points the way the wind blows: a north wind points down.
+            <Navigation2
+              aria-hidden="true"
+              className="size-4 shrink-0 text-primary"
+              style={{ transform: `rotate(${bearing + 180}deg)` }}
+            />
+          )}
+          <span>{cell.dir}</span>
         </span>
+        <span className="font-semibold">{windRange(cell.speed)}</span>
       </span>
       <span
         className={cn(
           'text-center text-xs leading-tight text-muted-foreground',
-          stacked && 'max-md:text-[11px]',
+          compact && 'sr-only',
         )}
       >
         {windWording(cell.speed)}

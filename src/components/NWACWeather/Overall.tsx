@@ -19,6 +19,8 @@ import {
   deriveSnowLevel,
   fmtCalendarDate,
   fmtQpf,
+  hasSnowAmounts,
+  isSnowUnknown,
   levelKind,
   precipPeriods,
   sensibleSlots,
@@ -44,6 +46,7 @@ import {
   WindValue,
   levelFill,
   snowFill,
+  windFill,
 } from './Values'
 import { WeatherSummary, type SensibleDay, type SensibleRow } from './WeatherSummary.client'
 
@@ -92,6 +95,8 @@ interface Table {
   rowLabel: string
   columns: Column[]
   groups: Group[]
+  /** Its dates are ranges too long for one line over a single column. */
+  dateRanges?: boolean
   /** Cells whose content fills them (shaded snow levels) take less padding. */
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
@@ -110,6 +115,8 @@ interface Table {
   day?: boolean
   /** Narrow enough to show every date on a phone, so it needs no date switch. */
   fitsPhone?: boolean
+  /** That phone table: squeezed to the page rather than scrolling. */
+  narrow?: boolean
 }
 
 /** Avalanche zone id → the path of that zone's forecast page. */
@@ -245,9 +252,14 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       rowLabel: 'Zone',
       columns: winds.map((b) => blockColumn(issuance, b)),
       groups: flat(
-        zoneRows((id) =>
-          winds.map((b) => <WindValue key={b.key} cell={issuance.wind[id]?.[b.key]} stacked />),
-        ),
+        issuance.zones.map((z) => ({
+          key: z.id,
+          label: z.name,
+          cells: winds.map((b) => (
+            <WindValue key={b.key} cell={issuance.wind[z.id]?.[b.key]} compact />
+          )),
+          fills: winds.map((b) => windFill(issuance.wind[z.id]?.[b.key]?.speed)),
+        })),
       ),
     },
   ]
@@ -264,25 +276,23 @@ function hundredths(value: number | null): number | null {
   return value == null ? null : Math.round(value * 100) / 100
 }
 
+function PrecipValue({ qpf }: { qpf: number | null | undefined }) {
+  return <span className="tabular-nums text-muted-foreground">{fmtQpf(qpf)}</span>
+}
+
 /** One period's (or the total's) water equivalent then snow, the pair shaded by the snow. */
 function precipSnowPair(qpf: number | null | undefined, snow: number | null) {
   const some = snow != null && snow > 0
   const fill = snowFill(snow)
   return {
     cells: [
-      <span key="we" className="tabular-nums text-muted-foreground">
-        {fmtQpf(qpf)}
-      </span>,
+      <PrecipValue key="we" qpf={qpf} />,
       <SnowValue key="snow" text={snowRange(snow)} some={some} />,
     ],
     fills: [fill, fill],
   }
 }
 
-/**
- * Water equivalent and the new snow it makes, by station, the stations grouped under their zones:
- * each period split in two, then the whole window's total.
- */
 /** One column pair of the precipitation and snow table: the periods its values add up. */
 interface PrecipSlot {
   column: Column
@@ -312,18 +322,22 @@ function precipSlots(issuance: NWACWeatherIssuance, hours: PrecipHours): PrecipS
 
 /**
  * Water equivalent and the new snow it makes, by station, the stations grouped under their zones:
- * each 12 or 24 hours split in two, then the whole window's total.
+ * each 12 or 24 hours split in two, then the whole window's total. An issuance with no snow amounts
+ * shows water equivalent alone.
  */
 function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Table {
   const slots = precipSlots(issuance, hours)
   const periods = precipPeriods(issuance)
+  const withSnow = hasSnowAmounts(issuance)
   const row = (p: NWACWeatherIssuance['points'][number]): Row => {
     const cell = (period: NWACWeatherPeriod) => issuance.precip[p.code]?.[period.key]
-    const totalOf = (of: NWACWeatherPeriod[]) =>
-      precipSnowPair(
-        hundredths(sumOf(of.map((period) => cell(period)?.qpf))),
-        sumOf(of.map((period) => deriveSnow(cell(period)?.qpf, cell(period)?.slr))),
-      )
+    const snowOf = (period: NWACWeatherPeriod) => deriveSnow(cell(period)?.qpf, cell(period)?.slr)
+    const totalOf = (of: NWACWeatherPeriod[]) => {
+      const qpf = hundredths(sumOf(of.map((period) => cell(period)?.qpf)))
+      if (!withSnow) return { cells: [<PrecipValue key="we" qpf={qpf} />], fills: [undefined] }
+      const unknown = of.some((period) => isSnowUnknown(cell(period)))
+      return precipSnowPair(qpf, unknown ? null : sumOf(of.map(snowOf)))
+    }
     const pairs = [...slots.map((s) => totalOf(s.periods)), totalOf(periods)]
     return {
       key: p.code,
@@ -333,23 +347,28 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Tab
     }
   }
   const split = (column: Column): Column[] =>
-    ['Precip', 'Snow'].map((part) => ({
-      ...column,
-      key: `${column.key}-${part}`,
-      part,
-      split: column.key,
-    }))
+    withSnow
+      ? ['Precip', 'Snow'].map((part) => ({
+          ...column,
+          key: `${column.key}-${part}`,
+          part,
+          split: column.key,
+        }))
+      : [{ ...column, split: column.key }]
   return {
     id: `precip-snow-${hours}`,
-    nav: 'Precipitation & snow',
-    title: 'Precipitation and Snow',
+    nav: withSnow ? 'Precipitation & snow' : 'Precipitation',
+    title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
-    note: 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.',
+    note: withSnow
+      ? 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.'
+      : 'Precipitation (liquid, in) by station; Total covers the whole forecast. This forecast doesn’t include snow amounts.',
     detail: PRECIP_DETAIL,
-    legend: <SnowFillLegend />,
+    legend: withSnow ? <SnowFillLegend /> : undefined,
     aside: <PrecipHoursToggle />,
     rowLabel: 'Station',
     groupColumn: 'Zone',
+    dateRanges: !withSnow && hours === '24',
     columns: [
       ...slots.map((s) => s.column).flatMap(split),
       ...split({ key: 'total', date: 'Total', sub: null, group: 'total', total: true }),
@@ -532,9 +551,13 @@ function GroupedHead({ table: t }: { table: Table }) {
               key={g.key}
               scope="colgroup"
               colSpan={g.span}
+              rowSpan={g.first.sub ? 1 : 2}
               className={cn(
                 'border-l px-2 pb-0.5 pt-2 text-center font-semibold whitespace-nowrap',
-                t.fitsPhone && 'max-md:whitespace-normal max-md:px-0.5 max-md:text-xs',
+                t.narrow && 'whitespace-normal px-0.5 text-xs',
+                !g.first.sub && 'border-b pb-2 align-bottom',
+                t.dateRanges && 'whitespace-normal',
+                g.first.total && 'border-l-2',
               )}
             >
               <DayNightDate date={g.first.date} night={g.night} />
@@ -544,29 +567,31 @@ function GroupedHead({ table: t }: { table: Table }) {
       )}
       <tr className="bg-muted">
         {t.day && <RowLabelHead table={t} rowSpan={1} />}
-        {groups.flatMap((g) =>
-          g.columns.map((c, i) => (
-            <th
-              key={c.key}
-              scope="col"
-              className={cn(
-                'border-b px-2 pb-2 pt-0.5 text-center',
-                i === 0 && 'border-l',
-                t.groupColumn && 'min-w-24 px-4',
-                t.day && 'px-0 pt-2 align-bottom',
-                t.fitsPhone && 'max-md:px-0',
-              )}
-            >
-              <span className={cn(SUB, t.day && 'text-xs', t.fitsPhone && 'max-md:text-xs')}>
-                {c.dayNightOnSub ? (
-                  <DayNightDate date={c.sub} night={c.night} label={false} />
-                ) : (
-                  c.sub
+        {groups
+          .filter((g) => t.day || g.first.sub)
+          .flatMap((g) =>
+            g.columns.map((c, i) => (
+              <th
+                key={c.key}
+                scope="col"
+                className={cn(
+                  'border-b px-2 pb-2 pt-0.5 text-center',
+                  i === 0 && 'border-l',
+                  t.groupColumn && 'min-w-24 px-4',
+                  t.day && 'px-0 pt-2 align-bottom',
+                  t.narrow && 'px-0',
                 )}
-              </span>
-            </th>
-          )),
-        )}
+              >
+                <span className={cn(SUB, (t.day || t.narrow) && 'text-xs')}>
+                  {c.dayNightOnSub ? (
+                    <DayNightDate date={c.sub} night={c.night} label={false} />
+                  ) : (
+                    (c.sub ?? c.date)
+                  )}
+                </span>
+              </th>
+            )),
+          )}
       </tr>
     </>
   )
@@ -743,7 +768,7 @@ function TableBody({ table: t }: { table: Table }) {
           {g.rows.map((r, row) => {
             const stripe = t.paired && row % 2 === 1 ? STRIPE : undefined
             return (
-              <tr key={r.key} className={cn(t.paired && 'h-12 xl:h-[4.25rem]', stripe)}>
+              <tr key={r.key} className={cn(t.paired && 'h-12', stripe)}>
                 <th
                   scope="row"
                   className={cn(
@@ -817,6 +842,7 @@ const LABEL_VARS = '[--group:5.5rem] [--label:7.5rem] md:[--group:8rem] md:[--la
 const GROUPED_COL_REM = 5.5
 /** A split table's value column, half a period: room for a total like 12.34" with its mark. */
 const SPLIT_COL_REM = 4.5
+const DATE_RANGE_COL_REM = 7
 /** The narrowest a data column of a stretched table gets before the table scrolls instead. */
 const MIN_COL_REM = 5
 
@@ -829,11 +855,13 @@ function labels(t: Table) {
  * table at exactly its columns' width, the others across the page down to a scrolling minimum.
  */
 function tableWidth(t: Table) {
-  if (t.day || t.fitsPhone) return { width: '100%' }
+  if (t.day || t.narrow) return { width: '100%' }
   const n = t.columns.length
   if (isSplit(t)) return { width: '100%', minWidth: `calc(${labels(t)} + ${n * SPLIT_COL_REM}rem)` }
   return t.groupColumn
-    ? { width: `calc(${labels(t)} + ${n * GROUPED_COL_REM}rem)` }
+    ? {
+        width: `calc(${labels(t)} + ${n * (t.dateRanges ? DATE_RANGE_COL_REM : GROUPED_COL_REM)}rem)`,
+      }
     : { width: '100%', minWidth: `calc(${labels(t)} + ${n * (t.minColRem ?? MIN_COL_REM)}rem)` }
 }
 
@@ -869,23 +897,21 @@ function GridTable({
       )}
     >
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
-      {t.fitsPhone ? (
+      <div className="hidden min-w-0 md:block print:block">
         <TableBox table={t} />
+      </div>
+      {t.fitsPhone ? (
+        <TableBox table={{ ...t, narrow: true }} className="md:hidden print:hidden" />
       ) : (
-        <>
-          <div className="hidden min-w-0 md:block print:block">
-            <TableBox table={t} />
-          </div>
-          <DaySwitch
-            label={t.title}
-            className="md:hidden print:hidden"
-            days={dayTables(t).map((d) => ({
-              key: d.label,
-              label: d.label,
-              content: <TableBox table={d.table} />,
-            }))}
-          />
-        </>
+        <DaySwitch
+          label={t.title}
+          className="md:hidden print:hidden"
+          days={dayTables(t).map((d) => ({
+            key: d.label,
+            label: d.label,
+            content: <TableBox table={d.table} />,
+          }))}
+        />
       )}
       {t.legend}
     </section>
