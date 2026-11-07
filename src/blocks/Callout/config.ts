@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import colorPickerField from '@/fields/color'
+import { layoutField } from '@/fields/layout'
 import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { BlogListBlock } from '../BlogList/config'
 import { ButtonBlock } from '../Button/config'
@@ -16,7 +17,6 @@ export const CalloutBlock: Block = {
   interfaceName: 'calloutBlock',
   imageURL: '/thumbnail/ContentCalloutThumbnail.jpg',
   fields: [
-    colorPickerField('Background color'),
     {
       name: 'callout',
       type: 'richText',
@@ -41,5 +41,6 @@ export const CalloutBlock: Block = {
         },
       }),
     },
+    layoutField([colorPickerField('Background color')]),
   ],
 }

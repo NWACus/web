@@ -692,6 +692,7 @@ describe('extractDocumentReferences', () => {
             blockType: ContentBlock.slug,
             id: 'content-block-1',
             layout: '1_1',
+            verticalAlignment: 'top',
             columns: [
               {
                 id: 'col-1',
@@ -727,6 +728,7 @@ describe('extractDocumentReferences', () => {
             blockType: ContentBlock.slug,
             id: 'content-block-1',
             layout: '2_12',
+            verticalAlignment: 'top',
             columns: [
               {
                 id: 'col-1',
@@ -1083,6 +1085,7 @@ describe('extractDocumentReferences', () => {
             blockType: ContentBlock.slug,
             id: 'content-1',
             layout: '1_1',
+            verticalAlignment: 'top',
             columns: [
               {
                 id: 'col-1',

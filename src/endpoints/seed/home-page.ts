@@ -90,6 +90,7 @@ export const homePage: (
       {
         backgroundColor: 'brand-200',
         layout: '1_1',
+        verticalAlignment: 'top',
         columns: [
           {
             richText: {

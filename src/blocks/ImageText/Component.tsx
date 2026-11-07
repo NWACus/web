@@ -46,7 +46,7 @@ export const ImageTextBlockComponent = (props: Props) => {
             <ImageMedia
               imgClassName={cn(imgClassName)}
               pictureClassName={cn(
-                'mb-4 md:mb-2 md:w-1/3',
+                'mb-4 md:mt-2 md:mb-2 md:w-1/3',
                 imageLayout === 'right' ? 'md:float-right md:ml-6' : 'md:float-left md:mr-6',
               )}
               resource={image}

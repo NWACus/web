@@ -23,6 +23,7 @@ export const page: (
       {
         backgroundColor: 'white',
         layout: '1_1',
+        verticalAlignment: 'top',
         columns: [
           {
             richText: {

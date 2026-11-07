@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
+import { layoutField } from '@/fields/layout'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
@@ -9,24 +10,6 @@ export const ImageTextBlock: Block = {
   interfaceName: 'ImageTextBlock',
   imageURL: '/thumbnail/ImageTextThumbnail.jpg',
   fields: [
-    colorPickerField('Background color'),
-    {
-      name: 'imageLayout',
-      label: 'Which side should the image be on?',
-      type: 'radio',
-      options: [
-        {
-          label: 'Image left, text right',
-          value: 'left',
-        },
-        {
-          label: 'Text left, Image right',
-          value: 'right',
-        },
-      ],
-      defaultValue: 'left',
-      required: true,
-    },
     {
       name: 'image',
       type: 'upload',
@@ -35,15 +18,6 @@ export const ImageTextBlock: Block = {
       filterOptions: getImageTypeFilter,
     },
 
-    {
-      name: 'textWrap',
-      type: 'checkbox',
-      label: 'Wrap text around image',
-      admin: {
-        description: 'Text will flow around the image instead of being in a separate column',
-      },
-      defaultValue: false,
-    },
     {
       name: 'richText',
       type: 'richText',
@@ -55,5 +29,34 @@ export const ImageTextBlock: Block = {
       label: false,
       required: true,
     },
+    layoutField([
+      colorPickerField('Background color'),
+      {
+        name: 'imageLayout',
+        label: 'Which side should the image be on?',
+        type: 'radio',
+        options: [
+          {
+            label: 'Image left, text right',
+            value: 'left',
+          },
+          {
+            label: 'Text left, Image right',
+            value: 'right',
+          },
+        ],
+        defaultValue: 'left',
+        required: true,
+      },
+      {
+        name: 'textWrap',
+        type: 'checkbox',
+        label: 'Wrap text around image',
+        admin: {
+          description: 'Text will flow around the image instead of being in a separate column',
+        },
+        defaultValue: false,
+      },
+    ]),
   ],
 }
