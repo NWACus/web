@@ -41,6 +41,8 @@ import { cn } from '@/utilities/ui'
 
 const BASE = '/weather/forecast'
 const DATES_ENDPOINT = '/api/nwac/nwac-weather-dates'
+// The archive's first forecast. v3 can't read oldest-first, so the date is kept here.
+const FIRST_FORECAST = '2020-12-10'
 
 export function dateHref(date: string, today: string) {
   return forecastHref(BASE, today, date)
@@ -162,7 +164,6 @@ function PublishedCalendar({
 export function DatePicker({
   date,
   today: renderedToday,
-  firstDate,
   initialDates,
   initialRange,
 }: {
@@ -170,8 +171,6 @@ export function DatePicker({
   date: string
   /** Today when the page rendered; dated pages are cached for weeks, so the client re-reads it. */
   today: string
-  /** The oldest date the calendar reaches, which sets its first season and first month. */
-  firstDate: string
   /** Dates with a published forecast inside `initialRange`, oldest first. */
   initialDates: string[]
   /** The `from`/`to` window `initialDates` covers. */
@@ -200,7 +199,7 @@ export function DatePicker({
             month={month}
             onMonthChange={showMonth}
             today={today}
-            firstDate={firstDate}
+            firstDate={date < FIRST_FORECAST ? date : FIRST_FORECAST}
             loading={loading}
           />
         </DayContext.Provider>

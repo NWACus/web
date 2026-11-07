@@ -92,6 +92,4 @@ export interface NWACWeatherSource {
    * window that ends before today, which no longer changes and is cached long.
    */
   getDates(from: string, to: string, options?: { historical?: boolean }): Promise<string[]>
-  /** The oldest date with a published forecast, or `null` when nothing has been published. */
-  getEarliestDate(): Promise<string | null>
 }
