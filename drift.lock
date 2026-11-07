@@ -1648,7 +1648,7 @@ sig = "fd3e0912b1a1d097"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/components/Header/MobileNav.client.tsx"
-sig = "1b8b927a6f225970"
+sig = "dfd0b5ef1a6d83d3"
 
 [[bindings]]
 doc = "docs/onboarding.md"
