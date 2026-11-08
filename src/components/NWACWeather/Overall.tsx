@@ -1031,7 +1031,7 @@ function ExtendedSection({
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
         Extended
       </h3>
-      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-start">
         {/* The outlook text is optional; without it the table takes the first column. */}
         {extended && (
           <section className="space-y-2">
