@@ -259,20 +259,20 @@ const PART_SHORT: Record<string, string> = {
 }
 
 /**
- * A 12h cell's two 6h values, one per line with its part of day: how snow level and wind sit in
- * a table whose columns are all 12h periods, so no part-of-day header is needed.
+ * A 12h cell's two 6h values on one line, each after its part of day: how snow level and wind
+ * sit in a table whose columns are all 12h periods, so no part-of-day header is needed.
  */
 function BlockPair({ blocks, value }: { blocks: BlockView[]; value: (b: BlockView) => ReactNode }) {
   return (
-    <div className="space-y-1">
+    <div className="grid grid-cols-2 gap-2">
       {blocks.map((b) => (
-        <div key={b.block.key} className="grid grid-cols-[2.75rem_1fr] items-center gap-2">
-          <span className="text-right text-xs text-muted-foreground">
+        <div key={b.block.key} className="flex items-center justify-center gap-2">
+          <span className="text-xs text-muted-foreground">
             {PART_SHORT[b.block.part] ?? b.block.part}
           </span>
-          {/* Every line the height of a snow-level pill, so wind lines space the same; a grid cell
-              stretches its value, which centres it as the pills' text is. */}
-          <div className="grid min-h-7 items-center">{value(b)}</div>
+          {/* Fills the rest of its half, which stretches a snow-level pill as it was when stacked;
+              every value the pill's height, so wind rows line up the same. */}
+          <div className="grid min-h-7 flex-1 items-center">{value(b)}</div>
         </div>
       ))}
     </div>
