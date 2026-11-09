@@ -22,6 +22,16 @@ const PRESET_LABELS: Record<RangePreset, string> = {
   '12m': 'Last 12 months',
 }
 
+// Payload's date input is 40px tall; trim it to the 32px Apply button beside it and re-centre the
+// icons. Pixel values on purpose: the admin's root font size makes rem units drift from the button.
+const DATE_FIELD = cn(
+  'flex w-40 flex-col gap-1 text-xs',
+  '[&_input]:h-[32px] [&_input]:min-h-0 [&_input]:py-0 [&_input]:text-[1rem]',
+  // The clear control is the only button inside the field, so target it by tag: Tailwind reads the
+  // `_` in its BEM class name as a space and cannot match it directly
+  '[&_.icon--calendar]:top-[7px] [&_button]:top-[6px]',
+)
+
 export type RangeSelection = { preset: RangePreset } | { preset: 'custom'; range: DateRange }
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -46,7 +56,7 @@ function CustomRange({
         : null
   return (
     <div className="flex flex-wrap items-end gap-3">
-      <label className="flex w-44 flex-col gap-1 text-xs">
+      <label className={DATE_FIELD}>
         <span className={MUTED}>From</span>
         <DatePicker
           pickerAppearance="dayOnly"
@@ -54,7 +64,7 @@ function CustomRange({
           onChange={(date) => setDraft({ ...draft, from: toIsoDate(date) })}
         />
       </label>
-      <label className="flex w-44 flex-col gap-1 text-xs">
+      <label className={DATE_FIELD}>
         <span className={MUTED}>To</span>
         <DatePicker
           pickerAppearance="dayOnly"

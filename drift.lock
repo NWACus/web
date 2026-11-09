@@ -248,7 +248,7 @@ sig = "27d4f64631512b33"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/RangePicker.tsx"
-sig = "3cb8b083c2ff92e0"
+sig = "dfc9f0b4be90cd6a"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
