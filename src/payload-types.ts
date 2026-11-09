@@ -178,7 +178,6 @@ export interface Config {
   locale: null;
   widgets: {
     'getting-started': GettingStartedWidget;
-    'site-analytics': SiteAnalyticsWidget;
     collections: CollectionsWidget;
   };
   user: User | PayloadMcpApiKey;
@@ -5821,16 +5820,6 @@ export interface A3ManagementSelect<T extends boolean = true> {
  * via the `definition` "getting-started_widget".
  */
 export interface GettingStartedWidget {
-  data?: {
-    [k: string]: unknown;
-  };
-  width: 'full';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-analytics_widget".
- */
-export interface SiteAnalyticsWidget {
   data?: {
     [k: string]: unknown;
   };

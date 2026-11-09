@@ -3,7 +3,7 @@ import { isValidTenantSlug, ValidTenantSlug } from '@/utilities/tenancy/avalanch
 import { getTenantSlugFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 import type { PayloadRequest } from 'payload'
 
-export type WidgetTenant =
+export type SelectedTenant =
   | { kind: 'selected'; slug: ValidTenantSlug; name: string }
   /** The user can see several centers and has not picked one in the sidebar. */
   | { kind: 'unselected' }
@@ -11,12 +11,12 @@ export type WidgetTenant =
   | { kind: 'none' }
 
 /**
- * Mirrors the sidebar tenant selector: the `payload-tenant` cookie when it names a center the user
- * can access, otherwise the only center they can access.
+ * Mirrors the sidebar tenant selector for server-rendered admin surfaces: the `payload-tenant`
+ * cookie when it names a center the user can access, otherwise the only center they can access.
  */
-export async function resolveWidgetTenant(
+export async function resolveSelectedTenant(
   req: Pick<PayloadRequest, 'user' | 'payload' | 'headers'>,
-): Promise<WidgetTenant> {
+): Promise<SelectedTenant> {
   const user = getUser(req)
   if (!user) return { kind: 'none' }
 

@@ -1,38 +1,43 @@
-# Admin site analytics widget
+# Admin Site analytics page
 
-The **Site analytics** widget on the Payload admin dashboard shows a center's web usage for the last 30 days, compared with the 30 days before, without a PostHog login. It is the second widget in the default dashboard layout, after Getting Started ([`src/payload.config.ts`](../src/payload.config.ts)).
+**Site Analytics** in the admin sidebar (`/admin/analytics`) shows a center's web usage the way Plausible does: a stats row with period-over-period deltas, a trend chart, and paired breakdown panels, all read from PostHog server-side so staff never need a PostHog login. It is a Payload custom view registered in [`src/payload.config.ts`](../src/payload.config.ts); the sidebar entry is [`AnalyticsNavLink`](../src/components/AnalyticsNavLink.client.tsx).
 
 ## What it shows
 
-| Tile | Source | Definition |
+| Panel | Source | Definition |
 | --- | --- | --- |
-| Visitors, Sessions, Pageviews | `$pageview` | `uniq(person_id)`, `uniq($session_id)`, `count()`; each with the change against the prior 30 days |
-| Top pages | `$pageview` | By `$pathname`, with pageviews and visitors |
-| Top referrers | `$pageview` | By `$referring_domain`, the center's own hosts left out; `$direct` is shown as "Direct" |
-| Devices | `$pageview` | By `$device_type` |
-| Top regions | `$pageview` | `$geoip_subdivision_1_name, $geoip_country_code`, or the country when there is no subdivision |
-| Sponsors | `sponsor_impression`, `sponsor_click` | Per `sponsor_id`: impressions, clicks and click-through rate. Impressions count the block rendering until #1486 ships viewport-based impressions |
-| Dead clicks | `$dead_click` | Top page and element pairs by unique people, labelled from the element's `alt`, text or `aria-label`. Native `select` elements and map surfaces (`mapboxgl`, `maplibregl`, `leaflet` in the element chain) are left out because they respond without changing the DOM |
+| Stats row | `$pageview`, grouped by session | Unique visitors (`uniq(person_id)`), total visits (`uniq($session_id)`), pageviews, views per visit, bounce rate (`session.$is_bounce`), visit duration (`session.$session_duration`). Each compared with the previous period of the same length |
+| Trend | `$pageview` | Visitors, visits or pageviews per day, or per week for ranges over 92 days, bucketed in the center's timezone |
+| Pages | `$pageview` | Top pages by `$pathname`; entry and exit pages from the session's `$entry_pathname` and `$end_pathname` |
+| Sources | `$pageview` | Referrers by `$referring_domain` with the center's own hosts left out (`$direct` shows as Direct); channels from `session.$channel_type` |
+| Locations | `$pageview` | Countries, and regions as `subdivision, country code` |
+| Devices | `$pageview` | Device type, browser, operating system |
+| Sponsors | `sponsor_impression`, `sponsor_click` | Per `sponsor_id`: impressions, clicks, click-through rate. Impressions count the block rendering until #1486 ships viewport-based impressions |
+| Top 404s | `page_not_found` | Missing paths with the most common referrer, which is where the broken link lives |
+| Dead clicks | `$dead_click` | Page and element pairs by unique people, labelled from the element's `alt`, text or `aria-label`. Native `select` elements and map surfaces (`mapboxgl`, `maplibregl`, `leaflet` in the element chain) are excluded because they respond without changing the DOM |
 
-The window is PostHog's "Last 30 days": from the start of the UTC day 30 days ago until now, compared with the 30 days before that. The project timezone is UTC, so the boundaries match the PostHog UI.
+Breakdown rows carry a fill bar (share of the largest row) and a percentage (share of the period's unique visitors), as in Plausible.
+
+## Time range
+
+The range lives in the URL: `?period=7d|30d|90d|12m` or `?from=YYYY-MM-DD&to=YYYY-MM-DD`, capped at 366 days. Dates are calendar days in the **center's timezone** (`AVALANCHE_CENTERS[slug].timezone`), which the page says under its heading. PostHog's project timezone is UTC, so a day total there can differ from the page at the day's edges; the sum over a whole range matches. The previous period is the same number of days ending the day before `from`. [`analyticsRange.ts`](../src/services/posthog/analyticsRange.ts) does the arithmetic with `@date-fns/tz`.
 
 ## The per-center filter
 
-Every tile shares one filter, built by `centerFilter` in [`src/services/posthog/centerAnalyticsQueries.ts`](../src/services/posthog/centerAnalyticsQueries.ts). To reproduce a number in PostHog, apply the same three conditions to the same event and window:
+Every panel shares one filter, `centerFilter` in [`centerAnalyticsQueries.ts`](../src/services/posthog/centerAnalyticsQueries.ts). To reproduce a number in PostHog, apply the same conditions to the same event and window:
 
 1. `center` equals the uppercased tenant slug, **or** `$host` is one of the center's production hostnames (the custom domain with and without `www.`, plus `<slug>.avy-fx.org`). The host match exists because production events before the `center` super property shipped (#1485) carry only `$host`.
-2. `environment` is not `preview` or `development`. Those deployments register `center` too and would otherwise count.
+2. `environment` is not `preview` or `development`. Those deployments register `center` too.
 3. `$pathname` does not start with `/admin`. Admin pages are site management, not readership.
-
-Detected bots (`$virt_is_bot`) are **not** filtered, to match a plain insight in PostHog. Tick "exclude bots" there and the numbers will drop a little.
+4. `$virt_is_bot` is not true. This is PostHog's own bot detection; tick "exclude bots" in PostHog to match.
 
 ## How it loads
 
-- [`AnalyticsWidget`](../src/components/dashboard-widgets/AnalyticsWidget.tsx) is a server component. [`resolveWidgetTenant`](../src/components/dashboard-widgets/resolveWidgetTenant.ts) mirrors the sidebar tenant selector: the `payload-tenant` cookie when it names a center the user can access, otherwise the user's only center. Users who can access several centers and have none selected are asked to pick one in the sidebar. Users with no center (for example, course provider managers) see no widget.
-- The tiles render inside a `Suspense` boundary, so the rest of the dashboard does not wait for PostHog.
-- [`getCachedCenterAnalytics`](../src/services/posthog/getCachedCenterAnalytics.ts) wraps [`fetchCenterAnalytics`](../src/services/posthog/centerAnalytics.ts) in `unstable_cache` for one hour per center, so repeated admin loads do not hit PostHog. A failed query throws out of the cached function, so nothing is stored and the next load retries.
-- [`queryHogQL`](../src/services/posthog/hogql.ts) posts a `HogQLQuery` to `POST /api/projects/:id/query` and validates every row with zod. Seven queries run in parallel, one per tile, each a single scan of `events`.
-- Any failure logs a warning through Payload's logger and renders a one-line empty state. The widget never produces an error page.
+- The view ([`src/views/Analytics`](../src/views/Analytics/index.tsx)) resolves the center like the sidebar selector does, via [`resolveSelectedTenant`](../src/utilities/tenancy/resolveSelectedTenant.ts): the `payload-tenant` cookie when it names a center the user can read, otherwise the user's only center. Multi-center users with nothing selected are told to pick one; users with no center see a one-line message.
+- The dashboard is a client component. Each panel fetches itself from `GET /api/analytics?center&from&to&panel`, a Payload endpoint ([`analyticsEndpoint.ts`](../src/services/posthog/analyticsEndpoint.ts)) that uses Payload's auth and checks the center is one the user can read. Tabs within a panel fetch on first click.
+- [`getCachedPanel`](../src/services/posthog/getCachedPanel.ts) wraps [`fetchPanel`](../src/services/posthog/panels.ts) in `unstable_cache` for ten minutes per center, range and panel. The range end is rounded up to the hour so the SQL text is stable and PostHog's own query cache answers repeats. **Refresh** on the page sends `refresh=1`, which asks PostHog for a fresh calculation (`force_blocking`) and drops the center's cached panels.
+- [`queryHogQL`](../src/services/posthog/hogql.ts) posts a `HogQLQuery` to `POST /api/projects/:id/query` and validates every row with zod. A semaphore keeps three queries in flight, PostHog's per-project concurrency limit; the other limits are 2400 requests per hour, 240 per minute and 10 seconds of execution per query. A full page load is about seven queries.
+- A failed query logs a warning through Payload's logger and the panel shows a one-line message. The page never produces an error page. Without credentials every panel says analytics are not connected.
 
 ## Configuration
 
@@ -40,16 +45,17 @@ Detected bots (`$virt_is_bot`) are **not** filtered, to match a plain insight in
 | --- | --- | --- |
 | `POSTHOG_PERSONAL_API_KEY` | No | A PostHog **personal** API key with the `query:read` scope. HogQL cannot run with the project key the browser uses, which can only write events |
 | `POSTHOG_PROJECT_ID` | No | The numeric PostHog project id (the Avy project is `40776`) |
-| `POSTHOG_QUERY_HOST` | No | Defaults to `https://us.posthog.com`. This is the app host, not the `us.i.posthog.com` ingest host |
+| `POSTHOG_QUERY_HOST` | No | Defaults to `https://us.posthog.com`, the app host rather than the `us.i.posthog.com` ingest host |
 
-Without the key and project id the widget renders "Site analytics are not connected in this environment" and the dashboard otherwise works. Create the key under a service account or a maintainer's PostHog settings, scoped to the Avy project, and set it on Production in Vercel (Preview is optional). Rotate it there if it leaks: it can read every event in the project.
+Create the key under a service account or a maintainer's PostHog settings, scoped to the Avy project, and set it on Production in Vercel. Rotate it there if it leaks: it can read every event in the project.
 
-## Known limits
+## Known limits and follow-ups
 
-- Dashboard layouts are stored per user in `payload-preferences`. A user who has already customised their dashboard will not see the new widget until they add "Site Analytics" from the dashboard's edit mode.
-- Sponsor impressions are mount counts until #1486 ships; the tile says so in its note.
-- Choosing which tiles a center sees is a per-tenant setting for later.
+- Sponsor impressions are mount counts until #1486 ships; the panel says so.
+- Paths are plain text. Linking a path to the Payload document that renders it is a follow-up; the endpoint's row shapes in [`panelTypes.ts`](../src/services/posthog/panelTypes.ts) are where a document reference would go.
+- Small dashboard widgets (a stat with a configurable period, top pages, a sponsor summary) are a follow-up and should read the same cached panels.
+- Once production has carried the `center` property for a full year the host match in `centerFilter` is redundant.
 
-## Testing locally
+## Testing
 
-[`__tests__/server/centerAnalytics.server.test.ts`](../__tests__/server/centerAnalytics.server.test.ts) covers the query builders, the HogQL client, dead-click labelling and the assembled result with msw. To see the widget render without a PostHog key, point `POSTHOG_QUERY_HOST` at any local server that answers `POST /api/projects/<id>/query` with `{ columns, results }` and set the other two variables to anything non-empty.
+[`__tests__/server/analyticsRange.server.test.ts`](../__tests__/server/analyticsRange.server.test.ts), [`analyticsQueries.server.test.ts`](../__tests__/server/analyticsQueries.server.test.ts) and [`analyticsEndpoint.server.test.ts`](../__tests__/server/analyticsEndpoint.server.test.ts) cover the range arithmetic, the query builders, the HogQL client and semaphore, dead-click labelling, the assembled panels via msw, and the endpoint's auth and validation.

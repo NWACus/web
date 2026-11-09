@@ -11,7 +11,7 @@ export const deadClickRowSchema = z.object({
   people: z.coerce.number(),
 })
 
-export type DeadClickRow = z.infer<typeof deadClickRowSchema>
+export type DeadClickQueryRow = z.infer<typeof deadClickRowSchema>
 
 export type DeadClickTarget = {
   path: string
@@ -64,7 +64,7 @@ function firstText(...candidates: Array<string | null>): string | null {
 
 /** Plain-words label for a dead-click target: what it is, then what it said. */
 export function labelDeadClick(
-  row: Pick<DeadClickRow, 'tag' | 'alt' | 'aria_label' | 'el_text' | 'href'>,
+  row: Pick<DeadClickQueryRow, 'tag' | 'alt' | 'aria_label' | 'el_text' | 'href'>,
 ): string {
   const tag = row.tag?.toLowerCase() ?? ''
   const word = TAG_WORDS[tag] ?? (tag ? `<${tag}>` : 'Element')
@@ -78,7 +78,7 @@ export function labelDeadClick(
  * Collapses query groups that share a page and label. Clicks add up; people is kept as the largest
  * group's count, since the same person may appear in several groups.
  */
-export function mergeDeadClicks(rows: DeadClickRow[], limit = 10): DeadClickTarget[] {
+export function mergeDeadClicks(rows: DeadClickQueryRow[], limit = 10): DeadClickTarget[] {
   const merged = new Map<string, DeadClickTarget>()
   for (const row of rows) {
     const label = labelDeadClick(row)

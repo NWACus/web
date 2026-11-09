@@ -65,6 +65,7 @@ import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/compo
 import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/components/Logo/AvyFxLogo'
 import { GlobalViewRedirect as GlobalViewRedirect_951bb27256a1a1ac886a8bd1c394c17e } from '@/components/GlobalViewRedirect'
 import { default as default_cb0ad5752e1389a2a940bb73c2c0e7d2 } from '@/components/ViewTypeAction'
+import { AnalyticsNavLink as AnalyticsNavLink_df4066dcaba1e81c4c090f65f64598b8 } from '@/components/AnalyticsNavLink.client'
 import { default as default_2aead22399b7847b21b134dc4a7931e0 } from '@/components/TenantSelector/TenantSelector'
 import { TenantSelectionProvider as TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d } from '@/providers/TenantSelectionProvider'
 import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
@@ -72,8 +73,8 @@ import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e
 import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688 } from '@payloadcms/plugin-sentry/client'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
 import { EmbedGenerator as EmbedGenerator_1b7ef53264c103176ad65c34c5002f79 } from '@/views/EmbedGenerator'
+import { Analytics as Analytics_af05419e5157afdd5ccd30100f9c9f64 } from '@/views/Analytics'
 import { GettingStartedWidget as GettingStartedWidget_71651c7371b649fc7904c7f1624b31dd } from '@/components/dashboard-widgets/GettingStartedWidget'
-import { AnalyticsWidget as AnalyticsWidget_feebf9ec7c53db881dd05f85d7c62232 } from '@/components/dashboard-widgets/AnalyticsWidget'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -145,6 +146,7 @@ export const importMap = {
   "@/components/Logo/AvyFxLogo#AvyFxLogo": AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4,
   "@/components/GlobalViewRedirect#GlobalViewRedirect": GlobalViewRedirect_951bb27256a1a1ac886a8bd1c394c17e,
   "@/components/ViewTypeAction#default": default_cb0ad5752e1389a2a940bb73c2c0e7d2,
+  "@/components/AnalyticsNavLink.client#AnalyticsNavLink": AnalyticsNavLink_df4066dcaba1e81c4c090f65f64598b8,
   "@/components/TenantSelector/TenantSelector#default": default_2aead22399b7847b21b134dc4a7931e0,
   "@/providers/TenantSelectionProvider#TenantSelectionProvider": TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d,
   "@/providers/ViewTypeProvider#ViewTypeProvider": ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0,
@@ -152,7 +154,7 @@ export const importMap = {
   "@payloadcms/plugin-sentry/client#AdminErrorBoundary": AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688,
   "@/views/AcceptInvite#AcceptInvite": AcceptInvite_a090ee9cb5b31ae357daa74987d3109a,
   "@/views/EmbedGenerator#EmbedGenerator": EmbedGenerator_1b7ef53264c103176ad65c34c5002f79,
+  "@/views/Analytics#Analytics": Analytics_af05419e5157afdd5ccd30100f9c9f64,
   "@/components/dashboard-widgets/GettingStartedWidget#GettingStartedWidget": GettingStartedWidget_71651c7371b649fc7904c7f1624b31dd,
-  "@/components/dashboard-widgets/AnalyticsWidget#AnalyticsWidget": AnalyticsWidget_feebf9ec7c53db881dd05f85d7c62232,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

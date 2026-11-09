@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "cc1fa4a919480281"
+sig = "4816ceabe5719abd"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -157,53 +157,123 @@ sig = "c2d746542027696d"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
-target = "__tests__/server/centerAnalytics.server.test.ts"
-sig = "97118d53f259a9cd"
+target = "__tests__/server/analyticsEndpoint.server.test.ts"
+sig = "b2eed86d5f95e003"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
-target = "src/components/dashboard-widgets/AnalyticsTiles.tsx"
-sig = "65806f12970ac223"
+target = "__tests__/server/analyticsQueries.server.test.ts"
+sig = "9b664df7fdfc9f45"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
-target = "src/components/dashboard-widgets/AnalyticsWidget.tsx"
-sig = "86e320c4c4bb37d1"
+target = "__tests__/server/analyticsRange.server.test.ts"
+sig = "993386f51d0ff41e"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
-target = "src/components/dashboard-widgets/resolveWidgetTenant.ts"
-sig = "c81d48452478df40"
+target = "src/components/AnalyticsNavLink.client.tsx"
+sig = "2c43ae66b6ec1694"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/payload.config.ts"
-sig = "a8a41d7943f6f67a"
+sig = "f428fdb624879bd1"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
-target = "src/services/posthog/centerAnalytics.ts"
-sig = "1bbc382071b46f48"
+target = "src/services/posthog/analyticsEndpoint.ts"
+sig = "eed27bdf4c874099"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/services/posthog/analyticsRange.ts"
+sig = "0c2a1635b4296dd6"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/centerAnalyticsQueries.ts"
-sig = "1b47f91d026eefdc"
+sig = "3a6d3b997def142a"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/deadClicks.ts"
-sig = "1d00fe5c207ea2e2"
+sig = "6a5b388570c5e83c"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
-target = "src/services/posthog/getCachedCenterAnalytics.ts"
-sig = "feb94226a8f3b054"
+target = "src/services/posthog/getCachedPanel.ts"
+sig = "51f9db5f251e9bde"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/hogql.ts"
-sig = "d75edb0831baa471"
+sig = "655b98d3987c3b26"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/services/posthog/panelTypes.ts"
+sig = "7a6836b98824380c"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/services/posthog/panels.ts"
+sig = "bee44e64f591709d"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/utilities/tenancy/resolveSelectedTenant.ts"
+sig = "95329d6489f6a46d"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
+sig = "2be971fb03aff4b1"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/RangePicker.tsx"
+sig = "a0599c8b9a7cd44b"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/index.tsx"
+sig = "82af83c89aa3a529"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/BarList.tsx"
+sig = "10b68ca11a7c7416"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/BreakdownPanel.tsx"
+sig = "8b2dbe438dbefe0f"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/FixesPanel.tsx"
+sig = "86abab0cbc6aa09e"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/SponsorsPanel.tsx"
+sig = "7288601112b6eedf"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/StatsRow.tsx"
+sig = "f75b0807f01fcd59"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/TrendChart.tsx"
+sig = "748eba29d9470d03"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/usePanel.ts"
+sig = "7314a640cdb46134"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -1493,7 +1563,7 @@ sig = "aec15052cf4b1cdd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/services/posthog/hogql.ts"
-sig = "d75edb0831baa471"
+sig = "655b98d3987c3b26"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1933,7 +2003,7 @@ sig = "4fc2ad0bd4509765"
 [[bindings]]
 doc = "docs/testing.md"
 target = ".env.example"
-sig = "5f8b8ba5d3f5b512"
+sig = "35e9afeed8d2ddb2"
 
 [[bindings]]
 doc = "docs/testing.md"

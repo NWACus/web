@@ -47,6 +47,7 @@ import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUr
 import { Courses } from './collections/Courses'
 import { Providers } from './collections/Providers'
 import { A3Management } from './globals/A3Management/config'
+import { analyticsEndpoint } from './services/posthog/analyticsEndpoint'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -57,6 +58,7 @@ export default buildConfig({
   admin: {
     components: {
       beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
+      afterNavLinks: ['@/components/AnalyticsNavLink.client#AnalyticsNavLink'],
       providers: [
         {
           clientProps: {
@@ -95,6 +97,10 @@ export default buildConfig({
           Component: '@/views/EmbedGenerator#EmbedGenerator',
           path: '/embed-generator',
         },
+        analytics: {
+          Component: '@/views/Analytics#Analytics',
+          path: '/analytics',
+        },
       },
     },
     dashboard: {
@@ -105,20 +111,10 @@ export default buildConfig({
           Component: '@/components/dashboard-widgets/GettingStartedWidget#GettingStartedWidget',
           minWidth: 'full',
         },
-        {
-          slug: 'site-analytics',
-          label: 'Site Analytics',
-          Component: '@/components/dashboard-widgets/AnalyticsWidget#AnalyticsWidget',
-          minWidth: 'full',
-        },
       ],
       defaultLayout: [
         {
           widgetSlug: 'getting-started',
-          width: 'full',
-        },
-        {
-          widgetSlug: 'site-analytics',
           width: 'full',
         },
         {
@@ -214,6 +210,7 @@ export default buildConfig({
   ),
   csrf: [getURL(), ...getTenantSubdomainUrls(), ...getProductionTenantUrls()].filter(Boolean),
   globals: [NACWidgetsConfig, DiagnosticsConfig, A3Management],
+  endpoints: [analyticsEndpoint],
   graphQL: {
     disable: true,
   },

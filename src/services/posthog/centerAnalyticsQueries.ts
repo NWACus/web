@@ -1,28 +1,7 @@
 import { ROOT_DOMAIN } from '@/utilities/domain'
 import { AVALANCHE_CENTERS, ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
-
-export const ANALYTICS_WINDOW_DAYS = 30
-
-export type AnalyticsWindow = {
-  /** Start of the current period (inclusive, UTC). */
-  start: Date
-  /** Start of the comparison period (inclusive, UTC); it ends where `start` begins. */
-  previousStart: Date
-  /** End of the current period (exclusive). */
-  end: Date
-}
-
-/**
- * Mirrors PostHog's "Last 30 days": from the start of the UTC day 30 days ago until now, compared
- * with the 30 days before that. The project timezone is UTC, so the boundaries line up.
- */
-export function analyticsWindow(now: Date): AnalyticsWindow {
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-  start.setUTCDate(start.getUTCDate() - ANALYTICS_WINDOW_DAYS)
-  const previousStart = new Date(start)
-  previousStart.setUTCDate(previousStart.getUTCDate() - ANALYTICS_WINDOW_DAYS)
-  return { start, previousStart, end: now }
-}
+import type { ResolvedRange } from './analyticsRange'
+import type { BreakdownPanel } from './panelTypes'
 
 /**
  * Hostnames a center's public site has been served from. Production pageviews before the `center`
@@ -45,94 +24,126 @@ const dateTime = (date: Date) =>
 
 export type CenterQueryScope = {
   slug: ValidTenantSlug
-  window: AnalyticsWindow
+  range: ResolvedRange
 }
 
 /**
- * The per-center filter every tile shares. Admin pages are site management, not readership.
- * Preview and development deployments register `center` too, so they are excluded by environment.
+ * The per-center filter every panel shares. Admin pages are site management, not readership;
+ * preview and development deployments register `center` too; bots are PostHog's own detection.
  */
 export function centerFilter({ slug }: Pick<CenterQueryScope, 'slug'>): string {
   return [
     `(properties.center = ${literal(slug.toUpperCase())} OR properties.$host IN (${literalList(centerHosts(slug))}))`,
     `coalesce(properties.environment, '') NOT IN ('preview', 'development')`,
     `NOT startsWith(coalesce(properties.$pathname, ''), '/admin')`,
+    `NOT coalesce(properties.$virt_is_bot, false)`,
   ].join('\n  AND ')
 }
 
-const currentPeriod = ({ window }: CenterQueryScope) =>
-  `timestamp >= ${dateTime(window.start)} AND timestamp < ${dateTime(window.end)}`
+const currentPeriod = ({ range }: CenterQueryScope) =>
+  `timestamp >= ${dateTime(range.start)} AND timestamp < ${dateTime(range.end)}`
 
 const pageviewsInCurrentPeriod = (scope: CenterQueryScope) =>
   `event = '$pageview'
   AND ${currentPeriod(scope)}
   AND ${centerFilter(scope)}`
 
-export function overviewQuery(scope: CenterQueryScope): string {
-  const { window } = scope
-  const inCurrent = `timestamp >= ${dateTime(window.start)}`
+export type Period = 'current' | 'previous'
+
+const periodWindow = ({ range }: CenterQueryScope, period: Period) =>
+  period === 'current'
+    ? `timestamp >= ${dateTime(range.start)} AND timestamp < ${dateTime(range.end)}`
+    : `timestamp >= ${dateTime(range.previousStart)} AND timestamp < ${dateTime(range.start)}`
+
+/** One period per query: a scan of both at once runs past PostHog's execution limit. */
+export function overviewCountsQuery(scope: CenterQueryScope, period: Period): string {
   return `SELECT
-  uniqIf(person_id, ${inCurrent}) AS visitors,
-  uniqIf(person_id, NOT (${inCurrent})) AS previous_visitors,
-  uniqIf($session_id, ${inCurrent}) AS sessions,
-  uniqIf($session_id, NOT (${inCurrent})) AS previous_sessions,
-  countIf(${inCurrent}) AS pageviews,
-  countIf(NOT (${inCurrent})) AS previous_pageviews
+  uniq(person_id) AS visitors,
+  uniq($session_id) AS visits,
+  count() AS pageviews
 FROM events
 WHERE event = '$pageview'
-  AND timestamp >= ${dateTime(window.previousStart)} AND timestamp < ${dateTime(window.end)}
+  AND ${periodWindow(scope, period)}
   AND ${centerFilter(scope)}`
 }
 
-export function topPagesQuery(scope: CenterQueryScope): string {
+/**
+ * Bounce rate and visit duration come from PostHog's pre-aggregated sessions table, which answers
+ * in about a second at any range. It carries no user agent, so bots cannot be excluded here.
+ */
+export function overviewVisitsQuery(scope: CenterQueryScope): string {
+  const { range, slug } = scope
+  const isCurrent = `$start_timestamp >= ${dateTime(range.start)}`
   return `SELECT
-  coalesce(properties.$pathname, '') AS path,
-  count() AS pageviews,
-  uniq(person_id) AS visitors
-FROM events
-WHERE ${pageviewsInCurrentPeriod(scope)}
-GROUP BY path
-ORDER BY pageviews DESC, visitors DESC
-LIMIT 10`
+  avgIf($is_bounce, ${isCurrent}) AS bounce_rate,
+  avgIf($is_bounce, NOT (${isCurrent})) AS previous_bounce_rate,
+  avgIf($session_duration, ${isCurrent}) AS visit_duration,
+  avgIf($session_duration, NOT (${isCurrent})) AS previous_visit_duration
+FROM sessions
+WHERE $start_timestamp >= ${dateTime(range.previousStart)}
+  AND $start_timestamp < ${dateTime(range.end)}
+  AND $entry_hostname IN (${literalList(centerHosts(slug))})
+  AND NOT startsWith($entry_pathname, '/admin')`
 }
 
-export function topReferrersQuery(scope: CenterQueryScope): string {
+export function timeseriesQuery(scope: CenterQueryScope): string {
+  const local = `toTimeZone(timestamp, ${literal(scope.range.timezone)})`
+  const bucket = scope.range.bucket === 'week' ? `toStartOfWeek(${local}, 1)` : `toDate(${local})`
   return `SELECT
-  coalesce(nullIf(properties.$referring_domain, ''), 'Unknown') AS referrer,
+  toString(${bucket}) AS date,
   uniq(person_id) AS visitors,
-  uniq($session_id) AS sessions
-FROM events
-WHERE ${pageviewsInCurrentPeriod(scope)}
-  AND coalesce(properties.$referring_domain, '') NOT IN (${literalList(centerHosts(scope.slug))})
-GROUP BY referrer
-ORDER BY visitors DESC, sessions DESC
-LIMIT 10`
-}
-
-export function devicesQuery(scope: CenterQueryScope): string {
-  return `SELECT
-  coalesce(nullIf(properties.$device_type, ''), 'Unknown') AS device,
-  uniq(person_id) AS visitors,
+  uniq($session_id) AS visits,
   count() AS pageviews
 FROM events
 WHERE ${pageviewsInCurrentPeriod(scope)}
-GROUP BY device
-ORDER BY visitors DESC`
+GROUP BY date
+ORDER BY date`
 }
 
-export function topRegionsQuery(scope: CenterQueryScope): string {
-  return `SELECT
-  if(
+type BreakdownSpec = {
+  label: string
+  secondary: 'visits' | 'pageviews'
+  extraWhere?: (scope: CenterQueryScope) => string
+}
+
+const region = `if(
     coalesce(properties.$geoip_subdivision_1_name, '') != '',
     concat(properties.$geoip_subdivision_1_name, ', ', coalesce(properties.$geoip_country_code, '')),
     coalesce(nullIf(properties.$geoip_country_name, ''), 'Unknown')
-  ) AS region,
+  )`
+
+const unknownIfEmpty = (expression: string) => `coalesce(nullIf(${expression}, ''), 'Unknown')`
+
+const BREAKDOWNS: Record<BreakdownPanel, BreakdownSpec> = {
+  pages: { label: `coalesce(properties.$pathname, '')`, secondary: 'pageviews' },
+  entryPages: { label: unknownIfEmpty('session.$entry_pathname'), secondary: 'visits' },
+  exitPages: { label: unknownIfEmpty('session.$end_pathname'), secondary: 'visits' },
+  referrers: {
+    label: unknownIfEmpty('properties.$referring_domain'),
+    secondary: 'visits',
+    extraWhere: ({ slug }) =>
+      `coalesce(properties.$referring_domain, '') NOT IN (${literalList(centerHosts(slug))})`,
+  },
+  channels: { label: unknownIfEmpty('session.$channel_type'), secondary: 'visits' },
+  countries: { label: unknownIfEmpty('properties.$geoip_country_name'), secondary: 'pageviews' },
+  regions: { label: region, secondary: 'pageviews' },
+  deviceTypes: { label: unknownIfEmpty('properties.$device_type'), secondary: 'pageviews' },
+  browsers: { label: unknownIfEmpty('properties.$browser'), secondary: 'pageviews' },
+  operatingSystems: { label: unknownIfEmpty('properties.$os'), secondary: 'pageviews' },
+}
+
+export function breakdownQuery(scope: CenterQueryScope, panel: BreakdownPanel): string {
+  const spec = BREAKDOWNS[panel]
+  const secondary = spec.secondary === 'visits' ? 'uniq($session_id)' : 'count()'
+  const extra = spec.extraWhere ? `\n  AND ${spec.extraWhere(scope)}` : ''
+  return `SELECT
+  ${spec.label} AS label,
   uniq(person_id) AS visitors,
-  count() AS pageviews
+  ${secondary} AS secondary
 FROM events
-WHERE ${pageviewsInCurrentPeriod(scope)}
-GROUP BY region
-ORDER BY visitors DESC, pageviews DESC
+WHERE ${pageviewsInCurrentPeriod(scope)}${extra}
+GROUP BY label
+ORDER BY visitors DESC, secondary DESC
 LIMIT 10`
 }
 
@@ -148,13 +159,29 @@ WHERE event IN ('sponsor_impression', 'sponsor_click')
   AND ${centerFilter(scope)}
 GROUP BY sponsor_id
 ORDER BY impressions DESC, clicks DESC
-LIMIT 50`
+LIMIT 100`
+}
+
+/** `page_not_found` carries the requested path and the referrer, which is where the broken link lives. */
+export function notFoundQuery(scope: CenterQueryScope): string {
+  return `SELECT
+  coalesce(properties.path, '') AS path,
+  arrayElement(topK(1)(nullIf(properties.referrer, '')), 1) AS referrer,
+  count() AS hits,
+  uniq(person_id) AS people
+FROM events
+WHERE event = 'page_not_found'
+  AND ${currentPeriod(scope)}
+  AND ${centerFilter(scope)}
+GROUP BY path
+ORDER BY people DESC, hits DESC
+LIMIT 10`
 }
 
 /**
  * Dropdowns and maps respond without changing the DOM, so PostHog records clicks on them as dead
  * even though they worked; left in, they would top every list. Merging by page and label happens
- * in TypeScript (see deadClicks.ts), so this returns more groups than the tile shows.
+ * in TypeScript (see deadClicks.ts), so this returns more groups than the panel shows.
  */
 export function deadClicksQuery(scope: CenterQueryScope): string {
   return `SELECT
