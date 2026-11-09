@@ -37,7 +37,9 @@ The code is readable ES modules with source maps. This matches the exact Payload
 
 ## MCP Servers (AvyWeb Payload CMS)
 
-This project configures two MCP servers in `.mcp.json` for querying the Payload CMS database:
+`.mcp.json` commits Sentry's hosted **`avyweb-sentry`** server, scoped to `nwac/avy-web`. Authorize it with `/mcp` (OAuth, no API key).
+
+Two more MCP servers, configured per developer, query the Payload CMS database:
 
 - **`avyweb-payload-local`** — Local dev server at `localhost:3000/api/mcp`. Requires `pnpm dev` running.
 - **`avyweb-payload-prod`** — Production server at `avy-fx.org/api/mcp`.

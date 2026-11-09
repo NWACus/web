@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "a886ee1ab090173f"
+sig = "b8b240e8cc69667c"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -793,7 +793,7 @@ sig = "eef97067a5b42a38"
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
 target = "src/middleware.ts"
-sig = "fd722c55fdb3239d"
+sig = "4d32a8e4e521b1a1"
 
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
@@ -803,7 +803,7 @@ sig = "76d25f34cc58b62c"
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
 target = "src/middleware.ts"
-sig = "fd722c55fdb3239d"
+sig = "4d32a8e4e521b1a1"
 
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
@@ -853,7 +853,7 @@ sig = "0ce7dd3d375aa0fe"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/middleware.ts"
-sig = "fd722c55fdb3239d"
+sig = "4d32a8e4e521b1a1"
 
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
@@ -1373,7 +1373,7 @@ sig = "a5ad3b592de08694"
 [[bindings]]
 doc = "docs/decisions/025-admin-served-only-from-the-apex.md"
 target = "src/middleware.ts"
-sig = "fd722c55fdb3239d"
+sig = "4d32a8e4e521b1a1"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
@@ -1383,12 +1383,17 @@ sig = "1109f2020067761a"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "next.config.ts"
-sig = "93e48ccf40b7c2d4"
+sig = "8b1d5aafca5bcb3c"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "sentry-base-config.ts"
-sig = "1910afa455f5574b"
+sig = "c071ed1ba6fbc75b"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "sentry.server.config.ts"
+sig = "b7ee1c15e57e0bab"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1413,7 +1418,7 @@ sig = "f4246a987c09c246"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/instrumentation-client.ts"
-sig = "e5b929ccb285db09"
+sig = "4bda0e076f543065"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -1558,7 +1563,7 @@ sig = "f4246a987c09c246"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/middleware.ts"
-sig = "fd722c55fdb3239d"
+sig = "4d32a8e4e521b1a1"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -1573,7 +1578,7 @@ sig = "d3cd76897aad26d4"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/notFoundReport.ts"
-sig = "4df03f923ae83040"
+sig = "78d9d241adb59d38"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -1588,7 +1593,7 @@ sig = "006ace2d385d431e"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "next.config.ts"
-sig = "93e48ccf40b7c2d4"
+sig = "8b1d5aafca5bcb3c"
 
 [[bindings]]
 doc = "docs/onboarding.md"
@@ -1908,4 +1913,4 @@ sig = "c82dc0ebc023be44"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/middleware.ts"
-sig = "fd722c55fdb3239d"
+sig = "4d32a8e4e521b1a1"
