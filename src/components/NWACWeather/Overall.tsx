@@ -99,6 +99,8 @@ interface Table {
   dateRanges?: boolean
   /** Cells whose content fills them (shaded snow levels) take less padding. */
   filled?: boolean
+  /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
+  groupColumn?: string
   /** Under the table, across from its key: a control for the table. */
   aside?: ReactNode
   /** After the description, over the table: what the shading means. */
@@ -365,6 +367,7 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Tab
     legend: withSnow ? <SnowFillLegend /> : undefined,
     aside: withSnow ? <PrecipHoursToggle /> : undefined,
     rowLabel: 'Station',
+    groupColumn: 'Zone',
     dateRanges: !withSnow,
     columns: [
       ...slots.map((s) => s.column).flatMap(split),
@@ -462,8 +465,9 @@ function dayTables(t: Table) {
             fills: r.fills && pick(r.fills),
           })),
         })),
-        // Station names (rows under zone headings) need the default width; zone names fit narrower.
-        labelVars: t.groups.some((g) => g.label) ? undefined : '[--label:5.5rem]',
+        // On a phone group labels become heading rows over their rows, so the values get the room.
+        groupColumn: undefined,
+        labelVars: t.groupColumn ? undefined : '[--label:5.5rem]',
         day: true,
       },
     }
@@ -489,9 +493,16 @@ const SUB = 'block whitespace-nowrap text-sm font-normal text-muted-foreground'
 function RowLabelHead({ table: t, rowSpan }: { table: Table; rowSpan: number }) {
   const label = 'border-b bg-muted p-2 text-left align-bottom font-semibold'
   return (
-    <th scope="col" rowSpan={rowSpan} className={cn(STICKY, label, 'pl-3')}>
-      {t.rowLabel}
-    </th>
+    <>
+      {t.groupColumn && (
+        <th scope="col" rowSpan={rowSpan} className={cn(label, 'pl-3')}>
+          {t.groupColumn}
+        </th>
+      )}
+      <th scope="col" rowSpan={rowSpan} className={cn(STICKY, label, !t.groupColumn && 'pl-3')}>
+        {t.rowLabel}
+      </th>
+    </>
   )
 }
 
@@ -566,6 +577,7 @@ function GroupedHead({ table: t }: { table: Table }) {
                 className={cn(
                   'border-b px-2 pb-2 pt-0.5 text-center',
                   i === 0 && 'border-l',
+                  t.groupColumn && 'min-w-24 px-4',
                   t.day && 'px-0 pt-2 align-bottom',
                   t.narrow && 'px-0',
                 )}
@@ -686,6 +698,44 @@ function cellClassOf(t: Table) {
   return cn('text-center align-middle', t.paired ? 'px-1 py-2' : 'p-2', t.day && 'px-0.5')
 }
 
+/** Each group's label in a first column spanning its rows; lighter rules inside a group. */
+function GroupColumnBody({ table: t }: { table: Table }) {
+  const cellClass = cellClassOf(t)
+  return (
+    <tbody>
+      {t.groups.map((g) =>
+        g.rows.map((r, i) => {
+          const rule = i === 0 ? 'border-t' : 'border-t border-t-muted'
+          return (
+            <tr key={r.key}>
+              {i === 0 && (
+                <th
+                  scope="rowgroup"
+                  rowSpan={g.rows.length}
+                  className="border-t p-2 pl-3 text-left align-top font-semibold"
+                >
+                  {g.label ?? DASH}
+                </th>
+              )}
+              <th scope="row" className={cn(STICKY, rule, 'bg-card p-2 text-left font-normal')}>
+                {r.label}
+              </th>
+              {r.cells.map((cell, c) => (
+                <td
+                  key={t.columns[c]?.key ?? c}
+                  className={cn(rule, cellClass, r.fills?.[c], leftRule(t.columns, c))}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          )
+        }),
+      )}
+    </tbody>
+  )
+}
+
 /** The rule before a body cell: a paired table's carry its header's date rules down. */
 function bodyRule(t: Table, i: number) {
   const c = t.columns[i]
@@ -694,6 +744,7 @@ function bodyRule(t: Table, i: number) {
 }
 
 function TableBody({ table: t }: { table: Table }) {
+  if (t.groupColumn) return <GroupColumnBody table={t} />
   const cellClass = cellClassOf(t)
   return (
     <tbody>
@@ -704,7 +755,7 @@ function TableBody({ table: t }: { table: Table }) {
               <th
                 scope="rowgroup"
                 colSpan={t.columns.length + 1}
-                className="border-t bg-card px-3 pb-1.5 pt-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                className="border-t bg-muted/50 px-3 py-1.5 text-left text-xs font-semibold"
               >
                 {/* Stays in view while the values scroll sideways under it. */}
                 <span className="sticky left-3">{g.label}</span>
@@ -771,33 +822,42 @@ function TableTitle({
 }
 
 /**
- * The row label column's width as a CSS variable, narrower on a phone so the values get the room.
- * Static classes, so Tailwind sees them.
+ * Label column widths as CSS variables, narrower on a phone so the values get the room: the group
+ * column (a grouped table's zones) and the row labels. Static classes, so Tailwind sees them.
  */
-const LABEL_VARS = '[--label:7.5rem] md:[--label:12rem]'
+const LABEL_VARS = '[--group:5.5rem] [--label:7.5rem] md:[--group:8rem] md:[--label:12rem]'
+/** A data column of a grouped table, which is sized to its columns rather than stretched. */
+const GROUPED_COL_REM = 5.5
 /** A split table's value column, half a period: room for a total like 12.34" with its mark. */
 const SPLIT_COL_REM = 4.5
 const DATE_RANGE_COL_REM = 7
 /** The narrowest a data column of a stretched table gets before the table scrolls instead. */
 const MIN_COL_REM = 5
 
+function labels(t: Table) {
+  return t.groupColumn ? 'var(--group) + var(--label)' : 'var(--label)'
+}
+
 /**
- * Fixed layout, so every data column of a table is the same width whatever its values, across the
- * page down to a scrolling minimum.
+ * Fixed layout, so every data column of a table is the same width whatever its values: a grouped
+ * table at exactly its columns' width, the others across the page down to a scrolling minimum.
  */
 function tableWidth(t: Table) {
   if (t.day || t.narrow) return { width: '100%' }
   const n = t.columns.length
-  if (isSplit(t)) return { width: '100%', minWidth: `calc(var(--label) + ${n * SPLIT_COL_REM}rem)` }
+  if (isSplit(t)) return { width: '100%', minWidth: `calc(${labels(t)} + ${n * SPLIT_COL_REM}rem)` }
   if (t.dateRanges) {
-    return { width: '100%', minWidth: `calc(var(--label) + ${n * DATE_RANGE_COL_REM}rem)` }
+    return { width: '100%', minWidth: `calc(${labels(t)} + ${n * DATE_RANGE_COL_REM}rem)` }
   }
-  return { width: '100%', minWidth: `calc(var(--label) + ${n * (t.minColRem ?? MIN_COL_REM)}rem)` }
+  return t.groupColumn
+    ? { width: `calc(${labels(t)} + ${n * GROUPED_COL_REM}rem)` }
+    : { width: '100%', minWidth: `calc(${labels(t)} + ${n * (t.minColRem ?? MIN_COL_REM)}rem)` }
 }
 
 function TableColumns({ table: t }: { table: Table }) {
   return (
     <colgroup>
+      {t.groupColumn && <col style={{ width: 'var(--group)' }} />}
       <col style={{ width: 'var(--label)' }} />
       {t.columns.map((c) => (
         <col key={c.key} />
@@ -856,11 +916,13 @@ function GridTable({
 
 function TableBox({ table: t, className }: { table: Table; className?: string }) {
   return (
+    /* A grouped table is only as wide as its columns; stretched, its few periods sprawl. */
     <div
       className={cn(
         // `relative` makes the box the containing block of the headers' screen-reader labels
         // (absolutely positioned), so they are clipped with the table instead of widening the page.
         'relative overflow-x-auto rounded-md border',
+        t.groupColumn && !isSplit(t) && !t.dateRanges && 'w-fit max-w-full',
         className,
       )}
     >
