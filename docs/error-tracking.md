@@ -51,4 +51,4 @@ PostHog runs as a **same-origin reverse proxy** so analytics aren't ad-blocked: 
 | `NEXT_PUBLIC_POSTHOG_HOST` | No       | UI host for links (default `https://us.i.posthog.com`)                  |
 | `NEXT_PUBLIC_POSTHOG_ENVIRONMENT` | No | `production`, `preview`, `development` or `local`; set per Vercel environment (see above), `local` when absent or unrecognized |
 
-The PostHog variables default to empty in [`.env.example`](../.env.example), so analytics stay off until a key is provided.
+The PostHog variables default to empty in [`.env.example`](../.env.example), so analytics stay off until a key is provided. The server-side query credentials behind the admin dashboard's Site analytics widget (`POSTHOG_PERSONAL_API_KEY`, `POSTHOG_PROJECT_ID`) are documented in [admin-analytics.md](admin-analytics.md).

@@ -105,10 +105,20 @@ export default buildConfig({
           Component: '@/components/dashboard-widgets/GettingStartedWidget#GettingStartedWidget',
           minWidth: 'full',
         },
+        {
+          slug: 'site-analytics',
+          label: 'Site Analytics',
+          Component: '@/components/dashboard-widgets/AnalyticsWidget#AnalyticsWidget',
+          minWidth: 'full',
+        },
       ],
       defaultLayout: [
         {
           widgetSlug: 'getting-started',
+          width: 'full',
+        },
+        {
+          widgetSlug: 'site-analytics',
           width: 'full',
         },
         {

@@ -209,6 +209,7 @@ Read these docs for detailed guidance on specific topics:
 - **`/docs/onboarding.md`** - Checklist for new tenant setup
 - **`/docs/troubleshooting.md`** - Common local-dev failures and fixes
 - **`/docs/error-tracking.md`** - Sentry + PostHog setup and wiring
+- **`/docs/admin-analytics.md`** - The admin dashboard's per-center Site analytics widget: PostHog HogQL queries, the shared center filter, caching and env vars
 - **`/docs/not-found-report.md`** - Post-launch 404 report: turning a center's production 404s into redirects
 - **`/docs/fallow.md`** - Dead-code/code-health tooling: commands, `audit` vs full scan, baselines
 - **`/docs/doc-drift.md`** - How docs stay bound to code via drift, and how to clear a stale-doc flag

@@ -73,6 +73,7 @@ import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe76
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
 import { EmbedGenerator as EmbedGenerator_1b7ef53264c103176ad65c34c5002f79 } from '@/views/EmbedGenerator'
 import { GettingStartedWidget as GettingStartedWidget_71651c7371b649fc7904c7f1624b31dd } from '@/components/dashboard-widgets/GettingStartedWidget'
+import { AnalyticsWidget as AnalyticsWidget_feebf9ec7c53db881dd05f85d7c62232 } from '@/components/dashboard-widgets/AnalyticsWidget'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -152,5 +153,6 @@ export const importMap = {
   "@/views/AcceptInvite#AcceptInvite": AcceptInvite_a090ee9cb5b31ae357daa74987d3109a,
   "@/views/EmbedGenerator#EmbedGenerator": EmbedGenerator_1b7ef53264c103176ad65c34c5002f79,
   "@/components/dashboard-widgets/GettingStartedWidget#GettingStartedWidget": GettingStartedWidget_71651c7371b649fc7904c7f1624b31dd,
+  "@/components/dashboard-widgets/AnalyticsWidget#AnalyticsWidget": AnalyticsWidget_feebf9ec7c53db881dd05f85d7c62232,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
