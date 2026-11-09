@@ -1,6 +1,6 @@
 import { snowFill } from '@/components/NWACWeather/Values'
 import { ZoneTable } from '@/components/NWACWeather/ZoneTable'
-import { zoneSnow } from '@/services/nac/nwacWeatherFormat'
+import { pointSnow, zonePoints } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
@@ -29,31 +29,73 @@ describe('ZoneTable', () => {
     expect(screen.queryByText(afternoon.sensible[z.id].morning)).not.toBeInTheDocument()
   })
 
-  it('keeps to the short rows, without each point', () => {
-    render(<ZoneTable issuance={afternoon} zone={zone('west-south')} periodKeys={DAY_ONE} />)
+  it('leads with each point’s precipitation then snow, in the MWF’s order', () => {
+    const { container } = render(
+      <ZoneTable issuance={afternoon} zone={zone('snoqualmie')} periodKeys={DAY_ONE} />,
+    )
+    const table = container.querySelector('table')
+    if (!table) throw new Error('no zone table')
 
     expect(
-      screen
+      within(table)
         .getAllByRole('rowheader')
-        .map((row) => row.textContent)
-        .slice(0, 4),
-    ).toEqual(['Snow (in)', 'Snow level (ft)', "5000' Temperatures (°F)", 'Ridge wind (mph)'])
-    expect(screen.queryByRole('rowheader', { name: 'Paradise' })).not.toBeInTheDocument()
+        .map((row) => row.textContent),
+    ).toEqual([
+      'Precipitation (in): Snoqualmie Pass',
+      'Snow (in): Snoqualmie Pass',
+      'Snow level (ft)',
+      "5000' Temperatures (°F)",
+      'Ridgeline winds (mph)',
+    ])
   })
 
-  it("fills the zone's snow cells by amount and keeps the keys under the table", () => {
+  it('gives every point of a zone its own rows', () => {
+    const z = zone('west-south')
+    const { container } = render(<ZoneTable issuance={afternoon} zone={z} periodKeys={DAY_ONE} />)
+    const table = container.querySelector('table')
+    if (!table) throw new Error('no zone table')
+
+    const names = zonePoints(afternoon, z.id).map((p) => p.name)
+    const rows = within(table)
+      .getAllByRole('rowheader')
+      .map((row) => row.textContent)
+    expect(rows.slice(0, names.length * 2)).toEqual([
+      ...names.map((n) => `Precipitation (in): ${n}`),
+      ...names.map((n) => `Snow (in): ${n}`),
+    ])
+  })
+
+  it('labels the 6h parts of day Morn, Aft, Eve and Night', () => {
+    const { container } = render(
+      <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={['n1', 'd2']} />,
+    )
+    const table = container.querySelector('table')
+    if (!table) throw new Error('no zone table')
+    const levelRow = within(table)
+      .getByRole('rowheader', { name: /^Snow level/ })
+      .closest('tr')
+    if (!levelRow) throw new Error('no snow level row')
+
+    for (const part of ['Eve', 'Night', 'Morn', 'Aft']) {
+      expect(within(levelRow).getByText(part)).toBeInTheDocument()
+    }
+  })
+
+  it("fills each point's snow cells by amount and keeps the keys under the table", () => {
     const z = zone('west-south')
     const { container } = render(<ZoneTable issuance={afternoon} zone={z} periodKeys={DAY_ONE} />)
 
     const table = container.querySelector('table')
     if (!table) throw new Error('no zone table')
+    const [point] = zonePoints(afternoon, z.id)
     const snowRow = within(table)
-      .getByRole('rowheader', { name: /^Snow \(in\)$/ })
-      .closest('tr')
+      .getAllByRole('rowheader')
+      .find((th) => th.textContent === `Snow (in): ${point.name}`)
+      ?.closest('tr')
     if (!snowRow) throw new Error('no snow row')
     const cells = within(snowRow).getAllByRole('cell')
     cells.forEach((td, i) => {
-      const fill = snowFill(zoneSnow(afternoon, z.id, afternoon.periods[i].key))
+      const fill = snowFill(pointSnow(afternoon, point.code, afternoon.periods[i].key))
       if (fill) expect(td).toHaveClass(fill)
     })
 

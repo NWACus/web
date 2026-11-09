@@ -1,24 +1,27 @@
 /**
- * One zone's weather beside an avalanche forecast, for the periods of that forecast's Day 1: its
- * sensible weather, then a short table by 12h period (6h snow level and wind inside), or on a phone
- * a labeled card per period. The zone's snow, not each point's: the whole forecast is a link away.
+ * One zone's weather beside an avalanche forecast, for the 24 hours on show: its sensible weather,
+ * then a short table by 12h period (6h snow level and wind inside), or on a phone a labeled card
+ * per period. Precipitation and snow are each forecast point's, named, as the MWF gives them.
  */
 import type {
   NWACWeatherBlock,
   NWACWeatherIssuance,
   NWACWeatherPeriod,
+  NWACWeatherPoint,
   NWACWeatherWindCell,
   NWACWeatherZone,
 } from '@/services/nac/model/nwacWeather'
 import {
   deriveSnowLevel,
   fmtCalendarDate,
+  fmtQpf,
   levelKind,
+  pointSnow,
   sensibleSlotFor,
   snowRange,
   tempPeriods,
   windBlocks,
-  zoneSnow,
+  zonePoints,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
@@ -39,6 +42,10 @@ const ROW_LABEL = 'border-r border-t p-2 pl-3 text-left align-middle font-semibo
 /** A row's unit, always in parentheses: "Snow (in)", "5000' Temperatures (°F)". */
 const Unit = ({ children }: { children: string }) => (
   <span className="font-normal text-muted-foreground"> ({children})</span>
+)
+/** The forecast point a precipitation or snow row is for: "Snow (in): Paradise". */
+const Point = ({ children }: { children: string }) => (
+  <span className="font-normal">: {children}</span>
 )
 
 interface PeriodView {
@@ -87,6 +94,21 @@ function snowCells(periods: PeriodView[], snowOf: (periodKey: string) => number 
     cell: (p: PeriodView) => <SnowAmount snow={of(p)} />,
     fill: (p: PeriodView) => snowFill(of(p)),
   }
+}
+
+/** A point's water equivalent for a period. */
+function PrecipAmount({
+  issuance,
+  point,
+  periodKey,
+}: {
+  issuance: NWACWeatherIssuance
+  point: NWACWeatherPoint
+  periodKey: string
+}) {
+  return (
+    <span className="tabular-nums">{fmtQpf(issuance.precip[point.code]?.[periodKey]?.qpf)}</span>
+  )
 }
 
 /** A snow amount as its public range; `chip` carries the snow fill itself, off a table cell. */
@@ -197,6 +219,7 @@ function NotCovered({ colSpan }: { colSpan: number }) {
 function PeriodRow({
   label,
   unit,
+  point,
   periods,
   cell,
   fill,
@@ -204,6 +227,7 @@ function PeriodRow({
 }: {
   label: string
   unit?: string
+  point?: string
   periods: PeriodView[]
   cell: (p: PeriodView) => ReactNode
   /** A cell's background (the snow fills). */
@@ -215,6 +239,7 @@ function PeriodRow({
       <th scope="row" className={ROW_LABEL}>
         {label}
         {unit && <Unit>{unit}</Unit>}
+        {point && <Point>{point}</Point>}
       </th>
       {periods.slice(0, covered).map((p) => (
         <td key={p.period.key} className={cn('border-l border-t p-2 text-center', fill?.(p))}>
@@ -229,8 +254,8 @@ function PeriodRow({
 const PART_SHORT: Record<string, string> = {
   Evening: 'Eve',
   Night: 'Night',
-  Morning: 'AM',
-  Afternoon: 'PM',
+  Morning: 'Morn',
+  Afternoon: 'Aft',
 }
 
 /**
@@ -279,6 +304,7 @@ function PeriodTable({
 }) {
   const covered = coverage(issuance, periods)
   const windOut = blocksPast(periods, covered.winds)
+  const points = zonePoints(issuance, zone.id)
   return (
     <div className="hidden overflow-hidden rounded-md border md:block print:block">
       <table className="w-full table-fixed border-collapse text-sm">
@@ -290,12 +316,28 @@ function PeriodTable({
         </colgroup>
         <PeriodHead periods={periods} />
         <tbody>
-          <PeriodRow
-            label="Snow"
-            unit="in"
-            periods={periods}
-            {...snowCells(periods, (key) => zoneSnow(issuance, zone.id, key))}
-          />
+          {points.map((point) => (
+            <PeriodRow
+              key={point.code}
+              label="Precipitation"
+              unit="in"
+              point={point.name}
+              periods={periods}
+              cell={(p) => (
+                <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
+              )}
+            />
+          ))}
+          {points.map((point) => (
+            <PeriodRow
+              key={point.code}
+              label="Snow"
+              unit="in"
+              point={point.name}
+              periods={periods}
+              {...snowCells(periods, (key) => pointSnow(issuance, point.code, key))}
+            />
+          ))}
           <PeriodRow
             label="Snow level"
             unit="ft"
@@ -315,7 +357,7 @@ function PeriodTable({
             cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />}
           />
           <PeriodRow
-            label="Ridge wind"
+            label="Ridgeline winds"
             unit="mph"
             periods={periods}
             covered={covered.windPeriods}
@@ -345,10 +387,12 @@ function NotCoveredChip() {
 function CardLine({
   label,
   unit,
+  point,
   children,
 }: {
   label: string
   unit?: string
+  point?: string
   children: ReactNode
 }) {
   return (
@@ -356,13 +400,14 @@ function CardLine({
       <dt className="font-semibold">
         {label}
         {unit && <Unit>{unit}</Unit>}
+        {point && <Point>{point}</Point>}
       </dt>
       <dd className="text-right">{children}</dd>
     </div>
   )
 }
 
-/** A phone card's labeled lines: the zone's snow and the temps. */
+/** A phone card's labeled lines: each point's precipitation and snow, then the temps. */
 function CardSummary({
   issuance,
   zone,
@@ -379,11 +424,19 @@ function CardSummary({
   ) : (
     <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />
   )
+  const points = zonePoints(issuance, zone.id)
   return (
     <dl className="divide-y border-t">
-      <CardLine label="Snow" unit="in">
-        <SnowAmount snow={zoneSnow(issuance, zone.id, p.period.key)} chip />
-      </CardLine>
+      {points.map((point) => (
+        <CardLine key={point.code} label="Precipitation" unit="in" point={point.name}>
+          <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
+        </CardLine>
+      ))}
+      {points.map((point) => (
+        <CardLine key={point.code} label="Snow" unit="in" point={point.name}>
+          <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} chip />
+        </CardLine>
+      ))}
       <CardLine label="5000' Temperatures" unit="°F">
         {temp}
       </CardLine>
@@ -403,7 +456,7 @@ function CardBlocksHead({ showWind }: { showWind: boolean }) {
         </th>
         {showWind ? (
           <th scope="col" className={CARD_HEAD}>
-            Ridge wind <Unit>mph</Unit>
+            Ridgeline winds <Unit>mph</Unit>
           </th>
         ) : (
           <td />
@@ -510,7 +563,7 @@ export function ZoneTable({
 }: {
   issuance: NWACWeatherIssuance
   zone: NWACWeatherZone
-  /** The periods to show, the forecast's Day 1. */
+  /** The periods to show: the 24 hours on show. */
   periodKeys: string[]
   /** The zone's name as a heading; off when the page already names the zone. */
   heading?: boolean
