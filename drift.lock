@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "d445390191a2cd7d"
+sig = "b8b240e8cc69667c"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1433,7 +1433,7 @@ sig = "a8caf84889929943"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/providers/PostHogProvider.tsx"
-sig = "8a52522b9f7edce5"
+sig = "aec15052cf4b1cdd"
 
 [[bindings]]
 doc = "docs/error-tracking.md"

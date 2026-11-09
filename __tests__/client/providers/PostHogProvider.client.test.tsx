@@ -58,6 +58,25 @@ describe('PostHogProvider', () => {
     expect(superOrder).toBeLessThan(centerOrder)
   })
 
+  it('pins web capture settings without blocking the remote config replay depends on', () => {
+    render(
+      <PostHogProvider>
+        <div />
+      </PostHogProvider>,
+    )
+
+    const config = mockedInit.mock.calls[0][1]
+    expect(config).toMatchObject({
+      advanced_disable_feature_flags: true,
+      capture_exceptions: false,
+      capture_heatmaps: true,
+      capture_dead_clicks: true,
+      disable_product_tours: true,
+      disable_conversations: true,
+    })
+    expect(config).not.toHaveProperty('advanced_disable_flags')
+  })
+
   it('does nothing without a PostHog key', () => {
     delete process.env.NEXT_PUBLIC_POSTHOG_KEY
 
