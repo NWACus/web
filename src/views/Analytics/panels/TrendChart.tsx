@@ -5,6 +5,7 @@ import type { PanelData, TimeseriesData } from '@/services/posthog/panelTypes'
 import { cn } from '@/utilities/ui'
 import { useEffect, useMemo, useState } from 'react'
 import { formatInteger } from '../format'
+import { TabPills } from '../TabPills'
 import { usePanel, type PanelRequest } from '../usePanel'
 import { MUTED, PanelBody } from './Panel'
 
@@ -18,16 +19,19 @@ const SERIES = [
 ] as const
 type SeriesKey = (typeof SERIES)[number]['key']
 
-/** Payload's theme lives in CSS variables; ECharts needs resolved colors. */
+/**
+ * The admin theme and the brand palette live in CSS variables; ECharts needs resolved colors.
+ * The line uses the site's brand blue (colors.css), not Payload's status colors.
+ */
 function useThemeColors() {
-  const [colors, setColors] = useState({ text: '#777', grid: '#ddd', line: '#2563eb' })
+  const [colors, setColors] = useState({ text: '#777', grid: '#ddd', line: '#5b7a9d' })
   useEffect(() => {
     const style = getComputedStyle(document.documentElement)
     const read = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback
     setColors({
       text: read('--theme-elevation-600', '#777'),
       grid: read('--theme-elevation-150', '#ddd'),
-      line: read('--theme-success-500', '#2563eb'),
+      line: read('--brand-500', '#5b7a9d'),
     })
   }, [])
   return colors
@@ -86,25 +90,9 @@ export function TrendChart({ request }: { request: PanelRequest }) {
   const [series, setSeries] = useState<SeriesKey>('visitors')
   const state = usePanel('timeseries', request, pickTimeseries)
   return (
-    <section className="flex flex-col gap-3 rounded border border-[var(--theme-elevation-150)] bg-[var(--theme-elevation-0)] p-5">
+    <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex gap-3">
-          {SERIES.map((option) => (
-            <button
-              key={option.key}
-              type="button"
-              onClick={() => setSeries(option.key)}
-              className={cn(
-                'text-xs font-semibold uppercase tracking-wide',
-                option.key === series
-                  ? 'text-[var(--theme-text)] underline underline-offset-4'
-                  : MUTED,
-              )}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        <TabPills options={SERIES} active={series} onChange={setSeries} />
         {state.status === 'ready' && (
           <span className={cn('text-xs', MUTED)}>
             {state.data.bucket === 'week' ? 'By week' : 'By day'}
@@ -114,6 +102,6 @@ export function TrendChart({ request }: { request: PanelRequest }) {
       <PanelBody state={state} empty="No pageviews in this period.">
         {(data) => (data.points.length === 0 ? null : <Chart data={data} series={series} />)}
       </PanelBody>
-    </section>
+    </div>
   )
 }

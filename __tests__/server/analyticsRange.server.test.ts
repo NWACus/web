@@ -26,6 +26,7 @@ describe('analyticsRange', () => {
     const now = new Date('2026-11-09T20:00:00Z')
     expect(presetRange('7d', PACIFIC, now)).toEqual({ from: '2026-11-02', to: '2026-11-09' })
     expect(presetRange('30d', PACIFIC, now)).toEqual({ from: '2026-10-10', to: '2026-11-09' })
+    expect(presetRange('12m', PACIFIC, now)).toEqual({ from: '2025-11-09', to: '2026-11-09' })
   })
 
   it('resolves a range to instants with a same-length previous period', () => {
@@ -57,12 +58,11 @@ describe('analyticsRange', () => {
 
   it('counts inclusive days and enforces the cap', () => {
     expect(rangeDays({ from: '2026-11-01', to: '2026-11-01' })).toBe(1)
-    expect(rangeDays({ from: '2026-09-09', to: '2026-11-09' })).toBe(62)
+    expect(rangeDays({ from: '2025-11-09', to: '2026-11-09' })).toBe(366)
     const now = new Date('2026-11-09T20:10:00Z')
-    expect(resolveRange({ from: '2026-09-09', to: '2026-11-09' }, PACIFIC, now)).not.toHaveProperty(
-      'error',
-    )
-    expect(resolveRange({ from: '2026-09-08', to: '2026-11-09' }, PACIFIC, now)).toEqual({
+    const year = resolveRange({ from: '2025-11-09', to: '2026-11-09' }, PACIFIC, now)
+    expect('error' in year ? year.error : year.bucket).toBe('week')
+    expect(resolveRange({ from: '2025-11-08', to: '2026-11-09' }, PACIFIC, now)).toEqual({
       error: `Ranges are limited to ${MAX_RANGE_DAYS} days`,
     })
   })

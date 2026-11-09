@@ -35,14 +35,31 @@ export class PostHogQueryError extends Error {
   }
 }
 
-const hogqlResponseSchema = z.object({
+const hogqlResultSchema = z.object({
   columns: z.array(z.string()),
   results: z.array(z.array(z.unknown())),
 })
 
-const QUERY_TIMEOUT_MS = 25_000
+// Shape of an async submission or a poll: results appear on the status once complete
+const queryStatusSchema = z.object({
+  query_status: z.object({
+    id: z.string(),
+    complete: z.boolean(),
+    error: z.boolean().nullable().optional(),
+    error_message: z.string().nullable().optional(),
+    results: z.unknown().optional(),
+  }),
+})
 
-/** `blocking` serves PostHog's own cache when fresh; `force_blocking` always recalculates. */
+const REQUEST_TIMEOUT_MS = 25_000
+const POLL_INTERVAL_MS = 1_500
+const POLL_DEADLINE_MS = 120_000
+
+/**
+ * `blocking` serves PostHog's own cache when fresh; `force_blocking` always recalculates. Both are
+ * submitted asynchronously and polled: the synchronous API stops a query after 10 seconds of
+ * execution, the async path does not.
+ */
 export type QueryRefresh = 'blocking' | 'force_blocking'
 
 /** Serialises calls to PostHog's concurrency limit; excess callers wait their turn. */
@@ -79,43 +96,81 @@ export async function queryHogQL<T>(
 ): Promise<T[]> {
   const release = await querySlots.acquire()
   try {
-    return await runQuery(config, query, rowSchema, refresh)
+    const result = await runQuery(config, query, refresh)
+    return parseRows(result, rowSchema)
   } finally {
     release()
   }
 }
 
-async function runQuery<T>(
-  config: PostHogQueryConfig,
-  query: string,
-  rowSchema: z.ZodType<T>,
-  refresh: QueryRefresh,
-): Promise<T[]> {
-  const response = await fetch(`${config.host}/api/projects/${config.projectId}/query`, {
-    method: 'POST',
+async function requestJson(config: PostHogQueryConfig, path: string, init: RequestInit = {}) {
+  const response = await fetch(`${config.host}/api/projects/${config.projectId}${path}`, {
+    ...init,
     headers: {
       Authorization: `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
+      ...init.headers,
     },
-    body: JSON.stringify({ query: { kind: 'HogQLQuery', query }, refresh, name: 'avyweb-admin' }),
     cache: 'no-store',
-    signal: AbortSignal.timeout(QUERY_TIMEOUT_MS),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   })
-
   if (!response.ok) {
     throw new PostHogQueryError(`PostHog query failed with HTTP ${response.status}`, {
       status: response.status,
       body: (await response.text()).slice(0, 500),
     })
   }
+  const body: unknown = await response.json()
+  return body
+}
 
-  const parsed = hogqlResponseSchema.safeParse(await response.json())
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+async function pollQuery(config: PostHogQueryConfig, id: string): Promise<unknown> {
+  const deadline = Date.now() + POLL_DEADLINE_MS
+  while (Date.now() < deadline) {
+    await sleep(POLL_INTERVAL_MS)
+    const status = queryStatusSchema.safeParse(await requestJson(config, `/query/${id}/`))
+    if (!status.success) {
+      throw new PostHogQueryError('PostHog query status had an unexpected shape', {
+        issues: status.error.issues,
+      })
+    }
+    const { complete, error, error_message, results } = status.data.query_status
+    if (error) throw new PostHogQueryError(error_message || 'PostHog query failed', { id })
+    if (complete) return results
+  }
+  throw new PostHogQueryError('PostHog query did not finish in time', { id })
+}
+
+async function runQuery(
+  config: PostHogQueryConfig,
+  query: string,
+  refresh: QueryRefresh,
+): Promise<unknown> {
+  const body = await requestJson(config, '/query', {
+    method: 'POST',
+    body: JSON.stringify({
+      query: { kind: 'HogQLQuery', query },
+      refresh: refresh === 'force_blocking' ? 'force_async' : 'async',
+      name: 'avyweb-admin',
+    }),
+  })
+  // A fresh cache hit comes back as the result itself; otherwise it is a status to poll
+  const status = queryStatusSchema.safeParse(body)
+  if (!status.success) return body
+  const { complete, error, error_message, results, id } = status.data.query_status
+  if (error) throw new PostHogQueryError(error_message || 'PostHog query failed', { id })
+  return complete ? results : pollQuery(config, id)
+}
+
+function parseRows<T>(result: unknown, rowSchema: z.ZodType<T>): T[] {
+  const parsed = hogqlResultSchema.safeParse(result)
   if (!parsed.success) {
     throw new PostHogQueryError('PostHog query returned an unexpected shape', {
       issues: parsed.error.issues,
     })
   }
-
   const { columns, results } = parsed.data
   return results.map((row, index) => {
     const record = Object.fromEntries(columns.map((column, i) => [column, row[i]]))

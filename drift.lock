@@ -163,12 +163,12 @@ sig = "b2eed86d5f95e003"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
-sig = "9b664df7fdfc9f45"
+sig = "d965e383a105c369"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsRange.server.test.ts"
-sig = "993386f51d0ff41e"
+sig = "4eae609023f967db"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -183,12 +183,12 @@ sig = "f428fdb624879bd1"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/analyticsEndpoint.ts"
-sig = "eed27bdf4c874099"
+sig = "20d4ee282d322dbc"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/analyticsRange.ts"
-sig = "0c2a1635b4296dd6"
+sig = "4c1f01b579dd5ec3"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -208,7 +208,7 @@ sig = "51f9db5f251e9bde"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/hogql.ts"
-sig = "655b98d3987c3b26"
+sig = "b0032a47016e7e96"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -228,12 +228,22 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "2be971fb03aff4b1"
+sig = "f42ba87f50f7e7da"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/RangePicker.tsx"
-sig = "a0599c8b9a7cd44b"
+sig = "629299e510e919ed"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/TabPills.tsx"
+sig = "f6eca5c51487fe74"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/format.ts"
+sig = "2e2225590bff4335"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -257,6 +267,11 @@ sig = "86abab0cbc6aa09e"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/Panel.tsx"
+sig = "28cda307b138b655"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/SponsorsPanel.tsx"
 sig = "7288601112b6eedf"
 
@@ -268,7 +283,7 @@ sig = "f75b0807f01fcd59"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/TrendChart.tsx"
-sig = "748eba29d9470d03"
+sig = "6bf805bcfbc0f6e7"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -1563,7 +1578,7 @@ sig = "aec15052cf4b1cdd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/services/posthog/hogql.ts"
-sig = "655b98d3987c3b26"
+sig = "b0032a47016e7e96"
 
 [[bindings]]
 doc = "docs/error-tracking.md"

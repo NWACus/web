@@ -4,6 +4,7 @@ import type { PanelData } from '@/services/posthog/panelTypes'
 import { cn } from '@/utilities/ui'
 import { ShimmerEffect } from '@payloadcms/ui'
 import type { ReactNode } from 'react'
+import { TabPills } from '../TabPills'
 import type { PanelState } from '../usePanel'
 
 export const MUTED = 'text-[var(--theme-elevation-600)]'
@@ -29,22 +30,8 @@ export function PanelFrame({
         className,
       )}
     >
-      <div className="mb-4 flex flex-wrap gap-4 border-b border-[var(--theme-elevation-150)]">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => onTab(tab.key)}
-            className={cn(
-              '-mb-px border-b-2 pb-2 text-xs font-semibold uppercase tracking-wide',
-              tab.key === active
-                ? 'border-[var(--theme-text)] text-[var(--theme-text)]'
-                : cn('border-transparent hover:text-[var(--theme-text)]', MUTED),
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="mb-4">
+        <TabPills options={tabs} active={active} onChange={onTab} />
       </div>
       {children}
     </section>

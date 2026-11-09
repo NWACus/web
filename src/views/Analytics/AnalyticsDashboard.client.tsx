@@ -121,7 +121,8 @@ export function AnalyticsDashboard({
           <h2 className="m-0 text-xl font-semibold">{centerName}</h2>
           <p className={cn('m-0 text-sm', MUTED)}>
             Days follow {timezoneLabel}. PostHog itself reports in UTC, so daily totals can differ
-            at the edges. Detected bots are left out.
+            at the edges. Detected bots are left out of everything except bounce rate and visit
+            duration.
           </p>
         </div>
         <Button
@@ -147,8 +148,10 @@ export function AnalyticsDashboard({
         </p>
       ) : (
         <>
-          <StatsRow state={overview} />
-          <TrendChart request={request} />
+          <section className="flex flex-col gap-8 rounded border border-[var(--theme-elevation-150)] bg-[var(--theme-elevation-0)] p-5">
+            <StatsRow state={overview} />
+            <TrendChart request={request} />
+          </section>
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <BreakdownPanel tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
             <BreakdownPanel tabs={SOURCE_TABS} request={request} totalVisitors={totalVisitors} />

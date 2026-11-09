@@ -1,17 +1,16 @@
 import { TZDate } from '@date-fns/tz'
 
-export const RANGE_PRESETS = ['7d', '30d'] as const
+export const RANGE_PRESETS = ['7d', '30d', '90d', '12m'] as const
 export type RangePreset = (typeof RANGE_PRESETS)[number]
 export const DEFAULT_PRESET: RangePreset = '30d'
 
-const PRESET_DAYS: Record<RangePreset, number> = { '7d': 7, '30d': 30 }
+const PRESET_DAYS: Record<RangePreset, number> = { '7d': 7, '30d': 30, '90d': 90, '12m': 365 }
 
 /**
- * PostHog stops API queries after 10 seconds of execution, and a scan of the events table costs
- * about 1.5 seconds per 10 days of calendar range whatever the filter matches. Two months is the
- * most that reliably fits; see docs/admin-analytics.md for the longer-range plan.
+ * An events scan costs PostHog about 1.5 seconds per 10 days of calendar range, so a year is the
+ * ceiling before a cold load takes minutes; see docs/admin-analytics.md.
  */
-export const MAX_RANGE_DAYS = 62
+export const MAX_RANGE_DAYS = 366
 
 /** Inclusive calendar dates, `YYYY-MM-DD`, in the center's timezone. */
 export type DateRange = { from: string; to: string }
@@ -26,7 +25,7 @@ export type ResolvedRange = {
   start: Date
   end: Date
   timezone: string
-  /** Day buckets up to 92 days; weeks beyond that, should the cap ever be lifted. */
+  /** Day buckets up to 92 days; longer ranges use weeks so the chart stays readable. */
   bucket: 'day' | 'week'
 }
 

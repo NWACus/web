@@ -13,10 +13,13 @@ import { Button, DatePicker } from '@payloadcms/ui'
 import { useState } from 'react'
 import { formatDateRange } from './format'
 import { MUTED } from './panels/Panel'
+import { TabPills } from './TabPills'
 
 const PRESET_LABELS: Record<RangePreset, string> = {
   '7d': 'Last 7 days',
   '30d': 'Last 30 days',
+  '90d': 'Last 90 days',
+  '12m': 'Last 12 months',
 }
 
 export type RangeSelection = { preset: RangePreset } | { preset: 'custom'; range: DateRange }
@@ -87,28 +90,21 @@ export function RangePicker({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        {RANGE_PRESETS.map((preset) => (
-          <Button
-            key={preset}
-            buttonStyle={selection.preset === preset && !customOpen ? 'primary' : 'secondary'}
-            size="small"
-            className="m-0"
-            onClick={() => {
-              setCustomOpen(false)
-              onChange({ preset })
-            }}
-          >
-            {PRESET_LABELS[preset]}
-          </Button>
-        ))}
-        <Button
-          buttonStyle={customOpen ? 'primary' : 'secondary'}
-          size="small"
-          className="m-0"
-          onClick={() => setCustomOpen((open) => !open)}
-        >
-          Custom
-        </Button>
+        <TabPills
+          options={[
+            ...RANGE_PRESETS.map((preset) => ({ key: preset, label: PRESET_LABELS[preset] })),
+            { key: 'custom', label: 'Custom' },
+          ]}
+          active={customOpen ? 'custom' : selection.preset}
+          onChange={(key) => {
+            if (key === 'custom') {
+              setCustomOpen((open) => !open)
+              return
+            }
+            setCustomOpen(false)
+            onChange({ preset: key })
+          }}
+        />
         <span className={cn('ml-1 text-sm', MUTED)}>
           {formatDateRange(resolved.from, resolved.to)}
         </span>

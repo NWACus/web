@@ -88,7 +88,7 @@ describe('queryHogQL', () => {
     expect(rows).toEqual([{ path: '/a', pageviews: 3 }])
     expect(received?.auth).toBe('Bearer phx_test')
     expect(received?.body.query).toEqual({ kind: 'HogQLQuery', query: 'SELECT 1' })
-    expect(received?.body.refresh).toBe('blocking')
+    expect(received?.body.refresh).toBe('async')
   })
 
   it('passes force_blocking through for a forced refresh', async () => {
@@ -100,7 +100,7 @@ describe('queryHogQL', () => {
       }),
     )
     await queryHogQL(config, 'SELECT 1', z.object({}), 'force_blocking')
-    expect(refresh).toBe('force_blocking')
+    expect(refresh).toBe('force_async')
   })
 
   it('throws PostHogQueryError on a non-OK response or a bad row', async () => {
@@ -113,6 +113,41 @@ describe('queryHogQL', () => {
     await expect(
       queryHogQL(config, 'SELECT 1', z.object({ path: z.string() })),
     ).rejects.toBeInstanceOf(PostHogQueryError)
+  })
+
+  it('polls an asynchronous query until it completes', async () => {
+    let polls = 0
+    server.use(
+      http.post(QUERY_URL, () =>
+        HttpResponse.json({ query_status: { id: 'q1', complete: false } }),
+      ),
+      http.get(`${QUERY_URL}/q1/`, () => {
+        polls += 1
+        return HttpResponse.json({
+          query_status: {
+            id: 'q1',
+            complete: polls >= 2,
+            results: polls >= 2 ? { columns: ['n'], results: [[7]] } : undefined,
+          },
+        })
+      }),
+    )
+
+    await expect(queryHogQL(config, 'SELECT 1', z.object({ n: z.number() }))).resolves.toEqual([
+      { n: 7 },
+    ])
+    expect(polls).toBe(2)
+  })
+
+  it('surfaces an asynchronous failure with its message', async () => {
+    server.use(
+      http.post(QUERY_URL, () =>
+        HttpResponse.json({
+          query_status: { id: 'q2', complete: true, error: true, error_message: 'Out of memory' },
+        }),
+      ),
+    )
+    await expect(queryHogQL(config, 'SELECT 1', z.object({}))).rejects.toThrow('Out of memory')
   })
 
   it("never has more than PostHog's concurrency limit in flight", async () => {
@@ -176,8 +211,10 @@ describe('center queries', () => {
     expect(sql).toContain("NOT startsWith($entry_pathname, '/admin')")
   })
 
-  it('buckets the time series by day in the center timezone', () => {
+  it('buckets the time series in the center timezone, weekly for long ranges', () => {
     expect(timeseriesQuery(scope)).toContain("toDate(toTimeZone(timestamp, 'America/Los_Angeles'))")
+    const year = { ...scope, range: rangeFor('2025-11-09', '2026-11-09') }
+    expect(timeseriesQuery(year)).toContain('toStartOfWeek(toTimeZone(timestamp')
   })
 
   it('builds each breakdown with its own label and secondary count', () => {

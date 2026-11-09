@@ -39,7 +39,7 @@ export function formatDelta(comparison: Comparison, invert = false): Delta {
   return { text: `${sign}${rounded}%`, direction: deltaDirection(rounded, invert) }
 }
 
-/** "Nov 1 – Nov 9, 2026" from ISO dates, without timezone shifts. */
+/** "Nov 1 – Nov 9, 2026", or "Nov 9, 2025 – Nov 9, 2026" across years, without timezone shifts. */
 export function formatDateRange(from: string, to: string): string {
   const day = (iso: string, withYear: boolean) =>
     new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', {
@@ -48,5 +48,7 @@ export function formatDateRange(from: string, to: string): string {
       timeZone: 'UTC',
       ...(withYear ? { year: 'numeric' } : {}),
     })
-  return from === to ? day(from, true) : `${day(from, false)} – ${day(to, true)}`
+  if (from === to) return day(from, true)
+  const sameYear = from.slice(0, 4) === to.slice(0, 4)
+  return `${day(from, !sameYear)} – ${day(to, true)}`
 }

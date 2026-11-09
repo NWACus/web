@@ -8,9 +8,8 @@ import { isAnalyticsPanel, type PanelResponse } from './panelTypes'
 
 const json = (body: unknown, status = 200) => Response.json(body, { status })
 
-// PostHog answers 504 when a query runs past its 10 second execution limit
 function failureMessage(err: unknown): string {
-  if (err instanceof PostHogQueryError && err.context?.status === 504) {
+  if (err instanceof PostHogQueryError && err.message.includes('did not finish')) {
     return 'PostHog took too long to answer. Try again, or pick a shorter range.'
   }
   return 'Site analytics are unavailable right now'
