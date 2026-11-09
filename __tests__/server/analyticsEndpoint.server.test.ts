@@ -1,7 +1,6 @@
 const getCachedPanel = jest.fn()
 jest.mock('../../src/services/posthog/getCachedPanel', () => ({
   getCachedPanel: (...args: unknown[]) => getCachedPanel(...args),
-  wasRecentlyLoaded: () => false,
 }))
 const probeQueryCache = jest.fn()
 jest.mock('../../src/services/posthog/hogql', () => ({
