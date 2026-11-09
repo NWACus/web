@@ -2,7 +2,7 @@
 
 /**
  * The 12 / 24 hour switch on the precipitation and snow table: both tables are rendered, and the
- * switch shows one. The toggle sits in each table's title row, so it stays put when they swap.
+ * switch shows one. The toggle sits under each table, across from its key.
  */
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
@@ -15,9 +15,9 @@ const HoursContext = createContext<{ hours: Hours; setHours: (h: Hours) => void 
   setHours: () => {},
 })
 
-const OPTIONS: { hours: Hours; label: string }[] = [
-  { hours: '12', label: '12 hours' },
-  { hours: '24', label: '24 hours' },
+const OPTIONS: { hours: Hours; label: string; name: string }[] = [
+  { hours: '12', label: '12h', name: '12 hours' },
+  { hours: '24', label: '24h', name: '24 hours' },
 ]
 
 export function PrecipHoursSwitch({ id, children }: { id: string; children: ReactNode }) {
@@ -42,16 +42,17 @@ export function PrecipHoursToggle() {
     <div
       role="group"
       aria-label="Period length"
-      className="inline-flex overflow-hidden rounded-md border text-sm font-semibold print:hidden"
+      className="inline-flex shrink-0 overflow-hidden rounded-md border text-xs font-semibold print:hidden"
     >
       {OPTIONS.map((o, i) => (
         <button
           key={o.hours}
           type="button"
+          aria-label={o.name}
           aria-pressed={hours === o.hours}
           onClick={() => setHours(o.hours)}
           className={cn(
-            'min-h-9 px-3',
+            'min-h-7 px-2',
             i > 0 && 'border-l',
             hours === o.hours
               ? 'bg-primary text-primary-foreground'

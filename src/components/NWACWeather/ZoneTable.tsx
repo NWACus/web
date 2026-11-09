@@ -425,7 +425,7 @@ const CARD_HEAD = 'whitespace-nowrap px-3 py-2 text-left font-normal'
 
 function CardBlocksHead({ showWind }: { showWind: boolean }) {
   return (
-    <thead className="bg-muted/50 text-xs text-muted-foreground">
+    <thead className="bg-muted text-xs text-muted-foreground">
       <tr>
         <td className="border-r" />
         <th scope="col" className={CARD_HEAD}>

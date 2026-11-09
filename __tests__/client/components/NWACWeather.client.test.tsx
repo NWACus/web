@@ -1,7 +1,8 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
-import { SnowLevelLegend, WindValue, levelFill } from '@/components/NWACWeather/Values'
-import { fmtQpf } from '@/services/nac/nwacWeatherFormat'
+import { SnowLevelLegend, WindValue, levelFill, windFill } from '@/components/NWACWeather/Values'
+import type { NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
+import { dayGroups, fmtQpf, hasSnowAmounts, precipPeriods } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
@@ -29,7 +30,9 @@ describe('Overall', () => {
     expect(screen.getAllByText('Olympics').length).toBeGreaterThan(0)
     // 53 / 47 °F for Olympics on Night 1, as entered.
     const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
-    const olympics = within(temps).getByRole('rowheader', { name: 'Olympics' }).closest('tr')
+    const [olympics] = within(temps)
+      .getAllByRole('rowheader', { name: 'Olympics' })
+      .map((label) => label.closest('tr'))
     expect(olympics).toHaveTextContent('53 / 47')
   })
 
@@ -117,6 +120,85 @@ describe('Overall', () => {
   it('has no extended table on a morning issuance', () => {
     render(<Overall parts={overallParts(morning)} />)
     expect(screen.queryByRole('heading', { name: 'Snow Levels (ft)' })).toBeNull()
+  })
+})
+
+const DRY = { qpf: 0, slr: null }
+
+/** The afternoon issuance, every cell dry but those `wet` sets by station index and period index. */
+function withPrecip(wet: Record<string, { qpf: number; slr: number | null }>): NWACWeatherIssuance {
+  const periods = precipPeriods(afternoon)
+  const precip = Object.fromEntries(
+    afternoon.points.map((p, station) => [
+      p.code,
+      Object.fromEntries(
+        periods.map((period, i) => [
+          period.key,
+          { ...afternoon.precip[p.code]?.[period.key], ...(wet[`${station}:${i}`] ?? DRY) },
+        ]),
+      ),
+    ]),
+  )
+  return { ...afternoon, precip }
+}
+
+const stationCells = (table: HTMLElement, name: string) =>
+  Array.from(
+    within(table).getByRole('rowheader', { name }).closest('tr')?.querySelectorAll('td') ?? [],
+  ).map((td) => td.textContent)
+
+describe('hasSnowAmounts', () => {
+  it('is false when precipitation has no snow-to-liquid ratio anywhere', () => {
+    expect(hasSnowAmounts(withPrecip({ '0:0': { qpf: 0.25, slr: null } }))).toBe(false)
+  })
+
+  it('is true when any precipitation has a snow amount', () => {
+    const issuance = withPrecip({
+      '0:0': { qpf: 0.25, slr: null },
+      '1:0': { qpf: 0.5, slr: 10 },
+    })
+    expect(hasSnowAmounts(issuance)).toBe(true)
+  })
+
+  it('is true for a dry forecast', () => {
+    expect(hasSnowAmounts(withPrecip({}))).toBe(true)
+  })
+})
+
+describe('Overall precipitation without snow amounts', () => {
+  const first = afternoon.points[0].name
+  const second = afternoon.points[1].name
+
+  it('shows precipitation alone by 24 hours: no snow columns, legend, toggle, or snow in the title', () => {
+    const parts = overallParts(withPrecip({ '0:0': { qpf: 0.25, slr: null } }))
+    render(<Overall parts={parts} />)
+    const region = screen.getByRole('region', { name: 'Precipitation (in)' })
+    const [wide] = within(region).getAllByRole('table')
+    expect(within(wide).queryByRole('columnheader', { name: 'Snow' })).toBeNull()
+    expect(within(wide).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
+    const cells = stationCells(wide, first)
+    expect(cells).toHaveLength(dayGroups(precipPeriods(afternoon)).length + 1)
+    expect(cells[0]).toBe('0.25"')
+    expect(cells.at(-1)).toBe('0.25"')
+    expect(within(region).queryByRole('group', { name: 'Period length' })).toBeNull()
+    expect(screen.getAllByText(/doesn’t include snow amounts/)).toHaveLength(1)
+  })
+
+  it('names the section link Precipitation', () => {
+    const parts = overallParts(withPrecip({ '0:0': { qpf: 0.25, slr: null } }))
+    render(<OverallSectionTabs parts={parts} />)
+    expect(screen.getByRole('link', { name: 'Precipitation' })).toBeInTheDocument()
+  })
+
+  it('leaves a total unknown when some of its precipitation has no snow amount', () => {
+    const parts = overallParts(
+      withPrecip({ '0:0': { qpf: 0.25, slr: null }, '1:0': { qpf: 0.5, slr: 10 } }),
+    )
+    render(<Overall parts={parts} />)
+    const region = screen.getByRole('region', { name: 'Precipitation and Snow (in)' })
+    const [wide] = within(region).getAllByRole('table')
+    expect(stationCells(wide, first).slice(-2)).toEqual(['0.25"', '—'])
+    expect(stationCells(wide, second).at(-1)).not.toBe('—')
   })
 })
 
@@ -264,7 +346,42 @@ describe('levelFill', () => {
   })
 })
 
+describe('the paired temperature and wind tables', () => {
+  it('shows a phone every date of the temperatures, with no date switch', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
+    expect(within(temps).queryByRole('tab')).not.toBeInTheDocument()
+  })
+
+  it('shows a phone one date of a table at a time', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const wind = screen.getByRole('region', { name: 'Ridgeline Winds (mph)' })
+    const [first, second] = within(wind).getAllByRole('tab')
+    expect(first).toHaveAttribute('aria-selected', 'true')
+    expect(within(wind).getAllByRole('tabpanel')).toHaveLength(1)
+    fireEvent.click(second)
+    expect(second).toHaveAttribute('aria-selected', 'true')
+    expect(within(wind).getByRole('tabpanel')).toHaveAttribute('aria-labelledby', second.id)
+  })
+})
+
+describe('windFill', () => {
+  it('shades wind by its strength, and leaves calm and missing wind alone', () => {
+    expect(windFill(8)).toContain('bg-violet-50')
+    expect(windFill(12)).toBe(windFill(15))
+    expect(windFill(30)).toContain('bg-violet-400')
+    expect(windFill(60)).toContain('bg-rose-400')
+    expect(windFill(3)).toBeUndefined()
+    expect(windFill(null)).toBeUndefined()
+  })
+})
+
 describe('WindValue', () => {
+  it('keeps the wording for screen readers in a compact cell', () => {
+    render(<WindValue cell={{ dir: 'W', speed: 20 }} compact />)
+    expect(screen.getByText('Moderate')).toHaveClass('sr-only')
+  })
+
   it("reads the forecasters' calm band as Calm with the direction in front, as 0 does", () => {
     const { container } = render(<WindValue cell={{ dir: 'S', speed: 3 }} />)
     expect(container).toHaveTextContent(/^S Calm$/)

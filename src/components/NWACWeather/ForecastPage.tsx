@@ -62,10 +62,11 @@ function IssuanceCard({
 }) {
   const parts = overallParts(sanitizeIssuance(issuance))
   return (
-    <Card>
+    // No card on a phone: its padding would take the width the tables need.
+    <Card className="max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:shadow-none">
       <section aria-label={issuanceLabel(issuance.type)}>
         <OverallSectionTabs parts={parts} />
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 max-md:px-0">
           <Overall parts={parts} zonePaths={zonePaths} />
         </CardContent>
       </section>

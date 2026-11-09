@@ -50,6 +50,10 @@ async function loadedTab() {
   return { container, tab }
 }
 
+// These tests render the whole issuance, desktop and phone tables both, and ran past 5s when the
+// pre-commit suite shared the machine.
+jest.setTimeout(15_000)
+
 describe('WidgetZoneWeather', () => {
   const fetchMock = jest.fn()
 
