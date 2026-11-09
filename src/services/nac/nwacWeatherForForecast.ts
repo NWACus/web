@@ -5,17 +5,29 @@
  * AvyWeb page that shows it beside a forecast: the native zone and dated pages, and the widget
  * page through `api/[center]/nwac-weather-zone`.
  *
- * A forecast still in force takes the newest issuance that forecasts its Day 1, so a weather update
- * published after it shows. Any other shows the issuance it was written against.
+ * A forecast still in force follows the clock: the 24 hours on show now and the next, each from
+ * the newest issuance that forecasts them. Any other keeps the 24 hours it was issued for, from the
+ * issuance it was written against.
  */
 import { sanitizeIssuance } from '@/components/NWACWeather/sanitizeIssuance'
 import { format, parseISO, subDays } from 'date-fns'
 
 import { publishedDateForProduct, validDateForProduct } from './archiveDates'
 import { todayInTimezone } from './forecastArchive'
-import type { NWACWeatherForecastDay, NWACWeatherZoneDay } from './model/nwacWeather'
-import { dayOneOf } from './nwacWeatherDayOne'
+import type {
+  NWACWeatherForecastDay,
+  NWACWeatherIssuance,
+  NWACWeatherZoneDay,
+} from './model/nwacWeather'
 import { zonesFor } from './nwacWeatherFormat'
+import {
+  heldSpan,
+  nextSpan,
+  spanAt,
+  spanPeriodKeys,
+  type NWACWeatherSpan,
+  type NWACWeatherWindow,
+} from './nwacWeatherWindow'
 import { getNWACWeatherSource } from './sources'
 
 /** The one center whose weather is found this way. */
@@ -23,20 +35,18 @@ const NWAC_WEATHER_CENTER = 'nwac'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
-/** The forecast's dates, and how late an issuance can be published to sit beside it. */
+/** The spans to show, and which issuances can sit beside the forecast. */
 interface Asked {
   zone: number
   published: number
   latest: number
-  validDate: string
-  publishedDate: string
-  live: boolean
+  spans: NWACWeatherSpan[]
 }
 
 /**
- * The issuance for the avalanche zone (its numeric id), as a one-issuance day with its authored
- * HTML sanitized and the periods of the forecast's Day 1. `archived` holds a forecast to what it
- * was written against even on its own valid date, for a page cached as it was first rendered. Null
+ * The issuances for the avalanche zone (its numeric id), their authored HTML sanitized, with the
+ * 24-hour windows read from them. `archived` holds a forecast to what it was written against even
+ * on its own valid date, for a page cached as it was first rendered. Null
  * on any center but NWAC, and when there is none. Throws when a day can't be read.
  */
 export async function getNWACWeatherForForecast(
@@ -54,6 +64,11 @@ export async function getNWACWeatherForForecast(
   const today = todayInTimezone(timezone)
   const live = !archived && today <= validDate
   const published = new Date(publishedTime).getTime()
+  const now = new Date()
+  const current = live ? spanAt(now, timezone) : null
+  const spans = current
+    ? [current, nextSpan(current, timezone)]
+    : [heldSpan({ validDate, publishedDate, published: new Date(published) }, timezone)]
   // An issuance up to a day before the forecast sits on its publish date or the one before; one
   // after it, only while the forecast is in force, on today's.
   const dates = [publishedDate, format(subDays(parseISO(publishedDate), 1), 'yyyy-MM-dd')]
@@ -65,32 +80,45 @@ export async function getNWACWeatherForForecast(
   return newestFor(days, {
     zone: avalancheZoneId,
     published,
-    latest: live ? Math.max(published, Date.now()) : published,
-    validDate,
-    publishedDate,
-    live,
+    latest: live ? Math.max(published, now.getTime()) : published,
+    spans,
   })
 }
 
 function newestFor(
   days: (NWACWeatherForecastDay | null)[],
-  { zone, published, latest, ...dates }: Asked,
+  { zone, published, latest, spans }: Asked,
 ): NWACWeatherZoneDay | null {
-  const candidates = days.flatMap((day) =>
-    (day?.issuances ?? []).flatMap((issuance) => {
-      const issued = new Date(issuance.issuedAt).getTime()
-      const dayOne = dayOneOf(issuance, dates)
-      const fits =
-        day !== null &&
-        dayOne !== null &&
-        issued <= latest &&
-        issued > published - DAY_MS &&
-        zonesFor(issuance, zone).length > 0
-      return fits ? [{ day, dayOne, issuance, issued }] : []
-    }),
-  )
-  const newest = candidates.sort((a, b) => b.issued - a.issued)[0]
-  return newest
-    ? { ...newest.day, issuances: [sanitizeIssuance(newest.issuance)], dayOne: newest.dayOne }
-    : null
+  const candidates = days
+    .flatMap((day) =>
+      (day?.issuances ?? []).flatMap((issuance) => {
+        const issued = new Date(issuance.issuedAt).getTime()
+        const fits =
+          day !== null &&
+          issued <= latest &&
+          issued > published - DAY_MS &&
+          zonesFor(issuance, zone).length > 0
+        return fits ? [{ day, issuance, issued }] : []
+      }),
+    )
+    .sort((a, b) => b.issued - a.issued)
+
+  const chosen: { day: NWACWeatherForecastDay; issuance: NWACWeatherIssuance }[] = []
+  const windows: NWACWeatherWindow[] = []
+  for (const span of spans) {
+    for (const candidate of candidates) {
+      const periodKeys = spanPeriodKeys(candidate.issuance, span)
+      if (!periodKeys) continue
+      let index = chosen.findIndex((c) => c.issuance === candidate.issuance)
+      if (index < 0) index = chosen.push(candidate) - 1
+      windows.push({ startsAt: span.startsAt.toISOString(), issuance: index, periodKeys })
+      break
+    }
+  }
+  if (chosen.length === 0) return null
+  return {
+    serviceDate: chosen[0].day.serviceDate,
+    issuances: chosen.map((c) => sanitizeIssuance(c.issuance)),
+    windows,
+  }
 }

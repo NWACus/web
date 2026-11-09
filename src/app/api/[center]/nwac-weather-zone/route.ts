@@ -9,8 +9,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 /**
  * The issuance beside a widget forecast (`getNWACWeatherForForecast`, as the native pages choose
- * it): `{ day: null }` when none. Which of its periods show turns on the reader's clock, in the
- * page, so no cached answer here can hold the night past midnight.
+ * it): `{ day: null }` when none. Which 24 hours show turns on the reader's clock, in the page,
+ * so no cached answer here can hold a window past its 6 am or 6 pm rollover.
  */
 export async function GET(
   request: NextRequest,

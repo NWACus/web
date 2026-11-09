@@ -7,7 +7,14 @@ import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
 const mapped = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
 if (!mapped) throw new Error('fixture should map to a forecast day')
-const day = { ...mapped, dayOne: { day: 'd2', night: 'n1', rollsOn: '2026-09-15' } }
+// The afternoon issuance is index 0, the morning's 1 (newest first).
+const day = {
+  ...mapped,
+  windows: [
+    { startsAt: '2026-09-14T13:00:00.000Z', issuance: 1, periodKeys: ['d1', 'n1'] },
+    { startsAt: '2026-09-15T01:00:00.000Z', issuance: 0, periodKeys: ['n1', 'd2'] },
+  ],
+}
 const OLYMPICS = 1645
 const TZ = 'America/Los_Angeles'
 const columns = (container: HTMLElement) =>
@@ -20,45 +27,45 @@ describe('ZoneSummary', () => {
     jest.useRealTimers()
   })
 
-  it('shows the night and the day until midnight in the center’s timezone', () => {
-    // 11:30 pm PDT on the 14th.
-    jest.useFakeTimers({ now: new Date('2026-09-15T06:30:00Z') })
+  it('shows the day and the night after it from 6 am, from the morning issuance', () => {
+    // 2 pm PDT on the 14th.
+    jest.useFakeTimers({ now: new Date('2026-09-14T21:00:00Z') })
     const { container } = render(<ZoneSummary day={day} avalancheZoneId={OLYMPICS} timezone={TZ} />)
 
-    expect(columns(container)).toHaveLength(2)
+    expect(columns(container)).toEqual([
+      expect.stringContaining('Sep 14'),
+      expect.stringContaining('Sep 14'),
+    ])
+    expect(screen.getByText(/Morning Forecast/)).toBeInTheDocument()
   })
 
-  it('moves to the day alone at midnight, in a page left open across it', () => {
-    jest.useFakeTimers({ now: new Date('2026-09-15T06:59:30Z') })
+  it('rolls to the night and the next day at 6 pm, in a page left open across it', () => {
+    jest.useFakeTimers({ now: new Date('2026-09-15T00:59:30Z') })
     const { container } = render(<ZoneSummary day={day} avalancheZoneId={OLYMPICS} timezone={TZ} />)
-    expect(columns(container)).toHaveLength(2)
+    expect(columns(container)[1]).toContain('Sep 14')
 
     act(() => {
       jest.advanceTimersByTime(60 * 1000)
     })
 
-    expect(columns(container)).toHaveLength(1)
-  })
-
-  it('shows the day alone after midnight', () => {
-    // 12:30 am PDT on the 15th.
-    jest.useFakeTimers({ now: new Date('2026-09-15T07:30:00Z') })
-    const { container } = render(<ZoneSummary day={day} avalancheZoneId={OLYMPICS} timezone={TZ} />)
-
-    expect(columns(container)).toHaveLength(1)
+    expect(columns(container)).toEqual([
+      expect.stringContaining('Sep 14'),
+      expect.stringContaining('Sep 15'),
+    ])
+    expect(screen.getByText(/Afternoon Forecast/)).toBeInTheDocument()
   })
 
   it('leaves a past forecast as it was published', () => {
     jest.useFakeTimers({ now: new Date('2026-10-01T18:00:00Z') })
     const { container } = render(
       <ZoneSummary
-        day={{ ...day, dayOne: { day: 'd2', night: 'n1', rollsOn: null } }}
+        day={{ ...day, windows: [day.windows[1]] }}
         avalancheZoneId={OLYMPICS}
         timezone={TZ}
       />,
     )
 
-    expect(columns(container)).toHaveLength(2)
+    expect(columns(container)[1]).toContain('Sep 15')
   })
 
   // Forecast-241

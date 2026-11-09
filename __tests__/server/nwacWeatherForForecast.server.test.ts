@@ -40,12 +40,15 @@ describe('getNWACWeatherForForecast', () => {
     })
 
     expect(found?.issuances.map((i) => i.type)).toEqual(['morning'])
-    expect(found?.dayOne).toEqual({ day: 'd2', night: 'n1', rollsOn: null })
+    expect(found?.windows).toEqual([
+      { startsAt: '2026-09-15T01:00:00.000Z', issuance: 0, periodKeys: ['n1', 'd2'] },
+    ])
     expect(mockGetDay).not.toHaveBeenCalledWith('2026-09-15', expect.anything())
   })
 
-  it("passes over an issuance that doesn't forecast Day 1", async () => {
-    // 8 am PDT the 15th: the 14th's morning issuance has Day 1, but a later one without it doesn't count.
+  it("passes over an issuance that doesn't forecast the 24 hours on show", async () => {
+    // 7 pm PDT the 14th: the morning issuance has that night and the 15th, a later one without the 15th doesn't.
+    jest.setSystemTime(new Date('2026-09-15T02:00:00Z'))
     const [afternoon, morning] = day?.issuances ?? []
     const withoutDayOne = {
       ...afternoon,

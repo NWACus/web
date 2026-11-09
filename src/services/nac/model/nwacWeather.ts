@@ -2,7 +2,7 @@
  * The NWAC weather model components render. Grids are keyed for lookup (`temp[zoneId][periodKey]`)
  * and every axis carries its calendar date.
  */
-import type { NWACWeatherDayOne } from '../nwacWeatherDayOne'
+import type { NWACWeatherWindow } from '../nwacWeatherWindow'
 
 export type NWACWeatherIssuanceType = 'morning' | 'afternoon'
 
@@ -105,7 +105,7 @@ export interface NWACWeatherForecastDay {
   issuances: NWACWeatherIssuance[]
 }
 
-/** One issuance beside an avalanche forecast, with the periods of that forecast's Day 1. */
+/** The issuances beside an avalanche forecast and the 24-hour windows read from them. */
 export interface NWACWeatherZoneDay extends NWACWeatherForecastDay {
-  dayOne: NWACWeatherDayOne
+  windows: NWACWeatherWindow[]
 }

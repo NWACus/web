@@ -312,8 +312,13 @@ sig = "c897f51485075915"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/NWACWeather/WindowRollover.client.tsx"
+sig = "e77cc413f35f251b"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/NWACWeather/ZoneSummary.tsx"
-sig = "f11339a3f2816487"
+sig = "c3e58c4d569ffad1"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -493,7 +498,12 @@ sig = "f7426538fbbeab4b"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/nwacWeatherForForecast.ts"
-sig = "1ee483529f7aa5fb"
+sig = "b18c199955c52f7f"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/nwacWeatherWindow.ts"
+sig = "d3cabdc26bfa4d4f"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

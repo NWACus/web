@@ -1,6 +1,6 @@
 /**
- * NWAC's Mountain Weather beside a forecast, one issuance only: the zone's sensible weather and
- * short table for the forecast's Day 1 under the forecast, and in the widget the region-wide
+ * NWAC's Mountain Weather beside a forecast: the zone's sensible weather and short table for the
+ * 24 hours on show under the forecast, and in the widget the region-wide
  * Overall view in the Weather Forecast tab. The widget page renders it in the browser (see WidgetZoneWeather); the native forecast
  * panel renders the zone's as one of its sections.
  */
@@ -11,17 +11,15 @@ import type { ReactNode } from 'react'
 import { ForecastHeader } from '@/components/forecast/ForecastHeader'
 import { sectionHeading } from '@/components/forecast/forecastHeadings'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
-import { todayInTimezone } from '@/services/nac/forecastArchive'
 import type {
   NWACWeatherForecastDay,
   NWACWeatherIssuance,
   NWACWeatherZoneDay,
 } from '@/services/nac/model/nwacWeather'
-import { dayOnePeriodKeys, hasRolledOver } from '@/services/nac/nwacWeatherDayOne'
 import { issuanceLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
 
-import { MidnightRollover } from './MidnightRollover.client'
 import { Overall, overallParts } from './Overall'
+import { WindowRollover } from './WindowRollover.client'
 import { ZoneTable } from './ZoneTable'
 
 /** The heading, naming the one issuance shown, and the Mountain Weather page's metadata row. */
@@ -114,36 +112,27 @@ export function ZoneSummary({
   timezone,
   inPanel,
 }: SummaryProps<NWACWeatherZoneDay>) {
-  const latest = latestFor(day, avalancheZoneId)
-  if (!latest) return null
-  const zones = zonesFor(latest, avalancheZoneId)
-  const { dayOne } = day
-  const today = todayInTimezone(timezone)
-  const tables = (periodKeys: string[]) =>
-    zones.map((zone) => (
-      <ZoneTable
-        key={zone.id}
-        issuance={latest}
-        zone={zone}
-        periodKeys={periodKeys}
-        heading={zones.length > 1}
-      />
-    ))
-  const shown = tables(dayOnePeriodKeys(dayOne, today))
-  return (
-    <WeatherCard issuance={latest} timezone={timezone} inPanel={inPanel}>
-      {dayOne.night && dayOne.rollsOn && !hasRolledOver(dayOne, today) ? (
-        <MidnightRollover
-          rollsOn={dayOne.rollsOn}
-          timezone={timezone}
-          beforeMidnight={shown}
-          afterMidnight={tables([dayOne.day])}
-        />
-      ) : (
-        shown
-      )}
-    </WeatherCard>
-  )
+  const windows = day.windows.flatMap(({ startsAt, issuance: index, periodKeys }) => {
+    const issuance = day.issuances[index]
+    const zones = issuance ? zonesFor(issuance, avalancheZoneId) : []
+    if (!issuance || zones.length === 0) return []
+    const node = (
+      <WeatherCard issuance={issuance} timezone={timezone} inPanel={inPanel}>
+        {zones.map((zone) => (
+          <ZoneTable
+            key={zone.id}
+            issuance={issuance}
+            zone={zone}
+            periodKeys={periodKeys}
+            heading={zones.length > 1}
+          />
+        ))}
+      </WeatherCard>
+    )
+    return [{ startsAt, node }]
+  })
+  if (windows.length === 0) return null
+  return windows.length === 1 ? windows[0].node : <WindowRollover windows={windows} />
 }
 
 /** The Weather Forecast tab: the same issuance as the Overall view, every zone. */

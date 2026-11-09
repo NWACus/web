@@ -85,10 +85,14 @@ describe('nwac-weather-zone route', () => {
     ])
   })
 
-  it('answers with the Day 1 periods of the issuance it picked', async () => {
+  it('answers with the 24 hours on show now and the next, from the issuance it picked', async () => {
+    // 8 am PDT on the 15th.
     const body = await (await ask(`?zone=${OLYMPICS}&published=2026-09-15T01:00:00Z`)).json()
 
-    expect(body.day.dayOne).toEqual({ day: 'd2', night: 'n1', rollsOn: '2026-09-15' })
+    expect(body.day.windows).toEqual([
+      { startsAt: '2026-09-15T13:00:00.000Z', issuance: 0, periodKeys: ['d2', 'n2'] },
+      { startsAt: '2026-09-16T01:00:00.000Z', issuance: 0, periodKeys: ['n2', 'd3'] },
+    ])
   })
 
   it('finds nothing before the first issuance or more than a day after the last', async () => {

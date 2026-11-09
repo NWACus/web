@@ -7,7 +7,10 @@ import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
 const mapped = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
 if (!mapped) throw new Error('fixture should map to a forecast day')
-const day = { ...mapped, dayOne: { day: 'd2', night: 'n1', rollsOn: null } }
+const day = {
+  ...mapped,
+  windows: [{ startsAt: '2026-09-15T01:00:00.000Z', issuance: 0, periodKeys: ['n1', 'd2'] }],
+}
 const OLYMPICS = 1645
 
 function renderInWidget() {
