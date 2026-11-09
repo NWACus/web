@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "4d12ef8cba2cf816"
+sig = "f8a5554145c6ad36"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -1328,7 +1328,7 @@ sig = "8b1d5aafca5bcb3c"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "sentry-base-config.ts"
-sig = "ddd37cff337ce755"
+sig = "c071ed1ba6fbc75b"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
