@@ -65,6 +65,25 @@ describe('ZoneTable', () => {
     ])
   })
 
+  it('names the 24 hours Tonight and Tomorrow from 6 pm, with their dates', () => {
+    const { container } = render(
+      <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
+    )
+    const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
+
+    expect(heads.map((th) => th.textContent)).toEqual(['TonightMon Sep 14', 'TomorrowTue Sep 15'])
+  })
+
+  it('names them Today and Tonight from 6 am', () => {
+    const [, morning] = day.issuances
+    const { container } = render(
+      <ZoneTable issuance={morning} zone={zone('olympics')} periodKeys={['d1', 'n1']} />,
+    )
+    const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
+
+    expect(heads.map((th) => th.textContent)).toEqual(['TodayMon Sep 14', 'TonightMon Sep 14'])
+  })
+
   it('labels the 6h parts of day Morn, Aft, Eve and Night', () => {
     const { container } = render(
       <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={['n1', 'd2']} />,

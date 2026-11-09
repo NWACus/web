@@ -50,6 +50,8 @@ const Point = ({ children }: { children: string }) => (
 
 interface PeriodView {
   period: NWACWeatherPeriod
+  /** Today, Tonight or Tomorrow, as the MWF names its half-days. */
+  name: string
   label: string
   night: boolean
   blocks: BlockView[]
@@ -78,12 +80,22 @@ function periodViews(
     wind: issuance.wind[zone.id]?.[block.key],
   }))
   const shown = issuance.periods.filter((p) => periodKeys.includes(p.key))
-  return shown.map((period) => ({
+  return shown.map((period, i) => ({
     period,
+    name: periodName(period, i),
     night: period.kind === 'night',
     label: fmtCalendarDate(period.date),
     blocks: blocks.filter((b) => b.block.period === period.key),
   }))
+}
+
+/**
+ * The 24 hours on show are Today and Tonight from 6 am, Tonight and Tomorrow from 6 pm: a night is
+ * always Tonight, a day Today when it leads and Tomorrow when it follows the night.
+ */
+function periodName(period: NWACWeatherPeriod, index: number): string {
+  if (period.kind === 'night') return 'Tonight'
+  return index === 0 ? 'Today' : 'Tomorrow'
 }
 
 /** A snow row's cells and their fills, each period's amount worked out once. */
@@ -140,7 +152,7 @@ function SensibleCards({
       {cards.map((c) => (
         <section key={c.period.key} className="space-y-1">
           <div className="flex items-baseline gap-2">
-            <h4 className="font-semibold">{c.night ? 'Night' : 'Day'}</h4>
+            <h4 className="font-semibold">{c.name}</h4>
             <span className="text-muted-foreground">
               <span aria-hidden="true">· </span>
               {c.label}
@@ -160,7 +172,10 @@ function PeriodHead({ periods }: { periods: PeriodView[] }) {
         <td className="border-b border-r" />
         {periods.map((p) => (
           <th key={p.period.key} scope="col" className={cn(HEAD, 'border-b')}>
-            <DayNightDate date={p.label} night={p.night} />
+            <span className="block">{p.name}</span>
+            <span className="font-normal text-muted-foreground">
+              <DayNightDate date={p.label} night={p.night} label={false} />
+            </span>
           </th>
         ))}
       </tr>
@@ -518,7 +533,7 @@ function PeriodCard({
     <section className="overflow-hidden rounded-lg border text-sm">
       <h4 className="flex items-center gap-2 bg-muted px-3 py-2 text-base font-semibold">
         <DayNightDate date={null} night={p.night} label={false} />
-        {p.night ? 'Night' : 'Day'}
+        {p.name}
         <span className="font-normal text-muted-foreground">{p.label}</span>
       </h4>
       <CardSummary issuance={issuance} zone={zone} p={p} tempOut={tempOut} />
