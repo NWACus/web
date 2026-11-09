@@ -61,7 +61,8 @@ export function DaySwitch({
           aria-labelledby={days.length > 1 ? `${id}-tab-${i}` : undefined}
           hidden={i !== active}
         >
-          {d.content}
+          {/* Only the shown date's table is drawn; the rest stay as empty panels for their tabs. */}
+          {i === active && d.content}
         </div>
       ))}
     </div>

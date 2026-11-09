@@ -202,11 +202,14 @@ export function SnowLevelValue({
   level,
   snow,
   pill = true,
+  phoneDay = false,
 }: {
   level: number | null
   snow: boolean
   /** Off where the table fills the cell itself (`levelFill`). */
   pill?: boolean
+  /** In a table a phone shows one date of: tighter, for the narrower columns. */
+  phoneDay?: boolean
 }) {
   if (level == null) return <span className="block text-center text-muted-foreground">{DASH}</span>
   return (
@@ -219,7 +222,7 @@ export function SnowLevelValue({
       <span
         className={cn(
           'grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5',
-          !pill && 'max-md:grid-cols-[0.875rem_2.75rem] max-md:gap-0.5 max-md:text-xs',
+          phoneDay && 'max-md:grid-cols-[0.875rem_2.75rem] max-md:gap-0.5 max-md:text-xs',
         )}
       >
         <span>{snow && <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />}</span>

@@ -178,7 +178,7 @@ function levelRow(
     key: zone.id,
     label: zone.name,
     cells: cells.map((c) => (
-      <SnowLevelValue key={c.key} level={c.level} snow={c.snow} pill={false} />
+      <SnowLevelValue key={c.key} level={c.level} snow={c.snow} pill={false} phoneDay />
     )),
     fills: cells.map((c) => (c.level != null ? levelFill(c.level) : undefined)),
   }
@@ -325,10 +325,13 @@ function precipSlots(issuance: NWACWeatherIssuance, hours: PrecipHours): PrecipS
  * each 12 or 24 hours split in two, then the whole window's total. An issuance with no snow amounts
  * shows water equivalent alone.
  */
-function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Table {
+function precipSnowTable(
+  issuance: NWACWeatherIssuance,
+  hours: PrecipHours,
+  withSnow: boolean,
+): Table {
   const slots = precipSlots(issuance, hours)
   const periods = precipPeriods(issuance)
-  const withSnow = hasSnowAmounts(issuance)
   const row = (p: NWACWeatherIssuance['points'][number]): Row => {
     const cell = (period: NWACWeatherPeriod) => issuance.precip[p.code]?.[period.key]
     const snowOf = (period: NWACWeatherPeriod) => deriveSnow(cell(period)?.qpf, cell(period)?.slr)
@@ -441,18 +444,22 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
   }
 }
 
-/** A table cut down to each date's columns; a total, whose `date` is "Total", is a day here too. */
+/**
+ * A table cut down to each date's columns; a total, whose `date` is "Total", is a day here too.
+ * Columns with no date stay apart by their group rather than merging under one dash.
+ */
 function dayTables(t: Table) {
-  const days: { label: string; columns: number[] }[] = []
+  const days: { key: string; label: string; columns: number[] }[] = []
   t.columns.forEach((c, i) => {
-    const label = c.date ?? DASH
-    const day = days.find((d) => d.label === label)
+    const key = c.date ?? `undated-${c.group ?? c.key}`
+    const day = days.find((d) => d.key === key)
     if (day) day.columns.push(i)
-    else days.push({ label, columns: [i] })
+    else days.push({ key, label: c.date ?? DASH, columns: [i] })
   })
-  return days.map(({ label, columns }): { label: string; table: Table } => {
+  return days.map(({ key, label, columns }): { key: string; label: string; table: Table } => {
     const pick = <T,>(values: T[]) => columns.map((i) => values[i])
     return {
+      key,
       label,
       table: {
         ...t,
@@ -755,7 +762,7 @@ function TableBody({ table: t }: { table: Table }) {
               <th
                 scope="rowgroup"
                 colSpan={t.columns.length + 1}
-                className="border-t bg-muted/50 px-3 py-1.5 text-left text-xs font-semibold"
+                className="border-t bg-[color-mix(in_srgb,var(--muted)_50%,transparent)] px-3 py-1.5 text-left text-xs font-semibold"
               >
                 {/* Stays in view while the values scroll sideways under it. */}
                 <span className="sticky left-3">{g.label}</span>
@@ -896,7 +903,7 @@ function GridTable({
           label={t.title}
           className="md:hidden print:hidden"
           days={dayTables(t).map((d) => ({
-            key: d.label,
+            key: d.key,
             label: d.label,
             content: <TableBox table={d.table} />,
           }))}
@@ -1070,6 +1077,8 @@ export interface OverallParts {
   snowLevel: Table
   temps: Table
   wind: Table
+  /** False for a forecast that never computed snow amounts: precipitation alone, by 24 hours. */
+  hasSnow: boolean
   /** By the hours each column covers; the toggle shows one. */
   precipSnow: Record<PrecipHours, Table>
   ext: Table
@@ -1078,6 +1087,7 @@ export interface OverallParts {
 
 export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
   const [snowLevel, temps, wind] = zoneTables(issuance)
+  const hasSnow = hasSnowAmounts(issuance)
   return {
     issuance,
     synopsis: authoredOrNull(issuance.synopsis),
@@ -1085,7 +1095,11 @@ export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
     snowLevel,
     temps,
     wind,
-    precipSnow: { '12': precipSnowTable(issuance, '12'), '24': precipSnowTable(issuance, '24') },
+    hasSnow,
+    precipSnow: {
+      '12': precipSnowTable(issuance, '12', hasSnow),
+      '24': precipSnowTable(issuance, '24', hasSnow),
+    },
     ext: extendedTable(issuance),
     sensible: sensibleDays(issuance),
   }
@@ -1111,8 +1125,18 @@ export function OverallSectionTabs({ parts }: { parts: OverallParts }) {
 }
 
 export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePaths?: ZonePaths }) {
-  const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, precipSnow, ext } = parts
-  const hasSnow = hasSnowAmounts(issuance)
+  const {
+    issuance,
+    synopsis,
+    extended,
+    snowLevel,
+    temps,
+    wind,
+    sensible,
+    precipSnow,
+    ext,
+    hasSnow,
+  } = parts
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
   const tempsOrWind = hasContent(temps) || hasContent(wind)
