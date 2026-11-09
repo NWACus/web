@@ -23,8 +23,10 @@ import {
   getPostHogQueryConfig,
   POSTHOG_MAX_CONCURRENT_QUERIES,
   PostHogQueryError,
+  probeQueryCache,
   queryHogQL,
 } from '@/services/posthog/hogql'
+import { estimateColdSeconds } from '@/services/posthog/panelTypes'
 import { fetchPanel, fillTimeseries } from '@/services/posthog/panels'
 import { ROOT_DOMAIN } from '@/utilities/domain'
 import { z } from 'zod'
@@ -150,6 +152,24 @@ describe('queryHogQL', () => {
     await expect(queryHogQL(config, 'SELECT 1', z.object({}))).rejects.toThrow('Out of memory')
   })
 
+  it('reports a warm cache without starting work, and cancels a cold calculation', async () => {
+    server.use(http.post(QUERY_URL, () => hogqlResult(['n'], [[1]])))
+    await expect(probeQueryCache(config, 'SELECT 1')).resolves.toBe(true)
+
+    let cancelled = false
+    server.use(
+      http.post(QUERY_URL, () =>
+        HttpResponse.json({ query_status: { id: 'cold', complete: false } }),
+      ),
+      http.delete(`${QUERY_URL}/cold/`, () => {
+        cancelled = true
+        return HttpResponse.json({})
+      }),
+    )
+    await expect(probeQueryCache(config, 'SELECT 1')).resolves.toBe(false)
+    expect(cancelled).toBe(true)
+  })
+
   it("never has more than PostHog's concurrency limit in flight", async () => {
     let inFlight = 0
     let peak = 0
@@ -238,6 +258,14 @@ describe('center queries', () => {
     const sql = deadClicksQuery(scope)
     expect(sql).toContain("NOT has(elements_chain_elements, 'select')")
     expect(sql).toContain("NOT match(elements_chain, 'mapboxgl|maplibregl|leaflet')")
+  })
+})
+
+describe('estimateColdSeconds', () => {
+  it('grows with the range and lands near a minute for a year', () => {
+    expect(estimateColdSeconds(30)).toBeLessThan(estimateColdSeconds(90))
+    expect(estimateColdSeconds(365)).toBeGreaterThanOrEqual(50)
+    expect(estimateColdSeconds(365)).toBeLessThanOrEqual(75)
   })
 })
 

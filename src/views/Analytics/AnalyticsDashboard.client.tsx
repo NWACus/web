@@ -11,6 +11,7 @@ import { Button } from '@payloadcms/ui'
 import { RefreshCw } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
+import { LongRangeGate } from './LongRangeGate'
 import { BreakdownPanel, type BreakdownTab } from './panels/BreakdownPanel'
 import { FixesPanel } from './panels/FixesPanel'
 import { MUTED } from './panels/Panel'
@@ -79,6 +80,27 @@ function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
   return [selection, setSelection]
 }
 
+function Panels({ request }: { request: PanelRequest }) {
+  const overview = usePanel('overview', request, pickOverview)
+  const totalVisitors = overview.status === 'ready' ? overview.data.visitors.current : undefined
+  return (
+    <>
+      <section className="card flex-col gap-8">
+        <StatsRow state={overview} />
+        <TrendChart request={request} />
+      </section>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <BreakdownPanel tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
+        <BreakdownPanel tabs={SOURCE_TABS} request={request} totalVisitors={totalVisitors} />
+        <BreakdownPanel tabs={LOCATION_TABS} request={request} totalVisitors={totalVisitors} />
+        <BreakdownPanel tabs={DEVICE_TABS} request={request} totalVisitors={totalVisitors} />
+        <SponsorsPanel request={request} />
+        <FixesPanel request={request} />
+      </div>
+    </>
+  )
+}
+
 type Props = {
   center: string
   centerName: string
@@ -110,9 +132,6 @@ export function AnalyticsDashboard({
     generation: refresh.generation,
     force: refresh.forcedRange === rangeKey,
   }
-
-  const overview = usePanel('overview', request, pickOverview, configured)
-  const totalVisitors = overview.status === 'ready' ? overview.data.visitors.current : undefined
 
   return (
     <div className="flex flex-col gap-6">
@@ -147,20 +166,14 @@ export function AnalyticsDashboard({
           Site analytics are not connected in this environment.
         </p>
       ) : (
-        <>
-          <section className="flex flex-col gap-8 rounded border border-[var(--theme-elevation-150)] bg-[var(--theme-elevation-0)] p-5">
-            <StatsRow state={overview} />
-            <TrendChart request={request} />
-          </section>
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <BreakdownPanel tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
-            <BreakdownPanel tabs={SOURCE_TABS} request={request} totalVisitors={totalVisitors} />
-            <BreakdownPanel tabs={LOCATION_TABS} request={request} totalVisitors={totalVisitors} />
-            <BreakdownPanel tabs={DEVICE_TABS} request={request} totalVisitors={totalVisitors} />
-            <SponsorsPanel request={request} />
-            <FixesPanel request={request} />
-          </div>
-        </>
+        <LongRangeGate
+          key={rangeKey}
+          center={center}
+          range={range}
+          onFallback={() => setSelection(defaultSelection)}
+        >
+          <Panels request={request} />
+        </LongRangeGate>
       )}
     </div>
   )

@@ -12,6 +12,18 @@ export const centerAnalyticsTag = (slug: ValidTenantSlug) => `center-analytics:$
 // Concurrent identical requests (two admins, or a client retry) share one PostHog round trip.
 const inFlight = new Map<string, Promise<PanelData>>()
 
+// When each center+range last finished loading on this instance; a cheap "is it warm?" answer.
+const recentLoads = new Map<string, number>()
+
+export const rangeKey = (slug: ValidTenantSlug, range: ResolvedRange) =>
+  `${slug}|${range.from}|${range.to}|${range.end.toISOString()}`
+
+/** True when this instance served the range within the cache window, so a reload is instant. */
+export function wasRecentlyLoaded(slug: ValidTenantSlug, range: ResolvedRange): boolean {
+  const loadedAt = recentLoads.get(rangeKey(slug, range))
+  return loadedAt !== undefined && Date.now() - loadedAt < PANEL_CACHE_SECONDS * 1000
+}
+
 function dedupe(key: string, run: () => Promise<PanelData>): Promise<PanelData> {
   const pending = inFlight.get(key)
   if (pending) return pending
@@ -41,10 +53,12 @@ export async function getCachedPanel(
   }
 
   const key = ['center-analytics', slug, range.from, range.to, range.end.toISOString(), panel]
-  return dedupe(key.join('|'), () =>
+  const data = await dedupe(key.join('|'), () =>
     unstable_cache(() => fetchPanel(config, slug, range, panel), key, {
       revalidate: PANEL_CACHE_SECONDS,
       tags: [centerAnalyticsTag(slug)],
     })(),
   )
+  recentLoads.set(rangeKey(slug, range), Date.now())
+  return data
 }

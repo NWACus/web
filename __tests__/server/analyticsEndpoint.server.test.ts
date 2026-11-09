@@ -1,9 +1,15 @@
 const getCachedPanel = jest.fn()
 jest.mock('../../src/services/posthog/getCachedPanel', () => ({
   getCachedPanel: (...args: unknown[]) => getCachedPanel(...args),
+  wasRecentlyLoaded: () => false,
+}))
+const probeQueryCache = jest.fn()
+jest.mock('../../src/services/posthog/hogql', () => ({
+  ...jest.requireActual('../../src/services/posthog/hogql'),
+  probeQueryCache: (...args: unknown[]) => probeQueryCache(...args),
 }))
 
-import { analyticsHandler } from '@/services/posthog/analyticsEndpoint'
+import { analyticsEstimateHandler, analyticsHandler } from '@/services/posthog/analyticsEndpoint'
 
 const user = { id: 1, collection: 'users', email: 'staff@example.org' }
 
@@ -21,6 +27,11 @@ function requestFor(query: string, options: { user?: unknown; tenantVisible?: bo
 function call(req: ReturnType<typeof requestFor>['req']) {
   // @ts-expect-error the handler only reads user, payload.find, payload.logger and searchParams
   return analyticsHandler(req)
+}
+
+function estimate(req: ReturnType<typeof requestFor>['req']) {
+  // @ts-expect-error the handler only reads user, payload.find, payload.logger and searchParams
+  return analyticsEstimateHandler(req)
 }
 
 describe('analyticsHandler', () => {
@@ -88,5 +99,28 @@ describe('analyticsHandler', () => {
     const { req, warn } = requestFor('center=nwac&panel=pages&from=2026-11-01&to=2026-11-09')
     expect((await call(req)).status).toBe(502)
     expect(warn).toHaveBeenCalled()
+  })
+
+  it('calls short ranges warm without asking PostHog', async () => {
+    const { req } = requestFor('center=nwac&from=2026-10-10&to=2026-11-09')
+    const response = await estimate(req)
+    await expect(response.json()).resolves.toMatchObject({ cached: true })
+    expect(probeQueryCache).not.toHaveBeenCalled()
+  })
+
+  it('probes PostHog for long ranges and reports the cold estimate', async () => {
+    probeQueryCache.mockResolvedValue(false)
+    const { req } = requestFor('center=nwac&from=2025-11-09&to=2026-11-09')
+    const body = await (await estimate(req)).json()
+    expect(body.cached).toBe(false)
+    expect(body.seconds).toBeGreaterThan(30)
+    expect(probeQueryCache).toHaveBeenCalledTimes(1)
+  })
+
+  it('applies the same access checks to estimates', async () => {
+    const { req } = requestFor('center=nwac&from=2025-11-09&to=2026-11-09', {
+      tenantVisible: false,
+    })
+    expect((await estimate(req)).status).toBe(404)
   })
 })

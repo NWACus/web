@@ -1,9 +1,11 @@
 import { getUser } from '@/utilities/isUser'
+import type { ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { AVALANCHE_CENTERS, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import type { Endpoint, PayloadHandler, PayloadRequest } from 'payload'
-import { resolveRange } from './analyticsRange'
+import { resolveRange, type ResolvedRange } from './analyticsRange'
 import { getCachedPanel } from './getCachedPanel'
-import { getPostHogQueryConfig, PostHogQueryError } from './hogql'
+import { getPostHogQueryConfig, PostHogQueryError, type PostHogQueryConfig } from './hogql'
+import { estimateLoad } from './loadEstimate'
 import { isAnalyticsPanel, type PanelResponse } from './panelTypes'
 
 const json = (body: unknown, status = 200) => Response.json(body, { status })
@@ -29,19 +31,16 @@ async function canReadTenant(req: PayloadRequest, slug: string): Promise<boolean
   return totalDocs > 0
 }
 
-/**
- * `GET /api/analytics?center=nwac&from=2026-10-10&to=2026-11-09&panel=overview[&refresh=1]`
- * for the admin Site analytics page. Auth is Payload's; the center must be one the user can read.
- */
-export const analyticsHandler: PayloadHandler = async (req) => {
+type Authorized = { center: ValidTenantSlug; range: ResolvedRange; config: PostHogQueryConfig }
+
+/** Shared by both endpoints: a readable center, a valid range and configured credentials. */
+async function authorize(req: PayloadRequest): Promise<Authorized | Response> {
   const params = req.searchParams
   const center = params.get('center')
-  const panel = params.get('panel')
-  if (!(center && isValidTenantSlug(center)) || !isAnalyticsPanel(panel)) {
-    return json({ error: 'Unknown center or panel' }, 400)
-  }
+  if (!(center && isValidTenantSlug(center))) return json({ error: 'Unknown center' }, 400)
   if (!(await canReadTenant(req, center))) return json({ error: 'Not found' }, 404)
-  if (!getPostHogQueryConfig()) return json({ error: 'Site analytics are not connected' }, 503)
+  const config = getPostHogQueryConfig()
+  if (!config) return json({ error: 'Site analytics are not connected' }, 503)
 
   const range = resolveRange(
     { from: params.get('from') ?? '', to: params.get('to') ?? '' },
@@ -49,9 +48,22 @@ export const analyticsHandler: PayloadHandler = async (req) => {
     new Date(),
   )
   if ('error' in range) return json({ error: range.error }, 400)
+  return { center, range, config }
+}
+
+/**
+ * `GET /api/analytics?center=nwac&from=2026-10-10&to=2026-11-09&panel=overview[&refresh=1]`
+ * for the admin Site analytics page. Auth is Payload's; the center must be one the user can read.
+ */
+export const analyticsHandler: PayloadHandler = async (req) => {
+  const panel = req.searchParams.get('panel')
+  if (!isAnalyticsPanel(panel)) return json({ error: 'Unknown panel' }, 400)
+  const authorized = await authorize(req)
+  if (authorized instanceof Response) return authorized
+  const { center, range } = authorized
 
   try {
-    const data = await getCachedPanel(center, range, panel, params.get('refresh') === '1')
+    const data = await getCachedPanel(center, range, panel, req.searchParams.get('refresh') === '1')
     const body: PanelResponse = {
       panel,
       range: {
@@ -70,8 +82,28 @@ export const analyticsHandler: PayloadHandler = async (req) => {
   }
 }
 
+/** `GET /api/analytics/estimate?center&from&to`: whether a range is warm, and how long a cold load takes. */
+export const analyticsEstimateHandler: PayloadHandler = async (req) => {
+  const authorized = await authorize(req)
+  if (authorized instanceof Response) return authorized
+  const { center, range, config } = authorized
+  try {
+    return json(await estimateLoad(config, center, range))
+  } catch (err) {
+    req.payload.logger.warn({ err, center }, 'Site analytics estimate failed')
+    // Unknown is treated as cold, so the page asks before a long load
+    return json({ cached: false, seconds: 60 })
+  }
+}
+
 export const analyticsEndpoint: Endpoint = {
   path: '/analytics',
   method: 'get',
   handler: analyticsHandler,
+}
+
+export const analyticsEstimateEndpoint: Endpoint = {
+  path: '/analytics/estimate',
+  method: 'get',
+  handler: analyticsEstimateHandler,
 }

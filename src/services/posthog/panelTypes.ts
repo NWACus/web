@@ -88,6 +88,24 @@ export type PanelResponse = {
   data: PanelData
 }
 
+/** Ranges up to this many days load quickly enough that nobody is asked first. */
+export const PROMPT_ABOVE_DAYS = 45
+
+export type LoadEstimate = {
+  /** Something warm will answer: the server's cache or PostHog's. */
+  cached: boolean
+  /** Rough cold-load time for the whole page, in seconds. */
+  seconds: number
+}
+
+/**
+ * Measured on the Avy project: a cold page is three waves of async queries and each scales with
+ * the calendar range, about 0.14 s per day plus overhead. A year comes out near a minute.
+ */
+export function estimateColdSeconds(days: number): number {
+  return Math.round(8 + days * 0.14)
+}
+
 /** Percentage change from `previous` to `current`, or null when there is no baseline. */
 export function percentChange({ current, previous }: Comparison): number | null {
   if (previous <= 0) return null

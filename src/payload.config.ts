@@ -47,7 +47,7 @@ import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUr
 import { Courses } from './collections/Courses'
 import { Providers } from './collections/Providers'
 import { A3Management } from './globals/A3Management/config'
-import { analyticsEndpoint } from './services/posthog/analyticsEndpoint'
+import { analyticsEndpoint, analyticsEstimateEndpoint } from './services/posthog/analyticsEndpoint'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -210,7 +210,7 @@ export default buildConfig({
   ),
   csrf: [getURL(), ...getTenantSubdomainUrls(), ...getProductionTenantUrls()].filter(Boolean),
   globals: [NACWidgetsConfig, DiagnosticsConfig, A3Management],
-  endpoints: [analyticsEndpoint],
+  endpoints: [analyticsEndpoint, analyticsEstimateEndpoint],
   graphQL: {
     disable: true,
   },

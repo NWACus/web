@@ -24,12 +24,7 @@ export function PanelFrame({
   className?: string
 }) {
   return (
-    <section
-      className={cn(
-        'flex min-w-0 flex-col rounded border border-[var(--theme-elevation-150)] bg-[var(--theme-elevation-0)] p-5',
-        className,
-      )}
-    >
+    <section className={cn('card min-w-0 flex-col gap-0', className)}>
       <div className="mb-4">
         <TabPills options={tabs} active={active} onChange={onTab} />
       </div>

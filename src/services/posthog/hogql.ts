@@ -164,6 +164,27 @@ async function runQuery(
   return complete ? results : pollQuery(config, id)
 }
 
+/**
+ * Whether PostHog already holds a fresh result for `query`. An async submission answers at once
+ * from cache, or starts calculating; a calculation nobody asked for is cancelled again.
+ */
+export async function probeQueryCache(config: PostHogQueryConfig, query: string): Promise<boolean> {
+  const body = await requestJson(config, '/query', {
+    method: 'POST',
+    body: JSON.stringify({
+      query: { kind: 'HogQLQuery', query },
+      refresh: 'async',
+      name: 'avyweb-admin-probe',
+    }),
+  })
+  const status = queryStatusSchema.safeParse(body)
+  if (!status.success || status.data.query_status.complete) return true
+  await requestJson(config, `/query/${status.data.query_status.id}/`, { method: 'DELETE' }).catch(
+    () => undefined,
+  )
+  return false
+}
+
 function parseRows<T>(result: unknown, rowSchema: z.ZodType<T>): T[] {
   const parsed = hogqlResultSchema.safeParse(result)
   if (!parsed.success) {
