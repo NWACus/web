@@ -77,13 +77,12 @@ describe('Overall', () => {
     expect(synopsis?.parentElement).not.toHaveClass('grid')
   })
 
-  it('groups snow stations under their zones: a zone column, and heading rows for a phone', () => {
+  it('groups snow stations under zone heading rows, on desktop and a phone alike', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     const snow = screen.getByRole('region', { name: 'Precipitation and Snow (in)' })
     const [wide, phone] = within(snow).getAllByRole('table')
-    expect(within(wide).getByRole('columnheader', { name: 'Zone' })).toBeInTheDocument()
-    expect(within(phone).queryByRole('columnheader', { name: 'Zone' })).toBeNull()
     for (const table of [wide, phone]) {
+      expect(within(table).queryByRole('columnheader', { name: 'Zone' })).toBeNull()
       expect(within(table).getByRole('rowheader', { name: 'Olympics' })).toBeInTheDocument()
       expect(within(table).getByRole('rowheader', { name: 'Hurricane Ridge' })).toBeInTheDocument()
     }
