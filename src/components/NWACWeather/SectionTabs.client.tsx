@@ -1,8 +1,8 @@
 'use client'
 
 /**
- * Section links as tabs across the top of the card, pinned on wide screens, with the section
- * nearest the top of the viewport marked current.
+ * Section links as tabs across the top of the card, pinned under the site header (the top of the
+ * viewport on wide screens), with the section nearest the top of the viewport marked current.
  */
 import { useEffect, useRef, useState, type RefObject } from 'react'
 
@@ -15,8 +15,9 @@ export interface SectionLink {
 }
 
 /**
- * The last section whose heading is above the upper third of the viewport. Measured only while
- * the tabs are visible, and again when they appear: hidden headings all read as at the top.
+ * The last section whose heading is above the upper third of the viewport, or just under the pinned
+ * tabs when they reach lower than that (a phone, under the site header). Measured only while the
+ * tabs are visible, and again when they appear: hidden headings all read as at the top.
  */
 function useCurrentSection(ids: string[], nav: RefObject<HTMLElement | null>) {
   const [current, setCurrent] = useState(ids[0])
@@ -27,7 +28,7 @@ function useCurrentSection(ids: string[], nav: RefObject<HTMLElement | null>) {
     const ids = key.split(' ')
     const measure = () => {
       if (!nav.current?.offsetParent) return
-      const line = window.innerHeight / 3
+      const line = Math.max(window.innerHeight / 3, nav.current.getBoundingClientRect().bottom + 72)
       let found = ids[0]
       for (const id of ids) {
         const el = document.getElementById(id)
@@ -55,13 +56,29 @@ export function SectionTabs({ links }: { links: SectionLink[] }) {
     links.map((l) => l.id),
     nav,
   )
+  useEffect(() => {
+    const bar = nav.current
+    const tab = bar?.querySelector('[aria-current]')
+    if (!bar || !tab) return
+    const edge = bar.getBoundingClientRect()
+    const box = tab.getBoundingClientRect()
+    // On a phone the tabs scroll sideways: bring the current one into view as the page moves.
+    if (box.left < edge.left) bar.scrollBy({ left: box.left - edge.left - 16, behavior: 'smooth' })
+    else if (box.right > edge.right)
+      bar.scrollBy({ left: box.right - edge.right + 16, behavior: 'smooth' })
+  }, [current])
+
   if (links.length === 0) return null
 
   return (
     <nav
       ref={nav}
       aria-label="Forecast sections"
-      className="z-20 overflow-x-auto overflow-y-hidden rounded-t-lg border-b bg-card px-6 max-md:px-0 lg:sticky lg:top-0 print:hidden"
+      className={cn(
+        'sticky top-[calc(var(--admin-bar-height,0px)+var(--sticky-header-height,4rem))] z-20 overflow-x-auto overflow-y-hidden rounded-t-lg border-b bg-card px-6 lg:top-0 print:hidden',
+        // Edge to edge on a phone, so the page doesn't show past it in the gutters as it scrolls.
+        'max-md:-mx-4 max-md:rounded-none max-md:px-4',
+      )}
     >
       <ul className="flex gap-6">
         {links.map((l) => {

@@ -755,7 +755,7 @@ function TableBody({ table: t }: { table: Table }) {
               <th
                 scope="rowgroup"
                 colSpan={t.columns.length + 1}
-                className="border-t bg-muted/50 px-3 py-1.5 text-left text-xs font-semibold"
+                className="border-t bg-muted px-3 py-1.5 text-left text-xs font-semibold"
               >
                 {/* Stays in view while the values scroll sideways under it. */}
                 <span className="sticky left-3">{g.label}</span>
