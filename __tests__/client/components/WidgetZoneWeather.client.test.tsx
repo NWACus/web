@@ -103,7 +103,8 @@ describe('WidgetZoneWeather', () => {
     await waitFor(() =>
       expect(container.querySelectorAll('[data-nwac-weather-tab]')).toHaveLength(1),
     )
-  })
+    // Renders the whole issuance twice; past 5s when the full suite shares the machine.
+  }, 15_000)
 
   it('shows nothing for an event without a zone or a published time', () => {
     const { container } = renderInWidget()
