@@ -177,6 +177,11 @@ sig = "2c43ae66b6ec1694"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
+target = "src/components/charts/EChart.tsx"
+sig = "b1f0bc9db83681c4"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
 target = "src/payload.config.ts"
 sig = "ee21516efd34a0d3"
 
@@ -233,17 +238,17 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "aa9ab00870443e24"
+sig = "41a48ad9f0d4ae59"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/LongRangeGate.tsx"
-sig = "b815da6aa4e5261a"
+sig = "27d4f64631512b33"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/RangePicker.tsx"
-sig = "629299e510e919ed"
+sig = "3cb8b083c2ff92e0"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -293,7 +298,7 @@ sig = "f75b0807f01fcd59"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/TrendChart.tsx"
-sig = "6bf805bcfbc0f6e7"
+sig = "903b1bf080c915fb"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"

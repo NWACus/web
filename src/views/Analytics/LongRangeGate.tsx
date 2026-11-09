@@ -10,7 +10,7 @@ import { MUTED } from './panels/Panel'
 
 type GateState = { status: 'checking' } | { status: 'open' } | { status: 'ask'; seconds: number }
 
-function describe(seconds: number): string {
+export function describeSeconds(seconds: number): string {
   if (seconds < 55) return `about ${Math.max(10, Math.round(seconds / 10) * 10)} seconds`
   const minutes = Math.round(seconds / 60)
   return minutes <= 1 ? 'about a minute' : `about ${minutes} minutes`
@@ -84,7 +84,7 @@ export function LongRangeGate({
     <div className="card flex-col gap-4">
       <p className="m-0 text-sm">
         Nothing is loaded yet for {formatDateRange(range.from, range.to)}. Pulling this range from
-        PostHog takes {describe(state.seconds)} the first time, then stays quick for a while.
+        PostHog takes {describeSeconds(state.seconds)} the first time, then stays quick for a while.
       </p>
       <div className="flex flex-wrap gap-2">
         <Button

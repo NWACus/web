@@ -4,14 +4,17 @@ import {
   isIsoDate,
   isRangePreset,
   presetRange,
+  rangeDays,
   type DateRange,
 } from '@/services/posthog/analyticsRange'
+import { estimateColdSeconds, PROMPT_ABOVE_DAYS } from '@/services/posthog/panelTypes'
 import { cn } from '@/utilities/ui'
-import { Button } from '@payloadcms/ui'
+import { Button, ConfirmationModal, useModal } from '@payloadcms/ui'
 import { RefreshCw } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
-import { LongRangeGate } from './LongRangeGate'
+import { formatDateRange } from './format'
+import { describeSeconds, LongRangeGate } from './LongRangeGate'
 import { BreakdownPanel, type BreakdownTab } from './panels/BreakdownPanel'
 import { FixesPanel } from './panels/FixesPanel'
 import { MUTED } from './panels/Panel'
@@ -80,6 +83,8 @@ function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
   return [selection, setSelection]
 }
 
+const REFRESH_MODAL = 'site-analytics-refresh'
+
 function Panels({ request }: { request: PanelRequest }) {
   const overview = usePanel('overview', request, pickOverview)
   const totalVisitors = overview.status === 'ready' ? overview.data.visitors.current : undefined
@@ -125,6 +130,12 @@ export function AnalyticsDashboard({
   // The Refresh button forces one round of uncached fetches for the range it was pressed on.
   const [refresh, setRefresh] = useState({ generation: 0, forcedRange: '' })
   const rangeKey = `${range.from}|${range.to}`
+  const { openModal } = useModal()
+  const forceRefresh = () =>
+    setRefresh(({ generation }) => ({ generation: generation + 1, forcedRange: rangeKey }))
+  // A forced refresh recalculates everything on PostHog's side, so long ranges ask first
+  const requestRefresh = () =>
+    rangeDays(range) > PROMPT_ABOVE_DAYS ? openModal(REFRESH_MODAL) : forceRefresh()
   const request: PanelRequest = {
     center,
     from: range.from,
@@ -151,12 +162,17 @@ export function AnalyticsDashboard({
           icon={<RefreshCw className="h-4 w-4" />}
           iconPosition="left"
           disabled={!configured}
-          onClick={() =>
-            setRefresh(({ generation }) => ({ generation: generation + 1, forcedRange: rangeKey }))
-          }
+          onClick={requestRefresh}
         >
           Refresh
         </Button>
+        <ConfirmationModal
+          modalSlug={REFRESH_MODAL}
+          heading="Refresh from PostHog?"
+          body={`This throws away the cached numbers for ${formatDateRange(range.from, range.to)} and recalculates them in PostHog, which takes ${describeSeconds(estimateColdSeconds(rangeDays(range)))}.`}
+          confirmLabel="Refresh"
+          onConfirm={forceRefresh}
+        />
       </div>
 
       <RangePicker selection={selection} resolved={range} onChange={setSelection} />

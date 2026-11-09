@@ -46,7 +46,7 @@ function CustomRange({
         : null
   return (
     <div className="flex flex-wrap items-end gap-3">
-      <label className="flex flex-col gap-1 text-xs">
+      <label className="flex w-44 flex-col gap-1 text-xs">
         <span className={MUTED}>From</span>
         <DatePicker
           pickerAppearance="dayOnly"
@@ -54,7 +54,7 @@ function CustomRange({
           onChange={(date) => setDraft({ ...draft, from: toIsoDate(date) })}
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs">
+      <label className="flex w-44 flex-col gap-1 text-xs">
         <span className={MUTED}>To</span>
         <DatePicker
           pickerAppearance="dayOnly"
@@ -64,7 +64,7 @@ function CustomRange({
       </label>
       <Button
         buttonStyle="primary"
-        size="small"
+        size="medium"
         className="m-0"
         disabled={problem !== null}
         onClick={() => onApply(draft)}

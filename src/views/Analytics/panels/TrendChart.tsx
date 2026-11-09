@@ -21,18 +21,26 @@ type SeriesKey = (typeof SERIES)[number]['key']
 
 /**
  * The admin theme and the brand palette live in CSS variables; ECharts needs resolved colors.
- * The line uses the site's brand blue (colors.css), not Payload's status colors.
+ * Resolving through an element's computed `color` yields `rgb(...)`, which ECharts can re-derive
+ * for hover states; the raw `hsl(215 25% 47%)` form in colors.css draws once but turns
+ * transparent on emphasis. The line uses the site's brand blue, not Payload's status colors.
  */
 function useThemeColors() {
   const [colors, setColors] = useState({ text: '#777', grid: '#ddd', line: '#5b7a9d' })
   useEffect(() => {
-    const style = getComputedStyle(document.documentElement)
-    const read = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback
+    const probe = document.createElement('span')
+    document.body.appendChild(probe)
+    const resolve = (name: string, fallback: string) => {
+      probe.style.color = `var(${name})`
+      const color = getComputedStyle(probe).color
+      return color && color !== 'rgba(0, 0, 0, 0)' ? color : fallback
+    }
     setColors({
-      text: read('--theme-elevation-600', '#777'),
-      grid: read('--theme-elevation-150', '#ddd'),
-      line: read('--brand-500', '#5b7a9d'),
+      text: resolve('--theme-elevation-600', '#777'),
+      grid: resolve('--theme-elevation-150', '#ddd'),
+      line: resolve('--brand-500', '#5b7a9d'),
     })
+    probe.remove()
   }, [])
   return colors
 }
@@ -78,6 +86,8 @@ function Chart({ data, series }: { data: TimeseriesData; series: SeriesKey }) {
           lineStyle: { color: colors.line, width: 2 },
           itemStyle: { color: colors.line },
           areaStyle: { color: colors.line, opacity: 0.12 },
+          // Hover should only show the tooltip, never restyle the line
+          emphasis: { disabled: true },
         },
       ],
     }),
