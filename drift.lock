@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "f8a5554145c6ad36"
+sig = "92fba72311da4a3f"
 
 [[bindings]]
 doc = "CLAUDE.md"
