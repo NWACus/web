@@ -8,19 +8,14 @@ import { useEffect } from 'react'
  * render is ISR-cached, so a server-side capture would fire once per revalidation, not per request.
  */
 export function TrackPageNotFound() {
-  const { captureWithTenant } = useAnalytics()
+  const { capture } = useAnalytics()
 
   useEffect(() => {
-    // Child effects run before PostHogProvider's init effect, and posthog-js drops pre-init captures
-    const timeout = setTimeout(() =>
-      captureWithTenant('page_not_found', {
-        path: window.location.pathname,
-        referrer: document.referrer,
-      }),
-    )
-    return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    capture('page_not_found', {
+      path: window.location.pathname,
+      referrer: document.referrer,
+    })
+  }, [capture])
 
   return null
 }

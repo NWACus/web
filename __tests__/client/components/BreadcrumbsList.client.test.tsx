@@ -2,10 +2,10 @@ import { BreadcrumbsList } from '@/components/Breadcrumbs/BreadcrumbsList.client
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
 
-const mockCaptureWithTenant = jest.fn()
+const mockCapture = jest.fn()
 
 jest.mock('../../../src/utilities/useAnalytics', () => ({
-  useAnalytics: () => ({ captureWithTenant: mockCaptureWithTenant }),
+  useAnalytics: () => ({ capture: mockCapture }),
 }))
 
 // jsdom lays nothing out, so the breadcrumbs' overflow measurements have to be supplied.
@@ -103,7 +103,7 @@ describe('BreadcrumbsList', () => {
 
     fireEvent.click(screen.getByText('blog'))
 
-    expect(mockCaptureWithTenant).toHaveBeenCalledWith('breadcrumb_click', {
+    expect(mockCapture).toHaveBeenCalledWith('breadcrumb_click', {
       breadcrumb_name: 'blog',
       from_page: window.location.pathname,
       to_page: '/blog',
@@ -118,7 +118,7 @@ describe('BreadcrumbsList', () => {
 
     fireEvent.click(screen.getByText('Home'))
 
-    expect(mockCaptureWithTenant).toHaveBeenCalledWith('breadcrumb_click', {
+    expect(mockCapture).toHaveBeenCalledWith('breadcrumb_click', {
       breadcrumb_name: 'Home',
       from_page: window.location.pathname,
       to_page: '/',

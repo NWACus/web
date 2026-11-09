@@ -1,4 +1,5 @@
 import { getCanonicalUrlForPath } from '@/components/Header/utils'
+import { isDecodablePath, safeDecodePath } from '@/utilities/path'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { FieldHook } from 'payload'
 import invariant from 'tiny-invariant'
@@ -10,33 +11,41 @@ const relativeUrlSchema = z
   .regex(/^\/[^\s]*$/, 'From URL must be a relative URL starting with "/"')
   .regex(/^\/.*[^/]$/, 'From URL must not have a trailing slash')
   .regex(/^[^?#]*$/, 'From URL must not contain query parameters or hashes')
+  .refine(
+    isDecodablePath,
+    'From URL has a "%" that isn\'t part of an escape. Write a literal "%" as "%25"',
+  )
 
-export const validateFrom: FieldHook = async ({ value, data, req: { payload } }) => {
+export const validateFrom: FieldHook = async ({ value, data, originalDoc, req }) => {
+  const { payload } = req
   const tenantId = data?.tenant
 
   invariant(typeof tenantId === 'number', 'Tenant not selected.')
 
   const validatedValue = relativeUrlSchema.parse(value)
 
-  /** ensure from URL is unique across the same tenant */
+  /** ensure from URL is unique across the same tenant, matching how <Redirects> compares decoded paths */
 
-  const { docs: existingRedirects } = await payload.find({
+  const { docs: otherRedirects } = await payload.find({
     collection: 'redirects',
     depth: 0,
-    limit: 1,
+    limit: 0,
     pagination: false,
     where: {
-      from: {
-        equals: validatedValue,
-      },
-      tenant: {
-        equals: tenantId,
-      },
+      tenant: { equals: tenantId },
+      ...(originalDoc?.id ? { id: { not_equals: originalDoc.id } } : {}),
     },
+    select: { from: true },
+    req,
   })
 
-  if (existingRedirects.length > 0) {
-    throw new Error('From URL must be unique.')
+  const decodedValue = safeDecodePath(validatedValue)
+  const duplicate = otherRedirects.find(({ from }) => safeDecodePath(from) === decodedValue)
+
+  if (duplicate) {
+    throw new Error(
+      `From URL must be unique. It matches the existing From URL "${duplicate.from}".`,
+    )
   }
 
   /** ensure from URL does not match a published page or post path */

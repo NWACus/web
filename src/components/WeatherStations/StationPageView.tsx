@@ -1,3 +1,4 @@
+import { StationLastReport } from '@/components/WeatherStations/StationLastReport'
 import { StationNotes } from '@/components/WeatherStations/StationNotes'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import type { StationNote, StationSummary } from '@/services/snowobs/tableHelpers'
@@ -48,25 +49,43 @@ function StationHeader({
   )
 }
 
-function StationList({ stations }: { stations: StationSummary[] }) {
+// Each dot sits in its item's left padding and the list hangs that far left in
+// a clipped box, so the dot that would start a wrapped line is cut off.
+function StationList({
+  stations,
+  showLastReport,
+  timeZone,
+}: {
+  stations: StationSummary[]
+  showLastReport: boolean
+  timeZone: string
+}) {
   return (
-    <ul className="container flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-      {stations.map((station, index) => (
-        <li key={station.key} className="inline-flex items-center gap-2">
-          {index > 0 && (
-            <span aria-hidden="true" className="text-muted-foreground">
-              ·
-            </span>
-          )}
-          <span className="font-medium text-foreground">{station.name}</span>
-          {station.elevation !== null && (
-            <span className="text-muted-foreground">
-              {Math.round(station.elevation).toLocaleString()}&apos;
-            </span>
-          )}
-        </li>
-      ))}
-    </ul>
+    <div className="container">
+      <div className="overflow-hidden">
+        <ul className="-ml-4 flex flex-wrap items-center gap-y-1 text-sm">
+          {stations.map((station) => (
+            <li key={station.key} className="relative inline-flex items-center gap-2 pl-4">
+              <span
+                aria-hidden="true"
+                className="absolute left-0 w-4 text-center text-muted-foreground"
+              >
+                ·
+              </span>
+              <span className="font-medium text-foreground">{station.name}</span>
+              {station.elevation !== null && (
+                <span className="text-muted-foreground">
+                  {Math.round(station.elevation).toLocaleString()}&apos;
+                </span>
+              )}
+              {showLastReport && station.lastReport && (
+                <StationLastReport lastReport={station.lastReport} timeZone={timeZone} />
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   )
 }
 
@@ -109,7 +128,9 @@ export function StationPageView({
     <div className="mb-10 flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <StationHeader page={page} pages={pages} details={details} />
-        {stations && <StationList stations={stations} />}
+        {stations && (
+          <StationList stations={stations} showLastReport={!page.archived} timeZone={timeZone} />
+        )}
       </div>
       {page.archived && <RetiredNotice lastReported={lastReported} timeZone={timeZone} />}
       {notes.length > 0 && (

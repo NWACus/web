@@ -24,9 +24,17 @@ jest.mock('../../src/services/snowobs/stationTracking', () => ({
   fetchVariableRounding: jest.fn(async () => ({})),
 }))
 
+jest.mock('../../src/services/stations/reportedReadings', () => ({
+  withStaleStations: jest.fn(async (_center: string, response: unknown) => ({
+    response,
+    stale: [],
+  })),
+}))
+
 import { GET as getGraphData } from '@/app/(frontend)/[center]/weather/graph-data/route'
 import { GET as getPrecipData } from '@/app/(frontend)/[center]/weather/precip-data/route'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { withStaleStations } from '@/services/stations/reportedReadings'
 
 const params = Promise.resolve({ center: 'nwac' })
 
@@ -60,6 +68,34 @@ describe('station data routes', () => {
       [nwac1],
       expect.objectContaining({ units: 'metric' }),
     )
+  })
+
+  describe('graph-data at 00:30 Pacific', () => {
+    const graphAt = (to: string) => {
+      const query = new URLSearchParams({
+        stations: 'nwac:1',
+        vars: 'air_temp',
+        from: '2026-10-18T07:00:00Z',
+        to,
+      })
+      return getGraphData(new Request(`https://x/weather/graph-data?${query}`), { params })
+    }
+
+    beforeEach(() => {
+      jest.useFakeTimers({ now: new Date('2026-10-20T07:30:00Z') })
+      jest.mocked(withStaleStations).mockClear()
+    })
+    afterEach(() => jest.useRealTimers())
+
+    it('keeps stale stations for a range ending now', async () => {
+      await graphAt('2026-10-20T07:30:00Z')
+      expect(withStaleStations).toHaveBeenCalled()
+    })
+
+    it('skips them for a custom range that ended at 23:59 yesterday', async () => {
+      await graphAt('2026-10-20T06:59:00Z')
+      expect(withStaleStations).not.toHaveBeenCalled()
+    })
   })
 
   it('precip-data caches a minute at the CDN', async () => {
@@ -112,7 +148,14 @@ describe('station data routes', () => {
       params,
     })
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({ rows: [], timezoneLabel: '', unit: '', decimals: 0 })
+    expect(await res.json()).toEqual({
+      rows: [],
+      timezoneLabel: '',
+      latestObservation: null,
+      latestDisplay: null,
+      unit: '',
+      decimals: 0,
+    })
     expect(fetchStationTimeseries).not.toHaveBeenCalled()
   })
 })

@@ -56,12 +56,12 @@ export function GraphRangePicker({
   value,
   onChange,
   timeZone,
-  className,
+  align,
 }: {
   value: GraphRange
   onChange: (range: GraphRange) => void
   timeZone: string
-  className?: string
+  align?: 'start' | 'center'
 }) {
   return (
     <StationRangePicker
@@ -77,7 +77,7 @@ export function GraphRangePicker({
       onApplyCustom={(custom) => onChange({ ...value, custom })}
       maxDays={GRAPH_MAX_CUSTOM_DAYS}
       timeZone={timeZone}
-      className={className}
+      align={align}
     />
   )
 }
@@ -117,7 +117,8 @@ export function CompareSelect({
           placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add stations…'}
         />
       </SelectTrigger>
-      <SelectContent position="item-aligned">
+      {/* On phones this sits inside the Edit graphs dialog, so it has to clear the dialog's z-[60]. */}
+      <SelectContent position="item-aligned" className="z-[70]">
         <StationSelectItems
           pages={pages}
           excludeSlugs={currentSlug ? [currentSlug, ...compareSlugs] : compareSlugs}

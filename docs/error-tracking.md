@@ -37,16 +37,17 @@ Installs an admin `AdminErrorBoundary` and reports errors from the admin UI and 
 
 PostHog runs as a **same-origin reverse proxy** so analytics aren't ad-blocked: client requests hit `/ingest/*`, which `next.config.ts` `rewrites()` to PostHog's US hosts; `skipTrailingSlashRedirect` and the `ingest` exclusion in [`src/middleware.ts`](../src/middleware.ts) keep that path intact.
 
-- **Browser:** [`PostHogProvider.tsx`](../src/providers/PostHogProvider.tsx) calls `posthog.init()` only when `NEXT_PUBLIC_POSTHOG_KEY` is set, pointing `api_host` at `/ingest`. It wraps both `src/app/(frontend)/layout.tsx` and `src/app/(embeds)/layout.tsx`; feature flags and surveys are disabled.
-- **Server:** [`src/posthog.ts`](../src/posthog.ts) exposes `PostHogClient()` (`posthog-node`), returning `null` when no key is set.
-- **Identity:** users are identified after login via `src/collections/Users/hooks/posthogIdentifyAfterLogin.ts`.
+- **Browser:** [`PostHogProvider.tsx`](../src/providers/PostHogProvider.tsx) calls `posthog.init()` only when `NEXT_PUBLIC_POSTHOG_KEY` is set, pointing `api_host` at `/ingest`. It wraps `src/app/(frontend)/layout.tsx`, `src/app/(embeds)/layout.tsx` and `src/app/(payload)/layout.tsx`; feature flags and surveys are disabled. Init runs in a leaf rendered before `children` so it happens before any descendant's effect — React commits effects child-first, and `posthog.register()` before `init()` is a silent no-op.
+- **Super properties:** every browser event carries `source: nwacus/web`, `environment` and, on center pages, `center` (the uppercased tenant slug), the same names AvyApp uses. `environment` comes from [`getPostHogEnvironment`](../src/utilities/getPostHogEnvironment.ts), which reads `NEXT_PUBLIC_POSTHOG_ENVIRONMENT`. It is a Vercel environment variable (Production `production`, Preview `preview`, plus a Preview override scoped to the `main` branch set to `development`, since the dev deploy builds as Preview); a dedicated variable is needed because the unprefixed `VERCEL_ENV` is server-only and `vercel build` from CI never receives Vercel's auto-exposed `NEXT_PUBLIC_VERCEL_*` copies. Events before this convention carried `platform: AvyWeb` and a lowercase `tenant` instead; insights that span both eras break down on `coalesce(properties.center, upper(properties.tenant))`. [`PostHogCenterRegister`](../src/components/PostHogCenterRegister.client.tsx) registers `center` from the `[center]` layout; the `useAnalytics` `capture` wrapper in [`useAnalytics.ts`](../src/utilities/useAnalytics.ts) only passes event-specific properties.
+- **Admin identity:** [`PostHogAdminIdentity`](../src/components/PostHogAdminIdentity.client.tsx) runs `posthog.identify()` with the logged-in user's id in the admin layout, linking the browser's anonymous id to the person, registers the selected tenant as `center`, and resets on logout.
 - **404s:** center not-found pages send a `page_not_found` event from the browser via [`TrackPageNotFound`](../src/components/TrackPageNotFound.client.tsx); see [not-found-report.md](not-found-report.md).
 
 ### Environment variables
 
 | Variable                   | Required | Description                                                             |
 | -------------------------- | -------- | ----------------------------------------------------------------------- |
-| `NEXT_PUBLIC_POSTHOG_KEY`  | No       | PostHog project key — PostHog is disabled (client + server) when absent |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | No       | PostHog project key — PostHog is disabled when absent |
 | `NEXT_PUBLIC_POSTHOG_HOST` | No       | UI host for links (default `https://us.i.posthog.com`)                  |
+| `NEXT_PUBLIC_POSTHOG_ENVIRONMENT` | No | `production`, `preview`, `development` or `local`; set per Vercel environment (see above), `local` when absent or unrecognized |
 
-Both default to empty in [`.env.example`](../.env.example), so analytics stay off until a key is provided.
+The PostHog variables default to empty in [`.env.example`](../.env.example), so analytics stay off until a key is provided.

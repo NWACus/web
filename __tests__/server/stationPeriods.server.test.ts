@@ -4,7 +4,10 @@ import {
   parseCustomRange,
   presetRange,
   STATION_PERIODS,
+  stationSeasons,
+  TABLE_CHUNK_DAYS,
   TABLE_MAX_CUSTOM_DAYS,
+  tableChunk,
 } from '../../src/components/WeatherStations/stationPeriods'
 
 const zone = 'America/Los_Angeles'
@@ -28,8 +31,17 @@ describe('parseCustomRange', () => {
   it('rejects reversed, future and over-long ranges', () => {
     expect(parse('2026-01-09', '2026-01-03')).toBeNull()
     expect(parse('2026-10-15', '2026-10-16')).toBeNull()
-    expect(parse('2026-01-01', '2026-04-02')).toEqual({ from: '2026-01-01', to: '2026-04-02' })
-    expect(parse('2026-01-01', '2026-04-03')).toBeNull()
+    expect(parseCustomRange('2026-01-01', '2026-04-02', 92, zone, now)).not.toBeNull()
+    expect(parseCustomRange('2026-01-01', '2026-04-03', 92, zone, now)).toBeNull()
+  })
+
+  it('accepts a whole offered season', () => {
+    expect(parse('2025-09-01', '2026-08-31')).toEqual({ from: '2025-09-01', to: '2026-08-31' })
+  })
+
+  it('rejects ranges that cross seasons or fall before the offered ones', () => {
+    expect(parse('2026-08-15', '2026-09-15')).toBeNull()
+    expect(parse('2025-08-15', '2025-08-20')).toBeNull()
   })
 
   it('judges "today" in the center zone, not UTC', () => {
@@ -54,15 +66,13 @@ describe('customRangeBounds', () => {
 })
 
 describe('formatRangeLabel', () => {
-  it('omits the year within the current year', () => {
-    expect(formatRangeLabel({ from: '2026-01-03', to: '2026-01-09' }, now, zone)).toBe(
-      'Jan 3 – Jan 9',
-    )
-    expect(formatRangeLabel({ from: '2026-01-03', to: '2026-01-03' }, now, zone)).toBe('Jan 3')
+  it('names the year once within a year', () => {
+    expect(formatRangeLabel({ from: '2026-01-03', to: '2026-01-09' })).toBe('Jan 3 – Jan 9, 2026')
+    expect(formatRangeLabel({ from: '2026-01-03', to: '2026-01-03' })).toBe('Jan 3, 2026')
   })
 
-  it('shows years when the range leaves the current year', () => {
-    expect(formatRangeLabel({ from: '2024-12-01', to: '2025-03-31' }, now, zone)).toBe(
+  it('names both years when the range crosses one', () => {
+    expect(formatRangeLabel({ from: '2024-12-01', to: '2025-03-31' })).toBe(
       'Dec 1, 2024 – Mar 31, 2025',
     )
   })
@@ -75,9 +85,47 @@ describe('presetRange', () => {
       to: '2026-10-15',
     })
   })
+})
 
-  it('starts the season on Oct 1 despite rounding up to whole hours', () => {
-    const season = STATION_PERIODS.find((p) => p.key === 'season')
-    expect(season && presetRange(season, zone, now).from).toBe('2026-10-01')
+describe('stationSeasons', () => {
+  it('offers the current season and the one before', () => {
+    expect(stationSeasons('2026-10-15')).toEqual([2027, 2026])
+    expect(stationSeasons('2026-08-31')).toEqual([2026, 2025])
+  })
+})
+
+describe('tableChunk', () => {
+  const season = { from: '2025-09-01', to: '2026-08-31' }
+
+  it('starts with the newest days and points at the next older ones', () => {
+    const { chunk, next } = tableChunk(season, null)
+    expect(chunk).toEqual({ from: '2026-08-02', to: '2026-08-31' })
+    expect(next).toBe('2026-08-02')
+  })
+
+  it('picks up the day before `before`', () => {
+    expect(tableChunk(season, '2026-08-02').chunk).toEqual({
+      from: '2026-07-03',
+      to: '2026-08-01',
+    })
+  })
+
+  it('stops at the start of the range', () => {
+    expect(tableChunk(season, '2025-09-10')).toEqual({
+      chunk: { from: '2025-09-01', to: '2025-09-09' },
+      next: null,
+    })
+  })
+
+  it('covers every day of a range exactly once', () => {
+    let before: string | null = null
+    let days = 0
+    do {
+      const { chunk, next }: ReturnType<typeof tableChunk> = tableChunk(season, before)
+      days += (new Date(chunk.to).getTime() - new Date(chunk.from).getTime()) / 86_400_000 + 1
+      before = next
+    } while (before)
+    expect(days).toBe(365)
+    expect(TABLE_CHUNK_DAYS).toBe(30)
   })
 })

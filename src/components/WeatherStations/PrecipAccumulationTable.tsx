@@ -13,7 +13,8 @@ import { ALL_PRECIP_COLUMNS } from '@/services/stations/precipColumns'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { StationTableFrame, StationTableHeader } from './StationTableFrame'
+import { StationLatestObservation } from './StationLatestObservation'
+import { StationTableFrame } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
 type Unit = StationUnits
@@ -366,14 +367,14 @@ export function PrecipAccumulationTable({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center justify-end gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <StationLatestObservation table={table} />
         <UnitToggle unit={unit} onChange={onUnitChange} />
       </div>
       <StationTableFrame
         label="Accumulated precipitation by station"
         className="mx-auto w-auto text-sm sm:text-base"
-      >
-        <StationTableHeader>
+        header={
           <HeaderRow
             sort={sort}
             onSort={onSort}
@@ -382,7 +383,8 @@ export function PrecipAccumulationTable({
             timezoneLabel={table.timezoneLabel}
             columns={columns}
           />
-        </StationTableHeader>
+        }
+      >
         <TableBody>
           {rows.map((row) => (
             <StationRow

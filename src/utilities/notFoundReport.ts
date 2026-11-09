@@ -152,7 +152,7 @@ export function extractSitemapLocs(xml: string): string[] {
 // Only the NAC center metadata fields the zone routes need, so unrelated schema drift can't fail
 // the report
 export const nacCenterZonesSchema = z.object({
-  zones: z.array(z.object({ status: z.string(), url: z.string().optional() })),
+  zones: z.array(z.object({ status: z.string(), url: z.string().nullish() })),
 })
 
 /** The forecast routes for a center's active zones, slugged like getActiveForecastZones. */

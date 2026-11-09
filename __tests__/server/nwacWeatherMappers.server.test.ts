@@ -8,6 +8,7 @@ import {
   fmtWind,
   levelKind,
   periodDateGroups,
+  pointSnow,
   precipPeriods,
   sensibleSlots,
   snowLevelBlocks,
@@ -17,6 +18,7 @@ import {
   windBlocks,
   windRange,
   windWording,
+  zoneSnow,
 } from '@/services/nac/nwacWeatherFormat'
 import {
   mapV3NWACWeatherForecastDay,
@@ -26,6 +28,11 @@ import {
   nwacWeatherForecastResponseSchema,
   nwacWeatherForecastSchema,
   nwacWeatherForecastsResponseSchema,
+  nwacWeatherLevelRowSchema,
+  nwacWeatherPrecipRowSchema,
+  nwacWeatherSensibleRowSchema,
+  nwacWeatherTempRowSchema,
+  nwacWeatherWindRowSchema,
 } from '@/services/nac/types/nwacWeatherSchemas'
 import fixture from './fixtures/nwac-weather-forecasts.json'
 
@@ -44,7 +51,7 @@ describe('mapV3NWACWeatherForecastDay', () => {
   it('re-keys the flat rows into zone/point grids', () => {
     expect(afternoon.temp.olympics.n1).toEqual({ high: 53, low: 47 })
     expect(afternoon.wind.olympics.ev1).toEqual({ dir: 'W', speed: 15 })
-    expect(afternoon.precip.HUR53.n1).toEqual({ qpf: 0.24, density: 11 })
+    expect(afternoon.precip.HUR53.n1).toEqual({ qpf: 0.24, slr: 11 })
     expect(afternoon.sensible.olympics.morning).toMatch(/cloudy/i)
   })
 
@@ -91,11 +98,15 @@ describe('mapV3NWACWeatherForecastDay', () => {
 })
 
 describe('nwacWeatherFormat', () => {
-  it('derives snow from QPF and density; the level is the elevation as typed', () => {
+  it('snow = QPF × SLR to a tenth; the level is the elevation as typed', () => {
     expect(deriveSnow(0.3, 10)).toBe(3)
-    expect(deriveSnow(0.24, 11)).toBe(2.2)
+    expect(deriveSnow(0.24, 11)).toBe(2.6)
+    expect(deriveSnow(0.5, 15)).toBe(7.5)
     expect(deriveSnow(null, 10)).toBeNull()
-    expect(deriveSnow(0.3, 0)).toBeNull()
+    expect(deriveSnow(0.3, null)).toBeNull()
+    expect(deriveSnow(0.3, -1)).toBeNull()
+    expect(deriveSnow(0.4, 0)).toBe(0)
+    expect(deriveSnow(0, null)).toBe(0)
     expect(deriveSnowLevel(5000)).toBe(5000)
     expect(deriveSnowLevel(0)).toBe(0)
     expect(deriveSnowLevel(null)).toBeNull()
@@ -107,6 +118,8 @@ describe('nwacWeatherFormat', () => {
     expect(fmtSnowAmount(null)).toBe('—')
     expect(fmtWind({ dir: 'SW', speed: 25 })).toBe('SW 25')
     expect(fmtWind({ dir: null, speed: 0 })).toBe('Calm')
+    expect(fmtWind({ dir: 'SW', speed: 0 })).toBe('SW Calm')
+    expect(fmtWind({ dir: 'SW', speed: 3 })).toBe('SW Calm')
     expect(fmtWind(undefined)).toBe('—')
   })
 
@@ -180,6 +193,53 @@ describe('nwacWeatherFormat', () => {
   })
 })
 
+describe('zoneSnow', () => {
+  it.each([
+    ['rain', { qpf: 0.4, slr: 0 }],
+    ['dry', { qpf: 0, slr: null }],
+  ])('counts a %s point as 0 in the mean, not as unforecast', (_, cell) => {
+    const [zone] = afternoon.zones
+    const issuance = {
+      ...afternoon,
+      points: [
+        { ...afternoon.points[0], code: 'A', zoneId: zone.id },
+        { ...afternoon.points[0], code: 'B', zoneId: zone.id },
+      ],
+      precip: { A: { n1: { qpf: 0.5, slr: 12 } }, B: { n1: cell } },
+    }
+    expect(pointSnow(issuance, 'B', 'n1')).toBe(0)
+    expect(zoneSnow(issuance, zone.id, 'n1')).toBe(3)
+  })
+})
+
+describe('NWAC weather row schemas', () => {
+  it.each([
+    [
+      'precip',
+      nwacWeatherPrecipRowSchema,
+      { point: 'A', period: 'n1', qpf: null, slr: null },
+      'slr',
+    ],
+    ['temp', nwacWeatherTempRowSchema, { zone: 'z', period: 'n1', high: null, low: null }, 'low'],
+    ['wind', nwacWeatherWindRowSchema, { zone: 'z', block: 'b', dir: null, speed: null }, 'speed'],
+    [
+      'level',
+      nwacWeatherLevelRowSchema,
+      { zone: 'z', block: 'b', freezing: null, mode: null },
+      'mode',
+    ],
+    ['sensible', nwacWeatherSensibleRowSchema, { zone: 'z', slot: 's', text: null }, 'text'],
+  ])('%s rows take null but reject a missing value key', (_, schema, row, key) => {
+    expect(schema.safeParse(row).success).toBe(true)
+    expect(schema.safeParse({ ...row, [key]: undefined }).success).toBe(false)
+  })
+
+  it('rejects the old density key', () => {
+    const row = { point: 'A', period: 'n1', qpf: 0.5, density: 12 }
+    expect(nwacWeatherPrecipRowSchema.safeParse(row).success).toBe(false)
+  })
+})
+
 describe('levelKind', () => {
   const block = afternoon.blocks.find((b) => b.period != null)
   const zone = afternoon.points.find((p) => p.zoneId)?.zoneId
@@ -188,7 +248,7 @@ describe('levelKind', () => {
   const withPrecip = (qpf: number, mode: string | null = 'auto') => ({
     ...afternoon,
     precip: Object.fromEntries(
-      afternoon.points.map((p) => [p.code, { [period]: { qpf, density: 10 } }]),
+      afternoon.points.map((p) => [p.code, { [period]: { qpf, slr: 10 } }]),
     ),
     snowLevel: { [zone]: { [block.key]: { freezing: 6000, drop: 1000, mode } } },
   })

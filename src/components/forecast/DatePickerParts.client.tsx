@@ -141,16 +141,22 @@ export function DatePickerBar({
 export function DatePickerPopover({
   label,
   tooltip,
+  onOpen,
   children,
 }: {
   label: string
   tooltip?: string
+  onOpen?: () => void
   children: ReactNode
 }) {
   const [open, setOpen] = useState(false)
+  const changeOpen = (next: boolean) => {
+    if (next) onOpen?.()
+    setOpen(next)
+  }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={changeOpen}>
       <PopoverTrigger asChild>
         <Button
           type="button"

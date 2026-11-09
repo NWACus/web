@@ -1,6 +1,6 @@
 import type { ColumnOrderEntry, StationEntry } from '@/services/stations/stationColumns'
 import { orderColumns, selectColumns } from '@/services/stations/stationColumns'
-import { TABLE_VARIABLE_ORDER } from './constants'
+import { DERIVED_FROM, TABLE_VARIABLE_ORDER } from './constants'
 import type { StationRef } from './stationKey'
 import { stationKey } from './stationKey'
 import type { StationColumnConfig } from './tableHelpers'
@@ -10,7 +10,11 @@ import type { SnowObsTimeseriesResponse } from './types/schemas'
 // graph and, later, the alerting, not next to the weather.
 export const HIDDEN_TABLE_VARIABLES: ReadonlySet<string> = new Set(['battery_voltage'])
 
-const NOT_A_READING: ReadonlySet<string> = new Set(['date_time'])
+// A derived column is added after its station's reading, so never comes from a report.
+const NOT_A_READING: ReadonlySet<string> = new Set(['date_time', ...Object.keys(DERIVED_FROM)])
+const DERIVED_BY_SOURCE = new Map(
+  Object.entries(DERIVED_FROM).map(([derived, source]) => [source, derived]),
+)
 
 function rank(variable: string): number {
   const index = TABLE_VARIABLE_ORDER.findIndex((known) => known === variable)
@@ -46,6 +50,8 @@ export function columnsFromReported(
     for (const station of stations) {
       if (variablesByStation.get(stationKey(station))?.has(variable)) {
         columns.push({ station, variable })
+        const derived = DERIVED_BY_SOURCE.get(variable)
+        if (derived) columns.push({ station, variable: derived })
       }
     }
   }

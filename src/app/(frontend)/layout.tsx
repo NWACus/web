@@ -117,9 +117,13 @@ export default async function RootLayout({ children }: Args) {
   const { isEnabled } = await draftMode()
 
   return (
-    // Anchor targets need to clear the sticky mobile header, which only exists below lg.
+    // Anchor targets need to clear the sticky mobile header block (banners + header), which only
+    // sticks below lg. StickyHeaderStrip publishes its height; pages without it fall back to 4rem.
     <html
-      className={cn(lato.variable, 'scroll-pt-16 lg:scroll-pt-0')}
+      className={cn(
+        lato.variable,
+        'scroll-pt-[calc(var(--admin-bar-height,0px)+var(--sticky-header-height,4rem))] lg:scroll-pt-0',
+      )}
       lang="en"
       suppressHydrationWarning
     >

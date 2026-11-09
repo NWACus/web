@@ -1,7 +1,7 @@
 import { addDays, isValid, max, min, parse, parseISO, subDays } from 'date-fns'
 import type { DateRange as DayPickerRange } from 'react-day-picker'
 import type { DateRange } from './stationPeriods'
-import { EARLIEST_CUSTOM_DATE, rangeDays, toIsoDate } from './stationPeriods'
+import { rangeDays, toIsoDate } from './stationPeriods'
 
 // The range picker's draft rules, kept apart from its components so they can be tested.
 
@@ -17,25 +17,37 @@ export function nextDraft(draft: DayPickerRange | undefined, day: Date): DayPick
 }
 
 // Once a start is picked, days that would push the range past `maxDays` go grey.
-export function selectableBounds(draft: DayPickerRange | undefined, today: Date, maxDays: number) {
-  const earliest = parseISO(EARLIEST_CUSTOM_DATE)
-  if (!draft?.from || draft.to) return { earliest, latest: today }
+export function selectableBounds(
+  draft: DayPickerRange | undefined,
+  season: DateRange,
+  maxDays: number,
+) {
+  const earliest = parseISO(season.from)
+  const latest = parseISO(season.to)
+  if (!draft?.from || draft.to) return { earliest, latest }
   return {
     earliest: max([earliest, subDays(draft.from, maxDays - 1)]),
-    latest: min([today, addDays(draft.from, maxDays - 1)]),
+    latest: min([latest, addDays(draft.from, maxDays - 1)]),
   }
 }
 
-/** The draft as a range to apply, or null when it is incomplete or out of bounds. */
+/** Whether a whole draft sits inside the season. */
+export function withinSeason(draft: DayPickerRange, season: DateRange): boolean {
+  const { from, to } = draft
+  return !!from && toIsoDate(from) >= season.from && toIsoDate(to ?? from) <= season.to
+}
+
+/** The draft as a range to apply, or null when it is incomplete or outside the season. */
 export function applicableRange(
   draft: DayPickerRange | undefined,
   maxDays: number,
-  today: string,
+  season: DateRange,
 ): DateRange | null {
   if (!draft?.from) return null
   const range = { from: toIsoDate(draft.from), to: toIsoDate(draft.to ?? draft.from) }
-  const inBounds = range.from >= EARLIEST_CUSTOM_DATE && range.to <= today
-  return inBounds && range.from <= range.to && rangeDays(range) <= maxDays ? range : null
+  return withinSeason(draft, season) && range.from <= range.to && rangeDays(range) <= maxDays
+    ? range
+    : null
 }
 
 export const FIELD_FORMAT = 'MMM d, yyyy'
