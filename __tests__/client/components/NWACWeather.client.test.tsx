@@ -106,13 +106,12 @@ describe('Overall', () => {
 
   it('switches precipitation and snow between 12 and 24 hours', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const twelve = screen.getByRole('button', { name: '12 hours' })
-    const twentyFour = screen.getByRole('button', { name: '24 hours' })
-    expect(twelve).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('radio', { name: '12 hours' })).toHaveAttribute('aria-checked', 'true')
     expect(screen.queryByRole('columnheader', { name: 'Night + Day' })).toBeNull()
 
-    fireEvent.click(twentyFour)
-    expect(twentyFour).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('radio', { name: '24 hours' }))
+    // The 24-hour table's own switch, in its corner, now shows.
+    expect(screen.getByRole('radio', { name: '24 hours' })).toHaveAttribute('aria-checked', 'true')
     // An afternoon issuance's nights pair with the days after them.
     expect(screen.getAllByRole('columnheader', { name: 'Night + Day' }).length).toBeGreaterThan(0)
   })
@@ -364,6 +363,26 @@ describe('the paired temperature and wind tables', () => {
     fireEvent.click(second)
     expect(second).toHaveAttribute('aria-selected', 'true')
     expect(within(wind).getByRole('tabpanel')).toHaveAttribute('aria-labelledby', second.id)
+  })
+
+  it('keeps the picked date when a phone switches the precipitation to 24 hours', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const pickSecond = (trigger: HTMLElement) => {
+      fireEvent.keyDown(trigger, { key: 'Enter' })
+      fireEvent.keyDown(screen.getAllByRole('option')[1], { key: 'Enter' })
+    }
+    const dates = () => screen.getAllByRole('combobox', { name: /^Precipitation and Snow date$/ })
+    pickSecond(dates()[0])
+    const second = dates()[0].textContent
+
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
+    fireEvent.keyDown(screen.getByRole('option', { name: '24 hours' }), { key: 'Enter' })
+
+    // The 24-hour dates are ranges, so the second date is kept by its place in the list.
+    const [date24] = dates()
+    expect(date24.textContent).not.toBe(second)
+    fireEvent.keyDown(date24, { key: 'Enter' })
+    expect(date24.textContent).toBe(screen.getAllByRole('option')[1].textContent)
   })
 })
 

@@ -33,7 +33,12 @@ import {
 import { cn } from '@/utilities/ui'
 
 import { DaySwitch } from './DaySwitch.client'
-import { PrecipHoursPanel, PrecipHoursSwitch, PrecipHoursToggle } from './PrecipHours.client'
+import {
+  PrecipHoursPanel,
+  PrecipHoursSelect,
+  PrecipHoursSwitch,
+  PrecipHoursToggle,
+} from './PrecipHours.client'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import {
   DayNightDate,
@@ -102,8 +107,8 @@ interface Table {
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
-  /** Under the table, across from its key: a control for the table. */
-  aside?: ReactNode
+  /** A control for the table: in its corner by the dates, and on a phone beside the date. */
+  control?: { corner: ReactNode; phone: ReactNode }
   /** After the description, over the table: what the shading means. */
   legend?: ReactNode
   /** Label widths in place of `LABEL_VARS`. */
@@ -380,7 +385,7 @@ function precipSnowTable(
       : 'Precipitation (liquid, in) by station; Total covers the whole forecast. This forecast doesn’t include snow amounts.',
     detail: PRECIP_DETAIL,
     legend: withSnow ? <SnowFillLegend /> : undefined,
-    aside: withSnow ? <PrecipHoursToggle /> : undefined,
+    control: withSnow ? { corner: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> } : undefined,
     rowLabel: 'Station',
     groupColumn: 'Zone',
     dateRanges: !withSnow,
@@ -511,14 +516,31 @@ const SUB = 'block whitespace-nowrap text-sm font-normal text-muted-foreground'
 
 function RowLabelHead({ table: t, rowSpan }: { table: Table; rowSpan: number }) {
   const label = 'border-b bg-muted p-2 text-left align-bottom font-semibold'
+  // The table's control sits over the first label, beside the dates.
+  const corner = t.control && (
+    <div className="mb-2 font-normal print:hidden">{t.control.corner}</div>
+  )
   return (
     <>
       {t.groupColumn && (
-        <th scope="col" rowSpan={rowSpan} className={cn(label, 'pl-3')}>
+        // Named by its label alone, not the control over it.
+        <th
+          scope="col"
+          rowSpan={rowSpan}
+          aria-label={corner ? t.groupColumn : undefined}
+          className={cn(label, 'pl-3')}
+        >
+          {corner}
           {t.groupColumn}
         </th>
       )}
-      <th scope="col" rowSpan={rowSpan} className={cn(STICKY, label, !t.groupColumn && 'pl-3')}>
+      <th
+        scope="col"
+        rowSpan={rowSpan}
+        aria-label={corner && !t.groupColumn ? t.rowLabel : undefined}
+        className={cn(STICKY, label, !t.groupColumn && 'pl-3')}
+      >
+        {!t.groupColumn && corner}
         {t.rowLabel}
       </th>
     </>
@@ -909,26 +931,23 @@ function GridTable({
         <TableBox table={t} />
       </div>
       {t.fitsPhone ? (
-        <TableBox table={{ ...t, narrow: true }} className="md:hidden print:hidden" />
+        <TableBox
+          table={{ ...t, narrow: true, control: undefined }}
+          className="md:hidden print:hidden"
+        />
       ) : (
         <DaySwitch
           label={t.title}
           className="md:hidden print:hidden"
+          aside={t.control?.phone}
           days={dayTables(t).map((d) => ({
             key: d.key,
             label: d.label,
-            content: <TableBox table={d.table} />,
+            content: <TableBox table={{ ...d.table, control: undefined }} />,
           }))}
         />
       )}
-      {t.aside ? (
-        <div className="flex items-center justify-between gap-3">
-          {t.legend}
-          {t.aside}
-        </div>
-      ) : (
-        t.legend
-      )}
+      {t.legend}
     </section>
   )
 }
