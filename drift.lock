@@ -162,6 +162,11 @@ sig = "e3f27d3112146005"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
+target = "__tests__/server/analyticsExport.server.test.ts"
+sig = "9226b14af28079b6"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
 sig = "9935e070e2691ac0"
 
@@ -232,13 +237,23 @@ sig = "bee44e64f591709d"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
+target = "src/utilities/export/csv.ts"
+sig = "d56b2dcbda2961d9"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/utilities/export/saveFile.ts"
+sig = "2db8cf69ba779f83"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
 target = "src/utilities/tenancy/resolveSelectedTenant.ts"
 sig = "95329d6489f6a46d"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "41a48ad9f0d4ae59"
+sig = "378a599a37e7a0a1"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -267,28 +282,38 @@ sig = "82af83c89aa3a529"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panelExport.ts"
+sig = "a4d7dff2c71bfc02"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/BarList.tsx"
 sig = "10b68ca11a7c7416"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/BreakdownPanel.tsx"
-sig = "8b2dbe438dbefe0f"
+sig = "909d5c8100325bf0"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/ExportMenu.tsx"
+sig = "40e4d3afc1ad7efc"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/FixesPanel.tsx"
-sig = "86abab0cbc6aa09e"
+sig = "d3ba9d49fcbc05c3"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/Panel.tsx"
-sig = "0993da1d5f30c2bb"
+sig = "dc2335e065bf4f9d"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/SponsorsPanel.tsx"
-sig = "7288601112b6eedf"
+sig = "fe367c251a1c23ce"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -298,12 +323,12 @@ sig = "f75b0807f01fcd59"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/TrendChart.tsx"
-sig = "903b1bf080c915fb"
+sig = "c8f4764a18018d53"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/usePanel.ts"
-sig = "7314a640cdb46134"
+sig = "78597180c4911803"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

@@ -14,19 +14,23 @@ export function PanelFrame({
   tabs,
   active,
   onTab,
+  actions,
   children,
   className,
 }: {
   tabs: ReadonlyArray<{ key: string; label: string }>
   active: string
   onTab: (key: string) => void
+  /** Sits opposite the tabs, e.g. the export menu. */
+  actions?: ReactNode
   children: ReactNode
   className?: string
 }) {
   return (
     <section className={cn('card min-w-0 flex-col gap-0', className)}>
-      <div className="mb-4">
+      <div className="mb-4 flex items-start justify-between gap-2">
         <TabPills options={tabs} active={active} onChange={onTab} />
+        {actions}
       </div>
       {children}
     </section>

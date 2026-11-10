@@ -16,7 +16,9 @@ export type PanelRequest = {
 export type PanelState<T extends PanelData> =
   | { status: 'loading' }
   | { status: 'error'; message: string }
-  | { status: 'ready'; data: T }
+  | { status: 'ready'; data: T; range: PanelResponse['range'] }
+
+const LOADING: { status: 'loading' } = { status: 'loading' }
 
 function isPanelResponse(value: unknown): value is PanelResponse {
   return typeof value === 'object' && value !== null && 'data' in value && 'panel' in value
@@ -32,6 +34,7 @@ function errorMessage(value: unknown, fallback: string): string {
 /**
  * Fetches one panel from `/api/analytics` whenever the request changes, dropping stale responses.
  * `pick` narrows the response to the panel's data shape; a mismatch is reported as an error.
+ * Switching `panel` reads as loading at once, so a tabbed card never shows the old tab's rows.
  */
 export function usePanel<T extends PanelData>(
   panel: AnalyticsPanel,
@@ -39,13 +42,17 @@ export function usePanel<T extends PanelData>(
   pick: (data: PanelData) => T | null,
   enabled = true,
 ): PanelState<T> {
-  const [state, setState] = useState<PanelState<T>>({ status: 'loading' })
+  const [current, setCurrent] = useState<{ panel: AnalyticsPanel; state: PanelState<T> }>({
+    panel,
+    state: LOADING,
+  })
   const { center, from, to, generation, force } = request
 
   useEffect(() => {
     if (!enabled) return
     const controller = new AbortController()
-    setState({ status: 'loading' })
+    const setState = (state: PanelState<T>) => setCurrent({ panel, state })
+    setState(LOADING)
 
     const params = new URLSearchParams({ center, from, to, panel })
     if (force) params.set('refresh', '1')
@@ -59,7 +66,9 @@ export function usePanel<T extends PanelData>(
         }
         const data = pick(body.data)
         setState(
-          data ? { status: 'ready', data } : { status: 'error', message: 'Unexpected panel data' },
+          data
+            ? { status: 'ready', data, range: body.range }
+            : { status: 'error', message: 'Unexpected panel data' },
         )
       })
       .catch((err: unknown) => {
@@ -73,5 +82,5 @@ export function usePanel<T extends PanelData>(
     return () => controller.abort()
   }, [center, from, to, panel, generation, force, enabled, pick])
 
-  return state
+  return current.panel === panel ? current.state : LOADING
 }

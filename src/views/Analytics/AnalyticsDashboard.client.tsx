@@ -85,14 +85,14 @@ function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
 
 const REFRESH_MODAL = 'site-analytics-refresh'
 
-function Panels({ request }: { request: PanelRequest }) {
+function Panels({ request, centerName }: { request: PanelRequest; centerName: string }) {
   const overview = usePanel('overview', request, pickOverview)
   const totalVisitors = overview.status === 'ready' ? overview.data.visitors.current : undefined
   return (
     <>
       <section className="card flex-col gap-8">
         <StatsRow state={overview} />
-        <TrendChart request={request} />
+        <TrendChart request={request} centerName={centerName} overview={overview} />
       </section>
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <BreakdownPanel tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
@@ -188,7 +188,7 @@ export function AnalyticsDashboard({
           range={range}
           onFallback={() => setSelection(defaultSelection)}
         >
-          <Panels request={request} />
+          <Panels request={request} centerName={centerName} />
         </LongRangeGate>
       )}
     </div>

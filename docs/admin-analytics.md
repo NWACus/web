@@ -20,6 +20,10 @@ Breakdown rows carry a fill bar (share of the largest row) and a percentage (sha
 
 The trend chart is Apache ECharts through the site's [`EChart`](../src/components/charts/EChart.tsx) wrapper. Its colors are resolved from CSS variables through an element's computed `color`, because the `hsl(215 25% 47%)` form in `colors.css` draws once but turns transparent when ECharts re-derives it for hover; hover emphasis is disabled outright.
 
+## Export
+
+Each card has a download menu, built from the data already on the page, so exporting sends no new query. List panels save the active tab as CSV. Columns follow the card's headings and numbers are unformatted, so they sort and sum in a spreadsheet; sponsors export every row, not just the ones shown before "Show all". The trend chart's menu also carries the stats row above it: the chart as a PNG (on white with light text even in dark mode, titled with the center, series and range, since a saved image travels without the page), every bucket of all three series as CSV, and the stats row as CSV with this period and the previous one as columns. Files are named `<center>-<panel>-<from>-to-<to>`. The CSV builders are in [`panelExport.ts`](../src/views/Analytics/panelExport.ts); the menu is [`ExportMenu`](../src/views/Analytics/panels/ExportMenu.tsx), Payload's `Popup` rather than the site's dropdown so it matches the admin.
+
 ## Time range
 
 The range lives in the URL: `?period=7d|30d|90d|12m` or `?from=YYYY-MM-DD&to=YYYY-MM-DD`, capped at 366 days. Dates are calendar days in the **center's timezone** (`AVALANCHE_CENTERS[slug].timezone`), which the page says under its heading. PostHog's project timezone is UTC, so a day total there can differ from the page at the day's edges; the sum over a whole range matches. The previous period is the same number of days ending the day before `from`. [`analyticsRange.ts`](../src/services/posthog/analyticsRange.ts) does the arithmetic with `@date-fns/tz`.
@@ -63,4 +67,4 @@ Create the key under a service account or a maintainer's PostHog settings, scope
 
 ## Testing
 
-[`__tests__/server/analyticsRange.server.test.ts`](../__tests__/server/analyticsRange.server.test.ts), [`analyticsQueries.server.test.ts`](../__tests__/server/analyticsQueries.server.test.ts) and [`analyticsEndpoint.server.test.ts`](../__tests__/server/analyticsEndpoint.server.test.ts) cover the range arithmetic, the query builders, the HogQL client and semaphore, dead-click labelling, the assembled panels via msw, and the endpoint's auth and validation.
+[`__tests__/server/analyticsRange.server.test.ts`](../__tests__/server/analyticsRange.server.test.ts), [`analyticsQueries.server.test.ts`](../__tests__/server/analyticsQueries.server.test.ts) and [`analyticsEndpoint.server.test.ts`](../__tests__/server/analyticsEndpoint.server.test.ts) cover the range arithmetic, the query builders, the HogQL client and semaphore, dead-click labelling, the assembled panels via msw, and the endpoint's auth and validation. [`analyticsExport.server.test.ts`](../__tests__/server/analyticsExport.server.test.ts) covers the CSV files and their names.
