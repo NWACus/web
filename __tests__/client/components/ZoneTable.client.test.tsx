@@ -25,7 +25,9 @@ describe('ZoneTable', () => {
     )
 
     expect(container.querySelector('table thead')?.querySelectorAll('th')).toHaveLength(1)
-    expect(screen.getByText(afternoon.sensible[z.id].afternoon)).toBeInTheDocument()
+    const table = container.querySelector('table')
+    if (!table) throw new Error('no zone table')
+    expect(within(table).getByText(afternoon.sensible[z.id].afternoon)).toBeInTheDocument()
     expect(screen.queryByText(afternoon.sensible[z.id].morning)).not.toBeInTheDocument()
   })
 
@@ -46,6 +48,7 @@ describe('ZoneTable', () => {
       'Snow & Freezing Level (ft)',
       "5000' Temperatures (°F)",
       'Ridgeline Winds (mph)',
+      'Summary',
     ])
   })
 
@@ -69,8 +72,8 @@ describe('ZoneTable', () => {
     const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
 
     expect(heads.map((th) => th.textContent)).toEqual([
-      'Tonight Mon Sep 145 pm–5 am PDT',
-      'Tomorrow Tue Sep 155 am–5 pm PDT',
+      'Tonight · Mon Sep 145 pm–5 am PDT',
+      'Tomorrow · Tue Sep 155 am–5 pm PDT',
     ])
   })
 
@@ -115,8 +118,8 @@ describe('ZoneTable', () => {
     const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
 
     expect(heads.map((th) => th.textContent)).toEqual([
-      'Today Mon Sep 145 am–5 pm PDT',
-      'Tonight Mon Sep 145 pm–5 am PDT',
+      'Today · Mon Sep 145 am–5 pm PDT',
+      'Tonight · Mon Sep 145 pm–5 am PDT',
     ])
   })
 

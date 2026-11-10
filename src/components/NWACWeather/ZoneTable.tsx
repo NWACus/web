@@ -12,6 +12,7 @@ import type {
   NWACWeatherZone,
 } from '@/services/nac/model/nwacWeather'
 import {
+  DASH,
   deriveSnowLevel,
   fmtCalendarDate,
   fmtQpf,
@@ -57,6 +58,8 @@ interface PeriodView {
   label: string
   /** The local hours its precipitation and snow cover. */
   hours: string
+  /** The zone's weather summary for the period, if the forecaster wrote one. */
+  summary: string | null
   night: boolean
   blocks: BlockView[]
 }
@@ -85,12 +88,18 @@ function periodViews(
     wind: issuance.wind[zone.id]?.[block.key],
   }))
   const shown = issuance.periods.filter((p) => periodKeys.includes(p.key))
+  const sensible = issuance.sensible[zone.id] ?? {}
+  const summaryOf = (periodKey: string) => {
+    const slot = sensibleSlotFor(issuance, periodKey)
+    return (slot && sensible[slot]?.trim()) || null
+  }
   return shown.map((period, i) => ({
     period,
     name: periodName(period, i),
     night: period.kind === 'night',
     label: fmtCalendarDate(period.date),
     hours: precipHours(period, timezone),
+    summary: summaryOf(period.key),
     blocks: blocks.filter((b) => b.block.period === period.key),
   }))
 }
@@ -169,41 +178,6 @@ function SnowAmount({ snow, chip = false }: { snow: number | null; chip?: boolea
   return fill ? <span className={cn('rounded px-1.5 py-0.5', fill)}>{value}</span> : value
 }
 
-/** The zone's sensible weather, one card per period shown that has text. */
-function SensibleCards({
-  issuance,
-  zone,
-  periods,
-}: {
-  issuance: NWACWeatherIssuance
-  zone: NWACWeatherZone
-  periods: PeriodView[]
-}) {
-  const sensible = issuance.sensible[zone.id] ?? {}
-  const cards = periods.flatMap((p) => {
-    const slot = sensibleSlotFor(issuance, p.period.key)
-    const text = slot ? sensible[slot]?.trim() : null
-    return text ? [{ ...p, text }] : []
-  })
-  if (cards.length === 0) return null
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {cards.map((c) => (
-        <section key={c.period.key} className="space-y-1">
-          <div className="flex items-baseline gap-2">
-            <h4 className="font-semibold">{c.name}</h4>
-            <span className="text-muted-foreground">
-              <span aria-hidden="true">· </span>
-              {c.label}
-            </span>
-          </div>
-          <p className="whitespace-pre-line">{c.text}</p>
-        </section>
-      ))}
-    </div>
-  )
-}
-
 function PeriodHead({ periods }: { periods: PeriodView[] }) {
   return (
     <thead className="bg-muted">
@@ -212,8 +186,9 @@ function PeriodHead({ periods }: { periods: PeriodView[] }) {
         {periods.map((p) => (
           <th key={p.period.key} scope="col" className={cn(HEAD, 'border-b')}>
             <span className="block whitespace-nowrap">
-              {p.name}{' '}
+              {p.name}
               <span className="font-normal text-muted-foreground">
+                {' · '}
                 <DayNightDate date={p.label} night={p.night} label={false} />
               </span>
             </span>
@@ -377,9 +352,10 @@ function PeriodTable({
   const points = zonePoints(issuance, zone.id)
   return (
     <div className="hidden overflow-hidden rounded-md border md:block print:block">
-      <table className="w-full table-fixed border-collapse text-sm">
+      <table className="w-full table-fixed border-collapse text-base">
         <colgroup>
-          <col className="w-48" />
+          {/* Narrower below `xl`, its labels wrapping, so the 6h pairs keep their room. */}
+          <col className="w-44 xl:w-60" />
           {periods.map((p) => (
             <col key={p.period.key} />
           ))}
@@ -437,6 +413,13 @@ function PeriodTable({
               />
             )}
           />
+          {periods.some((p) => p.summary) && (
+            <PeriodRow
+              label="Summary"
+              periods={periods}
+              cell={(p) => <p className="whitespace-pre-line text-left">{p.summary ?? DASH}</p>}
+            />
+          )}
         </tbody>
       </table>
     </div>
@@ -593,6 +576,7 @@ function PeriodCard({
       </p>
       <CardSummary issuance={issuance} zone={zone} p={p} tempOut={tempOut} />
       <CardBlocks p={p} windOut={windOut} />
+      {p.summary && <p className="whitespace-pre-line border-t px-3 py-2">{p.summary}</p>}
     </section>
   )
 }
@@ -647,7 +631,6 @@ export function ZoneTable({
   return (
     <section aria-label={zone.name} className="space-y-4">
       {heading && <h3 className="text-lg font-semibold">{zone.name}</h3>}
-      <SensibleCards issuance={issuance} zone={zone} periods={periods} />
       <div className="space-y-2">
         <PeriodTable issuance={issuance} zone={zone} periods={periods} />
         <PeriodCards issuance={issuance} zone={zone} periods={periods} />
