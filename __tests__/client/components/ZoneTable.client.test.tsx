@@ -41,6 +41,7 @@ describe('ZoneTable', () => {
         .getAllByRole('rowheader')
         .map((row) => row.textContent),
     ).toEqual([
+      'Precip & snow hours',
       'Precipitation (in): Snoqualmie Pass',
       'Snow (in): Snoqualmie Pass',
       'Snow level (ft)',
@@ -59,7 +60,7 @@ describe('ZoneTable', () => {
     const rows = within(table)
       .getAllByRole('rowheader')
       .map((row) => row.textContent)
-    expect(rows.slice(0, names.length * 2)).toEqual([
+    expect(rows.slice(1, names.length * 2 + 1)).toEqual([
       ...names.map((n) => `Precipitation (in): ${n}`),
       ...names.map((n) => `Snow (in): ${n}`),
     ])
@@ -72,6 +73,43 @@ describe('ZoneTable', () => {
     const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
 
     expect(heads.map((th) => th.textContent)).toEqual(['TonightMon Sep 14', 'TomorrowTue Sep 15'])
+  })
+
+  it('gives the hours the precipitation and snow cover, which are not the columns’ own', () => {
+    const { container } = render(
+      <ZoneTable
+        issuance={afternoon}
+        zone={zone('olympics')}
+        periodKeys={DAY_ONE}
+        timezone="America/Los_Angeles"
+      />,
+    )
+    const table = container.querySelector('table')
+    if (!table) throw new Error('no zone table')
+    const row = within(table).getByRole('rowheader', { name: 'Precip & snow hours' }).closest('tr')
+    if (!row) throw new Error('no hours row')
+
+    expect(
+      within(row)
+        .getAllByRole('cell')
+        .map((td) => td.textContent),
+    ).toEqual(['5 pm–5 am PDT', '5 am–5 pm PDT'])
+  })
+
+  it('labels the temperatures Hi and Lo, high first', () => {
+    const { container } = render(
+      <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
+    )
+    const table = container.querySelector('table')
+    if (!table) throw new Error('no zone table')
+    const row = within(table)
+      .getAllByRole('rowheader')
+      .find((th) => th.textContent?.startsWith("5000'"))
+      ?.closest('tr')
+    if (!row) throw new Error('no temperature row')
+
+    const [first] = within(row).getAllByRole('cell')
+    expect(first.textContent).toMatch(/^Hi \d+ · Lo \d+$/)
   })
 
   it('names them Today and Tonight from 6 am', () => {

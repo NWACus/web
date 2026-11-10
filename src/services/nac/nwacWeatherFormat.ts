@@ -214,6 +214,27 @@ export function tempPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+const HOUR_MS = 60 * 60 * 1000
+
+/**
+ * The local hours a 12h period's precipitation and snow cover, "4 am–4 pm PST": the model's
+ * 12Z–00Z day and 00Z–12Z night, which are 5 to 5 in PDT and don't match the 6 to 6 periods.
+ */
+export function precipHours(
+  period: Pick<NWACWeatherPeriod, 'kind' | 'date'>,
+  timezone: string,
+): string {
+  const [y, m, d] = period.date.split('-').map(Number)
+  const start = period.kind === 'day' ? Date.UTC(y, m - 1, d, 12) : Date.UTC(y, m - 1, d + 1)
+  const hour = new Intl.DateTimeFormat('en-US', { timeZone: timezone, hour: 'numeric' })
+  const zone = new Intl.DateTimeFormat('en-US', { timeZone: timezone, timeZoneName: 'short' })
+    .formatToParts(start)
+    .find((part) => part.type === 'timeZoneName')?.value
+  // "4 AM" → "4 am", the site's style for times of day.
+  const fmt = (ms: number) => hour.format(ms).toLowerCase()
+  return `${fmt(start)}–${fmt(start + 12 * HOUR_MS)}${zone ? ` ${zone}` : ''}`
+}
+
 /** "Mon Sep 14" for a `YYYY-MM-DD` calendar date. */
 export function fmtCalendarDate(ymd: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(ymd)

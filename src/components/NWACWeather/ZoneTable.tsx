@@ -17,6 +17,7 @@ import {
   fmtQpf,
   levelKind,
   pointSnow,
+  precipHours,
   sensibleSlotFor,
   snowRange,
   tempPeriods,
@@ -53,6 +54,8 @@ interface PeriodView {
   /** Today, Tonight or Tomorrow, as the MWF names its half-days. */
   name: string
   label: string
+  /** The local hours its precipitation and snow cover. */
+  hours: string
   night: boolean
   blocks: BlockView[]
 }
@@ -68,6 +71,7 @@ function periodViews(
   issuance: NWACWeatherIssuance,
   zone: NWACWeatherZone,
   periodKeys: string[],
+  timezone: string,
 ): PeriodView[] {
   const levels = issuance.blocks.map((b) => {
     const cell = issuance.snowLevel[zone.id]?.[b.key]
@@ -85,6 +89,7 @@ function periodViews(
     name: periodName(period, i),
     night: period.kind === 'night',
     label: fmtCalendarDate(period.date),
+    hours: precipHours(period, timezone),
     blocks: blocks.filter((b) => b.block.period === period.key),
   }))
 }
@@ -304,6 +309,24 @@ function blocksPast(periods: PeriodView[], count: number) {
   )
 }
 
+const PRECIP_HOURS = 'Precip & snow hours'
+
+/** The hours the precipitation and snow rows below it cover, which aren't the column's own. */
+function PrecipHoursRow({ periods }: { periods: PeriodView[] }) {
+  return (
+    <tr className="text-xs text-muted-foreground">
+      <th scope="row" className={cn(ROW_LABEL, 'font-normal')}>
+        {PRECIP_HOURS}
+      </th>
+      {periods.map((p) => (
+        <td key={p.period.key} className="whitespace-nowrap border-l border-t p-2 text-center">
+          {p.hours}
+        </td>
+      ))}
+    </tr>
+  )
+}
+
 /**
  * The zone's table from `md` up and on paper, one column per 12h period; temps and wind past
  * their coverage read as not forecast.
@@ -331,6 +354,7 @@ function PeriodTable({
         </colgroup>
         <PeriodHead periods={periods} />
         <tbody>
+          <PrecipHoursRow periods={periods} />
           {points.map((point) => (
             <PeriodRow
               key={point.code}
@@ -369,7 +393,7 @@ function PeriodTable({
             unit="°F"
             periods={periods}
             covered={covered.temps}
-            cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />}
+            cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} labeled />}
           />
           <PeriodRow
             label="Ridgeline winds"
@@ -437,7 +461,7 @@ function CardSummary({
   const temp = tempOut ? (
     <NotCoveredChip />
   ) : (
-    <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />
+    <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} labeled />
   )
   const points = zonePoints(issuance, zone.id)
   return (
@@ -536,6 +560,9 @@ function PeriodCard({
         {p.name}
         <span className="font-normal text-muted-foreground">{p.label}</span>
       </h4>
+      <p className="border-t px-3 py-1.5 text-xs text-muted-foreground">
+        {PRECIP_HOURS}: {p.hours}
+      </p>
       <CardSummary issuance={issuance} zone={zone} p={p} tempOut={tempOut} />
       <CardBlocks p={p} windOut={windOut} />
     </section>
@@ -570,20 +597,25 @@ function PeriodCards({
   )
 }
 
+/** NWAC's, for a caller that doesn't know the center's. */
+const DEFAULT_TIMEZONE = 'America/Los_Angeles'
+
 export function ZoneTable({
   issuance,
   zone,
   periodKeys,
+  timezone,
   heading = true,
 }: {
   issuance: NWACWeatherIssuance
   zone: NWACWeatherZone
+  timezone?: string | null
   /** The periods to show: the 24 hours on show. */
   periodKeys: string[]
   /** The zone's name as a heading; off when the page already names the zone. */
   heading?: boolean
 }) {
-  const periods = periodViews(issuance, zone, periodKeys)
+  const periods = periodViews(issuance, zone, periodKeys, timezone ?? DEFAULT_TIMEZONE)
   return (
     <section aria-label={zone.name} className="space-y-4">
       {heading && <h3 className="text-lg font-semibold">{zone.name}</h3>}

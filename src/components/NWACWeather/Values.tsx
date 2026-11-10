@@ -181,9 +181,27 @@ export function SnowValue({ text, some }: { text: string; some: boolean }) {
   )
 }
 
-export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
+export function TempValue({
+  cell,
+  labeled = false,
+}: {
+  cell: NWACWeatherTempCell | undefined
+  /** "Hi 37 · Lo 22", for a table with no legend to say which is which. */
+  labeled?: boolean
+}) {
   if (cell?.high == null || cell?.low == null) {
     return <span className="text-muted-foreground">{DASH}</span>
+  }
+  if (labeled) {
+    return (
+      <span className="whitespace-nowrap tabular-nums">
+        <span className="text-xs text-muted-foreground">Hi</span>{' '}
+        <span className="font-semibold">{cell.high}</span>
+        <span className="text-muted-foreground"> · </span>
+        <span className="text-xs text-muted-foreground">Lo</span>{' '}
+        <span className="font-semibold">{cell.low}</span>
+      </span>
+    )
   }
   return (
     <span className="whitespace-nowrap tabular-nums">
