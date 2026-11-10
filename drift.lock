@@ -537,8 +537,13 @@ sig = "887de9a378518b29"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/archive/DangerOverTimeCharts.client.tsx"
+sig = "8e5bb0e4c52f9ccb"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/archive/dangerOverTimeExport.ts"
-sig = "94663c549592f762"
+sig = "2dd5d30bacea9d04"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
