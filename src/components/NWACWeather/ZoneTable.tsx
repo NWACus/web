@@ -449,12 +449,13 @@ function CardLine({
 }) {
   return (
     <div className="flex items-center justify-between gap-3 px-3 py-2">
-      <dt className="font-semibold">
+      <dt className="min-w-0 font-semibold">
         {label}
         {unit && <Unit>{unit}</Unit>}
         {point && <Point>{point}</Point>}
       </dt>
-      <dd className="text-right">{children}</dd>
+      {/* The values keep to one line; a long label wraps instead. */}
+      <dd className="shrink-0 whitespace-nowrap text-right">{children}</dd>
     </div>
   )
 }
