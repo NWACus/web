@@ -249,9 +249,7 @@ describe('Overall table descriptions', () => {
     ).toBeInTheDocument()
     // The 12 and 24 hour tables both carry it; one is hidden.
     expect(
-      screen.getAllByText(
-        /^Precipitation \(liquid, in\) and new snow by station; .* \(light, dry snow\)\.$/,
-      ),
+      screen.getAllByText(/^Water and new snow at each station, .* more when it’s very cold\.$/),
     ).toHaveLength(2)
     // The key's bar sits between Low and high, so the line is matched whole.
     expect(

@@ -132,7 +132,7 @@ const STICKY = 'sticky left-0 z-10'
 
 // Condensed from the info bubbles on NWAC's legacy Mountain Weather Forecast page.
 const PRECIP_DETAIL = [
-  'Precip is the liquid equivalent of all precipitation (rain, snow, ice pellets), to the hundredth of an inch. To estimate snow, start at 10:1 (1" of precip ≈ 10" of snow); near freezing gives less (heavy, wet snow), very cold more (light, dry snow).',
+  'Water counts all rain, snow and ice melted down. A rough rule: an inch of water makes about 10 inches of snow, less when it’s near freezing and more when it’s very cold.',
 ]
 const SNOW_LEVEL_DETAIL = [
   'The general snow level over each 6 hours; a freezing level instead when no precipitation is expected.',
