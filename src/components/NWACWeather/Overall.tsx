@@ -102,7 +102,7 @@ interface Table {
   rowLabel: string
   columns: Column[]
   groups: Group[]
-  /** Precipitation alone, by 24 hours: stretched, as its few columns would leave a gap. */
+  /** Precipitation alone: stretched across the page, as its few columns would leave a gap. */
   dateRanges?: boolean
   /** Cells whose content fills them (shaded snow levels) take less padding. */
   filled?: boolean
@@ -386,7 +386,7 @@ function precipSnowTable(
       : 'Water at each station, with the forecast total at the end. This forecast doesn’t include snow amounts.',
     detail: PRECIP_DETAIL,
     legend: withSnow ? <SnowFillLegend /> : undefined,
-    control: withSnow ? { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> } : undefined,
+    control: { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> },
     rowLabel: 'Station',
     groupColumn: 'Zone',
     dateRanges: !withSnow,
@@ -1106,8 +1106,6 @@ export interface OverallParts {
   snowLevel: Table
   temps: Table
   wind: Table
-  /** False for a forecast that never computed snow amounts: precipitation alone, by 24 hours. */
-  hasSnow: boolean
   /** By the hours each column covers; the toggle shows one. */
   precipSnow: Record<PrecipHours, Table>
   ext: Table
@@ -1124,7 +1122,6 @@ export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
     snowLevel,
     temps,
     wind,
-    hasSnow,
     precipSnow: {
       '12': precipSnowTable(issuance, '12', hasSnow),
       '24': precipSnowTable(issuance, '24', hasSnow),
@@ -1154,18 +1151,7 @@ export function OverallSectionTabs({ parts }: { parts: OverallParts }) {
 }
 
 export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePaths?: ZonePaths }) {
-  const {
-    issuance,
-    synopsis,
-    extended,
-    snowLevel,
-    temps,
-    wind,
-    sensible,
-    precipSnow,
-    ext,
-    hasSnow,
-  } = parts
+  const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, precipSnow, ext } = parts
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
   const tempsOrWind = hasContent(temps) || hasContent(wind)
@@ -1189,21 +1175,16 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
           )
         }
       />
-      {hasContent(precipSnow['12']) &&
-        (hasSnow ? (
-          <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
-            <PrecipHoursPanel hours="12">
-              <GridTable table={precipSnow['12']} anchor={anchor} />
-            </PrecipHoursPanel>
-            <PrecipHoursPanel hours="24">
-              <GridTable table={precipSnow['24']} anchor={anchor} />
-            </PrecipHoursPanel>
-          </PrecipHoursSwitch>
-        ) : (
-          <div id={`${anchor}-precip-snow`} className="scroll-mt-24">
+      {hasContent(precipSnow['12']) && (
+        <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
+          <PrecipHoursPanel hours="12">
+            <GridTable table={precipSnow['12']} anchor={anchor} />
+          </PrecipHoursPanel>
+          <PrecipHoursPanel hours="24">
             <GridTable table={precipSnow['24']} anchor={anchor} />
-          </div>
-        ))}
+          </PrecipHoursPanel>
+        </PrecipHoursSwitch>
+      )}
       <MaybeTable table={snowLevel} anchor={anchor} />
       {tempsOrWind && (
         <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:gap-y-2">
