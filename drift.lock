@@ -493,7 +493,7 @@ sig = "d778a70dda5c7931"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/nwacWeatherCurrent.ts"
-sig = "f7426538fbbeab4b"
+sig = "c481fa9d306fb17f"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
