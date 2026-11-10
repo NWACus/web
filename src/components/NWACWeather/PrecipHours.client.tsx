@@ -2,7 +2,7 @@
 
 /**
  * The 12 / 24 hour switch on the precipitation and snow table: both tables are rendered, and the
- * switch shows one. It sits beside the table's title, and on a phone beside the date.
+ * switch shows one. It sits at the right just above the table, and on a phone beside the date.
  */
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
@@ -26,8 +26,8 @@ const HoursContext = createContext<{ hours: Hours; setHours: (h: Hours) => void 
 })
 
 const OPTIONS: { hours: Hours; label: string; name: string }[] = [
-  { hours: '12', label: '12h', name: '12 hours' },
-  { hours: '24', label: '24h', name: '24 hours' },
+  { hours: '12', label: '12 hrs', name: '12 hours' },
+  { hours: '24', label: '24 hrs', name: '24 hours' },
 ]
 
 export function PrecipHoursSwitch({ id, children }: { id: string; children: ReactNode }) {
@@ -50,7 +50,7 @@ export function PrecipHoursPanel({ hours, children }: { hours: Hours; children: 
 
 const isHours = (value: string): value is Hours => OPTIONS.some((o) => o.hours === value)
 
-/** The desktop form, beside the table's title: joined buttons, the picked one in the primary blue. */
+/** The desktop form, at the right just above the table: the picked option in the primary blue. */
 export function PrecipHoursToggle() {
   const { hours, setHours } = useContext(HoursContext)
   return (
@@ -60,7 +60,7 @@ export function PrecipHoursToggle() {
       value={hours}
       // Radix sends '' when the pressed item is pressed again; keep the switch on a value.
       onValueChange={(value) => isHours(value) && setHours(value)}
-      className="inline-flex shrink-0 gap-0 overflow-hidden rounded-md border text-xs font-semibold"
+      className="inline-flex shrink-0 gap-0 overflow-hidden rounded-md border text-sm font-semibold"
     >
       {OPTIONS.map((o, i) => (
         <ToggleGroupItem
@@ -69,7 +69,7 @@ export function PrecipHoursToggle() {
           aria-label={o.name}
           size="sm"
           className={cn(
-            'h-7 min-w-0 rounded-none bg-background px-2 text-xs font-semibold text-foreground hover:bg-muted',
+            'h-8 min-w-0 rounded-none bg-background px-3 text-sm font-semibold text-foreground hover:bg-muted',
             'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
             i > 0 && 'border-l',
           )}

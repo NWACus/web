@@ -107,7 +107,7 @@ interface Table {
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
-  /** A control for the table: beside its title, and on a phone beside the date. */
+  /** A control for the table: at the right just above it, and on a phone beside the date. */
   control?: { title: ReactNode; phone: ReactNode }
   /** After the description, over the table: what the shading means. */
   legend?: ReactNode
@@ -825,8 +825,9 @@ function TableTitle({
 }) {
   const [first, ...rest] = t.detail ?? []
   return (
-    <div className={cn(t.paired && 'xl:pb-3')}>
-      <div className="flex items-center justify-between gap-3">
+    // The control sits at the right, level with the title's last line, just above the table.
+    <div className={cn('flex items-end gap-4', t.paired && 'xl:pb-3')}>
+      <div className="min-w-0 flex-1">
         <Heading
           id={headingId}
           className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
@@ -836,17 +837,17 @@ function TableTitle({
             <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
           )}
         </Heading>
-        {/* A phone has its own form of the control, beside the date. */}
-        {t.control && <div className="hidden md:block print:hidden">{t.control.title}</div>}
+        {(t.note || first) && (
+          <div className="space-y-1 text-sm text-muted-foreground">
+            <p>{[t.note, first].filter(Boolean).join(' ')}</p>
+            {rest.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        )}
       </div>
-      {(t.note || first) && (
-        <div className="space-y-1 text-sm text-muted-foreground">
-          <p>{[t.note, first].filter(Boolean).join(' ')}</p>
-          {rest.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      )}
+      {/* A phone has its own form of the control, beside the date. */}
+      {t.control && <div className="hidden shrink-0 md:block print:hidden">{t.control.title}</div>}
     </div>
   )
 }
