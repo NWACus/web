@@ -29,12 +29,13 @@ import type { ReactNode } from 'react'
 
 import {
   DayNightDate,
-  SnowKeys,
   SnowLevelValue,
   SnowValue,
   TempValue,
   WindValue,
+  ZoneKeys,
   snowFill,
+  windFill,
 } from './Values'
 
 const HEAD = 'border-b border-l p-2 text-center font-semibold'
@@ -128,6 +129,39 @@ function PrecipAmount({
   )
 }
 
+/** A point's precipitation then its snow, under the Precip and Snow headings over them. */
+function PrecipSnowPair({ precip, snow }: { precip: ReactNode; snow: ReactNode }) {
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <span>{precip}</span>
+      <span>{snow}</span>
+    </div>
+  )
+}
+
+/** Heads the points' rows, as the overview's paired columns are headed: Precip, then Snow. */
+function PrecipSnowHead({ periods }: { periods: PeriodView[] }) {
+  return (
+    <tr className="bg-muted/40">
+      <th scope="rowgroup" className={ROW_LABEL}>
+        Precipitation &amp; Snow
+        <Unit>in</Unit>
+      </th>
+      {periods.map((p) => (
+        <td
+          key={p.period.key}
+          className="border-l border-t p-1.5 text-center text-xs text-muted-foreground"
+        >
+          <div className="grid grid-cols-2 gap-2">
+            <span>Precip</span>
+            <span>Snow</span>
+          </div>
+        </td>
+      ))}
+    </tr>
+  )
+}
+
 /** A snow amount as its public range; `chip` carries the snow fill itself, off a table cell. */
 function SnowAmount({ snow, chip = false }: { snow: number | null; chip?: boolean }) {
   const value = <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
@@ -177,10 +211,14 @@ function PeriodHead({ periods }: { periods: PeriodView[] }) {
         <td className="border-b border-r" />
         {periods.map((p) => (
           <th key={p.period.key} scope="col" className={cn(HEAD, 'border-b')}>
-            <span className="block">{p.name}</span>
-            <span className="font-normal text-muted-foreground">
-              <DayNightDate date={p.label} night={p.night} label={false} />
+            <span className="block whitespace-nowrap">
+              {p.name}{' '}
+              <span className="font-normal text-muted-foreground">
+                <DayNightDate date={p.label} night={p.night} label={false} />
+              </span>
             </span>
+            {/* The hours the precipitation and snow cover, which aren't the period's own 6 to 6. */}
+            <span className="block text-xs font-normal text-muted-foreground">{p.hours}</span>
           </th>
         ))}
       </tr>
@@ -240,6 +278,7 @@ function PeriodRow({
   label,
   unit,
   point,
+  sub = false,
   periods,
   cell,
   fill,
@@ -248,6 +287,8 @@ function PeriodRow({
   label: string
   unit?: string
   point?: string
+  /** One of a heading row's rows: its label indented and plain. */
+  sub?: boolean
   periods: PeriodView[]
   cell: (p: PeriodView) => ReactNode
   /** A cell's background (the snow fills). */
@@ -256,7 +297,7 @@ function PeriodRow({
 }) {
   return (
     <tr>
-      <th scope="row" className={ROW_LABEL}>
+      <th scope="row" className={cn(ROW_LABEL, sub && 'pl-6 font-normal')}>
         {label}
         {unit && <Unit>{unit}</Unit>}
         {point && <Point>{point}</Point>}
@@ -299,6 +340,15 @@ function BlockPair({ blocks, value }: { blocks: BlockView[]; value: (b: BlockVie
   )
 }
 
+/** A 6h wind on the overview's fill for its strength, a pill like the snow level's. */
+function ShadedWind({ b }: { b: BlockView }) {
+  return (
+    <span className={cn('grid min-h-7 items-center rounded px-1', windFill(b.wind?.speed))}>
+      <WindValue cell={b.wind} compact />
+    </span>
+  )
+}
+
 /** The keys of the 6h blocks after the first `count`: the ones a value isn't forecast for. */
 function blocksPast(periods: PeriodView[], count: number) {
   return new Set(
@@ -306,24 +356,6 @@ function blocksPast(periods: PeriodView[], count: number) {
       .flatMap((p) => p.blocks)
       .slice(count)
       .map((b) => b.block.key),
-  )
-}
-
-const PRECIP_HOURS = 'Precip & snow hours'
-
-/** The hours the precipitation and snow rows below it cover, which aren't the column's own. */
-function PrecipHoursRow({ periods }: { periods: PeriodView[] }) {
-  return (
-    <tr className="text-xs text-muted-foreground">
-      <th scope="row" className={cn(ROW_LABEL, 'font-normal')}>
-        {PRECIP_HOURS}
-      </th>
-      {periods.map((p) => (
-        <td key={p.period.key} className="whitespace-nowrap border-l border-t p-2 text-center">
-          {p.hours}
-        </td>
-      ))}
-    </tr>
   )
 }
 
@@ -354,31 +386,29 @@ function PeriodTable({
         </colgroup>
         <PeriodHead periods={periods} />
         <tbody>
-          <PrecipHoursRow periods={periods} />
-          {points.map((point) => (
-            <PeriodRow
-              key={point.code}
-              label="Precipitation"
-              unit="in"
-              point={point.name}
-              periods={periods}
-              cell={(p) => (
-                <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
-              )}
-            />
-          ))}
-          {points.map((point) => (
-            <PeriodRow
-              key={point.code}
-              label="Snow"
-              unit="in"
-              point={point.name}
-              periods={periods}
-              {...snowCells(periods, (key) => pointSnow(issuance, point.code, key))}
-            />
-          ))}
+          <PrecipSnowHead periods={periods} />
+          {points.map((point) => {
+            const snow = snowCells(periods, (key) => pointSnow(issuance, point.code, key))
+            return (
+              <PeriodRow
+                key={point.code}
+                label={point.name}
+                sub
+                periods={periods}
+                fill={snow.fill}
+                cell={(p) => (
+                  <PrecipSnowPair
+                    precip={
+                      <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
+                    }
+                    snow={snow.cell(p)}
+                  />
+                )}
+              />
+            )
+          })}
           <PeriodRow
-            label="Snow level"
+            label="Snow & Freezing Level"
             unit="ft"
             periods={periods}
             cell={(p) => (
@@ -396,14 +426,14 @@ function PeriodTable({
             cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} labeled />}
           />
           <PeriodRow
-            label="Ridgeline winds"
+            label="Ridgeline Winds"
             unit="mph"
             periods={periods}
             covered={covered.windPeriods}
             cell={(p) => (
               <BlockPair
                 blocks={p.blocks}
-                value={(b) => (windOut.has(b.block.key) ? null : <WindValue cell={b.wind} />)}
+                value={(b) => (windOut.has(b.block.key) ? null : <ShadedWind b={b} />)}
               />
             )}
           />
@@ -446,7 +476,7 @@ function CardLine({
   )
 }
 
-/** A phone card's labeled lines: each point's precipitation and snow, then the temps. */
+/** A phone card's labeled lines: each point's precipitation beside its snow, then the temps. */
 function CardSummary({
   issuance,
   zone,
@@ -467,13 +497,11 @@ function CardSummary({
   return (
     <dl className="divide-y border-t">
       {points.map((point) => (
-        <CardLine key={point.code} label="Precipitation" unit="in" point={point.name}>
-          <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
-        </CardLine>
-      ))}
-      {points.map((point) => (
-        <CardLine key={point.code} label="Snow" unit="in" point={point.name}>
-          <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} chip />
+        <CardLine key={point.code} label="Precipitation & Snow" unit="in" point={point.name}>
+          <span className="inline-flex items-center gap-2">
+            <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
+            <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} chip />
+          </span>
         </CardLine>
       ))}
       <CardLine label="5000' Temperatures" unit="°F">
@@ -483,7 +511,7 @@ function CardSummary({
   )
 }
 
-const CARD_HEAD = 'whitespace-nowrap px-3 py-2 text-left font-normal'
+const CARD_HEAD = 'px-3 py-2 text-left font-normal'
 
 function CardBlocksHead({ showWind }: { showWind: boolean }) {
   return (
@@ -491,11 +519,11 @@ function CardBlocksHead({ showWind }: { showWind: boolean }) {
       <tr>
         <td className="border-r" />
         <th scope="col" className={CARD_HEAD}>
-          Snow level <Unit>ft</Unit>
+          Snow &amp; Freezing Level <Unit>ft</Unit>
         </th>
         {showWind ? (
           <th scope="col" className={CARD_HEAD}>
-            Ridgeline winds <Unit>mph</Unit>
+            Ridgeline Winds <Unit>mph</Unit>
           </th>
         ) : (
           <td />
@@ -514,7 +542,7 @@ function CardBlockRow({ b, wind }: { b: BlockView; wind: boolean }) {
       <td className="px-3 py-1.5">
         <SnowLevelValue level={b.level} snow={b.snow} />
       </td>
-      <td className="px-3 py-2">{wind && <WindValue cell={b.wind} />}</td>
+      <td className="px-3 py-1.5">{wind && <ShadedWind b={b} />}</td>
     </tr>
   )
 }
@@ -561,7 +589,7 @@ function PeriodCard({
         <span className="font-normal text-muted-foreground">{p.label}</span>
       </h4>
       <p className="border-t px-3 py-1.5 text-xs text-muted-foreground">
-        {PRECIP_HOURS}: {p.hours}
+        Precipitation &amp; Snow: {p.hours}
       </p>
       <CardSummary issuance={issuance} zone={zone} p={p} tempOut={tempOut} />
       <CardBlocks p={p} windOut={windOut} />
@@ -623,7 +651,7 @@ export function ZoneTable({
       <div className="space-y-2">
         <PeriodTable issuance={issuance} zone={zone} periods={periods} />
         <PeriodCards issuance={issuance} zone={zone} periods={periods} />
-        <SnowKeys />
+        <ZoneKeys />
       </div>
     </section>
   )

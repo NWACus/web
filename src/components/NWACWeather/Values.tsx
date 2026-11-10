@@ -158,16 +158,17 @@ export function SnowFillLegend() {
   )
 }
 
-/** Both snow keys, under a table that shows snow and snow levels together. */
-export function SnowKeys() {
+/** The avalanche view's keys, all on one line: snow, snow level and wind. */
+export function ZoneKeys() {
   return (
-    <p className={cn(KEY_LINE, 'gap-x-6')}>
+    <p className={cn(KEY_LINE, 'gap-x-6 md:flex-nowrap')}>
       <span className="inline-flex items-start gap-3">
         <SnowFillKey />
       </span>
       <span className="inline-flex items-start gap-3">
         <SnowLevelKey />
       </span>
+      <WindKey />
     </p>
   )
 }
@@ -322,16 +323,23 @@ export function WindLegend() {
         Points the way the wind blows
       </span>
       <span>VAR: variable</span>
-      <span className="inline-flex items-center gap-3">
-        Wind
-        <SegmentedBar
-          fills={WIND_STEPS.map((s) => s.fill)}
-          names={WIND_STEPS.map((s) => s.name)}
-          labels={WIND_STEPS.map((s) => s.label)}
-          cols="grid-cols-7"
-        />
-      </span>
+      <WindKey />
     </p>
+  )
+}
+
+/** The wind fills, light to extreme. */
+function WindKey() {
+  return (
+    <span className="inline-flex items-center gap-3">
+      Wind
+      <SegmentedBar
+        fills={WIND_STEPS.map((s) => s.fill)}
+        names={WIND_STEPS.map((s) => s.name)}
+        labels={WIND_STEPS.map((s) => s.label)}
+        cols="grid-cols-7"
+      />
+    </span>
   )
 }
 
