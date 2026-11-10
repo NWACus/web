@@ -294,7 +294,7 @@ function hundredths(value: number | null): number | null {
 }
 
 function PrecipValue({ qpf }: { qpf: number | null | undefined }) {
-  return <span className="tabular-nums text-muted-foreground">{fmtQpf(qpf)}</span>
+  return <span className="tabular-nums text-foreground/75">{fmtQpf(qpf)}</span>
 }
 
 /** One period's (or the total's) water equivalent then snow, the pair shaded by the snow. */
