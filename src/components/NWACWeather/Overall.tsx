@@ -1121,7 +1121,7 @@ function sectionLinks(p: OverallParts): SectionLink[] {
   const hasExtended = !!p.extended || hasContent(p.ext)
   return [
     ...(p.synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Weather summary' }] : []),
+    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Zone summary' }] : []),
     // The precipitation tables share one anchor, on the wrapper both sit in.
     ...(hasContent(p.precipSnow['12'])
       ? [{ id: 'precip-snow', label: p.precipSnow['12'].nav }]
