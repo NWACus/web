@@ -253,9 +253,7 @@ describe('Overall table descriptions', () => {
         /^Precipitation \(liquid, in\) and new snow by station; .* \(light, dry snow\)\.$/,
       ),
     ).toHaveLength(2)
-    expect(
-      screen.getByText(/^Low to high within each 12 hours, every bar on one /),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/^12-hour low to high · \d+–\d+°F$/)).toBeInTheDocument()
     expect(screen.getByText('Points the way the wind blows')).toBeInTheDocument()
   })
 })
@@ -264,7 +262,7 @@ describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
     render(<OverallSectionTabs parts={overallParts(afternoon)} />)
     const nav = screen.getByRole('navigation', { name: 'Forecast sections' })
-    expect(within(nav).getByRole('link', { name: 'Zone summary' })).toHaveAttribute(
+    expect(within(nav).getByRole('link', { name: 'Zone Summary' })).toHaveAttribute(
       'href',
       '#afternoon-sensible',
     )
@@ -302,11 +300,8 @@ describe('IssuanceSwitch with a heading', () => {
     )
     // Morning before Afternoon, with the newer Afternoon shown first.
     const radios = screen.getAllByRole('radio')
-    expect(radios.map((r) => r.textContent)).toEqual(['Morning7:00 AM', 'Afternoon3:03 PMLatest'])
-    expect(screen.getByRole('radio', { name: /Afternoon.*Latest/ })).toHaveAttribute(
-      'aria-checked',
-      'true',
-    )
+    expect(radios.map((r) => r.textContent)).toEqual(['Morning7:00 AM', 'Afternoon3:03 PM'])
+    expect(screen.getByRole('radio', { name: /Afternoon/ })).toHaveAttribute('aria-checked', 'true')
     expect(screen.getByText('Issued at 3:03')).toBeVisible()
     expect(screen.getByText('Issued at 7:00')).not.toBeVisible()
 

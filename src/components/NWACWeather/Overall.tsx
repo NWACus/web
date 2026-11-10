@@ -206,7 +206,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   return [
     {
       id: 'snow-level',
-      nav: 'Snow & freezing level',
+      nav: 'Snow & Freezing Level',
       title: 'Snow and Freezing Level',
       unit: 'ft',
       detail: SNOW_LEVEL_DETAIL,
@@ -232,7 +232,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     },
     {
       id: 'temps',
-      nav: "5000' temps",
+      nav: "5000' Temps",
       title: "5000' Temperatures",
       unit: '°F',
       detail: TEMPS_DETAIL,
@@ -258,7 +258,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     },
     {
       id: 'wind',
-      nav: 'Ridgeline winds',
+      nav: 'Ridgeline Winds',
       title: 'Ridgeline Winds',
       unit: 'mph',
       detail: WIND_DETAIL,
@@ -377,7 +377,7 @@ function precipSnowTable(
       : [{ ...column, split: column.key }]
   return {
     id: `precip-snow-${hours}`,
-    nav: withSnow ? 'Precipitation & snow' : 'Precipitation',
+    nav: withSnow ? 'Precipitation & Snow' : 'Precipitation',
     title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
     note: withSnow
@@ -1069,7 +1069,7 @@ function ExtendedSection({
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
         Extended
       </h3>
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-start">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:items-start">
         {/* The outlook text is optional; without it the table takes the first column. */}
         {extended && (
           <section className="space-y-2">
@@ -1140,7 +1140,7 @@ function sectionLinks(p: OverallParts): SectionLink[] {
   const hasExtended = !!p.extended || hasContent(p.ext)
   return [
     ...(p.synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Zone summary' }] : []),
+    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Zone Summary' }] : []),
     // The precipitation tables share one anchor, on the wrapper both sit in.
     ...(hasContent(p.precipSnow['12'])
       ? [{ id: 'precip-snow', label: p.precipSnow['12'].nav }]
@@ -1208,7 +1208,7 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
         ))}
       <MaybeTable table={snowLevel} anchor={anchor} />
       {tempsOrWind && (
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:gap-y-2">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:gap-y-2">
           <MaybeTable table={temps} anchor={anchor} />
           <MaybeTable table={wind} anchor={anchor} />
         </div>

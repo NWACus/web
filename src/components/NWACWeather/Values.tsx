@@ -257,8 +257,8 @@ export function TempRange({
 export function TempRangeLegend({ scale }: { scale: { min: number; max: number } | null }) {
   return (
     <p className="text-xs text-muted-foreground">
-      Low to high within each 12 hours
-      {scale && `, every bar on one ${scale.min}–${scale.max}°F scale`}
+      12-hour low to high
+      {scale && ` · ${scale.min}–${scale.max}°F`}
     </p>
   )
 }

@@ -50,7 +50,10 @@ export function PrecipHoursPanel({ hours, children }: { hours: Hours; children: 
 
 const isHours = (value: string): value is Hours => OPTIONS.some((o) => o.hours === value)
 
-/** The desktop form: a small segmented switch in the table's corner, by the dates. */
+/**
+ * The desktop form, in the table's corner by the dates: styled like the Morning / Afternoon switch,
+ * with the track a step lighter than the header it sits on.
+ */
 export function PrecipHoursToggle() {
   const { hours, setHours } = useContext(HoursContext)
   return (
@@ -60,7 +63,7 @@ export function PrecipHoursToggle() {
       value={hours}
       // Radix sends '' when the pressed item is pressed again; keep the switch on a value.
       onValueChange={(value) => isHours(value) && setHours(value)}
-      className="inline-flex gap-0.5 rounded-md border bg-background p-0.5"
+      className="inline-flex gap-0.5 rounded-md bg-background p-0.5"
     >
       {OPTIONS.map((o) => (
         <ToggleGroupItem
@@ -69,8 +72,8 @@ export function PrecipHoursToggle() {
           aria-label={o.name}
           size="sm"
           className={cn(
-            'h-6 min-w-0 rounded px-2 text-xs font-semibold text-muted-foreground',
-            'hover:bg-muted data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+            'h-7 min-w-0 whitespace-nowrap px-2.5 text-xs font-semibold text-muted-foreground',
+            'data-[state=on]:bg-muted data-[state=on]:text-foreground data-[state=on]:shadow-sm',
           )}
         >
           {o.label}
