@@ -23,12 +23,27 @@ const navItems: TopLevelNavItem[] = [
   },
 ]
 
-// jsdom's click is a MouseEvent with no pointerType, so attach one like a browser's PointerEvent.
-function clickWith(element: HTMLElement, pointerType: string) {
-  const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+// jsdom has no PointerEvent, so attach pointerType to plain events like a browser would.
+function withPointerType<T extends Event>(event: T, pointerType: string) {
   Object.defineProperty(event, 'pointerType', { value: pointerType })
-  fireEvent(element, event)
   return event
+}
+
+// iOS Safari reports a tap's click as pointerType 'mouse', so the click type defaults to mouse.
+function tapWith(element: HTMLElement, pointerType: string, clickPointerType = 'mouse') {
+  fireEvent(element, withPointerType(new MouseEvent('pointerdown', { bubbles: true }), pointerType))
+  const click = withPointerType(
+    new MouseEvent('click', { bubbles: true, cancelable: true }),
+    clickPointerType,
+  )
+  fireEvent(element, click)
+  return click
+}
+
+function pressKey(element: HTMLElement) {
+  const click = withPointerType(new MouseEvent('click', { bubbles: true, cancelable: true }), '')
+  fireEvent(element, click)
+  return click
 }
 
 describe('DesktopNav', () => {
@@ -36,7 +51,7 @@ describe('DesktopNav', () => {
     render(<DesktopNav topLevelNavItems={navItems} />)
     const trigger = screen.getByRole('button', { name: 'Observations' })
 
-    const event = clickWith(trigger, 'touch')
+    const event = tapWith(trigger, 'touch')
 
     expect(event.defaultPrevented).toBe(false)
     expect(trigger).toHaveAttribute('data-state', 'open')
@@ -45,7 +60,7 @@ describe('DesktopNav', () => {
       '/observations/submit',
     )
 
-    clickWith(trigger, 'touch')
+    tapWith(trigger, 'touch')
     expect(trigger).toHaveAttribute('data-state', 'closed')
   })
 
@@ -53,7 +68,7 @@ describe('DesktopNav', () => {
     render(<DesktopNav topLevelNavItems={navItems} />)
     const trigger = screen.getByRole('button', { name: 'Observations' })
 
-    clickWith(trigger, 'pen')
+    tapWith(trigger, 'pen')
 
     expect(trigger).toHaveAttribute('data-state', 'open')
   })
@@ -63,7 +78,7 @@ describe('DesktopNav', () => {
     render(<DesktopNav topLevelNavItems={navItems} />)
     const trigger = screen.getByRole('button', { name: 'Observations' })
 
-    const event = clickWith(trigger, 'mouse')
+    const event = tapWith(trigger, 'mouse')
 
     expect(event.defaultPrevented).toBe(true)
     expect(trigger).toHaveAttribute('data-state', 'closed')
@@ -73,10 +88,10 @@ describe('DesktopNav', () => {
     render(<DesktopNav topLevelNavItems={navItems} />)
     const trigger = screen.getByRole('button', { name: 'Observations' })
 
-    clickWith(trigger, '')
+    pressKey(trigger)
     expect(trigger).toHaveAttribute('data-state', 'open')
 
-    clickWith(trigger, '')
+    pressKey(trigger)
     expect(trigger).toHaveAttribute('data-state', 'closed')
   })
 })
