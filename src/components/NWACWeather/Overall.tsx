@@ -15,6 +15,7 @@ import {
   DASH,
   blockDate,
   dayGroups,
+  dayRange,
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
@@ -391,7 +392,14 @@ function precipSnowTable(
     dateRanges: !withSnow,
     columns: [
       ...slots.map((s) => s.column).flatMap(split),
-      ...split({ key: 'total', date: 'Total', sub: null, group: 'total', total: true }),
+      // The days the total covers, under it as a period's Day or Night is under its date.
+      ...split({
+        key: 'total',
+        date: 'Total',
+        sub: dayRange(periods),
+        group: 'total',
+        total: true,
+      }),
     ],
     groups: stationGroups(issuance, row),
   }

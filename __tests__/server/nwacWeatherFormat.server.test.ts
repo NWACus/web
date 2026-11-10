@@ -1,4 +1,4 @@
-import { precipHours, tempScale } from '@/services/nac/nwacWeatherFormat'
+import { dayRange, precipHours, tempScale } from '@/services/nac/nwacWeatherFormat'
 
 const TZ = 'America/Los_Angeles'
 
@@ -28,5 +28,21 @@ describe('tempScale', () => {
 
   it('is null with no temperatures', () => {
     expect(tempScale([undefined, { high: null, low: null }])).toBeNull()
+  })
+})
+
+describe('dayRange', () => {
+  it('names the first and last weekdays the periods span', () => {
+    expect(dayRange([{ date: '2026-10-15' }, { date: '2026-10-16' }, { date: '2026-10-17' }])).toBe(
+      'Thu–Sat',
+    )
+  })
+
+  it('names one day alone', () => {
+    expect(dayRange([{ date: '2026-10-15' }, { date: '2026-10-15' }])).toBe('Thu')
+  })
+
+  it('is null with no periods', () => {
+    expect(dayRange([])).toBeNull()
   })
 })
