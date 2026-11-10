@@ -48,9 +48,9 @@ export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNav
             <NavigationMenuItem key={label} value={label}>
               <NavigationMenuTrigger
                 onClick={(e) => {
-                  // maintains accessibility via clicking space bar or enter with this trigger focused
-                  // but disables mouse clicks or touch events
-                  if ('pointerType' in e.nativeEvent && e.nativeEvent.pointerType !== '') {
+                  // Hover already opens the menu for a mouse, so a click would just close it again.
+                  // Touch and pen can't hover, so their tap (and keyboard Enter/Space) must toggle it.
+                  if ('pointerType' in e.nativeEvent && e.nativeEvent.pointerType === 'mouse') {
                     e.preventDefault()
                   }
                 }}
