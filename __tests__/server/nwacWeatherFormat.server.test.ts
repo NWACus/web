@@ -1,4 +1,4 @@
-import { precipHours } from '@/services/nac/nwacWeatherFormat'
+import { precipHours, tempScale } from '@/services/nac/nwacWeatherFormat'
 
 const TZ = 'America/Los_Angeles'
 
@@ -11,5 +11,22 @@ describe('precipHours', () => {
   it('runs 4 to 4 in standard time', () => {
     expect(precipHours({ kind: 'day', date: '2026-11-14' }, TZ)).toBe('4 am–4 pm PST')
     expect(precipHours({ kind: 'night', date: '2026-11-14' }, TZ)).toBe('4 pm–4 am PST')
+  })
+})
+
+describe('tempScale', () => {
+  it('spans the lowest low to the highest high, a degree either side', () => {
+    expect(
+      tempScale([
+        { high: 37, low: 22 },
+        { high: 41, low: 18 },
+        undefined,
+        { high: null, low: null },
+      ]),
+    ).toEqual({ min: 17, max: 42 })
+  })
+
+  it('is null with no temperatures', () => {
+    expect(tempScale([undefined, { high: null, low: null }])).toBeNull()
   })
 })

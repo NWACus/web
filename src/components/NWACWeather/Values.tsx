@@ -212,6 +212,57 @@ export function TempValue({
   )
 }
 
+const MIN_BAR_PCT = 12
+
+/**
+ * A period's low, a bar from low to high, then the high, on `scale` so every bar in a table lines
+ * up: further right is warmer, longer a wider swing.
+ */
+export function TempRange({
+  cell,
+  scale,
+}: {
+  cell: NWACWeatherTempCell | undefined
+  scale: { min: number; max: number }
+}) {
+  if (cell?.high == null || cell?.low == null) {
+    return <span className="text-muted-foreground">{DASH}</span>
+  }
+  const at = (t: number) => ((t - scale.min) / (scale.max - scale.min)) * 100
+  // A one- or two-degree swing still draws as a short bar, centred on its span, not a dot.
+  const mid = (at(cell.low) + at(cell.high)) / 2
+  const half = Math.max((at(cell.high) - at(cell.low)) / 2, MIN_BAR_PCT / 2)
+  return (
+    <span className="flex items-center gap-1.5 tabular-nums">
+      <span className="sr-only">
+        High {cell.high}, low {cell.low}
+      </span>
+      <span aria-hidden="true" className="w-5 text-right text-muted-foreground">
+        {cell.low}
+      </span>
+      <span aria-hidden="true" className="relative h-1.5 min-w-6 flex-1 rounded-full bg-muted">
+        <span
+          className="absolute inset-y-0 rounded-full bg-sky-400"
+          style={{ left: `${mid - half}%`, right: `${100 - (mid + half)}%` }}
+        />
+      </span>
+      <span aria-hidden="true" className="w-5 font-semibold">
+        {cell.high}
+      </span>
+    </span>
+  )
+}
+
+/** How to read the temperature bars, under the table. */
+export function TempRangeLegend({ scale }: { scale: { min: number; max: number } | null }) {
+  return (
+    <p className="text-xs text-muted-foreground">
+      Low to high within each 12 hours
+      {scale && `, every bar on one ${scale.min}–${scale.max}°F scale`}
+    </p>
+  )
+}
+
 /**
  * A block's snow or freezing level, filled by elevation; a snow level carries a snowflake, a
  * freezing level (a dry block) none. A fixed snowflake slot lines the numbers up down a column.
@@ -258,16 +309,6 @@ export function SnowLevelLegend() {
   return (
     <p className={KEY_LINE}>
       <SnowLevelKey />
-    </p>
-  )
-}
-
-/** How to read the temperature cells, under the table. */
-export function TempLegend() {
-  return (
-    <p className="text-xs text-muted-foreground">
-      <span className="font-semibold text-foreground">44</span> /{' '}
-      <span className="text-foreground">35</span> is the high / low
     </p>
   )
 }

@@ -214,6 +214,18 @@ export function tempPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+/**
+ * The °F span every temperature bar in a table shares: its lowest low to its highest high, a degree
+ * either side, so the bars spread across the cell rather than bunching in the middle.
+ */
+export function tempScale(
+  cells: ({ high: number | null; low: number | null } | undefined)[],
+): { min: number; max: number } | null {
+  const values = cells.flatMap((c) => [c?.low, c?.high]).filter((v): v is number => v != null)
+  if (values.length === 0) return null
+  return { min: Math.min(...values) - 1, max: Math.max(...values) + 1 }
+}
+
 const HOUR_MS = 60 * 60 * 1000
 
 /**

@@ -33,7 +33,7 @@ describe('Overall', () => {
     const [olympics] = within(temps)
       .getAllByRole('rowheader', { name: 'Olympics' })
       .map((label) => label.closest('tr'))
-    expect(olympics).toHaveTextContent('53 / 47')
+    expect(olympics).toHaveTextContent('High 53, low 47')
   })
 
   it('puts the weather summary beside the synopsis, then precipitation and snow, the zone links last, and links each zone to its forecast page', () => {
@@ -254,7 +254,9 @@ describe('Overall table descriptions', () => {
         /^Precipitation \(liquid, in\) and new snow by station; .* \(light, dry snow\)\.$/,
       ),
     ).toHaveLength(2)
-    expect(screen.getByText(/is the high \/ low$/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/^Low to high within each 12 hours, every bar on one /),
+    ).toBeInTheDocument()
     expect(screen.getByText('Points the way the wind blows')).toBeInTheDocument()
   })
 })
