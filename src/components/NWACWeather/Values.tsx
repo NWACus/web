@@ -131,7 +131,7 @@ function SnowFillKey({ width }: { width?: string }) {
   )
 }
 
-function SnowLevelKey() {
+function SnowLevelKey({ width }: { width?: string }) {
   return (
     <>
       <span className="inline-flex items-center gap-1">
@@ -143,6 +143,7 @@ function SnowLevelKey() {
         names={LEVEL_FILLS.map((f) => f.label)}
         labels={LEVEL_KEY_LABELS}
         cols="grid-cols-10"
+        width={width}
       />
     </>
   )
@@ -158,17 +159,28 @@ export function SnowFillLegend() {
   )
 }
 
-/** The avalanche view's keys, all on one line: snow, snow level and wind. */
+/** One key with its title above its bar. */
+const STACKED_KEY = 'inline-flex flex-col items-start gap-1.5'
+
+/**
+ * The avalanche view's keys, the overview's all together: snow, snow level and wind, each titled
+ * above its bar so the bars keep their full length on one row.
+ */
 export function ZoneKeys() {
   return (
-    <p className={cn(KEY_LINE, 'gap-x-6 md:flex-nowrap')}>
-      <span className="inline-flex items-start gap-3">
-        <SnowFillKey />
+    <p className={cn(KEY_LINE, 'items-end gap-x-12 gap-y-3')}>
+      <span className={STACKED_KEY}>
+        <SnowFillKey width="w-36" />
       </span>
-      <span className="inline-flex items-start gap-3">
-        <SnowLevelKey />
+      <span className={STACKED_KEY}>
+        <SnowLevelKey width="w-40" />
       </span>
-      <WindKey />
+      <span className={STACKED_KEY}>
+        <span className="inline-flex items-center gap-3">
+          <WindNotes />
+        </span>
+        <WindKey width="w-52" />
+      </span>
     </p>
   )
 }
@@ -258,8 +270,13 @@ export function TempRange({
 export function TempRangeLegend({ scale }: { scale: { min: number; max: number } | null }) {
   return (
     <p className="text-xs text-muted-foreground">
-      12-hour low to high
-      {scale && ` · ${scale.min}–${scale.max}°F`}
+      Low{' '}
+      <span
+        aria-hidden="true"
+        className="inline-block h-1.5 w-6 rounded-full bg-sky-400 align-middle"
+      />
+      <span className="sr-only">to</span> high in 12 hours
+      {scale && ` · ${scale.min}–${scale.max}°F scale`}
     </p>
   )
 }
@@ -318,26 +335,35 @@ export function SnowLevelLegend() {
 export function WindLegend() {
   return (
     <p className={cn(KEY_LINE, 'items-center gap-x-6')}>
-      <span className="inline-flex items-center gap-1">
-        <Navigation2 aria-hidden="true" className="size-3.5 text-primary" />
-        Points the way the wind blows
-      </span>
-      <span>VAR: variable</span>
+      <WindNotes />
       <WindKey />
     </p>
   )
 }
 
+/** How to read a wind cell's arrow and direction. */
+function WindNotes() {
+  return (
+    <>
+      <span className="inline-flex items-center gap-1">
+        <Navigation2 aria-hidden="true" className="size-3.5 text-primary" />
+        Points downwind
+      </span>
+      <span>VAR: variable</span>
+    </>
+  )
+}
+
 /** The wind fills, light to extreme. */
-function WindKey() {
+function WindKey({ width }: { width?: string }) {
   return (
     <span className="inline-flex items-center gap-3">
-      Wind
       <SegmentedBar
         fills={WIND_STEPS.map((s) => s.fill)}
         names={WIND_STEPS.map((s) => s.name)}
         labels={WIND_STEPS.map((s) => s.label)}
         cols="grid-cols-7"
+        width={width}
       />
     </span>
   )

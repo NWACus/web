@@ -253,8 +253,15 @@ describe('Overall table descriptions', () => {
         /^Precipitation \(liquid, in\) and new snow by station; .* \(light, dry snow\)\.$/,
       ),
     ).toHaveLength(2)
-    expect(screen.getByText(/^12-hour low to high · \d+–\d+°F$/)).toBeInTheDocument()
-    expect(screen.getByText('Points the way the wind blows')).toBeInTheDocument()
+    // The key's bar sits between Low and high, so the line is matched whole.
+    expect(
+      screen.getByText(
+        (_, el) =>
+          el?.tagName === 'P' &&
+          /^Low to high in 12 hours · \d+–\d+°F scale$/.test(el.textContent ?? ''),
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Points downwind')).toBeInTheDocument()
   })
 })
 
