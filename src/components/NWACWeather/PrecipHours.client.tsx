@@ -2,7 +2,7 @@
 
 /**
  * The 12 / 24 hour switch on the precipitation and snow table: both tables are rendered, and the
- * switch shows one. It sits in the table's corner by the dates, and on a phone beside the date.
+ * switch shows one. It sits beside the table's title, and on a phone beside the date.
  */
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
@@ -50,10 +50,7 @@ export function PrecipHoursPanel({ hours, children }: { hours: Hours; children: 
 
 const isHours = (value: string): value is Hours => OPTIONS.some((o) => o.hours === value)
 
-/**
- * The desktop form, in the table's corner by the dates: a light track on the header, the picked
- * period in the primary blue.
- */
+/** The desktop form, beside the table's title: joined buttons, the picked one in the primary blue. */
 export function PrecipHoursToggle() {
   const { hours, setHours } = useContext(HoursContext)
   return (
@@ -63,17 +60,18 @@ export function PrecipHoursToggle() {
       value={hours}
       // Radix sends '' when the pressed item is pressed again; keep the switch on a value.
       onValueChange={(value) => isHours(value) && setHours(value)}
-      className="inline-flex gap-0.5 rounded-md bg-background p-0.5"
+      className="inline-flex shrink-0 gap-0 overflow-hidden rounded-md border text-xs font-semibold"
     >
-      {OPTIONS.map((o) => (
+      {OPTIONS.map((o, i) => (
         <ToggleGroupItem
           key={o.hours}
           value={o.hours}
           aria-label={o.name}
           size="sm"
           className={cn(
-            'h-7 min-w-0 whitespace-nowrap px-2.5 text-xs font-semibold text-muted-foreground',
-            'hover:bg-muted data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+            'h-7 min-w-0 rounded-none bg-background px-2 text-xs font-semibold text-foreground hover:bg-muted',
+            'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+            i > 0 && 'border-l',
           )}
         >
           {o.label}

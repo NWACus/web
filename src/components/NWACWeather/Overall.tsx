@@ -107,8 +107,8 @@ interface Table {
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
-  /** A control for the table: in its corner by the dates, and on a phone beside the date. */
-  control?: { corner: ReactNode; phone: ReactNode }
+  /** A control for the table: beside its title, and on a phone beside the date. */
+  control?: { title: ReactNode; phone: ReactNode }
   /** After the description, over the table: what the shading means. */
   legend?: ReactNode
   /** Label widths in place of `LABEL_VARS`. */
@@ -381,11 +381,11 @@ function precipSnowTable(
     title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
     note: withSnow
-      ? 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.'
-      : 'Precipitation (liquid, in) by station; Total covers the whole forecast. This forecast doesn’t include snow amounts.',
+      ? 'Water and new snow at each station, with the forecast total at the end.'
+      : 'Water at each station, with the forecast total at the end. This forecast doesn’t include snow amounts.',
     detail: PRECIP_DETAIL,
     legend: withSnow ? <SnowFillLegend /> : undefined,
-    control: withSnow ? { corner: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> } : undefined,
+    control: withSnow ? { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> } : undefined,
     rowLabel: 'Station',
     groupColumn: 'Zone',
     dateRanges: !withSnow,
@@ -516,31 +516,14 @@ const SUB = 'block whitespace-nowrap text-sm font-normal text-muted-foreground'
 
 function RowLabelHead({ table: t, rowSpan }: { table: Table; rowSpan: number }) {
   const label = 'border-b bg-muted p-2 text-left align-bottom font-semibold'
-  // The table's control sits over the first label, beside the dates.
-  const corner = t.control && (
-    <div className="mb-2 font-normal print:hidden">{t.control.corner}</div>
-  )
   return (
     <>
       {t.groupColumn && (
-        // Named by its label alone, not the control over it.
-        <th
-          scope="col"
-          rowSpan={rowSpan}
-          aria-label={corner ? t.groupColumn : undefined}
-          className={cn(label, 'pl-3')}
-        >
-          {corner}
+        <th scope="col" rowSpan={rowSpan} className={cn(label, 'pl-3')}>
           {t.groupColumn}
         </th>
       )}
-      <th
-        scope="col"
-        rowSpan={rowSpan}
-        aria-label={corner && !t.groupColumn ? t.rowLabel : undefined}
-        className={cn(STICKY, label, !t.groupColumn && 'pl-3')}
-      >
-        {!t.groupColumn && corner}
+      <th scope="col" rowSpan={rowSpan} className={cn(STICKY, label, !t.groupColumn && 'pl-3')}>
         {t.rowLabel}
       </th>
     </>
@@ -843,13 +826,19 @@ function TableTitle({
   const [first, ...rest] = t.detail ?? []
   return (
     <div className={cn(t.paired && 'xl:pb-3')}>
-      <Heading
-        id={headingId}
-        className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
-      >
-        {t.title}
-        {t.unit && <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>}
-      </Heading>
+      <div className="flex items-center justify-between gap-3">
+        <Heading
+          id={headingId}
+          className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
+        >
+          {t.title}
+          {t.unit && (
+            <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
+          )}
+        </Heading>
+        {/* A phone has its own form of the control, beside the date. */}
+        {t.control && <div className="hidden md:block print:hidden">{t.control.title}</div>}
+      </div>
       {(t.note || first) && (
         <div className="space-y-1 text-sm text-muted-foreground">
           <p>{[t.note, first].filter(Boolean).join(' ')}</p>
