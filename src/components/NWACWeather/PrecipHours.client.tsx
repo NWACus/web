@@ -51,8 +51,8 @@ export function PrecipHoursPanel({ hours, children }: { hours: Hours; children: 
 const isHours = (value: string): value is Hours => OPTIONS.some((o) => o.hours === value)
 
 /**
- * The desktop form, in the table's corner by the dates: styled like the Morning / Afternoon switch,
- * with the track a step lighter than the header it sits on.
+ * The desktop form, in the table's corner by the dates: a light track on the header, the picked
+ * period in the primary blue.
  */
 export function PrecipHoursToggle() {
   const { hours, setHours } = useContext(HoursContext)
@@ -73,7 +73,7 @@ export function PrecipHoursToggle() {
           size="sm"
           className={cn(
             'h-7 min-w-0 whitespace-nowrap px-2.5 text-xs font-semibold text-muted-foreground',
-            'data-[state=on]:bg-muted data-[state=on]:text-foreground data-[state=on]:shadow-sm',
+            'hover:bg-muted data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
           )}
         >
           {o.label}
