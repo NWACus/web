@@ -14,6 +14,9 @@ function failureMessage(err: unknown): string {
   if (err instanceof PostHogQueryError && err.message.includes('did not finish')) {
     return 'PostHog took too long to answer. Try again, or pick a shorter range.'
   }
+  if (err instanceof PostHogQueryError && err.context?.status === 429) {
+    return 'PostHog is busy right now. Try again in a minute.'
+  }
   return 'Site analytics are unavailable right now'
 }
 

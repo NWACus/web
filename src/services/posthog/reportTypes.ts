@@ -131,11 +131,11 @@ export type LoadEstimate = {
 }
 
 /**
- * Measured on the Avy project: a cold page is three waves of async queries and each scales with
- * the calendar range, about 0.14 s per day plus overhead. A year comes out near a minute.
+ * Measured on the Avy project (Nov 2026, queries in parallel, forced recalculation): a cold 30-day
+ * page took 9 to 13 s and a year 13 to 17 s, plus room for the browser and a busy PostHog.
  */
 export function estimateColdSeconds(days: number): number {
-  return Math.round(8 + days * 0.14)
+  return Math.round(10 + days * 0.03)
 }
 
 /** Percentage change from `previous` to `current`, or null when there is no baseline. */

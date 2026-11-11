@@ -3,9 +3,6 @@ import { z } from 'zod'
 // The query API lives on the app host, not the ingest host used by the browser SDK.
 export const DEFAULT_POSTHOG_QUERY_HOST = 'https://us.posthog.com'
 
-// PostHog allows three queries running at once per project.
-export const POSTHOG_MAX_CONCURRENT_QUERIES = 3
-
 export type PostHogQueryConfig = {
   apiKey: string
   projectId: string
@@ -63,8 +60,13 @@ const queryStatusSchema = z.object({
 })
 
 const REQUEST_TIMEOUT_MS = 25_000
-const POLL_INTERVAL_MS = 1_500
-const POLL_DEADLINE_MS = 120_000
+// One budget for a whole query, retries included, well inside the 300 s function limit
+const QUERY_DEADLINE_MS = 120_000
+// Polls count toward PostHog's 240 requests a minute, so long queries are polled less often
+const POLL_FIRST_MS = 500
+const POLL_MAX_MS = 4_000
+const RETRY_FIRST_MS = 1_000
+const RETRY_MAX_MS = 16_000
 
 /**
  * `blocking` serves PostHog's own cache when fresh; `force_blocking` always recalculates. Both are
@@ -74,35 +76,6 @@ const POLL_DEADLINE_MS = 120_000
 export type QueryRefresh = 'blocking' | 'force_blocking'
 
 /**
- * `first` queries take the next free slot ahead of any `normal` ones waiting, so the stats and
- * chart at the top of the page are not stuck behind the lists below them.
- */
-export type QueryPriority = 'first' | 'normal'
-
-/** Serialises calls to PostHog's concurrency limit; excess callers wait their turn. */
-function createSemaphore(limit: number) {
-  let active = 0
-  const waiting: Record<QueryPriority, Array<() => void>> = { first: [], normal: [] }
-  const release = () => {
-    const next = waiting.first.shift() ?? waiting.normal.shift()
-    if (next) next()
-    else active -= 1
-  }
-  const acquire = (priority: QueryPriority) =>
-    new Promise<() => void>((resolve) => {
-      if (active < limit) {
-        active += 1
-        resolve(release)
-      } else {
-        waiting[priority].push(() => resolve(release))
-      }
-    })
-  return { acquire }
-}
-
-const querySlots = createSemaphore(POSTHOG_MAX_CONCURRENT_QUERIES)
-
-/**
  * Runs one HogQL statement and returns rows keyed by column name, validated against `rowSchema`.
  */
 export async function queryHogQL<T>(
@@ -110,45 +83,79 @@ export async function queryHogQL<T>(
   statement: HogQLStatement,
   rowSchema: z.ZodType<T>,
   refresh: QueryRefresh = 'blocking',
-  priority: QueryPriority = 'normal',
 ): Promise<T[]> {
-  const release = await querySlots.acquire(priority)
-  try {
-    const result = await runQuery(config, statement, refresh)
-    return parseRows(result, rowSchema)
-  } finally {
-    release()
-  }
-}
-
-async function requestJson(config: PostHogQueryConfig, path: string, init: RequestInit = {}) {
-  const response = await fetch(`${config.host}/api/projects/${config.projectId}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${config.apiKey}`,
-      'Content-Type': 'application/json',
-      ...init.headers,
-    },
-    cache: 'no-store',
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  })
-  if (!response.ok) {
-    throw new PostHogQueryError(`PostHog query failed with HTTP ${response.status}`, {
-      status: response.status,
-      body: (await response.text()).slice(0, 500),
-    })
-  }
-  const body: unknown = await response.json()
-  return body
+  const result = await runQuery(config, statement, refresh, Date.now() + QUERY_DEADLINE_MS)
+  return parseRows(result, rowSchema)
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-async function pollQuery(config: PostHogQueryConfig, id: string): Promise<unknown> {
-  const deadline = Date.now() + POLL_DEADLINE_MS
-  while (Date.now() < deadline) {
-    await sleep(POLL_INTERVAL_MS)
-    const status = queryStatusSchema.safeParse(await requestJson(config, `/query/${id}/`))
+/** `Retry-After` is either delay seconds or an HTTP date; null when absent or unreadable. */
+export function parseRetryAfter(header: string | null, now = Date.now()): number | null {
+  if (!header) return null
+  // Whole seconds, e.g. "30"
+  if (/^\d+$/.test(header.trim())) return Number(header.trim()) * 1000
+  const date = Date.parse(header)
+  return Number.isNaN(date) ? null : Math.max(0, date - now)
+}
+
+/** Exponential backoff with jitter: half the step is fixed, the other half random. */
+const backoff = (attempt: number) => {
+  const step = Math.min(RETRY_FIRST_MS * 2 ** attempt, RETRY_MAX_MS)
+  return step / 2 + (Math.random() * step) / 2
+}
+
+/** Requests one PostHog query path, waiting out 429s until `deadline` (epoch ms). */
+async function requestJson(
+  config: PostHogQueryConfig,
+  path: string,
+  deadline: number,
+  init: RequestInit = {},
+): Promise<unknown> {
+  for (let attempt = 0; ; attempt += 1) {
+    const response = await fetch(`${config.host}/api/projects/${config.projectId}${path}`, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json',
+        ...init.headers,
+      },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
+    if (response.status === 429) {
+      await response.arrayBuffer()
+      // Retry-After is a floor; backoff still applies when it is missing or already past
+      const wait = Math.max(
+        parseRetryAfter(response.headers.get('Retry-After')) ?? 0,
+        backoff(attempt),
+      )
+      if (Date.now() + wait > deadline) {
+        throw new PostHogQueryError('PostHog rate limited the query past its deadline', {
+          status: 429,
+          path,
+          attempts: attempt + 1,
+        })
+      }
+      await sleep(wait)
+      continue
+    }
+    if (!response.ok) {
+      throw new PostHogQueryError(`PostHog query failed with HTTP ${response.status}`, {
+        status: response.status,
+        body: (await response.text()).slice(0, 500),
+      })
+    }
+    const body: unknown = await response.json()
+    return body
+  }
+}
+
+async function pollQuery(config: PostHogQueryConfig, id: string, deadline: number) {
+  for (let interval = POLL_FIRST_MS; Date.now() + interval < deadline; ) {
+    await sleep(interval)
+    interval = Math.min(interval * 2, POLL_MAX_MS)
+    const status = queryStatusSchema.safeParse(await requestJson(config, `/query/${id}/`, deadline))
     if (!status.success) {
       throw new PostHogQueryError('PostHog query status had an unexpected shape', {
         issues: status.error.issues,
@@ -165,8 +172,9 @@ async function runQuery(
   config: PostHogQueryConfig,
   statement: HogQLStatement,
   refresh: QueryRefresh,
+  deadline: number,
 ): Promise<unknown> {
-  const body = await requestJson(config, '/query', {
+  const body = await requestJson(config, '/query', deadline, {
     method: 'POST',
     body: JSON.stringify({
       query: hogqlQuery(statement),
@@ -179,7 +187,7 @@ async function runQuery(
   if (!status.success) return body
   const { complete, error, error_message, results, id } = status.data.query_status
   if (error) throw new PostHogQueryError(error_message || 'PostHog query failed', { id })
-  return complete ? results : pollQuery(config, id)
+  return complete ? results : pollQuery(config, id, deadline)
 }
 
 /**
@@ -190,7 +198,8 @@ export async function probeQueryCache(
   config: PostHogQueryConfig,
   statement: HogQLStatement,
 ): Promise<boolean> {
-  const body = await requestJson(config, '/query', {
+  // No retries: a rate-limited probe throws, and the caller treats unknown as cold
+  const body = await requestJson(config, '/query', Date.now(), {
     method: 'POST',
     body: JSON.stringify({
       query: hogqlQuery(statement),
@@ -200,9 +209,9 @@ export async function probeQueryCache(
   })
   const status = queryStatusSchema.safeParse(body)
   if (!status.success || status.data.query_status.complete) return true
-  await requestJson(config, `/query/${status.data.query_status.id}/`, { method: 'DELETE' }).catch(
-    () => undefined,
-  )
+  await requestJson(config, `/query/${status.data.query_status.id}/`, Date.now(), {
+    method: 'DELETE',
+  }).catch(() => undefined)
   return false
 }
 

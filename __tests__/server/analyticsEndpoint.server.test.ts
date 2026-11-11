@@ -9,6 +9,8 @@ jest.mock('../../src/services/posthog/hogql', () => ({
 }))
 
 import { analyticsEstimateHandler, analyticsHandler } from '@/services/posthog/analyticsEndpoint'
+import { PostHogQueryError } from '@/services/posthog/hogql'
+import { estimateColdSeconds } from '@/services/posthog/reportTypes'
 
 const user = { id: 1, collection: 'users', email: 'staff@example.org' }
 
@@ -100,6 +102,16 @@ describe('analyticsHandler', () => {
     expect(warn).toHaveBeenCalled()
   })
 
+  it('says PostHog is busy when its rate limit outlasts the query', async () => {
+    getCachedReport.mockRejectedValue(new PostHogQueryError('rate limited', { status: 429 }))
+    const { req } = requestFor('center=nwac&report=pages&from=2026-11-01&to=2026-11-09')
+    const response = await call(req)
+    expect(response.status).toBe(502)
+    expect(await response.json()).toEqual({
+      error: 'PostHog is busy right now. Try again in a minute.',
+    })
+  })
+
   it('calls short ranges warm without asking PostHog', async () => {
     const { req } = requestFor('center=nwac&from=2026-10-10&to=2026-11-09')
     const response = await estimate(req)
@@ -112,7 +124,7 @@ describe('analyticsHandler', () => {
     const { req } = requestFor('center=nwac&from=2025-11-09&to=2026-11-09')
     const body = await (await estimate(req)).json()
     expect(body.cached).toBe(false)
-    expect(body.seconds).toBeGreaterThan(30)
+    expect(body.seconds).toBe(estimateColdSeconds(366))
     expect(probeQueryCache).toHaveBeenCalledTimes(1)
   })
 

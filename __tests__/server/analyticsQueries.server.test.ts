@@ -21,7 +21,7 @@ import {
 } from '@/services/posthog/deadClicks'
 import {
   getPostHogQueryConfig,
-  POSTHOG_MAX_CONCURRENT_QUERIES,
+  parseRetryAfter,
   PostHogQueryError,
   probeQueryCache,
   queryHogQL,
@@ -191,48 +191,175 @@ describe('queryHogQL', () => {
     await expect(probeQueryCache(config, SELECT_ONE)).resolves.toBe(false)
     expect(cancelled).toBe(true)
   })
+})
 
-  it("never has more than PostHog's concurrency limit in flight", async () => {
-    let inFlight = 0
-    let peak = 0
-    server.use(
-      http.post(QUERY_URL, async () => {
-        inFlight += 1
-        peak = Math.max(peak, inFlight)
-        await new Promise((resolve) => setTimeout(resolve, 20))
-        inFlight -= 1
-        return hogqlResult([], [])
-      }),
-    )
-
-    await Promise.all(Array.from({ length: 8 }, () => queryHogQL(config, SELECT_ONE, z.object({}))))
-
-    expect(peak).toBe(POSTHOG_MAX_CONCURRENT_QUERIES)
+describe('queryHogQL rate limits and polling', () => {
+  beforeEach(() => {
+    jest.useFakeTimers({
+      now: new Date('2026-11-11T18:00:00Z'),
+      doNotFake: ['queueMicrotask', 'nextTick', 'setImmediate'],
+    })
+    // Jitter at its midpoint: backoff waits three quarters of each step
+    jest.spyOn(Math, 'random').mockReturnValue(0.5)
+  })
+  afterEach(() => {
+    jest.useRealTimers()
+    jest.restoreAllMocks()
   })
 
-  it('gives waiting first-priority queries the next free slot', async () => {
-    const started: string[] = []
+  const pending = (id: string) => HttpResponse.json({ query_status: { id, complete: false } })
+  const done = (id: string) =>
+    HttpResponse.json({
+      query_status: { id, complete: true, results: { columns: ['n'], results: [[1]] } },
+    })
+  const tooMany = (headers?: Record<string, string>) =>
+    HttpResponse.text('slow down', { status: 429, headers })
+
+  /** Runs the query to completion while advancing fake time; resolves to its outcome. */
+  async function settle<T>(promise: Promise<T>, maxMs = 200_000) {
+    const outcome = promise.then(
+      (value) => ({ value }),
+      (error: unknown) => ({ error }),
+    )
+    let finished = false
+    void outcome.then(() => (finished = true))
+    for (let elapsed = 0; !finished && elapsed < maxMs; elapsed += 250) {
+      await jest.advanceTimersByTimeAsync(250)
+    }
+    return outcome
+  }
+
+  it('retries a 429 on submit with backoff, then succeeds', async () => {
+    const attempts: number[] = []
     server.use(
-      http.post(QUERY_URL, async ({ request }) => {
-        const body = z
-          .object({ query: z.object({ query: z.string() }) })
-          .parse(await request.json())
-        started.push(body.query.query)
-        await new Promise((resolve) => setTimeout(resolve, 20))
-        return hogqlResult([], [])
+      http.post(QUERY_URL, () => {
+        attempts.push(Date.now())
+        return attempts.length < 3 ? tooMany() : hogqlResult(['n'], [[1]])
       }),
     )
-    const run = (query: string, priority: 'first' | 'normal') =>
-      queryHogQL(config, { query }, z.object({}), 'blocking', priority)
 
-    await Promise.all([
-      ...Array.from({ length: POSTHOG_MAX_CONCURRENT_QUERIES + 2 }, (_, i) =>
-        run(`list ${i}`, 'normal'),
-      ),
-      run('overview', 'first'),
-    ])
+    const outcome = await settle(queryHogQL(config, SELECT_ONE, z.object({ n: z.number() })))
 
-    expect(started[POSTHOG_MAX_CONCURRENT_QUERIES]).toBe('overview')
+    expect(outcome).toEqual({ value: [{ n: 1 }] })
+    const gaps = attempts.slice(1).map((at, i) => at - attempts[i])
+    // 1 s then 2 s steps, each at three quarters with the mocked jitter
+    expect(gaps).toEqual([750, 1_500])
+  })
+
+  it('retries a 429 on a poll without restarting the query', async () => {
+    let submits = 0
+    let polls = 0
+    server.use(
+      http.post(QUERY_URL, () => {
+        submits += 1
+        return pending('q429')
+      }),
+      http.get(`${QUERY_URL}/q429/`, () => {
+        polls += 1
+        return polls === 1 ? tooMany() : done('q429')
+      }),
+    )
+
+    const outcome = await settle(queryHogQL(config, SELECT_ONE, z.object({ n: z.number() })))
+
+    expect(outcome).toEqual({ value: [{ n: 1 }] })
+    expect(submits).toBe(1)
+    expect(polls).toBe(2)
+  })
+
+  it('honours Retry-After', async () => {
+    const attempts: number[] = []
+    server.use(
+      http.post(QUERY_URL, () => {
+        attempts.push(Date.now())
+        return attempts.length === 1 ? tooMany({ 'Retry-After': '7' }) : hogqlResult([], [])
+      }),
+    )
+
+    await settle(queryHogQL(config, SELECT_ONE, z.object({})))
+
+    expect(attempts[1] - attempts[0]).toBe(7_000)
+  })
+
+  it('reads Retry-After as seconds or an HTTP date', () => {
+    const now = Date.parse('2026-11-11T18:00:00Z')
+    expect(parseRetryAfter('12', now)).toBe(12_000)
+    expect(parseRetryAfter('Wed, 11 Nov 2026 18:00:30 GMT', now)).toBe(30_000)
+    expect(parseRetryAfter('Wed, 11 Nov 2026 17:00:00 GMT', now)).toBe(0)
+    expect(parseRetryAfter('soon', now)).toBeNull()
+    expect(parseRetryAfter(null, now)).toBeNull()
+  })
+
+  it('gives up with a PostHogQueryError once 429s outlast the deadline', async () => {
+    let attempts = 0
+    server.use(
+      http.post(QUERY_URL, () => {
+        attempts += 1
+        return tooMany()
+      }),
+    )
+
+    const outcome = await settle(queryHogQL(config, SELECT_ONE, z.object({})))
+
+    expect('error' in outcome && outcome.error).toBeInstanceOf(PostHogQueryError)
+    expect('error' in outcome && outcome.error).toMatchObject({ context: { status: 429 } })
+    expect(attempts).toBeGreaterThan(3)
+    expect(Date.now() - Date.parse('2026-11-11T18:00:00Z')).toBeLessThanOrEqual(120_000)
+  })
+
+  it('does not wait out a Retry-After longer than the deadline', async () => {
+    server.use(http.post(QUERY_URL, () => tooMany({ 'Retry-After': '600' })))
+
+    const outcome = await settle(queryHogQL(config, SELECT_ONE, z.object({})), 1_000)
+
+    expect('error' in outcome && outcome.error).toMatchObject({ context: { status: 429 } })
+  })
+
+  it('polls sooner at first and backs off to a four-second cap', async () => {
+    const polls: number[] = []
+    let submittedAt = 0
+    server.use(
+      http.post(QUERY_URL, () => {
+        submittedAt = Date.now()
+        return pending('slow')
+      }),
+      http.get(`${QUERY_URL}/slow/`, () => {
+        polls.push(Date.now())
+        return polls.length < 7 ? pending('slow') : done('slow')
+      }),
+    )
+
+    await settle(queryHogQL(config, SELECT_ONE, z.object({ n: z.number() })))
+
+    const gaps = polls.map((at, i) => at - (i === 0 ? submittedAt : polls[i - 1]))
+    expect(gaps).toEqual([500, 1_000, 2_000, 4_000, 4_000, 4_000, 4_000])
+  })
+
+  it('stops polling at the deadline', async () => {
+    server.use(
+      http.post(QUERY_URL, () => pending('never')),
+      http.get(`${QUERY_URL}/never/`, () => pending('never')),
+    )
+
+    const outcome = await settle(queryHogQL(config, SELECT_ONE, z.object({})))
+
+    expect('error' in outcome && outcome.error).toBeInstanceOf(PostHogQueryError)
+    expect('error' in outcome && String(outcome.error)).toContain('did not finish in time')
+  })
+
+  it('treats a rate-limited cache probe as an error without retrying', async () => {
+    let attempts = 0
+    server.use(
+      http.post(QUERY_URL, () => {
+        attempts += 1
+        return tooMany({ 'Retry-After': '1' })
+      }),
+    )
+
+    const outcome = await settle(probeQueryCache(config, SELECT_ONE), 5_000)
+
+    expect('error' in outcome && outcome.error).toBeInstanceOf(PostHogQueryError)
+    expect(attempts).toBe(1)
   })
 })
 
@@ -331,10 +458,10 @@ describe('center queries', () => {
 })
 
 describe('estimateColdSeconds', () => {
-  it('grows with the range and lands near a minute for a year', () => {
+  it('grows with the range and lands near twenty seconds for a year', () => {
     expect(estimateColdSeconds(30)).toBeLessThan(estimateColdSeconds(90))
-    expect(estimateColdSeconds(365)).toBeGreaterThanOrEqual(50)
-    expect(estimateColdSeconds(365)).toBeLessThanOrEqual(75)
+    expect(estimateColdSeconds(365)).toBeGreaterThanOrEqual(15)
+    expect(estimateColdSeconds(365)).toBeLessThanOrEqual(30)
   })
 })
 

@@ -16,7 +16,6 @@ import {
   queryHogQL,
   type HogQLStatement,
   type PostHogQueryConfig,
-  type QueryPriority,
   type QueryRefresh,
 } from './hogql'
 import type {
@@ -177,9 +176,6 @@ const REPORTS: ReportRegistry = {
   }),
 }
 
-// The top card of the page; its queries jump the queue
-const FIRST_REPORTS: ReadonlySet<AnalyticsReport> = new Set(['overview', 'timeseries'])
-
 /** Runs one report's queries for one center and range. Throws so a failure is never cached. */
 export function fetchReport<K extends AnalyticsReport>(
   config: PostHogQueryConfig,
@@ -188,9 +184,8 @@ export function fetchReport<K extends AnalyticsReport>(
   report: K,
   refresh: QueryRefresh = 'blocking',
 ): Promise<ReportDataMap[K]> {
-  const priority: QueryPriority = FIRST_REPORTS.has(report) ? 'first' : 'normal'
   return REPORTS[report]({
     scope: { slug, range },
-    query: (statement, rowSchema) => queryHogQL(config, statement, rowSchema, refresh, priority),
+    query: (statement, rowSchema) => queryHogQL(config, statement, rowSchema, refresh),
   })
 }
