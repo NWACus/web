@@ -30,7 +30,7 @@ The range lives in the URL: `?period=7d|30d|90d|12m` or `?from=YYYY-MM-DD&to=YYY
 
 ## The per-center filter
 
-Every panel shares one filter, `centerFilter` in [`centerAnalyticsQueries.ts`](../src/services/posthog/centerAnalyticsQueries.ts). To reproduce a number in PostHog, apply the same conditions to the same event and window:
+Every panel shares one filter, `CENTER_FILTER` in [`centerAnalyticsQueries.ts`](../src/services/posthog/centerAnalyticsQueries.ts). To reproduce a number in PostHog, apply the same conditions to the same event and window:
 
 1. `center` equals the uppercased tenant slug, **or** `$host` is one of the center's production hostnames (the custom domain with and without `www.`, plus `<slug>.avy-fx.org`). The host match exists because production events before the `center` super property shipped (#1485) carry only `$host`.
 2. `environment` is not `preview` or `development`. Those deployments register `center` too.
@@ -52,6 +52,7 @@ Every panel shares one filter, `centerFilter` in [`centerAnalyticsQueries.ts`](.
 Panel data has one contract, [`panelTypes.ts`](../src/services/posthog/panelTypes.ts), checked on both sides: the server's registry (`PANELS` in [`panels.ts`](../src/services/posthog/panels.ts)) must provide every panel in `PanelDataMap`, which TypeScript enforces, and the page validates each response against the same zod schemas, so a mismatch shows as a panel error rather than a broken page.
 
 - **A ranked list** (top N of something with number columns): give its row a schema in `listRows` in `panelTypes.ts`, write its query in [`centerAnalyticsQueries.ts`](../src/services/posthog/centerAnalyticsQueries.ts), add it to `PANELS`, then write a spec in [`lists.ts`](../src/views/Analytics/lists.ts) and add `listTab(SPEC)` to a card in [`AnalyticsDashboard.client.tsx`](../src/views/Analytics/AnalyticsDashboard.client.tsx). The spec's name, detail and columns draw the card and its CSV. A new `$pageview` breakdown is a line each in `breakdownRows`, `BREAKDOWNS` and `PANELS`, plus a `breakdown(...)` spec.
+- **Writing the query:** a builder returns `statement(scope, sql)`, so the SQL can use `{center}`, `{hosts}`, `{timezone}`, `{start}`, `{end}` and `{previousStart}` (UTC `YYYY-MM-DD HH:MM:SS`, wrap in `toDateTime(...)`), plus `CENTER_FILTER` and `CURRENT_PERIOD`. PostHog substitutes and escapes these HogQL placeholders, so never interpolate a request value into the SQL text.
 - **Anything else** (a chart, a stat): add its schema to `panelTypes.ts` and `PanelDataMap`, a runner to `PANELS`, and a component that calls `usePanel(panel, request, parse)` with `parse = parseWith(schema)` defined at module level.
 - When a panel's data shape changes, bump `PANEL_SHAPE_VERSION` in [`getCachedPanel.ts`](../src/services/posthog/getCachedPanel.ts) so entries cached by the previous code are not served.
 
@@ -71,7 +72,7 @@ Create the key under a service account or a maintainer's PostHog settings, scope
 - Sponsor impressions are mount counts until #1486 ships; the panel says so.
 - Paths are plain text. Linking a path to the Payload document that renders it is a follow-up; the endpoint's row shapes in [`panelTypes.ts`](../src/services/posthog/panelTypes.ts) are where a document reference would go.
 - Small dashboard widgets (a stat with a configurable period, top pages, a sponsor summary) are a follow-up and should read the same cached panels.
-- Once production has carried the `center` property for a full year the host match in `centerFilter` is redundant.
+- Once production has carried the `center` property for a full year the host match in `CENTER_FILTER` is redundant.
 
 ## Testing
 

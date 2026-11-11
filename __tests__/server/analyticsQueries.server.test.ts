@@ -6,7 +6,7 @@ import { setupMswLifecycle } from '../helpers/mswLifecycle'
 import { resolveRange, type ResolvedRange } from '@/services/posthog/analyticsRange'
 import {
   breakdownQuery,
-  centerFilter,
+  CENTER_FILTER,
   centerHosts,
   deadClicksQuery,
   notFoundQuery,
@@ -38,9 +38,14 @@ const server = setupServer()
 setupMswLifecycle(server)
 
 const hogqlBodySchema = z.object({
-  query: z.object({ kind: z.string(), query: z.string() }),
+  query: z.object({
+    kind: z.string(),
+    query: z.string(),
+    values: z.record(z.string(), z.union([z.string(), z.array(z.string())])).optional(),
+  }),
   refresh: z.string(),
 })
+type SentQuery = z.infer<typeof hogqlBodySchema>['query']
 const readBody = async (request: Request) => hogqlBodySchema.parse(await request.json())
 const hogqlResult = (columns: string[], results: unknown[][]) =>
   HttpResponse.json({ columns, results })
@@ -56,6 +61,7 @@ function rangeFor(from: string, to: string): ResolvedRange {
 }
 
 const scope = { slug: 'nwac' as const, range: rangeFor('2026-10-10', '2026-11-09') }
+const SELECT_ONE = { query: 'SELECT 1' }
 
 describe('getPostHogQueryConfig', () => {
   it('returns null unless both the key and project id are set', () => {
@@ -83,7 +89,7 @@ describe('queryHogQL', () => {
 
     const rows = await queryHogQL(
       config,
-      'SELECT 1',
+      SELECT_ONE,
       z.object({ path: z.string(), pageviews: z.number() }),
     )
 
@@ -91,6 +97,22 @@ describe('queryHogQL', () => {
     expect(received?.auth).toBe('Bearer phx_test')
     expect(received?.body.query).toEqual({ kind: 'HogQLQuery', query: 'SELECT 1' })
     expect(received?.body.refresh).toBe('async')
+  })
+
+  it('sends placeholder values alongside the query', async () => {
+    let query: SentQuery | undefined
+    server.use(
+      http.post(QUERY_URL, async ({ request }) => {
+        query = (await readBody(request)).query
+        return hogqlResult([], [])
+      }),
+    )
+    await queryHogQL(
+      config,
+      { query: 'SELECT 1 WHERE x IN {hosts}', values: { hosts: ['a', "b'c"] } },
+      z.object({}),
+    )
+    expect(query?.values).toEqual({ hosts: ['a', "b'c"] })
   })
 
   it('passes force_blocking through for a forced refresh', async () => {
@@ -101,19 +123,19 @@ describe('queryHogQL', () => {
         return hogqlResult([], [])
       }),
     )
-    await queryHogQL(config, 'SELECT 1', z.object({}), 'force_blocking')
+    await queryHogQL(config, SELECT_ONE, z.object({}), 'force_blocking')
     expect(refresh).toBe('force_async')
   })
 
   it('throws PostHogQueryError on a non-OK response or a bad row', async () => {
     server.use(http.post(QUERY_URL, () => HttpResponse.text('nope', { status: 401 })))
-    await expect(queryHogQL(config, 'SELECT 1', z.object({}))).rejects.toBeInstanceOf(
+    await expect(queryHogQL(config, SELECT_ONE, z.object({}))).rejects.toBeInstanceOf(
       PostHogQueryError,
     )
 
     server.use(http.post(QUERY_URL, () => hogqlResult(['path'], [[null]])))
     await expect(
-      queryHogQL(config, 'SELECT 1', z.object({ path: z.string() })),
+      queryHogQL(config, SELECT_ONE, z.object({ path: z.string() })),
     ).rejects.toBeInstanceOf(PostHogQueryError)
   })
 
@@ -135,7 +157,7 @@ describe('queryHogQL', () => {
       }),
     )
 
-    await expect(queryHogQL(config, 'SELECT 1', z.object({ n: z.number() }))).resolves.toEqual([
+    await expect(queryHogQL(config, SELECT_ONE, z.object({ n: z.number() }))).resolves.toEqual([
       { n: 7 },
     ])
     expect(polls).toBe(2)
@@ -149,12 +171,12 @@ describe('queryHogQL', () => {
         }),
       ),
     )
-    await expect(queryHogQL(config, 'SELECT 1', z.object({}))).rejects.toThrow('Out of memory')
+    await expect(queryHogQL(config, SELECT_ONE, z.object({}))).rejects.toThrow('Out of memory')
   })
 
   it('reports a warm cache without starting work, and cancels a cold calculation', async () => {
     server.use(http.post(QUERY_URL, () => hogqlResult(['n'], [[1]])))
-    await expect(probeQueryCache(config, 'SELECT 1')).resolves.toBe(true)
+    await expect(probeQueryCache(config, SELECT_ONE)).resolves.toBe(true)
 
     let cancelled = false
     server.use(
@@ -166,7 +188,7 @@ describe('queryHogQL', () => {
         return HttpResponse.json({})
       }),
     )
-    await expect(probeQueryCache(config, 'SELECT 1')).resolves.toBe(false)
+    await expect(probeQueryCache(config, SELECT_ONE)).resolves.toBe(false)
     expect(cancelled).toBe(true)
   })
 
@@ -183,7 +205,7 @@ describe('queryHogQL', () => {
       }),
     )
 
-    await Promise.all(Array.from({ length: 8 }, () => queryHogQL(config, 'SELECT 1', z.object({}))))
+    await Promise.all(Array.from({ length: 8 }, () => queryHogQL(config, SELECT_ONE, z.object({}))))
 
     expect(peak).toBe(POSTHOG_MAX_CONCURRENT_QUERIES)
   })
@@ -200,64 +222,78 @@ describe('center queries', () => {
   })
 
   it('matches the center or its hosts and leaves out admin, non-production and bots', () => {
-    const filter = centerFilter(scope)
-    expect(filter).toContain("properties.center = 'NWAC'")
-    expect(filter).toContain(
-      `properties.$host IN ('nwac.us', 'www.nwac.us', 'nwac.${ROOT_DOMAIN}')`,
-    )
-    expect(filter).toContain("NOT IN ('preview', 'development')")
-    expect(filter).toContain("NOT startsWith(coalesce(properties.$pathname, ''), '/admin')")
-    expect(filter).toContain('NOT coalesce(properties.$virt_is_bot, false)')
+    expect(CENTER_FILTER).toContain('properties.center = {center} OR properties.$host IN {hosts}')
+    expect(CENTER_FILTER).toContain("NOT IN ('preview', 'development')")
+    expect(CENTER_FILTER).toContain("NOT startsWith(coalesce(properties.$pathname, ''), '/admin')")
+    expect(CENTER_FILTER).toContain('NOT coalesce(properties.$virt_is_bot, false)')
+  })
+
+  it('passes the center, hosts, timezone and UTC period bounds as values, never in the SQL', () => {
+    const { query, values } = overviewCountsQuery(scope, 'current')
+    // 31 inclusive days, so the previous period starts 31 days before Oct 10
+    expect(values).toEqual({
+      center: 'NWAC',
+      hosts: ['nwac.us', 'www.nwac.us', `nwac.${ROOT_DOMAIN}`],
+      timezone: 'America/Los_Angeles',
+      start: '2026-10-10 07:00:00',
+      end: '2026-11-09 21:00:00',
+      previousStart: '2026-09-09 07:00:00',
+    })
+    expect(query).not.toContain('nwac.us')
+    expect(query).not.toContain('2026-')
   })
 
   it('scans one period per overview counts query', () => {
-    const current = overviewCountsQuery(scope, 'current')
-    expect(current).toContain("timestamp >= toDateTime('2026-10-10 07:00:00')")
-    expect(current).toContain("timestamp < toDateTime('2026-11-09 21:00:00')")
+    const current = overviewCountsQuery(scope, 'current').query
+    expect(current).toContain('timestamp >= toDateTime({start}) AND timestamp < toDateTime({end})')
     expect(current).toContain('uniq(person_id) AS visitors')
+    expect(current).toContain(CENTER_FILTER)
 
-    // 31 inclusive days, so the previous period starts 31 days before Oct 10
-    const previous = overviewCountsQuery(scope, 'previous')
-    expect(previous).toContain("timestamp >= toDateTime('2026-09-09 07:00:00')")
-    expect(previous).toContain("timestamp < toDateTime('2026-10-10 07:00:00')")
+    const previous = overviewCountsQuery(scope, 'previous').query
+    expect(previous).toContain(
+      'timestamp >= toDateTime({previousStart}) AND timestamp < toDateTime({start})',
+    )
   })
 
   it('reads bounce rate and duration for both periods from the sessions table', () => {
-    const sql = overviewVisitsQuery(scope)
-    expect(sql).toContain('FROM sessions')
-    expect(sql).toContain("$start_timestamp >= toDateTime('2026-09-09 07:00:00')")
-    expect(sql).toContain(`$entry_hostname IN ('nwac.us', 'www.nwac.us', 'nwac.${ROOT_DOMAIN}')`)
-    expect(sql).toContain('avgIf($is_bounce, NOT ($start_timestamp >= toDateTime')
-    expect(sql).toContain("NOT startsWith($entry_pathname, '/admin')")
+    const { query } = overviewVisitsQuery(scope)
+    expect(query).toContain('FROM sessions')
+    expect(query).toContain('$start_timestamp >= toDateTime({previousStart})')
+    expect(query).toContain('$entry_hostname IN {hosts}')
+    expect(query).toContain('avgIf($is_bounce, NOT ($start_timestamp >= toDateTime({start})))')
+    expect(query).toContain("NOT startsWith($entry_pathname, '/admin')")
   })
 
   it('buckets the time series in the center timezone, weekly for long ranges', () => {
-    expect(timeseriesQuery(scope)).toContain("toDate(toTimeZone(timestamp, 'America/Los_Angeles'))")
+    expect(timeseriesQuery(scope).query).toContain('toDate(toTimeZone(timestamp, {timezone}))')
     const year = { ...scope, range: rangeFor('2025-11-09', '2026-11-09') }
-    expect(timeseriesQuery(year)).toContain('toStartOfWeek(toTimeZone(timestamp')
+    expect(timeseriesQuery(year).query).toContain(
+      'toStartOfWeek(toTimeZone(timestamp, {timezone}), 1)',
+    )
   })
 
   it('builds each breakdown with its own label and both visits and pageviews', () => {
-    expect(breakdownQuery(scope, 'pages')).toContain("coalesce(properties.$pathname, '') AS label")
-    expect(breakdownQuery(scope, 'pages')).toContain('uniq($session_id) AS visits')
-    expect(breakdownQuery(scope, 'pages')).toContain('count() AS pageviews')
-    expect(breakdownQuery(scope, 'entryPages')).toContain('session.$entry_pathname')
-    expect(breakdownQuery(scope, 'channels')).toContain('session.$channel_type')
-    expect(breakdownQuery(scope, 'referrers')).toContain(
-      `coalesce(properties.$referring_domain, '') NOT IN ('nwac.us', 'www.nwac.us', 'nwac.${ROOT_DOMAIN}')`,
+    const pages = breakdownQuery(scope, 'pages').query
+    expect(pages).toContain("coalesce(properties.$pathname, '') AS label")
+    expect(pages).toContain('uniq($session_id) AS visits')
+    expect(pages).toContain('count() AS pageviews')
+    expect(breakdownQuery(scope, 'entryPages').query).toContain('session.$entry_pathname')
+    expect(breakdownQuery(scope, 'channels').query).toContain('session.$channel_type')
+    expect(breakdownQuery(scope, 'referrers').query).toContain(
+      "coalesce(properties.$referring_domain, '') NOT IN {hosts}",
     )
   })
 
   it('reads 404s with their most common referrer', () => {
-    const sql = notFoundQuery(scope)
-    expect(sql).toContain("event = 'page_not_found'")
-    expect(sql).toContain('topK(1)(nullIf(properties.referrer')
+    const { query } = notFoundQuery(scope)
+    expect(query).toContain("event = 'page_not_found'")
+    expect(query).toContain('topK(1)(nullIf(properties.referrer')
   })
 
   it('excludes native selects and map surfaces from dead clicks', () => {
-    const sql = deadClicksQuery(scope)
-    expect(sql).toContain("NOT has(elements_chain_elements, 'select')")
-    expect(sql).toContain("NOT match(elements_chain, 'mapboxgl|maplibregl|leaflet')")
+    const { query } = deadClicksQuery(scope)
+    expect(query).toContain("NOT has(elements_chain_elements, 'select')")
+    expect(query).toContain("NOT match(elements_chain, 'mapboxgl|maplibregl|leaflet')")
   })
 })
 
@@ -338,7 +374,7 @@ describe('labelDeadClick', () => {
 })
 
 describe('fetchPanel', () => {
-  function respondByQuery(sql: string) {
+  function respondByQuery({ query: sql, values }: SentQuery) {
     if (sql.includes('FROM sessions')) {
       return hogqlResult(
         ['bounce_rate', 'previous_bounce_rate', 'visit_duration', 'previous_visit_duration'],
@@ -355,7 +391,8 @@ describe('fetchPanel', () => {
       return hogqlResult(['date', 'visitors', 'visits', 'pageviews'], [['2026-11-08', 3, 4, 5]])
     }
     if (sql.includes('count() AS pageviews\nFROM events')) {
-      const current = sql.includes("timestamp >= toDateTime('2026-10-10 07:00:00')")
+      const current = sql.includes('timestamp >= toDateTime({start}) AND')
+      expect(values?.start).toBe('2026-10-10 07:00:00')
       return hogqlResult(
         ['visitors', 'visits', 'pageviews'],
         [current ? [120, 200, 500] : [100, 180, 400]],
@@ -384,9 +421,7 @@ describe('fetchPanel', () => {
 
   beforeEach(() => {
     server.use(
-      http.post(QUERY_URL, async ({ request }) =>
-        respondByQuery((await readBody(request)).query.query),
-      ),
+      http.post(QUERY_URL, async ({ request }) => respondByQuery((await readBody(request)).query)),
     )
   })
 

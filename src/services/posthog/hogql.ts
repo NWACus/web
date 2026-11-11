@@ -25,6 +25,17 @@ export function getPostHogQueryConfig(
   return { apiKey, projectId, host: env.POSTHOG_QUERY_HOST || DEFAULT_POSTHOG_QUERY_HOST }
 }
 
+/**
+ * A HogQL query and the values its `{name}` placeholders stand for. PostHog substitutes and escapes
+ * them, so values never need quoting by hand.
+ */
+export type HogQLStatement = {
+  query: string
+  values?: Record<string, string | string[]>
+}
+
+const hogqlQuery = ({ query, values }: HogQLStatement) => ({ kind: 'HogQLQuery', query, values })
+
 export class PostHogQueryError extends Error {
   constructor(
     message: string,
@@ -90,13 +101,13 @@ const querySlots = createSemaphore(POSTHOG_MAX_CONCURRENT_QUERIES)
  */
 export async function queryHogQL<T>(
   config: PostHogQueryConfig,
-  query: string,
+  statement: HogQLStatement,
   rowSchema: z.ZodType<T>,
   refresh: QueryRefresh = 'blocking',
 ): Promise<T[]> {
   const release = await querySlots.acquire()
   try {
-    const result = await runQuery(config, query, refresh)
+    const result = await runQuery(config, statement, refresh)
     return parseRows(result, rowSchema)
   } finally {
     release()
@@ -145,13 +156,13 @@ async function pollQuery(config: PostHogQueryConfig, id: string): Promise<unknow
 
 async function runQuery(
   config: PostHogQueryConfig,
-  query: string,
+  statement: HogQLStatement,
   refresh: QueryRefresh,
 ): Promise<unknown> {
   const body = await requestJson(config, '/query', {
     method: 'POST',
     body: JSON.stringify({
-      query: { kind: 'HogQLQuery', query },
+      query: hogqlQuery(statement),
       refresh: refresh === 'force_blocking' ? 'force_async' : 'async',
       name: 'avyweb-admin',
     }),
@@ -165,14 +176,17 @@ async function runQuery(
 }
 
 /**
- * Whether PostHog already holds a fresh result for `query`. An async submission answers at once
+ * Whether PostHog already holds a fresh result for `statement`. An async submission answers at once
  * from cache, or starts calculating; a calculation nobody asked for is cancelled again.
  */
-export async function probeQueryCache(config: PostHogQueryConfig, query: string): Promise<boolean> {
+export async function probeQueryCache(
+  config: PostHogQueryConfig,
+  statement: HogQLStatement,
+): Promise<boolean> {
   const body = await requestJson(config, '/query', {
     method: 'POST',
     body: JSON.stringify({
-      query: { kind: 'HogQLQuery', query },
+      query: hogqlQuery(statement),
       refresh: 'async',
       name: 'avyweb-admin-probe',
     }),

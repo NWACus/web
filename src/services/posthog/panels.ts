@@ -12,7 +12,12 @@ import {
   type CenterQueryScope,
 } from './centerAnalyticsQueries'
 import { deadClickRowSchema, mergeDeadClicks } from './deadClicks'
-import { queryHogQL, type PostHogQueryConfig, type QueryRefresh } from './hogql'
+import {
+  queryHogQL,
+  type HogQLStatement,
+  type PostHogQueryConfig,
+  type QueryRefresh,
+} from './hogql'
 import type {
   AnalyticsPanel,
   BreakdownPanel,
@@ -66,7 +71,7 @@ const notFoundRowSchema = z.object({
 /** What a panel gets to work with: its center and range, and a HogQL runner bound to both caches. */
 type PanelContext = {
   scope: CenterQueryScope
-  query: <Row>(hogql: string, rowSchema: z.ZodType<Row>) => Promise<Row[]>
+  query: <Row>(statement: HogQLStatement, rowSchema: z.ZodType<Row>) => Promise<Row[]>
 }
 
 type PanelRegistry = {
@@ -180,6 +185,6 @@ export function fetchPanel<K extends AnalyticsPanel>(
 ): Promise<PanelDataMap[K]> {
   return PANELS[panel]({
     scope: { slug, range },
-    query: (hogql, rowSchema) => queryHogQL(config, hogql, rowSchema, refresh),
+    query: (statement, rowSchema) => queryHogQL(config, statement, rowSchema, refresh),
   })
 }
