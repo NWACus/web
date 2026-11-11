@@ -6,6 +6,12 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Navigation } from '@/payload-types'
 
+// The home page renders the header but isn't a nav URL, so it needs its own revalidation
+const revalidateHomePaths = (tenantSlug: string) => {
+  revalidatePath(`/${tenantSlug}`, 'page')
+  revalidatePath('/', 'page')
+}
+
 export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async ({
   doc,
   req: { payload, context },
@@ -20,6 +26,7 @@ export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async
     // Invalidate navigation cache tags first
     revalidateTag(`navigation-${tenant.slug}`)
     revalidateTag(`pages-sitemap-${tenant.slug}`)
+    revalidateHomePaths(tenant.slug)
 
     try {
       // Get current and previous navigation URLs to find what changed
@@ -56,4 +63,5 @@ export const revalidateNavigationDelete: CollectionAfterDeleteHook<Navigation> =
 
   revalidateTag(`navigation-${tenant.slug}`)
   revalidateTag(`pages-sitemap-${tenant.slug}`)
+  revalidateHomePaths(tenant.slug)
 }
