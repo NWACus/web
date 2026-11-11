@@ -17,7 +17,7 @@ import {
   issueTime,
 } from '@/services/nac/nwacWeatherFormat'
 import { getNWACWeatherSource } from '@/services/nac/sources'
-import { addMonths, endOfMonth, format, parseISO } from 'date-fns'
+import { addMonths, endOfMonth, format, parseISO, subDays } from 'date-fns'
 import { ArrowRight, History } from 'lucide-react'
 import Link from 'next/link'
 
@@ -54,8 +54,13 @@ async function readShown(date: string | undefined, today: string) {
   return { day, shown: day?.serviceDate ?? today }
 }
 
+/**
+ * Only yesterday turns on the latest forecast; any earlier date is past without it. Skipping the
+ * read keeps older pages off its 300s cache, which would cut their 30-day window to five minutes.
+ */
 async function isPast(date: string | undefined, today: string) {
-  if (!date) return false
+  if (!date || date >= today) return false
+  if (date < format(subDays(parseISO(today), 1), 'yyyy-MM-dd')) return true
   return isPastNWACWeatherDate(date, await getNWACWeatherSource().getLatest(), today)
 }
 

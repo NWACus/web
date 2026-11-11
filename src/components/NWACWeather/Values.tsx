@@ -243,8 +243,9 @@ export function TempRange({
   }
   const at = (t: number) => ((t - scale.min) / (scale.max - scale.min)) * 100
   // A one- or two-degree swing still draws as a short bar, centred on its span, not a dot.
-  const mid = (at(cell.low) + at(cell.high)) / 2
   const half = Math.max((at(cell.high) - at(cell.low)) / 2, MIN_BAR_PCT / 2)
+  // Nudged in from the ends, so a short bar near the scale's edge stays on its track.
+  const mid = Math.min(Math.max((at(cell.low) + at(cell.high)) / 2, half), 100 - half)
   return (
     <span className="flex items-center gap-1.5 tabular-nums">
       <span className="sr-only">
@@ -289,14 +290,11 @@ export function SnowLevelValue({
   level,
   snow,
   pill = true,
-  phoneDay = false,
 }: {
   level: number | null
   snow: boolean
-  /** Off where the table fills the cell itself (`levelFill`). */
+  /** Off where the table fills the cell itself (`levelFill`); tighter on a phone there. */
   pill?: boolean
-  /** In a table a phone shows one date of: tighter, for the narrower columns. */
-  phoneDay?: boolean
 }) {
   if (level == null) return <span className="block text-center text-muted-foreground">{DASH}</span>
   return (
@@ -309,7 +307,7 @@ export function SnowLevelValue({
       <span
         className={cn(
           'grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5',
-          phoneDay && 'max-md:grid-cols-[0.875rem_2.75rem] max-md:gap-0.5 max-md:text-xs',
+          !pill && 'max-md:grid-cols-[0.875rem_2.75rem] max-md:gap-0.5 max-md:text-xs',
         )}
       >
         <span>{snow && <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />}</span>

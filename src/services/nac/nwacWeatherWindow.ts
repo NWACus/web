@@ -33,6 +33,8 @@ export interface NWACWeatherWindow {
   /** Index into the zone day's issuances. */
   issuance: number
   periodKeys: string[]
+  /** A past forecast's 24 hours, named by their dates rather than as Today or Tonight. */
+  held?: boolean
 }
 
 const shiftDate = (date: string, days: number) =>

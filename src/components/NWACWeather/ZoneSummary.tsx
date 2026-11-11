@@ -1,8 +1,8 @@
 /**
  * NWAC's Mountain Weather beside a forecast: the zone's sensible weather and short table for the
- * 24 hours on show under the forecast, and in the widget the region-wide
- * Overall view in the Weather Forecast tab. The widget page renders it in the browser (see WidgetZoneWeather); the native forecast
- * panel renders the zone's as one of its sections.
+ * 24 hours on show under the forecast, and in the widget the region-wide Overall view in the
+ * Weather Forecast tab. The widget page renders it in the browser (see WidgetZoneWeather); the
+ * native forecast panel renders the zone's as one of its sections.
  */
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
@@ -112,7 +112,7 @@ export function ZoneSummary({
   timezone,
   inPanel,
 }: SummaryProps<NWACWeatherZoneDay>) {
-  const windows = day.windows.flatMap(({ startsAt, issuance: index, periodKeys }) => {
+  const windows = day.windows.flatMap(({ startsAt, issuance: index, periodKeys, held }) => {
     const issuance = day.issuances[index]
     const zones = issuance ? zonesFor(issuance, avalancheZoneId) : []
     if (!issuance || zones.length === 0) return []
@@ -124,6 +124,7 @@ export function ZoneSummary({
             issuance={issuance}
             zone={zone}
             periodKeys={periodKeys}
+            held={held}
             timezone={timezone}
             heading={zones.length > 1}
           />

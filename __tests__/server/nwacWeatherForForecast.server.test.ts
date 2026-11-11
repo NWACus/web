@@ -41,7 +41,7 @@ describe('getNWACWeatherForForecast', () => {
 
     expect(found?.issuances.map((i) => i.type)).toEqual(['morning'])
     expect(found?.windows).toEqual([
-      { startsAt: '2026-09-15T01:00:00.000Z', issuance: 0, periodKeys: ['n1', 'd2'] },
+      { startsAt: '2026-09-15T01:00:00.000Z', issuance: 0, periodKeys: ['n1', 'd2'], held: true },
     ])
     expect(mockGetDay).not.toHaveBeenCalledWith('2026-09-15', expect.anything())
   })

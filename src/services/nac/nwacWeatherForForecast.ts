@@ -41,13 +41,15 @@ interface Asked {
   published: number
   latest: number
   spans: NWACWeatherSpan[]
+  /** The spans are what a past forecast keeps, not the reader's now. */
+  held: boolean
 }
 
 /**
  * The issuances for the avalanche zone (its numeric id), their authored HTML sanitized, with the
  * 24-hour windows read from them. `archived` holds a forecast to what it was written against even
- * on its own valid date, for a page cached as it was first rendered. Null
- * on any center but NWAC, and when there is none. Throws when a day can't be read.
+ * on its own valid date, for a page cached as it was first rendered. Null on any center but NWAC,
+ * and when there is none. Throws when a day can't be read.
  */
 export async function getNWACWeatherForForecast(
   centerSlug: string,
@@ -82,12 +84,13 @@ export async function getNWACWeatherForForecast(
     published,
     latest: live ? Math.max(published, now.getTime()) : published,
     spans,
+    held: !live,
   })
 }
 
 function newestFor(
   days: (NWACWeatherForecastDay | null)[],
-  { zone, published, latest, spans }: Asked,
+  { zone, published, latest, spans, held }: Asked,
 ): NWACWeatherZoneDay | null {
   const candidates = days
     .flatMap((day) =>
@@ -111,7 +114,12 @@ function newestFor(
       if (!periodKeys) continue
       let index = chosen.findIndex((c) => c.issuance === candidate.issuance)
       if (index < 0) index = chosen.push(candidate) - 1
-      windows.push({ startsAt: span.startsAt.toISOString(), issuance: index, periodKeys })
+      windows.push({
+        startsAt: span.startsAt.toISOString(),
+        issuance: index,
+        periodKeys,
+        ...(held && { held }),
+      })
       break
     }
   }

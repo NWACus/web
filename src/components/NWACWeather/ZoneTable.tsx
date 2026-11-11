@@ -76,6 +76,7 @@ function periodViews(
   zone: NWACWeatherZone,
   periodKeys: string[],
   timezone: string,
+  held: boolean,
 ): PeriodView[] {
   const levels = issuance.blocks.map((b) => {
     const cell = issuance.snowLevel[zone.id]?.[b.key]
@@ -95,7 +96,7 @@ function periodViews(
   }
   return shown.map((period, i) => ({
     period,
-    name: periodName(period, i),
+    name: periodName(period, i, held),
     night: period.kind === 'night',
     label: fmtCalendarDate(period.date),
     hours: precipHours(period, timezone),
@@ -106,9 +107,11 @@ function periodViews(
 
 /**
  * The 24 hours on show are Today and Tonight from 6 am, Tonight and Tomorrow from 6 pm: a night is
- * always Tonight, a day Today when it leads and Tomorrow when it follows the night.
+ * always Tonight, a day Today when it leads and Tomorrow when it follows the night. A past
+ * forecast's are plain Day and Night, as its date already says when.
  */
-function periodName(period: NWACWeatherPeriod, index: number): string {
+function periodName(period: NWACWeatherPeriod, index: number, held: boolean): string {
+  if (held) return period.kind === 'night' ? 'Night' : 'Day'
   if (period.kind === 'night') return 'Tonight'
   return index === 0 ? 'Today' : 'Tomorrow'
 }
@@ -617,6 +620,7 @@ export function ZoneTable({
   issuance,
   zone,
   periodKeys,
+  held = false,
   timezone,
   heading = true,
 }: {
@@ -625,10 +629,12 @@ export function ZoneTable({
   timezone?: string | null
   /** The periods to show: the 24 hours on show. */
   periodKeys: string[]
+  /** A past forecast's 24 hours: Day and Night rather than Today, Tonight and Tomorrow. */
+  held?: boolean
   /** The zone's name as a heading; off when the page already names the zone. */
   heading?: boolean
 }) {
-  const periods = periodViews(issuance, zone, periodKeys, timezone ?? DEFAULT_TIMEZONE)
+  const periods = periodViews(issuance, zone, periodKeys, timezone ?? DEFAULT_TIMEZONE, held)
   return (
     <section aria-label={zone.name} className="space-y-4">
       {heading && <h3 className="text-lg font-semibold">{zone.name}</h3>}

@@ -185,7 +185,7 @@ function levelRow(
     key: zone.id,
     label: zone.name,
     cells: cells.map((c) => (
-      <SnowLevelValue key={c.key} level={c.level} snow={c.snow} pill={false} phoneDay />
+      <SnowLevelValue key={c.key} level={c.level} snow={c.snow} pill={false} />
     )),
     fills: cells.map((c) => (c.level != null ? levelFill(c.level) : undefined)),
   }
@@ -941,6 +941,8 @@ function GridTable({
           days={dayTables(t).map((d) => ({
             key: d.key,
             label: d.label,
+            // "Thu Oct 15 – Fri Oct 16" → its two dates; a single date stays one.
+            covers: d.label.split(' – '),
             content: <TableBox table={{ ...d.table, control: undefined }} />,
           }))}
         />

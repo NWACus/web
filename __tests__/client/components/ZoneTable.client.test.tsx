@@ -123,6 +123,15 @@ describe('ZoneTable', () => {
     ])
   })
 
+  it('names a past forecast’s periods Day and Night, its dates saying when', () => {
+    const { container } = render(
+      <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} held />,
+    )
+    const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
+
+    expect(heads.map((th) => th.textContent?.split(' · ')[0])).toEqual(['Night', 'Day'])
+  })
+
   it('labels the 6h parts of day Morn, Aft, Eve and Night', () => {
     const { container } = render(
       <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={['n1', 'd2']} />,

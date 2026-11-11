@@ -1,6 +1,12 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
-import { SnowLevelLegend, WindValue, levelFill, windFill } from '@/components/NWACWeather/Values'
+import {
+  SnowLevelLegend,
+  TempRange,
+  WindValue,
+  levelFill,
+  windFill,
+} from '@/components/NWACWeather/Values'
 import type { NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
 import { dayGroups, fmtQpf, hasSnowAmounts, precipPeriods } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
@@ -381,11 +387,42 @@ describe('the paired temperature and wind tables', () => {
     fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
     fireEvent.keyDown(screen.getByRole('option', { name: '24 hours' }), { key: 'Enter' })
 
-    // The 24-hour dates are ranges, so the second date is kept by its place in the list.
+    // The 24-hour dates are ranges: the first one covering the picked date is kept.
     const [date24] = dates()
     expect(date24.textContent).not.toBe(second)
-    fireEvent.keyDown(date24, { key: 'Enter' })
-    expect(date24.textContent).toBe(screen.getAllByRole('option')[1].textContent)
+    expect(date24.textContent).toContain(second)
+
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
+    fireEvent.keyDown(screen.getByRole('option', { name: '12 hours' }), { key: 'Enter' })
+    // Back to 12 hours: the range's last date.
+    expect(dates()[0].textContent).toBe(date24.textContent?.split(' – ').at(-1))
+  })
+})
+
+describe('TempRange', () => {
+  const bar = (container: HTMLElement) => {
+    const el = container.querySelector<HTMLElement>('.bg-sky-400')
+    if (!el) throw new Error('no bar')
+    return { left: parseFloat(el.style.left), right: parseFloat(el.style.right) }
+  }
+
+  it('keeps a short bar at the edge of the scale on its track', () => {
+    const scale = { min: 12, max: 43 }
+    const cold = bar(render(<TempRange cell={{ low: 13, high: 14 }} scale={scale} />).container)
+    const warm = bar(render(<TempRange cell={{ low: 41, high: 42 }} scale={scale} />).container)
+
+    expect(cold.left).toBeCloseTo(0)
+    expect(cold.right).toBeCloseTo(88)
+    expect(warm.right).toBeCloseTo(0)
+  })
+
+  it('draws a wide swing from its low to its high', () => {
+    const { left, right } = bar(
+      render(<TempRange cell={{ low: 20, high: 30 }} scale={{ min: 10, max: 40 }} />).container,
+    )
+
+    expect(left).toBeCloseTo(100 / 3)
+    expect(right).toBeCloseTo(100 / 3)
   })
 })
 

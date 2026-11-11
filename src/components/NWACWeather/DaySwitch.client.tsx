@@ -17,12 +17,14 @@ import { useTabListKeys } from './useTabListKeys'
 interface Picked {
   key: string
   index: number
+  covers?: string[]
 }
 
 /**
  * The picked date, shared by tables a reader swaps between (12 and 24 hours), so swapping keeps
  * the date rather than going back to the first. Their dates can be named differently (a 24-hour
- * range), so a key one doesn't have falls back to the same place in its list.
+ * range), so a key one doesn't have falls back to the first day covering the picked one's last
+ * date, then to the same place in its list.
  */
 const SharedDay = createContext<{
   picked: Picked | null
@@ -40,6 +42,8 @@ export const PHONE_TRIGGER = 'h-10 rounded-md text-sm font-semibold'
 interface Day {
   key: string
   label: string
+  /** The dates it covers, matched when another table's key isn't one of these. */
+  covers?: string[]
   content: ReactNode
 }
 
@@ -62,9 +66,9 @@ export function DaySwitch({
   const [localPicked, setLocalPicked] = useState<Picked | null>(null)
   const picked = shared ? shared.picked : localPicked
   const setPicked = shared ? shared.setPicked : setLocalPicked
-  const byKey = days.findIndex((d) => d.key === picked?.key)
-  const active = byKey >= 0 ? byKey : Math.min(picked?.index ?? 0, days.length - 1)
-  const pick = (index: number) => setPicked({ key: days[index].key, index })
+  const active = activeDay(days, picked)
+  const pick = (index: number) =>
+    setPicked({ key: days[index].key, index, covers: days[index].covers })
 
   if (!aside) {
     return <DayTabs label={label} days={days} active={active} pick={pick} className={className} />
@@ -99,6 +103,15 @@ export function DaySwitch({
       <div>{days[active]?.content}</div>
     </div>
   )
+}
+
+function activeDay(days: Day[], picked: Picked | null): number {
+  const byKey = days.findIndex((d) => d.key === picked?.key)
+  if (byKey >= 0) return byKey
+  const lastDate = picked?.covers?.at(-1)
+  const byDate = lastDate ? days.findIndex((d) => d.covers?.includes(lastDate)) : -1
+  if (byDate >= 0) return byDate
+  return Math.min(picked?.index ?? 0, days.length - 1)
 }
 
 function DayTabs({
