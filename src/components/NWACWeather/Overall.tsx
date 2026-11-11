@@ -3,6 +3,7 @@
  * periods or blocks across), then the extended outlook.
  */
 import { DiscussionBody } from '@/components/forecast/DiscussionBody'
+import { Navigation2 } from 'lucide-react'
 import Link from 'next/link'
 import { Fragment, type ReactNode } from 'react'
 
@@ -100,7 +101,7 @@ interface Table {
   /** Shown quietly after the title, in parentheses. */
   unit?: string
   /** What the table shows, under its title. */
-  description?: string
+  description?: ReactNode
   rowLabel: string
   columns: Column[]
   groups: Group[]
@@ -142,8 +143,18 @@ const SNOW_LEVEL_DESCRIPTION =
   'The snow level forecast represents the general snow level over a 6 hr time period. Snow level is defined as the elevation that snow begins to accumulate on natural surfaces. Snow may accumulate even when the surface temperature is slightly above freezing. Freezing levels are forecast when precipitation is not expected. Freezing levels often drop rapidly with the onset of precipitation. During periods with temperature inversions, there may be multiple freezing levels. We forecast the freezing level that most users will experience in the mountains.'
 const TEMPS_DESCRIPTION =
   'The low and high temperature at 5000’ over a 12 hr period. The 6 hr snow level forecast, overall synopsis and zone weather summary may give more detail on temperature trends.'
-const WIND_DESCRIPTION =
-  'Ridgeline winds represent the average wind speed and direction over a 6 hr time period. The wind forecast represents an elevation range versus a single elevation. The elevation range overlaps with the middle and upper elevation bands in the avalanche forecast and differs per zone. Wind direction (VECTOR) is the direction the wind is blowing from, given in degrees or cardinal direction on a 16 pt compass rose. Ex: A west (W) wind comes from the west and blows toward the east (E).'
+// The wind cells' arrow stands in for "VECTOR" in the forecasters' text.
+const WIND_DESCRIPTION = (
+  <>
+    Ridgeline winds represent the average wind speed and direction over a 6 hr time period. The wind
+    forecast represents an elevation range versus a single elevation. The elevation range overlaps
+    with the middle and upper elevation bands in the avalanche forecast and differs per zone. Wind
+    direction (
+    <Navigation2 aria-label="arrow" className="inline size-3.5 align-[-0.125em] text-primary" />) is
+    the direction the wind is blowing from, given in degrees or cardinal direction on a 16 pt
+    compass rose. Ex: A west (W) wind comes from the west and blows toward the east (E).
+  </>
+)
 
 // Grouped like the block tables: one date over its periods, Day or Night (with its sun or moon)
 // in the sub row.
