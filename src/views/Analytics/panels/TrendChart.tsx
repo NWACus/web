@@ -1,10 +1,12 @@
 'use client'
 
 import { EChart, type EChartOption } from '@/components/charts/EChart'
+import type { TrendInterval } from '@/services/posthog/analyticsRange'
 import {
   timeseriesSchema,
   type OverviewData,
   type TimeseriesData,
+  type TimeseriesPoint,
 } from '@/services/posthog/reportTypes'
 import { saveCsv, saveUrl } from '@/utilities/export/saveFile'
 import { cn } from '@/utilities/ui'
@@ -53,12 +55,55 @@ export function useThemeColors() {
   return colors
 }
 
-const dayLabel = (iso: string) =>
-  new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  })
+export const INTERVAL_OPTIONS = [
+  { key: 'day', label: 'Day' },
+  { key: 'week', label: 'Week' },
+  { key: 'month', label: 'Month' },
+] as const
+
+/** The trend's current grouping, the ones this range allows, and how to change it. */
+export type TrendGrouping = {
+  interval: TrendInterval
+  intervals: TrendInterval[]
+  onInterval: (interval: TrendInterval) => void
+}
+
+const axisLabel = (iso: string, bucket: TrendInterval) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString(
+    'en-US',
+    bucket === 'month'
+      ? { month: 'short', year: 'numeric', timeZone: 'UTC' }
+      : { month: 'short', day: 'numeric', timeZone: 'UTC' },
+  )
+
+/** "Oct 26 – Nov 1, 2026", or one day, flagged when the range or today cuts the bucket short. */
+export function bucketTitle(point: TimeseriesPoint): string {
+  const dates = formatDateRange(point.from, point.to)
+  return point.partial ? `${dates} (partial)` : dates
+}
+
+/**
+ * Partial buckets sit at the ends, so the line is split in two: solid through complete buckets and
+ * dashed into each partial one. A complete bucket beside a partial one is in both so they join.
+ */
+export function splitPartial(points: TimeseriesPoint[], series: SeriesKey) {
+  const isPartial = (index: number) => points[index]?.partial ?? false
+  return {
+    solid: points.map((point) => (point.partial ? null : point[series])),
+    dashed: points.map((point, index) =>
+      isPartial(index) || isPartial(index - 1) || isPartial(index + 1) ? point[series] : null,
+    ),
+  }
+}
+
+function tooltipHtml(params: unknown, data: TimeseriesData, series: SeriesKey): string {
+  const first: unknown = Array.isArray(params) ? params[0] : params
+  if (typeof first !== 'object' || first === null || !('dataIndex' in first)) return ''
+  const point = typeof first.dataIndex === 'number' ? data.points[first.dataIndex] : undefined
+  if (!point) return ''
+  const marker = 'marker' in first && typeof first.marker === 'string' ? first.marker : ''
+  return `${bucketTitle(point)}<br/>${marker}${seriesLabel(series)}: <b>${formatInteger(point[series])}</b>`
+}
 
 function trendOption(
   data: TimeseriesData,
@@ -66,6 +111,19 @@ function trendOption(
   colors: ChartColors,
   title?: string,
 ): EChartOption {
+  const { solid, dashed } = splitPartial(data.points, series)
+  const line = (values: (number | null)[], type: 'solid' | 'dashed') => ({
+    type: 'line',
+    name: seriesLabel(series),
+    data: values,
+    smooth: 0.2,
+    showSymbol: data.points.length <= 31,
+    lineStyle: { color: colors.line, width: 2, type },
+    itemStyle: { color: colors.line },
+    areaStyle: { color: colors.line, opacity: type === 'solid' ? 0.12 : 0.06 },
+    // Hover should only show the tooltip, never restyle the line
+    emphasis: { disabled: true },
+  })
   return {
     animation: false,
     ...(title && {
@@ -79,11 +137,11 @@ function trendOption(
     grid: { left: 8, right: 8, top: title ? 48 : 16, bottom: 8, containLabel: true },
     tooltip: {
       trigger: 'axis',
-      valueFormatter: (value: unknown) => (typeof value === 'number' ? formatInteger(value) : ''),
+      formatter: (params: unknown) => tooltipHtml(params, data, series),
     },
     xAxis: {
       type: 'category',
-      data: data.points.map((point) => dayLabel(point.date)),
+      data: data.points.map((point) => axisLabel(point.date, data.bucket)),
       boundaryGap: false,
       axisLine: { lineStyle: { color: colors.grid } },
       axisLabel: { color: colors.text },
@@ -95,20 +153,7 @@ function trendOption(
       splitLine: { lineStyle: { color: colors.grid } },
       axisLabel: { color: colors.text, formatter: (value: number) => formatInteger(value) },
     },
-    series: [
-      {
-        type: 'line',
-        name: seriesLabel(series),
-        data: data.points.map((point) => point[series]),
-        smooth: 0.2,
-        showSymbol: data.points.length <= 31,
-        lineStyle: { color: colors.line, width: 2 },
-        itemStyle: { color: colors.line },
-        areaStyle: { color: colors.line, opacity: 0.12 },
-        // Hover should only show the tooltip, never restyle the line
-        emphasis: { disabled: true },
-      },
-    ],
+    series: [line(solid, 'solid'), line(dashed, 'dashed')],
   }
 }
 
@@ -216,23 +261,32 @@ export function TrendChart({
   state,
   series,
   onSeries,
+  grouping,
   colors,
   chartRef,
 }: {
   state: ReportState<TimeseriesData>
   series: SeriesKey
   onSeries: (series: SeriesKey) => void
+  grouping: TrendGrouping
   colors: ChartColors
   chartRef: RefObject<ECharts | null>
 }) {
+  const intervalOptions = INTERVAL_OPTIONS.filter((option) =>
+    grouping.intervals.includes(option.key),
+  )
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <TabPills options={SERIES} active={series} onChange={onSeries} />
-        {state.status === 'ready' && (
-          <span className={cn('text-xs', MUTED)}>
-            {state.data.bucket === 'week' ? 'By week' : 'By day'}
-          </span>
+        {intervalOptions.length > 1 ? (
+          <TabPills
+            options={intervalOptions}
+            active={grouping.interval}
+            onChange={grouping.onInterval}
+          />
+        ) : (
+          <span className={cn('text-xs', MUTED)}>By day</span>
         )}
       </div>
       <PanelBody state={state} empty="No pageviews in this period.">

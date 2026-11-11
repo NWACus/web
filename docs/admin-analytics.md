@@ -7,7 +7,7 @@
 | Panel | Source | Definition |
 | --- | --- | --- |
 | Stats row | `$pageview`, grouped by session | Unique visitors (`uniq(person_id)`), total visits (`uniq($session_id)`), pageviews, views per visit, bounce rate (`session.$is_bounce`), visit duration (`session.$session_duration`). Each compared with the previous period of the same length, which a caption under the row names once. A stat with no baseline shows no change, and when none has one the caption says there is nothing to compare with |
-| Trend | `$pageview` | Visitors, visits or pageviews per day, or per week for ranges over 92 days, bucketed in the center's timezone |
+| Trend | `$pageview` | Visitors, visits or pageviews per day, week (Monday to Sunday) or calendar month, bucketed in the center's timezone. See [Trend grouping](#trend-grouping) |
 | Pages | `$pageview` | Top pages by `$pathname`; entry and exit pages from the session's `$entry_pathname` and `$end_pathname` |
 | Sources | `$pageview` | Referrers by `$referring_domain` with the center's own hosts left out (`$direct` shows as Direct); channels from `session.$channel_type` |
 | Locations | `$pageview` | Cities as `city, subdivision code, country code` (the default tab), regions as `subdivision, country code`, and countries. Locations are GeoIP lookups, so data-center towns such as Council Bluffs, IA show up for crawlers and VPNs; the card says so |
@@ -24,11 +24,19 @@ The trend chart is Apache ECharts through the site's [`EChart`](../src/component
 
 ## Export
 
-Each card has a download menu, built from the data already on the page, so exporting sends no new query. List panels save the active tab as CSV. Columns follow the card's headings and numbers are unformatted, so they sort and sum in a spreadsheet; sponsors export every row, not just the ones shown before "Show all". The trend chart's menu also carries the stats row above it: the chart as a PNG (on white with light text even in dark mode, titled with the center, series and range, since a saved image travels without the page), every bucket of all three series as CSV, and the stats row as CSV with this period and the previous one as columns. Files are named `<center>-<panel>-<from>-to-<to>`. A list's CSV comes from its spec in [`lists.ts`](../src/views/Analytics/lists.ts), the same spec that draws the card, so the two cannot disagree; the trend and stats-row CSVs are in [`panelExport.ts`](../src/views/Analytics/panelExport.ts). The menu is [`ExportMenu`](../src/views/Analytics/panels/ExportMenu.tsx), Payload's `Popup` rather than the site's dropdown so it matches the admin.
+Each card has a download menu, built from the data already on the page, so exporting sends no new query. List panels save the active tab as CSV. Columns follow the card's headings and numbers are unformatted, so they sort and sum in a spreadsheet; sponsors export every row, not just the ones shown before "Show all". The trend chart's menu also carries the stats row above it: the chart as a PNG (on white with light text even in dark mode, titled with the center, series and range, since a saved image travels without the page), every bucket of all three series as CSV (weeks and months with the first and last day of the range each covers), and the stats row as CSV with this period and the previous one as columns. Files are named `<center>-<panel>-<from>-to-<to>`. A list's CSV comes from its spec in [`lists.ts`](../src/views/Analytics/lists.ts), the same spec that draws the card, so the two cannot disagree; the trend and stats-row CSVs are in [`panelExport.ts`](../src/views/Analytics/panelExport.ts). The menu is [`ExportMenu`](../src/views/Analytics/panels/ExportMenu.tsx), Payload's `Popup` rather than the site's dropdown so it matches the admin.
 
 ## Time range
 
 The range lives in the URL: `?period=7d|30d|90d|12m` or `?from=YYYY-MM-DD&to=YYYY-MM-DD`, capped at 366 days. Dates are calendar days in the **center's timezone** (`AVALANCHE_CENTERS[slug].timezone`), which the page says under its heading. PostHog's project timezone is UTC, so a day total there can differ from the page at the day's edges; the sum over a whole range matches. The previous period is the same number of days ending the day before `from`. [`analyticsRange.ts`](../src/services/posthog/analyticsRange.ts) does the arithmetic with `@date-fns/tz`.
+
+### Trend grouping
+
+The trend chart groups by day up to 92 days and by week beyond that, and a Day / Week / Month switch beside the series tabs changes it: weeks are offered past 14 days and months past 92. A choice other than the default goes in the URL as `?interval=week|month` and is dropped when the range changes. The endpoint takes the same `interval` on `report=timeseries` and refuses one the range is too short for.
+
+Each grouping is its own PostHog query, since unique visitors and visits don't add up across days (someone who visits on Monday and Tuesday is one visitor that week). So switching costs one more events scan, about as long as the chart's first load, and only the chart reloads; each grouping is then cached like any other report.
+
+Weeks and months at the ends of a range are usually cut short, and so is the bucket holding today while the range runs to now. [`fillTimeseries`](../src/services/posthog/reports.ts) gives each point the days it covers (`from`, `to`) and a `partial` flag; the chart draws partial buckets with a dashed line and the tooltip names the days with "(partial)", so a three-day week doesn't read as a collapse in traffic.
 
 ## The per-center filter
 

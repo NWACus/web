@@ -8,7 +8,7 @@ import type { AnalyticsReport, ReportData } from './reportTypes'
 export const REPORT_CACHE_SECONDS = 10 * 60
 
 // Bump when a report's data shape changes, so entries cached by older code are not served
-const REPORT_SHAPE_VERSION = 3
+const REPORT_SHAPE_VERSION = 4
 
 export const centerAnalyticsTag = (slug: ValidTenantSlug) => `center-analytics:${slug}`
 
@@ -50,6 +50,8 @@ export async function getCachedReport(
     range.to,
     range.end.toISOString(),
     report,
+    // Only the trend is grouped, so other reports share one entry whatever the grouping
+    report === 'timeseries' ? range.bucket : '',
   ]
   return dedupe(key.join('|'), () =>
     unstable_cache(() => fetchReport(config, slug, range, report), key, {

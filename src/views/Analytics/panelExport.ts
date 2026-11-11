@@ -39,11 +39,13 @@ export function overviewCsv(data: OverviewData, range: ReportRange): string {
 }
 
 /** Every bucket with all three series, whichever one the chart is showing. */
+/** Weeks and months give the days each row covers, so partial ones at the edges read as such. */
 export function timeseriesCsv(data: TimeseriesData): string {
+  const byDay = data.bucket === 'day'
   return toCsv([
-    [data.bucket === 'week' ? 'Week starting' : 'Date', 'Visitors', 'Visits', 'Pageviews'],
+    [...(byDay ? ['Date'] : ['From', 'To']), 'Visitors', 'Visits', 'Pageviews'],
     ...data.points.map((point) => [
-      point.date,
+      ...(byDay ? [point.date] : [point.from, point.to]),
       String(point.visitors),
       String(point.visits),
       String(point.pageviews),

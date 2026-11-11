@@ -81,6 +81,20 @@ describe('analyticsHandler', () => {
     })
   })
 
+  it('passes a grouping through and refuses unknown or too-fine ones', async () => {
+    getCachedReport.mockResolvedValue({ bucket: 'week', points: [] })
+    const range = 'center=nwac&report=timeseries&from=2026-10-01&to=2026-11-09'
+    expect((await call(requestFor(`${range}&interval=week`).req)).status).toBe(200)
+    expect(getCachedReport).toHaveBeenLastCalledWith(
+      'nwac',
+      expect.objectContaining({ bucket: 'week' }),
+      'timeseries',
+      false,
+    )
+    expect((await call(requestFor(`${range}&interval=hour`).req)).status).toBe(400)
+    expect((await call(requestFor(`${range}&interval=month`).req)).status).toBe(400)
+  })
+
   it('returns the report with its resolved range and passes the refresh flag through', async () => {
     getCachedReport.mockResolvedValue({ kind: 'breakdown', rows: [] })
     const { req } = requestFor('center=nwac&report=pages&from=2026-11-01&to=2026-11-09&refresh=1')

@@ -102,7 +102,12 @@ WHERE $start_timestamp >= toDateTime({previousStart})
 
 export function timeseriesQuery(scope: CenterQueryScope): HogQLStatement {
   const local = `toTimeZone(timestamp, {timezone})`
-  const bucket = scope.range.bucket === 'week' ? `toStartOfWeek(${local}, 1)` : `toDate(${local})`
+  const bucket = {
+    day: `toDate(${local})`,
+    // Mode 1 starts weeks on Monday, matching fillTimeseries
+    week: `toStartOfWeek(${local}, 1)`,
+    month: `toStartOfMonth(${local})`,
+  }[scope.range.bucket]
   return statement(
     scope,
     `SELECT

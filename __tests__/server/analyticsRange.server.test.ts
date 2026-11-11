@@ -1,9 +1,11 @@
 import {
+  defaultInterval,
   MAX_RANGE_DAYS,
   presetRange,
   rangeDays,
   resolveRange,
   todayIn,
+  trendIntervals,
   zonedDayStart,
 } from '@/services/posthog/analyticsRange'
 
@@ -44,6 +46,7 @@ describe('analyticsRange', () => {
     expect(resolved.previousTo).toBe('2026-11-01')
     expect(resolved.previousStart.toISOString()).toBe('2026-10-25T07:00:00.000Z')
     expect(resolved.bucket).toBe('day')
+    expect(resolved.ongoing).toBe(true)
   })
 
   it('ends a past range at the day after `to`', () => {
@@ -54,6 +57,25 @@ describe('analyticsRange', () => {
     )
     if ('error' in resolved) throw new Error(resolved.error)
     expect(resolved.end.toISOString()).toBe('2026-10-08T07:00:00.000Z')
+    expect(resolved.ongoing).toBe(false)
+  })
+
+  it('offers weeks past two weeks and months past 92 days, defaulting to weeks there', () => {
+    expect(trendIntervals(8)).toEqual(['day'])
+    expect(trendIntervals(31)).toEqual(['day', 'week'])
+    expect(trendIntervals(91)).toEqual(['day', 'week'])
+    expect(trendIntervals(366)).toEqual(['day', 'week', 'month'])
+    expect(defaultInterval(91)).toBe('day')
+    expect(defaultInterval(366)).toBe('week')
+  })
+
+  it('takes an allowed grouping and refuses one the range is too short for', () => {
+    const now = new Date('2026-11-09T20:10:00Z')
+    const year = resolveRange({ from: '2025-11-09', to: '2026-11-09' }, PACIFIC, now, 'month')
+    expect('error' in year ? year.error : year.bucket).toBe('month')
+    expect(resolveRange({ from: '2026-11-01', to: '2026-11-09' }, PACIFIC, now, 'week')).toEqual({
+      error: "This range can't be grouped by week",
+    })
   })
 
   it('counts inclusive days and enforces the cap', () => {

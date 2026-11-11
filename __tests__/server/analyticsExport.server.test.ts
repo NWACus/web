@@ -55,12 +55,27 @@ describe('analytics panel export', () => {
     expect(csv.endsWith('\n')).toBe(true)
   })
 
-  it('writes every series of the trend, labelling weekly buckets', () => {
+  it('writes every series of the trend, with the days each week covers', () => {
+    const point = { visitors: 10, visits: 12, pageviews: 30 }
     const csv = timeseriesCsv({
       bucket: 'week',
-      points: [{ date: '2026-01-05', visitors: 10, visits: 12, pageviews: 30 }],
+      points: [
+        { ...point, date: '2025-12-29', from: '2026-01-01', to: '2026-01-04', partial: true },
+        { ...point, date: '2026-01-05', from: '2026-01-05', to: '2026-01-11', partial: false },
+      ],
     })
-    expect(lines(csv)).toEqual(['Week starting,Visitors,Visits,Pageviews', '2026-01-05,10,12,30'])
+    expect(lines(csv)).toEqual([
+      'From,To,Visitors,Visits,Pageviews',
+      '2026-01-01,2026-01-04,10,12,30',
+      '2026-01-05,2026-01-11,10,12,30',
+    ])
+    const daily = timeseriesCsv({
+      bucket: 'day',
+      points: [
+        { ...point, date: '2026-01-05', from: '2026-01-05', to: '2026-01-05', partial: false },
+      ],
+    })
+    expect(lines(daily)[0]).toBe('Date,Visitors,Visits,Pageviews')
   })
 
   it('uses the spec headings and display labels for a breakdown, quoting commas', () => {

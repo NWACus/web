@@ -12,9 +12,28 @@ import {
   trendExportItems,
   useThemeColors,
   type SeriesKey,
+  type TrendGrouping,
 } from './TrendChart'
 
 const LOADING: ReportState<never> = { status: 'loading' }
+
+/**
+ * Holds the stats back until the trend has loaded too, the first time for a request. Regrouping the
+ * trend afterwards reloads only the chart, so the stats stay up.
+ */
+function useRevealTogether(
+  request: ReportRequest,
+  overview: ReportState<unknown>,
+  trend: ReportState<unknown>,
+) {
+  const settled = overview.status !== 'loading' && trend.status !== 'loading'
+  const key = `${request.center}|${request.from}|${request.to}|${request.generation}`
+  const [revealed, setRevealed] = useState('')
+  useEffect(() => {
+    if (settled) setRevealed(key)
+  }, [settled, key])
+  return { settled, showStats: settled || (revealed === key && overview.status !== 'loading') }
+}
 
 /**
  * The stats row and trend chart in one card. It renders before the lists so its requests go out
@@ -23,15 +42,21 @@ const LOADING: ReportState<never> = { status: 'loading' }
 export function OverviewCard({
   request,
   centerName,
+  trend: grouping,
   onVisitors,
 }: {
   request: ReportRequest
   centerName: string
+  trend: TrendGrouping
   /** The period's unique visitors, which the lists' share column divides by. */
   onVisitors: (visitors: number | undefined) => void
 }) {
   const overview = useReport('overview', request, parseOverview)
-  const trend = useReport('timeseries', request, parseTimeseries)
+  const trend = useReport(
+    'timeseries',
+    { ...request, interval: grouping.interval },
+    parseTimeseries,
+  )
   const [series, setSeries] = useState<SeriesKey>('visitors')
   const colors = useThemeColors()
   const chartRef = useRef<ECharts | null>(null)
@@ -39,7 +64,7 @@ export function OverviewCard({
   const visitors = overview.status === 'ready' ? overview.data.visitors.current : undefined
   useEffect(() => onVisitors(visitors), [visitors, onVisitors])
 
-  const settled = overview.status !== 'loading' && trend.status !== 'loading'
+  const { settled, showStats } = useRevealTogether(request, overview, trend)
   const exportItems = trendExportItems({
     request,
     centerName,
@@ -56,11 +81,12 @@ export function OverviewCard({
         actions={<ExportMenu name="trend and summary" items={exportItems} />}
       />
       <div className="flex flex-col gap-8">
-        <StatsRow state={settled ? overview : LOADING} />
+        <StatsRow state={showStats ? overview : LOADING} />
         <TrendChart
           state={settled ? trend : LOADING}
           series={series}
           onSeries={setSeries}
+          grouping={grouping}
           colors={colors}
           chartRef={chartRef}
         />

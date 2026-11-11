@@ -1,6 +1,6 @@
 import { ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { z } from 'zod'
-import type { ResolvedRange } from './analyticsRange'
+import type { ResolvedRange, TrendInterval } from './analyticsRange'
 import {
   breakdownQuery,
   deadClicksQuery,
@@ -111,25 +111,54 @@ async function overview({ scope, query }: ReportContext): Promise<OverviewData> 
   }
 }
 
+type TimeseriesRow = z.infer<typeof timeseriesRowSchema>
+type FillRange = Pick<ResolvedRange, 'from' | 'to' | 'bucket' | 'ongoing'>
+
+const isoDay = (date: Date) => date.toISOString().slice(0, 10)
+
+/** The first day of the bucket holding `iso`. Plain calendar dates, so UTC math is exact. */
+function bucketStart(iso: string, bucket: TrendInterval): Date {
+  const date = new Date(`${iso}T00:00:00Z`)
+  // ISO weeks start on Monday: getUTCDay() is 0 for Sunday
+  if (bucket === 'week') date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7))
+  if (bucket === 'month') date.setUTCDate(1)
+  return date
+}
+
+function nextBucket(start: Date, bucket: TrendInterval): Date {
+  const next = new Date(start)
+  if (bucket === 'month') next.setUTCMonth(next.getUTCMonth() + 1)
+  else next.setUTCDate(next.getUTCDate() + (bucket === 'week' ? 7 : 1))
+  return next
+}
+
+const NO_EVENTS = { visitors: 0, visits: 0, pageviews: 0 }
+const later = (a: string, b: string) => (a > b ? a : b)
+const earlier = (a: string, b: string) => (a < b ? a : b)
+
+/** One bucket clipped to the range, partial when the range or today cuts it short. */
+function bucketPoint(start: Date, next: Date, range: FillRange, counts = NO_EVENTS) {
+  const date = isoDay(start)
+  const lastDay = isoDay(new Date(next.getTime() - 86_400_000))
+  const from = later(date, range.from)
+  const to = earlier(lastDay, range.to)
+  const cutShort = from !== date || to !== lastDay
+  const stillCounting = range.ongoing && to === range.to
+  const { visitors, visits, pageviews } = counts
+  return { date, from, to, partial: cutShort || stillCounting, visitors, visits, pageviews }
+}
+
 /** Fills buckets with no events so the chart shows zeros instead of gaps. */
-export function fillTimeseries(
-  points: TimeseriesPoint[],
-  range: Pick<ResolvedRange, 'from' | 'to' | 'bucket'>,
-): TimeseriesPoint[] {
-  const byDate = new Map(points.map((point) => [point.date, point]))
-  const filled: TimeseriesPoint[] = []
-  const cursor = new Date(`${range.from}T00:00:00Z`)
-  const last = new Date(`${range.to}T00:00:00Z`)
-  if (range.bucket === 'week') {
-    // ISO weeks start on Monday: getUTCDay() is 0 for Sunday
-    cursor.setUTCDate(cursor.getUTCDate() - ((cursor.getUTCDay() + 6) % 7))
+export function fillTimeseries(rows: TimeseriesRow[], range: FillRange): TimeseriesPoint[] {
+  const byDate = new Map(rows.map((row) => [row.date, row]))
+  const points: TimeseriesPoint[] = []
+  let start = bucketStart(range.from, range.bucket)
+  while (isoDay(start) <= range.to) {
+    const next = nextBucket(start, range.bucket)
+    points.push(bucketPoint(start, next, range, byDate.get(isoDay(start))))
+    start = next
   }
-  while (cursor.getTime() <= last.getTime()) {
-    const date = cursor.toISOString().slice(0, 10)
-    filled.push(byDate.get(date) ?? { date, visitors: 0, visits: 0, pageviews: 0 })
-    cursor.setUTCDate(cursor.getUTCDate() + (range.bucket === 'week' ? 7 : 1))
-  }
-  return filled
+  return points
 }
 
 const breakdown =

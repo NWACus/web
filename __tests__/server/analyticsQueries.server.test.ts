@@ -422,6 +422,10 @@ describe('center queries', () => {
     expect(timeseriesQuery(year).query).toContain(
       'toStartOfWeek(toTimeZone(timestamp, {timezone}), 1)',
     )
+    const byMonth = { ...year, range: { ...year.range, bucket: 'month' as const } }
+    expect(timeseriesQuery(byMonth).query).toContain(
+      'toStartOfMonth(toTimeZone(timestamp, {timezone}))',
+    )
   })
 
   it('builds each breakdown with its own label and both visits and pageviews', () => {
@@ -466,22 +470,58 @@ describe('estimateColdSeconds', () => {
 })
 
 describe('fillTimeseries', () => {
+  const past = { ongoing: false }
+
   it('inserts zero days for gaps', () => {
     const filled = fillTimeseries([{ date: '2026-11-02', visitors: 5, visits: 6, pageviews: 7 }], {
+      ...past,
       from: '2026-11-01',
       to: '2026-11-03',
       bucket: 'day',
     })
-    expect(filled.map((point) => [point.date, point.visitors])).toEqual([
-      ['2026-11-01', 0],
-      ['2026-11-02', 5],
-      ['2026-11-03', 0],
+    expect(filled.map((point) => [point.date, point.visitors, point.partial])).toEqual([
+      ['2026-11-01', 0, false],
+      ['2026-11-02', 5, false],
+      ['2026-11-03', 0, false],
     ])
   })
 
-  it('aligns weekly buckets to Mondays', () => {
-    const filled = fillTimeseries([], { from: '2026-11-04', to: '2026-11-18', bucket: 'week' })
-    expect(filled.map((point) => point.date)).toEqual(['2026-11-02', '2026-11-09', '2026-11-16'])
+  it('aligns weeks to Mondays and marks the ones the range cuts short', () => {
+    const filled = fillTimeseries([], {
+      ...past,
+      from: '2026-11-04',
+      to: '2026-11-18',
+      bucket: 'week',
+    })
+    expect(filled.map(({ date, from, to, partial }) => [date, from, to, partial])).toEqual([
+      ['2026-11-02', '2026-11-04', '2026-11-08', true],
+      ['2026-11-09', '2026-11-09', '2026-11-15', false],
+      ['2026-11-16', '2026-11-16', '2026-11-18', true],
+    ])
+  })
+
+  it('groups by calendar month', () => {
+    const filled = fillTimeseries([{ date: '2026-02-01', visitors: 3, visits: 4, pageviews: 5 }], {
+      ...past,
+      from: '2026-01-15',
+      to: '2026-03-31',
+      bucket: 'month',
+    })
+    expect(filled.map(({ date, to, partial, visitors }) => [date, to, partial, visitors])).toEqual([
+      ['2026-01-01', '2026-01-31', true, 0],
+      ['2026-02-01', '2026-02-28', false, 3],
+      ['2026-03-01', '2026-03-31', false, 0],
+    ])
+  })
+
+  it('marks the last bucket partial while today is under way', () => {
+    const filled = fillTimeseries([], {
+      ongoing: true,
+      from: '2026-11-01',
+      to: '2026-11-03',
+      bucket: 'day',
+    })
+    expect(filled.map((point) => point.partial)).toEqual([false, false, true])
   })
 })
 

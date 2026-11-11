@@ -1,12 +1,16 @@
 'use client'
 
 import {
+  defaultInterval,
   isIsoDate,
   isRangePreset,
+  isTrendInterval,
   presetRange,
   rangeDays,
   todayIn,
+  trendIntervals,
   type DateRange,
+  type TrendInterval,
 } from '@/services/posthog/analyticsRange'
 import { estimateColdSeconds, PROMPT_ABOVE_DAYS } from '@/services/posthog/reportTypes'
 import { cn } from '@/utilities/ui'
@@ -35,6 +39,7 @@ import { describeSeconds, LongRangeGate } from './LongRangeGate'
 import { ListPanel, listTab, type ListTab } from './panels/ListPanel'
 import { OverviewCard } from './panels/OverviewCard'
 import { MUTED } from './panels/Panel'
+import type { TrendGrouping } from './panels/TrendChart'
 import { defaultSelection, RangePicker, type RangeSelection } from './RangePicker'
 import type { ReportRequest } from './useReport'
 
@@ -92,13 +97,46 @@ function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
   return [selection, setSelection]
 }
 
+/**
+ * The trend's grouping, kept in the URL as `?interval=` only when it isn't the range's default. A
+ * new range drops it, and a grouping the range is too short for falls back to the default.
+ */
+function useTrendGrouping(selection: RangeSelection, days: number): TrendGrouping {
+  const params = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  const intervals = trendIntervals(days)
+  const fallback = defaultInterval(days)
+  const requested = params.get('interval')
+  const onInterval = (next: TrendInterval) => {
+    const nextParams = paramsFromSelection(selection)
+    if (next !== fallback) nextParams.set('interval', next)
+    router.replace(`${pathname}?${nextParams}`, { scroll: false })
+  }
+  const allowed = isTrendInterval(requested) && intervals.includes(requested)
+  return { interval: allowed ? requested : fallback, intervals, onInterval }
+}
+
 const REFRESH_MODAL = 'web-analytics-refresh'
 
-function Panels({ request, centerName }: { request: ReportRequest; centerName: string }) {
+function Panels({
+  request,
+  centerName,
+  trend,
+}: {
+  request: ReportRequest
+  centerName: string
+  trend: TrendGrouping
+}) {
   const [totalVisitors, setTotalVisitors] = useState<number>()
   return (
     <>
-      <OverviewCard request={request} centerName={centerName} onVisitors={setTotalVisitors} />
+      <OverviewCard
+        request={request}
+        centerName={centerName}
+        trend={trend}
+        onVisitors={setTotalVisitors}
+      />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <ListPanel title="Pages" tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
         <ListPanel
@@ -146,6 +184,8 @@ export function AnalyticsDashboard({
     selection.preset === 'custom'
       ? selection.range
       : presetRange(selection.preset, timezone, new Date())
+  const days = rangeDays(range)
+  const trend = useTrendGrouping(selection, days)
 
   // The Refresh button forces one round of uncached fetches for the range it was pressed on.
   const [refresh, setRefresh] = useState({ generation: 0, forcedRange: '' })
@@ -155,7 +195,7 @@ export function AnalyticsDashboard({
     setRefresh(({ generation }) => ({ generation: generation + 1, forcedRange: rangeKey }))
   // A forced refresh recalculates everything on PostHog's side, so long ranges ask first
   const requestRefresh = () =>
-    rangeDays(range) > PROMPT_ABOVE_DAYS ? openModal(REFRESH_MODAL) : forceRefresh()
+    days > PROMPT_ABOVE_DAYS ? openModal(REFRESH_MODAL) : forceRefresh()
   const request: ReportRequest = {
     center,
     from: range.from,
@@ -189,7 +229,7 @@ export function AnalyticsDashboard({
         <ConfirmationModal
           modalSlug={REFRESH_MODAL}
           heading="Refresh from PostHog?"
-          body={`This throws away the cached numbers for ${formatDateRange(range.from, range.to)} and recalculates them in PostHog, which takes ${describeSeconds(estimateColdSeconds(rangeDays(range)))}.`}
+          body={`This throws away the cached numbers for ${formatDateRange(range.from, range.to)} and recalculates them in PostHog, which takes ${describeSeconds(estimateColdSeconds(days))}.`}
           confirmLabel="Refresh"
           onConfirm={forceRefresh}
         />
@@ -213,7 +253,7 @@ export function AnalyticsDashboard({
           range={range}
           onFallback={() => setSelection(defaultSelection)}
         >
-          <Panels request={request} centerName={centerName} />
+          <Panels request={request} centerName={centerName} trend={trend} />
         </LongRangeGate>
       )}
     </div>

@@ -1,6 +1,7 @@
 // The contract between the analytics endpoint and the admin page: every report and the shape of its
 // data. Shared with client code, so keep this file free of server imports.
 import { z } from 'zod'
+import { TREND_INTERVALS } from './analyticsRange'
 
 const comparisonSchema = z.object({ current: z.number(), previous: z.number() })
 export type Comparison = z.infer<typeof comparisonSchema>
@@ -18,7 +19,13 @@ export const overviewSchema = z.object({
 export type OverviewData = z.infer<typeof overviewSchema>
 
 const timeseriesPointSchema = z.object({
+  /** The bucket's first day, which can fall before the range for a week or month. */
   date: z.string(),
+  /** The days of the range the bucket covers, inclusive. */
+  from: z.string(),
+  to: z.string(),
+  /** Cut short by the range's edges or by today still being under way. */
+  partial: z.boolean(),
   visitors: z.number(),
   visits: z.number(),
   pageviews: z.number(),
@@ -26,7 +33,7 @@ const timeseriesPointSchema = z.object({
 export type TimeseriesPoint = z.infer<typeof timeseriesPointSchema>
 
 export const timeseriesSchema = z.object({
-  bucket: z.enum(['day', 'week']),
+  bucket: z.enum(TREND_INTERVALS),
   points: z.array(timeseriesPointSchema),
 })
 export type TimeseriesData = z.infer<typeof timeseriesSchema>

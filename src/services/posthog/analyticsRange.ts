@@ -25,8 +25,41 @@ export type ResolvedRange = {
   start: Date
   end: Date
   timezone: string
-  /** Day buckets up to 92 days; longer ranges use weeks so the chart stays readable. */
-  bucket: 'day' | 'week'
+  /** The trend's grouping: the caller's choice, or `defaultInterval` for the range. */
+  bucket: TrendInterval
+  /** The range runs to now, so its last day is still collecting events. */
+  ongoing: boolean
+}
+
+export const TREND_INTERVALS = ['day', 'week', 'month'] as const
+export type TrendInterval = (typeof TREND_INTERVALS)[number]
+
+export function isTrendInterval(value: unknown): value is TrendInterval {
+  return typeof value === 'string' && TREND_INTERVALS.some((interval) => interval === value)
+}
+
+/** The groupings that draw a useful line for a range of `days`: weeks past two, months past 92 days. */
+export function trendIntervals(days: number): TrendInterval[] {
+  if (days > 92) return ['day', 'week', 'month']
+  if (days > 14) return ['day', 'week']
+  return ['day']
+}
+
+/** Days up to 92 days; longer ranges use weeks so the chart stays readable. */
+export function defaultInterval(days: number): TrendInterval {
+  return days > 92 ? 'week' : 'day'
+}
+
+/** The requested grouping if the range allows it, else the range's default when none was asked for. */
+function resolveInterval(
+  requested: string | null | undefined,
+  days: number,
+): TrendInterval | { error: string } {
+  if (requested == null) return defaultInterval(days)
+  if (!isTrendInterval(requested)) return { error: 'Unknown interval' }
+  return trendIntervals(days).includes(requested)
+    ? requested
+    : { error: `This range can't be grouped by ${requested}` }
 }
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/ // YYYY-MM-DD
@@ -87,6 +120,7 @@ export function resolveRange(
   range: DateRange,
   timezone: string,
   now: Date,
+  interval?: string | null,
 ): ResolvedRange | { error: string } {
   if (!isIsoDate(range.from) || !isIsoDate(range.to)) return { error: 'Dates must be YYYY-MM-DD' }
   if (range.from > range.to) return { error: 'The start date must not be after the end date' }
@@ -95,6 +129,8 @@ export function resolveRange(
   const dayAfterTo = addDays(zonedDayStart(range.to, timezone), 1)
   const days = Math.round((dayAfterTo.getTime() - start.getTime()) / 86_400_000)
   if (days > MAX_RANGE_DAYS) return { error: `Ranges are limited to ${MAX_RANGE_DAYS} days` }
+  const bucket = resolveInterval(interval, days)
+  if (typeof bucket === 'object') return bucket
 
   const previousStart = addDays(start, -days)
   const previousEnd = addDays(start, -1)
@@ -109,6 +145,7 @@ export function resolveRange(
     start: new Date(start.getTime()),
     end,
     timezone,
-    bucket: days > 92 ? 'week' : 'day',
+    bucket,
+    ongoing: end.getTime() < dayAfterTo.getTime(),
   }
 }
