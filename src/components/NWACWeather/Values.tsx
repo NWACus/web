@@ -236,8 +236,7 @@ export function TempValue({
   if (labeled) {
     return (
       <span className="whitespace-nowrap tabular-nums">
-        <span className="text-xs text-muted-foreground">Lo</span>{' '}
-        <span className="font-semibold">{cell.low}°</span>
+        <span className="text-xs text-muted-foreground">Lo</span> <span>{cell.low}°</span>
         <span className="text-muted-foreground"> · </span>
         <span className="text-xs text-muted-foreground">Hi</span>{' '}
         <span className="font-semibold">{cell.high}°</span>
@@ -250,63 +249,6 @@ export function TempValue({
       <span className="text-muted-foreground"> / </span>
       <span className="font-semibold">{cell.high}°</span>
     </span>
-  )
-}
-
-const MIN_BAR_PCT = 12
-
-/**
- * A period's low, a bar from low to high, then the high, on `scale` so every bar in a table lines
- * up: further right is warmer, longer a wider swing.
- */
-export function TempRange({
-  cell,
-  scale,
-}: {
-  cell: NWACWeatherTempCell | undefined
-  scale: { min: number; max: number }
-}) {
-  if (cell?.high == null || cell?.low == null) {
-    return <span className="text-muted-foreground">{DASH}</span>
-  }
-  const at = (t: number) => ((t - scale.min) / (scale.max - scale.min)) * 100
-  // A one- or two-degree swing still draws as a short bar, centred on its span, not a dot.
-  const half = Math.max((at(cell.high) - at(cell.low)) / 2, MIN_BAR_PCT / 2)
-  // Nudged in from the ends, so a short bar near the scale's edge stays on its track.
-  const mid = Math.min(Math.max((at(cell.low) + at(cell.high)) / 2, half), 100 - half)
-  return (
-    <span className="flex items-center gap-1.5 tabular-nums">
-      <span className="sr-only">
-        Low {cell.low}, high {cell.high}
-      </span>
-      <span aria-hidden="true" className="w-6 text-right text-muted-foreground">
-        {cell.low}°
-      </span>
-      <span aria-hidden="true" className="relative h-1.5 min-w-6 flex-1 rounded-full bg-muted">
-        <span
-          className="absolute inset-y-0 rounded-full bg-sky-400"
-          style={{ left: `${mid - half}%`, right: `${100 - (mid + half)}%` }}
-        />
-      </span>
-      <span aria-hidden="true" className="w-6 font-semibold">
-        {cell.high}°
-      </span>
-    </span>
-  )
-}
-
-/** How to read the temperature bars, under the table. */
-export function TempRangeLegend({ scale }: { scale: { min: number; max: number } | null }) {
-  return (
-    <p className="text-xs text-muted-foreground">
-      Low{' '}
-      <span
-        aria-hidden="true"
-        className="inline-block h-1.5 w-6 rounded-full bg-sky-400 align-middle"
-      />
-      <span className="sr-only">to</span> high in 12 hours
-      {scale && ` · ${scale.min}–${scale.max}°F scale`}
-    </p>
   )
 }
 
@@ -345,6 +287,18 @@ export function SnowLevelValue({
         </span>
       </span>
     </span>
+  )
+}
+
+/** How to read a temperature cell, under the table. */
+export function TempLegend() {
+  return (
+    <p className={cn(KEY_LINE, 'items-center gap-x-6')}>
+      <span>Lo: low in 12 hours</span>
+      <span>
+        Hi: <span className="font-semibold text-foreground">high</span> in 12 hours
+      </span>
+    </p>
   )
 }
 

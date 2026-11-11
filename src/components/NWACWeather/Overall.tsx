@@ -30,7 +30,6 @@ import {
   snowLevelBlocks,
   snowRange,
   tempPeriods,
-  tempScale,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
@@ -49,8 +48,8 @@ import {
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
-  TempRange,
-  TempRangeLegend,
+  TempLegend,
+  TempValue,
   WindLegend,
   WindValue,
   levelFill,
@@ -210,9 +209,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   const levelBlocks = snowLevelBlocks(issuance)
 
   const temps = tempPeriods(issuance)
-  const scale = tempScale(
-    issuance.zones.flatMap((z) => temps.map((p) => issuance.temp[z.id]?.[p.key])),
-  )
   const winds = windBlocks(issuance)
 
   return [
@@ -248,7 +244,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       title: "5000' Temperatures",
       unit: '°F',
       description: TEMPS_DESCRIPTION,
-      legend: <TempRangeLegend scale={scale} />,
+      legend: <TempLegend />,
       labelVars: '[--label:6.5rem] md:[--label:10.5rem]',
       fitsPhone: true,
       paired: true,
@@ -256,15 +252,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       columns: temps.map(periodColumn),
       groups: flat(
         zoneRows((id) =>
-          temps.map((p) =>
-            scale ? (
-              <TempRange key={p.key} cell={issuance.temp[id]?.[p.key]} scale={scale} />
-            ) : (
-              <span key={p.key} className="text-muted-foreground">
-                {DASH}
-              </span>
-            ),
-          ),
+          temps.map((p) => <TempValue key={p.key} cell={issuance.temp[id]?.[p.key]} labeled />),
         ),
       ),
     },

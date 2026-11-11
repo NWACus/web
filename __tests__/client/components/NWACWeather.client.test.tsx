@@ -1,12 +1,6 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
-import {
-  SnowLevelLegend,
-  TempRange,
-  WindValue,
-  levelFill,
-  windFill,
-} from '@/components/NWACWeather/Values'
+import { SnowLevelLegend, WindValue, levelFill, windFill } from '@/components/NWACWeather/Values'
 import type { NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
 import { dayGroups, fmtQpf, hasSnowAmounts, precipPeriods } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
@@ -39,7 +33,7 @@ describe('Overall', () => {
     const [olympics] = within(temps)
       .getAllByRole('rowheader', { name: 'Olympics' })
       .map((label) => label.closest('tr'))
-    expect(olympics).toHaveTextContent('Low 47, high 53')
+    expect(olympics).toHaveTextContent('Lo 47° · Hi 53°')
   })
 
   it('puts the weather summary beside the synopsis, then precipitation and snow, the zone links last, and links each zone to its forecast page', () => {
@@ -265,14 +259,6 @@ describe('Overall table descriptions', () => {
     expect(
       screen.getAllByText(/^Precipitation: Water Equivalent \(WE\) .* presented in a range\.$/),
     ).toHaveLength(2)
-    // The key's bar sits between Low and high, so the line is matched whole.
-    expect(
-      screen.getByText(
-        (_, el) =>
-          el?.tagName === 'P' &&
-          /^Low to high in 12 hours · \d+–\d+°F scale$/.test(el.textContent ?? ''),
-      ),
-    ).toBeInTheDocument()
     expect(screen.getByText('Points downwind')).toBeInTheDocument()
   })
 })
@@ -418,33 +404,6 @@ describe('the paired temperature and wind tables', () => {
     fireEvent.keyDown(screen.getByRole('option', { name: '12 hours' }), { key: 'Enter' })
     // Back to 12 hours: the range's last date.
     expect(dates()[0].textContent).toBe(date24.textContent?.split(' – ').at(-1))
-  })
-})
-
-describe('TempRange', () => {
-  const bar = (container: HTMLElement) => {
-    const el = container.querySelector<HTMLElement>('.bg-sky-400')
-    if (!el) throw new Error('no bar')
-    return { left: parseFloat(el.style.left), right: parseFloat(el.style.right) }
-  }
-
-  it('keeps a short bar at the edge of the scale on its track', () => {
-    const scale = { min: 12, max: 43 }
-    const cold = bar(render(<TempRange cell={{ low: 13, high: 14 }} scale={scale} />).container)
-    const warm = bar(render(<TempRange cell={{ low: 41, high: 42 }} scale={scale} />).container)
-
-    expect(cold.left).toBeCloseTo(0)
-    expect(cold.right).toBeCloseTo(88)
-    expect(warm.right).toBeCloseTo(0)
-  })
-
-  it('draws a wide swing from its low to its high', () => {
-    const { left, right } = bar(
-      render(<TempRange cell={{ low: 20, high: 30 }} scale={{ min: 10, max: 40 }} />).container,
-    )
-
-    expect(left).toBeCloseTo(100 / 3)
-    expect(right).toBeCloseTo(100 / 3)
   })
 })
 
