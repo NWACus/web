@@ -5,6 +5,7 @@ import {
   isRangePreset,
   presetRange,
   rangeDays,
+  todayIn,
   type DateRange,
 } from '@/services/posthog/analyticsRange'
 import { estimateColdSeconds, PROMPT_ABOVE_DAYS } from '@/services/posthog/panelTypes'
@@ -175,7 +176,12 @@ export function AnalyticsDashboard({
         />
       </div>
 
-      <RangePicker selection={selection} resolved={range} onChange={setSelection} />
+      <RangePicker
+        selection={selection}
+        resolved={range}
+        today={todayIn(timezone, new Date())}
+        onChange={setSelection}
+      />
 
       {!configured ? (
         <p className={cn('m-0 text-sm', MUTED)}>

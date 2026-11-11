@@ -253,7 +253,7 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "378a599a37e7a0a1"
+sig = "40fd1845c283c263"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -263,7 +263,7 @@ sig = "27d4f64631512b33"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/RangePicker.tsx"
-sig = "dfc9f0b4be90cd6a"
+sig = "5be176ebecf44249"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"

@@ -35,15 +35,50 @@ const DATE_FIELD = cn(
 export type RangeSelection = { preset: RangePreset } | { preset: 'custom'; range: DateRange }
 
 const pad = (n: number) => String(n).padStart(2, '0')
-// The picker returns local midnight; read the calendar fields rather than shifting through UTC
+// The picker returns a local time on the chosen day; read the calendar fields rather than UTC's
 const toIsoDate = (date: Date) =>
   `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 
+// Noon keeps the calendar day the same in every browser timezone
+const toPickerDate = (isoDate: string) => new Date(`${isoDate}T12:00:00`)
+
+function DateField({
+  label,
+  value,
+  max,
+  onChange,
+}: {
+  label: string
+  value: string
+  max: string
+  onChange: (isoDate: string) => void
+}) {
+  // A div, not a label: a label forwards clicks on the calendar to its first control, which is
+  // Payload's clear button, and that empties the field
+  return (
+    <div className={DATE_FIELD}>
+      <span className={MUTED}>{label}</span>
+      <DatePicker
+        pickerAppearance="dayOnly"
+        displayFormat="MMM d, yyyy"
+        maxDate={toPickerDate(max)}
+        value={toPickerDate(value)}
+        // Clearing the field or typing an unparseable date reports null; keep the last valid day
+        onChange={(date: Date | null) => {
+          if (date) onChange(toIsoDate(date))
+        }}
+      />
+    </div>
+  )
+}
+
 function CustomRange({
   range,
+  today,
   onApply,
 }: {
   range: DateRange
+  today: string
   onApply: (range: DateRange) => void
 }) {
   const [draft, setDraft] = useState(range)
@@ -56,22 +91,18 @@ function CustomRange({
         : null
   return (
     <div className="flex flex-wrap items-end gap-3">
-      <label className={DATE_FIELD}>
-        <span className={MUTED}>From</span>
-        <DatePicker
-          pickerAppearance="dayOnly"
-          value={new Date(`${draft.from}T12:00:00`)}
-          onChange={(date) => setDraft({ ...draft, from: toIsoDate(date) })}
-        />
-      </label>
-      <label className={DATE_FIELD}>
-        <span className={MUTED}>To</span>
-        <DatePicker
-          pickerAppearance="dayOnly"
-          value={new Date(`${draft.to}T12:00:00`)}
-          onChange={(date) => setDraft({ ...draft, to: toIsoDate(date) })}
-        />
-      </label>
+      <DateField
+        label="From"
+        value={draft.from}
+        max={today}
+        onChange={(from) => setDraft({ ...draft, from })}
+      />
+      <DateField
+        label="To"
+        value={draft.to}
+        max={today}
+        onChange={(to) => setDraft({ ...draft, to })}
+      />
       <Button
         buttonStyle="primary"
         size="medium"
@@ -89,11 +120,14 @@ function CustomRange({
 export function RangePicker({
   selection,
   resolved,
+  today,
   onChange,
 }: {
   selection: RangeSelection
   /** The dates the selection currently resolves to, shown under the controls. */
   resolved: DateRange
+  /** Today in the center's timezone, the latest day the custom range can pick. */
+  today: string
   onChange: (selection: RangeSelection) => void
 }) {
   const [customOpen, setCustomOpen] = useState(selection.preset === 'custom')
@@ -120,7 +154,11 @@ export function RangePicker({
         </span>
       </div>
       {customOpen && (
-        <CustomRange range={resolved} onApply={(range) => onChange({ preset: 'custom', range })} />
+        <CustomRange
+          range={resolved}
+          today={today}
+          onApply={(range) => onChange({ preset: 'custom', range })}
+        />
       )}
     </div>
   )
