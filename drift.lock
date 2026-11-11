@@ -813,7 +813,7 @@ sig = "eef97067a5b42a38"
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
 target = "src/middleware.ts"
-sig = "4a685d04d8f18a26"
+sig = "673b192dbabccc76"
 
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
@@ -823,7 +823,7 @@ sig = "76d25f34cc58b62c"
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
 target = "src/middleware.ts"
-sig = "4a685d04d8f18a26"
+sig = "673b192dbabccc76"
 
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
@@ -873,7 +873,7 @@ sig = "0ce7dd3d375aa0fe"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/middleware.ts"
-sig = "4a685d04d8f18a26"
+sig = "673b192dbabccc76"
 
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
@@ -1393,7 +1393,7 @@ sig = "a5ad3b592de08694"
 [[bindings]]
 doc = "docs/decisions/025-admin-served-only-from-the-apex.md"
 target = "src/middleware.ts"
-sig = "4a685d04d8f18a26"
+sig = "673b192dbabccc76"
 
 [[bindings]]
 doc = "docs/decisions/026-member-auth-with-better-auth.md"
@@ -1593,7 +1593,7 @@ sig = "a8caf84889929943"
 [[bindings]]
 doc = "docs/member-auth.md"
 target = "src/app/(frontend)/[center]/layout.tsx"
-sig = "af15f6ced2719339"
+sig = "d593850f7989b02e"
 
 [[bindings]]
 doc = "docs/member-auth.md"
@@ -1678,7 +1678,7 @@ sig = "42560a28ce36fd84"
 [[bindings]]
 doc = "docs/member-auth.md"
 target = "src/middleware.ts"
-sig = "4a685d04d8f18a26"
+sig = "673b192dbabccc76"
 
 [[bindings]]
 doc = "docs/member-auth.md"
@@ -1718,7 +1718,7 @@ sig = "f4246a987c09c246"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/middleware.ts"
-sig = "4a685d04d8f18a26"
+sig = "673b192dbabccc76"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -1753,7 +1753,7 @@ sig = "8b1d5aafca5bcb3c"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/(frontend)/[center]/layout.tsx"
-sig = "af15f6ced2719339"
+sig = "d593850f7989b02e"
 
 [[bindings]]
 doc = "docs/onboarding.md"
@@ -2023,7 +2023,7 @@ sig = "4fc2ad0bd4509765"
 [[bindings]]
 doc = "docs/testing.md"
 target = ".env.example"
-sig = "e9d5bf3c2d622ca8"
+sig = "bedfdfcaebf96fb1"
 
 [[bindings]]
 doc = "docs/testing.md"
@@ -2068,4 +2068,4 @@ sig = "ae644a2cdad03931"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/middleware.ts"
-sig = "4a685d04d8f18a26"
+sig = "673b192dbabccc76"
