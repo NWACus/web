@@ -48,7 +48,15 @@ function Switch({
           className="whitespace-nowrap font-semibold data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
         >
           {p.label}
-          {p.time && <span className="font-normal text-muted-foreground">{p.time}</span>}
+          {p.time && (
+            // No room beside Latest on a phone; the issued line has the time.
+            <span className="hidden font-normal text-muted-foreground sm:inline">{p.time}</span>
+          )}
+          {p.key === panels[0].key && (
+            <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-sky-900">
+              Latest
+            </span>
+          )}
         </ToggleGroupItem>
       ))}
     </ToggleGroup>

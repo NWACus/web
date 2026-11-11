@@ -314,8 +314,11 @@ describe('IssuanceSwitch with a heading', () => {
     )
     // Morning before Afternoon, with the newer Afternoon shown first.
     const radios = screen.getAllByRole('radio')
-    expect(radios.map((r) => r.textContent)).toEqual(['Morning7:00 AM', 'Afternoon3:03 PM'])
-    expect(screen.getByRole('radio', { name: /Afternoon/ })).toHaveAttribute('aria-checked', 'true')
+    expect(radios.map((r) => r.textContent)).toEqual(['Morning7:00 AM', 'Afternoon3:03 PMLatest'])
+    expect(screen.getByRole('radio', { name: /Afternoon.*Latest/ })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
     expect(screen.getByText('Issued at 3:03')).toBeVisible()
     expect(screen.getByText('Issued at 7:00')).not.toBeVisible()
 
