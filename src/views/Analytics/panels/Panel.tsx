@@ -1,6 +1,5 @@
 'use client'
 
-import type { PanelData } from '@/services/posthog/panelTypes'
 import { cn } from '@/utilities/ui'
 import { ShimmerEffect } from '@payloadcms/ui'
 import type { ReactNode } from 'react'
@@ -37,7 +36,7 @@ export function PanelFrame({
   )
 }
 
-export function PanelBody<T extends PanelData>({
+export function PanelBody<T>({
   state,
   empty,
   children,

@@ -1,6 +1,5 @@
 'use client'
 
-import type { PanelData } from '@/services/posthog/panelTypes'
 import { saveCsv } from '@/utilities/export/saveFile'
 import { Popup, PopupList } from '@payloadcms/ui'
 import { ChevronDown, Download } from 'lucide-react'
@@ -10,7 +9,7 @@ import type { PanelState } from '../usePanel'
 export type ExportItem = { label: string; onSelect: () => void }
 
 /** The CSV item for a list panel, once it has rows to save. */
-export function csvExportItems<T extends PanelData & { rows: unknown[] }>(
+export function csvExportItems<T extends { rows: unknown[] }>(
   state: PanelState<T>,
   center: string,
   panelLabel: string,

@@ -15,40 +15,44 @@ import { RefreshCw } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
 import { formatDateRange } from './format'
+import {
+  BROWSERS,
+  CHANNELS,
+  COUNTRIES,
+  DEAD_CLICKS,
+  DEVICE_TYPES,
+  ENTRY_PAGES,
+  EXIT_PAGES,
+  NOT_FOUND,
+  OPERATING_SYSTEMS,
+  REFERRERS,
+  REGIONS,
+  SPONSORS,
+  TOP_PAGES,
+} from './lists'
 import { describeSeconds, LongRangeGate } from './LongRangeGate'
-import { BreakdownPanel, type BreakdownTab } from './panels/BreakdownPanel'
-import { FixesPanel } from './panels/FixesPanel'
+import { ListPanel, listTab, type ListTab } from './panels/ListPanel'
 import { MUTED } from './panels/Panel'
-import { SponsorsPanel } from './panels/SponsorsPanel'
-import { pickOverview, StatsRow } from './panels/StatsRow'
+import { parseOverview, StatsRow } from './panels/StatsRow'
 import { TrendChart } from './panels/TrendChart'
 import { defaultSelection, RangePicker, type RangeSelection } from './RangePicker'
 import { usePanel, type PanelRequest } from './usePanel'
 
-const PAGE_TABS: BreakdownTab[] = [
-  { key: 'pages', label: 'Top pages', rowLabel: 'Page', secondaryLabel: 'Views' },
-  { key: 'entryPages', label: 'Entry pages', rowLabel: 'Page', secondaryLabel: 'Visits' },
-  { key: 'exitPages', label: 'Exit pages', rowLabel: 'Page', secondaryLabel: 'Visits' },
+const PAGE_TABS: [ListTab, ...ListTab[]] = [
+  listTab(TOP_PAGES),
+  listTab(ENTRY_PAGES),
+  listTab(EXIT_PAGES),
 ]
-const SOURCE_TABS: BreakdownTab[] = [
-  {
-    key: 'referrers',
-    label: 'Referrers',
-    rowLabel: 'Source',
-    secondaryLabel: 'Visits',
-    display: (label) => (label === '$direct' ? 'Direct' : label),
-  },
-  { key: 'channels', label: 'Channels', rowLabel: 'Channel', secondaryLabel: 'Visits' },
+const SOURCE_TABS: [ListTab, ...ListTab[]] = [listTab(REFERRERS), listTab(CHANNELS)]
+const LOCATION_TABS: [ListTab, ...ListTab[]] = [listTab(COUNTRIES), listTab(REGIONS)]
+const DEVICE_TABS: [ListTab, ...ListTab[]] = [
+  listTab(DEVICE_TYPES),
+  listTab(BROWSERS),
+  listTab(OPERATING_SYSTEMS),
 ]
-const LOCATION_TABS: BreakdownTab[] = [
-  { key: 'countries', label: 'Countries', rowLabel: 'Country', secondaryLabel: 'Views' },
-  { key: 'regions', label: 'Regions', rowLabel: 'Region', secondaryLabel: 'Views' },
-]
-const DEVICE_TABS: BreakdownTab[] = [
-  { key: 'deviceTypes', label: 'Device', rowLabel: 'Device', secondaryLabel: 'Views' },
-  { key: 'browsers', label: 'Browser', rowLabel: 'Browser', secondaryLabel: 'Views' },
-  { key: 'operatingSystems', label: 'OS', rowLabel: 'Operating system', secondaryLabel: 'Views' },
-]
+const SPONSOR_TABS: [ListTab, ...ListTab[]] = [listTab(SPONSORS)]
+// Things that are wrong and fixable: broken links and clicks that did nothing
+const FIX_TABS: [ListTab, ...ListTab[]] = [listTab(NOT_FOUND), listTab(DEAD_CLICKS)]
 
 function customRangeFromParams(params: URLSearchParams): DateRange | null {
   const from = params.get('from')
@@ -87,7 +91,7 @@ function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
 const REFRESH_MODAL = 'site-analytics-refresh'
 
 function Panels({ request, centerName }: { request: PanelRequest; centerName: string }) {
-  const overview = usePanel('overview', request, pickOverview)
+  const overview = usePanel('overview', request, parseOverview)
   const totalVisitors = overview.status === 'ready' ? overview.data.visitors.current : undefined
   return (
     <>
@@ -96,12 +100,12 @@ function Panels({ request, centerName }: { request: PanelRequest; centerName: st
         <TrendChart request={request} centerName={centerName} overview={overview} />
       </section>
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <BreakdownPanel tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
-        <BreakdownPanel tabs={SOURCE_TABS} request={request} totalVisitors={totalVisitors} />
-        <BreakdownPanel tabs={LOCATION_TABS} request={request} totalVisitors={totalVisitors} />
-        <BreakdownPanel tabs={DEVICE_TABS} request={request} totalVisitors={totalVisitors} />
-        <SponsorsPanel request={request} />
-        <FixesPanel request={request} />
+        <ListPanel tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
+        <ListPanel tabs={SOURCE_TABS} request={request} totalVisitors={totalVisitors} />
+        <ListPanel tabs={LOCATION_TABS} request={request} totalVisitors={totalVisitors} />
+        <ListPanel tabs={DEVICE_TABS} request={request} totalVisitors={totalVisitors} />
+        <ListPanel tabs={SPONSOR_TABS} request={request} />
+        <ListPanel tabs={FIX_TABS} request={request} />
       </div>
     </>
   )

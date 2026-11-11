@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { DeadClickRow } from './panelTypes'
 
 export const deadClickRowSchema = z.object({
   path: z.string(),
@@ -12,13 +13,6 @@ export const deadClickRowSchema = z.object({
 })
 
 export type DeadClickQueryRow = z.infer<typeof deadClickRowSchema>
-
-export type DeadClickTarget = {
-  path: string
-  label: string
-  clicks: number
-  people: number
-}
 
 const TAG_WORDS: Record<string, string> = {
   a: 'Link',
@@ -78,8 +72,8 @@ export function labelDeadClick(
  * Collapses query groups that share a page and label. Clicks add up; people is kept as the largest
  * group's count, since the same person may appear in several groups.
  */
-export function mergeDeadClicks(rows: DeadClickQueryRow[], limit = 10): DeadClickTarget[] {
-  const merged = new Map<string, DeadClickTarget>()
+export function mergeDeadClicks(rows: DeadClickQueryRow[], limit = 10): DeadClickRow[] {
+  const merged = new Map<string, DeadClickRow>()
   for (const row of rows) {
     const label = labelDeadClick(row)
     const key = `${row.path}\u0000${label}`

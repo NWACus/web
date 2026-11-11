@@ -1,17 +1,16 @@
 'use client'
 
-import type { Comparison, OverviewData, PanelData } from '@/services/posthog/panelTypes'
+import { overviewSchema, type Comparison, type OverviewData } from '@/services/posthog/panelTypes'
 import { cn } from '@/utilities/ui'
 import { ShimmerEffect } from '@payloadcms/ui'
 import { formatDecimal, formatDelta, formatDuration, formatInteger, formatPercent } from '../format'
-import type { PanelState } from '../usePanel'
+import { parseWith, type PanelState } from '../usePanel'
 import { MUTED } from './Panel'
 
-export const pickOverview = (data: PanelData): OverviewData | null =>
-  data.kind === 'overview' ? data : null
+export const parseOverview = parseWith(overviewSchema)
 
 type Metric = {
-  key: keyof Omit<OverviewData, 'kind'>
+  key: keyof OverviewData
   label: string
   format: (value: number) => string
   invert?: boolean

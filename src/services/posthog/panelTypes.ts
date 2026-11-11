@@ -1,92 +1,120 @@
-// Shared between the endpoint and the admin page; keep this file free of server imports.
+// The contract between the analytics endpoint and the admin page: every panel and the shape of its
+// data. Shared with client code, so keep this file free of server imports.
+import { z } from 'zod'
 
-export const BREAKDOWN_PANELS = [
-  'pages',
-  'entryPages',
-  'exitPages',
-  'referrers',
-  'channels',
-  'countries',
-  'regions',
-  'deviceTypes',
-  'browsers',
-  'operatingSystems',
-] as const
-export type BreakdownPanel = (typeof BREAKDOWN_PANELS)[number]
+const comparisonSchema = z.object({ current: z.number(), previous: z.number() })
+export type Comparison = z.infer<typeof comparisonSchema>
 
-export const ANALYTICS_PANELS = [
-  'overview',
-  'timeseries',
-  ...BREAKDOWN_PANELS,
-  'sponsors',
-  'notFound',
-  'deadClicks',
-] as const
-export type AnalyticsPanel = (typeof ANALYTICS_PANELS)[number]
+export const overviewSchema = z.object({
+  visitors: comparisonSchema,
+  visits: comparisonSchema,
+  pageviews: comparisonSchema,
+  viewsPerVisit: comparisonSchema,
+  /** 0..1 */
+  bounceRate: comparisonSchema,
+  /** Seconds */
+  visitDuration: comparisonSchema,
+})
+export type OverviewData = z.infer<typeof overviewSchema>
+
+const timeseriesPointSchema = z.object({
+  date: z.string(),
+  visitors: z.number(),
+  visits: z.number(),
+  pageviews: z.number(),
+})
+export type TimeseriesPoint = z.infer<typeof timeseriesPointSchema>
+
+export const timeseriesSchema = z.object({
+  bucket: z.enum(['day', 'week']),
+  points: z.array(timeseriesPointSchema),
+})
+export type TimeseriesData = z.infer<typeof timeseriesSchema>
+
+const breakdownRowSchema = z.object({
+  label: z.string(),
+  visitors: z.number(),
+  visits: z.number(),
+  pageviews: z.number(),
+})
+
+const sponsorRowSchema = z.object({
+  sponsorId: z.string().nullable(),
+  name: z.string(),
+  impressions: z.number(),
+  clicks: z.number(),
+  clickThroughRate: z.number().nullable(),
+})
+
+const notFoundRowSchema = z.object({
+  path: z.string(),
+  referrer: z.string().nullable(),
+  hits: z.number(),
+  people: z.number(),
+})
+
+const deadClickRowSchema = z.object({
+  path: z.string(),
+  label: z.string(),
+  clicks: z.number(),
+  people: z.number(),
+})
+export type DeadClickRow = z.infer<typeof deadClickRowSchema>
+
+/** Top-N lists of `$pageview`s grouped by one property; the queries are in centerAnalyticsQueries.ts. */
+const breakdownRows = {
+  pages: breakdownRowSchema,
+  entryPages: breakdownRowSchema,
+  exitPages: breakdownRowSchema,
+  referrers: breakdownRowSchema,
+  channels: breakdownRowSchema,
+  countries: breakdownRowSchema,
+  regions: breakdownRowSchema,
+  deviceTypes: breakdownRowSchema,
+  browsers: breakdownRowSchema,
+  operatingSystems: breakdownRowSchema,
+}
+export type BreakdownPanel = keyof typeof breakdownRows
+
+/** Every panel whose data is `{ rows }`, and the shape of one row. */
+const listRows = {
+  ...breakdownRows,
+  sponsors: sponsorRowSchema,
+  notFound: notFoundRowSchema,
+  deadClicks: deadClickRowSchema,
+}
+export type ListPanel = keyof typeof listRows
+export type ListRowMap = { [K in ListPanel]: z.infer<(typeof listRows)[K]> }
+export type ListData<K extends ListPanel> = { rows: ListRowMap[K][] }
+
+/** Typed per key, so `LIST_ROW_SCHEMAS[panel]` parses to that panel's row even for a generic key. */
+export const LIST_ROW_SCHEMAS: { [K in ListPanel]: z.ZodType<ListRowMap[K]> } = listRows
+
+/** What each panel returns. The server's registry in panels.ts must provide every key. */
+export type PanelDataMap = { overview: OverviewData; timeseries: TimeseriesData } & {
+  [K in ListPanel]: ListData<K>
+}
+export type AnalyticsPanel = keyof PanelDataMap
+export type PanelData = PanelDataMap[AnalyticsPanel]
 
 export function isAnalyticsPanel(value: unknown): value is AnalyticsPanel {
-  return typeof value === 'string' && ANALYTICS_PANELS.some((panel) => panel === value)
+  return (
+    value === 'overview' ||
+    value === 'timeseries' ||
+    (typeof value === 'string' && Object.hasOwn(listRows, value))
+  )
 }
 
-export type Comparison = { current: number; previous: number }
+export const panelRangeSchema = z.object({
+  from: z.string(),
+  to: z.string(),
+  previousFrom: z.string(),
+  previousTo: z.string(),
+  timezone: z.string(),
+})
+export type PanelRange = z.infer<typeof panelRangeSchema>
 
-export type OverviewData = {
-  kind: 'overview'
-  visitors: Comparison
-  visits: Comparison
-  pageviews: Comparison
-  viewsPerVisit: Comparison
-  /** 0..1 */
-  bounceRate: Comparison
-  /** Seconds */
-  visitDuration: Comparison
-}
-
-export type TimeseriesPoint = { date: string; visitors: number; visits: number; pageviews: number }
-export type TimeseriesData = {
-  kind: 'timeseries'
-  bucket: 'day' | 'week'
-  points: TimeseriesPoint[]
-}
-
-/** `secondary` is visits or pageviews depending on the panel; the page labels it. */
-export type BreakdownRow = { label: string; visitors: number; secondary: number }
-export type BreakdownData = { kind: 'breakdown'; rows: BreakdownRow[] }
-
-export type SponsorRow = {
-  sponsorId: string | null
-  name: string
-  impressions: number
-  clicks: number
-  clickThroughRate: number | null
-}
-export type SponsorsData = { kind: 'sponsors'; rows: SponsorRow[] }
-
-export type NotFoundRow = { path: string; referrer: string | null; hits: number; people: number }
-export type NotFoundData = { kind: 'notFound'; rows: NotFoundRow[] }
-
-export type DeadClickRow = { path: string; label: string; clicks: number; people: number }
-export type DeadClicksData = { kind: 'deadClicks'; rows: DeadClickRow[] }
-
-export type PanelData =
-  | OverviewData
-  | TimeseriesData
-  | BreakdownData
-  | SponsorsData
-  | NotFoundData
-  | DeadClicksData
-
-export type PanelResponse = {
-  panel: AnalyticsPanel
-  range: {
-    from: string
-    to: string
-    previousFrom: string
-    previousTo: string
-    timezone: string
-  }
-  data: PanelData
-}
+export type PanelResponse = { panel: AnalyticsPanel; range: PanelRange; data: PanelData }
 
 /** Ranges up to this many days load quickly enough that nobody is asked first. */
 export const PROMPT_ABOVE_DAYS = 45

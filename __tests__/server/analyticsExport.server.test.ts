@@ -1,12 +1,12 @@
 import {
-  analyticsExportFilename,
-  breakdownCsv,
-  deadClicksCsv,
-  notFoundCsv,
-  overviewCsv,
-  sponsorsCsv,
-  timeseriesCsv,
-} from '@/views/Analytics/panelExport'
+  DEAD_CLICKS,
+  listCsv,
+  NOT_FOUND,
+  REFERRERS,
+  SPONSORS,
+  TOP_PAGES,
+} from '@/views/Analytics/lists'
+import { analyticsExportFilename, overviewCsv, timeseriesCsv } from '@/views/Analytics/panelExport'
 
 const RANGE = {
   from: '2026-10-01',
@@ -34,7 +34,6 @@ describe('analytics panel export', () => {
   it('writes the stats row with both periods as columns and spreadsheet-ready units', () => {
     const csv = overviewCsv(
       {
-        kind: 'overview',
         visitors: { current: 1200, previous: 1000 },
         visits: { current: 1500, previous: 1300 },
         pageviews: { current: 4000, previous: 3500 },
@@ -58,30 +57,27 @@ describe('analytics panel export', () => {
 
   it('writes every series of the trend, labelling weekly buckets', () => {
     const csv = timeseriesCsv({
-      kind: 'timeseries',
       bucket: 'week',
       points: [{ date: '2026-01-05', visitors: 10, visits: 12, pageviews: 30 }],
     })
     expect(lines(csv)).toEqual(['Week starting,Visitors,Visits,Pageviews', '2026-01-05,10,12,30'])
   })
 
-  it('uses the tab headings and display labels for a breakdown, quoting commas', () => {
-    const csv = breakdownCsv(
-      [
-        { label: '$direct', visitors: 50, secondary: 70 },
-        { label: 'Washington, US', visitors: 20, secondary: 25 },
-      ],
-      {
-        rowLabel: 'Source',
-        secondaryLabel: 'Visits',
-        display: (label) => (label === '$direct' ? 'Direct' : label),
-      },
-    )
-    expect(lines(csv)).toEqual(['Source,Visitors,Visits', 'Direct,50,70', '"Washington, US",20,25'])
+  it('uses the spec headings and display labels for a breakdown, quoting commas', () => {
+    const rows = [
+      { label: '$direct', visitors: 50, visits: 70, pageviews: 90 },
+      { label: 'Washington, US', visitors: 20, visits: 25, pageviews: 40 },
+    ]
+    expect(lines(listCsv(REFERRERS, rows))).toEqual([
+      'Source,Visitors,Visits',
+      'Direct,50,70',
+      '"Washington, US",20,25',
+    ])
+    expect(lines(listCsv(TOP_PAGES, rows))[0]).toBe('Page,Visitors,Views')
   })
 
   it('leaves the click-through rate blank when a sponsor had no impressions', () => {
-    const csv = sponsorsCsv([
+    const csv = listCsv(SPONSORS, [
       { sponsorId: '1', name: 'Acme', impressions: 1000, clicks: 12, clickThroughRate: 0.012 },
       { sponsorId: null, name: 'Ghost', impressions: 0, clicks: 1, clickThroughRate: null },
     ])
@@ -93,12 +89,12 @@ describe('analytics panel export', () => {
   })
 
   it('writes 404s and dead clicks with the root path spelled out', () => {
-    expect(lines(notFoundCsv([{ path: '', referrer: null, hits: 3, people: 2 }]))).toEqual([
+    expect(lines(listCsv(NOT_FOUND, [{ path: '', referrer: null, hits: 3, people: 2 }]))).toEqual([
       'Missing page,Referrer,People,Hits',
       '/,,2,3',
     ])
     expect(
-      lines(deadClicksCsv([{ path: '/weather', label: 'Say "hi"', clicks: 9, people: 4 }])),
+      lines(listCsv(DEAD_CLICKS, [{ path: '/weather', label: 'Say "hi"', clicks: 9, people: 4 }])),
     ).toEqual(['What was clicked,Page,People,Clicks', '"Say ""hi""",/weather,4,9'])
   })
 })

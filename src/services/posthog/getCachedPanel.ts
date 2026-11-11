@@ -7,6 +7,9 @@ import type { AnalyticsPanel, PanelData } from './panelTypes'
 
 export const PANEL_CACHE_SECONDS = 10 * 60
 
+// Bump when a panel's data shape changes, so entries cached by older code are not served
+const PANEL_SHAPE_VERSION = 2
+
 export const centerAnalyticsTag = (slug: ValidTenantSlug) => `center-analytics:${slug}`
 
 // Concurrent identical requests (two admins, or a client retry) share one PostHog round trip.
@@ -40,7 +43,14 @@ export async function getCachedPanel(
     return data
   }
 
-  const key = ['center-analytics', slug, range.from, range.to, range.end.toISOString(), panel]
+  const key = [
+    `center-analytics-v${PANEL_SHAPE_VERSION}`,
+    slug,
+    range.from,
+    range.to,
+    range.end.toISOString(),
+    panel,
+  ]
   return dedupe(key.join('|'), () =>
     unstable_cache(() => fetchPanel(config, slug, range, panel), key, {
       revalidate: PANEL_CACHE_SECONDS,

@@ -101,8 +101,8 @@ ORDER BY date`
 }
 
 type BreakdownSpec = {
+  /** HogQL for the row's label. */
   label: string
-  secondary: 'visits' | 'pageviews'
   extraWhere?: (scope: CenterQueryScope) => string
 }
 
@@ -115,35 +115,35 @@ const region = `if(
 const unknownIfEmpty = (expression: string) => `coalesce(nullIf(${expression}, ''), 'Unknown')`
 
 const BREAKDOWNS: Record<BreakdownPanel, BreakdownSpec> = {
-  pages: { label: `coalesce(properties.$pathname, '')`, secondary: 'pageviews' },
-  entryPages: { label: unknownIfEmpty('session.$entry_pathname'), secondary: 'visits' },
-  exitPages: { label: unknownIfEmpty('session.$end_pathname'), secondary: 'visits' },
+  pages: { label: `coalesce(properties.$pathname, '')` },
+  entryPages: { label: unknownIfEmpty('session.$entry_pathname') },
+  exitPages: { label: unknownIfEmpty('session.$end_pathname') },
   referrers: {
     label: unknownIfEmpty('properties.$referring_domain'),
-    secondary: 'visits',
     extraWhere: ({ slug }) =>
       `coalesce(properties.$referring_domain, '') NOT IN (${literalList(centerHosts(slug))})`,
   },
-  channels: { label: unknownIfEmpty('session.$channel_type'), secondary: 'visits' },
-  countries: { label: unknownIfEmpty('properties.$geoip_country_name'), secondary: 'pageviews' },
-  regions: { label: region, secondary: 'pageviews' },
-  deviceTypes: { label: unknownIfEmpty('properties.$device_type'), secondary: 'pageviews' },
-  browsers: { label: unknownIfEmpty('properties.$browser'), secondary: 'pageviews' },
-  operatingSystems: { label: unknownIfEmpty('properties.$os'), secondary: 'pageviews' },
+  channels: { label: unknownIfEmpty('session.$channel_type') },
+  countries: { label: unknownIfEmpty('properties.$geoip_country_name') },
+  regions: { label: region },
+  deviceTypes: { label: unknownIfEmpty('properties.$device_type') },
+  browsers: { label: unknownIfEmpty('properties.$browser') },
+  operatingSystems: { label: unknownIfEmpty('properties.$os') },
 }
 
+/** Both visits and pageviews per row, so the page picks which to show without a second query. */
 export function breakdownQuery(scope: CenterQueryScope, panel: BreakdownPanel): string {
   const spec = BREAKDOWNS[panel]
-  const secondary = spec.secondary === 'visits' ? 'uniq($session_id)' : 'count()'
   const extra = spec.extraWhere ? `\n  AND ${spec.extraWhere(scope)}` : ''
   return `SELECT
   ${spec.label} AS label,
   uniq(person_id) AS visitors,
-  ${secondary} AS secondary
+  uniq($session_id) AS visits,
+  count() AS pageviews
 FROM events
 WHERE ${pageviewsInCurrentPeriod(scope)}${extra}
 GROUP BY label
-ORDER BY visitors DESC, secondary DESC
+ORDER BY visitors DESC, pageviews DESC
 LIMIT 10`
 }
 

@@ -237,11 +237,11 @@ describe('center queries', () => {
     expect(timeseriesQuery(year)).toContain('toStartOfWeek(toTimeZone(timestamp')
   })
 
-  it('builds each breakdown with its own label and secondary count', () => {
+  it('builds each breakdown with its own label and both visits and pageviews', () => {
     expect(breakdownQuery(scope, 'pages')).toContain("coalesce(properties.$pathname, '') AS label")
-    expect(breakdownQuery(scope, 'pages')).toContain('count() AS secondary')
+    expect(breakdownQuery(scope, 'pages')).toContain('uniq($session_id) AS visits')
+    expect(breakdownQuery(scope, 'pages')).toContain('count() AS pageviews')
     expect(breakdownQuery(scope, 'entryPages')).toContain('session.$entry_pathname')
-    expect(breakdownQuery(scope, 'entryPages')).toContain('uniq($session_id) AS secondary')
     expect(breakdownQuery(scope, 'channels')).toContain('session.$channel_type')
     expect(breakdownQuery(scope, 'referrers')).toContain(
       `coalesce(properties.$referring_domain, '') NOT IN ('nwac.us', 'www.nwac.us', 'nwac.${ROOT_DOMAIN}')`,
@@ -345,6 +345,12 @@ describe('fetchPanel', () => {
         [[0.42, 0.5, 192.4, null]],
       )
     }
+    if (sql.includes(' AS label,')) {
+      return hogqlResult(
+        ['label', 'visitors', 'visits', 'pageviews'],
+        [['/forecasts', 90, 120, 300]],
+      )
+    }
     if (sql.includes('AS date')) {
       return hogqlResult(['date', 'visitors', 'visits', 'pageviews'], [['2026-11-08', 3, 4, 5]])
     }
@@ -373,7 +379,7 @@ describe('fetchPanel', () => {
         [['/support', 'img', 'Wool Hat', null, null, null, 46, 41]],
       )
     }
-    return hogqlResult(['label', 'visitors', 'secondary'], [['/forecasts', 90, 300]])
+    throw new Error(`No mock for query: ${sql}`)
   }
 
   beforeEach(() => {
@@ -387,7 +393,6 @@ describe('fetchPanel', () => {
   it('assembles the overview with derived views per visit', async () => {
     const data = await fetchPanel(config, 'nwac', scope.range, 'overview')
     expect(data).toMatchObject({
-      kind: 'overview',
       visitors: { current: 120, previous: 100 },
       viewsPerVisit: { current: 2.5, previous: 400 / 180 },
       bounceRate: { current: 0.42, previous: 0.5 },
@@ -402,14 +407,12 @@ describe('fetchPanel', () => {
       rangeFor('2026-11-07', '2026-11-09'),
       'timeseries',
     )
-    if (data.kind !== 'timeseries') throw new Error('wrong kind')
     expect(data.points.map((point) => point.visitors)).toEqual([0, 3, 0])
   })
 
   it('returns breakdown, sponsor, 404 and dead click rows in their panel shapes', async () => {
     await expect(fetchPanel(config, 'nwac', scope.range, 'countries')).resolves.toEqual({
-      kind: 'breakdown',
-      rows: [{ label: '/forecasts', visitors: 90, secondary: 300 }],
+      rows: [{ label: '/forecasts', visitors: 90, visits: 120, pageviews: 300 }],
     })
     await expect(fetchPanel(config, 'nwac', scope.range, 'sponsors')).resolves.toMatchObject({
       rows: [
@@ -418,11 +421,9 @@ describe('fetchPanel', () => {
       ],
     })
     await expect(fetchPanel(config, 'nwac', scope.range, 'notFound')).resolves.toEqual({
-      kind: 'notFound',
       rows: [{ path: '/old', referrer: 'https://x.org/', hits: 9, people: 7 }],
     })
     await expect(fetchPanel(config, 'nwac', scope.range, 'deadClicks')).resolves.toEqual({
-      kind: 'deadClicks',
       rows: [{ path: '/support', label: 'Image “Wool Hat”', clicks: 46, people: 41 }],
     })
   })

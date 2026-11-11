@@ -163,12 +163,12 @@ sig = "e3f27d3112146005"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsExport.server.test.ts"
-sig = "9226b14af28079b6"
+sig = "158ac9867d94a874"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
-sig = "9935e070e2691ac0"
+sig = "dc10b91330129ceb"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -203,17 +203,17 @@ sig = "4c1f01b579dd5ec3"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/centerAnalyticsQueries.ts"
-sig = "3a6d3b997def142a"
+sig = "2863a38d4bed3e75"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/deadClicks.ts"
-sig = "6a5b388570c5e83c"
+sig = "635aec9417178a27"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/getCachedPanel.ts"
-sig = "51f9db5f251e9bde"
+sig = "c0a6c2d66ad8e40c"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -228,12 +228,12 @@ sig = "7abf5191eba86fae"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/panelTypes.ts"
-sig = "59db8392163fc0f2"
+sig = "cbbc268ababa4337"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/panels.ts"
-sig = "bee44e64f591709d"
+sig = "4ecac214f5b1d881"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -253,7 +253,7 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "40fd1845c283c263"
+sig = "ad469c186569ed00"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -282,8 +282,13 @@ sig = "82af83c89aa3a529"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/lists.ts"
+sig = "569dc92c3166642e"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panelExport.ts"
-sig = "a4d7dff2c71bfc02"
+sig = "1f80e5f66f6f6461"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -292,43 +297,33 @@ sig = "10b68ca11a7c7416"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
-target = "src/views/Analytics/panels/BreakdownPanel.tsx"
-sig = "909d5c8100325bf0"
-
-[[bindings]]
-doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/ExportMenu.tsx"
-sig = "40e4d3afc1ad7efc"
+sig = "0cb51074d5bb4ed8"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
-target = "src/views/Analytics/panels/FixesPanel.tsx"
-sig = "d3ba9d49fcbc05c3"
+target = "src/views/Analytics/panels/ListPanel.tsx"
+sig = "18e3c8597647ddd7"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/Panel.tsx"
-sig = "dc2335e065bf4f9d"
-
-[[bindings]]
-doc = "docs/admin-analytics.md"
-target = "src/views/Analytics/panels/SponsorsPanel.tsx"
-sig = "fe367c251a1c23ce"
+sig = "6392a11632df436d"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/StatsRow.tsx"
-sig = "f75b0807f01fcd59"
+sig = "e9449691a10aed85"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/TrendChart.tsx"
-sig = "c8f4764a18018d53"
+sig = "0b469db49d687311"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/usePanel.ts"
-sig = "78597180c4911803"
+sig = "567dca78ccdfb62b"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

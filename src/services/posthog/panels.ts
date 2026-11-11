@@ -13,13 +13,14 @@ import {
 } from './centerAnalyticsQueries'
 import { deadClickRowSchema, mergeDeadClicks } from './deadClicks'
 import { queryHogQL, type PostHogQueryConfig, type QueryRefresh } from './hogql'
-import {
-  BREAKDOWN_PANELS,
-  type AnalyticsPanel,
-  type BreakdownPanel,
-  type Comparison,
-  type PanelData,
-  type TimeseriesPoint,
+import type {
+  AnalyticsPanel,
+  BreakdownPanel,
+  Comparison,
+  ListData,
+  OverviewData,
+  PanelDataMap,
+  TimeseriesPoint,
 } from './panelTypes'
 
 const count = z.coerce.number()
@@ -43,7 +44,12 @@ const timeseriesRowSchema = z.object({
   visits: count,
   pageviews: count,
 })
-const breakdownRowSchema = z.object({ label: z.string(), visitors: count, secondary: count })
+const breakdownRowSchema = z.object({
+  label: z.string(),
+  visitors: count,
+  visits: count,
+  pageviews: count,
+})
 const sponsorRowSchema = z.object({
   sponsor_id: z.string().nullable(),
   sponsor_name: z.string().nullable(),
@@ -57,12 +63,20 @@ const notFoundRowSchema = z.object({
   people: count,
 })
 
+/** What a panel gets to work with: its center and range, and a HogQL runner bound to both caches. */
+type PanelContext = {
+  scope: CenterQueryScope
+  query: <Row>(hogql: string, rowSchema: z.ZodType<Row>) => Promise<Row[]>
+}
+
+type PanelRegistry = {
+  [K in AnalyticsPanel]: (context: PanelContext) => Promise<PanelDataMap[K]>
+}
+
 const ratio = (numerator: number, denominator: number) =>
   denominator > 0 ? numerator / denominator : 0
 
-function isBreakdownPanel(panel: AnalyticsPanel): panel is BreakdownPanel {
-  return BREAKDOWN_PANELS.some((candidate) => candidate === panel)
-}
+const compare = (current: number, previous: number): Comparison => ({ current, previous })
 
 const EMPTY_COUNTS = { visitors: 0, visits: 0, pageviews: 0 }
 const EMPTY_VISITS = {
@@ -72,21 +86,14 @@ const EMPTY_VISITS = {
   previous_visit_duration: 0,
 }
 
-const compare = (current: number, previous: number): Comparison => ({ current, previous })
-
-async function fetchOverview(
-  config: PostHogQueryConfig,
-  scope: CenterQueryScope,
-  refresh: QueryRefresh,
-): Promise<PanelData> {
+async function overview({ scope, query }: PanelContext): Promise<OverviewData> {
   const [[current = EMPTY_COUNTS], [previous = EMPTY_COUNTS], [visits = EMPTY_VISITS]] =
     await Promise.all([
-      queryHogQL(config, overviewCountsQuery(scope, 'current'), overviewCountsRowSchema, refresh),
-      queryHogQL(config, overviewCountsQuery(scope, 'previous'), overviewCountsRowSchema, refresh),
-      queryHogQL(config, overviewVisitsQuery(scope), overviewVisitsRowSchema, refresh),
+      query(overviewCountsQuery(scope, 'current'), overviewCountsRowSchema),
+      query(overviewCountsQuery(scope, 'previous'), overviewCountsRowSchema),
+      query(overviewVisitsQuery(scope), overviewVisitsRowSchema),
     ])
   return {
-    kind: 'overview',
     visitors: compare(current.visitors, previous.visitors),
     visits: compare(current.visits, previous.visits),
     pageviews: compare(current.pageviews, previous.pageviews),
@@ -120,47 +127,59 @@ export function fillTimeseries(
   return filled
 }
 
-/** Runs one panel's query for one center and range. Throws so a failure is never cached. */
-export async function fetchPanel(
+const breakdown =
+  <K extends BreakdownPanel>(panel: K) =>
+  async ({ scope, query }: PanelContext): Promise<ListData<K>> => ({
+    rows: await query(breakdownQuery(scope, panel), breakdownRowSchema),
+  })
+
+/**
+ * Every panel the endpoint serves. To add one: give its data a schema in panelTypes.ts, add it
+ * here (the type requires it), and render it on the page.
+ */
+const PANELS: PanelRegistry = {
+  overview,
+  timeseries: async ({ scope, query }) => ({
+    bucket: scope.range.bucket,
+    points: fillTimeseries(await query(timeseriesQuery(scope), timeseriesRowSchema), scope.range),
+  }),
+  pages: breakdown('pages'),
+  entryPages: breakdown('entryPages'),
+  exitPages: breakdown('exitPages'),
+  referrers: breakdown('referrers'),
+  channels: breakdown('channels'),
+  countries: breakdown('countries'),
+  regions: breakdown('regions'),
+  deviceTypes: breakdown('deviceTypes'),
+  browsers: breakdown('browsers'),
+  operatingSystems: breakdown('operatingSystems'),
+  sponsors: async ({ scope, query }) => ({
+    rows: (await query(sponsorsQuery(scope), sponsorRowSchema)).map((row) => ({
+      sponsorId: row.sponsor_id,
+      name: row.sponsor_name?.trim() || `Sponsor ${row.sponsor_id ?? '?'}`,
+      impressions: row.impressions,
+      clicks: row.clicks,
+      clickThroughRate: row.impressions > 0 ? row.clicks / row.impressions : null,
+    })),
+  }),
+  notFound: async ({ scope, query }) => ({
+    rows: await query(notFoundQuery(scope), notFoundRowSchema),
+  }),
+  deadClicks: async ({ scope, query }) => ({
+    rows: mergeDeadClicks(await query(deadClicksQuery(scope), deadClickRowSchema)),
+  }),
+}
+
+/** Runs one panel's queries for one center and range. Throws so a failure is never cached. */
+export function fetchPanel<K extends AnalyticsPanel>(
   config: PostHogQueryConfig,
   slug: ValidTenantSlug,
   range: ResolvedRange,
-  panel: AnalyticsPanel,
+  panel: K,
   refresh: QueryRefresh = 'blocking',
-): Promise<PanelData> {
-  const scope: CenterQueryScope = { slug, range }
-
-  if (panel === 'overview') return fetchOverview(config, scope, refresh)
-
-  if (panel === 'timeseries') {
-    const rows = await queryHogQL(config, timeseriesQuery(scope), timeseriesRowSchema, refresh)
-    return { kind: 'timeseries', bucket: range.bucket, points: fillTimeseries(rows, range) }
-  }
-
-  if (isBreakdownPanel(panel)) {
-    const rows = await queryHogQL(config, breakdownQuery(scope, panel), breakdownRowSchema, refresh)
-    return { kind: 'breakdown', rows }
-  }
-
-  if (panel === 'sponsors') {
-    const rows = await queryHogQL(config, sponsorsQuery(scope), sponsorRowSchema, refresh)
-    return {
-      kind: 'sponsors',
-      rows: rows.map((row) => ({
-        sponsorId: row.sponsor_id,
-        name: row.sponsor_name?.trim() || `Sponsor ${row.sponsor_id ?? '?'}`,
-        impressions: row.impressions,
-        clicks: row.clicks,
-        clickThroughRate: row.impressions > 0 ? row.clicks / row.impressions : null,
-      })),
-    }
-  }
-
-  if (panel === 'notFound') {
-    const rows = await queryHogQL(config, notFoundQuery(scope), notFoundRowSchema, refresh)
-    return { kind: 'notFound', rows }
-  }
-
-  const rows = await queryHogQL(config, deadClicksQuery(scope), deadClickRowSchema, refresh)
-  return { kind: 'deadClicks', rows: mergeDeadClicks(rows) }
+): Promise<PanelDataMap[K]> {
+  return PANELS[panel]({
+    scope: { slug, range },
+    query: (hogql, rowSchema) => queryHogQL(config, hogql, rowSchema, refresh),
+  })
 }

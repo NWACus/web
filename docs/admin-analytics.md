@@ -22,7 +22,7 @@ The trend chart is Apache ECharts through the site's [`EChart`](../src/component
 
 ## Export
 
-Each card has a download menu, built from the data already on the page, so exporting sends no new query. List panels save the active tab as CSV. Columns follow the card's headings and numbers are unformatted, so they sort and sum in a spreadsheet; sponsors export every row, not just the ones shown before "Show all". The trend chart's menu also carries the stats row above it: the chart as a PNG (on white with light text even in dark mode, titled with the center, series and range, since a saved image travels without the page), every bucket of all three series as CSV, and the stats row as CSV with this period and the previous one as columns. Files are named `<center>-<panel>-<from>-to-<to>`. The CSV builders are in [`panelExport.ts`](../src/views/Analytics/panelExport.ts); the menu is [`ExportMenu`](../src/views/Analytics/panels/ExportMenu.tsx), Payload's `Popup` rather than the site's dropdown so it matches the admin.
+Each card has a download menu, built from the data already on the page, so exporting sends no new query. List panels save the active tab as CSV. Columns follow the card's headings and numbers are unformatted, so they sort and sum in a spreadsheet; sponsors export every row, not just the ones shown before "Show all". The trend chart's menu also carries the stats row above it: the chart as a PNG (on white with light text even in dark mode, titled with the center, series and range, since a saved image travels without the page), every bucket of all three series as CSV, and the stats row as CSV with this period and the previous one as columns. Files are named `<center>-<panel>-<from>-to-<to>`. A list's CSV comes from its spec in [`lists.ts`](../src/views/Analytics/lists.ts), the same spec that draws the card, so the two cannot disagree; the trend and stats-row CSVs are in [`panelExport.ts`](../src/views/Analytics/panelExport.ts). The menu is [`ExportMenu`](../src/views/Analytics/panels/ExportMenu.tsx), Payload's `Popup` rather than the site's dropdown so it matches the admin.
 
 ## Time range
 
@@ -46,6 +46,14 @@ Every panel shares one filter, `centerFilter` in [`centerAnalyticsQueries.ts`](.
 - Bounce rate and visit duration read PostHog's pre-aggregated `sessions` table (sub-second at any range) instead of joining sessions onto events. The sessions table has no user agent, so bots are included in those two numbers only.
 - Ranges over 45 days go through [`LongRangeGate`](../src/views/Analytics/LongRangeGate.tsx) first: it asks `GET /api/analytics/estimate` whether the range is warm, meaning PostHog answers the overview query from its own cache (the page's `unstable_cache` cannot be inspected and serverless instances share no memory, so it is not consulted) and otherwise shows the cold-load estimate from [`loadEstimate.ts`](../src/services/posthog/loadEstimate.ts) with a choice to load or step back to 30 days. The probe submits the overview query asynchronously and cancels it if PostHog starts calculating, so checking costs nothing.
 - A failed query logs a warning through Payload's logger and the panel shows a one-line message. The page never produces an error page. Without credentials every panel says analytics are not connected.
+
+## Adding a panel
+
+Panel data has one contract, [`panelTypes.ts`](../src/services/posthog/panelTypes.ts), checked on both sides: the server's registry (`PANELS` in [`panels.ts`](../src/services/posthog/panels.ts)) must provide every panel in `PanelDataMap`, which TypeScript enforces, and the page validates each response against the same zod schemas, so a mismatch shows as a panel error rather than a broken page.
+
+- **A ranked list** (top N of something with number columns): give its row a schema in `listRows` in `panelTypes.ts`, write its query in [`centerAnalyticsQueries.ts`](../src/services/posthog/centerAnalyticsQueries.ts), add it to `PANELS`, then write a spec in [`lists.ts`](../src/views/Analytics/lists.ts) and add `listTab(SPEC)` to a card in [`AnalyticsDashboard.client.tsx`](../src/views/Analytics/AnalyticsDashboard.client.tsx). The spec's name, detail and columns draw the card and its CSV. A new `$pageview` breakdown is a line each in `breakdownRows`, `BREAKDOWNS` and `PANELS`, plus a `breakdown(...)` spec.
+- **Anything else** (a chart, a stat): add its schema to `panelTypes.ts` and `PanelDataMap`, a runner to `PANELS`, and a component that calls `usePanel(panel, request, parse)` with `parse = parseWith(schema)` defined at module level.
+- When a panel's data shape changes, bump `PANEL_SHAPE_VERSION` in [`getCachedPanel.ts`](../src/services/posthog/getCachedPanel.ts) so entries cached by the previous code are not served.
 
 ## Configuration
 

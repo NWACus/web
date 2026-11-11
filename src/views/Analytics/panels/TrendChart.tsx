@@ -1,7 +1,11 @@
 'use client'
 
 import { EChart, type EChartOption } from '@/components/charts/EChart'
-import type { OverviewData, PanelData, TimeseriesData } from '@/services/posthog/panelTypes'
+import {
+  timeseriesSchema,
+  type OverviewData,
+  type TimeseriesData,
+} from '@/services/posthog/panelTypes'
 import { saveCsv, saveUrl } from '@/utilities/export/saveFile'
 import { cn } from '@/utilities/ui'
 import type { ECharts } from 'echarts/core'
@@ -9,12 +13,11 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { formatDateRange, formatInteger } from '../format'
 import { analyticsExportFilename, overviewCsv, timeseriesCsv } from '../panelExport'
 import { TabPills } from '../TabPills'
-import { usePanel, type PanelRequest, type PanelState } from '../usePanel'
+import { parseWith, usePanel, type PanelRequest, type PanelState } from '../usePanel'
 import { ExportMenu, type ExportItem } from './ExportMenu'
 import { MUTED, PanelBody } from './Panel'
 
-const pickTimeseries = (data: PanelData): TimeseriesData | null =>
-  data.kind === 'timeseries' ? data : null
+const parseTimeseries = parseWith(timeseriesSchema)
 
 const SERIES = [
   { key: 'visitors', label: 'Visitors' },
@@ -218,7 +221,7 @@ export function TrendChart({
   overview: PanelState<OverviewData>
 }) {
   const [series, setSeries] = useState<SeriesKey>('visitors')
-  const state = usePanel('timeseries', request, pickTimeseries)
+  const state = usePanel('timeseries', request, parseTimeseries)
   const colors = useThemeColors()
   const chartRef = useRef<ECharts | null>(null)
   const exportItems = trendExportItems({
