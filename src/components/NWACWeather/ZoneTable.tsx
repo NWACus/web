@@ -395,10 +395,10 @@ function PeriodTable({
           />
           <PeriodRow
             label="5000' Temperatures"
-            unit="°F"
+            unit="Lo / Hi °F"
             periods={periods}
             covered={covered.temps}
-            cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} labeled />}
+            cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />}
           />
           <PeriodRow
             label="Ridgeline Winds"
@@ -474,7 +474,7 @@ function CardSummary({
   const temp = tempOut ? (
     <NotCoveredChip />
   ) : (
-    <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} labeled />
+    <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />
   )
   const points = zonePoints(issuance, zone.id)
   return (
@@ -488,7 +488,7 @@ function CardSummary({
           </span>
         </CardLine>
       ))}
-      <CardLine label="5000' Temperatures" unit="°F">
+      <CardLine label="5000' Temperatures" unit="Lo / Hi °F">
         {temp}
       </CardLine>
     </dl>

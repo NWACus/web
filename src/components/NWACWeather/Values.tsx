@@ -222,26 +222,9 @@ export function SnowValue({ text, some }: { text: string; some: boolean }) {
   )
 }
 
-export function TempValue({
-  cell,
-  labeled = false,
-}: {
-  cell: NWACWeatherTempCell | undefined
-  /** "Lo 22 · Hi 37", for a table with no legend to say which is which. */
-  labeled?: boolean
-}) {
+export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
   if (cell?.high == null || cell?.low == null) {
     return <span className="text-muted-foreground">{DASH}</span>
-  }
-  if (labeled) {
-    return (
-      <span className="whitespace-nowrap tabular-nums">
-        <span className="text-xs text-muted-foreground">Lo</span> <span>{cell.low}°</span>
-        <span className="text-muted-foreground"> · </span>
-        <span className="text-xs text-muted-foreground">Hi</span>{' '}
-        <span className="font-semibold">{cell.high}°</span>
-      </span>
-    )
   }
   return (
     <span className="whitespace-nowrap tabular-nums">
@@ -293,10 +276,9 @@ export function SnowLevelValue({
 /** How to read a temperature cell, under the table. */
 export function TempLegend() {
   return (
-    <p className={cn(KEY_LINE, 'items-center gap-x-6')}>
-      <span>Lo: low in 12 hours</span>
+    <p className={KEY_LINE}>
       <span>
-        Hi: <span className="font-semibold text-foreground">high</span> in 12 hours
+        Lo / <span className="font-semibold text-foreground">Hi</span> in 12 hours
       </span>
     </p>
   )
@@ -321,17 +303,9 @@ export function WindLegend() {
   )
 }
 
-/** How to read a wind cell's arrow and direction. */
+/** How to read a wind cell's direction. */
 function WindNotes() {
-  return (
-    <>
-      <span className="inline-flex items-center gap-1">
-        <Navigation2 aria-hidden="true" className="size-3.5 text-primary" />
-        Points downwind
-      </span>
-      <span>VAR: variable</span>
-    </>
-  )
+  return <span>VAR: variable</span>
 }
 
 /** The wind fills, light to extreme. */

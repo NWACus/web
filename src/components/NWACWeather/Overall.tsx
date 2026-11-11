@@ -252,7 +252,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       columns: temps.map(periodColumn),
       groups: flat(
         zoneRows((id) =>
-          temps.map((p) => <TempValue key={p.key} cell={issuance.temp[id]?.[p.key]} labeled />),
+          temps.map((p) => <TempValue key={p.key} cell={issuance.temp[id]?.[p.key]} />),
         ),
       ),
     },

@@ -46,7 +46,7 @@ describe('ZoneTable', () => {
       'Precipitation & Snow (in)',
       'Snoqualmie Pass',
       'Snow & Freezing Level (ft)',
-      "5000' Temperatures (°F)",
+      "5000' Temperatures (Lo / Hi °F)",
       'Ridgeline Winds (mph)',
       'Summary',
     ])
@@ -77,7 +77,7 @@ describe('ZoneTable', () => {
     ])
   })
 
-  it('labels the temperatures Lo and Hi, low first', () => {
+  it('gives the temperatures low then high, under a Lo / Hi label', () => {
     const { container } = render(
       <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
     )
@@ -90,7 +90,8 @@ describe('ZoneTable', () => {
     if (!row) throw new Error('no temperature row')
 
     const [first] = within(row).getAllByRole('cell')
-    expect(first.textContent).toMatch(/^Lo \d+° · Hi \d+°$/)
+    expect(row.querySelector('th')?.textContent).toContain('Lo / Hi °F')
+    expect(first.textContent).toMatch(/^\d+° \/ \d+°$/)
   })
 
   it('names them Today and Tonight from 6 am', () => {
