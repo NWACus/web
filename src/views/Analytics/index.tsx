@@ -2,7 +2,9 @@ import { getPostHogQueryConfig } from '@/services/posthog/hogql'
 import { AVALANCHE_CENTERS } from '@/utilities/tenancy/avalancheCenters'
 import { resolveSelectedTenant } from '@/utilities/tenancy/resolveSelectedTenant'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
+import { redirect } from 'next/navigation'
 import type { AdminViewServerProps } from 'payload'
+import { formatAdminURL } from 'payload/shared'
 import { CustomView } from '../CustomView'
 import { AnalyticsDashboard } from './AnalyticsDashboard.client'
 
@@ -36,9 +38,14 @@ async function Body({ req }: Pick<AdminViewServerProps['initPageResult'], 'req'>
 
 /** Plausible-style per-center site analytics, read from PostHog. See docs/admin-analytics.md. */
 export async function Analytics(props: AdminViewServerProps) {
+  const { req } = props.initPageResult
+  if (!req.user) {
+    const { routes, admin } = req.payload.config
+    redirect(formatAdminURL({ adminRoute: routes.admin, path: admin.routes.login }))
+  }
   return (
     <CustomView {...props} title="Site Analytics">
-      <Body req={props.initPageResult.req} />
+      <Body req={req} />
     </CustomView>
   )
 }

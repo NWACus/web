@@ -4,6 +4,7 @@ import { getURL } from '@/utilities/getURL'
 import { CustomView } from '../CustomView'
 import { EmbedGeneratorForm } from './EmbedGeneratorForm'
 
+/** Intentionally public: anyone can generate A3 embed code without signing in. */
 export async function EmbedGenerator(props: AdminViewServerProps) {
   const { req } = props.initPageResult
   const currentHost = req.headers.get('host') || req.host

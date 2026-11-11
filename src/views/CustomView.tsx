@@ -1,13 +1,11 @@
 import { DefaultTemplate } from '@payloadcms/next/templates'
 import { Gutter } from '@payloadcms/ui'
-import { redirect } from 'next/navigation'
 import type { AdminViewServerProps } from 'payload'
-import { formatAdminURL } from 'payload/shared'
 import type { ReactNode } from 'react'
 
 /**
  * The admin chrome plus a titled page body, shared by the custom root views. Payload does not
- * gate root views itself, so anonymous visitors are sent to the login page first.
+ * gate root views, so a view that needs a signed-in user must check for one itself.
  */
 export function CustomView({
   initPageResult,
@@ -16,10 +14,6 @@ export function CustomView({
   title,
   children,
 }: AdminViewServerProps & { title: string; children: ReactNode }) {
-  const { config } = initPageResult.req.payload
-  if (!initPageResult.req.user) {
-    redirect(formatAdminURL({ adminRoute: config.routes.admin, path: config.admin.routes.login }))
-  }
   return (
     <DefaultTemplate
       i18n={initPageResult.req.i18n}
