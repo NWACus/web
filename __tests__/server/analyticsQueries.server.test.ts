@@ -209,6 +209,31 @@ describe('queryHogQL', () => {
 
     expect(peak).toBe(POSTHOG_MAX_CONCURRENT_QUERIES)
   })
+
+  it('gives waiting first-priority queries the next free slot', async () => {
+    const started: string[] = []
+    server.use(
+      http.post(QUERY_URL, async ({ request }) => {
+        const body = z
+          .object({ query: z.object({ query: z.string() }) })
+          .parse(await request.json())
+        started.push(body.query.query)
+        await new Promise((resolve) => setTimeout(resolve, 20))
+        return hogqlResult([], [])
+      }),
+    )
+    const run = (query: string, priority: 'first' | 'normal') =>
+      queryHogQL(config, { query }, z.object({}), 'blocking', priority)
+
+    await Promise.all([
+      ...Array.from({ length: POSTHOG_MAX_CONCURRENT_QUERIES + 2 }, (_, i) =>
+        run(`list ${i}`, 'normal'),
+      ),
+      run('overview', 'first'),
+    ])
+
+    expect(started[POSTHOG_MAX_CONCURRENT_QUERIES]).toBe('overview')
+  })
 })
 
 describe('center queries', () => {

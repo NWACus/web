@@ -8,7 +8,17 @@ import type { PanelState } from '../usePanel'
 
 export const MUTED = 'text-[var(--theme-elevation-600)]'
 
-/** Shared chrome for every panel: a titled card, its tabs and the loading and error states. */
+/** A card's title, with its actions such as the download menu opposite. */
+export function PanelHeader({ title, actions }: { title: string; actions?: ReactNode }) {
+  return (
+    <div className="mb-4 flex items-start justify-between gap-2">
+      <h3 className="m-0 text-base font-semibold">{title}</h3>
+      {actions}
+    </div>
+  )
+}
+
+/** Shared chrome for every list panel: a titled card, its tabs and the loading and error states. */
 export function PanelFrame({
   title,
   tabs,
@@ -30,10 +40,7 @@ export function PanelFrame({
 }) {
   return (
     <section className={cn('card min-w-0 flex-col gap-0', className)}>
-      <div className="mb-4 flex items-start justify-between gap-2">
-        <h3 className="m-0 text-base font-semibold">{title}</h3>
-        {actions}
-      </div>
+      <PanelHeader title={title} actions={actions} />
       {tabs.length > 1 && (
         <div className="mb-4">
           <TabPills options={tabs} active={active} onChange={onTab} />

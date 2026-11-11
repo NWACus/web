@@ -73,22 +73,28 @@ const POLL_DEADLINE_MS = 120_000
  */
 export type QueryRefresh = 'blocking' | 'force_blocking'
 
+/**
+ * `first` queries take the next free slot ahead of any `normal` ones waiting, so the stats and
+ * chart at the top of the page are not stuck behind the lists below them.
+ */
+export type QueryPriority = 'first' | 'normal'
+
 /** Serialises calls to PostHog's concurrency limit; excess callers wait their turn. */
 function createSemaphore(limit: number) {
   let active = 0
-  const waiting: Array<() => void> = []
+  const waiting: Record<QueryPriority, Array<() => void>> = { first: [], normal: [] }
   const release = () => {
-    const next = waiting.shift()
+    const next = waiting.first.shift() ?? waiting.normal.shift()
     if (next) next()
     else active -= 1
   }
-  const acquire = () =>
+  const acquire = (priority: QueryPriority) =>
     new Promise<() => void>((resolve) => {
       if (active < limit) {
         active += 1
         resolve(release)
       } else {
-        waiting.push(() => resolve(release))
+        waiting[priority].push(() => resolve(release))
       }
     })
   return { acquire }
@@ -104,8 +110,9 @@ export async function queryHogQL<T>(
   statement: HogQLStatement,
   rowSchema: z.ZodType<T>,
   refresh: QueryRefresh = 'blocking',
+  priority: QueryPriority = 'normal',
 ): Promise<T[]> {
-  const release = await querySlots.acquire()
+  const release = await querySlots.acquire(priority)
   try {
     const result = await runQuery(config, statement, refresh)
     return parseRows(result, rowSchema)

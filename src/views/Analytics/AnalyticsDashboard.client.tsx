@@ -32,11 +32,10 @@ import {
 } from './lists'
 import { describeSeconds, LongRangeGate } from './LongRangeGate'
 import { ListPanel, listTab, type ListTab } from './panels/ListPanel'
+import { OverviewCard } from './panels/OverviewCard'
 import { MUTED } from './panels/Panel'
-import { parseOverview, StatsRow } from './panels/StatsRow'
-import { TrendChart } from './panels/TrendChart'
 import { defaultSelection, RangePicker, type RangeSelection } from './RangePicker'
-import { usePanel, type PanelRequest } from './usePanel'
+import type { PanelRequest } from './usePanel'
 
 const PAGE_TABS: [ListTab, ...ListTab[]] = [
   listTab(TOP_PAGES),
@@ -91,14 +90,10 @@ function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
 const REFRESH_MODAL = 'site-analytics-refresh'
 
 function Panels({ request, centerName }: { request: PanelRequest; centerName: string }) {
-  const overview = usePanel('overview', request, parseOverview)
-  const totalVisitors = overview.status === 'ready' ? overview.data.visitors.current : undefined
+  const [totalVisitors, setTotalVisitors] = useState<number>()
   return (
     <>
-      <section className="card flex-col gap-8">
-        <StatsRow state={overview} />
-        <TrendChart request={request} centerName={centerName} overview={overview} />
-      </section>
+      <OverviewCard request={request} centerName={centerName} onVisitors={setTotalVisitors} />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <ListPanel title="Pages" tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
         <ListPanel

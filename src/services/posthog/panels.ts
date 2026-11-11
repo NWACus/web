@@ -16,6 +16,7 @@ import {
   queryHogQL,
   type HogQLStatement,
   type PostHogQueryConfig,
+  type QueryPriority,
   type QueryRefresh,
 } from './hogql'
 import type {
@@ -175,6 +176,9 @@ const PANELS: PanelRegistry = {
   }),
 }
 
+// The top card of the page; its queries jump the queue
+const FIRST_PANELS: ReadonlySet<AnalyticsPanel> = new Set(['overview', 'timeseries'])
+
 /** Runs one panel's queries for one center and range. Throws so a failure is never cached. */
 export function fetchPanel<K extends AnalyticsPanel>(
   config: PostHogQueryConfig,
@@ -183,8 +187,9 @@ export function fetchPanel<K extends AnalyticsPanel>(
   panel: K,
   refresh: QueryRefresh = 'blocking',
 ): Promise<PanelDataMap[K]> {
+  const priority: QueryPriority = FIRST_PANELS.has(panel) ? 'first' : 'normal'
   return PANELS[panel]({
     scope: { slug, range },
-    query: (statement, rowSchema) => queryHogQL(config, statement, rowSchema, refresh),
+    query: (statement, rowSchema) => queryHogQL(config, statement, rowSchema, refresh, priority),
   })
 }

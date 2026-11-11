@@ -168,7 +168,7 @@ sig = "158ac9867d94a874"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
-sig = "41c56678df322da4"
+sig = "4532b6405bcf580b"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -218,7 +218,7 @@ sig = "c0a6c2d66ad8e40c"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/hogql.ts"
-sig = "76faeee536fb3835"
+sig = "4d0c513ffabeb100"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -233,7 +233,7 @@ sig = "cbbc268ababa4337"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/panels.ts"
-sig = "a97e3fdaf67e1165"
+sig = "0ce876c3d6733641"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -253,7 +253,7 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "45bc1dd8e360a8fb"
+sig = "605e3cefd3267d98"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -307,8 +307,13 @@ sig = "931ce6cf4387200b"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/OverviewCard.tsx"
+sig = "5a58b4e380009e62"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/Panel.tsx"
-sig = "8a6f8bfde5cfde88"
+sig = "5911534c011ed2ed"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -318,7 +323,7 @@ sig = "e9449691a10aed85"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/TrendChart.tsx"
-sig = "0b469db49d687311"
+sig = "5cc74047982a50a5"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -1618,7 +1623,7 @@ sig = "aec15052cf4b1cdd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/services/posthog/hogql.ts"
-sig = "76faeee536fb3835"
+sig = "4d0c513ffabeb100"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
