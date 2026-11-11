@@ -247,13 +247,14 @@ export function precipHours(
   return `${fmt(start)}–${fmt(start + 12 * HOUR_MS)}${zone ? ` ${zone}` : ''}`
 }
 
-/** The weekdays a run of periods spans, "Thu–Sat", or one day's alone; null for none. */
-export function dayRange(periods: Pick<NWACWeatherPeriod, 'date'>[]): string | null {
-  const day = (ymd: string) => fmtCalendarDate(ymd).split(' ')[0]
-  const first = periods[0]?.date
-  const last = periods.at(-1)?.date
+/** The periods a run spans, "Thu Night – Sat Day", or one period's alone; null for none. */
+export function dayRange(periods: Pick<NWACWeatherPeriod, 'date' | 'kind'>[]): string | null {
+  const name = (p: Pick<NWACWeatherPeriod, 'date' | 'kind'>) =>
+    `${fmtCalendarDate(p.date).split(' ')[0]} ${p.kind === 'night' ? 'Night' : 'Day'}`
+  const first = periods[0]
+  const last = periods.at(-1)
   if (!first || !last) return null
-  return first === last ? day(first) : `${day(first)}–${day(last)}`
+  return first === last ? name(first) : `${name(first)} – ${name(last)}`
 }
 
 /** "Mon Sep 14" for a `YYYY-MM-DD` calendar date. */

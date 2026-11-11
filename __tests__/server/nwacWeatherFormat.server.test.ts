@@ -32,14 +32,18 @@ describe('tempScale', () => {
 })
 
 describe('dayRange', () => {
-  it('names the first and last weekdays the periods span', () => {
-    expect(dayRange([{ date: '2026-10-15' }, { date: '2026-10-16' }, { date: '2026-10-17' }])).toBe(
-      'Thu–Sat',
-    )
+  it('names the first and last periods the run spans', () => {
+    expect(
+      dayRange([
+        { date: '2026-10-15', kind: 'night' },
+        { date: '2026-10-16', kind: 'day' },
+        { date: '2026-10-17', kind: 'day' },
+      ]),
+    ).toBe('Thu Night – Sat Day')
   })
 
-  it('names one day alone', () => {
-    expect(dayRange([{ date: '2026-10-15' }, { date: '2026-10-15' }])).toBe('Thu')
+  it('names one period alone', () => {
+    expect(dayRange([{ date: '2026-10-15', kind: 'day' }])).toBe('Thu Day')
   })
 
   it('is null with no periods', () => {
