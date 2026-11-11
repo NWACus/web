@@ -125,7 +125,6 @@ export function ZoneSummary({
             zone={zone}
             periodKeys={periodKeys}
             held={held}
-            timezone={timezone}
             heading={zones.length > 1}
           />
         ))}

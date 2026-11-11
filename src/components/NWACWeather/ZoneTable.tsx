@@ -18,7 +18,6 @@ import {
   fmtQpf,
   levelKind,
   pointSnow,
-  precipHours,
   sensibleSlotFor,
   snowRange,
   tempPeriods,
@@ -56,8 +55,6 @@ interface PeriodView {
   /** Today, Tonight or Tomorrow, as the MWF names its half-days. */
   name: string
   label: string
-  /** The local hours its precipitation and snow cover. */
-  hours: string
   /** The zone's weather summary for the period, if the forecaster wrote one. */
   summary: string | null
   night: boolean
@@ -75,7 +72,6 @@ function periodViews(
   issuance: NWACWeatherIssuance,
   zone: NWACWeatherZone,
   periodKeys: string[],
-  timezone: string,
   held: boolean,
 ): PeriodView[] {
   const levels = issuance.blocks.map((b) => {
@@ -99,7 +95,6 @@ function periodViews(
     name: periodName(period, i, held),
     night: period.kind === 'night',
     label: fmtCalendarDate(period.date),
-    hours: precipHours(period, timezone),
     summary: summaryOf(period.key),
     blocks: blocks.filter((b) => b.block.period === period.key),
   }))
@@ -577,9 +572,6 @@ function PeriodCard({
         {p.name}
         <span className="font-normal text-muted-foreground">{p.label}</span>
       </h4>
-      <p className="border-t px-3 py-1.5 text-xs text-muted-foreground">
-        Precipitation &amp; Snow: {p.hours}
-      </p>
       <CardSummary issuance={issuance} zone={zone} p={p} tempOut={tempOut} />
       <CardBlocks p={p} windOut={windOut} />
       {p.summary && <p className="whitespace-pre-line border-t px-3 py-2">{p.summary}</p>}
@@ -615,20 +607,15 @@ function PeriodCards({
   )
 }
 
-/** NWAC's, for a caller that doesn't know the center's. */
-const DEFAULT_TIMEZONE = 'America/Los_Angeles'
-
 export function ZoneTable({
   issuance,
   zone,
   periodKeys,
   held = false,
-  timezone,
   heading = true,
 }: {
   issuance: NWACWeatherIssuance
   zone: NWACWeatherZone
-  timezone?: string | null
   /** The periods to show: the 24 hours on show. */
   periodKeys: string[]
   /** A past forecast's 24 hours: Day and Night rather than Today, Tonight and Tomorrow. */
@@ -636,7 +623,7 @@ export function ZoneTable({
   /** The zone's name as a heading; off when the page already names the zone. */
   heading?: boolean
 }) {
-  const periods = periodViews(issuance, zone, periodKeys, timezone ?? DEFAULT_TIMEZONE, held)
+  const periods = periodViews(issuance, zone, periodKeys, held)
   return (
     <section aria-label={zone.name} className="space-y-4">
       {heading && <h3 className="text-lg font-semibold">{zone.name}</h3>}
