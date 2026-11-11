@@ -273,7 +273,7 @@ sig = "f6eca5c51487fe74"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/format.ts"
-sig = "ac5b2e29528a680f"
+sig = "309b7ec31074f33a"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -318,7 +318,7 @@ sig = "a6f25328766ee978"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/StatsRow.tsx"
-sig = "f66dfd0cb467d3b8"
+sig = "0f373a0d483d326b"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"

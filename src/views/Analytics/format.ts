@@ -22,7 +22,7 @@ export function formatDuration(seconds: number): string {
   return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
 }
 
-export type Delta = { text: string; direction: 'up' | 'down' | 'flat' | 'none' }
+export type Delta = { text: string; direction: 'up' | 'down' | 'flat' }
 
 function deltaDirection(rounded: number, invert: boolean): Delta['direction'] {
   if (rounded === 0) return 'flat'
@@ -30,10 +30,10 @@ function deltaDirection(rounded: number, invert: boolean): Delta['direction'] {
   return better ? 'up' : 'down'
 }
 
-/** `invert` for metrics where down is good, like bounce rate. */
-export function formatDelta(comparison: Comparison, invert = false): Delta {
+/** `invert` for metrics where down is good, like bounce rate. Null when there is no baseline. */
+export function formatDelta(comparison: Comparison, invert = false): Delta | null {
   const change = percentChange(comparison)
-  if (change === null) return { text: 'no prior data', direction: 'none' }
+  if (change === null) return null
   const rounded = Math.round(change)
   const sign = rounded > 0 ? '+' : ''
   return { text: `${sign}${rounded}%`, direction: deltaDirection(rounded, invert) }

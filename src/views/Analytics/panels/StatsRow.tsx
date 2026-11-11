@@ -1,9 +1,22 @@
 'use client'
 
-import { overviewSchema, type Comparison, type OverviewData } from '@/services/posthog/reportTypes'
+import {
+  overviewSchema,
+  percentChange,
+  type Comparison,
+  type OverviewData,
+  type ReportRange,
+} from '@/services/posthog/reportTypes'
 import { cn } from '@/utilities/ui'
 import { ShimmerEffect } from '@payloadcms/ui'
-import { formatDecimal, formatDelta, formatDuration, formatInteger, formatPercent } from '../format'
+import {
+  formatDateRange,
+  formatDecimal,
+  formatDelta,
+  formatDuration,
+  formatInteger,
+  formatPercent,
+} from '../format'
 import { parseWith, type ReportState } from '../useReport'
 import { MUTED } from './Panel'
 
@@ -29,7 +42,6 @@ const DELTA_CLASS = {
   up: 'text-[var(--theme-success-600)]',
   down: 'text-[var(--theme-error-600)]',
   flat: MUTED,
-  none: MUTED,
 }
 
 function Stat({ metric, comparison }: { metric: Metric; comparison: Comparison }) {
@@ -42,8 +54,24 @@ function Stat({ metric, comparison }: { metric: Metric; comparison: Comparison }
       <span className="text-2xl font-semibold leading-none tabular-nums">
         {metric.format(comparison.current)}
       </span>
-      <span className={cn('text-xs tabular-nums', DELTA_CLASS[delta.direction])}>{delta.text}</span>
+      {/* A blank line without a baseline keeps the row aligned; the caption below explains */}
+      <span className={cn('text-xs tabular-nums', delta && DELTA_CLASS[delta.direction])}>
+        {delta ? delta.text : '\u00a0'}
+      </span>
     </div>
+  )
+}
+
+/** Names the period the percentages compare against, once for the whole row. */
+function ComparisonCaption({ data, range }: { data: OverviewData; range: ReportRange }) {
+  const previous = formatDateRange(range.previousFrom, range.previousTo)
+  const anyBaseline = METRICS.some((metric) => percentChange(data[metric.key]) !== null)
+  return (
+    <p className={cn('col-span-full m-0 text-xs', MUTED)}>
+      {anyBaseline
+        ? `Change compared with the previous period, ${previous}.`
+        : `No data from the previous period, ${previous}, to compare with.`}
+    </p>
   )
 }
 
@@ -60,6 +88,7 @@ export function StatsRow({ state }: { state: ReportState<OverviewData> }) {
           </div>
         ),
       )}
+      {state.status === 'ready' && <ComparisonCaption data={state.data} range={state.range} />}
       {state.status === 'error' && (
         <p className={cn('col-span-full m-0 text-sm', MUTED)}>{state.message}</p>
       )}
