@@ -1,6 +1,5 @@
 /** How one Mountain Weather value draws in a table cell. */
 import { Moon, Navigation2, Snowflake, Sun } from 'lucide-react'
-import type { ReactNode } from 'react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import {
@@ -150,37 +149,41 @@ function SnowLevelKey({ width }: { width?: string }) {
   )
 }
 
-/** The local hours a precipitation Day and Night cover, by their sun and moon. */
-export function DayNightKey({ day, night }: { day: string | null; night: string | null }) {
-  if (!day && !night) return null
+/**
+ * The precipitation table's key: the local hours a Day and Night cover, by their sun and moon,
+ * then the snow shading when the forecast has snow amounts. Laid out like the wind key.
+ */
+export function PrecipLegend({
+  day,
+  night,
+  snow,
+}: {
+  day: string | null
+  night: string | null
+  snow: boolean
+}) {
+  if (!day && !night && !snow) return null
   return (
-    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+    <p className={cn(KEY_LINE, 'items-center gap-x-6')}>
       {day && (
         <span className="inline-flex items-center gap-1">
-          <Sun aria-hidden="true" className="size-4 shrink-0" />
+          <Sun aria-hidden="true" className="size-3.5 shrink-0" />
           Day {day}
         </span>
       )}
       {night && (
         <span className="inline-flex items-center gap-1">
-          <Moon aria-hidden="true" className="size-4 shrink-0" />
+          <Moon aria-hidden="true" className="size-3.5 shrink-0" />
           Night {night}
         </span>
       )}
+      {snow && (
+        <span className="inline-flex items-center gap-3">
+          {/* Narrower on a phone, to leave room for the hours toggle across from it. */}
+          <SnowFillKey width="w-40 sm:w-56" />
+        </span>
+      )}
     </p>
-  )
-}
-
-/** The snow shading's key under a table, and the hours its Day and Night cover. */
-export function SnowFillLegend({ dayNight }: { dayNight?: ReactNode }) {
-  return (
-    <div className="flex flex-col gap-3">
-      <p className={KEY_LINE}>
-        {/* Narrower on a phone, to leave room for the hours toggle across from it. */}
-        <SnowFillKey width="w-40 sm:w-56" />
-      </p>
-      {dayNight}
-    </div>
   )
 }
 

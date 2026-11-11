@@ -44,8 +44,7 @@ import {
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import {
   DayNightDate,
-  DayNightKey,
-  SnowFillLegend,
+  PrecipLegend,
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
@@ -357,7 +356,6 @@ function precipSnowTable(
     const period = periods.find((p) => p.kind === kind)
     return period && timezone ? precipHours(period, timezone) : null
   }
-  const dayNight = <DayNightKey day={hoursOf('day')} night={hoursOf('night')} />
   const row = (p: NWACWeatherIssuance['points'][number]): Row => {
     const cell = (period: NWACWeatherPeriod) => issuance.precip[p.code]?.[period.key]
     const snowOf = (period: NWACWeatherPeriod) => deriveSnow(cell(period)?.qpf, cell(period)?.slr)
@@ -393,7 +391,7 @@ function precipSnowTable(
       ? 'Water and new snow at each station, with the forecast total at the end.'
       : 'Water at each station, with the forecast total at the end. This forecast doesn’t include snow amounts.',
     detail: PRECIP_DETAIL,
-    legend: withSnow ? <SnowFillLegend dayNight={dayNight} /> : dayNight,
+    legend: <PrecipLegend day={hoursOf('day')} night={hoursOf('night')} snow={withSnow} />,
     control: { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> },
     rowLabel: 'Station',
     groupColumn: 'Zone',
