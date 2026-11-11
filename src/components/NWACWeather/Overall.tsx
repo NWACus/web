@@ -15,6 +15,7 @@ import {
   DASH,
   blockDate,
   dayGroups,
+  dayRange,
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
@@ -27,12 +28,18 @@ import {
   snowLevelBlocks,
   snowRange,
   tempPeriods,
+  tempScale,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
 
 import { DaySwitch } from './DaySwitch.client'
-import { PrecipHoursPanel, PrecipHoursSwitch, PrecipHoursToggle } from './PrecipHours.client'
+import {
+  PrecipHoursPanel,
+  PrecipHoursSelect,
+  PrecipHoursSwitch,
+  PrecipHoursToggle,
+} from './PrecipHours.client'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import {
   DayNightDate,
@@ -40,8 +47,8 @@ import {
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
-  TempLegend,
-  TempValue,
+  TempRange,
+  TempRangeLegend,
   WindLegend,
   WindValue,
   levelFill,
@@ -95,14 +102,14 @@ interface Table {
   rowLabel: string
   columns: Column[]
   groups: Group[]
-  /** Precipitation alone, by 24 hours: stretched, as its few columns would leave a gap. */
+  /** Precipitation alone: stretched across the page, as its few columns would leave a gap. */
   dateRanges?: boolean
   /** Cells whose content fills them (shaded snow levels) take less padding. */
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
-  /** Under the table, across from its key: a control for the table. */
-  aside?: ReactNode
+  /** A control for the table: at the right just above it, and on a phone beside the date. */
+  control?: { title: ReactNode; phone: ReactNode }
   /** After the description, over the table: what the shading means. */
   legend?: ReactNode
   /** Label widths in place of `LABEL_VARS`. */
@@ -126,7 +133,7 @@ const STICKY = 'sticky left-0 z-10'
 
 // Condensed from the info bubbles on NWAC's legacy Mountain Weather Forecast page.
 const PRECIP_DETAIL = [
-  'Precip is the liquid equivalent of all precipitation (rain, snow, ice pellets), to the hundredth of an inch. To estimate snow, start at 10:1 (1" of precip ≈ 10" of snow); near freezing gives less (heavy, wet snow), very cold more (light, dry snow).',
+  'Water counts all rain, snow and ice melted down. A rough rule: an inch of water makes about 10 inches of snow, less when it’s near freezing and more when it’s very cold.',
 ]
 const SNOW_LEVEL_DETAIL = [
   'The general snow level over each 6 hours; a freezing level instead when no precipitation is expected.',
@@ -192,12 +199,15 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   const levelBlocks = snowLevelBlocks(issuance)
 
   const temps = tempPeriods(issuance)
+  const scale = tempScale(
+    issuance.zones.flatMap((z) => temps.map((p) => issuance.temp[z.id]?.[p.key])),
+  )
   const winds = windBlocks(issuance)
 
   return [
     {
       id: 'snow-level',
-      nav: 'Snow & freezing level',
+      nav: 'Snow & Freezing Level',
       title: 'Snow and Freezing Level',
       unit: 'ft',
       detail: SNOW_LEVEL_DETAIL,
@@ -223,11 +233,11 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     },
     {
       id: 'temps',
-      nav: "5000' temps",
+      nav: "5000' Temps",
       title: "5000' Temperatures",
       unit: '°F',
       detail: TEMPS_DETAIL,
-      legend: <TempLegend />,
+      legend: <TempRangeLegend scale={scale} />,
       labelVars: '[--label:6.5rem] md:[--label:10.5rem]',
       fitsPhone: true,
       paired: true,
@@ -235,13 +245,21 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       columns: temps.map(periodColumn),
       groups: flat(
         zoneRows((id) =>
-          temps.map((p) => <TempValue key={p.key} cell={issuance.temp[id]?.[p.key]} />),
+          temps.map((p) =>
+            scale ? (
+              <TempRange key={p.key} cell={issuance.temp[id]?.[p.key]} scale={scale} />
+            ) : (
+              <span key={p.key} className="text-muted-foreground">
+                {DASH}
+              </span>
+            ),
+          ),
         ),
       ),
     },
     {
       id: 'wind',
-      nav: 'Ridgeline winds',
+      nav: 'Ridgeline Winds',
       title: 'Ridgeline Winds',
       unit: 'mph',
       detail: WIND_DETAIL,
@@ -277,7 +295,7 @@ function hundredths(value: number | null): number | null {
 }
 
 function PrecipValue({ qpf }: { qpf: number | null | undefined }) {
-  return <span className="tabular-nums text-muted-foreground">{fmtQpf(qpf)}</span>
+  return <span className="tabular-nums text-foreground/75">{fmtQpf(qpf)}</span>
 }
 
 /** One period's (or the total's) water equivalent then snow, the pair shaded by the snow. */
@@ -325,10 +343,13 @@ function precipSlots(issuance: NWACWeatherIssuance, hours: PrecipHours): PrecipS
  * each 12 or 24 hours split in two, then the whole window's total. An issuance with no snow amounts
  * shows water equivalent alone.
  */
-function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Table {
+function precipSnowTable(
+  issuance: NWACWeatherIssuance,
+  hours: PrecipHours,
+  withSnow: boolean,
+): Table {
   const slots = precipSlots(issuance, hours)
   const periods = precipPeriods(issuance)
-  const withSnow = hasSnowAmounts(issuance)
   const row = (p: NWACWeatherIssuance['points'][number]): Row => {
     const cell = (period: NWACWeatherPeriod) => issuance.precip[p.code]?.[period.key]
     const snowOf = (period: NWACWeatherPeriod) => deriveSnow(cell(period)?.qpf, cell(period)?.slr)
@@ -357,21 +378,28 @@ function precipSnowTable(issuance: NWACWeatherIssuance, hours: PrecipHours): Tab
       : [{ ...column, split: column.key }]
   return {
     id: `precip-snow-${hours}`,
-    nav: withSnow ? 'Precipitation & snow' : 'Precipitation',
+    nav: withSnow ? 'Precipitation & Snow' : 'Precipitation',
     title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
     note: withSnow
-      ? 'Precipitation (liquid, in) and new snow by station; Total covers the whole forecast.'
-      : 'Precipitation (liquid, in) by station; Total covers the whole forecast. This forecast doesn’t include snow amounts.',
+      ? 'Water and new snow at each station, with the forecast total at the end.'
+      : 'Water at each station, with the forecast total at the end. This forecast doesn’t include snow amounts.',
     detail: PRECIP_DETAIL,
     legend: withSnow ? <SnowFillLegend /> : undefined,
-    aside: withSnow ? <PrecipHoursToggle /> : undefined,
+    control: { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> },
     rowLabel: 'Station',
     groupColumn: 'Zone',
     dateRanges: !withSnow,
     columns: [
       ...slots.map((s) => s.column).flatMap(split),
-      ...split({ key: 'total', date: 'Total', sub: null, group: 'total', total: true }),
+      // The days the total covers, under it as a period's Day or Night is under its date.
+      ...split({
+        key: 'total',
+        date: 'Total',
+        sub: dayRange(periods),
+        group: 'total',
+        total: true,
+      }),
     ],
     groups: stationGroups(issuance, row),
   }
@@ -441,18 +469,22 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
   }
 }
 
-/** A table cut down to each date's columns; a total, whose `date` is "Total", is a day here too. */
+/**
+ * A table cut down to each date's columns; a total, whose `date` is "Total", is a day here too.
+ * Columns with no date stay apart by their group rather than merging under one dash.
+ */
 function dayTables(t: Table) {
-  const days: { label: string; columns: number[] }[] = []
+  const days: { key: string; label: string; columns: number[] }[] = []
   t.columns.forEach((c, i) => {
-    const label = c.date ?? DASH
-    const day = days.find((d) => d.label === label)
+    const key = c.date ?? `undated-${c.group ?? c.key}`
+    const day = days.find((d) => d.key === key)
     if (day) day.columns.push(i)
-    else days.push({ label, columns: [i] })
+    else days.push({ key, label: c.date ?? DASH, columns: [i] })
   })
-  return days.map(({ label, columns }): { label: string; table: Table } => {
+  return days.map(({ key, label, columns }): { key: string; label: string; table: Table } => {
     const pick = <T,>(values: T[]) => columns.map((i) => values[i])
     return {
+      key,
       label,
       table: {
         ...t,
@@ -755,7 +787,7 @@ function TableBody({ table: t }: { table: Table }) {
               <th
                 scope="rowgroup"
                 colSpan={t.columns.length + 1}
-                className="border-t bg-muted/50 px-3 py-1.5 text-left text-xs font-semibold"
+                className="border-t bg-[color-mix(in_srgb,var(--muted)_50%,transparent)] px-3 py-1.5 text-left text-xs font-semibold"
               >
                 {/* Stays in view while the values scroll sideways under it. */}
                 <span className="sticky left-3">{g.label}</span>
@@ -801,22 +833,29 @@ function TableTitle({
 }) {
   const [first, ...rest] = t.detail ?? []
   return (
-    <div className={cn(t.paired && 'xl:pb-3')}>
-      <Heading
-        id={headingId}
-        className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
-      >
-        {t.title}
-        {t.unit && <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>}
-      </Heading>
-      {(t.note || first) && (
-        <div className="space-y-1 text-sm text-muted-foreground">
-          <p>{[t.note, first].filter(Boolean).join(' ')}</p>
-          {rest.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      )}
+    // The control sits at the right, level with the title's last line, just above the table.
+    <div className={cn('flex items-end gap-4', t.paired && 'xl:pb-3')}>
+      <div className="min-w-0 flex-1">
+        <Heading
+          id={headingId}
+          className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
+        >
+          {t.title}
+          {t.unit && (
+            <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
+          )}
+        </Heading>
+        {(t.note || first) && (
+          <div className="space-y-1 text-sm text-muted-foreground">
+            <p>{[t.note, first].filter(Boolean).join(' ')}</p>
+            {rest.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* A phone has its own form of the control, beside the date. */}
+      {t.control && <div className="hidden shrink-0 md:block print:hidden">{t.control.title}</div>}
     </div>
   )
 }
@@ -890,26 +929,25 @@ function GridTable({
         <TableBox table={t} />
       </div>
       {t.fitsPhone ? (
-        <TableBox table={{ ...t, narrow: true }} className="md:hidden print:hidden" />
+        <TableBox
+          table={{ ...t, narrow: true, control: undefined }}
+          className="md:hidden print:hidden"
+        />
       ) : (
         <DaySwitch
           label={t.title}
           className="md:hidden print:hidden"
+          aside={t.control?.phone}
           days={dayTables(t).map((d) => ({
-            key: d.label,
+            key: d.key,
             label: d.label,
-            content: <TableBox table={d.table} />,
+            // "Thu Oct 15 – Fri Oct 16" → its two dates; a single date stays one.
+            covers: d.label.split(' – '),
+            content: <TableBox table={{ ...d.table, control: undefined }} />,
           }))}
         />
       )}
-      {t.aside ? (
-        <div className="flex items-center justify-between gap-3">
-          {t.legend}
-          {t.aside}
-        </div>
-      ) : (
-        t.legend
-      )}
+      {t.legend}
     </section>
   )
 }
@@ -1031,7 +1069,7 @@ function ExtendedSection({
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
         Extended
       </h3>
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-start">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:items-start">
         {/* The outlook text is optional; without it the table takes the first column. */}
         {extended && (
           <section className="space-y-2">
@@ -1078,6 +1116,7 @@ export interface OverallParts {
 
 export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
   const [snowLevel, temps, wind] = zoneTables(issuance)
+  const hasSnow = hasSnowAmounts(issuance)
   return {
     issuance,
     synopsis: authoredOrNull(issuance.synopsis),
@@ -1085,7 +1124,10 @@ export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
     snowLevel,
     temps,
     wind,
-    precipSnow: { '12': precipSnowTable(issuance, '12'), '24': precipSnowTable(issuance, '24') },
+    precipSnow: {
+      '12': precipSnowTable(issuance, '12', hasSnow),
+      '24': precipSnowTable(issuance, '24', hasSnow),
+    },
     ext: extendedTable(issuance),
     sensible: sensibleDays(issuance),
   }
@@ -1095,7 +1137,7 @@ function sectionLinks(p: OverallParts): SectionLink[] {
   const hasExtended = !!p.extended || hasContent(p.ext)
   return [
     ...(p.synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Weather summary' }] : []),
+    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Zone Summary' }] : []),
     // The precipitation tables share one anchor, on the wrapper both sit in.
     ...(hasContent(p.precipSnow['12'])
       ? [{ id: 'precip-snow', label: p.precipSnow['12'].nav }]
@@ -1112,7 +1154,6 @@ export function OverallSectionTabs({ parts }: { parts: OverallParts }) {
 
 export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePaths?: ZonePaths }) {
   const { issuance, synopsis, extended, snowLevel, temps, wind, sensible, precipSnow, ext } = parts
-  const hasSnow = hasSnowAmounts(issuance)
   // Section anchors read `#afternoon-snow-level`: a date has at most one issuance of each type.
   const anchor = issuance.type
   const tempsOrWind = hasContent(temps) || hasContent(wind)
@@ -1136,24 +1177,19 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
           )
         }
       />
-      {hasContent(precipSnow['12']) &&
-        (hasSnow ? (
-          <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
-            <PrecipHoursPanel hours="12">
-              <GridTable table={precipSnow['12']} anchor={anchor} />
-            </PrecipHoursPanel>
-            <PrecipHoursPanel hours="24">
-              <GridTable table={precipSnow['24']} anchor={anchor} />
-            </PrecipHoursPanel>
-          </PrecipHoursSwitch>
-        ) : (
-          <div id={`${anchor}-precip-snow`} className="scroll-mt-24">
+      {hasContent(precipSnow['12']) && (
+        <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
+          <PrecipHoursPanel hours="12">
+            <GridTable table={precipSnow['12']} anchor={anchor} />
+          </PrecipHoursPanel>
+          <PrecipHoursPanel hours="24">
             <GridTable table={precipSnow['24']} anchor={anchor} />
-          </div>
-        ))}
+          </PrecipHoursPanel>
+        </PrecipHoursSwitch>
+      )}
       <MaybeTable table={snowLevel} anchor={anchor} />
       {tempsOrWind && (
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:gap-y-2">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:gap-y-2">
           <MaybeTable table={temps} anchor={anchor} />
           <MaybeTable table={wind} anchor={anchor} />
         </div>

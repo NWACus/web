@@ -19,7 +19,7 @@ import {
   type WarningProduct,
   type Weather,
 } from '@/services/nac/model/forecast'
-import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
+import type { NWACWeatherZoneDay } from '@/services/nac/model/nwacWeather'
 import { productTypeTitle } from '@/services/nac/productTypeTitle'
 import type { ForecastZoneFacts } from '@/services/nac/resolveZone'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
@@ -78,7 +78,7 @@ interface NativeForecastViewProps {
   /** The separately-issued weather product, when one is available (live page only). */
   weather?: Weather | null
   /** NWAC's own Mountain Weather issuance for this forecast, which NWAC has in place of `weather`. */
-  nwacWeather?: NWACWeatherForecastDay | null
+  nwacWeather?: NWACWeatherZoneDay | null
   /** Wraps the bottom line and panel in the zone's tabs (Forecast-9); the live page passes it. */
   zoneTabs?: (parts: { bottomLine: ReactNode; panel: ReactNode }) => ReactNode
 }
@@ -343,7 +343,7 @@ function ForecastMasthead({
 interface ForecastPanelProps {
   forecastResult: ForecastResult
   weather: Weather | null | undefined
-  nwacWeather: NWACWeatherForecastDay | null | undefined
+  nwacWeather: NWACWeatherZoneDay | null | undefined
   elevationBandNames: ElevationBandNames
   /** The zone's short `zone_id` string, which picks its Mountain Weather table. */
   zoneId: string

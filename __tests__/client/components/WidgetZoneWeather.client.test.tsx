@@ -5,7 +5,12 @@ import '@testing-library/jest-dom'
 import { act, render, waitFor, within } from '@testing-library/react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
-const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
+const mapped = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
+if (!mapped) throw new Error('fixture should map to a forecast day')
+const day = {
+  ...mapped,
+  windows: [{ startsAt: '2026-09-15T01:00:00.000Z', issuance: 0, periodKeys: ['n1', 'd2'] }],
+}
 const OLYMPICS = 1645
 
 function renderInWidget() {
@@ -86,7 +91,7 @@ describe('WidgetZoneWeather', () => {
   it("takes over the Weather Forecast tab: the widget's own content hidden, the Overall view shown", async () => {
     const { container, tab } = await loadedTab()
     expect(within(tab).getByText('Mountain Weather')).toBeInTheDocument()
-    expect(within(tab).getAllByText(/Total covers the whole forecast/).length).toBeGreaterThan(0)
+    expect(within(tab).getAllByText(/with the forecast total at the end/).length).toBeGreaterThan(0)
     expect(container.querySelector('#nac-weather-forecast')).not.toBeVisible()
 
     const zone = await waitFor(() => {
@@ -94,7 +99,7 @@ describe('WidgetZoneWeather', () => {
       if (!found) throw new Error('no zone section yet')
       return found
     })
-    expect(within(zone).queryByText(/Total covers the whole forecast/)).toBeNull()
+    expect(within(zone).queryByText(/with the forecast total at the end/)).toBeNull()
   })
 
   it("replaces the last forecast's tab content when the widget renders another", async () => {

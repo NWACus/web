@@ -1,8 +1,8 @@
 'use client'
 
 /**
- * Section links as tabs across the top of the card, pinned under the site header (the top of the
- * viewport on wide screens), with the section nearest the top of the viewport marked current.
+ * Section links as "Jump to" chips across the top of the card, pinned under the site header (the
+ * top of the viewport on wide screens), with the section nearest the top of the viewport filled in.
  */
 import { useEffect, useRef, useState, type RefObject } from 'react'
 
@@ -15,9 +15,9 @@ export interface SectionLink {
 }
 
 /**
- * The last section whose heading is above the upper third of the viewport, or just under the pinned
- * tabs when they reach lower than that (a phone, under the site header). Measured only while the
- * tabs are visible, and again when they appear: hidden headings all read as at the top.
+ * The last section whose heading is above the upper third of the viewport, or just under where the
+ * tabs pin when that is lower (a phone, under the site header). Measured only while the tabs are
+ * visible, and again when they appear: hidden headings all read as at the top.
  */
 function useCurrentSection(ids: string[], nav: RefObject<HTMLElement | null>) {
   const [current, setCurrent] = useState(ids[0])
@@ -28,7 +28,9 @@ function useCurrentSection(ids: string[], nav: RefObject<HTMLElement | null>) {
     const ids = key.split(' ')
     const measure = () => {
       if (!nav.current?.offsetParent) return
-      const line = Math.max(window.innerHeight / 3, nav.current.getBoundingClientRect().bottom + 72)
+      // Where the tabs pin, not where they are: before they pin they sit lower on the page.
+      const pinned = parseFloat(getComputedStyle(nav.current).top) || 0
+      const line = Math.max(window.innerHeight / 3, pinned + nav.current.offsetHeight + 72)
       let found = ids[0]
       for (const id of ids) {
         const el = document.getElementById(id)
@@ -76,31 +78,38 @@ export function SectionTabs({ links }: { links: SectionLink[] }) {
       aria-label="Forecast sections"
       className={cn(
         'sticky top-[calc(var(--admin-bar-height,0px)+var(--sticky-header-height,4rem))] z-20 overflow-x-auto overflow-y-hidden rounded-t-lg border-b bg-card px-6 lg:top-0 print:hidden',
-        // Edge to edge on a phone, so the page doesn't show past it in the gutters as it scrolls.
-        'max-md:-mx-4 max-md:rounded-none max-md:px-4',
+        // Edge to edge on a phone, whatever the page's side padding, so the page doesn't show past
+        // it in the gutters as it scrolls: out to the viewport, padded back in to line up.
+        'max-md:mx-[calc(50%-50vw)] max-md:rounded-none max-md:px-[calc(50vw-50%)]',
       )}
     >
-      <ul className="flex gap-6">
-        {links.map((l) => {
-          const on = l.id === current
-          return (
-            <li key={l.id} className="shrink-0">
-              <a
-                href={`#${l.id}`}
-                aria-current={on ? 'location' : undefined}
-                className={cn(
-                  '-mb-px inline-flex h-12 items-center whitespace-nowrap border-b-2 text-sm font-semibold no-underline',
-                  on
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground',
-                )}
-              >
-                {l.label}
-              </a>
-            </li>
-          )
-        })}
-      </ul>
+      <div className="flex items-center gap-2 py-2.5">
+        {/* The nav's label says the same to a screen reader. */}
+        <span aria-hidden="true" className="shrink-0 pr-1 text-sm text-muted-foreground">
+          Jump to
+        </span>
+        <ul className="flex gap-2">
+          {links.map((l) => {
+            const on = l.id === current
+            return (
+              <li key={l.id} className="shrink-0">
+                <a
+                  href={`#${l.id}`}
+                  aria-current={on ? 'location' : undefined}
+                  className={cn(
+                    'inline-flex h-8 items-center whitespace-nowrap rounded-full border px-3 text-sm font-semibold no-underline',
+                    on
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'bg-background text-foreground hover:bg-muted',
+                  )}
+                >
+                  {l.label}
+                </a>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
     </nav>
   )
 }

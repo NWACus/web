@@ -1,6 +1,12 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
-import { SnowLevelLegend, WindValue, levelFill, windFill } from '@/components/NWACWeather/Values'
+import {
+  SnowLevelLegend,
+  TempRange,
+  WindValue,
+  levelFill,
+  windFill,
+} from '@/components/NWACWeather/Values'
 import type { NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
 import { dayGroups, fmtQpf, hasSnowAmounts, precipPeriods } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
@@ -33,7 +39,7 @@ describe('Overall', () => {
     const [olympics] = within(temps)
       .getAllByRole('rowheader', { name: 'Olympics' })
       .map((label) => label.closest('tr'))
-    expect(olympics).toHaveTextContent('53 / 47')
+    expect(olympics).toHaveTextContent('High 53, low 47')
   })
 
   it('puts the weather summary beside the synopsis, then precipitation and snow, the zone links last, and links each zone to its forecast page', () => {
@@ -106,13 +112,12 @@ describe('Overall', () => {
 
   it('switches precipitation and snow between 12 and 24 hours', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const twelve = screen.getByRole('button', { name: '12 hours' })
-    const twentyFour = screen.getByRole('button', { name: '24 hours' })
-    expect(twelve).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('radio', { name: '12 hours' })).toHaveAttribute('aria-checked', 'true')
     expect(screen.queryByRole('columnheader', { name: 'Night + Day' })).toBeNull()
 
-    fireEvent.click(twentyFour)
-    expect(twentyFour).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('radio', { name: '24 hours' }))
+    // The 24-hour table's own switch, in its corner, now shows.
+    expect(screen.getByRole('radio', { name: '24 hours' })).toHaveAttribute('aria-checked', 'true')
     // An afternoon issuance's nights pair with the days after them.
     expect(screen.getAllByRole('columnheader', { name: 'Night + Day' }).length).toBeGreaterThan(0)
   })
@@ -169,19 +174,22 @@ describe('Overall precipitation without snow amounts', () => {
   const first = afternoon.points[0].name
   const second = afternoon.points[1].name
 
-  it('shows precipitation alone by 24 hours: no snow columns, legend, toggle, or snow in the title', () => {
+  it('shows precipitation alone, by 12 or 24 hours: no snow columns, legend, or snow in the title', () => {
     const parts = overallParts(withPrecip({ '0:0': { qpf: 0.25, slr: null } }))
     render(<Overall parts={parts} />)
-    const region = screen.getByRole('region', { name: 'Precipitation (in)' })
-    const [wide] = within(region).getAllByRole('table')
-    expect(within(wide).queryByRole('columnheader', { name: 'Snow' })).toBeNull()
-    expect(within(wide).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
-    const cells = stationCells(wide, first)
+    const region = () => screen.getByRole('region', { name: 'Precipitation (in)' })
+    const wide = () => within(region()).getAllByRole('table')[0]
+    expect(within(wide()).queryByRole('columnheader', { name: 'Snow' })).toBeNull()
+    expect(within(wide()).getByRole('columnheader', { name: /^Total/ })).toBeInTheDocument()
+    expect(stationCells(wide(), first)).toHaveLength(precipPeriods(afternoon).length + 1)
+    expect(screen.getAllByText(/doesn’t include snow amounts/).length).toBeGreaterThan(0)
+
+    fireEvent.click(within(region()).getByRole('radio', { name: '24 hours' }))
+
+    const cells = stationCells(wide(), first)
     expect(cells).toHaveLength(dayGroups(precipPeriods(afternoon)).length + 1)
     expect(cells[0]).toBe('0.25"')
     expect(cells.at(-1)).toBe('0.25"')
-    expect(within(region).queryByRole('group', { name: 'Period length' })).toBeNull()
-    expect(screen.getAllByText(/doesn’t include snow amounts/)).toHaveLength(1)
   })
 
   it('names the section link Precipitation', () => {
@@ -250,12 +258,17 @@ describe('Overall table descriptions', () => {
     ).toBeInTheDocument()
     // The 12 and 24 hour tables both carry it; one is hidden.
     expect(
-      screen.getAllByText(
-        /^Precipitation \(liquid, in\) and new snow by station; .* \(light, dry snow\)\.$/,
-      ),
+      screen.getAllByText(/^Water and new snow at each station, .* more when it’s very cold\.$/),
     ).toHaveLength(2)
-    expect(screen.getByText(/is the high \/ low$/)).toBeInTheDocument()
-    expect(screen.getByText('Points the way the wind blows')).toBeInTheDocument()
+    // The key's bar sits between Low and high, so the line is matched whole.
+    expect(
+      screen.getByText(
+        (_, el) =>
+          el?.tagName === 'P' &&
+          /^Low to high in 12 hours · \d+–\d+°F scale$/.test(el.textContent ?? ''),
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Points downwind')).toBeInTheDocument()
   })
 })
 
@@ -263,7 +276,7 @@ describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
     render(<OverallSectionTabs parts={overallParts(afternoon)} />)
     const nav = screen.getByRole('navigation', { name: 'Forecast sections' })
-    expect(within(nav).getByRole('link', { name: 'Weather summary' })).toHaveAttribute(
+    expect(within(nav).getByRole('link', { name: 'Zone Summary' })).toHaveAttribute(
       'href',
       '#afternoon-sensible',
     )
@@ -301,11 +314,8 @@ describe('IssuanceSwitch with a heading', () => {
     )
     // Morning before Afternoon, with the newer Afternoon shown first.
     const radios = screen.getAllByRole('radio')
-    expect(radios.map((r) => r.textContent)).toEqual(['Morning7:00 AM', 'Afternoon3:03 PMLatest'])
-    expect(screen.getByRole('radio', { name: /Afternoon.*Latest/ })).toHaveAttribute(
-      'aria-checked',
-      'true',
-    )
+    expect(radios.map((r) => r.textContent)).toEqual(['Morning7:00 AM', 'Afternoon3:03 PM'])
+    expect(screen.getByRole('radio', { name: /Afternoon/ })).toHaveAttribute('aria-checked', 'true')
     expect(screen.getByText('Issued at 3:03')).toBeVisible()
     expect(screen.getByText('Issued at 7:00')).not.toBeVisible()
 
@@ -362,6 +372,57 @@ describe('the paired temperature and wind tables', () => {
     fireEvent.click(second)
     expect(second).toHaveAttribute('aria-selected', 'true')
     expect(within(wind).getByRole('tabpanel')).toHaveAttribute('aria-labelledby', second.id)
+  })
+
+  it('keeps the picked date when a phone switches the precipitation to 24 hours', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const pickSecond = (trigger: HTMLElement) => {
+      fireEvent.keyDown(trigger, { key: 'Enter' })
+      fireEvent.keyDown(screen.getAllByRole('option')[1], { key: 'Enter' })
+    }
+    const dates = () => screen.getAllByRole('combobox', { name: /^Precipitation and Snow date$/ })
+    pickSecond(dates()[0])
+    const second = dates()[0].textContent
+
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
+    fireEvent.keyDown(screen.getByRole('option', { name: '24 hours' }), { key: 'Enter' })
+
+    // The 24-hour dates are ranges: the first one covering the picked date is kept.
+    const [date24] = dates()
+    expect(date24.textContent).not.toBe(second)
+    expect(date24.textContent).toContain(second)
+
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
+    fireEvent.keyDown(screen.getByRole('option', { name: '12 hours' }), { key: 'Enter' })
+    // Back to 12 hours: the range's last date.
+    expect(dates()[0].textContent).toBe(date24.textContent?.split(' – ').at(-1))
+  })
+})
+
+describe('TempRange', () => {
+  const bar = (container: HTMLElement) => {
+    const el = container.querySelector<HTMLElement>('.bg-sky-400')
+    if (!el) throw new Error('no bar')
+    return { left: parseFloat(el.style.left), right: parseFloat(el.style.right) }
+  }
+
+  it('keeps a short bar at the edge of the scale on its track', () => {
+    const scale = { min: 12, max: 43 }
+    const cold = bar(render(<TempRange cell={{ low: 13, high: 14 }} scale={scale} />).container)
+    const warm = bar(render(<TempRange cell={{ low: 41, high: 42 }} scale={scale} />).container)
+
+    expect(cold.left).toBeCloseTo(0)
+    expect(cold.right).toBeCloseTo(88)
+    expect(warm.right).toBeCloseTo(0)
+  })
+
+  it('draws a wide swing from its low to its high', () => {
+    const { left, right } = bar(
+      render(<TempRange cell={{ low: 20, high: 30 }} scale={{ min: 10, max: 40 }} />).container,
+    )
+
+    expect(left).toBeCloseTo(100 / 3)
+    expect(right).toBeCloseTo(100 / 3)
   })
 })
 

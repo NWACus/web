@@ -214,6 +214,48 @@ export function tempPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+/**
+ * The °F span every temperature bar in a table shares: its lowest low to its highest high, a degree
+ * either side, so the bars spread across the cell rather than bunching in the middle.
+ */
+export function tempScale(
+  cells: ({ high: number | null; low: number | null } | undefined)[],
+): { min: number; max: number } | null {
+  const values = cells.flatMap((c) => [c?.low, c?.high]).filter((v): v is number => v != null)
+  if (values.length === 0) return null
+  return { min: Math.min(...values) - 1, max: Math.max(...values) + 1 }
+}
+
+const HOUR_MS = 60 * 60 * 1000
+
+/**
+ * The local hours a 12h period's precipitation and snow cover, "4 am–4 pm PST": the model's
+ * 12Z–00Z day and 00Z–12Z night, which are 5 to 5 in PDT and don't match the 6 to 6 periods.
+ */
+export function precipHours(
+  period: Pick<NWACWeatherPeriod, 'kind' | 'date'>,
+  timezone: string,
+): string {
+  const [y, m, d] = period.date.split('-').map(Number)
+  const start = period.kind === 'day' ? Date.UTC(y, m - 1, d, 12) : Date.UTC(y, m - 1, d + 1)
+  const hour = new Intl.DateTimeFormat('en-US', { timeZone: timezone, hour: 'numeric' })
+  const zone = new Intl.DateTimeFormat('en-US', { timeZone: timezone, timeZoneName: 'short' })
+    .formatToParts(start)
+    .find((part) => part.type === 'timeZoneName')?.value
+  // "4 AM" → "4 am", the site's style for times of day.
+  const fmt = (ms: number) => hour.format(ms).toLowerCase()
+  return `${fmt(start)}–${fmt(start + 12 * HOUR_MS)}${zone ? ` ${zone}` : ''}`
+}
+
+/** The weekdays a run of periods spans, "Thu–Sat", or one day's alone; null for none. */
+export function dayRange(periods: Pick<NWACWeatherPeriod, 'date'>[]): string | null {
+  const day = (ymd: string) => fmtCalendarDate(ymd).split(' ')[0]
+  const first = periods[0]?.date
+  const last = periods.at(-1)?.date
+  if (!first || !last) return null
+  return first === last ? day(first) : `${day(first)}–${day(last)}`
+}
+
 /** "Mon Sep 14" for a `YYYY-MM-DD` calendar date. */
 export function fmtCalendarDate(ymd: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(ymd)
@@ -242,6 +284,15 @@ export function sensibleSlots(issuance: NWACWeatherIssuance) {
     label: i === 0 && firstIsNight ? 'Tonight' : s.label,
     date: dates[i]?.date ?? null,
   }))
+}
+
+/**
+ * The sensible text's two slots are the issuance's first two half-days: Today and Tonight on a
+ * morning, Tonight and Tomorrow on an afternoon. The slot holding `periodKey`'s text, if any.
+ */
+export function sensibleSlotFor(issuance: NWACWeatherIssuance, periodKey: string): string | null {
+  const index = issuance.periods.findIndex((p) => p.key === periodKey)
+  return SENSIBLE_SLOTS[index]?.key ?? null
 }
 
 export function issuanceLabel(type: NWACWeatherIssuance['type']): string {

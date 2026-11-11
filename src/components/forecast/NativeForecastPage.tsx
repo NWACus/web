@@ -11,12 +11,17 @@ import {
   validDateForProduct,
 } from '@/services/nac/archiveDates'
 import { elevationBandsUrl } from '@/services/nac/dangerScale'
-import { forecastFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
+import { todayInTimezone } from '@/services/nac/forecastArchive'
+import {
+  forecastFreshnessEndpoint,
+  nwacWeatherFreshnessEndpoint,
+} from '@/services/nac/forecastFingerprint'
 import type { ForecastResult } from '@/services/nac/model/forecast'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
+import { currentNWACWeatherDay } from '@/services/nac/nwacWeatherCurrent'
 import { getNWACWeatherForForecast } from '@/services/nac/nwacWeatherForForecast'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { getForecastSource, getWarningSource } from '@/services/nac/sources'
+import { getForecastSource, getNWACWeatherSource, getWarningSource } from '@/services/nac/sources'
 import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
 import { showsZoneObservationTabs } from '@/services/nac/zoneObservations'
 import type { ComponentProps } from 'react'
@@ -57,6 +62,25 @@ async function zoneTabsFor(
 interface NativeForecastPageProps {
   centerSlug: string
   zoneSlug: string
+}
+
+/**
+ * NWAC's weather freshness address, so a new issuance reaches this page like a new forecast does.
+ * None for any other center, and none on a failed read: a guessed fingerprint would read as changed
+ * and refresh the page for nothing. The ISR window still backstops it.
+ */
+async function nwacWeatherFreshness(
+  centerSlug: string,
+  timezone: string | null | undefined,
+): Promise<string[]> {
+  if (centerSlug !== 'nwac') return []
+  try {
+    const latest = await getNWACWeatherSource().getLatest()
+    const day = currentNWACWeatherDay(latest, todayInTimezone(timezone))
+    return [nwacWeatherFreshnessEndpoint(centerSlug, day)]
+  } catch {
+    return []
+  }
 }
 
 export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecastPageProps) {
@@ -106,7 +130,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
 
   // The mountain-weather product is issued separately; `getWeatherForForecast` owns how it is found,
   // and NWAC's own weather is found by time instead.
-  const [archive, weather, nwacWeather] = await Promise.all([
+  const [archive, weather, nwacWeather, weatherFreshness] = await Promise.all([
     fetchProductArchive(centerSlug, window),
     getWeatherForForecast(centerSlug, zone.zone.id, forecastResult, metadata.timezone),
     // A failed read is already logged, and only costs the weather: the forecast still shows.
@@ -116,6 +140,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
       forecastResult.published_time,
       metadata.timezone,
     ).catch(() => null),
+    nwacWeatherFreshness(centerSlug, metadata.timezone),
   ])
   const initialDates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 
@@ -144,7 +169,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
       </ForecastGlossary>
       {/* Revalidate-on-view: catches a correction/retraction published after this (ISR) page was
           rendered and refreshes the viewer's page. Live route only — the dated archive is immutable. */}
-      <RevalidateOnView endpoints={[freshnessEndpoint]} />
+      <RevalidateOnView endpoints={[freshnessEndpoint, ...weatherFreshness]} />
     </>
   )
 }
