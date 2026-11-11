@@ -1,5 +1,5 @@
 import { DefaultTemplate } from '@payloadcms/next/templates'
-import { Gutter } from '@payloadcms/ui'
+import { Gutter, SetStepNav } from '@payloadcms/ui'
 import type { AdminViewServerProps } from 'payload'
 import type { ReactNode } from 'react'
 
@@ -25,6 +25,8 @@ export function CustomView({
       user={initPageResult.req.user || undefined}
       visibleEntities={initPageResult.visibleEntities}
     >
+      {/* Replaces the Dashboard's breadcrumb dropdown, which stays in the step nav after client-side navigation */}
+      <SetStepNav nav={[{ label: title }]} />
       <Gutter>
         <div className="py-8">
           <div className="doc-header__header">
