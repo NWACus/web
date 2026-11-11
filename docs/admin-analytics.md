@@ -12,7 +12,7 @@
 | Sources | `$pageview` | Referrers by `$referring_domain` with the center's own hosts left out (`$direct` shows as Direct); channels from `session.$channel_type` |
 | Locations | `$pageview` | Cities as `city, subdivision code, country code` (the default tab), regions as `subdivision, country code`, and countries. Locations are GeoIP lookups, so data-center towns such as Council Bluffs, IA show up for crawlers and VPNs; the card says so |
 | Devices | `$pageview` | Device type, browser, operating system |
-| Sponsors | `sponsor_impression`, `sponsor_click` | Per `sponsor_id`: impressions, clicks, click-through rate. Impressions count the block rendering until #1486 ships viewport-based impressions |
+| Sponsors | `sponsor_impression`, `sponsor_click` | Per `sponsor_id`: impressions, clicks, click-through rate. Impressions count the sponsor scrolling into view since v1.27.2 (#1486 — Sponsor impressions: count views, not mounts — live in production 2026-11-11 00:14 UTC). Earlier events count the block rendering, which runs higher, and the card says so |
 | Top 404s | `page_not_found` | Missing paths with the most common referrer, which is where the broken link lives. The card links to Redirects, where each one is fixed |
 | Dead clicks | `$dead_click` | Page and element pairs by unique people, labelled from the element's `alt`, text or `aria-label`. Native `select` elements and map surfaces (`mapboxgl`, `maplibregl`, `leaflet` in the element chain) are excluded because they respond without changing the DOM |
 
@@ -73,7 +73,6 @@ Create the key under a service account or a maintainer's PostHog settings, scope
 ## Known limits and follow-ups
 
 - Cold loads of long ranges are slow (see above). If that becomes a complaint, the options are: per-month queries cached indefinitely for past months (exact for counts, approximate for unique visitors), moving visit-based panels to the `sessions` table, PostHog materialized Endpoints for fixed windows per center, or PostHog's pre-aggregated web analytics tables (a project setting, off as of November 2026).
-- Sponsor impressions are mount counts until #1486 ships; the panel says so.
 - Paths are plain text. Linking a path to the Payload document that renders it is a follow-up; the endpoint's row shapes in [`reportTypes.ts`](../src/services/posthog/reportTypes.ts) are where a document reference would go.
 - Small dashboard widgets (a stat with a configurable period, top pages, a sponsor summary) are a follow-up and should read the same cached reports.
 - Once production has carried the `center` property for a full year the host match in `CENTER_FILTER` is redundant.

@@ -283,7 +283,7 @@ sig = "c9e3b98a154028a0"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/lists.ts"
-sig = "7fd635a4c97bc3f6"
+sig = "085fc1b3d286a229"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"

@@ -119,7 +119,7 @@ export const SPONSORS: ListSpec<'sponsors'> = {
   report: 'sponsors',
   label: 'Sponsors',
   empty: 'No sponsor impressions in this period.',
-  note: 'Impressions count the sponsor block rendering, not scrolling into view.',
+  note: 'Since the evening of Nov 10, 2026, an impression is the sponsor scrolling into view. Before that it was the block rendering, which counts more, so ranges reaching back before then read higher.',
   name: { header: 'Sponsor', text: (row) => row.name },
   columns: [
     { header: 'Impr.', csvHeader: 'Impressions', value: (row) => row.impressions },
