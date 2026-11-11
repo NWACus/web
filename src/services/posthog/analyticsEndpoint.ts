@@ -17,7 +17,7 @@ function failureMessage(err: unknown): string {
   if (err instanceof PostHogQueryError && err.context?.status === 429) {
     return 'PostHog is busy right now. Try again in a minute.'
   }
-  return 'Site analytics are unavailable right now'
+  return 'Web analytics are unavailable right now'
 }
 
 async function canReadTenant(req: PayloadRequest, slug: string): Promise<boolean> {
@@ -43,7 +43,7 @@ async function authorize(req: PayloadRequest): Promise<Authorized | Response> {
   if (!(center && isValidTenantSlug(center))) return json({ error: 'Unknown center' }, 400)
   if (!(await canReadTenant(req, center))) return json({ error: 'Not found' }, 404)
   const config = getPostHogQueryConfig()
-  if (!config) return json({ error: 'Site analytics are not connected' }, 503)
+  if (!config) return json({ error: 'Web analytics are not connected' }, 503)
 
   const range = resolveRange(
     { from: params.get('from') ?? '', to: params.get('to') ?? '' },
@@ -56,7 +56,7 @@ async function authorize(req: PayloadRequest): Promise<Authorized | Response> {
 
 /**
  * `GET /api/analytics?center=nwac&from=2026-10-10&to=2026-11-09&report=overview[&refresh=1]`
- * for the admin Site analytics page. Auth is Payload's; the center must be one the user can read.
+ * for the admin Web analytics page. Auth is Payload's; the center must be one the user can read.
  */
 export const analyticsHandler: PayloadHandler = async (req) => {
   const report = req.searchParams.get('report')
@@ -85,7 +85,7 @@ export const analyticsHandler: PayloadHandler = async (req) => {
     }
     return json(body)
   } catch (err) {
-    req.payload.logger.warn({ err, center, report }, 'Site analytics report failed')
+    req.payload.logger.warn({ err, center, report }, 'Web analytics report failed')
     return json({ error: failureMessage(err) }, 502)
   }
 }
@@ -98,7 +98,7 @@ export const analyticsEstimateHandler: PayloadHandler = async (req) => {
   try {
     return json(await estimateLoad(config, center, range))
   } catch (err) {
-    req.payload.logger.warn({ err, center }, 'Site analytics estimate failed')
+    req.payload.logger.warn({ err, center }, 'Web analytics estimate failed')
     // Unknown is treated as cold, so the page asks before a long load
     return json({ cached: false, seconds: 60 })
   }

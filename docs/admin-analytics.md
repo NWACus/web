@@ -1,6 +1,6 @@
-# Admin Site analytics page
+# Admin Web analytics page
 
-**Site Analytics** in the admin sidebar (`/admin/analytics`) shows a center's web usage the way Plausible does: a stats row with period-over-period deltas, a trend chart, and paired breakdown panels, all read from PostHog server-side so staff never need a PostHog login. It is a Payload custom view registered in [`src/payload.config.ts`](../src/payload.config.ts); the sidebar entry is [`AnalyticsNavLink`](../src/components/AnalyticsNavLink.client.tsx). Payload builds nav groups only from collections and globals, so the link is portalled into the Settings group's list after mount, and falls back to rendering after the groups for a user who has no Settings group.
+**Web Analytics** in the admin sidebar (`/admin/analytics`) shows a center's web usage the way Plausible does: a stats row with period-over-period deltas, a trend chart, and paired breakdown panels, all read from PostHog server-side so staff never need a PostHog login. It is a Payload custom view registered in [`src/payload.config.ts`](../src/payload.config.ts); the sidebar entry is [`AnalyticsNavLink`](../src/components/AnalyticsNavLink.client.tsx). Payload builds nav groups only from collections and globals, so the link is portalled into the Settings group's list after mount, and falls back to rendering after the groups for a user who has no Settings group.
 
 ## What it shows
 

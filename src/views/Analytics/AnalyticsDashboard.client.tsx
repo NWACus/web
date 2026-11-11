@@ -92,7 +92,7 @@ function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
   return [selection, setSelection]
 }
 
-const REFRESH_MODAL = 'site-analytics-refresh'
+const REFRESH_MODAL = 'web-analytics-refresh'
 
 function Panels({ request, centerName }: { request: ReportRequest; centerName: string }) {
   const [totalVisitors, setTotalVisitors] = useState<number>()
@@ -204,7 +204,7 @@ export function AnalyticsDashboard({
 
       {!configured ? (
         <p className={cn('m-0 text-sm', MUTED)}>
-          Site analytics are not connected in this environment.
+          Web analytics are not connected in this environment.
         </p>
       ) : (
         <LongRangeGate

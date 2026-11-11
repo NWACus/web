@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "4816ceabe5719abd"
+sig = "7dbdf07a9c58d532"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -88,7 +88,7 @@ sig = "772cbe1f7a158a21"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/tenant-selector.md"
-sig = "9bbc7dd7fb065296"
+sig = "37b8e658180a815f"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -178,7 +178,7 @@ sig = "4eae609023f967db"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/components/AnalyticsNavLink.client.tsx"
-sig = "9e9b7bd5ac787b9d"
+sig = "ba170a7d06bc40eb"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -193,7 +193,7 @@ sig = "ee21516efd34a0d3"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/analyticsEndpoint.ts"
-sig = "2e085e3c5e6c38d0"
+sig = "84ab90f67da218b5"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -253,7 +253,7 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "4ed07d4d9a446d8b"
+sig = "1dcdce16ef9bfb14"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -278,7 +278,7 @@ sig = "309b7ec31074f33a"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/index.tsx"
-sig = "c9e3b98a154028a0"
+sig = "e7a15244b369221c"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -2063,7 +2063,7 @@ sig = "4fc2ad0bd4509765"
 [[bindings]]
 doc = "docs/testing.md"
 target = ".env.example"
-sig = "35e9afeed8d2ddb2"
+sig = "b80eaaa7826a9319"
 
 [[bindings]]
 doc = "docs/testing.md"

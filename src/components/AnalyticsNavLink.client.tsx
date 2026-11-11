@@ -23,7 +23,7 @@ function useNavGroupList(label: string): HTMLElement | null | undefined {
   return list
 }
 
-/** Sidebar entry for the Site Analytics view, listed under Settings like Payload's own links. */
+/** Sidebar entry for the Web Analytics view, listed under Settings like Payload's own links. */
 export function AnalyticsNavLink() {
   const { config } = useConfig()
   const href = `${config.routes.admin}/analytics`
@@ -33,7 +33,7 @@ export function AnalyticsNavLink() {
   const link = (
     <Link className="nav__link" href={href} aria-current={active ? 'page' : undefined}>
       {active && <div className="nav__link-indicator" />}
-      <span className="nav__link-label">Site Analytics</span>
+      <span className="nav__link-label">Web Analytics</span>
     </Link>
   )
   // Not looked up yet: render nothing rather than flash the link below the groups

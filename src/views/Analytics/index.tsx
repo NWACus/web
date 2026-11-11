@@ -20,7 +20,7 @@ async function Body({ req }: Pick<AdminViewServerProps['initPageResult'], 'req'>
   if (tenant.kind === 'unselected') {
     return (
       <p className="custom-view-description">
-        Select a center in the sidebar to see its site analytics.
+        Select a center in the sidebar to see its web analytics.
       </p>
     )
   }
@@ -36,7 +36,7 @@ async function Body({ req }: Pick<AdminViewServerProps['initPageResult'], 'req'>
   )
 }
 
-/** Plausible-style per-center site analytics, read from PostHog. See docs/admin-analytics.md. */
+/** Plausible-style per-center web analytics, read from PostHog. See docs/admin-analytics.md. */
 export async function Analytics(props: AdminViewServerProps) {
   const { req } = props.initPageResult
   if (!req.user) {
@@ -44,7 +44,7 @@ export async function Analytics(props: AdminViewServerProps) {
     redirect(formatAdminURL({ adminRoute: routes.admin, path: admin.routes.login }))
   }
   return (
-    <CustomView {...props} title="Site Analytics">
+    <CustomView {...props} title="Web Analytics">
       <Body req={req} />
     </CustomView>
   )
