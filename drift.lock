@@ -168,7 +168,7 @@ sig = "158ac9867d94a874"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
-sig = "4532b6405bcf580b"
+sig = "48acd71d147b0c93"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -203,7 +203,7 @@ sig = "4c1f01b579dd5ec3"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/centerAnalyticsQueries.ts"
-sig = "8e6171d89b3d8b0c"
+sig = "cb2e608b18e2ec02"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -213,7 +213,7 @@ sig = "635aec9417178a27"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/getCachedPanel.ts"
-sig = "c0a6c2d66ad8e40c"
+sig = "727c5e24033ae2fc"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -228,12 +228,12 @@ sig = "7abf5191eba86fae"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/panelTypes.ts"
-sig = "cbbc268ababa4337"
+sig = "94c4e9f2bc39c72b"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/panels.ts"
-sig = "0ce876c3d6733641"
+sig = "6539717a3bed9d5c"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -253,7 +253,7 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "605e3cefd3267d98"
+sig = "c8e03f26c5001c59"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -283,7 +283,7 @@ sig = "c9e3b98a154028a0"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/lists.ts"
-sig = "569dc92c3166642e"
+sig = "4db58224f03e0251"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -303,7 +303,7 @@ sig = "0cb51074d5bb4ed8"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/ListPanel.tsx"
-sig = "931ce6cf4387200b"
+sig = "5e817ebf330e2521"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"

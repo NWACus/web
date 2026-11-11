@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  LIST_ROW_CAP,
   LIST_ROW_SCHEMAS,
   type ListPanel as ListPanelKey,
   type ListRowMap,
@@ -67,7 +68,7 @@ function ShowAllToggle({
       onClick={onToggle}
       className={cn('mt-3 self-start text-xs underline', MUTED)}
     >
-      {open ? 'Show fewer' : `Show all ${total}`}
+      {open ? 'Show fewer' : total >= LIST_ROW_CAP ? `Show top ${total}` : `Show all ${total}`}
     </button>
   )
 }
@@ -125,7 +126,19 @@ export function listTab<K extends ListPanelKey>(spec: ListSpec<K>): ListTab {
         onTab={onTab}
         actions={<ExportMenu name={spec.label} items={exportItems} />}
       >
-        {spec.note && <p className={cn('mb-3 mt-0 text-xs', MUTED)}>{spec.note}</p>}
+        {spec.note && (
+          <p className={cn('mb-3 mt-0 text-xs', MUTED)}>
+            {spec.note}
+            {spec.noteLink && (
+              <>
+                {' '}
+                <a href={spec.noteLink.href} className="underline">
+                  {spec.noteLink.label}
+                </a>
+              </>
+            )}
+          </p>
+        )}
         <PanelBody state={state} empty={spec.empty}>
           {({ rows }) =>
             rows.length === 0 ? null : (

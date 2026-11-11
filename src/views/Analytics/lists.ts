@@ -31,8 +31,10 @@ export type ListSpec<K extends ListPanel> = {
   /** The tab label, also used in the export file name. */
   label: string
   empty: string
-  /** A caveat shown above the rows. */
+  /** What the list means or how to act on it, shown above the rows. */
   note?: string
+  /** A link after the note, e.g. to where the fix is made. */
+  noteLink?: { label: string; href: string }
   /** What each row is: the first column. */
   name: RowText<ListRowMap[K]>
   /** A second line under the name on the card, and its own column in the CSV. */
@@ -86,6 +88,7 @@ function breakdown(
         : { header: 'Views', value: (row) => row.pageviews },
     ],
     share: true,
+    limit: 10,
     key: (row) => row.label,
   }
 }
@@ -97,8 +100,12 @@ export const REFERRERS = breakdown('referrers', 'Referrers', 'Source', 'visits',
   label === '$direct' ? 'Direct' : label,
 )
 export const CHANNELS = breakdown('channels', 'Channels', 'Channel', 'visits')
-export const COUNTRIES = breakdown('countries', 'Countries', 'Country', 'pageviews')
+export const CITIES = {
+  ...breakdown('cities', 'Cities', 'City', 'pageviews'),
+  note: 'Locations come from IP addresses, so they are approximate. A data-center town such as Council Bluffs, IA is usually crawlers or VPNs.',
+}
 export const REGIONS = breakdown('regions', 'Regions', 'Region', 'pageviews')
+export const COUNTRIES = breakdown('countries', 'Countries', 'Country', 'pageviews')
 export const DEVICE_TYPES = breakdown('deviceTypes', 'Device', 'Device', 'pageviews')
 export const BROWSERS = breakdown('browsers', 'Browser', 'Browser', 'pageviews')
 export const OPERATING_SYSTEMS = breakdown(
@@ -133,6 +140,8 @@ export const NOT_FOUND: ListSpec<'notFound'> = {
   panel: 'notFound',
   label: 'Top 404s',
   empty: 'No 404s in this period.',
+  note: 'Addresses people tried that have no page, with the site that linked to them. Add a redirect to send each one somewhere useful.',
+  noteLink: { label: 'Go to Redirects', href: '/admin/collections/redirects' },
   name: { header: 'Missing page', text: (row) => row.path || '/' },
   // The referrer is where the broken link lives
   detail: {
@@ -144,6 +153,7 @@ export const NOT_FOUND: ListSpec<'notFound'> = {
     { header: 'People', value: (row) => row.people },
     { header: 'Hits', value: (row) => row.hits, format: formatInteger },
   ],
+  limit: 10,
   key: (row) => row.path,
 }
 
@@ -151,12 +161,13 @@ export const DEAD_CLICKS: ListSpec<'deadClicks'> = {
   panel: 'deadClicks',
   label: 'Dead clicks',
   empty: 'No dead clicks in this period.',
-  note: 'Dropdowns and maps are left out: they respond without changing the page.',
+  note: 'Clicks where nothing happened: no link opened and the page did not change. People usually click something because they expect it to be a link or button, such as an image, heading or icon. Make it a link, or style it so it does not look clickable. Dropdowns and maps are left out because they respond without changing the page.',
   name: { header: 'What was clicked', text: (row) => row.label },
   detail: { header: 'Page', text: (row) => row.path || '/' },
   columns: [
     { header: 'People', value: (row) => row.people },
     { header: 'Clicks', value: (row) => row.clicks, format: formatInteger },
   ],
+  limit: 10,
   key: (row) => `${row.path}|${row.label}`,
 }

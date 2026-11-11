@@ -8,7 +8,7 @@ import type { AnalyticsPanel, PanelData } from './panelTypes'
 export const PANEL_CACHE_SECONDS = 10 * 60
 
 // Bump when a panel's data shape changes, so entries cached by older code are not served
-const PANEL_SHAPE_VERSION = 2
+const PANEL_SHAPE_VERSION = 3
 
 export const centerAnalyticsTag = (slug: ValidTenantSlug) => `center-analytics:${slug}`
 

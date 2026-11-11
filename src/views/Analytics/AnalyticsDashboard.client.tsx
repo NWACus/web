@@ -18,6 +18,7 @@ import { formatDateRange } from './format'
 import {
   BROWSERS,
   CHANNELS,
+  CITIES,
   COUNTRIES,
   DEAD_CLICKS,
   DEVICE_TYPES,
@@ -43,7 +44,11 @@ const PAGE_TABS: [ListTab, ...ListTab[]] = [
   listTab(EXIT_PAGES),
 ]
 const SOURCE_TABS: [ListTab, ...ListTab[]] = [listTab(REFERRERS), listTab(CHANNELS)]
-const LOCATION_TABS: [ListTab, ...ListTab[]] = [listTab(COUNTRIES), listTab(REGIONS)]
+const LOCATION_TABS: [ListTab, ...ListTab[]] = [
+  listTab(CITIES),
+  listTab(REGIONS),
+  listTab(COUNTRIES),
+]
 const DEVICE_TABS: [ListTab, ...ListTab[]] = [
   listTab(DEVICE_TYPES),
   listTab(BROWSERS),

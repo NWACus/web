@@ -61,6 +61,9 @@ const deadClickRowSchema = z.object({
 })
 export type DeadClickRow = z.infer<typeof deadClickRowSchema>
 
+/** The most rows a list query returns; the card shows fewer until "Show all". */
+export const LIST_ROW_CAP = 100
+
 /** Top-N lists of `$pageview`s grouped by one property; the queries are in centerAnalyticsQueries.ts. */
 const breakdownRows = {
   pages: breakdownRowSchema,
@@ -68,8 +71,9 @@ const breakdownRows = {
   exitPages: breakdownRowSchema,
   referrers: breakdownRowSchema,
   channels: breakdownRowSchema,
-  countries: breakdownRowSchema,
+  cities: breakdownRowSchema,
   regions: breakdownRowSchema,
+  countries: breakdownRowSchema,
   deviceTypes: breakdownRowSchema,
   browsers: breakdownRowSchema,
   operatingSystems: breakdownRowSchema,

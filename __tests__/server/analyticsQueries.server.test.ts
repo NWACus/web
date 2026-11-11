@@ -26,7 +26,7 @@ import {
   probeQueryCache,
   queryHogQL,
 } from '@/services/posthog/hogql'
-import { estimateColdSeconds } from '@/services/posthog/panelTypes'
+import { estimateColdSeconds, LIST_ROW_CAP } from '@/services/posthog/panelTypes'
 import { fetchPanel, fillTimeseries } from '@/services/posthog/panels'
 import { ROOT_DOMAIN } from '@/utilities/domain'
 import { z } from 'zod'
@@ -307,6 +307,14 @@ describe('center queries', () => {
     expect(breakdownQuery(scope, 'referrers').query).toContain(
       "coalesce(properties.$referring_domain, '') NOT IN {hosts}",
     )
+    expect(pages).toContain(`LIMIT ${LIST_ROW_CAP}`)
+  })
+
+  it('labels cities with their region and country codes', () => {
+    const { query } = breakdownQuery(scope, 'cities')
+    expect(query).toContain('properties.$geoip_city_name')
+    expect(query).toContain('properties.$geoip_subdivision_1_code')
+    expect(query).toContain("'Unknown'")
   })
 
   it('reads 404s with their most common referrer', () => {

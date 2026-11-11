@@ -10,13 +10,13 @@
 | Trend | `$pageview` | Visitors, visits or pageviews per day, or per week for ranges over 92 days, bucketed in the center's timezone |
 | Pages | `$pageview` | Top pages by `$pathname`; entry and exit pages from the session's `$entry_pathname` and `$end_pathname` |
 | Sources | `$pageview` | Referrers by `$referring_domain` with the center's own hosts left out (`$direct` shows as Direct); channels from `session.$channel_type` |
-| Locations | `$pageview` | Countries, and regions as `subdivision, country code` |
+| Locations | `$pageview` | Cities as `city, subdivision code, country code` (the default tab), regions as `subdivision, country code`, and countries. Locations are GeoIP lookups, so data-center towns such as Council Bluffs, IA show up for crawlers and VPNs; the card says so |
 | Devices | `$pageview` | Device type, browser, operating system |
 | Sponsors | `sponsor_impression`, `sponsor_click` | Per `sponsor_id`: impressions, clicks, click-through rate. Impressions count the block rendering until #1486 ships viewport-based impressions |
-| Top 404s | `page_not_found` | Missing paths with the most common referrer, which is where the broken link lives |
+| Top 404s | `page_not_found` | Missing paths with the most common referrer, which is where the broken link lives. The card links to Redirects, where each one is fixed |
 | Dead clicks | `$dead_click` | Page and element pairs by unique people, labelled from the element's `alt`, text or `aria-label`. Native `select` elements and map surfaces (`mapboxgl`, `maplibregl`, `leaflet` in the element chain) are excluded because they respond without changing the DOM |
 
-The breakdown cards are titled Pages, Traffic sources, Visitor locations, Devices, Sponsors and Things to fix (Top 404s and Dead clicks), with a tab per list; a card with one list shows no tabs.
+The breakdown cards are titled Pages, Traffic sources, Visitor locations, Devices, Sponsors and Things to fix (Top 404s and Dead clicks), with a tab per list; a card with one list shows no tabs. Each list query returns up to `LIST_ROW_CAP` (100) rows. A card shows the first 10, or 15 for sponsors, behind a "Show all" toggle, which reads "Show top 100" when the cap was hit. Things to fix explains each list above its rows: what a dead click is and how to fix one, and that 404s are fixed with redirects.
 
 Breakdown rows carry a fill bar (share of the largest row) and a percentage (share of the period's unique visitors), as in Plausible.
 

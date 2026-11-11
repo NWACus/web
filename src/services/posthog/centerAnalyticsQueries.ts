@@ -2,7 +2,7 @@ import { ROOT_DOMAIN } from '@/utilities/domain'
 import { AVALANCHE_CENTERS, ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import type { ResolvedRange } from './analyticsRange'
 import type { HogQLStatement } from './hogql'
-import type { BreakdownPanel } from './panelTypes'
+import { LIST_ROW_CAP, type BreakdownPanel } from './panelTypes'
 
 /**
  * Hostnames a center's public site has been served from. Production pageviews before the `center`
@@ -129,6 +129,17 @@ const region = `if(
     coalesce(nullIf(properties.$geoip_country_name, ''), 'Unknown')
   )`
 
+// "Seattle, WA, US"; IP lookups that resolve no city group as Unknown
+const city = `if(
+    coalesce(properties.$geoip_city_name, '') != '',
+    concat(
+      properties.$geoip_city_name,
+      if(coalesce(properties.$geoip_subdivision_1_code, '') != '', concat(', ', properties.$geoip_subdivision_1_code), ''),
+      if(coalesce(properties.$geoip_country_code, '') != '', concat(', ', properties.$geoip_country_code), '')
+    ),
+    'Unknown'
+  )`
+
 const unknownIfEmpty = (expression: string) => `coalesce(nullIf(${expression}, ''), 'Unknown')`
 
 const BREAKDOWNS: Record<BreakdownPanel, BreakdownSpec> = {
@@ -141,8 +152,9 @@ const BREAKDOWNS: Record<BreakdownPanel, BreakdownSpec> = {
     extraWhere: `coalesce(properties.$referring_domain, '') NOT IN {hosts}`,
   },
   channels: { label: unknownIfEmpty('session.$channel_type') },
-  countries: { label: unknownIfEmpty('properties.$geoip_country_name') },
+  cities: { label: city },
   regions: { label: region },
+  countries: { label: unknownIfEmpty('properties.$geoip_country_name') },
   deviceTypes: { label: unknownIfEmpty('properties.$device_type') },
   browsers: { label: unknownIfEmpty('properties.$browser') },
   operatingSystems: { label: unknownIfEmpty('properties.$os') },
@@ -163,7 +175,7 @@ FROM events
 WHERE ${PAGEVIEWS_IN_CURRENT_PERIOD}${extra}
 GROUP BY label
 ORDER BY visitors DESC, pageviews DESC
-LIMIT 10`,
+LIMIT ${LIST_ROW_CAP}`,
   )
 }
 
@@ -200,7 +212,7 @@ WHERE event = 'page_not_found'
   AND ${CENTER_FILTER}
 GROUP BY path
 ORDER BY people DESC, hits DESC
-LIMIT 10`,
+LIMIT ${LIST_ROW_CAP}`,
   )
 }
 
