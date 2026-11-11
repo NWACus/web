@@ -7,6 +7,7 @@ import {
   type ListRowMap,
 } from '@/services/posthog/panelTypes'
 import { cn } from '@/utilities/ui'
+import { Button } from '@payloadcms/ui'
 import { useState, type ReactNode } from 'react'
 import { formatCompact } from '../format'
 import { listCsv, type ListColumn, type ListSpec } from '../lists'
@@ -63,13 +64,10 @@ function ShowAllToggle({
   onToggle: () => void
 }) {
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={cn('mt-3 self-start text-xs underline', MUTED)}
-    >
+    // Payload's pill, as on its own list headers, so it reads as an action rather than a tab
+    <Button buttonStyle="pill" size="small" className="mb-0 mt-3 self-start" onClick={onToggle}>
       {open ? 'Show fewer' : total >= LIST_ROW_CAP ? `Show top ${total}` : `Show all ${total}`}
-    </button>
+    </Button>
   )
 }
 
