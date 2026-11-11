@@ -88,7 +88,7 @@ sig = "772cbe1f7a158a21"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/tenant-selector.md"
-sig = "d292e1dfe3736640"
+sig = "9bbc7dd7fb065296"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -253,7 +253,7 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "ad469c186569ed00"
+sig = "45bc1dd8e360a8fb"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -278,7 +278,7 @@ sig = "2e2225590bff4335"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/index.tsx"
-sig = "82af83c89aa3a529"
+sig = "c9e3b98a154028a0"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -303,12 +303,12 @@ sig = "0cb51074d5bb4ed8"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/ListPanel.tsx"
-sig = "18e3c8597647ddd7"
+sig = "931ce6cf4387200b"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/Panel.tsx"
-sig = "6392a11632df436d"
+sig = "8a6f8bfde5cfde88"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -2033,7 +2033,7 @@ sig = "7d3a09e798591f5a"
 [[bindings]]
 doc = "docs/tenant-selector.md"
 target = "src/components/TenantSelector/TenantSelector.client.tsx"
-sig = "137305aca7bd5690"
+sig = "0ffb313cce6ad24e"
 
 [[bindings]]
 doc = "docs/tenant-selector.md"
