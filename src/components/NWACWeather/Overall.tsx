@@ -42,7 +42,6 @@ import {
   PrecipHoursToggle,
 } from './PrecipHours.client'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
-import { TableDescription } from './TableDescription.client'
 import {
   DayNightDate,
   PrecipLegend,
@@ -100,7 +99,7 @@ interface Table {
   title: string
   /** Shown quietly after the title, in parentheses. */
   unit?: string
-  /** What the table shows, under its title on one line that opens to the whole. */
+  /** What the table shows, under its title. */
   description?: string
   rowLabel: string
   columns: Column[]
@@ -857,7 +856,7 @@ function TableTitle({
             <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
           )}
         </Heading>
-        {t.description && <TableDescription text={t.description} />}
+        {t.description && <p className="text-sm text-muted-foreground">{t.description}</p>}
       </div>
       {/* A phone has its own form of the control, beside the date. */}
       {t.control && <div className="hidden shrink-0 md:block print:hidden">{t.control.title}</div>}
