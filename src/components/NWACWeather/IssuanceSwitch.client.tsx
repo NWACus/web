@@ -7,6 +7,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { cn } from '@/utilities/ui'
 
 export interface IssuancePanel {
   key: string
@@ -24,10 +25,12 @@ function Switch({
   panels,
   active,
   onPick,
+  latest,
 }: {
   panels: IssuancePanel[]
   active: string | undefined
   onPick: (key: string) => void
+  latest: boolean
 }) {
   if (panels.length < 2) return null
   return (
@@ -50,9 +53,11 @@ function Switch({
           {p.label}
           {p.time && (
             // No room beside Latest on a phone; the issued line has the time.
-            <span className="hidden font-normal text-muted-foreground sm:inline">{p.time}</span>
+            <span className={cn('font-normal text-muted-foreground', latest && 'hidden sm:inline')}>
+              {p.time}
+            </span>
           )}
-          {p.key === panels[0].key && (
+          {latest && p.key === panels[0].key && (
             <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-sky-900">
               Latest
             </span>
@@ -86,9 +91,12 @@ function useAnchoredPanel(panels: IssuancePanel[], setActive: (key: string) => v
 export function IssuanceSwitch({
   panels,
   heading,
+  latest = true,
 }: {
   panels: IssuancePanel[]
   heading: ReactNode
+  /** The newest issuance is the latest forecast, so its button says Latest; not on a past date. */
+  latest?: boolean
 }) {
   const [active, setActive] = useState(panels[0]?.key)
   const shown = (p: IssuancePanel) => p.key === active
@@ -98,7 +106,7 @@ export function IssuanceSwitch({
     <div className="space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
         {heading}
-        <Switch panels={panels} active={active} onPick={setActive} />
+        <Switch panels={panels} active={active} onPick={setActive} latest={latest} />
       </header>
       {panels.map(
         (p) =>

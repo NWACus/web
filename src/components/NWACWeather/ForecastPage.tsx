@@ -153,6 +153,7 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
       <IssuanceSwitch
         key={day.issuances.map((i) => i.id).join('-')}
         heading={HEADING}
+        latest={!past}
         panels={day.issuances.map((issuance) => ({
           key: String(issuance.id),
           label: issuanceShortLabel(issuance.type),

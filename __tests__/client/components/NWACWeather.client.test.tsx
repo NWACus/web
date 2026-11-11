@@ -332,6 +332,20 @@ describe('IssuanceSwitch with a heading', () => {
     expect(screen.getByText('AM body')).toBeVisible()
     expect(screen.getByText('PM body')).not.toBeVisible()
   })
+
+  it('tags no issuance Latest on a past date', () => {
+    render(
+      <IssuanceSwitch
+        heading={<h1>Mountain Weather</h1>}
+        latest={false}
+        panels={[
+          { key: 'pm', label: 'Afternoon', time: '3:03 PM', content: 'PM body' },
+          { key: 'am', label: 'Morning', time: '7:00 AM', content: 'AM body' },
+        ]}
+      />,
+    )
+    expect(screen.queryByText('Latest')).toBeNull()
+  })
 })
 
 describe('IssuanceSwitch anchors', () => {
