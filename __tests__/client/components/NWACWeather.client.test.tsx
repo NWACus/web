@@ -431,10 +431,10 @@ describe('TempRange', () => {
 
 describe('windFill', () => {
   it('shades wind by its strength, and leaves calm and missing wind alone', () => {
-    expect(windFill(8)).toContain('bg-violet-50')
+    expect(windFill(8)).toContain('bg-violet-100')
     expect(windFill(12)).toBe(windFill(15))
-    expect(windFill(30)).toContain('bg-violet-400')
-    expect(windFill(60)).toContain('bg-rose-400')
+    expect(windFill(30)).toContain('bg-pink-100')
+    expect(windFill(60)).toContain('bg-pink-300')
     expect(windFill(3)).toBeUndefined()
     expect(windFill(null)).toBeUndefined()
   })

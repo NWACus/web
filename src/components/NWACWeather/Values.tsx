@@ -40,25 +40,25 @@ export function snowFill(snow: number | null): string | undefined {
   return tier == null ? undefined : SNOW_FILLS[tier]
 }
 
-/** Wind fills, one step per strength: violet deepening to Strong, rose from there. */
+/** Wind fills, one step per strength: violet at Light, pale yellow at Moderate, pink to Extreme. */
 const WIND_STEPS: { fill: string; name: string; wordings: string[]; label: string | null }[] = [
-  { fill: 'bg-violet-50', name: 'Light', wordings: ['Light'], label: 'Light' },
+  { fill: 'bg-violet-100', name: 'Light', wordings: ['Light'], label: 'Light' },
   {
-    fill: 'bg-violet-100',
+    fill: 'bg-violet-50',
     name: 'Light to Moderate',
     wordings: ['Light to occasionally Moderate', 'Light to Moderate'],
     label: null,
   },
-  { fill: 'bg-violet-200', name: 'Moderate', wordings: ['Moderate'], label: 'Moderate' },
+  { fill: 'bg-yellow-50', name: 'Moderate', wordings: ['Moderate'], label: 'Moderate' },
   {
-    fill: 'bg-violet-300',
+    fill: 'bg-yellow-100',
     name: 'Moderate to Strong',
     wordings: ['Moderate to Strong'],
     label: null,
   },
-  { fill: 'bg-violet-400', name: 'Strong', wordings: ['Strong'], label: 'Strong' },
-  { fill: 'bg-rose-300', name: 'Strong to Extreme', wordings: ['Strong to Extreme'], label: null },
-  { fill: 'bg-rose-400', name: 'Extreme', wordings: ['Extreme'], label: 'Extreme' },
+  { fill: 'bg-pink-100', name: 'Strong', wordings: ['Strong'], label: 'Strong' },
+  { fill: 'bg-pink-200', name: 'Strong to Extreme', wordings: ['Strong to Extreme'], label: null },
+  { fill: 'bg-pink-300', name: 'Extreme', wordings: ['Extreme'], label: 'Extreme' },
 ]
 
 /** A wind cell's fill by its wording; none for calm or no wind. */
