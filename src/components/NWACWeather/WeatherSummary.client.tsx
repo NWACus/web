@@ -44,7 +44,7 @@ function ZoneDays({ row, days }: { row: SensibleRow; days: SensibleDay[] }) {
         </section>
       ))}
       {row.href && (
-        <p className="border-t pt-4">
+        <p className="border-t pt-4 text-sm">
           View the{' '}
           <Link
             href={row.href}
