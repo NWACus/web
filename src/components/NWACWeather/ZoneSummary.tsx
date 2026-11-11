@@ -147,7 +147,7 @@ export function OverallSummary({
   if (!latest) return null
   return (
     <WeatherCard issuance={latest} timezone={timezone}>
-      <Overall parts={overallParts(latest)} />
+      <Overall parts={overallParts(latest, timezone)} />
     </WeatherCard>
   )
 }

@@ -1,5 +1,6 @@
 /** How one Mountain Weather value draws in a table cell. */
 import { Moon, Navigation2, Snowflake, Sun } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import {
@@ -149,13 +150,37 @@ function SnowLevelKey({ width }: { width?: string }) {
   )
 }
 
-/** The snow shading's key under a table. */
-export function SnowFillLegend() {
+/** The local hours a precipitation Day and Night cover, by their sun and moon. */
+export function DayNightKey({ day, night }: { day: string | null; night: string | null }) {
+  if (!day && !night) return null
   return (
-    <p className={KEY_LINE}>
-      {/* Narrower on a phone, to leave room for the hours toggle across from it. */}
-      <SnowFillKey width="w-40 sm:w-56" />
+    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      {day && (
+        <span className="inline-flex items-center gap-1">
+          <Sun aria-hidden="true" className="size-4 shrink-0" />
+          Day {day}
+        </span>
+      )}
+      {night && (
+        <span className="inline-flex items-center gap-1">
+          <Moon aria-hidden="true" className="size-4 shrink-0" />
+          Night {night}
+        </span>
+      )}
     </p>
+  )
+}
+
+/** The snow shading's key under a table, and the hours its Day and Night cover. */
+export function SnowFillLegend({ dayNight }: { dayNight?: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <p className={KEY_LINE}>
+        {/* Narrower on a phone, to leave room for the hours toggle across from it. */}
+        <SnowFillKey width="w-40 sm:w-56" />
+      </p>
+      {dayNight}
+    </div>
   )
 }
 

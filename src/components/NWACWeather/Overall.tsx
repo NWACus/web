@@ -23,6 +23,7 @@ import {
   hasSnowAmounts,
   isSnowUnknown,
   levelKind,
+  precipHours,
   precipPeriods,
   sensibleSlots,
   snowLevelBlocks,
@@ -43,6 +44,7 @@ import {
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import {
   DayNightDate,
+  DayNightKey,
   SnowFillLegend,
   SnowLevelLegend,
   SnowLevelValue,
@@ -347,9 +349,15 @@ function precipSnowTable(
   issuance: NWACWeatherIssuance,
   hours: PrecipHours,
   withSnow: boolean,
+  timezone: string | null | undefined,
 ): Table {
   const slots = precipSlots(issuance, hours)
   const periods = precipPeriods(issuance)
+  const hoursOf = (kind: NWACWeatherPeriod['kind']) => {
+    const period = periods.find((p) => p.kind === kind)
+    return period && timezone ? precipHours(period, timezone) : null
+  }
+  const dayNight = <DayNightKey day={hoursOf('day')} night={hoursOf('night')} />
   const row = (p: NWACWeatherIssuance['points'][number]): Row => {
     const cell = (period: NWACWeatherPeriod) => issuance.precip[p.code]?.[period.key]
     const snowOf = (period: NWACWeatherPeriod) => deriveSnow(cell(period)?.qpf, cell(period)?.slr)
@@ -385,7 +393,7 @@ function precipSnowTable(
       ? 'Water and new snow at each station, with the forecast total at the end.'
       : 'Water at each station, with the forecast total at the end. This forecast doesn’t include snow amounts.',
     detail: PRECIP_DETAIL,
-    legend: withSnow ? <SnowFillLegend /> : undefined,
+    legend: withSnow ? <SnowFillLegend dayNight={dayNight} /> : dayNight,
     control: { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> },
     rowLabel: 'Station',
     groupColumn: 'Zone',
@@ -1114,7 +1122,10 @@ export interface OverallParts {
   sensible: ReturnType<typeof sensibleDays>
 }
 
-export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
+export function overallParts(
+  issuance: NWACWeatherIssuance,
+  timezone?: string | null,
+): OverallParts {
   const [snowLevel, temps, wind] = zoneTables(issuance)
   const hasSnow = hasSnowAmounts(issuance)
   return {
@@ -1125,8 +1136,8 @@ export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
     temps,
     wind,
     precipSnow: {
-      '12': precipSnowTable(issuance, '12', hasSnow),
-      '24': precipSnowTable(issuance, '24', hasSnow),
+      '12': precipSnowTable(issuance, '12', hasSnow, timezone),
+      '24': precipSnowTable(issuance, '24', hasSnow, timezone),
     },
     ext: extendedTable(issuance),
     sensible: sensibleDays(issuance),
