@@ -151,7 +151,7 @@ const WIND_DESCRIPTION = (
     direction (
     <Navigation2 aria-label="arrow" className="inline size-3.5 align-[-0.125em] text-primary" />) is
     the direction the wind is blowing from, given in degrees or cardinal direction on a 16 pt
-    compass rose. Ex: A west (W) wind comes from the west and blows toward the east (E).
+    compass rose. Ex: A west (W) wind blows east (E).
   </>
 )
 
