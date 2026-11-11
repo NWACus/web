@@ -325,14 +325,14 @@ describe('queryHogQL rate limits and polling', () => {
       }),
       http.get(`${QUERY_URL}/slow/`, () => {
         polls.push(Date.now())
-        return polls.length < 7 ? pending('slow') : done('slow')
+        return polls.length < 8 ? pending('slow') : done('slow')
       }),
     )
 
     await settle(queryHogQL(config, SELECT_ONE, z.object({ n: z.number() })))
 
     const gaps = polls.map((at, i) => at - (i === 0 ? submittedAt : polls[i - 1]))
-    expect(gaps).toEqual([500, 1_000, 2_000, 4_000, 4_000, 4_000, 4_000])
+    expect(gaps).toEqual([500, 750, 1_125, 1_688, 2_532, 3_798, 4_000, 4_000])
   })
 
   it('stops polling at the deadline', async () => {

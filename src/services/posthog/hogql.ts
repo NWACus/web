@@ -62,7 +62,8 @@ const queryStatusSchema = z.object({
 const REQUEST_TIMEOUT_MS = 25_000
 // One budget for a whole query, retries included, well inside the 300 s function limit
 const QUERY_DEADLINE_MS = 120_000
-// Polls count toward PostHog's 240 requests a minute, so long queries are polled less often
+// Polls count toward PostHog's 240 requests a minute, so long queries are polled less often.
+// Growing by half rather than doubling keeps gaps short through the 2 to 10 s most queries take.
 const POLL_FIRST_MS = 500
 const POLL_MAX_MS = 4_000
 const RETRY_FIRST_MS = 1_000
@@ -154,7 +155,7 @@ async function requestJson(
 async function pollQuery(config: PostHogQueryConfig, id: string, deadline: number) {
   for (let interval = POLL_FIRST_MS; Date.now() + interval < deadline; ) {
     await sleep(interval)
-    interval = Math.min(interval * 2, POLL_MAX_MS)
+    interval = Math.min(Math.round(interval * 1.5), POLL_MAX_MS)
     const status = queryStatusSchema.safeParse(await requestJson(config, `/query/${id}/`, deadline))
     if (!status.success) {
       throw new PostHogQueryError('PostHog query status had an unexpected shape', {

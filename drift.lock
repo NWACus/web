@@ -168,7 +168,7 @@ sig = "158ac9867d94a874"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
-sig = "fc4e2a1f8b395bb5"
+sig = "07db96f52e8d2ef6"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -218,7 +218,7 @@ sig = "c78e1ab345536315"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/hogql.ts"
-sig = "9d8f497d9255d468"
+sig = "6e52077aef9123fc"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -1623,7 +1623,7 @@ sig = "aec15052cf4b1cdd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/services/posthog/hogql.ts"
-sig = "9d8f497d9255d468"
+sig = "6e52077aef9123fc"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
