@@ -166,7 +166,10 @@ function PrecipSnowHead({ periods }: { periods: PeriodView[] }) {
         >
           <div className="grid grid-cols-2 gap-2">
             <span>Precip</span>
-            <span>Snow</span>
+            <span>
+              Snow
+              <span className="block text-[11px] text-muted-foreground/70">5000&apos;</span>
+            </span>
           </div>
         </td>
       ))}

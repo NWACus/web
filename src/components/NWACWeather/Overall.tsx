@@ -73,6 +73,8 @@ interface Column {
    * "Snow"); columns sharing a `split` sit under one sub-label.
    */
   part?: string
+  /** Quieter, under the part: where its values are forecast for ("5000'"). */
+  partNote?: string
   split?: string
   /** Set off from the columns before it by a heavier rule (a total). */
   total?: boolean
@@ -379,6 +381,8 @@ function precipSnowTable(
           ...column,
           key: `${column.key}-${part}`,
           part,
+          // Snow amounts are forecast for 5000'; precipitation is at each station.
+          partNote: part === 'Snow' ? "5000'" : undefined,
           split: column.key,
         }))
       : [{ ...column, split: column.key }]
@@ -388,7 +392,7 @@ function precipSnowTable(
     title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
     note: withSnow
-      ? 'Water and new snow at each station, with the forecast total at the end.'
+      ? "Water at each station and new snow at 5000', with the forecast total at the end."
       : 'Water at each station, with the forecast total at the end. This forecast doesn’t include snow amounts.',
     detail: PRECIP_DETAIL,
     legend: <PrecipLegend day={hoursOf('day')} night={hoursOf('night')} snow={withSnow} />,
@@ -708,11 +712,19 @@ function SplitHead({ table: t }: { table: Table }) {
           <th
             key={c.key}
             scope="col"
-            className={cn('border-b px-1 pb-2 pt-0.5 text-center', leftRule(t.columns, i))}
+            className={cn(
+              'border-b px-1 pb-2 pt-0.5 text-center align-top',
+              leftRule(t.columns, i),
+            )}
           >
             <span className="block whitespace-nowrap text-xs font-normal text-muted-foreground">
               {c.part}
             </span>
+            {c.partNote && (
+              <span className="block whitespace-nowrap text-[11px] font-normal text-muted-foreground/70">
+                {c.partNote}
+              </span>
+            )}
           </th>
         ))}
       </tr>
