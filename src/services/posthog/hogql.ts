@@ -16,7 +16,7 @@ export type PostHogQueryConfig = {
 export function getPostHogQueryConfig(
   env: Record<string, string | undefined> = process.env,
 ): PostHogQueryConfig | null {
-  const apiKey = env.POSTHOG_PERSONAL_API_KEY
+  const apiKey = env.POSTHOG_QUERY_API_KEY
   const projectId = env.POSTHOG_PROJECT_ID
   if (!apiKey || !projectId) return null
   return { apiKey, projectId, host: env.POSTHOG_QUERY_HOST || DEFAULT_POSTHOG_QUERY_HOST }

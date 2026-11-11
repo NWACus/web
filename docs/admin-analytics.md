@@ -74,11 +74,11 @@ Report data has one contract, [`reportTypes.ts`](../src/services/posthog/reportT
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `POSTHOG_PERSONAL_API_KEY` | No | A PostHog **personal** API key with the `query:read` scope. HogQL cannot run with the project key the browser uses, which can only write events |
+| `POSTHOG_QUERY_API_KEY` | No | A PostHog personal API key (PostHog's name for a key tied to a user) with only the `query:read` scope. HogQL cannot run with the project key the browser uses, which can only write events |
 | `POSTHOG_PROJECT_ID` | No | The numeric PostHog project id (the Avy project is `40776`) |
 | `POSTHOG_QUERY_HOST` | No | Defaults to `https://us.posthog.com`, the app host rather than the `us.i.posthog.com` ingest host |
 
-Create the key under a service account or a maintainer's PostHog settings, scoped to the Avy project, and set it on Production in Vercel. Rotate it there if it leaks: it can read every event in the project.
+Create the key while logged in as the shared developer account (avatar menu → Account settings → Personal API keys), limited to the Avy project with the Query: Read scope, and set it on Production in Vercel. Rotate it there if it leaks: it can read every event in the project.
 
 ## Known limits and follow-ups
 

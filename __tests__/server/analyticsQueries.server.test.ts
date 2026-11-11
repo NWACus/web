@@ -66,13 +66,13 @@ const SELECT_ONE = { query: 'SELECT 1' }
 describe('getPostHogQueryConfig', () => {
   it('returns null unless both the key and project id are set', () => {
     expect(getPostHogQueryConfig({})).toBeNull()
-    expect(getPostHogQueryConfig({ POSTHOG_PERSONAL_API_KEY: 'phx' })).toBeNull()
+    expect(getPostHogQueryConfig({ POSTHOG_QUERY_API_KEY: 'phx' })).toBeNull()
     expect(getPostHogQueryConfig({ POSTHOG_PROJECT_ID: '1' })).toBeNull()
   })
 
   it('defaults the host to the US app host', () => {
     expect(
-      getPostHogQueryConfig({ POSTHOG_PERSONAL_API_KEY: 'phx', POSTHOG_PROJECT_ID: '1' }),
+      getPostHogQueryConfig({ POSTHOG_QUERY_API_KEY: 'phx', POSTHOG_PROJECT_ID: '1' }),
     ).toEqual({ apiKey: 'phx', projectId: '1', host: 'https://us.posthog.com' })
   })
 })

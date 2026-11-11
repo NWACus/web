@@ -38,7 +38,7 @@ function estimate(req: ReturnType<typeof requestFor>['req']) {
 describe('analyticsHandler', () => {
   const env = process.env
   beforeEach(() => {
-    process.env = { ...env, POSTHOG_PERSONAL_API_KEY: 'phx', POSTHOG_PROJECT_ID: '1' }
+    process.env = { ...env, POSTHOG_QUERY_API_KEY: 'phx', POSTHOG_PROJECT_ID: '1' }
   })
   afterEach(() => {
     process.env = env
@@ -67,7 +67,7 @@ describe('analyticsHandler', () => {
   })
 
   it('reports a missing key as not connected', async () => {
-    delete process.env.POSTHOG_PERSONAL_API_KEY
+    delete process.env.POSTHOG_QUERY_API_KEY
     const { req } = requestFor('center=nwac&report=overview&from=2026-11-01&to=2026-11-09')
     expect((await call(req)).status).toBe(503)
   })

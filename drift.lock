@@ -53,7 +53,7 @@ sig = "ead71e9bf17f2dfd"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "7dbdf07a9c58d532"
+sig = "592eed5d59dd9856"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -163,7 +163,7 @@ sig = "d01e6dab9165b530"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsEndpoint.server.test.ts"
-sig = "06f7e38ce4cbdf53"
+sig = "b7442d52baede7b0"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -173,7 +173,7 @@ sig = "333174e0b3584844"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
-sig = "217eb943f1993186"
+sig = "c84dba58b75c1b8f"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -223,7 +223,7 @@ sig = "b73f9ab2c15a4218"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/hogql.ts"
-sig = "6e52077aef9123fc"
+sig = "c4f8b62158762335"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -1628,7 +1628,7 @@ sig = "aec15052cf4b1cdd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/services/posthog/hogql.ts"
-sig = "6e52077aef9123fc"
+sig = "c4f8b62158762335"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -2068,7 +2068,7 @@ sig = "4fc2ad0bd4509765"
 [[bindings]]
 doc = "docs/testing.md"
 target = ".env.example"
-sig = "b80eaaa7826a9319"
+sig = "24bd1712706db99d"
 
 [[bindings]]
 doc = "docs/testing.md"
