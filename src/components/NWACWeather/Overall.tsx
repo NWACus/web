@@ -15,12 +15,12 @@ import {
   DASH,
   blockDate,
   dayGroups,
-  dayRange,
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
   fmtQpf,
   hasSnowAmounts,
+  hoursCovered,
   isSnowUnknown,
   levelKind,
   precipHours,
@@ -380,7 +380,7 @@ function precipSnowTable(
           key: `${column.key}-${part}`,
           part,
           // Snow amounts are forecast for 5000'; precipitation is at each station.
-          partNote: part === 'Snow' ? "5000'" : undefined,
+          partNote: part === 'Snow' ? "@ 5000'" : undefined,
           split: column.key,
         }))
       : [{ ...column, split: column.key }]
@@ -401,7 +401,7 @@ function precipSnowTable(
       ...split({
         key: 'total',
         date: 'Total',
-        sub: dayRange(periods),
+        sub: hoursCovered(periods),
         group: 'total',
         total: true,
       }),

@@ -247,14 +247,9 @@ export function precipHours(
   return `${fmt(start)}–${fmt(start + 12 * HOUR_MS)}${zone ? ` ${zone}` : ''}`
 }
 
-/** The periods a run spans, "Thu Night – Sat Day", or one period's alone; null for none. */
-export function dayRange(periods: Pick<NWACWeatherPeriod, 'date' | 'kind'>[]): string | null {
-  const name = (p: Pick<NWACWeatherPeriod, 'date' | 'kind'>) =>
-    `${fmtCalendarDate(p.date).split(' ')[0]} ${p.kind === 'night' ? 'Night' : 'Day'}`
-  const first = periods[0]
-  const last = periods.at(-1)
-  if (!first || !last) return null
-  return first === last ? name(first) : `${name(first)} – ${name(last)}`
+/** The hours a run of 12h periods covers, "36 hrs"; null for none. */
+export function hoursCovered(periods: unknown[]): string | null {
+  return periods.length ? `${periods.length * 12} hrs` : null
 }
 
 /** "Mon Sep 14" for a `YYYY-MM-DD` calendar date. */

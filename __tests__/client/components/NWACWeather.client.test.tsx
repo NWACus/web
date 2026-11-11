@@ -102,9 +102,9 @@ describe('Overall', () => {
     const parts = within(wide)
       .getAllByRole('columnheader')
       .map((h) => h.textContent)
-      .filter((text) => text === 'Precip' || text === "Snow5000'")
+      .filter((text) => text === 'Precip' || text === "Snow@ 5000'")
     // Snow is labeled with the elevation it's forecast for.
-    expect(parts.slice(0, 2)).toEqual(['Precip', "Snow5000'"])
+    expect(parts.slice(0, 2)).toEqual(['Precip', "Snow@ 5000'"])
     expect(within(wide).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
     const row = within(wide).getByRole('rowheader', { name: 'Hurricane Ridge' }).closest('tr')
     // A WE and a snow cell per period, plus the total's two.
