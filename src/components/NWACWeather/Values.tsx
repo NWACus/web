@@ -22,9 +22,9 @@ const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
   { below: 6000, fill: 'bg-stone-100 text-stone-900', label: "5,000'" },
   { below: 7000, fill: 'bg-yellow-50 text-stone-900', label: "6,000'" },
   { below: 8000, fill: 'bg-amber-50 text-stone-900', label: "7,000'" },
-  { below: 9000, fill: 'bg-orange-200 text-stone-900', label: "8,000'" },
-  { below: 10000, fill: 'bg-orange-300 text-stone-900', label: "9,000'" },
-  { below: Infinity, fill: 'bg-red-300 text-stone-900', label: "10,000'+" },
+  { below: 9000, fill: 'bg-orange-100 text-stone-900', label: "8,000'" },
+  { below: 10000, fill: 'bg-orange-200 text-stone-900', label: "9,000'" },
+  { below: Infinity, fill: 'bg-red-200 text-stone-900', label: "10,000'+" },
 ]
 
 /** A snow or freezing level's fill, on its pill or its table cell. */

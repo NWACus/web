@@ -354,8 +354,8 @@ describe('levelFill', () => {
     expect(levelFill(4500)).toContain('bg-emerald-50')
     expect(levelFill(5500)).toContain('bg-stone-100')
     expect(levelFill(6500)).toContain('bg-yellow-50')
-    expect(levelFill(8000)).toContain('bg-orange-200')
-    expect(levelFill(10500)).toContain('bg-red-300')
+    expect(levelFill(8000)).toContain('bg-orange-100')
+    expect(levelFill(10500)).toContain('bg-red-200')
   })
 })
 
