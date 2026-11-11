@@ -163,7 +163,7 @@ function PrecipSnowHead({ periods }: { periods: PeriodView[] }) {
             <span>Precip</span>
             <span>
               Snow
-              <span className="block text-[11px] text-muted-foreground/70">@ 5000&apos;</span>
+              <span className="block text-[11px] text-muted-foreground">@ 5000&apos;</span>
             </span>
           </div>
         </td>
@@ -484,7 +484,7 @@ function CardSummary({
           <span className="inline-flex items-center gap-2">
             <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
             <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} chip />
-            <span className="text-[11px] text-muted-foreground/70">@ 5000&apos;</span>
+            <span className="text-[11px] text-muted-foreground">@ 5000&apos;</span>
           </span>
         </CardLine>
       ))}

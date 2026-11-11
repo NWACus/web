@@ -714,7 +714,7 @@ function SplitHead({ table: t }: { table: Table }) {
               {c.part}
             </span>
             {c.partNote && (
-              <span className="block whitespace-nowrap text-[11px] font-normal text-muted-foreground/70">
+              <span className="block whitespace-nowrap text-[11px] font-normal text-muted-foreground">
                 {c.partNote}
               </span>
             )}
