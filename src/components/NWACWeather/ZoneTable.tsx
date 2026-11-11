@@ -195,8 +195,6 @@ function PeriodHead({ periods }: { periods: PeriodView[] }) {
                 <DayNightDate date={p.label} night={p.night} label={false} />
               </span>
             </span>
-            {/* The hours the precipitation and snow cover, which aren't the period's own 6 to 6. */}
-            <span className="block text-xs font-normal text-muted-foreground">{p.hours}</span>
           </th>
         ))}
       </tr>

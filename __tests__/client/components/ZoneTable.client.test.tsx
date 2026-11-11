@@ -72,25 +72,8 @@ describe('ZoneTable', () => {
     const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
 
     expect(heads.map((th) => th.textContent)).toEqual([
-      'Tonight · Mon Sep 145 pm–5 am PDT',
-      'Tomorrow · Tue Sep 155 am–5 pm PDT',
-    ])
-  })
-
-  it('gives the hours the precipitation and snow cover, which are not the columns’ own', () => {
-    const { container } = render(
-      <ZoneTable
-        issuance={afternoon}
-        zone={zone('olympics')}
-        periodKeys={DAY_ONE}
-        timezone="America/Los_Angeles"
-      />,
-    )
-    const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
-
-    expect(heads.map((th) => th.lastElementChild?.textContent)).toEqual([
-      '5 pm–5 am PDT',
-      '5 am–5 pm PDT',
+      'Tonight · Mon Sep 14',
+      'Tomorrow · Tue Sep 15',
     ])
   })
 
@@ -118,8 +101,8 @@ describe('ZoneTable', () => {
     const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
 
     expect(heads.map((th) => th.textContent)).toEqual([
-      'Today · Mon Sep 145 am–5 pm PDT',
-      'Tonight · Mon Sep 145 pm–5 am PDT',
+      'Today · Mon Sep 14',
+      'Tonight · Mon Sep 14',
     ])
   })
 
