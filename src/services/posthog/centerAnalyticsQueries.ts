@@ -2,7 +2,7 @@ import { ROOT_DOMAIN } from '@/utilities/domain'
 import { AVALANCHE_CENTERS, ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import type { ResolvedRange } from './analyticsRange'
 import type { HogQLStatement } from './hogql'
-import { LIST_ROW_CAP, type BreakdownPanel } from './panelTypes'
+import { LIST_ROW_CAP, type BreakdownReport } from './reportTypes'
 
 /**
  * Hostnames a center's public site has been served from. Production pageviews before the `center`
@@ -45,7 +45,7 @@ const statement = (scope: CenterQueryScope, query: string): HogQLStatement => ({
 })
 
 /**
- * The per-center filter every panel shares. Admin pages are site management, not readership;
+ * The per-center filter every report shares. Admin pages are site management, not readership;
  * preview and development deployments register `center` too; bots are PostHog's own detection.
  */
 export const CENTER_FILTER = [
@@ -142,7 +142,7 @@ const city = `if(
 
 const unknownIfEmpty = (expression: string) => `coalesce(nullIf(${expression}, ''), 'Unknown')`
 
-const BREAKDOWNS: Record<BreakdownPanel, BreakdownSpec> = {
+const BREAKDOWNS: Record<BreakdownReport, BreakdownSpec> = {
   pages: { label: `coalesce(properties.$pathname, '')` },
   entryPages: { label: unknownIfEmpty('session.$entry_pathname') },
   exitPages: { label: unknownIfEmpty('session.$end_pathname') },
@@ -161,8 +161,8 @@ const BREAKDOWNS: Record<BreakdownPanel, BreakdownSpec> = {
 }
 
 /** Both visits and pageviews per row, so the page picks which to show without a second query. */
-export function breakdownQuery(scope: CenterQueryScope, panel: BreakdownPanel): HogQLStatement {
-  const spec = BREAKDOWNS[panel]
+export function breakdownQuery(scope: CenterQueryScope, report: BreakdownReport): HogQLStatement {
+  const spec = BREAKDOWNS[report]
   const extra = spec.extraWhere ? `\n  AND ${spec.extraWhere}` : ''
   return statement(
     scope,
@@ -219,7 +219,7 @@ LIMIT ${LIST_ROW_CAP}`,
 /**
  * Dropdowns and maps respond without changing the DOM, so PostHog records clicks on them as dead
  * even though they worked; left in, they would top every list. Merging by page and label happens
- * in TypeScript (see deadClicks.ts), so this returns more groups than the panel shows.
+ * in TypeScript (see deadClicks.ts), so this returns more groups than the card shows.
  */
 export function deadClicksQuery(scope: CenterQueryScope): HogQLStatement {
   return statement(

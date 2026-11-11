@@ -1,7 +1,7 @@
 'use client'
 
 import { rangeDays, type DateRange } from '@/services/posthog/analyticsRange'
-import { PROMPT_ABOVE_DAYS, type LoadEstimate } from '@/services/posthog/panelTypes'
+import { PROMPT_ABOVE_DAYS, type LoadEstimate } from '@/services/posthog/reportTypes'
 import { cn } from '@/utilities/ui'
 import { Button, ShimmerEffect } from '@payloadcms/ui'
 import { useEffect, useState, type ReactNode } from 'react'

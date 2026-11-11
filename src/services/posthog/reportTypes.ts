@@ -1,4 +1,4 @@
-// The contract between the analytics endpoint and the admin page: every panel and the shape of its
+// The contract between the analytics endpoint and the admin page: every report and the shape of its
 // data. Shared with client code, so keep this file free of server imports.
 import { z } from 'zod'
 
@@ -78,30 +78,30 @@ const breakdownRows = {
   browsers: breakdownRowSchema,
   operatingSystems: breakdownRowSchema,
 }
-export type BreakdownPanel = keyof typeof breakdownRows
+export type BreakdownReport = keyof typeof breakdownRows
 
-/** Every panel whose data is `{ rows }`, and the shape of one row. */
+/** Every report whose data is `{ rows }`, and the shape of one row. */
 const listRows = {
   ...breakdownRows,
   sponsors: sponsorRowSchema,
   notFound: notFoundRowSchema,
   deadClicks: deadClickRowSchema,
 }
-export type ListPanel = keyof typeof listRows
-export type ListRowMap = { [K in ListPanel]: z.infer<(typeof listRows)[K]> }
-export type ListData<K extends ListPanel> = { rows: ListRowMap[K][] }
+export type ListReport = keyof typeof listRows
+export type ListRowMap = { [K in ListReport]: z.infer<(typeof listRows)[K]> }
+export type ListData<K extends ListReport> = { rows: ListRowMap[K][] }
 
-/** Typed per key, so `LIST_ROW_SCHEMAS[panel]` parses to that panel's row even for a generic key. */
-export const LIST_ROW_SCHEMAS: { [K in ListPanel]: z.ZodType<ListRowMap[K]> } = listRows
+/** Typed per key, so `LIST_ROW_SCHEMAS[report]` parses to that report's row even for a generic key. */
+export const LIST_ROW_SCHEMAS: { [K in ListReport]: z.ZodType<ListRowMap[K]> } = listRows
 
-/** What each panel returns. The server's registry in panels.ts must provide every key. */
-export type PanelDataMap = { overview: OverviewData; timeseries: TimeseriesData } & {
-  [K in ListPanel]: ListData<K>
+/** What each report returns. The server's registry in reports.ts must provide every key. */
+export type ReportDataMap = { overview: OverviewData; timeseries: TimeseriesData } & {
+  [K in ListReport]: ListData<K>
 }
-export type AnalyticsPanel = keyof PanelDataMap
-export type PanelData = PanelDataMap[AnalyticsPanel]
+export type AnalyticsReport = keyof ReportDataMap
+export type ReportData = ReportDataMap[AnalyticsReport]
 
-export function isAnalyticsPanel(value: unknown): value is AnalyticsPanel {
+export function isAnalyticsReport(value: unknown): value is AnalyticsReport {
   return (
     value === 'overview' ||
     value === 'timeseries' ||
@@ -109,16 +109,16 @@ export function isAnalyticsPanel(value: unknown): value is AnalyticsPanel {
   )
 }
 
-export const panelRangeSchema = z.object({
+export const reportRangeSchema = z.object({
   from: z.string(),
   to: z.string(),
   previousFrom: z.string(),
   previousTo: z.string(),
   timezone: z.string(),
 })
-export type PanelRange = z.infer<typeof panelRangeSchema>
+export type ReportRange = z.infer<typeof reportRangeSchema>
 
-export type PanelResponse = { panel: AnalyticsPanel; range: PanelRange; data: PanelData }
+export type ReportResponse = { report: AnalyticsReport; range: ReportRange; data: ReportData }
 
 /** Ranges up to this many days load quickly enough that nobody is asked first. */
 export const PROMPT_ABOVE_DAYS = 45

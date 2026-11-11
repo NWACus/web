@@ -26,8 +26,8 @@ import {
   probeQueryCache,
   queryHogQL,
 } from '@/services/posthog/hogql'
-import { estimateColdSeconds, LIST_ROW_CAP } from '@/services/posthog/panelTypes'
-import { fetchPanel, fillTimeseries } from '@/services/posthog/panels'
+import { estimateColdSeconds, LIST_ROW_CAP } from '@/services/posthog/reportTypes'
+import { fetchReport, fillTimeseries } from '@/services/posthog/reports'
 import { ROOT_DOMAIN } from '@/utilities/domain'
 import { z } from 'zod'
 
@@ -406,7 +406,7 @@ describe('labelDeadClick', () => {
   })
 })
 
-describe('fetchPanel', () => {
+describe('fetchReport', () => {
   function respondByQuery({ query: sql, values }: SentQuery) {
     if (sql.includes('FROM sessions')) {
       return hogqlResult(
@@ -459,7 +459,7 @@ describe('fetchPanel', () => {
   })
 
   it('assembles the overview with derived views per visit', async () => {
-    const data = await fetchPanel(config, 'nwac', scope.range, 'overview')
+    const data = await fetchReport(config, 'nwac', scope.range, 'overview')
     expect(data).toMatchObject({
       visitors: { current: 120, previous: 100 },
       viewsPerVisit: { current: 2.5, previous: 400 / 180 },
@@ -469,7 +469,7 @@ describe('fetchPanel', () => {
   })
 
   it('fills the time series over the range', async () => {
-    const data = await fetchPanel(
+    const data = await fetchReport(
       config,
       'nwac',
       rangeFor('2026-11-07', '2026-11-09'),
@@ -478,27 +478,27 @@ describe('fetchPanel', () => {
     expect(data.points.map((point) => point.visitors)).toEqual([0, 3, 0])
   })
 
-  it('returns breakdown, sponsor, 404 and dead click rows in their panel shapes', async () => {
-    await expect(fetchPanel(config, 'nwac', scope.range, 'countries')).resolves.toEqual({
+  it('returns breakdown, sponsor, 404 and dead click rows in their report shapes', async () => {
+    await expect(fetchReport(config, 'nwac', scope.range, 'countries')).resolves.toEqual({
       rows: [{ label: '/forecasts', visitors: 90, visits: 120, pageviews: 300 }],
     })
-    await expect(fetchPanel(config, 'nwac', scope.range, 'sponsors')).resolves.toMatchObject({
+    await expect(fetchReport(config, 'nwac', scope.range, 'sponsors')).resolves.toMatchObject({
       rows: [
         { name: 'Outdoor Research', clickThroughRate: 0.025 },
         { name: 'Sponsor 8', clickThroughRate: null },
       ],
     })
-    await expect(fetchPanel(config, 'nwac', scope.range, 'notFound')).resolves.toEqual({
+    await expect(fetchReport(config, 'nwac', scope.range, 'notFound')).resolves.toEqual({
       rows: [{ path: '/old', referrer: 'https://x.org/', hits: 9, people: 7 }],
     })
-    await expect(fetchPanel(config, 'nwac', scope.range, 'deadClicks')).resolves.toEqual({
+    await expect(fetchReport(config, 'nwac', scope.range, 'deadClicks')).resolves.toEqual({
       rows: [{ path: '/support', label: 'Image “Wool Hat”', clicks: 46, people: 41 }],
     })
   })
 
   it('surfaces a failed query', async () => {
     server.use(http.post(QUERY_URL, () => HttpResponse.text('boom', { status: 500 })))
-    await expect(fetchPanel(config, 'nwac', scope.range, 'pages')).rejects.toBeInstanceOf(
+    await expect(fetchReport(config, 'nwac', scope.range, 'pages')).rejects.toBeInstanceOf(
       PostHogQueryError,
     )
   })

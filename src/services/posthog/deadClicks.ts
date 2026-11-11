@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { DeadClickRow } from './panelTypes'
+import type { DeadClickRow } from './reportTypes'
 
 export const deadClickRowSchema = z.object({
   path: z.string(),

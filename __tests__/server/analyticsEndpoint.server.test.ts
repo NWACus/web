@@ -1,6 +1,6 @@
-const getCachedPanel = jest.fn()
-jest.mock('../../src/services/posthog/getCachedPanel', () => ({
-  getCachedPanel: (...args: unknown[]) => getCachedPanel(...args),
+const getCachedReport = jest.fn()
+jest.mock('../../src/services/posthog/getCachedReport', () => ({
+  getCachedReport: (...args: unknown[]) => getCachedReport(...args),
 }))
 const probeQueryCache = jest.fn()
 jest.mock('../../src/services/posthog/hogql', () => ({
@@ -42,15 +42,15 @@ describe('analyticsHandler', () => {
     process.env = env
   })
 
-  it('rejects unknown centers and panels', async () => {
-    const { req } = requestFor('center=nope&panel=overview&from=2026-11-01&to=2026-11-09')
+  it('rejects unknown centers and reports', async () => {
+    const { req } = requestFor('center=nope&report=overview&from=2026-11-01&to=2026-11-09')
     expect((await call(req)).status).toBe(400)
-    const bad = requestFor('center=nwac&panel=everything&from=2026-11-01&to=2026-11-09')
+    const bad = requestFor('center=nwac&report=everything&from=2026-11-01&to=2026-11-09')
     expect((await call(bad.req)).status).toBe(400)
   })
 
   it('hides centers the user cannot read, and everything from anonymous callers', async () => {
-    const hidden = requestFor('center=nwac&panel=overview&from=2026-11-01&to=2026-11-09', {
+    const hidden = requestFor('center=nwac&report=overview&from=2026-11-01&to=2026-11-09', {
       tenantVisible: false,
     })
     expect((await call(hidden.req)).status).toBe(404)
@@ -58,7 +58,7 @@ describe('analyticsHandler', () => {
       expect.objectContaining({ collection: 'tenants', overrideAccess: false, user }),
     )
 
-    const anonymous = requestFor('center=nwac&panel=overview&from=2026-11-01&to=2026-11-09', {
+    const anonymous = requestFor('center=nwac&report=overview&from=2026-11-01&to=2026-11-09', {
       user: null,
     })
     expect((await call(anonymous.req)).status).toBe(404)
@@ -66,12 +66,12 @@ describe('analyticsHandler', () => {
 
   it('reports a missing key as not connected', async () => {
     delete process.env.POSTHOG_PERSONAL_API_KEY
-    const { req } = requestFor('center=nwac&panel=overview&from=2026-11-01&to=2026-11-09')
+    const { req } = requestFor('center=nwac&report=overview&from=2026-11-01&to=2026-11-09')
     expect((await call(req)).status).toBe(503)
   })
 
   it('validates the range', async () => {
-    const { req } = requestFor('center=nwac&panel=overview&from=2026-11-09&to=2026-11-01')
+    const { req } = requestFor('center=nwac&report=overview&from=2026-11-09&to=2026-11-01')
     const response = await call(req)
     expect(response.status).toBe(400)
     await expect(response.json()).resolves.toEqual({
@@ -79,23 +79,23 @@ describe('analyticsHandler', () => {
     })
   })
 
-  it('returns the panel with its resolved range and passes the refresh flag through', async () => {
-    getCachedPanel.mockResolvedValue({ kind: 'breakdown', rows: [] })
-    const { req } = requestFor('center=nwac&panel=pages&from=2026-11-01&to=2026-11-09&refresh=1')
+  it('returns the report with its resolved range and passes the refresh flag through', async () => {
+    getCachedReport.mockResolvedValue({ kind: 'breakdown', rows: [] })
+    const { req } = requestFor('center=nwac&report=pages&from=2026-11-01&to=2026-11-09&refresh=1')
     const response = await call(req)
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toMatchObject({
-      panel: 'pages',
+      report: 'pages',
       range: { from: '2026-11-01', to: '2026-11-09', timezone: 'America/Los_Angeles' },
       data: { kind: 'breakdown', rows: [] },
     })
-    expect(getCachedPanel).toHaveBeenCalledWith('nwac', expect.anything(), 'pages', true)
+    expect(getCachedReport).toHaveBeenCalledWith('nwac', expect.anything(), 'pages', true)
   })
 
   it('turns a failed query into a 502 with a warning', async () => {
-    getCachedPanel.mockRejectedValue(new Error('boom'))
-    const { req, warn } = requestFor('center=nwac&panel=pages&from=2026-11-01&to=2026-11-09')
+    getCachedReport.mockRejectedValue(new Error('boom'))
+    const { req, warn } = requestFor('center=nwac&report=pages&from=2026-11-01&to=2026-11-09')
     expect((await call(req)).status).toBe(502)
     expect(warn).toHaveBeenCalled()
   })

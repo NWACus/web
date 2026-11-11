@@ -3,10 +3,10 @@ import type { ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { AVALANCHE_CENTERS, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import type { Endpoint, PayloadHandler, PayloadRequest } from 'payload'
 import { resolveRange, type ResolvedRange } from './analyticsRange'
-import { getCachedPanel } from './getCachedPanel'
+import { getCachedReport } from './getCachedReport'
 import { getPostHogQueryConfig, PostHogQueryError, type PostHogQueryConfig } from './hogql'
 import { estimateLoad } from './loadEstimate'
-import { isAnalyticsPanel, type PanelResponse } from './panelTypes'
+import { isAnalyticsReport, type ReportResponse } from './reportTypes'
 
 const json = (body: unknown, status = 200) => Response.json(body, { status })
 
@@ -52,20 +52,25 @@ async function authorize(req: PayloadRequest): Promise<Authorized | Response> {
 }
 
 /**
- * `GET /api/analytics?center=nwac&from=2026-10-10&to=2026-11-09&panel=overview[&refresh=1]`
+ * `GET /api/analytics?center=nwac&from=2026-10-10&to=2026-11-09&report=overview[&refresh=1]`
  * for the admin Site analytics page. Auth is Payload's; the center must be one the user can read.
  */
 export const analyticsHandler: PayloadHandler = async (req) => {
-  const panel = req.searchParams.get('panel')
-  if (!isAnalyticsPanel(panel)) return json({ error: 'Unknown panel' }, 400)
+  const report = req.searchParams.get('report')
+  if (!isAnalyticsReport(report)) return json({ error: 'Unknown report' }, 400)
   const authorized = await authorize(req)
   if (authorized instanceof Response) return authorized
   const { center, range } = authorized
 
   try {
-    const data = await getCachedPanel(center, range, panel, req.searchParams.get('refresh') === '1')
-    const body: PanelResponse = {
-      panel,
+    const data = await getCachedReport(
+      center,
+      range,
+      report,
+      req.searchParams.get('refresh') === '1',
+    )
+    const body: ReportResponse = {
+      report,
       range: {
         from: range.from,
         to: range.to,
@@ -77,7 +82,7 @@ export const analyticsHandler: PayloadHandler = async (req) => {
     }
     return json(body)
   } catch (err) {
-    req.payload.logger.warn({ err, center, panel }, 'Site analytics panel failed')
+    req.payload.logger.warn({ err, center, report }, 'Site analytics report failed')
     return json({ error: failureMessage(err) }, 502)
   }
 }

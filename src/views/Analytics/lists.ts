@@ -1,9 +1,9 @@
 /**
  * Every ranked list on the page, one spec each. A spec drives both the card and its CSV, so the
- * headings and columns cannot drift apart. To add a list: add its panel in panelTypes.ts and
- * panels.ts, write a spec here, and place it in AnalyticsDashboard.client.tsx.
+ * headings and columns cannot drift apart. To add a list: add its report in reportTypes.ts and
+ * reports.ts, write a spec here, and place it in AnalyticsDashboard.client.tsx.
  */
-import type { BreakdownPanel, ListPanel, ListRowMap } from '@/services/posthog/panelTypes'
+import type { BreakdownReport, ListReport, ListRowMap } from '@/services/posthog/reportTypes'
 import { toCsv } from '@/utilities/export/csv'
 import { formatInteger, formatPercentFine } from './format'
 
@@ -26,8 +26,8 @@ type RowText<Row> = {
   csv?: (row: Row) => string
 }
 
-export type ListSpec<K extends ListPanel> = {
-  panel: K
+export type ListSpec<K extends ListReport> = {
+  report: K
   /** The tab label, also used in the export file name. */
   label: string
   empty: string
@@ -53,7 +53,7 @@ export type ListSpec<K extends ListPanel> = {
 export const round = (value: number, digits: number) => String(Number(value.toFixed(digits)))
 
 /** The list as CSV: the spec's headings and every row, with numbers left unformatted. */
-export function listCsv<K extends ListPanel>(spec: ListSpec<K>, rows: ListRowMap[K][]): string {
+export function listCsv<K extends ListReport>(spec: ListSpec<K>, rows: ListRowMap[K][]): string {
   const texts = spec.detail ? [spec.name, spec.detail] : [spec.name]
   const header = [
     ...texts.map((text) => text.header),
@@ -70,14 +70,14 @@ export function listCsv<K extends ListPanel>(spec: ListSpec<K>, rows: ListRowMap
 }
 
 function breakdown(
-  panel: BreakdownPanel,
+  report: BreakdownReport,
   label: string,
   rowHeader: string,
   count: 'visits' | 'pageviews',
   display: (label: string) => string = (raw) => raw,
-): ListSpec<BreakdownPanel> {
+): ListSpec<BreakdownReport> {
   return {
-    panel,
+    report,
     label,
     empty: 'Nothing in this period.',
     name: { header: rowHeader, text: (row) => display(row.label) },
@@ -116,7 +116,7 @@ export const OPERATING_SYSTEMS = breakdown(
 )
 
 export const SPONSORS: ListSpec<'sponsors'> = {
-  panel: 'sponsors',
+  report: 'sponsors',
   label: 'Sponsors',
   empty: 'No sponsor impressions in this period.',
   note: 'Impressions count the sponsor block rendering, not scrolling into view.',
@@ -137,7 +137,7 @@ export const SPONSORS: ListSpec<'sponsors'> = {
 }
 
 export const NOT_FOUND: ListSpec<'notFound'> = {
-  panel: 'notFound',
+  report: 'notFound',
   label: 'Top 404s',
   empty: 'No 404s in this period.',
   note: 'Addresses people tried that have no page, with the site that linked to them. Add a redirect to send each one somewhere useful.',
@@ -158,7 +158,7 @@ export const NOT_FOUND: ListSpec<'notFound'> = {
 }
 
 export const DEAD_CLICKS: ListSpec<'deadClicks'> = {
-  panel: 'deadClicks',
+  report: 'deadClicks',
   label: 'Dead clicks',
   empty: 'No dead clicks in this period.',
   note: 'Clicks where nothing happened: no link opened and the page did not change. People usually click something because they expect it to be a link or button, such as an image, heading or icon. Make it a link, or style it so it does not look clickable. Dropdowns and maps are left out because they respond without changing the page.',

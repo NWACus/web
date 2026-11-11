@@ -3,7 +3,7 @@
  * lists.ts. Numbers are unformatted so they sort and sum in a spreadsheet. Pure, so the files are
  * unit-testable without a download.
  */
-import type { OverviewData, PanelRange, TimeseriesData } from '@/services/posthog/panelTypes'
+import type { OverviewData, ReportRange, TimeseriesData } from '@/services/posthog/reportTypes'
 import { toCsv } from '@/utilities/export/csv'
 import { toKebabCase } from '@/utilities/toKebabCase'
 import { round } from './lists'
@@ -19,7 +19,7 @@ export function analyticsExportFilename(
 }
 
 /** The stats row: one line per metric, this period beside the previous one. */
-export function overviewCsv(data: OverviewData, range: PanelRange): string {
+export function overviewCsv(data: OverviewData, range: ReportRange): string {
   const metrics: Array<[string, keyof OverviewData, (value: number) => string]> = [
     ['Unique visitors', 'visitors', String],
     ['Total visits', 'visits', String],

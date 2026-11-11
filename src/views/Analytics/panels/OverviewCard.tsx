@@ -2,7 +2,7 @@
 
 import type { ECharts } from 'echarts/core'
 import { useEffect, useRef, useState } from 'react'
-import { usePanel, type PanelRequest, type PanelState } from '../usePanel'
+import { useReport, type ReportRequest, type ReportState } from '../useReport'
 import { ExportMenu } from './ExportMenu'
 import { PanelHeader } from './Panel'
 import { parseOverview, StatsRow } from './StatsRow'
@@ -14,7 +14,7 @@ import {
   type SeriesKey,
 } from './TrendChart'
 
-const LOADING: PanelState<never> = { status: 'loading' }
+const LOADING: ReportState<never> = { status: 'loading' }
 
 /**
  * The stats row and trend chart in one card. It renders before the lists so its requests go out
@@ -25,13 +25,13 @@ export function OverviewCard({
   centerName,
   onVisitors,
 }: {
-  request: PanelRequest
+  request: ReportRequest
   centerName: string
   /** The period's unique visitors, which the lists' share column divides by. */
   onVisitors: (visitors: number | undefined) => void
 }) {
-  const overview = usePanel('overview', request, parseOverview)
-  const trend = usePanel('timeseries', request, parseTimeseries)
+  const overview = useReport('overview', request, parseOverview)
+  const trend = useReport('timeseries', request, parseTimeseries)
   const [series, setSeries] = useState<SeriesKey>('visitors')
   const colors = useThemeColors()
   const chartRef = useRef<ECharts | null>(null)

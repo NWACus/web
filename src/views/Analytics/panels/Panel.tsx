@@ -4,7 +4,7 @@ import { cn } from '@/utilities/ui'
 import { ShimmerEffect } from '@payloadcms/ui'
 import type { ReactNode } from 'react'
 import { TabPills } from '../TabPills'
-import type { PanelState } from '../usePanel'
+import type { ReportState } from '../useReport'
 
 export const MUTED = 'text-[var(--theme-elevation-600)]'
 
@@ -56,7 +56,7 @@ export function PanelBody<T>({
   empty,
   children,
 }: {
-  state: PanelState<T>
+  state: ReportState<T>
   empty: string
   children: (data: T) => ReactNode
 }) {

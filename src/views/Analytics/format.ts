@@ -1,5 +1,5 @@
-import type { Comparison } from '@/services/posthog/panelTypes'
-import { percentChange } from '@/services/posthog/panelTypes'
+import type { Comparison } from '@/services/posthog/reportTypes'
+import { percentChange } from '@/services/posthog/reportTypes'
 
 const integer = new Intl.NumberFormat('en-US')
 const compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 })

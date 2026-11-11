@@ -2,7 +2,7 @@ import { ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { rangeDays, type ResolvedRange } from './analyticsRange'
 import { overviewCountsQuery } from './centerAnalyticsQueries'
 import { probeQueryCache, type PostHogQueryConfig } from './hogql'
-import { estimateColdSeconds, PROMPT_ABOVE_DAYS, type LoadEstimate } from './panelTypes'
+import { estimateColdSeconds, PROMPT_ABOVE_DAYS, type LoadEstimate } from './reportTypes'
 
 export async function estimateLoad(
   config: PostHogQueryConfig,

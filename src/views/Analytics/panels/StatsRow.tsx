@@ -1,10 +1,10 @@
 'use client'
 
-import { overviewSchema, type Comparison, type OverviewData } from '@/services/posthog/panelTypes'
+import { overviewSchema, type Comparison, type OverviewData } from '@/services/posthog/reportTypes'
 import { cn } from '@/utilities/ui'
 import { ShimmerEffect } from '@payloadcms/ui'
 import { formatDecimal, formatDelta, formatDuration, formatInteger, formatPercent } from '../format'
-import { parseWith, type PanelState } from '../usePanel'
+import { parseWith, type ReportState } from '../useReport'
 import { MUTED } from './Panel'
 
 export const parseOverview = parseWith(overviewSchema)
@@ -47,7 +47,7 @@ function Stat({ metric, comparison }: { metric: Metric; comparison: Comparison }
   )
 }
 
-export function StatsRow({ state }: { state: PanelState<OverviewData> }) {
+export function StatsRow({ state }: { state: ReportState<OverviewData> }) {
   return (
     <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-6">
       {METRICS.map((metric) =>

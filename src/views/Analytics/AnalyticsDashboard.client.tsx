@@ -8,7 +8,7 @@ import {
   todayIn,
   type DateRange,
 } from '@/services/posthog/analyticsRange'
-import { estimateColdSeconds, PROMPT_ABOVE_DAYS } from '@/services/posthog/panelTypes'
+import { estimateColdSeconds, PROMPT_ABOVE_DAYS } from '@/services/posthog/reportTypes'
 import { cn } from '@/utilities/ui'
 import { Button, ConfirmationModal, useModal } from '@payloadcms/ui'
 import { RefreshCw } from 'lucide-react'
@@ -36,7 +36,7 @@ import { ListPanel, listTab, type ListTab } from './panels/ListPanel'
 import { OverviewCard } from './panels/OverviewCard'
 import { MUTED } from './panels/Panel'
 import { defaultSelection, RangePicker, type RangeSelection } from './RangePicker'
-import type { PanelRequest } from './usePanel'
+import type { ReportRequest } from './useReport'
 
 const PAGE_TABS: [ListTab, ...ListTab[]] = [
   listTab(TOP_PAGES),
@@ -94,7 +94,7 @@ function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
 
 const REFRESH_MODAL = 'site-analytics-refresh'
 
-function Panels({ request, centerName }: { request: PanelRequest; centerName: string }) {
+function Panels({ request, centerName }: { request: ReportRequest; centerName: string }) {
   const [totalVisitors, setTotalVisitors] = useState<number>()
   return (
     <>
@@ -156,7 +156,7 @@ export function AnalyticsDashboard({
   // A forced refresh recalculates everything on PostHog's side, so long ranges ask first
   const requestRefresh = () =>
     rangeDays(range) > PROMPT_ABOVE_DAYS ? openModal(REFRESH_MODAL) : forceRefresh()
-  const request: PanelRequest = {
+  const request: ReportRequest = {
     center,
     from: range.from,
     to: range.to,

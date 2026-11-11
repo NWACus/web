@@ -3,15 +3,15 @@
 import {
   LIST_ROW_CAP,
   LIST_ROW_SCHEMAS,
-  type ListPanel as ListPanelKey,
+  type ListReport,
   type ListRowMap,
-} from '@/services/posthog/panelTypes'
+} from '@/services/posthog/reportTypes'
 import { cn } from '@/utilities/ui'
 import { Button } from '@payloadcms/ui'
 import { useState, type ReactNode } from 'react'
 import { formatCompact } from '../format'
 import { listCsv, type ListColumn, type ListSpec } from '../lists'
-import { parseRows, usePanel, type PanelRequest } from '../usePanel'
+import { parseRows, useReport, type ReportRequest } from '../useReport'
 import { BarList, type BarListRow } from './BarList'
 import { csvExportItems, ExportMenu } from './ExportMenu'
 import { MUTED, PanelBody, PanelFrame } from './Panel'
@@ -20,7 +20,7 @@ type TabOption = { key: string; label: string }
 
 type TabBodyProps = {
   title: string
-  request: PanelRequest
+  request: ReportRequest
   totalVisitors?: number
   tabs: TabOption[]
   onTab: (key: string) => void
@@ -34,7 +34,7 @@ function cell<Row>(column: ListColumn<Row>, row: Row): string {
   return value === null ? '–' : (column.format ?? formatCompact)(value)
 }
 
-function barRows<K extends ListPanelKey>(spec: ListSpec<K>, rows: ListRowMap[K][]): BarListRow[] {
+function barRows<K extends ListReport>(spec: ListSpec<K>, rows: ListRowMap[K][]): BarListRow[] {
   const [bar, ...extra] = spec.columns
   return rows.map((row) => {
     const name = spec.name.text(row)
@@ -72,7 +72,7 @@ function ShowAllToggle({
 }
 
 /** The card's rows: a bar list, cut to the spec's limit behind a "Show all" toggle. */
-function ListRows<K extends ListPanelKey>({
+function ListRows<K extends ListReport>({
   spec,
   rows,
   share,
@@ -109,10 +109,10 @@ function ListRows<K extends ListPanelKey>({
 }
 
 /** Binds a spec to its panel's row schema; call once at module level so the parser is stable. */
-export function listTab<K extends ListPanelKey>(spec: ListSpec<K>): ListTab {
-  const parse = parseRows(LIST_ROW_SCHEMAS[spec.panel])
+export function listTab<K extends ListReport>(spec: ListSpec<K>): ListTab {
+  const parse = parseRows(LIST_ROW_SCHEMAS[spec.report])
   function Body({ title, request, totalVisitors, tabs, onTab }: TabBodyProps) {
-    const state = usePanel(spec.panel, request, parse)
+    const state = useReport(spec.report, request, parse)
     const exportItems = csvExportItems(state, request.center, spec.label, (data) =>
       listCsv(spec, data.rows),
     )
@@ -120,7 +120,7 @@ export function listTab<K extends ListPanelKey>(spec: ListSpec<K>): ListTab {
       <PanelFrame
         title={title}
         tabs={tabs}
-        active={spec.panel}
+        active={spec.report}
         onTab={onTab}
         actions={<ExportMenu name={spec.label} items={exportItems} />}
       >
@@ -148,7 +148,7 @@ export function listTab<K extends ListPanelKey>(spec: ListSpec<K>): ListTab {
     )
   }
 
-  return { key: spec.panel, label: spec.label, Body }
+  return { key: spec.report, label: spec.label, Body }
 }
 
 /** A titled card of one or more lists as tabs; each tab fetches on first view. */
@@ -160,7 +160,7 @@ export function ListPanel({
 }: {
   title: string
   tabs: [ListTab, ...ListTab[]]
-  request: PanelRequest
+  request: ReportRequest
   /** The period's unique visitors, for the share column. */
   totalVisitors?: number
 }) {

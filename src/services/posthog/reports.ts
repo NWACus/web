@@ -20,14 +20,14 @@ import {
   type QueryRefresh,
 } from './hogql'
 import type {
-  AnalyticsPanel,
-  BreakdownPanel,
+  AnalyticsReport,
+  BreakdownReport,
   Comparison,
   ListData,
   OverviewData,
-  PanelDataMap,
+  ReportDataMap,
   TimeseriesPoint,
-} from './panelTypes'
+} from './reportTypes'
 
 const count = z.coerce.number()
 // avgIf returns null over no rows
@@ -69,14 +69,14 @@ const notFoundRowSchema = z.object({
   people: count,
 })
 
-/** What a panel gets to work with: its center and range, and a HogQL runner bound to both caches. */
-type PanelContext = {
+/** What a report gets to work with: its center and range, and a HogQL runner bound to both caches. */
+type ReportContext = {
   scope: CenterQueryScope
   query: <Row>(statement: HogQLStatement, rowSchema: z.ZodType<Row>) => Promise<Row[]>
 }
 
-type PanelRegistry = {
-  [K in AnalyticsPanel]: (context: PanelContext) => Promise<PanelDataMap[K]>
+type ReportRegistry = {
+  [K in AnalyticsReport]: (context: ReportContext) => Promise<ReportDataMap[K]>
 }
 
 const ratio = (numerator: number, denominator: number) =>
@@ -92,7 +92,7 @@ const EMPTY_VISITS = {
   previous_visit_duration: 0,
 }
 
-async function overview({ scope, query }: PanelContext): Promise<OverviewData> {
+async function overview({ scope, query }: ReportContext): Promise<OverviewData> {
   const [[current = EMPTY_COUNTS], [previous = EMPTY_COUNTS], [visits = EMPTY_VISITS]] =
     await Promise.all([
       query(overviewCountsQuery(scope, 'current'), overviewCountsRowSchema),
@@ -134,16 +134,16 @@ export function fillTimeseries(
 }
 
 const breakdown =
-  <K extends BreakdownPanel>(panel: K) =>
-  async ({ scope, query }: PanelContext): Promise<ListData<K>> => ({
-    rows: await query(breakdownQuery(scope, panel), breakdownRowSchema),
+  <K extends BreakdownReport>(report: K) =>
+  async ({ scope, query }: ReportContext): Promise<ListData<K>> => ({
+    rows: await query(breakdownQuery(scope, report), breakdownRowSchema),
   })
 
 /**
- * Every panel the endpoint serves. To add one: give its data a schema in panelTypes.ts, add it
+ * Every report the endpoint serves. To add one: give its data a schema in reportTypes.ts, add it
  * here (the type requires it), and render it on the page.
  */
-const PANELS: PanelRegistry = {
+const REPORTS: ReportRegistry = {
   overview,
   timeseries: async ({ scope, query }) => ({
     bucket: scope.range.bucket,
@@ -178,18 +178,18 @@ const PANELS: PanelRegistry = {
 }
 
 // The top card of the page; its queries jump the queue
-const FIRST_PANELS: ReadonlySet<AnalyticsPanel> = new Set(['overview', 'timeseries'])
+const FIRST_REPORTS: ReadonlySet<AnalyticsReport> = new Set(['overview', 'timeseries'])
 
-/** Runs one panel's queries for one center and range. Throws so a failure is never cached. */
-export function fetchPanel<K extends AnalyticsPanel>(
+/** Runs one report's queries for one center and range. Throws so a failure is never cached. */
+export function fetchReport<K extends AnalyticsReport>(
   config: PostHogQueryConfig,
   slug: ValidTenantSlug,
   range: ResolvedRange,
-  panel: K,
+  report: K,
   refresh: QueryRefresh = 'blocking',
-): Promise<PanelDataMap[K]> {
-  const priority: QueryPriority = FIRST_PANELS.has(panel) ? 'first' : 'normal'
-  return PANELS[panel]({
+): Promise<ReportDataMap[K]> {
+  const priority: QueryPriority = FIRST_REPORTS.has(report) ? 'first' : 'normal'
+  return REPORTS[report]({
     scope: { slug, range },
     query: (statement, rowSchema) => queryHogQL(config, statement, rowSchema, refresh, priority),
   })

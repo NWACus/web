@@ -5,7 +5,7 @@ import {
   timeseriesSchema,
   type OverviewData,
   type TimeseriesData,
-} from '@/services/posthog/panelTypes'
+} from '@/services/posthog/reportTypes'
 import { saveCsv, saveUrl } from '@/utilities/export/saveFile'
 import { cn } from '@/utilities/ui'
 import type { ECharts } from 'echarts/core'
@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState, type RefObject } from 'react'
 import { formatDateRange, formatInteger } from '../format'
 import { analyticsExportFilename, overviewCsv, timeseriesCsv } from '../panelExport'
 import { TabPills } from '../TabPills'
-import { parseWith, type PanelRequest, type PanelState } from '../usePanel'
+import { parseWith, type ReportRequest, type ReportState } from '../useReport'
 import type { ExportItem } from './ExportMenu'
 import { MUTED, PanelBody } from './Panel'
 
@@ -167,13 +167,13 @@ export function trendExportItems({
   trend,
   overview,
 }: {
-  request: PanelRequest
+  request: ReportRequest
   centerName: string
   series: SeriesKey
   colors: ChartColors
   chartRef: RefObject<ECharts | null>
-  trend: PanelState<TimeseriesData>
-  overview: PanelState<OverviewData>
+  trend: ReportState<TimeseriesData>
+  overview: ReportState<OverviewData>
 }): ExportItem[] {
   const filename = (label: string, extension: 'csv' | 'png') =>
     analyticsExportFilename(request.center, label, request, extension)
@@ -219,7 +219,7 @@ export function TrendChart({
   colors,
   chartRef,
 }: {
-  state: PanelState<TimeseriesData>
+  state: ReportState<TimeseriesData>
   series: SeriesKey
   onSeries: (series: SeriesKey) => void
   colors: ChartColors
