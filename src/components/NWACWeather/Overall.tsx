@@ -42,6 +42,7 @@ import {
   PrecipHoursToggle,
 } from './PrecipHours.client'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
+import { TableDescription } from './TableDescription.client'
 import {
   DayNightDate,
   PrecipLegend,
@@ -99,9 +100,8 @@ interface Table {
   title: string
   /** Shown quietly after the title, in parentheses. */
   unit?: string
-  note?: string
-  /** Paragraphs that continue the note: the legacy page's info-bubble text for this table. */
-  detail?: string[]
+  /** What the table shows, under its title on one line that opens to the whole. */
+  description?: string
   rowLabel: string
   columns: Column[]
   groups: Group[]
@@ -134,19 +134,17 @@ export type ZonePaths = Record<number, string>
 
 const STICKY = 'sticky left-0 z-10'
 
-// Condensed from the info bubbles on NWAC's legacy Mountain Weather Forecast page.
-const PRECIP_DETAIL = [
-  'Water counts all rain, snow and ice melted down. A rough rule: an inch of water makes about 10 inches of snow, less when it’s near freezing and more when it’s very cold.',
-]
-const SNOW_LEVEL_DETAIL = [
-  'The general snow level over each 6 hours; a freezing level instead when no precipitation is expected.',
-]
-const TEMPS_DETAIL = [
-  'The high and low at 5000’ within each 12 hours, not a trend. The snow level, synopsis and weather summary say more about how temperatures change.',
-]
-const WIND_DETAIL = [
-  'The average speed and direction over each 6 hours, from the 16-point compass direction the wind comes from. Ridgeline winds cover a range of elevations, differing by zone, that overlaps the near and above treeline bands of the avalanche forecast.',
-]
+// NWAC's forecasters' explanations of each table.
+const PRECIP_WE_DESCRIPTION =
+  'Precipitation: Water Equivalent (WE) is the liquid water equivalent of all precipitation types; rain, snow, ice pellets, etc. and forecast to the hundredth of an inch at specific locations.'
+const PRECIP_SNOW_DESCRIPTION = `${PRECIP_WE_DESCRIPTION} Snow: Forecast at the same locations as precipitation but at 5,000’ in elevation. Snow forecasts are to the nearest whole inch and presented in a range.`
+const PRECIP_ONLY_DESCRIPTION = `${PRECIP_WE_DESCRIPTION} This forecast doesn’t include snow amounts.`
+const SNOW_LEVEL_DESCRIPTION =
+  'The snow level forecast represents the general snow level over a 6 hr time period. Snow level is defined as the elevation that snow begins to accumulate on natural surfaces. Snow may accumulate even when the surface temperature is slightly above freezing. Freezing levels are forecast when precipitation is not expected. Freezing levels often drop rapidly with the onset of precipitation. During periods with temperature inversions, there may be multiple freezing levels. We forecast the freezing level that most users will experience in the mountains.'
+const TEMPS_DESCRIPTION =
+  'The low and high temperature at 5000’ over a 12 hr period. The 6 hr snow level forecast, overall synopsis and zone weather summary may give more detail on temperature trends.'
+const WIND_DESCRIPTION =
+  'Ridgeline winds represent the average wind speed and direction over a 6 hr time period. The wind forecast represents an elevation range versus a single elevation. The elevation range overlaps with the middle and upper elevation bands in the avalanche forecast and differs per zone. Wind direction (VECTOR) is the direction the wind is blowing from, given in degrees or cardinal direction on a 16 pt compass rose. Ex: A west (W) wind comes from the west and blows toward the east (E).'
 
 // Grouped like the block tables: one date over its periods, Day or Night (with its sun or moon)
 // in the sub row.
@@ -213,7 +211,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: 'Snow & Freezing Level',
       title: 'Snow and Freezing Level',
       unit: 'ft',
-      detail: SNOW_LEVEL_DETAIL,
+      description: SNOW_LEVEL_DESCRIPTION,
       legend: <SnowLevelLegend />,
       rowLabel: 'Zone',
       columns: levelBlocks.map((b) => blockColumn(issuance, b)),
@@ -239,7 +237,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: "5000' Temps",
       title: "5000' Temperatures",
       unit: '°F',
-      detail: TEMPS_DETAIL,
+      description: TEMPS_DESCRIPTION,
       legend: <TempRangeLegend scale={scale} />,
       labelVars: '[--label:6.5rem] md:[--label:10.5rem]',
       fitsPhone: true,
@@ -265,7 +263,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: 'Ridgeline Winds',
       title: 'Ridgeline Winds',
       unit: 'mph',
-      detail: WIND_DETAIL,
+      description: WIND_DESCRIPTION,
       legend: <WindLegend />,
       labelVars: '[--label:6.5rem] md:[--label:10.5rem]',
       minColRem: 7.5,
@@ -391,10 +389,7 @@ function precipSnowTable(
     nav: withSnow ? 'Precipitation & Snow' : 'Precipitation',
     title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
-    note: withSnow
-      ? "Water at each station and new snow at 5000', with the forecast total at the end."
-      : 'Water at each station, with the forecast total at the end. This forecast doesn’t include snow amounts.',
-    detail: PRECIP_DETAIL,
+    description: withSnow ? PRECIP_SNOW_DESCRIPTION : PRECIP_ONLY_DESCRIPTION,
     legend: <PrecipLegend day={hoursOf('day')} night={hoursOf('night')} snow={withSnow} />,
     control: { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> },
     rowLabel: 'Station',
@@ -447,7 +442,7 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
     nav: 'Extended',
     title: 'Snow Levels',
     unit: 'ft',
-    detail: SNOW_LEVEL_DETAIL,
+    description: SNOW_LEVEL_DESCRIPTION,
     legend: <SnowLevelLegend />,
     rowLabel: 'Zone',
     columns: blocks.map((b) => ({
@@ -849,7 +844,6 @@ function TableTitle({
   headingId: string
   Heading: 'h3' | 'h4'
 }) {
-  const [first, ...rest] = t.detail ?? []
   return (
     // The control sits at the right, level with the title's last line, just above the table.
     <div className={cn('flex items-end gap-4', t.paired && 'xl:pb-3')}>
@@ -863,14 +857,7 @@ function TableTitle({
             <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
           )}
         </Heading>
-        {(t.note || first) && (
-          <div className="space-y-1 text-sm text-muted-foreground">
-            <p>{[t.note, first].filter(Boolean).join(' ')}</p>
-            {rest.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-        )}
+        {t.description && <TableDescription text={t.description} />}
       </div>
       {/* A phone has its own form of the control, beside the date. */}
       {t.control && <div className="hidden shrink-0 md:block print:hidden">{t.control.title}</div>}

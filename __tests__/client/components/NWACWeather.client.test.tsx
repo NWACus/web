@@ -252,16 +252,18 @@ describe('Overall table descriptions', () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
     // The main and extended snow level tables share their explanation.
-    expect(screen.getAllByText(/^The general snow level over each 6 hours/)).toHaveLength(2)
-    expect(screen.getByText(/^The high and low at 5000’ within each 12 hours/)).toBeInTheDocument()
     expect(
-      screen.getByText(/^The average speed and direction over each 6 hours/),
+      screen.getAllByText(/^The snow level forecast represents the general snow level/),
+    ).toHaveLength(2)
+    expect(
+      screen.getByText(/^The low and high temperature at 5000’ over a 12 hr period/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/^Ridgeline winds represent the average wind speed/),
     ).toBeInTheDocument()
     // The 12 and 24 hour tables both carry it; one is hidden.
     expect(
-      screen.getAllByText(
-        /^Water at each station and new snow at 5000', .* more when it’s very cold\.$/,
-      ),
+      screen.getAllByText(/^Precipitation: Water Equivalent \(WE\) .* presented in a range\.$/),
     ).toHaveLength(2)
     // The key's bar sits between Low and high, so the line is matched whole.
     expect(

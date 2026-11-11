@@ -2,10 +2,11 @@
 
 import type { StationNote } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
+import { useIsTruncated } from '@/utilities/useIsTruncated'
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
 import { ChevronDown, Info, TriangleAlert } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 function noteDate(startDate: string | null, timeZone: string): string | null {
   if (!startDate) return null
@@ -63,22 +64,6 @@ const frameClass = (hasActive: boolean) =>
 const barClass = (hasActive: boolean) =>
   cn('flex items-start gap-2 px-3 py-2', hasActive ? 'bg-warning' : 'bg-muted')
 
-// Whether the text is clipped to one line, rechecked as the layout resizes. A callback ref,
-// since the text moves between a plain bar and a disclosure.
-function useIsTruncated() {
-  const [el, ref] = useState<HTMLSpanElement | null>(null)
-  const [truncated, setTruncated] = useState(false)
-  useEffect(() => {
-    if (!el) return
-    const check = () => setTruncated(el.scrollWidth > el.clientWidth)
-    check()
-    const observer = new ResizeObserver(check)
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [el])
-  return { ref, truncated }
-}
-
 function LeadLine({
   lead,
   folded,
@@ -89,7 +74,7 @@ function LeadLine({
   lead: StationNote
   folded: number
   expandable: boolean
-  textRef: (el: HTMLSpanElement | null) => void
+  textRef: (el: HTMLElement | null) => void
   timeZone: string
 }) {
   return (
