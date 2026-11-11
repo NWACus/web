@@ -8,8 +8,9 @@ import type { PanelState } from '../usePanel'
 
 export const MUTED = 'text-[var(--theme-elevation-600)]'
 
-/** Shared chrome for every panel: a card, tab-style headings and the loading and error states. */
+/** Shared chrome for every panel: a titled card, its tabs and the loading and error states. */
 export function PanelFrame({
+  title,
   tabs,
   active,
   onTab,
@@ -17,6 +18,8 @@ export function PanelFrame({
   children,
   className,
 }: {
+  title: string
+  /** Hidden when there is only one: the title already names it. */
   tabs: ReadonlyArray<{ key: string; label: string }>
   active: string
   onTab: (key: string) => void
@@ -28,9 +31,14 @@ export function PanelFrame({
   return (
     <section className={cn('card min-w-0 flex-col gap-0', className)}>
       <div className="mb-4 flex items-start justify-between gap-2">
-        <TabPills options={tabs} active={active} onChange={onTab} />
+        <h3 className="m-0 text-base font-semibold">{title}</h3>
         {actions}
       </div>
+      {tabs.length > 1 && (
+        <div className="mb-4">
+          <TabPills options={tabs} active={active} onChange={onTab} />
+        </div>
+      )}
       {children}
     </section>
   )

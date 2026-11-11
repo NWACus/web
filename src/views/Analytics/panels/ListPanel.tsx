@@ -17,6 +17,7 @@ import { MUTED, PanelBody, PanelFrame } from './Panel'
 type TabOption = { key: string; label: string }
 
 type TabBodyProps = {
+  title: string
   request: PanelRequest
   totalVisitors?: number
   tabs: TabOption[]
@@ -111,13 +112,14 @@ function ListRows<K extends ListPanelKey>({
 /** Binds a spec to its panel's row schema; call once at module level so the parser is stable. */
 export function listTab<K extends ListPanelKey>(spec: ListSpec<K>): ListTab {
   const parse = parseRows(LIST_ROW_SCHEMAS[spec.panel])
-  function Body({ request, totalVisitors, tabs, onTab }: TabBodyProps) {
+  function Body({ title, request, totalVisitors, tabs, onTab }: TabBodyProps) {
     const state = usePanel(spec.panel, request, parse)
     const exportItems = csvExportItems(state, request.center, spec.label, (data) =>
       listCsv(spec, data.rows),
     )
     return (
       <PanelFrame
+        title={title}
         tabs={tabs}
         active={spec.panel}
         onTab={onTab}
@@ -138,12 +140,14 @@ export function listTab<K extends ListPanelKey>(spec: ListSpec<K>): ListTab {
   return { key: spec.panel, label: spec.label, Body }
 }
 
-/** A card of one or more lists as tabs; each tab fetches on first view. */
+/** A titled card of one or more lists as tabs; each tab fetches on first view. */
 export function ListPanel({
+  title,
   tabs,
   request,
   totalVisitors,
 }: {
+  title: string
   tabs: [ListTab, ...ListTab[]]
   request: PanelRequest
   /** The period's unique visitors, for the share column. */
@@ -152,6 +156,12 @@ export function ListPanel({
   const [activeKey, setActiveKey] = useState(tabs[0].key)
   const tab = tabs.find((candidate) => candidate.key === activeKey) ?? tabs[0]
   return (
-    <tab.Body request={request} totalVisitors={totalVisitors} tabs={tabs} onTab={setActiveKey} />
+    <tab.Body
+      title={title}
+      request={request}
+      totalVisitors={totalVisitors}
+      tabs={tabs}
+      onTab={setActiveKey}
+    />
   )
 }

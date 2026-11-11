@@ -16,6 +16,8 @@
 | Top 404s | `page_not_found` | Missing paths with the most common referrer, which is where the broken link lives |
 | Dead clicks | `$dead_click` | Page and element pairs by unique people, labelled from the element's `alt`, text or `aria-label`. Native `select` elements and map surfaces (`mapboxgl`, `maplibregl`, `leaflet` in the element chain) are excluded because they respond without changing the DOM |
 
+The breakdown cards are titled Pages, Traffic sources, Visitor locations, Devices, Sponsors and Things to fix (Top 404s and Dead clicks), with a tab per list; a card with one list shows no tabs.
+
 Breakdown rows carry a fill bar (share of the largest row) and a percentage (share of the period's unique visitors), as in Plausible.
 
 The trend chart is Apache ECharts through the site's [`EChart`](../src/components/charts/EChart.tsx) wrapper. Its colors are resolved from CSS variables through an element's computed `color`, because the `hsl(215 25% 47%)` form in `colors.css` draws once but turns transparent when ECharts re-derives it for hover; hover emphasis is disabled outright.

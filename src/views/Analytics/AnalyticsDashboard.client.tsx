@@ -100,12 +100,27 @@ function Panels({ request, centerName }: { request: PanelRequest; centerName: st
         <TrendChart request={request} centerName={centerName} overview={overview} />
       </section>
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <ListPanel tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
-        <ListPanel tabs={SOURCE_TABS} request={request} totalVisitors={totalVisitors} />
-        <ListPanel tabs={LOCATION_TABS} request={request} totalVisitors={totalVisitors} />
-        <ListPanel tabs={DEVICE_TABS} request={request} totalVisitors={totalVisitors} />
-        <ListPanel tabs={SPONSOR_TABS} request={request} />
-        <ListPanel tabs={FIX_TABS} request={request} />
+        <ListPanel title="Pages" tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
+        <ListPanel
+          title="Traffic sources"
+          tabs={SOURCE_TABS}
+          request={request}
+          totalVisitors={totalVisitors}
+        />
+        <ListPanel
+          title="Visitor locations"
+          tabs={LOCATION_TABS}
+          request={request}
+          totalVisitors={totalVisitors}
+        />
+        <ListPanel
+          title="Devices"
+          tabs={DEVICE_TABS}
+          request={request}
+          totalVisitors={totalVisitors}
+        />
+        <ListPanel title="Sponsors" tabs={SPONSOR_TABS} request={request} />
+        <ListPanel title="Things to fix" tabs={FIX_TABS} request={request} />
       </div>
     </>
   )
