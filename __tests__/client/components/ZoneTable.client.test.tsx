@@ -77,7 +77,7 @@ describe('ZoneTable', () => {
     ])
   })
 
-  it('labels the temperatures Hi and Lo, high first', () => {
+  it('labels the temperatures Lo and Hi, low first', () => {
     const { container } = render(
       <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
     )
@@ -90,7 +90,7 @@ describe('ZoneTable', () => {
     if (!row) throw new Error('no temperature row')
 
     const [first] = within(row).getAllByRole('cell')
-    expect(first.textContent).toMatch(/^Hi \d+ · Lo \d+$/)
+    expect(first.textContent).toMatch(/^Lo \d+° · Hi \d+°$/)
   })
 
   it('names them Today and Tonight from 6 am', () => {

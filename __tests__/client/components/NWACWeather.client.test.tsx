@@ -39,7 +39,7 @@ describe('Overall', () => {
     const [olympics] = within(temps)
       .getAllByRole('rowheader', { name: 'Olympics' })
       .map((label) => label.closest('tr'))
-    expect(olympics).toHaveTextContent('High 53, low 47')
+    expect(olympics).toHaveTextContent('Low 47, high 53')
   })
 
   it('puts the weather summary beside the synopsis, then precipitation and snow, the zone links last, and links each zone to its forecast page', () => {

@@ -224,7 +224,7 @@ export function TempValue({
   labeled = false,
 }: {
   cell: NWACWeatherTempCell | undefined
-  /** "Hi 37 · Lo 22", for a table with no legend to say which is which. */
+  /** "Lo 22 · Hi 37", for a table with no legend to say which is which. */
   labeled?: boolean
 }) {
   if (cell?.high == null || cell?.low == null) {
@@ -233,19 +233,19 @@ export function TempValue({
   if (labeled) {
     return (
       <span className="whitespace-nowrap tabular-nums">
-        <span className="text-xs text-muted-foreground">Hi</span>{' '}
-        <span className="font-semibold">{cell.high}</span>
-        <span className="text-muted-foreground"> · </span>
         <span className="text-xs text-muted-foreground">Lo</span>{' '}
-        <span className="font-semibold">{cell.low}</span>
+        <span className="font-semibold">{cell.low}°</span>
+        <span className="text-muted-foreground"> · </span>
+        <span className="text-xs text-muted-foreground">Hi</span>{' '}
+        <span className="font-semibold">{cell.high}°</span>
       </span>
     )
   }
   return (
     <span className="whitespace-nowrap tabular-nums">
-      <span className="font-semibold">{cell.high}</span>
+      <span>{cell.low}°</span>
       <span className="text-muted-foreground"> / </span>
-      <span>{cell.low}</span>
+      <span className="font-semibold">{cell.high}°</span>
     </span>
   )
 }
@@ -274,10 +274,10 @@ export function TempRange({
   return (
     <span className="flex items-center gap-1.5 tabular-nums">
       <span className="sr-only">
-        High {cell.high}, low {cell.low}
+        Low {cell.low}, high {cell.high}
       </span>
-      <span aria-hidden="true" className="w-5 text-right text-muted-foreground">
-        {cell.low}
+      <span aria-hidden="true" className="w-6 text-right text-muted-foreground">
+        {cell.low}°
       </span>
       <span aria-hidden="true" className="relative h-1.5 min-w-6 flex-1 rounded-full bg-muted">
         <span
@@ -285,8 +285,8 @@ export function TempRange({
           style={{ left: `${mid - half}%`, right: `${100 - (mid + half)}%` }}
         />
       </span>
-      <span aria-hidden="true" className="w-5 font-semibold">
-        {cell.high}
+      <span aria-hidden="true" className="w-6 font-semibold">
+        {cell.high}°
       </span>
     </span>
   )
