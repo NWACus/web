@@ -178,7 +178,7 @@ sig = "4eae609023f967db"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/components/AnalyticsNavLink.client.tsx"
-sig = "2c43ae66b6ec1694"
+sig = "9e9b7bd5ac787b9d"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
