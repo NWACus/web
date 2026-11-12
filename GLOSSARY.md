@@ -161,6 +161,10 @@ The single site navigation for a Tenant — a tenant-scoped global, assembled fr
 **Settings**:
 The single site-configuration document for a Tenant — a tenant-scoped global.
 
+**Column layout**:
+The relative widths of a Content block's columns on desktop, written as a ratio from left to right (e.g. 2:1 is a wide left column and a narrow right one).
+_Avoid_: Column split, grid
+
 **Tag**:
 A label that categorizes Posts (tenant-scoped). Distinct from EventTag despite the name: Tags are for Posts, EventTags are for Events.
 _Avoid_: EventTag (different entity)

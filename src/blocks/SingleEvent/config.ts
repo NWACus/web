@@ -1,9 +1,9 @@
 import colorPickerField from '@/fields/color'
+import { layoutField } from '@/fields/layout'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block, Field } from 'payload'
 
 const defaultFields: Field[] = [
-  colorPickerField('Background color'),
   {
     name: 'event',
     type: 'relationship',
@@ -20,5 +20,5 @@ export const SingleEventBlock: Block = {
   slug: 'singleEvent',
   interfaceName: 'SingleEventBlock',
   imageURL: '/thumbnail/SingleEventThumbnail.jpg',
-  fields: [...defaultFields],
+  fields: [...defaultFields, layoutField([colorPickerField('Background color')])],
 }

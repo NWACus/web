@@ -231,6 +231,7 @@ When creating a new block, you must register it in the following locations:
 
 1. **`src/blocks/RenderBlocks.tsx`** - For standalone page blocks
    - Set `isLayoutBlock={true}` so the block gets its own `container` wrapper
+   - If the block has appearance options (background color, alignment and the like), end its fields with `layoutField([...])` so editors find them in one Layout group
 
 2. **`src/components/RichText/index.tsx`** - For blocks used inline within rich text editors
    - Set `isLayoutBlock={false}` to avoid double-wrapping (the RichText component already provides a container)
@@ -265,6 +266,8 @@ A reusable layout component that wraps content with configurable background colo
 - `outerClassName` - Optional - additional classes for the outer wrapper div
 
 **Spacing:** `blockSpacing(backgroundColor, isLayoutBlock)`, exported beside the wrapper, is the one rule. A layout block with no background color (`hasBackgroundColor` is false for `transparent` and for anything outside the picker's palette) carries `BLOCK_MARGIN` (`my-3 md:my-5`) on its outer div; those margins collapse, so two plain neighbors sit 12px apart on phones and 20px from `md`. A block with any other color, `white` included, carries no margin and instead pads its inner container with `BLOCK_PADDING` (`py-6 md:py-8`), so two colored blocks touch. Inline Lexical blocks get neither (an inline Header keeps its own `py-4`). Blocks that don't use the wrapper call `blockSpacing` themselves, or use `BLOCK_MARGIN` when they never take a background.
+
+**Layout group:** every block ends with `layoutField([...])` from `src/fields/layout.ts`, a collapsed "Layout" group that holds the block's appearance options (background color, content alignment, full-width color and the like) and a summary header that lists each setting in field order. Options about what the block shows, such as Media's image size or NAC Media's carousel/grid, stay with the block's other fields. Blocks with no appearance options (Document, Form, Image Link Grid, Observations Widget, Precip Table, Team) don't take one, and neither do Button and Inline Media, which are inline elements.
 
 **Usage:**
 ```tsx

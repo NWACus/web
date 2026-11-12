@@ -19,6 +19,7 @@ export const accumulatedPrecipPage = (
     {
       backgroundColor: 'white',
       layout: '1_1',
+      verticalAlignment: 'top',
       columns: [
         {
           richText: simpleContent(
