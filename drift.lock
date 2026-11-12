@@ -163,7 +163,7 @@ sig = "d01e6dab9165b530"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/client/analyticsUseReport.client.test.ts"
-sig = "943a2559550dd2ee"
+sig = "dd2c56acec87b6f1"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -263,7 +263,7 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "558d0701d50e557a"
+sig = "fa51a0705c28b974"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -338,7 +338,7 @@ sig = "66cf68646e5cec97"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/useReport.ts"
-sig = "52cfeaa136eb205e"
+sig = "842a5624ba3c131c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

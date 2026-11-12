@@ -18,7 +18,6 @@ const REQUEST: ReportRequest = {
   from: '2026-10-01',
   to: '2026-10-31',
   generation: 0,
-  force: false,
 }
 
 const respond = (n: number) => ({ ok: true, json: async () => ({ range: RANGE, data: { n } }) })
@@ -31,6 +30,9 @@ beforeEach(() => {
   global.fetch = fetchMock
 })
 
+const sentRefresh = () =>
+  fetchMock.mock.calls.map(([url]) => new URL(String(url), 'http://x').searchParams.has('refresh'))
+
 function renderReport(request: ReportRequest) {
   return renderHook(({ request }) => useReport('overview', request, parse), {
     initialProps: { request },
@@ -38,6 +40,26 @@ function renderReport(request: ReportRequest) {
 }
 
 describe('useReport', () => {
+  it('forces only the load a Refresh starts, not a later regroup', async () => {
+    const { result, rerender } = renderReport(REQUEST)
+    await waitFor(() => expect(result.current.status).toBe('ready'))
+
+    rerender({ request: { ...REQUEST, generation: 1 } })
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(result.current.status).toBe('ready'))
+
+    rerender({ request: { ...REQUEST, generation: 1, interval: 'week' } })
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3))
+
+    expect(sentRefresh()).toEqual([false, true, false])
+  })
+
+  it('reads the cache when it mounts after a Refresh', async () => {
+    const { result } = renderReport({ ...REQUEST, generation: 3 })
+    await waitFor(() => expect(result.current.status).toBe('ready'))
+    expect(sentRefresh()).toEqual([false])
+  })
+
   it("never renders the previous request's data for a new request", async () => {
     const rendered: string[] = []
     const { result, rerender } = renderHook(

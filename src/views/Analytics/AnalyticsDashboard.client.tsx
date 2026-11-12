@@ -196,12 +196,11 @@ export function AnalyticsDashboard({
   const days = rangeDays(range)
   const trend = useTrendGrouping(selection, days)
 
-  // The Refresh button forces one round of uncached fetches for the range it was pressed on.
-  const [refresh, setRefresh] = useState({ generation: 0, forcedRange: '' })
+  // Each Refresh reloads the reports on the page once past both caches; see useReport
+  const [generation, setGeneration] = useState(0)
   const rangeKey = `${range.from}|${range.to}`
   const { openModal } = useModal()
-  const forceRefresh = () =>
-    setRefresh(({ generation }) => ({ generation: generation + 1, forcedRange: rangeKey }))
+  const forceRefresh = () => setGeneration((previous) => previous + 1)
   // A forced refresh recalculates everything on PostHog's side, so long ranges ask first
   const requestRefresh = () =>
     days > PROMPT_ABOVE_DAYS ? openModal(REFRESH_MODAL) : forceRefresh()
@@ -209,8 +208,7 @@ export function AnalyticsDashboard({
     center,
     from: range.from,
     to: range.to,
-    generation: refresh.generation,
-    force: refresh.forcedRange === rangeKey,
+    generation,
     baseline: presetBaseline(selection.preset),
   }
 
