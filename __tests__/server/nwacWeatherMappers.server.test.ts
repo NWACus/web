@@ -5,7 +5,6 @@ import {
   deriveSnowLevel,
   fmtCalendarDate,
   fmtSnowAmount,
-  fmtWind,
   levelKind,
   periodDateGroups,
   pointSnow,
@@ -116,11 +115,6 @@ describe('nwacWeatherFormat', () => {
     expect(fmtSnowAmount(3.4)).toBe('3"')
     expect(fmtSnowAmount(0.2)).toBe('0')
     expect(fmtSnowAmount(null)).toBe('—')
-    expect(fmtWind({ dir: 'SW', speed: 25 })).toBe('SW 25')
-    expect(fmtWind({ dir: null, speed: 0 })).toBe('Calm')
-    expect(fmtWind({ dir: 'SW', speed: 0 })).toBe('SW Calm')
-    expect(fmtWind({ dir: 'SW', speed: 3 })).toBe('SW Calm')
-    expect(fmtWind(undefined)).toBe('—')
   })
 
   it('reads snow and wind to the public as ranges', () => {
@@ -209,6 +203,35 @@ describe('zoneSnow', () => {
     }
     expect(pointSnow(issuance, 'B', 'n1')).toBe(0)
     expect(zoneSnow(issuance, zone.id, 'n1')).toBe(3)
+  })
+
+  it.each([
+    ['dry', { qpf: 0, slr: null }],
+    ['snowy', { qpf: 0.5, slr: 12 }],
+  ])('is unknown when a wet point has no ratio, beside a %s point', (_, cell) => {
+    const [zone] = afternoon.zones
+    const issuance = {
+      ...afternoon,
+      points: [
+        { ...afternoon.points[0], code: 'A', zoneId: zone.id },
+        { ...afternoon.points[0], code: 'B', zoneId: zone.id },
+      ],
+      precip: { A: { n1: { qpf: 0.01, slr: null } }, B: { n1: cell } },
+    }
+    expect(zoneSnow(issuance, zone.id, 'n1')).toBeNull()
+  })
+
+  it('leaves out a point with no precipitation forecast', () => {
+    const [zone] = afternoon.zones
+    const issuance = {
+      ...afternoon,
+      points: [
+        { ...afternoon.points[0], code: 'A', zoneId: zone.id },
+        { ...afternoon.points[0], code: 'B', zoneId: zone.id },
+      ],
+      precip: { A: { n1: { qpf: 0.5, slr: 12 } }, B: { n1: { qpf: null, slr: null } } },
+    }
+    expect(zoneSnow(issuance, zone.id, 'n1')).toBe(6)
   })
 })
 

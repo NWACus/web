@@ -15,3 +15,16 @@ export function currentNWACWeatherDay(
   const yesterday = format(subDays(parseISO(today), 1), 'yyyy-MM-dd')
   return latest.serviceDate >= yesterday ? latest : null
 }
+
+/**
+ * Whether a dated Mountain Weather page shows a past forecast: one before the current forecast's
+ * date, which until the morning issuance is yesterday's.
+ */
+export function isPastNWACWeatherDate(
+  date: string,
+  latest: NWACWeatherForecastDay | null,
+  today: string,
+): boolean {
+  if (date >= today) return false
+  return date < (currentNWACWeatherDay(latest, today)?.serviceDate ?? today)
+}

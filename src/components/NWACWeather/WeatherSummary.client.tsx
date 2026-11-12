@@ -44,7 +44,7 @@ function ZoneDays({ row, days }: { row: SensibleRow; days: SensibleDay[] }) {
         </section>
       ))}
       {row.href && (
-        <p className="border-t pt-4">
+        <p className="border-t pt-4 text-sm">
           View the{' '}
           <Link
             href={row.href}
@@ -78,7 +78,7 @@ function ZoneList({
       aria-label="Zone"
       aria-orientation="vertical"
       onKeyDown={onKeyDown}
-      className="flex overflow-x-auto border-b sm:flex-col sm:overflow-visible sm:border-b-0 sm:border-r"
+      className="flex overflow-x-auto overflow-y-hidden border-b sm:flex-col sm:overflow-visible sm:border-b-0 sm:border-r"
     >
       {rows.map((r, i) => (
         <button

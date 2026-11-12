@@ -1,7 +1,8 @@
 import { IssuanceSwitch } from '@/components/NWACWeather/IssuanceSwitch.client'
 import { Overall, OverallSectionTabs, overallParts } from '@/components/NWACWeather/Overall'
-import { SnowLevelLegend, WindValue, levelFill } from '@/components/NWACWeather/Values'
-import { fmtQpf } from '@/services/nac/nwacWeatherFormat'
+import { SnowLevelLegend, WindValue, levelFill, windFill } from '@/components/NWACWeather/Values'
+import type { NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
+import { dayGroups, fmtQpf, hasSnowAmounts, precipPeriods } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
@@ -29,8 +30,10 @@ describe('Overall', () => {
     expect(screen.getAllByText('Olympics').length).toBeGreaterThan(0)
     // 53 / 47 °F for Olympics on Night 1, as entered.
     const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
-    const olympics = within(temps).getByRole('rowheader', { name: 'Olympics' }).closest('tr')
-    expect(olympics).toHaveTextContent('53 / 47')
+    const [olympics] = within(temps)
+      .getAllByRole('rowheader', { name: 'Olympics' })
+      .map((label) => label.closest('tr'))
+    expect(olympics).toHaveTextContent('47° / 53°')
   })
 
   it('puts the weather summary beside the synopsis, then precipitation and snow, the zone links last, and links each zone to its forecast page', () => {
@@ -93,8 +96,9 @@ describe('Overall', () => {
     const parts = within(wide)
       .getAllByRole('columnheader')
       .map((h) => h.textContent)
-      .filter((text) => text === 'Precip' || text === 'Snow')
-    expect(parts.slice(0, 2)).toEqual(['Precip', 'Snow'])
+      .filter((text) => text === 'Precip' || text === "Snow@ 5000'")
+    // Snow is labeled with the elevation it's forecast for.
+    expect(parts.slice(0, 2)).toEqual(['Precip', "Snow@ 5000'"])
     expect(within(wide).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
     const row = within(wide).getByRole('rowheader', { name: 'Hurricane Ridge' }).closest('tr')
     // A WE and a snow cell per period, plus the total's two.
@@ -103,13 +107,12 @@ describe('Overall', () => {
 
   it('switches precipitation and snow between 12 and 24 hours', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const twelve = screen.getByRole('button', { name: '12 hours' })
-    const twentyFour = screen.getByRole('button', { name: '24 hours' })
-    expect(twelve).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('radio', { name: '12 hours' })).toHaveAttribute('aria-checked', 'true')
     expect(screen.queryByRole('columnheader', { name: 'Night + Day' })).toBeNull()
 
-    fireEvent.click(twentyFour)
-    expect(twentyFour).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('radio', { name: '24 hours' }))
+    // The 24-hour table's own switch, in its corner, now shows.
+    expect(screen.getByRole('radio', { name: '24 hours' })).toHaveAttribute('aria-checked', 'true')
     // An afternoon issuance's nights pair with the days after them.
     expect(screen.getAllByRole('columnheader', { name: 'Night + Day' }).length).toBeGreaterThan(0)
   })
@@ -117,6 +120,88 @@ describe('Overall', () => {
   it('has no extended table on a morning issuance', () => {
     render(<Overall parts={overallParts(morning)} />)
     expect(screen.queryByRole('heading', { name: 'Snow Levels (ft)' })).toBeNull()
+  })
+})
+
+const DRY = { qpf: 0, slr: null }
+
+/** The afternoon issuance, every cell dry but those `wet` sets by station index and period index. */
+function withPrecip(wet: Record<string, { qpf: number; slr: number | null }>): NWACWeatherIssuance {
+  const periods = precipPeriods(afternoon)
+  const precip = Object.fromEntries(
+    afternoon.points.map((p, station) => [
+      p.code,
+      Object.fromEntries(
+        periods.map((period, i) => [
+          period.key,
+          { ...afternoon.precip[p.code]?.[period.key], ...(wet[`${station}:${i}`] ?? DRY) },
+        ]),
+      ),
+    ]),
+  )
+  return { ...afternoon, precip }
+}
+
+const stationCells = (table: HTMLElement, name: string) =>
+  Array.from(
+    within(table).getByRole('rowheader', { name }).closest('tr')?.querySelectorAll('td') ?? [],
+  ).map((td) => td.textContent)
+
+describe('hasSnowAmounts', () => {
+  it('is false when precipitation has no snow-to-liquid ratio anywhere', () => {
+    expect(hasSnowAmounts(withPrecip({ '0:0': { qpf: 0.25, slr: null } }))).toBe(false)
+  })
+
+  it('is true when any precipitation has a snow amount', () => {
+    const issuance = withPrecip({
+      '0:0': { qpf: 0.25, slr: null },
+      '1:0': { qpf: 0.5, slr: 10 },
+    })
+    expect(hasSnowAmounts(issuance)).toBe(true)
+  })
+
+  it('is true for a dry forecast', () => {
+    expect(hasSnowAmounts(withPrecip({}))).toBe(true)
+  })
+})
+
+describe('Overall precipitation without snow amounts', () => {
+  const first = afternoon.points[0].name
+  const second = afternoon.points[1].name
+
+  it('shows precipitation alone, by 12 or 24 hours: no snow columns, legend, or snow in the title', () => {
+    const parts = overallParts(withPrecip({ '0:0': { qpf: 0.25, slr: null } }))
+    render(<Overall parts={parts} />)
+    const region = () => screen.getByRole('region', { name: 'Precipitation (in)' })
+    const wide = () => within(region()).getAllByRole('table')[0]
+    expect(within(wide()).queryByRole('columnheader', { name: 'Snow' })).toBeNull()
+    expect(within(wide()).getByRole('columnheader', { name: /^Total/ })).toBeInTheDocument()
+    expect(stationCells(wide(), first)).toHaveLength(precipPeriods(afternoon).length + 1)
+    expect(screen.getAllByText(/doesn’t include snow amounts/).length).toBeGreaterThan(0)
+
+    fireEvent.click(within(region()).getByRole('radio', { name: '24 hours' }))
+
+    const cells = stationCells(wide(), first)
+    expect(cells).toHaveLength(dayGroups(precipPeriods(afternoon)).length + 1)
+    expect(cells[0]).toBe('0.25"')
+    expect(cells.at(-1)).toBe('0.25"')
+  })
+
+  it('names the section link Precipitation', () => {
+    const parts = overallParts(withPrecip({ '0:0': { qpf: 0.25, slr: null } }))
+    render(<OverallSectionTabs parts={parts} />)
+    expect(screen.getByRole('link', { name: 'Precipitation' })).toBeInTheDocument()
+  })
+
+  it('leaves a total unknown when some of its precipitation has no snow amount', () => {
+    const parts = overallParts(
+      withPrecip({ '0:0': { qpf: 0.25, slr: null }, '1:0': { qpf: 0.5, slr: 10 } }),
+    )
+    render(<Overall parts={parts} />)
+    const region = screen.getByRole('region', { name: 'Precipitation and Snow (in)' })
+    const [wide] = within(region).getAllByRole('table')
+    expect(stationCells(wide, first).slice(-2)).toEqual(['0.25"', '—'])
+    expect(stationCells(wide, second).at(-1)).not.toBe('—')
   })
 })
 
@@ -161,19 +246,21 @@ describe('Overall table descriptions', () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
     // The main and extended snow level tables share their explanation.
-    expect(screen.getAllByText(/^The general snow level over each 6 hours/)).toHaveLength(2)
-    expect(screen.getByText(/^The high and low at 5000’ within each 12 hours/)).toBeInTheDocument()
     expect(
-      screen.getByText(/^The average speed and direction over each 6 hours/),
+      screen.getAllByText(/^The snow level forecast represents the general snow level/),
+    ).toHaveLength(2)
+    expect(
+      screen.getByText(/^The low and high temperature at 5000’ over a 12 hr period/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/^Ridgeline winds represent the average wind speed/),
     ).toBeInTheDocument()
     // The 12 and 24 hour tables both carry it; one is hidden.
     expect(
-      screen.getAllByText(
-        /^Precipitation \(liquid, in\) and new snow by station; .* \(light, dry snow\)\.$/,
-      ),
+      screen.getAllByText(/^Precipitation: Water Equivalent \(WE\) .* presented in a range\.$/),
     ).toHaveLength(2)
-    expect(screen.getByText(/is the high \/ low$/)).toBeInTheDocument()
-    expect(screen.getByText('Points the way the wind blows')).toBeInTheDocument()
+    expect(screen.getByText('VAR: variable')).toBeInTheDocument()
+    expect(screen.queryByText('Points downwind')).toBeNull()
   })
 })
 
@@ -181,7 +268,7 @@ describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
     render(<OverallSectionTabs parts={overallParts(afternoon)} />)
     const nav = screen.getByRole('navigation', { name: 'Forecast sections' })
-    expect(within(nav).getByRole('link', { name: 'Weather summary' })).toHaveAttribute(
+    expect(within(nav).getByRole('link', { name: 'Zone Summary' })).toHaveAttribute(
       'href',
       '#afternoon-sensible',
     )
@@ -232,6 +319,20 @@ describe('IssuanceSwitch with a heading', () => {
     expect(screen.getByText('AM body')).toBeVisible()
     expect(screen.getByText('PM body')).not.toBeVisible()
   })
+
+  it('tags no issuance Latest on a past date', () => {
+    render(
+      <IssuanceSwitch
+        heading={<h1>Mountain Weather</h1>}
+        latest={false}
+        panels={[
+          { key: 'pm', label: 'Afternoon', time: '3:03 PM', content: 'PM body' },
+          { key: 'am', label: 'Morning', time: '7:00 AM', content: 'AM body' },
+        ]}
+      />,
+    )
+    expect(screen.queryByText('Latest')).toBeNull()
+  })
 })
 
 describe('IssuanceSwitch anchors', () => {
@@ -259,12 +360,71 @@ describe('levelFill', () => {
     expect(levelFill(4500)).toContain('bg-emerald-50')
     expect(levelFill(5500)).toContain('bg-stone-100')
     expect(levelFill(6500)).toContain('bg-yellow-50')
-    expect(levelFill(8000)).toContain('bg-orange-200')
-    expect(levelFill(10500)).toContain('bg-red-300')
+    expect(levelFill(8000)).toContain('bg-orange-100')
+    expect(levelFill(10500)).toContain('bg-red-200')
+  })
+})
+
+describe('the paired temperature and wind tables', () => {
+  it('shows a phone every date of the temperatures, with no date switch', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
+    expect(within(temps).queryByRole('tab')).not.toBeInTheDocument()
+  })
+
+  it('shows a phone one date of a table at a time', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const wind = screen.getByRole('region', { name: 'Ridgeline Winds (mph)' })
+    const [first, second] = within(wind).getAllByRole('tab')
+    expect(first).toHaveAttribute('aria-selected', 'true')
+    expect(within(wind).getAllByRole('tabpanel')).toHaveLength(1)
+    fireEvent.click(second)
+    expect(second).toHaveAttribute('aria-selected', 'true')
+    expect(within(wind).getByRole('tabpanel')).toHaveAttribute('aria-labelledby', second.id)
+  })
+
+  it('keeps the picked date when a phone switches the precipitation to 24 hours', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const pickSecond = (trigger: HTMLElement) => {
+      fireEvent.keyDown(trigger, { key: 'Enter' })
+      fireEvent.keyDown(screen.getAllByRole('option')[1], { key: 'Enter' })
+    }
+    const dates = () => screen.getAllByRole('combobox', { name: /^Precipitation and Snow date$/ })
+    pickSecond(dates()[0])
+    const second = dates()[0].textContent
+
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
+    fireEvent.keyDown(screen.getByRole('option', { name: '24 hours' }), { key: 'Enter' })
+
+    // The 24-hour dates are ranges: the first one covering the picked date is kept.
+    const [date24] = dates()
+    expect(date24.textContent).not.toBe(second)
+    expect(date24.textContent).toContain(second)
+
+    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
+    fireEvent.keyDown(screen.getByRole('option', { name: '12 hours' }), { key: 'Enter' })
+    // Back to 12 hours: the range's last date.
+    expect(dates()[0].textContent).toBe(date24.textContent?.split(' – ').at(-1))
+  })
+})
+
+describe('windFill', () => {
+  it('shades wind by its strength, and leaves calm and missing wind alone', () => {
+    expect(windFill(8)).toContain('bg-violet-100')
+    expect(windFill(12)).toBe(windFill(15))
+    expect(windFill(30)).toContain('bg-pink-100')
+    expect(windFill(60)).toContain('bg-pink-300')
+    expect(windFill(3)).toBeUndefined()
+    expect(windFill(null)).toBeUndefined()
   })
 })
 
 describe('WindValue', () => {
+  it('keeps the wording for screen readers in a compact cell', () => {
+    render(<WindValue cell={{ dir: 'W', speed: 20 }} compact />)
+    expect(screen.getByText('Moderate')).toHaveClass('sr-only')
+  })
+
   it("reads the forecasters' calm band as Calm with the direction in front, as 0 does", () => {
     const { container } = render(<WindValue cell={{ dir: 'S', speed: 3 }} />)
     expect(container).toHaveTextContent(/^S Calm$/)
