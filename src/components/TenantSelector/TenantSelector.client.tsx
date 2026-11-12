@@ -8,6 +8,9 @@ import { useViewType } from '@/providers/ViewTypeProvider'
 import { useParams } from 'next/navigation'
 import './index.scss'
 
+// Custom admin views (root `admin.components.views`) that report on the selected center
+const TENANT_SCOPED_VIEWS = new Set(['analytics'])
+
 const TenantSelectorClient = ({ label }: { label: string }) => {
   const { config } = useConfig()
   const params = useParams()
@@ -19,6 +22,7 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
 
   const viewType = useViewType()
   const isDashboardView = viewType === 'dashboard'
+  const isTenantScopedView = !!params.segments && TENANT_SCOPED_VIEWS.has(params.segments[0])
   const isDocumentView = viewType === 'document'
 
   const collectionConfig = config.collections.find(
@@ -44,7 +48,8 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
 
   // Hide for non-tenant scoped collections
   // Courses, Diagnostics, NAC widget, Global Role, Providers, Roles, & Users
-  if (isGlobal || (!tenantFieldConfigOnCollection && !isDashboardView)) return null
+  if (isGlobal || (!tenantFieldConfigOnCollection && !isDashboardView && !isTenantScopedView))
+    return null
 
   if (options.length <= 1) {
     return null

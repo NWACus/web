@@ -47,6 +47,7 @@ import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUr
 import { Courses } from './collections/Courses'
 import { Providers } from './collections/Providers'
 import { A3Management } from './globals/A3Management/config'
+import { analyticsEndpoint, analyticsEstimateEndpoint } from './services/posthog/analyticsEndpoint'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -57,6 +58,7 @@ export default buildConfig({
   admin: {
     components: {
       beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
+      afterNavLinks: ['@/components/AnalyticsNavLink.client#AnalyticsNavLink'],
       providers: [
         {
           clientProps: {
@@ -94,6 +96,10 @@ export default buildConfig({
         'embed-generator': {
           Component: '@/views/EmbedGenerator#EmbedGenerator',
           path: '/embed-generator',
+        },
+        analytics: {
+          Component: '@/views/Analytics#Analytics',
+          path: '/analytics',
         },
       },
     },
@@ -204,6 +210,7 @@ export default buildConfig({
   ),
   csrf: [getURL(), ...getTenantSubdomainUrls(), ...getProductionTenantUrls()].filter(Boolean),
   globals: [NACWidgetsConfig, DiagnosticsConfig, A3Management],
+  endpoints: [analyticsEndpoint, analyticsEstimateEndpoint],
   graphQL: {
     disable: true,
   },

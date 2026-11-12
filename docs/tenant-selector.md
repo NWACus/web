@@ -134,6 +134,13 @@ Single-document globals (not collections).
 
 ---
 
+### Web Analytics View (`/admin/analytics`)
+
+- [ ] The tenant selector should be visible and enabled (if user has multiple tenants)
+- [ ] Changing the tenant selector should reload the page with the selected center's analytics
+
+---
+
 ## Role-Based Test Cases
 
 ### Super Admin

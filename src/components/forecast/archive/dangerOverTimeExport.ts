@@ -6,6 +6,7 @@
  */
 import { dangerLevelFromRating, dangerName } from '@/services/nac/dangerScale'
 import type { DangerOverTimePoint } from '@/services/nac/forecastArchive'
+import { toCsv } from '@/utilities/export/csv'
 
 import { chartDays } from './dangerOverTimeOptions'
 
@@ -16,11 +17,6 @@ export function dangerExportFilename(
   extension: 'png' | 'csv',
 ): string {
   return `${zoneSlug}-danger-over-time-${extent.from}-to-${extent.to}.${extension}`
-}
-
-// RFC 4180: a cell holding a comma, a quote or a newline is quoted, and its own quotes doubled.
-function csvCell(value: string): string {
-  return /[",\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value
 }
 
 /**
@@ -37,14 +33,11 @@ export function dangerCsv(
   extent: { from: string; to: string },
 ): string {
   const levelByDate = new Map(points.map((point) => [point.date, point.dangerLevel]))
-  const rows = [
+  return toCsv([
     ['date', 'danger_level', 'danger_rating'],
     ...chartDays(extent).map((day) => {
       const level = levelByDate.get(day) ?? 0
       return [day, String(level), dangerName(dangerLevelFromRating(level))]
     }),
-  ]
-
-  // Trailing newline: a CSV without one appends to the previous line when files are concatenated.
-  return rows.map((cells) => cells.map(csvCell).join(',')).join('\n') + '\n'
+  ])
 }
