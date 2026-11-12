@@ -24,9 +24,10 @@ const PRESET_LABELS: Record<RangePreset, string> = {
 
 // Payload's date input is 40px tall; trim it to the 32px Apply button beside it and re-centre the
 // icons. Pixel values on purpose: the admin's root font size makes rem units drift from the button.
+// The right padding keeps the date clear of the clear and calendar icons.
 const DATE_FIELD = cn(
-  'flex w-40 flex-col gap-1 text-xs',
-  '[&_input]:h-[32px] [&_input]:min-h-0 [&_input]:py-0 [&_input]:text-[1rem]',
+  'flex w-[176px] flex-col gap-1 text-xs',
+  '[&_input]:h-[32px] [&_input]:min-h-0 [&_input]:py-0 [&_input]:pr-[64px] [&_input]:text-[1rem]',
   // The clear control is the only button inside the field, so target it by tag: Tailwind reads the
   // `_` in its BEM class name as a space and cannot match it directly
   '[&_.icon--calendar]:top-[7px] [&_button]:top-[6px]',
