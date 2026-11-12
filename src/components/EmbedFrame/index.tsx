@@ -7,6 +7,9 @@ import { useEffect, useState } from 'react'
 
 type IframeContent = { type: 'srcDoc'; value: string } | { type: 'src'; value: string }
 
+// User-Agent Client Hints ship only in Chromium-based browsers, so this needs no UA string parsing.
+const isChromium = () => 'userAgentData' in navigator
+
 export type EmbedFrameProps = {
   id?: number | string | null
   html?: string | null
@@ -56,9 +59,9 @@ export const EmbedFrame = ({
 
     const fullHtml = `<!DOCTYPE html><html><head></head><body>${sanitized}${styleOverrides}</body></html>`
 
-    // Scripts: use a blob URL — Chromium won't re-execute srcDoc scripts after SPA navigation.
-    // Script-free (e.g. YouTube): use srcDoc — blob: URLs can fail players' origin/referrer checks.
-    if (/<script/i.test(sanitized)) {
+    // Blob URL only for scripts in Chromium, which won't re-execute srcDoc scripts after SPA navigation.
+    // srcDoc elsewhere: DuckDuckGo iOS leaves blob: frames blank, and video players reject blob: origins.
+    if (/<script/i.test(sanitized) && isChromium()) {
       const blob = new Blob([fullHtml], { type: 'text/html' })
       const url = URL.createObjectURL(blob)
       setIframeContent({ type: 'src', value: url })
