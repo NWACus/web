@@ -17,7 +17,7 @@ import { estimateColdSeconds, PROMPT_ABOVE_DAYS } from '@/services/posthog/repor
 import { cn } from '@/utilities/ui'
 import { Button, ConfirmationModal, useModal } from '@payloadcms/ui'
 import { RefreshCw } from 'lucide-react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
 import { formatDateRange } from './format'
 import {
@@ -84,16 +84,22 @@ function paramsFromSelection(selection: RangeSelection): URLSearchParams {
     : new URLSearchParams({ period: selection.preset })
 }
 
+/**
+ * Updates the query string without a server round trip. Next keeps `useSearchParams` in sync with
+ * native history calls; `router.replace` would re-render the admin page on the server, and that
+ * request queues behind the page's in-flight report fetches for as long as they take.
+ */
+function replaceQuery(pathname: string, params: URLSearchParams) {
+  window.history.replaceState(null, '', `${pathname}?${params}`)
+}
+
 function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
   const params = useSearchParams()
-  const router = useRouter()
   const pathname = usePathname()
   const selection = useMemo(() => selectionFromParams(params), [params])
   const setSelection = useCallback(
-    (next: RangeSelection) => {
-      router.replace(`${pathname}?${paramsFromSelection(next)}`, { scroll: false })
-    },
-    [router, pathname],
+    (next: RangeSelection) => replaceQuery(pathname, paramsFromSelection(next)),
+    [pathname],
   )
   return [selection, setSelection]
 }
@@ -104,7 +110,6 @@ function useRangeSelection(): [RangeSelection, (next: RangeSelection) => void] {
  */
 function useTrendGrouping(selection: RangeSelection, days: number): TrendGrouping {
   const params = useSearchParams()
-  const router = useRouter()
   const pathname = usePathname()
   const intervals = trendIntervals(days)
   const fallback = defaultInterval(days)
@@ -112,7 +117,7 @@ function useTrendGrouping(selection: RangeSelection, days: number): TrendGroupin
   const onInterval = (next: TrendInterval) => {
     const nextParams = paramsFromSelection(selection)
     if (next !== fallback) nextParams.set('interval', next)
-    router.replace(`${pathname}?${nextParams}`, { scroll: false })
+    replaceQuery(pathname, nextParams)
   }
   const allowed = isTrendInterval(requested) && intervals.includes(requested)
   return { interval: allowed ? requested : fallback, intervals, onInterval }
