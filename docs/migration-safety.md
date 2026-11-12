@@ -42,6 +42,59 @@ Potentially dangerous patterns it detects:
 - Column type changes
 - Constraint drops
 
+## Database Diff Across Migrations
+
+`pnpm db:diff` reports what migrations do to existing data. CI runs it in the `development` deploy (push to `main`) and the nightly `Sync Production to Dev`: clone prod into `payloadcms-dev`, snapshot, `pnpm migrate`, diff. It's warn-only and skips itself when nothing is pending.
+
+It flags deleted or changed rows, dropped tables, columns, indexes or constraints, altered columns, new foreign key violations, and tables it couldn't read. Additions aren't flagged. `_rels`-style tables are matched by content, since `payload.update` re-inserts them with new ids; volatile tables (`payload_kv`, `payload_preferences*`, `payload_locked_documents*`, `users_sessions`) compare row counts only.
+
+Snapshots store hashes, not values. CI output is public, so it shows only names, kinds of change and row deltas; run it locally for row ids and errors.
+
+### Running it locally
+
+Clone `payloadcms-dev` to check your own migration: `main`'s migrations are already applied there, so only yours are pending. To debug a CI warning, clone `payloadcms-prod` instead, since dev has already applied that migration. Either way the clone holds prod data (dev only sanitizes users), so destroy it when you're done.
+
+```bash
+turso org switch nwac
+turso db create payloadcms-dbdiff-debug --from-db payloadcms-dev --wait
+export DATABASE_URI=$(turso db show payloadcms-dbdiff-debug --url)
+export DATABASE_AUTH_TOKEN=$(turso db tokens create payloadcms-dbdiff-debug)
+
+pnpm db:diff before .context/db-diff
+NODE_ENV=production pnpm migrate
+pnpm db:diff after .context/db-diff
+```
+
+`after` prints what CI would report, plus row ids. Re-running it reuses the saved before snapshot. When you're done: `turso db destroy payloadcms-dbdiff-debug --yes`.
+
+### Declaring expected changes
+
+If your migration changes existing data on purpose, declare it, or CI warns about it on every run until release.
+
+1. Run it locally against a dev clone.
+2. `pnpm db:diff expect .context/db-diff` writes `src/migrations/expected-changes/<migration name>.json` from the findings. It never records deleted rows: add `"deletedRows": true` under a table by hand if that deletion is intended.
+3. Re-run `pnpm db:diff after .context/db-diff`: declared changes are listed as expected, and anything still flagged wasn't declared. Commit the file with the migration.
+
+```json
+{
+  "tables": {
+    "pages": { "changedColumns": ["slug", "updated_at"], "droppedColumns": ["legacy_slug"] },
+    "pages_rels": { "deletedRows": true }
+  },
+  "droppedObjects": ["pages_legacy_slug_idx"]
+}
+```
+
+Other fields: `alteredColumns`, `droppedConstraints` (as printed in the report) and `dropped` per table; `alteredObjects` at the top level. Matching is by name, never row count. A declared change that doesn't happen also warns. Foreign key violations and unreadable tables can't be declared. Keep the files in the subdirectory: `payload migrate:create` reads the last `*.json` directly in `src/migrations/` as its schema snapshot.
+
+### Debugging a CI warning
+
+1. Check out the commit the workflow ran on and run it locally against a prod clone. To match CI's data, add `--timestamp <RFC3339>` (the workflow's clone step) to `turso db create`.
+2. Inspect the listed rows with `turso db shell payloadcms-dbdiff-debug`; `.context/db-diff/report.json` has every id. Deleted rows are gone after migrating, so look those up in a fresh clone.
+3. If the change was intended, declare it as above.
+
+To iterate on a fix without Turso round trips, serve a local copy with `turso dev -f <copy>.db`; a plain `file:` URL doesn't reproduce Turso's cascade behavior.
+
 ## Workflow
 
 ### Creating a new migration
@@ -181,3 +234,4 @@ Keep the old schema and mark fields as `hidden: true` (see "The fix: keep old at
 - CI Job: `.github/workflows/ci.yaml` (migration-safety job)
 - Migration check script: `src/scripts/check-migrations.ts`
 - Migration diff script: `src/scripts/analyze-migration-diff.ts`
+- Database diff across migrations: `src/scripts/db-diff/` (`pnpm db:diff`; expected changes in `src/migrations/expected-changes/`), run from `.github/workflows/development.yaml` and `.github/workflows/sync-prod-to-dev.yml`
