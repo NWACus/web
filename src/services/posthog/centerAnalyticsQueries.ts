@@ -25,10 +25,10 @@ const utcDateTime = (date: Date) => date.toISOString().slice(0, 19).replace('T',
 
 /**
  * The values a center query may reference as `{center}`, `{hosts}`, `{timezone}`, `{start}`,
- * `{end}`, `{previousStart}` and `{previousEnd}`. PostHog substitutes and escapes them, so no request value is ever
- * spliced into SQL text.
+ * `{end}`, `{previousStart}` and `{previousEnd}`. PostHog substitutes and escapes them, so no
+ * request value is ever spliced into SQL text.
  */
-function scopeValues({ slug, range }: CenterQueryScope) {
+function scopeValues({ slug, range }: CenterQueryScope): Record<string, string | string[]> {
   return {
     center: slug.toUpperCase(),
     hosts: centerHosts(slug),
@@ -40,10 +40,18 @@ function scopeValues({ slug, range }: CenterQueryScope) {
   }
 }
 
-const statement = (scope: CenterQueryScope, query: string): HogQLStatement => ({
-  query,
-  values: scopeValues(scope),
-})
+// A HogQL placeholder, `{name}`
+const PLACEHOLDER = /\{(\w+)\}/g
+
+/**
+ * Sends only the values the SQL references. PostHog's cache key covers every value, so an unused
+ * one (the baseline's bounds in a current-period query) would make the long-range probe miss.
+ */
+function statement(scope: CenterQueryScope, query: string): HogQLStatement {
+  const referenced = new Set(Array.from(query.matchAll(PLACEHOLDER), (match) => match[1]))
+  const values = Object.entries(scopeValues(scope)).filter(([name]) => referenced.has(name))
+  return { query, values: Object.fromEntries(values) }
+}
 
 /**
  * The per-center filter every report shares. Admin pages are site management, not readership;

@@ -380,20 +380,38 @@ describe('center queries', () => {
     expect(CENTER_FILTER).toContain('NOT coalesce(properties.$virt_is_bot, false)')
   })
 
-  it('passes the center, hosts, timezone and UTC period bounds as values, never in the SQL', () => {
+  it('passes the center, hosts and UTC period bounds as values, never in the SQL', () => {
     const { query, values } = overviewCountsQuery(scope, 'current')
-    // 31 inclusive days, so the previous period starts 31 days before Oct 10
     expect(values).toEqual({
       center: 'NWAC',
       hosts: ['nwac.us', 'www.nwac.us', `nwac.${ROOT_DOMAIN}`],
-      timezone: 'America/Los_Angeles',
       start: '2026-10-10 07:00:00',
       end: '2026-11-09 21:00:00',
-      previousStart: '2026-09-09 07:00:00',
-      previousEnd: '2026-10-10 07:00:00',
     })
     expect(query).not.toContain('nwac.us')
     expect(query).not.toContain('2026-')
+
+    // 31 inclusive days, so the previous period starts 31 days before Oct 10
+    expect(overviewCountsQuery(scope, 'previous').values).toMatchObject({
+      previousStart: '2026-09-09 07:00:00',
+      previousEnd: '2026-10-10 07:00:00',
+    })
+    expect(timeseriesQuery(scope).values).toHaveProperty('timezone', 'America/Los_Angeles')
+  })
+
+  it('sends only the values a query references, so the cache probe ignores the baseline', () => {
+    const range = { from: '2026-09-01', to: '2026-11-09' }
+    const now = new Date('2026-11-09T20:10:00Z')
+    const preceding = resolveRange(range, 'America/Los_Angeles', now, null, 'preceding')
+    const yearEarlier = resolveRange(range, 'America/Los_Angeles', now, null, 'yearEarlier')
+    if ('error' in preceding || 'error' in yearEarlier) throw new Error('unresolved range')
+
+    const probe = (resolved: ResolvedRange) =>
+      overviewCountsQuery({ slug: 'nwac', range: resolved }, 'current')
+    expect(probe(yearEarlier)).toEqual(probe(preceding))
+    expect(overviewCountsQuery({ slug: 'nwac', range: yearEarlier }, 'previous')).not.toEqual(
+      overviewCountsQuery({ slug: 'nwac', range: preceding }, 'previous'),
+    )
   })
 
   it('scans one period per overview counts query', () => {
@@ -598,7 +616,7 @@ describe('fetchReport', () => {
     }
     if (sql.includes('count() AS pageviews\nFROM events')) {
       const current = sql.includes('timestamp >= toDateTime({start}) AND')
-      expect(values?.start).toBe('2026-10-10 07:00:00')
+      expect(values?.center).toBe('NWAC')
       return hogqlResult(
         ['visitors', 'visits', 'pageviews'],
         [current ? [120, 200, 500] : [100, 180, 400]],

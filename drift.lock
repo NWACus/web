@@ -173,7 +173,7 @@ sig = "5e3853858141052a"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
-sig = "28146d4a1491210f"
+sig = "bf9fe0a5adc4247d"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -208,7 +208,7 @@ sig = "31e9a0465a7d24fa"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/centerAnalyticsQueries.ts"
-sig = "6d6b12af4a717a5e"
+sig = "acf4848c5eb89e99"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
