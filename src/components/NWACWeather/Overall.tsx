@@ -3,6 +3,7 @@
  * periods or blocks across), then the extended outlook.
  */
 import { DiscussionBody } from '@/components/forecast/DiscussionBody'
+import { Navigation2 } from 'lucide-react'
 import Link from 'next/link'
 import { Fragment, type ReactNode } from 'react'
 
@@ -15,20 +16,20 @@ import {
   DASH,
   blockDate,
   dayGroups,
-  dayRange,
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
   fmtQpf,
   hasSnowAmounts,
+  hoursCovered,
   isSnowUnknown,
   levelKind,
+  precipHours,
   precipPeriods,
   sensibleSlots,
   snowLevelBlocks,
   snowRange,
   tempPeriods,
-  tempScale,
   windBlocks,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
@@ -43,12 +44,12 @@ import {
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import {
   DayNightDate,
-  SnowFillLegend,
+  PrecipLegend,
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
-  TempRange,
-  TempRangeLegend,
+  TempLegend,
+  TempValue,
   WindLegend,
   WindValue,
   levelFill,
@@ -72,6 +73,8 @@ interface Column {
    * "Snow"); columns sharing a `split` sit under one sub-label.
    */
   part?: string
+  /** Quieter, under the part: where its values are forecast for ("5000'"). */
+  partNote?: string
   split?: string
   /** Set off from the columns before it by a heavier rule (a total). */
   total?: boolean
@@ -96,9 +99,8 @@ interface Table {
   title: string
   /** Shown quietly after the title, in parentheses. */
   unit?: string
-  note?: string
-  /** Paragraphs that continue the note: the legacy page's info-bubble text for this table. */
-  detail?: string[]
+  /** What the table shows, under its title. */
+  description?: ReactNode
   rowLabel: string
   columns: Column[]
   groups: Group[]
@@ -131,19 +133,27 @@ export type ZonePaths = Record<number, string>
 
 const STICKY = 'sticky left-0 z-10'
 
-// Condensed from the info bubbles on NWAC's legacy Mountain Weather Forecast page.
-const PRECIP_DETAIL = [
-  'Water counts all rain, snow and ice melted down. A rough rule: an inch of water makes about 10 inches of snow, less when it’s near freezing and more when it’s very cold.',
-]
-const SNOW_LEVEL_DETAIL = [
-  'The general snow level over each 6 hours; a freezing level instead when no precipitation is expected.',
-]
-const TEMPS_DETAIL = [
-  'The high and low at 5000’ within each 12 hours, not a trend. The snow level, synopsis and weather summary say more about how temperatures change.',
-]
-const WIND_DETAIL = [
-  'The average speed and direction over each 6 hours, from the 16-point compass direction the wind comes from. Ridgeline winds cover a range of elevations, differing by zone, that overlaps the near and above treeline bands of the avalanche forecast.',
-]
+// NWAC's forecasters' explanations of each table.
+const PRECIP_WE_DESCRIPTION =
+  'Precipitation: Water Equivalent (WE) is the liquid water equivalent of all precipitation types; rain, snow, ice pellets, etc. and forecast to the hundredth of an inch at specific locations.'
+const PRECIP_SNOW_DESCRIPTION = `${PRECIP_WE_DESCRIPTION} Snow: Forecast at the same locations as precipitation but at 5,000’ in elevation. Snow forecasts are to the nearest whole inch and presented in a range.`
+const PRECIP_ONLY_DESCRIPTION = `${PRECIP_WE_DESCRIPTION} This forecast doesn’t include snow amounts.`
+const SNOW_LEVEL_DESCRIPTION =
+  'The snow level forecast represents the general snow level over a 6 hr time period. Snow level is defined as the elevation that snow begins to accumulate on natural surfaces. Snow may accumulate even when the surface temperature is slightly above freezing. Freezing levels are forecast when precipitation is not expected. Freezing levels often drop rapidly with the onset of precipitation. During periods with temperature inversions, there may be multiple freezing levels. We forecast the freezing level that most users will experience in the mountains.'
+const TEMPS_DESCRIPTION =
+  'The low and high temperature at 5000’ over a 12 hr period. The 6 hr snow level forecast, overall synopsis and zone weather summary may give more detail on temperature trends.'
+// The wind cells' arrow stands in for "VECTOR" in the forecasters' text.
+const WIND_DESCRIPTION = (
+  <>
+    Ridgeline winds represent the average wind speed and direction over a 6 hr time period. The wind
+    forecast represents an elevation range versus a single elevation. The elevation range overlaps
+    with the middle and upper elevation bands in the avalanche forecast and differs per zone. Wind
+    direction (
+    <Navigation2 aria-label="arrow" className="inline size-3.5 align-[-0.125em] text-primary" />) is
+    the direction the wind is blowing from, given in degrees or cardinal direction on a 16 pt
+    compass rose. Ex: A west (W) wind blows east (E).
+  </>
+)
 
 // Grouped like the block tables: one date over its periods, Day or Night (with its sun or moon)
 // in the sub row.
@@ -199,9 +209,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   const levelBlocks = snowLevelBlocks(issuance)
 
   const temps = tempPeriods(issuance)
-  const scale = tempScale(
-    issuance.zones.flatMap((z) => temps.map((p) => issuance.temp[z.id]?.[p.key])),
-  )
   const winds = windBlocks(issuance)
 
   return [
@@ -210,7 +217,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: 'Snow & Freezing Level',
       title: 'Snow and Freezing Level',
       unit: 'ft',
-      detail: SNOW_LEVEL_DETAIL,
+      description: SNOW_LEVEL_DESCRIPTION,
       legend: <SnowLevelLegend />,
       rowLabel: 'Zone',
       columns: levelBlocks.map((b) => blockColumn(issuance, b)),
@@ -236,8 +243,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: "5000' Temps",
       title: "5000' Temperatures",
       unit: '°F',
-      detail: TEMPS_DETAIL,
-      legend: <TempRangeLegend scale={scale} />,
+      description: TEMPS_DESCRIPTION,
+      legend: <TempLegend />,
       labelVars: '[--label:6.5rem] md:[--label:10.5rem]',
       fitsPhone: true,
       paired: true,
@@ -245,15 +252,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       columns: temps.map(periodColumn),
       groups: flat(
         zoneRows((id) =>
-          temps.map((p) =>
-            scale ? (
-              <TempRange key={p.key} cell={issuance.temp[id]?.[p.key]} scale={scale} />
-            ) : (
-              <span key={p.key} className="text-muted-foreground">
-                {DASH}
-              </span>
-            ),
-          ),
+          temps.map((p) => <TempValue key={p.key} cell={issuance.temp[id]?.[p.key]} />),
         ),
       ),
     },
@@ -262,7 +261,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       nav: 'Ridgeline Winds',
       title: 'Ridgeline Winds',
       unit: 'mph',
-      detail: WIND_DETAIL,
+      description: WIND_DESCRIPTION,
       legend: <WindLegend />,
       labelVars: '[--label:6.5rem] md:[--label:10.5rem]',
       minColRem: 7.5,
@@ -347,9 +346,14 @@ function precipSnowTable(
   issuance: NWACWeatherIssuance,
   hours: PrecipHours,
   withSnow: boolean,
+  timezone: string | null | undefined,
 ): Table {
   const slots = precipSlots(issuance, hours)
   const periods = precipPeriods(issuance)
+  const hoursOf = (kind: NWACWeatherPeriod['kind']) => {
+    const period = periods.find((p) => p.kind === kind)
+    return period && timezone ? precipHours(period, timezone) : null
+  }
   const row = (p: NWACWeatherIssuance['points'][number]): Row => {
     const cell = (period: NWACWeatherPeriod) => issuance.precip[p.code]?.[period.key]
     const snowOf = (period: NWACWeatherPeriod) => deriveSnow(cell(period)?.qpf, cell(period)?.slr)
@@ -373,6 +377,8 @@ function precipSnowTable(
           ...column,
           key: `${column.key}-${part}`,
           part,
+          // Snow amounts are forecast for 5000'; precipitation is at each station.
+          partNote: part === 'Snow' ? "@ 5000'" : undefined,
           split: column.key,
         }))
       : [{ ...column, split: column.key }]
@@ -381,11 +387,8 @@ function precipSnowTable(
     nav: withSnow ? 'Precipitation & Snow' : 'Precipitation',
     title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
-    note: withSnow
-      ? 'Water and new snow at each station, with the forecast total at the end.'
-      : 'Water at each station, with the forecast total at the end. This forecast doesn’t include snow amounts.',
-    detail: PRECIP_DETAIL,
-    legend: withSnow ? <SnowFillLegend /> : undefined,
+    description: withSnow ? PRECIP_SNOW_DESCRIPTION : PRECIP_ONLY_DESCRIPTION,
+    legend: <PrecipLegend day={hoursOf('day')} night={hoursOf('night')} snow={withSnow} />,
     control: { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> },
     rowLabel: 'Station',
     groupColumn: 'Zone',
@@ -396,7 +399,7 @@ function precipSnowTable(
       ...split({
         key: 'total',
         date: 'Total',
-        sub: dayRange(periods),
+        sub: hoursCovered(periods),
         group: 'total',
         total: true,
       }),
@@ -437,7 +440,7 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
     nav: 'Extended',
     title: 'Snow Levels',
     unit: 'ft',
-    detail: SNOW_LEVEL_DETAIL,
+    description: SNOW_LEVEL_DESCRIPTION,
     legend: <SnowLevelLegend />,
     rowLabel: 'Zone',
     columns: blocks.map((b) => ({
@@ -702,11 +705,19 @@ function SplitHead({ table: t }: { table: Table }) {
           <th
             key={c.key}
             scope="col"
-            className={cn('border-b px-1 pb-2 pt-0.5 text-center', leftRule(t.columns, i))}
+            className={cn(
+              'border-b px-1 pb-2 pt-0.5 text-center align-top',
+              leftRule(t.columns, i),
+            )}
           >
             <span className="block whitespace-nowrap text-xs font-normal text-muted-foreground">
               {c.part}
             </span>
+            {c.partNote && (
+              <span className="block whitespace-nowrap text-[11px] font-normal text-muted-foreground">
+                {c.partNote}
+              </span>
+            )}
           </th>
         ))}
       </tr>
@@ -831,7 +842,6 @@ function TableTitle({
   headingId: string
   Heading: 'h3' | 'h4'
 }) {
-  const [first, ...rest] = t.detail ?? []
   return (
     // The control sits at the right, level with the title's last line, just above the table.
     <div className={cn('flex items-end gap-4', t.paired && 'xl:pb-3')}>
@@ -845,14 +855,7 @@ function TableTitle({
             <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
           )}
         </Heading>
-        {(t.note || first) && (
-          <div className="space-y-1 text-sm text-muted-foreground">
-            <p>{[t.note, first].filter(Boolean).join(' ')}</p>
-            {rest.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-        )}
+        {t.description && <p className="text-sm text-muted-foreground">{t.description}</p>}
       </div>
       {/* A phone has its own form of the control, beside the date. */}
       {t.control && <div className="hidden shrink-0 md:block print:hidden">{t.control.title}</div>}
@@ -1114,7 +1117,10 @@ export interface OverallParts {
   sensible: ReturnType<typeof sensibleDays>
 }
 
-export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
+export function overallParts(
+  issuance: NWACWeatherIssuance,
+  timezone?: string | null,
+): OverallParts {
   const [snowLevel, temps, wind] = zoneTables(issuance)
   const hasSnow = hasSnowAmounts(issuance)
   return {
@@ -1125,8 +1131,8 @@ export function overallParts(issuance: NWACWeatherIssuance): OverallParts {
     temps,
     wind,
     precipSnow: {
-      '12': precipSnowTable(issuance, '12', hasSnow),
-      '24': precipSnowTable(issuance, '24', hasSnow),
+      '12': precipSnowTable(issuance, '12', hasSnow, timezone),
+      '24': precipSnowTable(issuance, '24', hasSnow, timezone),
     },
     ext: extendedTable(issuance),
     sensible: sensibleDays(issuance),

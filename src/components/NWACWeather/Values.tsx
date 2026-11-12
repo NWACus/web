@@ -21,9 +21,9 @@ const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
   { below: 6000, fill: 'bg-stone-100 text-stone-900', label: "5,000'" },
   { below: 7000, fill: 'bg-yellow-50 text-stone-900', label: "6,000'" },
   { below: 8000, fill: 'bg-amber-50 text-stone-900', label: "7,000'" },
-  { below: 9000, fill: 'bg-orange-200 text-stone-900', label: "8,000'" },
-  { below: 10000, fill: 'bg-orange-300 text-stone-900', label: "9,000'" },
-  { below: Infinity, fill: 'bg-red-300 text-stone-900', label: "10,000'+" },
+  { below: 9000, fill: 'bg-orange-100 text-stone-900', label: "8,000'" },
+  { below: 10000, fill: 'bg-orange-200 text-stone-900', label: "9,000'" },
+  { below: Infinity, fill: 'bg-red-200 text-stone-900', label: "10,000'+" },
 ]
 
 /** A snow or freezing level's fill, on its pill or its table cell. */
@@ -39,25 +39,25 @@ export function snowFill(snow: number | null): string | undefined {
   return tier == null ? undefined : SNOW_FILLS[tier]
 }
 
-/** Wind fills, one step per strength: violet deepening to Strong, rose from there. */
+/** Wind fills, one step per strength: violet at Light, pale yellow at Moderate, pink to Extreme. */
 const WIND_STEPS: { fill: string; name: string; wordings: string[]; label: string | null }[] = [
-  { fill: 'bg-violet-50', name: 'Light', wordings: ['Light'], label: 'Light' },
+  { fill: 'bg-violet-100', name: 'Light', wordings: ['Light'], label: 'Light' },
   {
-    fill: 'bg-violet-100',
+    fill: 'bg-violet-50',
     name: 'Light to Moderate',
     wordings: ['Light to occasionally Moderate', 'Light to Moderate'],
     label: null,
   },
-  { fill: 'bg-violet-200', name: 'Moderate', wordings: ['Moderate'], label: 'Moderate' },
+  { fill: 'bg-yellow-50', name: 'Moderate', wordings: ['Moderate'], label: 'Moderate' },
   {
-    fill: 'bg-violet-300',
+    fill: 'bg-yellow-100',
     name: 'Moderate to Strong',
     wordings: ['Moderate to Strong'],
     label: null,
   },
-  { fill: 'bg-violet-400', name: 'Strong', wordings: ['Strong'], label: 'Strong' },
-  { fill: 'bg-rose-300', name: 'Strong to Extreme', wordings: ['Strong to Extreme'], label: null },
-  { fill: 'bg-rose-400', name: 'Extreme', wordings: ['Extreme'], label: 'Extreme' },
+  { fill: 'bg-pink-100', name: 'Strong', wordings: ['Strong'], label: 'Strong' },
+  { fill: 'bg-pink-200', name: 'Strong to Extreme', wordings: ['Strong to Extreme'], label: null },
+  { fill: 'bg-pink-300', name: 'Extreme', wordings: ['Extreme'], label: 'Extreme' },
 ]
 
 /** A wind cell's fill by its wording; none for calm or no wind. */
@@ -149,12 +149,40 @@ function SnowLevelKey({ width }: { width?: string }) {
   )
 }
 
-/** The snow shading's key under a table. */
-export function SnowFillLegend() {
+/**
+ * The precipitation table's key: the local hours a Day and Night cover, by their sun and moon,
+ * then the snow shading when the forecast has snow amounts. Laid out like the wind key.
+ */
+export function PrecipLegend({
+  day,
+  night,
+  snow,
+}: {
+  day: string | null
+  night: string | null
+  snow: boolean
+}) {
+  if (!day && !night && !snow) return null
   return (
-    <p className={KEY_LINE}>
-      {/* Narrower on a phone, to leave room for the hours toggle across from it. */}
-      <SnowFillKey width="w-40 sm:w-56" />
+    <p className={cn(KEY_LINE, 'items-center gap-x-6')}>
+      {day && (
+        <span className="inline-flex items-center gap-1">
+          <Sun aria-hidden="true" className="size-3.5 shrink-0" />
+          Day {day}
+        </span>
+      )}
+      {night && (
+        <span className="inline-flex items-center gap-1">
+          <Moon aria-hidden="true" className="size-3.5 shrink-0" />
+          Night {night}
+        </span>
+      )}
+      {snow && (
+        <span className="inline-flex items-center gap-3">
+          {/* Narrower on a phone, to leave room for the hours toggle across from it. */}
+          <SnowFillKey width="w-40 sm:w-56" />
+        </span>
+      )}
     </p>
   )
 }
@@ -194,91 +222,16 @@ export function SnowValue({ text, some }: { text: string; some: boolean }) {
   )
 }
 
-export function TempValue({
-  cell,
-  labeled = false,
-}: {
-  cell: NWACWeatherTempCell | undefined
-  /** "Hi 37 · Lo 22", for a table with no legend to say which is which. */
-  labeled?: boolean
-}) {
+export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
   if (cell?.high == null || cell?.low == null) {
     return <span className="text-muted-foreground">{DASH}</span>
-  }
-  if (labeled) {
-    return (
-      <span className="whitespace-nowrap tabular-nums">
-        <span className="text-xs text-muted-foreground">Hi</span>{' '}
-        <span className="font-semibold">{cell.high}</span>
-        <span className="text-muted-foreground"> · </span>
-        <span className="text-xs text-muted-foreground">Lo</span>{' '}
-        <span className="font-semibold">{cell.low}</span>
-      </span>
-    )
   }
   return (
     <span className="whitespace-nowrap tabular-nums">
-      <span className="font-semibold">{cell.high}</span>
+      <span>{cell.low}°</span>
       <span className="text-muted-foreground"> / </span>
-      <span>{cell.low}</span>
+      <span className="font-semibold">{cell.high}°</span>
     </span>
-  )
-}
-
-const MIN_BAR_PCT = 12
-
-/**
- * A period's low, a bar from low to high, then the high, on `scale` so every bar in a table lines
- * up: further right is warmer, longer a wider swing.
- */
-export function TempRange({
-  cell,
-  scale,
-}: {
-  cell: NWACWeatherTempCell | undefined
-  scale: { min: number; max: number }
-}) {
-  if (cell?.high == null || cell?.low == null) {
-    return <span className="text-muted-foreground">{DASH}</span>
-  }
-  const at = (t: number) => ((t - scale.min) / (scale.max - scale.min)) * 100
-  // A one- or two-degree swing still draws as a short bar, centred on its span, not a dot.
-  const half = Math.max((at(cell.high) - at(cell.low)) / 2, MIN_BAR_PCT / 2)
-  // Nudged in from the ends, so a short bar near the scale's edge stays on its track.
-  const mid = Math.min(Math.max((at(cell.low) + at(cell.high)) / 2, half), 100 - half)
-  return (
-    <span className="flex items-center gap-1.5 tabular-nums">
-      <span className="sr-only">
-        High {cell.high}, low {cell.low}
-      </span>
-      <span aria-hidden="true" className="w-5 text-right text-muted-foreground">
-        {cell.low}
-      </span>
-      <span aria-hidden="true" className="relative h-1.5 min-w-6 flex-1 rounded-full bg-muted">
-        <span
-          className="absolute inset-y-0 rounded-full bg-sky-400"
-          style={{ left: `${mid - half}%`, right: `${100 - (mid + half)}%` }}
-        />
-      </span>
-      <span aria-hidden="true" className="w-5 font-semibold">
-        {cell.high}
-      </span>
-    </span>
-  )
-}
-
-/** How to read the temperature bars, under the table. */
-export function TempRangeLegend({ scale }: { scale: { min: number; max: number } | null }) {
-  return (
-    <p className="text-xs text-muted-foreground">
-      Low{' '}
-      <span
-        aria-hidden="true"
-        className="inline-block h-1.5 w-6 rounded-full bg-sky-400 align-middle"
-      />
-      <span className="sr-only">to</span> high in 12 hours
-      {scale && ` · ${scale.min}–${scale.max}°F scale`}
-    </p>
   )
 }
 
@@ -320,6 +273,17 @@ export function SnowLevelValue({
   )
 }
 
+/** How to read a temperature cell, under the table. */
+export function TempLegend() {
+  return (
+    <p className={KEY_LINE}>
+      <span>
+        Lo / <span className="font-semibold text-foreground">Hi</span> in 12 hours
+      </span>
+    </p>
+  )
+}
+
 /** What the snow and freezing level cells mean, under a table. */
 export function SnowLevelLegend() {
   return (
@@ -339,17 +303,9 @@ export function WindLegend() {
   )
 }
 
-/** How to read a wind cell's arrow and direction. */
+/** How to read a wind cell's direction. */
 function WindNotes() {
-  return (
-    <>
-      <span className="inline-flex items-center gap-1">
-        <Navigation2 aria-hidden="true" className="size-3.5 text-primary" />
-        Points downwind
-      </span>
-      <span>VAR: variable</span>
-    </>
-  )
+  return <span>VAR: variable</span>
 }
 
 /** The wind fills, light to extreme. */

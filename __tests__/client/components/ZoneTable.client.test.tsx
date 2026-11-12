@@ -46,7 +46,7 @@ describe('ZoneTable', () => {
       'Precipitation & Snow (in)',
       'Snoqualmie Pass',
       'Snow & Freezing Level (ft)',
-      "5000' Temperatures (°F)",
+      "5000' Temperatures (Lo / Hi °F)",
       'Ridgeline Winds (mph)',
       'Summary',
     ])
@@ -72,29 +72,12 @@ describe('ZoneTable', () => {
     const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
 
     expect(heads.map((th) => th.textContent)).toEqual([
-      'Tonight · Mon Sep 145 pm–5 am PDT',
-      'Tomorrow · Tue Sep 155 am–5 pm PDT',
+      'Tonight · Mon Sep 14',
+      'Tomorrow · Tue Sep 15',
     ])
   })
 
-  it('gives the hours the precipitation and snow cover, which are not the columns’ own', () => {
-    const { container } = render(
-      <ZoneTable
-        issuance={afternoon}
-        zone={zone('olympics')}
-        periodKeys={DAY_ONE}
-        timezone="America/Los_Angeles"
-      />,
-    )
-    const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
-
-    expect(heads.map((th) => th.lastElementChild?.textContent)).toEqual([
-      '5 pm–5 am PDT',
-      '5 am–5 pm PDT',
-    ])
-  })
-
-  it('labels the temperatures Hi and Lo, high first', () => {
+  it('gives the temperatures low then high, under a Lo / Hi label', () => {
     const { container } = render(
       <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
     )
@@ -107,7 +90,8 @@ describe('ZoneTable', () => {
     if (!row) throw new Error('no temperature row')
 
     const [first] = within(row).getAllByRole('cell')
-    expect(first.textContent).toMatch(/^Hi \d+ · Lo \d+$/)
+    expect(row.querySelector('th')?.textContent).toContain('Lo / Hi °F')
+    expect(first.textContent).toMatch(/^\d+° \/ \d+°$/)
   })
 
   it('names them Today and Tonight from 6 am', () => {
@@ -118,8 +102,8 @@ describe('ZoneTable', () => {
     const heads = [...(container.querySelector('table thead')?.querySelectorAll('th') ?? [])]
 
     expect(heads.map((th) => th.textContent)).toEqual([
-      'Today · Mon Sep 145 am–5 pm PDT',
-      'Tonight · Mon Sep 145 pm–5 am PDT',
+      'Today · Mon Sep 14',
+      'Tonight · Mon Sep 14',
     ])
   })
 

@@ -125,7 +125,6 @@ export function ZoneSummary({
             zone={zone}
             periodKeys={periodKeys}
             held={held}
-            timezone={timezone}
             heading={zones.length > 1}
           />
         ))}
@@ -147,7 +146,7 @@ export function OverallSummary({
   if (!latest) return null
   return (
     <WeatherCard issuance={latest} timezone={timezone}>
-      <Overall parts={overallParts(latest)} />
+      <Overall parts={overallParts(latest, timezone)} />
     </WeatherCard>
   )
 }

@@ -91,7 +91,9 @@ describe('WidgetZoneWeather', () => {
   it("takes over the Weather Forecast tab: the widget's own content hidden, the Overall view shown", async () => {
     const { container, tab } = await loadedTab()
     expect(within(tab).getByText('Mountain Weather')).toBeInTheDocument()
-    expect(within(tab).getAllByText(/with the forecast total at the end/).length).toBeGreaterThan(0)
+    expect(
+      within(tab).getAllByText(/^Precipitation: Water Equivalent \(WE\)/).length,
+    ).toBeGreaterThan(0)
     expect(container.querySelector('#nac-weather-forecast')).not.toBeVisible()
 
     const zone = await waitFor(() => {
@@ -99,7 +101,7 @@ describe('WidgetZoneWeather', () => {
       if (!found) throw new Error('no zone section yet')
       return found
     })
-    expect(within(zone).queryByText(/with the forecast total at the end/)).toBeNull()
+    expect(within(zone).queryByText(/^Precipitation: Water Equivalent \(WE\)/)).toBeNull()
   })
 
   it("replaces the last forecast's tab content when the widget renders another", async () => {

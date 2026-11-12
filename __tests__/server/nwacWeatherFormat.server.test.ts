@@ -1,4 +1,4 @@
-import { dayRange, precipHours, tempScale } from '@/services/nac/nwacWeatherFormat'
+import { hoursCovered, precipHours } from '@/services/nac/nwacWeatherFormat'
 
 const TZ = 'America/Los_Angeles'
 
@@ -14,35 +14,12 @@ describe('precipHours', () => {
   })
 })
 
-describe('tempScale', () => {
-  it('spans the lowest low to the highest high, a degree either side', () => {
-    expect(
-      tempScale([
-        { high: 37, low: 22 },
-        { high: 41, low: 18 },
-        undefined,
-        { high: null, low: null },
-      ]),
-    ).toEqual({ min: 17, max: 42 })
-  })
-
-  it('is null with no temperatures', () => {
-    expect(tempScale([undefined, { high: null, low: null }])).toBeNull()
-  })
-})
-
-describe('dayRange', () => {
-  it('names the first and last weekdays the periods span', () => {
-    expect(dayRange([{ date: '2026-10-15' }, { date: '2026-10-16' }, { date: '2026-10-17' }])).toBe(
-      'Thu–Sat',
-    )
-  })
-
-  it('names one day alone', () => {
-    expect(dayRange([{ date: '2026-10-15' }, { date: '2026-10-15' }])).toBe('Thu')
+describe('hoursCovered', () => {
+  it('counts 12 hours a period', () => {
+    expect(hoursCovered([{}, {}, {}])).toBe('36 hrs')
   })
 
   it('is null with no periods', () => {
-    expect(dayRange([])).toBeNull()
+    expect(hoursCovered([])).toBeNull()
   })
 })

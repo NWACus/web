@@ -214,18 +214,6 @@ export function tempPeriods(issuance: NWACWeatherIssuance): NWACWeatherPeriod[] 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-/**
- * The °F span every temperature bar in a table shares: its lowest low to its highest high, a degree
- * either side, so the bars spread across the cell rather than bunching in the middle.
- */
-export function tempScale(
-  cells: ({ high: number | null; low: number | null } | undefined)[],
-): { min: number; max: number } | null {
-  const values = cells.flatMap((c) => [c?.low, c?.high]).filter((v): v is number => v != null)
-  if (values.length === 0) return null
-  return { min: Math.min(...values) - 1, max: Math.max(...values) + 1 }
-}
-
 const HOUR_MS = 60 * 60 * 1000
 
 /**
@@ -247,13 +235,9 @@ export function precipHours(
   return `${fmt(start)}–${fmt(start + 12 * HOUR_MS)}${zone ? ` ${zone}` : ''}`
 }
 
-/** The weekdays a run of periods spans, "Thu–Sat", or one day's alone; null for none. */
-export function dayRange(periods: Pick<NWACWeatherPeriod, 'date'>[]): string | null {
-  const day = (ymd: string) => fmtCalendarDate(ymd).split(' ')[0]
-  const first = periods[0]?.date
-  const last = periods.at(-1)?.date
-  if (!first || !last) return null
-  return first === last ? day(first) : `${day(first)}–${day(last)}`
+/** The hours a run of 12h periods covers, "36 hrs"; null for none. */
+export function hoursCovered(periods: unknown[]): string | null {
+  return periods.length ? `${periods.length * 12} hrs` : null
 }
 
 /** "Mon Sep 14" for a `YYYY-MM-DD` calendar date. */

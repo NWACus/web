@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * Section links as "Jump to" chips across the top of the card, pinned under the site header (the
+ * Section links as chips across the top of the card, pinned under the site header (the
  * top of the viewport on wide screens), with the section nearest the top of the viewport filled in.
  */
 import { useEffect, useRef, useState, type RefObject } from 'react'
@@ -83,33 +83,27 @@ export function SectionTabs({ links }: { links: SectionLink[] }) {
         'max-md:mx-[calc(50%-50vw)] max-md:rounded-none max-md:px-[calc(50vw-50%)]',
       )}
     >
-      <div className="flex items-center gap-2 py-2.5">
-        {/* The nav's label says the same to a screen reader. */}
-        <span aria-hidden="true" className="shrink-0 pr-1 text-sm text-muted-foreground">
-          Jump to
-        </span>
-        <ul className="flex gap-2">
-          {links.map((l) => {
-            const on = l.id === current
-            return (
-              <li key={l.id} className="shrink-0">
-                <a
-                  href={`#${l.id}`}
-                  aria-current={on ? 'location' : undefined}
-                  className={cn(
-                    'inline-flex h-8 items-center whitespace-nowrap rounded-full border px-3 text-sm font-semibold no-underline',
-                    on
-                      ? 'border-primary bg-primary text-primary-foreground'
-                      : 'bg-background text-foreground hover:bg-muted',
-                  )}
-                >
-                  {l.label}
-                </a>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
+      <ul className="flex gap-2 py-2.5">
+        {links.map((l) => {
+          const on = l.id === current
+          return (
+            <li key={l.id} className="shrink-0">
+              <a
+                href={`#${l.id}`}
+                aria-current={on ? 'location' : undefined}
+                className={cn(
+                  'inline-flex h-8 items-center whitespace-nowrap rounded-full border px-3 text-sm font-semibold no-underline',
+                  on
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'bg-background text-foreground hover:bg-muted',
+                )}
+              >
+                {l.label}
+              </a>
+            </li>
+          )
+        })}
+      </ul>
     </nav>
   )
 }

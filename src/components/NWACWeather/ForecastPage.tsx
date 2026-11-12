@@ -89,11 +89,13 @@ function PastForecastNotice() {
 function IssuanceCard({
   issuance,
   zonePaths,
+  timezone,
 }: {
   issuance: NWACWeatherIssuance
   zonePaths: ZonePaths
+  timezone: string
 }) {
-  const parts = overallParts(sanitizeIssuance(issuance))
+  const parts = overallParts(sanitizeIssuance(issuance), timezone)
   return (
     // No card on a phone: its padding would take the width the tables need.
     <Card className="max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:shadow-none">
@@ -151,6 +153,7 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
       <IssuanceSwitch
         key={day.issuances.map((i) => i.id).join('-')}
         heading={HEADING}
+        latest={!past}
         panels={day.issuances.map((issuance) => ({
           key: String(issuance.id),
           label: issuanceShortLabel(issuance.type),
@@ -168,7 +171,9 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
               />
             </ForecastErrorBoundary>
           ),
-          content: <IssuanceCard issuance={issuance} zonePaths={zonePaths} />,
+          content: (
+            <IssuanceCard issuance={issuance} zonePaths={zonePaths} timezone={metadata.timezone} />
+          ),
         }))}
       />
       <ForecastDisclaimer centerType={metadata.type} centerName={metadata.name} />
