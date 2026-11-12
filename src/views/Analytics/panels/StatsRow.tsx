@@ -1,5 +1,6 @@
 'use client'
 
+import type { DateRange } from '@/services/posthog/analyticsRange'
 import {
   overviewSchema,
   percentChange,
@@ -62,22 +63,68 @@ function Stat({ metric, comparison }: { metric: Metric; comparison: Comparison }
   )
 }
 
+/** A real link, so it opens in a new tab too, but a plain click switches the range in place. */
+function ViewPeriodLink({
+  range,
+  onView,
+}: {
+  range: DateRange
+  onView: (range: DateRange) => void
+}) {
+  return (
+    <a
+      href={`?${new URLSearchParams(range)}`}
+      className="text-[inherit] underline underline-offset-2"
+      onClick={(event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+        event.preventDefault()
+        onView(range)
+      }}
+    >
+      View this period
+    </a>
+  )
+}
+
 /** Names the period the percentages compare against, once for the whole row. */
-function ComparisonCaption({ data, range }: { data: OverviewData; range: ReportRange }) {
+function ComparisonCaption({
+  data,
+  range,
+  onViewPeriod,
+}: {
+  data: OverviewData
+  range: ReportRange
+  onViewPeriod: (range: DateRange) => void
+}) {
   const previous = formatDateRange(range.previousFrom, range.previousTo)
   const anyBaseline = METRICS.some((metric) => percentChange(data[metric.key]) !== null)
   const period =
     range.baseline === 'yearEarlier' ? 'the same dates a year earlier' : 'the previous period'
+  if (!anyBaseline) {
+    return (
+      <p className={cn('col-span-full m-0 text-xs', MUTED)}>
+        No data from {period}, {previous}, to compare with.
+      </p>
+    )
+  }
   return (
     <p className={cn('col-span-full m-0 text-xs', MUTED)}>
-      {anyBaseline
-        ? `Change compared with ${period}, ${previous}.`
-        : `No data from ${period}, ${previous}, to compare with.`}
+      Change compared with {period}, {previous}.{' '}
+      <ViewPeriodLink
+        range={{ from: range.previousFrom, to: range.previousTo }}
+        onView={onViewPeriod}
+      />
     </p>
   )
 }
 
-export function StatsRow({ state }: { state: ReportState<OverviewData> }) {
+export function StatsRow({
+  state,
+  onViewPeriod,
+}: {
+  state: ReportState<OverviewData>
+  onViewPeriod: (range: DateRange) => void
+}) {
   return (
     <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-6">
       {METRICS.map((metric) =>
@@ -90,7 +137,9 @@ export function StatsRow({ state }: { state: ReportState<OverviewData> }) {
           </div>
         ),
       )}
-      {state.status === 'ready' && <ComparisonCaption data={state.data} range={state.range} />}
+      {state.status === 'ready' && (
+        <ComparisonCaption data={state.data} range={state.range} onViewPeriod={onViewPeriod} />
+      )}
       {state.status === 'error' && (
         <p className={cn('col-span-full m-0 text-sm', MUTED)}>{state.message}</p>
       )}

@@ -1,5 +1,6 @@
 'use client'
 
+import type { DateRange } from '@/services/posthog/analyticsRange'
 import type { ECharts } from 'echarts/core'
 import { useEffect, useRef, useState } from 'react'
 import { useReport, type ReportRequest, type ReportState } from '../useReport'
@@ -44,12 +45,15 @@ export function OverviewCard({
   centerName,
   trend: grouping,
   onVisitors,
+  onViewPeriod,
 }: {
   request: ReportRequest
   centerName: string
   trend: TrendGrouping
   /** The period's unique visitors, which the lists' share column divides by. */
   onVisitors: (visitors: number | undefined) => void
+  /** Switches the page to the comparison period. */
+  onViewPeriod: (range: DateRange) => void
 }) {
   const overview = useReport('overview', request, parseOverview)
   const trend = useReport(
@@ -81,7 +85,7 @@ export function OverviewCard({
         actions={<ExportMenu name="trend and summary" items={exportItems} />}
       />
       <div className="flex flex-col gap-8">
-        <StatsRow state={showStats ? overview : LOADING} />
+        <StatsRow state={showStats ? overview : LOADING} onViewPeriod={onViewPeriod} />
         <TrendChart
           state={settled ? trend : LOADING}
           series={series}

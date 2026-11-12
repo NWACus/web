@@ -6,7 +6,7 @@
 
 | Panel | Source | Definition |
 | --- | --- | --- |
-| Stats row | `$pageview`, grouped by session | Unique visitors (`uniq(person_id)`), total visits (`uniq($session_id)`), pageviews, views per visit, bounce rate (`session.$is_bounce`), visit duration (`session.$session_duration`). Each compared with a baseline period (see [Time range](#time-range)), which a caption under the row names once. A stat with no baseline shows no change, and when none has one the caption says there is nothing to compare with |
+| Stats row | `$pageview`, grouped by session | Unique visitors (`uniq(person_id)`), total visits (`uniq($session_id)`), pageviews, views per visit, bounce rate (`session.$is_bounce`), visit duration (`session.$session_duration`). Each compared with a baseline period (see [Time range](#time-range)), which a caption under the row names once, with a **View this period** link that switches the page to that period as a custom range. A stat with no baseline shows no change, and when none has one the caption says there is nothing to compare with |
 | Trend | `$pageview` | Visitors, visits or pageviews per day, week (Monday to Sunday) or calendar month, bucketed in the center's timezone. See [Trend grouping](#trend-grouping) |
 | Pages | `$pageview` | Top pages by `$pathname`; entry and exit pages from the session's `$entry_pathname` and `$end_pathname` |
 | Sources | `$pageview` | Referrers by `$referring_domain` with the center's own hosts left out (`$direct` shows as Direct); channels from `session.$channel_type` |

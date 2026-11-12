@@ -165,6 +165,8 @@ export function RangePicker({
       </div>
       {customOpen && (
         <CustomRange
+          // A range set elsewhere (the comparison caption's link) replaces any unapplied draft
+          key={`${resolved.from}|${resolved.to}`}
           range={resolved}
           today={today}
           onApply={(range) => onChange({ preset: 'custom', range })}

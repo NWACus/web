@@ -129,10 +129,12 @@ function Panels({
   request,
   centerName,
   trend,
+  onViewPeriod,
 }: {
   request: ReportRequest
   centerName: string
   trend: TrendGrouping
+  onViewPeriod: (range: DateRange) => void
 }) {
   const [totalVisitors, setTotalVisitors] = useState<number>()
   return (
@@ -142,6 +144,7 @@ function Panels({
         centerName={centerName}
         trend={trend}
         onVisitors={setTotalVisitors}
+        onViewPeriod={onViewPeriod}
       />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <ListPanel title="Pages" tabs={PAGE_TABS} request={request} totalVisitors={totalVisitors} />
@@ -260,7 +263,12 @@ export function AnalyticsDashboard({
           range={range}
           onFallback={() => setSelection(defaultSelection)}
         >
-          <Panels request={request} centerName={centerName} trend={trend} />
+          <Panels
+            request={request}
+            centerName={centerName}
+            trend={trend}
+            onViewPeriod={(range) => setSelection({ preset: 'custom', range })}
+          />
         </LongRangeGate>
       )}
     </div>
