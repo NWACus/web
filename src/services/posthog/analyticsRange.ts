@@ -1,10 +1,27 @@
+import { seasonOfDate, seasonWindow } from '@/services/nac/forecastArchive'
 import { TZDate } from '@date-fns/tz'
 
-export const RANGE_PRESETS = ['7d', '30d', '90d', '12m'] as const
+export const RANGE_PRESETS = ['7d', '30d', '90d', 'seasonToDate', 'lastSeason'] as const
 export type RangePreset = (typeof RANGE_PRESETS)[number]
 export const DEFAULT_PRESET: RangePreset = '30d'
 
-const PRESET_DAYS: Record<RangePreset, number> = { '7d': 7, '30d': 30, '90d': 90, '12m': 365 }
+const PRESET_DAYS = { '7d': 7, '30d': 30, '90d': 90 } as const
+
+/**
+ * What the stats row compares against: the same number of days just before the range, or the same
+ * dates a year earlier. Seasons use the year-earlier baseline, so September–November is compared
+ * with last September–November rather than the summer before it.
+ */
+export const BASELINES = ['preceding', 'yearEarlier'] as const
+export type Baseline = (typeof BASELINES)[number]
+
+export function isBaseline(value: unknown): value is Baseline {
+  return typeof value === 'string' && BASELINES.some((baseline) => baseline === value)
+}
+
+export function presetBaseline(preset: RangePreset | 'custom'): Baseline {
+  return preset === 'seasonToDate' || preset === 'lastSeason' ? 'yearEarlier' : 'preceding'
+}
 
 /**
  * An events scan costs PostHog about 1.5 seconds per 10 days of calendar range, so a year is the
@@ -20,8 +37,10 @@ export type ResolvedRange = {
   to: string
   previousFrom: string
   previousTo: string
-  /** Instants bounding the periods: [previousStart, start) and [start, end). */
+  baseline: Baseline
+  /** Instants bounding the periods: [previousStart, previousEnd) and [start, end). */
   previousStart: Date
+  previousEnd: Date
   start: Date
   end: Date
   timezone: string
@@ -94,10 +113,16 @@ export function todayIn(timezone: string, now: Date): string {
   return formatIsoDate(new TZDate(now, timezone))
 }
 
-/** `from` is `days` before today, so a 7-day preset covers today plus the seven days before it. */
+/**
+ * A day-count preset starts `days` before today, so 7 days covers today plus the seven before it.
+ * Seasons run September 1 to August 31, the same seasons as the forecast archive and weather pickers.
+ */
 export function presetRange(preset: RangePreset, timezone: string, now: Date): DateRange {
-  const today = zonedDayStart(todayIn(timezone, now), timezone)
-  return { from: formatIsoDate(addDays(today, -PRESET_DAYS[preset])), to: formatIsoDate(today) }
+  const today = todayIn(timezone, now)
+  if (preset === 'seasonToDate') return { from: seasonWindow(seasonOfDate(today)).from, to: today }
+  if (preset === 'lastSeason') return seasonWindow(seasonOfDate(today) - 1)
+  const from = addDays(zonedDayStart(today, timezone), -PRESET_DAYS[preset])
+  return { from: formatIsoDate(from), to: today }
 }
 
 /**
@@ -116,12 +141,48 @@ export function rangeDays(range: DateRange): number {
   return Math.round((Date.parse(range.to) - Date.parse(range.from)) / 86_400_000) + 1
 }
 
+/** The same calendar day a year earlier; February 29 falls back to February 28. */
+function yearEarlier(isoDate: string): string {
+  const year = Number(isoDate.slice(0, 4)) - 1
+  const monthDay = isoDate.slice(5)
+  return `${year}-${monthDay === '02-29' ? '02-28' : monthDay}`
+}
+
+type PreviousPeriod = Pick<
+  ResolvedRange,
+  'previousFrom' | 'previousTo' | 'previousStart' | 'previousEnd'
+>
+
+function previousPeriod(
+  range: DateRange,
+  days: number,
+  baseline: Baseline,
+  timezone: string,
+): PreviousPeriod {
+  const start = zonedDayStart(range.from, timezone)
+  const previous =
+    baseline === 'yearEarlier'
+      ? { from: yearEarlier(range.from), to: yearEarlier(range.to) }
+      : {
+          from: formatIsoDate(addDays(start, -days)),
+          to: formatIsoDate(addDays(start, -1)),
+        }
+  return {
+    previousFrom: previous.from,
+    previousTo: previous.to,
+    previousStart: new Date(zonedDayStart(previous.from, timezone).getTime()),
+    previousEnd: new Date(addDays(zonedDayStart(previous.to, timezone), 1).getTime()),
+  }
+}
+
 export function resolveRange(
   range: DateRange,
   timezone: string,
   now: Date,
   interval?: string | null,
+  requestedBaseline?: string | null,
 ): ResolvedRange | { error: string } {
+  const baseline = requestedBaseline ?? 'preceding'
   if (!isIsoDate(range.from) || !isIsoDate(range.to)) return { error: 'Dates must be YYYY-MM-DD' }
   if (range.from > range.to) return { error: 'The start date must not be after the end date' }
 
@@ -131,17 +192,15 @@ export function resolveRange(
   if (days > MAX_RANGE_DAYS) return { error: `Ranges are limited to ${MAX_RANGE_DAYS} days` }
   const bucket = resolveInterval(interval, days)
   if (typeof bucket === 'object') return bucket
+  if (!isBaseline(baseline)) return { error: 'Unknown comparison baseline' }
 
-  const previousStart = addDays(start, -days)
-  const previousEnd = addDays(start, -1)
   const end = new Date(Math.min(dayAfterTo.getTime(), ceilToHour(now).getTime()))
 
   return {
     from: range.from,
     to: range.to,
-    previousFrom: formatIsoDate(previousStart),
-    previousTo: formatIsoDate(previousEnd),
-    previousStart: new Date(previousStart.getTime()),
+    ...previousPeriod(range, days, baseline, timezone),
+    baseline,
     start: new Date(start.getTime()),
     end,
     timezone,

@@ -50,13 +50,14 @@ async function authorize(req: PayloadRequest): Promise<Authorized | Response> {
     AVALANCHE_CENTERS[center].timezone,
     new Date(),
     params.get('interval'),
+    params.get('baseline'),
   )
   if ('error' in range) return json({ error: range.error }, 400)
   return { center, range, config }
 }
 
 /**
- * `GET /api/analytics?center=nwac&from=2026-10-10&to=2026-11-09&report=overview[&interval=week][&refresh=1]`
+ * `GET /api/analytics?center=nwac&from=2026-10-10&to=2026-11-09&report=overview[&interval=week][&baseline=yearEarlier][&refresh=1]`
  * for the admin Web analytics page. Auth is Payload's; the center must be one the user can read.
  */
 export const analyticsHandler: PayloadHandler = async (req) => {
@@ -80,6 +81,7 @@ export const analyticsHandler: PayloadHandler = async (req) => {
         to: range.to,
         previousFrom: range.previousFrom,
         previousTo: range.previousTo,
+        baseline: range.baseline,
         timezone: range.timezone,
       },
       data,

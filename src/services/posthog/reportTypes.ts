@@ -1,7 +1,7 @@
 // The contract between the analytics endpoint and the admin page: every report and the shape of its
 // data. Shared with client code, so keep this file free of server imports.
 import { z } from 'zod'
-import { TREND_INTERVALS } from './analyticsRange'
+import { BASELINES, TREND_INTERVALS } from './analyticsRange'
 
 const comparisonSchema = z.object({ current: z.number(), previous: z.number() })
 export type Comparison = z.infer<typeof comparisonSchema>
@@ -121,6 +121,7 @@ export const reportRangeSchema = z.object({
   to: z.string(),
   previousFrom: z.string(),
   previousTo: z.string(),
+  baseline: z.enum(BASELINES),
   timezone: z.string(),
 })
 export type ReportRange = z.infer<typeof reportRangeSchema>

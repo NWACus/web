@@ -1,6 +1,7 @@
 import {
   defaultInterval,
   MAX_RANGE_DAYS,
+  presetBaseline,
   presetRange,
   rangeDays,
   resolveRange,
@@ -28,7 +29,28 @@ describe('analyticsRange', () => {
     const now = new Date('2026-11-09T20:00:00Z')
     expect(presetRange('7d', PACIFIC, now)).toEqual({ from: '2026-11-02', to: '2026-11-09' })
     expect(presetRange('30d', PACIFIC, now)).toEqual({ from: '2026-10-10', to: '2026-11-09' })
-    expect(presetRange('12m', PACIFIC, now)).toEqual({ from: '2025-11-09', to: '2026-11-09' })
+  })
+
+  it('builds season presets from September 1, turning over in the center timezone', () => {
+    const now = new Date('2026-11-09T20:00:00Z')
+    expect(presetRange('seasonToDate', PACIFIC, now)).toEqual({
+      from: '2026-09-01',
+      to: '2026-11-09',
+    })
+    expect(presetRange('lastSeason', PACIFIC, now)).toEqual({
+      from: '2025-09-01',
+      to: '2026-08-31',
+    })
+    // Still August 31 in Pacific time, so the 2025–26 season is the current one
+    const turnover = new Date('2026-09-01T03:00:00Z')
+    expect(presetRange('seasonToDate', PACIFIC, turnover)).toEqual({
+      from: '2025-09-01',
+      to: '2026-08-31',
+    })
+    expect(presetRange('lastSeason', PACIFIC, turnover)).toEqual({
+      from: '2024-09-01',
+      to: '2025-08-31',
+    })
   })
 
   it('resolves a range to instants with a same-length previous period', () => {
@@ -45,8 +67,54 @@ describe('analyticsRange', () => {
     expect(resolved.previousFrom).toBe('2026-10-25')
     expect(resolved.previousTo).toBe('2026-11-01')
     expect(resolved.previousStart.toISOString()).toBe('2026-10-25T07:00:00.000Z')
+    expect(resolved.previousEnd.toISOString()).toBe(resolved.start.toISOString())
+    expect(resolved.baseline).toBe('preceding')
     expect(resolved.bucket).toBe('day')
     expect(resolved.ongoing).toBe(true)
+  })
+
+  it('compares a season with the same dates a year earlier', () => {
+    const now = new Date('2026-11-12T20:10:00Z')
+    const resolved = resolveRange(
+      presetRange('seasonToDate', PACIFIC, now),
+      PACIFIC,
+      now,
+      null,
+      presetBaseline('seasonToDate'),
+    )
+    if ('error' in resolved) throw new Error(resolved.error)
+    expect(resolved.baseline).toBe('yearEarlier')
+    expect(resolved.previousFrom).toBe('2025-09-01')
+    expect(resolved.previousTo).toBe('2025-11-12')
+    expect(resolved.previousStart.toISOString()).toBe('2025-09-01T07:00:00.000Z')
+    // The end of Nov 12, 2025, after the clocks went back
+    expect(resolved.previousEnd.toISOString()).toBe('2025-11-13T08:00:00.000Z')
+  })
+
+  it('maps February 29 to February 28 a year earlier', () => {
+    const resolved = resolveRange(
+      { from: '2027-09-01', to: '2028-02-29' },
+      PACIFIC,
+      new Date('2028-03-10T20:00:00Z'),
+      null,
+      'yearEarlier',
+    )
+    if ('error' in resolved) throw new Error(resolved.error)
+    expect([resolved.previousFrom, resolved.previousTo]).toEqual(['2026-09-01', '2027-02-28'])
+  })
+
+  it('uses the year-earlier baseline only for season presets', () => {
+    expect(presetBaseline('seasonToDate')).toBe('yearEarlier')
+    expect(presetBaseline('lastSeason')).toBe('yearEarlier')
+    expect(presetBaseline('30d')).toBe('preceding')
+    expect(presetBaseline('custom')).toBe('preceding')
+  })
+
+  it('rejects an unknown baseline', () => {
+    const range = { from: '2026-11-02', to: '2026-11-09' }
+    expect(resolveRange(range, PACIFIC, new Date(), null, 'nope')).toEqual({
+      error: 'Unknown comparison baseline',
+    })
   })
 
   it('ends a past range at the day after `to`', () => {

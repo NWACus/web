@@ -50,8 +50,9 @@ export async function getCachedReport(
     range.to,
     range.end.toISOString(),
     report,
-    // Only the trend is grouped, so other reports share one entry whatever the grouping
+    // Only the trend is grouped and only the overview compares, so other reports share one entry
     report === 'timeseries' ? range.bucket : '',
+    report === 'overview' ? range.baseline : '',
   ]
   return dedupe(key.join('|'), () =>
     unstable_cache(() => fetchReport(config, slug, range, report), key, {

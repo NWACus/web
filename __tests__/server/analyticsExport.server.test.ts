@@ -1,3 +1,4 @@
+import type { ReportRange } from '@/services/posthog/reportTypes'
 import {
   DEAD_CLICKS,
   listCsv,
@@ -8,11 +9,12 @@ import {
 } from '@/views/Analytics/lists'
 import { analyticsExportFilename, overviewCsv, timeseriesCsv } from '@/views/Analytics/panelExport'
 
-const RANGE = {
+const RANGE: ReportRange = {
   from: '2026-10-01',
   to: '2026-10-31',
   previousFrom: '2026-08-31',
   previousTo: '2026-09-30',
+  baseline: 'preceding',
   timezone: 'America/Los_Angeles',
 }
 

@@ -390,6 +390,7 @@ describe('center queries', () => {
       start: '2026-10-10 07:00:00',
       end: '2026-11-09 21:00:00',
       previousStart: '2026-09-09 07:00:00',
+      previousEnd: '2026-10-10 07:00:00',
     })
     expect(query).not.toContain('nwac.us')
     expect(query).not.toContain('2026-')
@@ -403,16 +404,21 @@ describe('center queries', () => {
 
     const previous = overviewCountsQuery(scope, 'previous').query
     expect(previous).toContain(
-      'timestamp >= toDateTime({previousStart}) AND timestamp < toDateTime({start})',
+      'timestamp >= toDateTime({previousStart}) AND timestamp < toDateTime({previousEnd})',
     )
   })
 
   it('reads bounce rate and duration for both periods from the sessions table', () => {
     const { query } = overviewVisitsQuery(scope)
     expect(query).toContain('FROM sessions')
-    expect(query).toContain('$start_timestamp >= toDateTime({previousStart})')
     expect(query).toContain('$entry_hostname IN {hosts}')
-    expect(query).toContain('avgIf($is_bounce, NOT ($start_timestamp >= toDateTime({start})))')
+    // Both periods are bounded on each side, so a year-earlier baseline skips the gap between them
+    expect(query).toContain(
+      'avgIf($is_bounce, $start_timestamp >= toDateTime({previousStart}) AND $start_timestamp < toDateTime({previousEnd}))',
+    )
+    expect(query).toContain(
+      'avgIf($is_bounce, $start_timestamp >= toDateTime({start}) AND $start_timestamp < toDateTime({end}))',
+    )
     expect(query).toContain("NOT startsWith($entry_pathname, '/admin')")
   })
 

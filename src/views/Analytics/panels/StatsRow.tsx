@@ -66,11 +66,13 @@ function Stat({ metric, comparison }: { metric: Metric; comparison: Comparison }
 function ComparisonCaption({ data, range }: { data: OverviewData; range: ReportRange }) {
   const previous = formatDateRange(range.previousFrom, range.previousTo)
   const anyBaseline = METRICS.some((metric) => percentChange(data[metric.key]) !== null)
+  const period =
+    range.baseline === 'yearEarlier' ? 'the same dates a year earlier' : 'the previous period'
   return (
     <p className={cn('col-span-full m-0 text-xs', MUTED)}>
       {anyBaseline
-        ? `Change compared with the previous period, ${previous}.`
-        : `No data from the previous period, ${previous}, to compare with.`}
+        ? `Change compared with ${period}, ${previous}.`
+        : `No data from ${period}, ${previous}, to compare with.`}
     </p>
   )
 }

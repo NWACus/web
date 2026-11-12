@@ -1,6 +1,6 @@
 'use client'
 
-import type { TrendInterval } from '@/services/posthog/analyticsRange'
+import type { Baseline, TrendInterval } from '@/services/posthog/analyticsRange'
 import {
   reportRangeSchema,
   type AnalyticsReport,
@@ -18,6 +18,8 @@ export type ReportRequest = {
   force: boolean
   /** The trend's grouping; unset means the server's default for the range. */
   interval?: TrendInterval
+  /** What the stats row compares against; unset means the days just before the range. */
+  baseline?: Baseline
 }
 
 export type ReportState<T> =
@@ -69,7 +71,7 @@ export function useReport<T>(
     report,
     state: LOADING,
   })
-  const { center, from, to, generation, force, interval } = request
+  const { center, from, to, generation, force, interval, baseline } = request
 
   useEffect(() => {
     const controller = new AbortController()
@@ -79,6 +81,7 @@ export function useReport<T>(
     const params = new URLSearchParams({ center, from, to, report })
     if (force) params.set('refresh', '1')
     if (interval) params.set('interval', interval)
+    if (baseline) params.set('baseline', baseline)
 
     fetch(`/api/analytics?${params}`, { signal: controller.signal, credentials: 'include' })
       .then(async (response) => {
@@ -94,7 +97,7 @@ export function useReport<T>(
       })
 
     return () => controller.abort()
-  }, [center, from, to, report, generation, force, interval, parse])
+  }, [center, from, to, report, generation, force, interval, baseline, parse])
 
   return current.report === report ? current.state : LOADING
 }

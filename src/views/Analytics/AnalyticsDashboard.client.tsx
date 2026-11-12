@@ -5,6 +5,7 @@ import {
   isIsoDate,
   isRangePreset,
   isTrendInterval,
+  presetBaseline,
   presetRange,
   rangeDays,
   todayIn,
@@ -202,6 +203,7 @@ export function AnalyticsDashboard({
     to: range.to,
     generation: refresh.generation,
     force: refresh.forcedRange === rangeKey,
+    baseline: presetBaseline(selection.preset),
   }
 
   return (

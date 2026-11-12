@@ -25,7 +25,7 @@ const utcDateTime = (date: Date) => date.toISOString().slice(0, 19).replace('T',
 
 /**
  * The values a center query may reference as `{center}`, `{hosts}`, `{timezone}`, `{start}`,
- * `{end}` and `{previousStart}`. PostHog substitutes and escapes them, so no request value is ever
+ * `{end}`, `{previousStart}` and `{previousEnd}`. PostHog substitutes and escapes them, so no request value is ever
  * spliced into SQL text.
  */
 function scopeValues({ slug, range }: CenterQueryScope) {
@@ -36,6 +36,7 @@ function scopeValues({ slug, range }: CenterQueryScope) {
     start: utcDateTime(range.start),
     end: utcDateTime(range.end),
     previousStart: utcDateTime(range.previousStart),
+    previousEnd: utcDateTime(range.previousEnd),
   }
 }
 
@@ -56,7 +57,7 @@ export const CENTER_FILTER = [
 ].join('\n  AND ')
 
 const CURRENT_PERIOD = `timestamp >= toDateTime({start}) AND timestamp < toDateTime({end})`
-const PREVIOUS_PERIOD = `timestamp >= toDateTime({previousStart}) AND timestamp < toDateTime({start})`
+const PREVIOUS_PERIOD = `timestamp >= toDateTime({previousStart}) AND timestamp < toDateTime({previousEnd})`
 
 const PAGEVIEWS_IN_CURRENT_PERIOD = `event = '$pageview'
   AND ${CURRENT_PERIOD}
@@ -84,17 +85,18 @@ WHERE event = '$pageview'
  * in about a second at any range. It carries no user agent, so bots cannot be excluded here.
  */
 export function overviewVisitsQuery(scope: CenterQueryScope): HogQLStatement {
-  const isCurrent = `$start_timestamp >= toDateTime({start})`
+  // A year-earlier baseline leaves a gap between the periods, so each is bounded on both sides
+  const isCurrent = `$start_timestamp >= toDateTime({start}) AND $start_timestamp < toDateTime({end})`
+  const isPrevious = `$start_timestamp >= toDateTime({previousStart}) AND $start_timestamp < toDateTime({previousEnd})`
   return statement(
     scope,
     `SELECT
   avgIf($is_bounce, ${isCurrent}) AS bounce_rate,
-  avgIf($is_bounce, NOT (${isCurrent})) AS previous_bounce_rate,
+  avgIf($is_bounce, ${isPrevious}) AS previous_bounce_rate,
   avgIf($session_duration, ${isCurrent}) AS visit_duration,
-  avgIf($session_duration, NOT (${isCurrent})) AS previous_visit_duration
+  avgIf($session_duration, ${isPrevious}) AS previous_visit_duration
 FROM sessions
-WHERE $start_timestamp >= toDateTime({previousStart})
-  AND $start_timestamp < toDateTime({end})
+WHERE ((${isCurrent}) OR (${isPrevious}))
   AND $entry_hostname IN {hosts}
   AND NOT startsWith($entry_pathname, '/admin')`,
   )

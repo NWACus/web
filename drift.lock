@@ -168,17 +168,17 @@ sig = "b7442d52baede7b0"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsExport.server.test.ts"
-sig = "333174e0b3584844"
+sig = "b87fdf32be6a142c"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
-sig = "c84dba58b75c1b8f"
+sig = "28146d4a1491210f"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsRange.server.test.ts"
-sig = "a3d6ed5ee7c04d5b"
+sig = "e8f3d1d917ad1fe3"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -198,17 +198,17 @@ sig = "ee21516efd34a0d3"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/analyticsEndpoint.ts"
-sig = "9751df6affd4962b"
+sig = "b305cdb0f7198ba4"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/analyticsRange.ts"
-sig = "00b38bd5cce2326a"
+sig = "31e9a0465a7d24fa"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/centerAnalyticsQueries.ts"
-sig = "9b5b44d4277b76de"
+sig = "6d6b12af4a717a5e"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -218,7 +218,7 @@ sig = "63f77ba211daf245"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/getCachedReport.ts"
-sig = "b73f9ab2c15a4218"
+sig = "5d18ca9f50542188"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -233,7 +233,7 @@ sig = "1ed540feba11cdbe"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/reportTypes.ts"
-sig = "c80d7efc3c0b9569"
+sig = "2880860e0421eab8"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -258,7 +258,7 @@ sig = "95329d6489f6a46d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/AnalyticsDashboard.client.tsx"
-sig = "19b602c63d3e6bbe"
+sig = "830d37d7d70b0793"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -268,7 +268,7 @@ sig = "79ea4b5394fa5b0d"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/RangePicker.tsx"
-sig = "4198645e98a023c3"
+sig = "f67e3d66205c7ecc"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -323,7 +323,7 @@ sig = "a6f25328766ee978"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/StatsRow.tsx"
-sig = "0f373a0d483d326b"
+sig = "9631a057394d36a2"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -333,7 +333,7 @@ sig = "66cf68646e5cec97"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/useReport.ts"
-sig = "b8e867e8d5d58d79"
+sig = "7f72d16804914e42"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

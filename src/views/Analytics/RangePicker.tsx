@@ -1,5 +1,7 @@
 'use client'
 
+import { seasonName } from '@/components/seasonCalendar'
+import { seasonOfDate } from '@/services/nac/forecastArchive'
 import {
   DEFAULT_PRESET,
   MAX_RANGE_DAYS,
@@ -15,11 +17,18 @@ import { formatDateRange } from './format'
 import { MUTED } from './panels/Panel'
 import { TabPills } from './TabPills'
 
-const PRESET_LABELS: Record<RangePreset, string> = {
+const PRESET_LABELS: Record<Exclude<RangePreset, 'seasonToDate' | 'lastSeason'>, string> = {
   '7d': 'Last 7 days',
   '30d': 'Last 30 days',
   '90d': 'Last 90 days',
-  '12m': 'Last 12 months',
+}
+
+/** "Season to date (2026–27)" names the season, which turns over on September 1. */
+function presetLabel(preset: RangePreset, today: string): string {
+  const season = seasonOfDate(today)
+  if (preset === 'seasonToDate') return `Season to date (${seasonName(season)})`
+  if (preset === 'lastSeason') return `Last season (${seasonName(season - 1)})`
+  return PRESET_LABELS[preset]
 }
 
 // Payload's date input is 40px tall; trim it to the 32px Apply button beside it and re-centre the
@@ -137,7 +146,7 @@ export function RangePicker({
       <div className="flex flex-wrap items-center gap-2">
         <TabPills
           options={[
-            ...RANGE_PRESETS.map((preset) => ({ key: preset, label: PRESET_LABELS[preset] })),
+            ...RANGE_PRESETS.map((preset) => ({ key: preset, label: presetLabel(preset, today) })),
             { key: 'custom', label: 'Custom' },
           ]}
           active={customOpen ? 'custom' : selection.preset}
