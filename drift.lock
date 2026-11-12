@@ -168,7 +168,7 @@ sig = "b7442d52baede7b0"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsExport.server.test.ts"
-sig = "b87fdf32be6a142c"
+sig = "5e3853858141052a"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -243,7 +243,7 @@ sig = "aaddf995424fcea2"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/utilities/export/csv.ts"
-sig = "d56b2dcbda2961d9"
+sig = "1b7099ec262a0957"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"

@@ -114,4 +114,17 @@ describe('analytics panel export', () => {
       lines(listCsv(DEAD_CLICKS, [{ path: '/weather', label: 'Say "hi"', clicks: 9, people: 4 }])),
     ).toEqual(['What was clicked,Page,People,Clicks', '"Say ""hi""",/weather,4,9'])
   })
+
+  it('opens a visitor-supplied formula as text but leaves numbers alone', () => {
+    const rows = [
+      { path: '/a', referrer: '=HYPERLINK("https://x.test","y")', hits: 3, people: 2 },
+      { path: '/b', referrer: '@SUM(1)', hits: 1, people: 1 },
+      { path: '/c', referrer: '-5', hits: 1, people: 1 },
+    ]
+    expect(lines(listCsv(NOT_FOUND, rows)).slice(1)).toEqual([
+      '/a,"\'=HYPERLINK(""https://x.test"",""y"")",2,3',
+      "/b,'@SUM(1),1,1",
+      '/c,-5,1,1',
+    ])
+  })
 })
