@@ -41,6 +41,12 @@ import { DiagnosticsConfig } from '@/globals/Diagnostics/config'
 import { NACWidgetsConfig } from '@/globals/NACWidgetsConfig/config'
 import { plugins } from '@/plugins'
 
+import { injectMemberAuthTables } from '@/auth/members/schema'
+import { Deliveries } from '@/collections/Deliveries'
+import { Devices } from '@/collections/Devices'
+import { Members } from '@/collections/Members'
+import { Memberships } from '@/collections/Memberships'
+import { Subscriptions } from '@/collections/Subscriptions'
 import { getURL } from '@/utilities/getURL'
 import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenantUrls'
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
@@ -160,6 +166,8 @@ export default buildConfig({
       // Migration testing: push=false to force migrations to run
       push: process.env.ENABLE_LOCAL_MIGRATIONS !== 'true',
     }),
+    // Better Auth's session/account/verification/rateLimit tables (ADR 026)
+    afterSchemaInit: [injectMemberAuthTables],
   }),
   collections: [
     // Content
@@ -191,6 +199,12 @@ export default buildConfig({
     GlobalRoles,
     GlobalRoleAssignments,
     Tenants,
+    // Members
+    Members,
+    Memberships,
+    Devices,
+    Subscriptions,
+    Deliveries,
     // Settings
     Navigations,
     Settings,
