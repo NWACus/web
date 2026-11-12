@@ -60,22 +60,23 @@ function stateFromBody<T>(body: unknown, ok: boolean, parse: ReportParser<T>): R
 
 /**
  * Fetches one report from `/api/analytics` whenever the request changes, dropping stale responses.
- * `parse` must be stable (defined at module level). Switching `report` reads as loading at once.
+ * `parse` must be stable (defined at module level). A changed request reads as loading at once.
  */
 export function useReport<T>(
   report: AnalyticsReport,
   request: ReportRequest,
   parse: ReportParser<T>,
 ): ReportState<T> {
-  const [current, setCurrent] = useState<{ report: AnalyticsReport; state: ReportState<T> }>({
-    report,
+  const { center, from, to, generation, force, interval, baseline } = request
+  const key = [report, center, from, to, generation, interval, baseline].join('|')
+  const [current, setCurrent] = useState<{ key: string; state: ReportState<T> }>({
+    key,
     state: LOADING,
   })
-  const { center, from, to, generation, force, interval, baseline } = request
 
   useEffect(() => {
     const controller = new AbortController()
-    const setState = (state: ReportState<T>) => setCurrent({ report, state })
+    const setState = (state: ReportState<T>) => setCurrent({ key, state })
     setState(LOADING)
 
     const params = new URLSearchParams({ center, from, to, report })
@@ -86,6 +87,7 @@ export function useReport<T>(
     fetch(`/api/analytics?${params}`, { signal: controller.signal, credentials: 'include' })
       .then(async (response) => {
         const body: unknown = await response.json().catch(() => null)
+        if (controller.signal.aborted) return
         setState(stateFromBody(body, response.ok, parse))
       })
       .catch((err: unknown) => {
@@ -97,9 +99,9 @@ export function useReport<T>(
       })
 
     return () => controller.abort()
-  }, [center, from, to, report, generation, force, interval, baseline, parse])
+  }, [key, center, from, to, report, generation, force, interval, baseline, parse])
 
-  return current.report === report ? current.state : LOADING
+  return current.key === key ? current.state : LOADING
 }
 
 /** A parser for a list report's `{ rows }`, validating each row with `rowSchema`. */

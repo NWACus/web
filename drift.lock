@@ -162,6 +162,11 @@ sig = "d01e6dab9165b530"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
+target = "__tests__/client/analyticsUseReport.client.test.ts"
+sig = "943a2559550dd2ee"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsEndpoint.server.test.ts"
 sig = "b7442d52baede7b0"
 
@@ -333,7 +338,7 @@ sig = "66cf68646e5cec97"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/useReport.ts"
-sig = "7f72d16804914e42"
+sig = "52cfeaa136eb205e"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
