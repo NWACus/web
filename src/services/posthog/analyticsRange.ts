@@ -153,11 +153,16 @@ type PreviousPeriod = Pick<
   'previousFrom' | 'previousTo' | 'previousStart' | 'previousEnd'
 >
 
+/**
+ * The baseline's dates and instants. While the range still runs, `cutoff` is how far into its last
+ * day it has reached, and the baseline's last day stops at the same point so both are equally long.
+ */
 function previousPeriod(
   range: DateRange,
   days: number,
   baseline: Baseline,
   timezone: string,
+  cutoff: number | null,
 ): PreviousPeriod {
   const start = zonedDayStart(range.from, timezone)
   const previous =
@@ -167,11 +172,14 @@ function previousPeriod(
           from: formatIsoDate(addDays(start, -days)),
           to: formatIsoDate(addDays(start, -1)),
         }
+  const lastDay = zonedDayStart(previous.to, timezone)
   return {
     previousFrom: previous.from,
     previousTo: previous.to,
     previousStart: new Date(zonedDayStart(previous.from, timezone).getTime()),
-    previousEnd: new Date(addDays(zonedDayStart(previous.to, timezone), 1).getTime()),
+    previousEnd: new Date(
+      cutoff === null ? addDays(lastDay, 1).getTime() : lastDay.getTime() + cutoff,
+    ),
   }
 }
 
@@ -187,7 +195,8 @@ export function resolveRange(
   if (range.from > range.to) return { error: 'The start date must not be after the end date' }
 
   const start = zonedDayStart(range.from, timezone)
-  const dayAfterTo = addDays(zonedDayStart(range.to, timezone), 1)
+  const lastDay = zonedDayStart(range.to, timezone)
+  const dayAfterTo = addDays(lastDay, 1)
   const days = Math.round((dayAfterTo.getTime() - start.getTime()) / 86_400_000)
   if (days > MAX_RANGE_DAYS) return { error: `Ranges are limited to ${MAX_RANGE_DAYS} days` }
   const bucket = resolveInterval(interval, days)
@@ -195,16 +204,18 @@ export function resolveRange(
   if (!isBaseline(baseline)) return { error: 'Unknown comparison baseline' }
 
   const end = new Date(Math.min(dayAfterTo.getTime(), ceilToHour(now).getTime()))
+  const ongoing = end.getTime() < dayAfterTo.getTime()
+  const cutoff = ongoing ? end.getTime() - lastDay.getTime() : null
 
   return {
     from: range.from,
     to: range.to,
-    ...previousPeriod(range, days, baseline, timezone),
+    ...previousPeriod(range, days, baseline, timezone, cutoff),
     baseline,
     start: new Date(start.getTime()),
     end,
     timezone,
     bucket,
-    ongoing: end.getTime() < dayAfterTo.getTime(),
+    ongoing,
   }
 }

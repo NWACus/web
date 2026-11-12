@@ -67,7 +67,9 @@ describe('analyticsRange', () => {
     expect(resolved.previousFrom).toBe('2026-10-25')
     expect(resolved.previousTo).toBe('2026-11-01')
     expect(resolved.previousStart.toISOString()).toBe('2026-10-25T07:00:00.000Z')
-    expect(resolved.previousEnd.toISOString()).toBe(resolved.start.toISOString())
+    // The range has reached 1 pm on its last day, so the previous period's last day stops 13 hours
+    // in too. Nov 1 is the day the clocks go back, so that is noon
+    expect(resolved.previousEnd.toISOString()).toBe('2026-11-01T20:00:00.000Z')
     expect(resolved.baseline).toBe('preceding')
     expect(resolved.bucket).toBe('day')
     expect(resolved.ongoing).toBe(true)
@@ -87,8 +89,8 @@ describe('analyticsRange', () => {
     expect(resolved.previousFrom).toBe('2025-09-01')
     expect(resolved.previousTo).toBe('2025-11-12')
     expect(resolved.previousStart.toISOString()).toBe('2025-09-01T07:00:00.000Z')
-    // The end of Nov 12, 2025, after the clocks went back
-    expect(resolved.previousEnd.toISOString()).toBe('2025-11-13T08:00:00.000Z')
+    // Today is under way, so Nov 12, 2025 stops at the same 1 pm rather than counting a whole day
+    expect(resolved.previousEnd.toISOString()).toBe('2025-11-12T21:00:00.000Z')
   })
 
   it('maps February 29 to February 28 a year earlier', () => {
@@ -126,6 +128,8 @@ describe('analyticsRange', () => {
     if ('error' in resolved) throw new Error(resolved.error)
     expect(resolved.end.toISOString()).toBe('2026-10-08T07:00:00.000Z')
     expect(resolved.ongoing).toBe(false)
+    // A finished range compares whole days with whole days
+    expect(resolved.previousEnd.toISOString()).toBe(resolved.start.toISOString())
   })
 
   it('offers weeks past two weeks and months past 92 days, defaulting to weeks there', () => {

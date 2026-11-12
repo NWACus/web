@@ -391,10 +391,11 @@ describe('center queries', () => {
     expect(query).not.toContain('nwac.us')
     expect(query).not.toContain('2026-')
 
-    // 31 inclusive days, so the previous period starts 31 days before Oct 10
+    // 31 inclusive days, so the previous period starts 31 days before Oct 10. The range runs to 1 pm,
+    // so the previous period's last day, Oct 9, stops at 1 pm too
     expect(overviewCountsQuery(scope, 'previous').values).toMatchObject({
       previousStart: '2026-09-09 07:00:00',
-      previousEnd: '2026-10-10 07:00:00',
+      previousEnd: '2026-10-09 20:00:00',
     })
     expect(timeseriesQuery(scope).values).toHaveProperty('timezone', 'America/Los_Angeles')
   })

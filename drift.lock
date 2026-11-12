@@ -173,12 +173,12 @@ sig = "5e3853858141052a"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsQueries.server.test.ts"
-sig = "bf9fe0a5adc4247d"
+sig = "cccb1903f17679ef"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "__tests__/server/analyticsRange.server.test.ts"
-sig = "e8f3d1d917ad1fe3"
+sig = "253ec39336917758"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -203,7 +203,7 @@ sig = "b305cdb0f7198ba4"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/analyticsRange.ts"
-sig = "31e9a0465a7d24fa"
+sig = "23d9fd50a7385aa2"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
