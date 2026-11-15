@@ -30,6 +30,10 @@
  *   has to keep asking: on every return to visibility, and on a slow interval while visible. The
  *   interval is set so that an untouched tab's worst case stays inside the page's own ISR window —
  *   see `RECHECK_INTERVAL_MS`.
+ * - A page loaded just after a publish is not left waiting on that interval. The mount check can be
+ *   answered from inside the detection budget, so one follow-up asks again once the budget has
+ *   passed (`FOLLOW_UP_MS`); and a refresh that comes back with the same stale render is asked
+ *   about again within seconds rather than minutes (`CONVERGE_RETRY_MS`).
  */
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -60,6 +64,31 @@ const RECHECK_INTERVAL_MS = 2 * 60 * 1000
  */
 const MIN_CHECK_INTERVAL_MS = 30 * 1000
 
+/**
+ * One extra check, this long after mount. The mount check's "you're current" can be up to a full
+ * detection budget old — 30s at the edge on top of the 30s fresh-fetch cache — so a page opened
+ * within a minute of a publish is told it is current and then, without this, not asked again until
+ * the interval comes round: up to three minutes on the old product, on a page someone has just
+ * opened precisely to see the new one. Asking again once the budget has passed is guaranteed to see
+ * anything published before the page loaded. It costs one request per endpoint per view that
+ * outlives it, nearly always answered from the edge.
+ */
+const FOLLOW_UP_MS = 60 * 1000
+
+/**
+ * How soon to ask again after a refresh, while the page has not converged. `router.refresh()` on a
+ * stale ISR entry can be served the stale render while the regeneration it triggered runs in the
+ * background. That render carries the same fingerprint, so the effect does not re-arm, and the
+ * refresh that would pick up the new page was left to the interval. These are the waits before
+ * each retry instead; a refresh that does converge changes `endpoints` and tears all of this down.
+ *
+ * Bounded, because every one of these is a "changed" answer and so reaches origin: a page that
+ * cannot converge at all — a route that does not render what its endpoint reports — must not turn
+ * every open tab into a steady stream of origin requests. After the last retry the interval is the
+ * backstop again, exactly as before.
+ */
+const CONVERGE_RETRY_MS = [5 * 1000, 15 * 1000, 30 * 1000]
+
 /** Not a URL character, so joining on it round-trips any set of endpoints exactly. */
 const KEY_SEPARATOR = '\n'
 
@@ -82,7 +111,14 @@ export function RevalidateOnView({ endpoints }: RevalidateOnViewProps) {
 
     const controller = new AbortController()
     let interval: ReturnType<typeof setInterval> | undefined
+    let convergeRetry: ReturnType<typeof setTimeout> | undefined
+    let convergeRetries = 0
     let lastCheckAt = 0
+
+    /** A timer-driven check, which like the interval has no business running in a hidden tab. */
+    function checkIfVisible() {
+      if (document.visibilityState !== 'hidden') check()
+    }
 
     function check() {
       lastCheckAt = Date.now()
@@ -101,7 +137,19 @@ export function RevalidateOnView({ endpoints }: RevalidateOnViewProps) {
         // Anything short of an explicit "changed" leaves the page alone — an indeterminate answer
         // means upstream couldn't be established, not that the product went away. One refresh
         // however many moved: a daily publish changes every zone on the grid at once.
-        if (answers.some((answer) => answer?.changed === true)) router.refresh()
+        if (controller.signal.aborted) return
+        if (!answers.some((answer) => answer?.changed === true)) {
+          convergeRetries = 0
+          return
+        }
+        router.refresh()
+        // Still running after a refresh means the page has not converged yet (a converged one
+        // re-arms the effect and clears this), so ask again soon rather than at the interval.
+        clearTimeout(convergeRetry)
+        const wait = CONVERGE_RETRY_MS[convergeRetries]
+        if (wait === undefined) return
+        convergeRetries += 1
+        convergeRetry = setTimeout(checkIfVisible, wait)
       })
     }
 
@@ -135,11 +183,14 @@ export function RevalidateOnView({ endpoints }: RevalidateOnViewProps) {
     // Unconditional, and deliberately not through `checkIfDue`: the mount check is a safety
     // invariant, not something the floor above gets a say in.
     check()
+    const followUp = setTimeout(checkIfVisible, FOLLOW_UP_MS)
     if (document.visibilityState !== 'hidden') startInterval()
     document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
       controller.abort()
+      clearTimeout(followUp)
+      clearTimeout(convergeRetry)
       stopInterval()
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
