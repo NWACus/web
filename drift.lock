@@ -498,7 +498,7 @@ sig = "c481fa9d306fb17f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/nwacWeatherForForecast.ts"
-sig = "a7493af979c0bd9f"
+sig = "9fd18ceaa997a521"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

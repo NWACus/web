@@ -95,11 +95,20 @@ describe('nwac-weather-zone route', () => {
     ])
   })
 
-  it('finds nothing before the first issuance or more than a day after the last', async () => {
+  it('finds nothing before the first issuance', async () => {
     // 6 am PDT on the 14th, before its morning issuance.
     expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-14T13:00:00Z`)).toBeNull()
-    // 4 pm PDT on the 15th: the 14th's afternoon issuance is 25 hours old.
-    expect(await issuanceTypes(`?zone=${OLYMPICS}&published=2026-09-15T23:00:00Z`)).toBeNull()
+  })
+
+  it('keeps the last issuance past 24 hours for a forecast in force, not for a past one', async () => {
+    // 4 pm PDT on the 15th: the 14th's afternoon issuance is 25 hours old and the 15th's isn't out.
+    const query = `?zone=${OLYMPICS}&published=2026-09-15T23:00:00Z`
+    jest.setSystemTime(new Date('2026-09-15T23:00:00Z'))
+    expect(await issuanceTypes(query)).toEqual(['afternoon'])
+
+    // Read days later, the same forecast is held to the day before it.
+    jest.setSystemTime(new Date('2026-09-20T15:00:00Z'))
+    expect(await issuanceTypes(query)).toBeNull()
   })
 
   it('caches a forecast in force briefly and one past its valid date long', async () => {

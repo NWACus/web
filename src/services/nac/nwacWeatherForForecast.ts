@@ -6,8 +6,9 @@
  * page through `api/[center]/nwac-weather-zone`.
  *
  * A forecast still in force follows the clock: the 24 hours on show now and the next, each from
- * the newest issuance that forecasts them. Any other keeps the 24 hours it was issued for, from the
- * issuance it was written against.
+ * the newest issuance that forecasts them, as far back as the day before it was published. Any
+ * other keeps the 24 hours it was issued for, from the issuance it was written against, at most a
+ * day before it.
  */
 import { sanitizeIssuance } from '@/components/NWACWeather/sanitizeIssuance'
 import { format, parseISO, subDays } from 'date-fns'
@@ -72,7 +73,8 @@ export async function getNWACWeatherForForecast(
     ? [current, nextSpan(current, timezone)]
     : [heldSpan({ validDate, publishedDate, published: new Date(published) }, timezone)]
   // An issuance up to a day before the forecast sits on its publish date or the one before; one
-  // after it, only while the forecast is in force, on today's.
+  // after it, only while the forecast is in force, on today's. These days are all a forecast in
+  // force can reach back to.
   const dates = [publishedDate, format(subDays(parseISO(publishedDate), 1), 'yyyy-MM-dd')]
   if (live && today > publishedDate) dates.push(today)
   // Any day failing throws: with one day missing, another's issuance can be the wrong one.
@@ -99,7 +101,9 @@ function newestFor(
         const fits =
           day !== null &&
           issued <= latest &&
-          issued > published - DAY_MS &&
+          // Only a past forecast is held to the day before it. One in force may be asked for with
+          // the reader's clock, and the next issuance can be later in the day than the last was.
+          (!held || issued > published - DAY_MS) &&
           zonesFor(issuance, zone).length > 0
         return fits ? [{ day, issuance, issued }] : []
       }),
