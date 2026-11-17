@@ -34,6 +34,7 @@ import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageMountain } from './image-mountain'
+import { seedMembers } from './members'
 import { navigationSeed } from './navigation'
 import { accumulatedPrecipPage } from './pages/accumulated-precip-page'
 import { allBlocksPage } from './pages/all-blocks-page'
@@ -322,6 +323,9 @@ export const seed = async ({
               'eventGroups',
               'eventTags',
               'stationPages',
+              'members',
+              'memberships',
+              'subscriptions',
             ],
             actions: ['*'],
           },
@@ -684,6 +688,7 @@ export const seed = async ({
     ])
 
     const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
+    await seedMembers(payload, Object.values(tenantsById))
 
     // Assign global roles directly to users
     await payload.create({

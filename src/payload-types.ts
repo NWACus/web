@@ -64,6 +64,7 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    members: MemberAuthOperations;
     'payload-mcp-api-keys': PayloadMcpApiKeyAuthOperations;
   };
   blocks: {};
@@ -92,6 +93,11 @@ export interface Config {
     globalRoles: GlobalRole;
     globalRoleAssignments: GlobalRoleAssignment;
     tenants: Tenant;
+    members: Member;
+    memberships: Membership;
+    devices: Device;
+    subscriptions: Subscription;
+    deliveries: Delivery;
     navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
@@ -122,6 +128,11 @@ export interface Config {
       roles: 'roleAssignments';
       globalRoleAssignments: 'globalRoleAssignments';
     };
+    members: {
+      memberships: 'memberships';
+      devices: 'devices';
+      subscriptions: 'subscriptions';
+    };
   };
   collectionsSelect: {
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
@@ -148,6 +159,11 @@ export interface Config {
     globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    members: MembersSelect<false> | MembersSelect<true>;
+    memberships: MembershipsSelect<false> | MembershipsSelect<true>;
+    devices: DevicesSelect<false> | DevicesSelect<true>;
+    subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
+    deliveries: DeliveriesSelect<false> | DeliveriesSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -180,13 +196,31 @@ export interface Config {
     'getting-started': GettingStartedWidget;
     collections: CollectionsWidget;
   };
-  user: User | PayloadMcpApiKey;
+  user: User | Member | PayloadMcpApiKey;
   jobs: {
     tasks: unknown;
     workflows: unknown;
   };
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface MemberAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -2323,6 +2357,114 @@ export interface GlobalRole {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members".
+ */
+export interface Member {
+  id: string;
+  name?: string | null;
+  email: string;
+  emailVerified?: boolean | null;
+  image?: string | null;
+  isAnonymous?: boolean | null;
+  /**
+   * Site preferences. A site session on a center host may write these.
+   */
+  preferences?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  memberships?: {
+    docs?: (number | Membership)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  devices?: {
+    docs?: (number | Device)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  subscriptions?: {
+    docs?: (number | Subscription)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+  collection: 'members';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "memberships".
+ */
+export interface Membership {
+  id: number;
+  member: string | Member;
+  tenant: number | Tenant;
+  kind: 'free' | 'donor';
+  /**
+   * Preferences scoped to this center. Global ones live on the Member.
+   */
+  preferences?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "devices".
+ */
+export interface Device {
+  id: number;
+  installId: string;
+  secretHash?: string | null;
+  pushToken?: string | null;
+  platform?: ('ios' | 'android') | null;
+  member?: (string | null) | Member;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscriptions".
+ */
+export interface Subscription {
+  id: number;
+  member: string | Member;
+  tenant: number | Tenant;
+  zone: string;
+  category: 'forecast' | 'warning' | 'observation';
+  channel: 'push' | 'email';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deliveries".
+ */
+export interface Delivery {
+  id: number;
+  member: string | Member;
+  device?: (number | null) | Device;
+  subscription?: (number | null) | Subscription;
+  title: string;
+  sentAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations".
  */
 export interface Navigation {
@@ -3762,6 +3904,26 @@ export interface PayloadLockedDocument {
         value: number | Tenant;
       } | null)
     | ({
+        relationTo: 'members';
+        value: string | Member;
+      } | null)
+    | ({
+        relationTo: 'memberships';
+        value: number | Membership;
+      } | null)
+    | ({
+        relationTo: 'devices';
+        value: number | Device;
+      } | null)
+    | ({
+        relationTo: 'subscriptions';
+        value: number | Subscription;
+      } | null)
+    | ({
+        relationTo: 'deliveries';
+        value: number | Delivery;
+      } | null)
+    | ({
         relationTo: 'navigations';
         value: number | Navigation;
       } | null)
@@ -3800,6 +3962,10 @@ export interface PayloadLockedDocument {
         value: number | User;
       }
     | {
+        relationTo: 'members';
+        value: string | Member;
+      }
+    | {
         relationTo: 'payload-mcp-api-keys';
         value: number | PayloadMcpApiKey;
       };
@@ -3816,6 +3982,10 @@ export interface PayloadPreference {
     | {
         relationTo: 'users';
         value: number | User;
+      }
+    | {
+        relationTo: 'members';
+        value: string | Member;
       }
     | {
         relationTo: 'payload-mcp-api-keys';
@@ -4795,6 +4965,75 @@ export interface TenantsSelect<T extends boolean = true> {
         lastRunAt?: T;
         failed?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members_select".
+ */
+export interface MembersSelect<T extends boolean = true> {
+  id?: T;
+  name?: T;
+  email?: T;
+  emailVerified?: T;
+  image?: T;
+  isAnonymous?: T;
+  preferences?: T;
+  memberships?: T;
+  devices?: T;
+  subscriptions?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "memberships_select".
+ */
+export interface MembershipsSelect<T extends boolean = true> {
+  member?: T;
+  tenant?: T;
+  kind?: T;
+  preferences?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "devices_select".
+ */
+export interface DevicesSelect<T extends boolean = true> {
+  installId?: T;
+  secretHash?: T;
+  pushToken?: T;
+  platform?: T;
+  member?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscriptions_select".
+ */
+export interface SubscriptionsSelect<T extends boolean = true> {
+  member?: T;
+  tenant?: T;
+  zone?: T;
+  category?: T;
+  channel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deliveries_select".
+ */
+export interface DeliveriesSelect<T extends boolean = true> {
+  member?: T;
+  device?: T;
+  subscription?: T;
+  title?: T;
+  sentAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

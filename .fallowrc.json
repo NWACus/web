@@ -63,6 +63,6 @@
     "duplicate-exports": "warn"
   },
   "health": {
-    "ignore": ["scripts/e2e/**", "__tests__/e2e/**"]
+    "ignore": ["scripts/e2e/**", "__tests__/e2e/**", "src/scripts/poc/**"]
   }
 }

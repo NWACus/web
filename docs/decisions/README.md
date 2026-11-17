@@ -34,8 +34,9 @@ Each record loosely follows the [ADR format](https://adr.github.io/) (Context, D
 | [023](023-document-upload-restrictions.md)      | Document upload restrictions and response headers   | 2026-10-15 | accepted                                           |
 | [024](024-info-exchange-derived-from-nac-platforms.md) | Info exchanges are derived from NAC platforms, not stored on the tenant | 2026-09-29 | accepted |
 | [025](025-admin-served-only-from-the-apex.md)  | Admin is served only from the apex                  | 2026-10-22 | accepted                                           |
+| [026](026-member-auth-with-better-auth.md)     | Member authentication with Better Auth              | 2026-10-28 | proposed                                           |
 
-> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `026`.
+> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `027`.
 
 ## Related reading
 
