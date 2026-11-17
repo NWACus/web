@@ -63,6 +63,17 @@ describe('getNWACWeatherForForecast', () => {
     expect(found?.issuances.map((i) => i.type)).toEqual(['morning'])
   })
 
+  // The app asks with the reader's clock, and an issuance rarely goes out at the same minute each day.
+  it('keeps the last issuance past 24 hours while the next is still to come', async () => {
+    // 3:30 pm PDT the 15th, half an hour past a day since the 14th's afternoon issuance.
+    jest.setSystemTime(new Date('2026-09-15T22:30:00Z'))
+
+    const found = await getNWACWeatherForForecast('nwac', OLYMPICS, '2026-09-15T22:30:00Z', TZ)
+
+    expect(found?.issuances.map((i) => i.type)).toEqual(['afternoon'])
+    expect(found?.windows[0]).toMatchObject({ issuance: 0, periodKeys: ['d2', 'n2'] })
+  })
+
   it('reads nothing for any other center', async () => {
     expect(await getNWACWeatherForForecast('sac', OLYMPICS, '2026-09-15T01:00:00Z', TZ)).toBeNull()
     expect(mockGetDay).not.toHaveBeenCalled()
