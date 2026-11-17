@@ -32,8 +32,8 @@
  *   see `RECHECK_INTERVAL_MS`.
  * - A page loaded just after a publish is not left waiting on that interval. The mount check can be
  *   answered from inside the detection budget, so one follow-up asks again once the budget has
- *   passed (`FOLLOW_UP_MS`); and a refresh that comes back with the same stale render is asked
- *   about again within seconds rather than minutes (`CONVERGE_RETRY_MS`).
+ *   passed (`FOLLOW_UP_MS`); and a refresh that comes back with the same stale render is tried
+ *   again within seconds rather than minutes (`CONVERGE_RETRY_MS`).
  */
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -68,24 +68,25 @@ const MIN_CHECK_INTERVAL_MS = 30 * 1000
  * One extra check, this long after mount. The mount check's "you're current" can be up to a full
  * detection budget old — 30s at the edge on top of the 30s fresh-fetch cache — so a page opened
  * within a minute of a publish is told it is current and then, without this, not asked again until
- * the interval comes round: up to three minutes on the old product, on a page someone has just
- * opened precisely to see the new one. Asking again once the budget has passed is guaranteed to see
- * anything published before the page loaded. It costs one request per endpoint per view that
- * outlives it, nearly always answered from the edge.
+ * the interval comes round: minutes on the old product, on a page someone has just opened
+ * precisely to see the new one. By now the edge's answer has expired, so this check reaches the
+ * route again. It usually sees the new product, not always: the route's fresh read serves its
+ * expired value once more while it refetches. It costs one request per endpoint per view that
+ * outlives it.
  */
 const FOLLOW_UP_MS = 60 * 1000
 
 /**
- * How soon to ask again after a refresh, while the page has not converged. `router.refresh()` on a
- * stale ISR entry can be served the stale render while the regeneration it triggered runs in the
- * background. That render carries the same fingerprint, so the effect does not re-arm, and the
- * refresh that would pick up the new page was left to the interval. These are the waits before
- * each retry instead; a refresh that does converge changes `endpoints` and tears all of this down.
+ * How soon to refresh again while the page has not converged (still shows the product the endpoint
+ * called out of date). A refresh can return the same render: the page's cached entry may not have
+ * been purged, or not yet. Same fingerprint, so the effect does not re-arm (run again against a new
+ * address), and the next refresh was left to the interval. A refresh that converges changes
+ * `endpoints` and tears all of this down.
  *
- * Bounded, because every one of these is a "changed" answer and so reaches origin: a page that
- * cannot converge at all — a route that does not render what its endpoint reports — must not turn
- * every open tab into a steady stream of origin requests. After the last retry the interval is the
- * backstop again, exactly as before.
+ * A retry refreshes without asking again: the answer is already known, and "changed" is never
+ * cached, so asking would cost a function call per endpoint. Bounded, so a page that cannot
+ * converge does not keep re-requesting itself; after the last retry the interval is the backstop.
+ * See "Freshness is an open-tab guarantee" in docs/afp-products/architecture.md.
  */
 const CONVERGE_RETRY_MS = [5 * 1000, 15 * 1000, 30 * 1000]
 
@@ -120,6 +121,21 @@ export function RevalidateOnView({ endpoints }: RevalidateOnViewProps) {
       if (document.visibilityState !== 'hidden') check()
     }
 
+    /** Refresh now, and again after the next wait unless the refresh converges first. */
+    function refresh() {
+      router.refresh()
+      clearTimeout(convergeRetry)
+      const wait = CONVERGE_RETRY_MS[convergeRetries]
+      if (wait === undefined) return
+      convergeRetries += 1
+      convergeRetry = setTimeout(refreshIfVisible, wait)
+    }
+
+    /** A hidden tab is left alone; returning to visibility checks again. */
+    function refreshIfVisible() {
+      if (document.visibilityState !== 'hidden') refresh()
+    }
+
     function check() {
       lastCheckAt = Date.now()
       Promise.all(
@@ -138,18 +154,9 @@ export function RevalidateOnView({ endpoints }: RevalidateOnViewProps) {
         // means upstream couldn't be established, not that the product went away. One refresh
         // however many moved: a daily publish changes every zone on the grid at once.
         if (controller.signal.aborted) return
-        if (!answers.some((answer) => answer?.changed === true)) {
-          convergeRetries = 0
-          return
-        }
-        router.refresh()
-        // Still running after a refresh means the page has not converged yet (a converged one
-        // re-arms the effect and clears this), so ask again soon rather than at the interval.
-        clearTimeout(convergeRetry)
-        const wait = CONVERGE_RETRY_MS[convergeRetries]
-        if (wait === undefined) return
-        convergeRetries += 1
-        convergeRetry = setTimeout(checkIfVisible, wait)
+        // An unchanged answer ends the current change, so the next one gets its own retries.
+        if (answers.some((answer) => answer?.changed === true)) refresh()
+        else convergeRetries = 0
       })
     }
 

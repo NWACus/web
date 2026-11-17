@@ -423,7 +423,7 @@ sig = "44aee9101eba01e3"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/freshness/RevalidateOnView.client.tsx"
-sig = "12548e83d0d57350"
+sig = "de4057ec4127c672"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

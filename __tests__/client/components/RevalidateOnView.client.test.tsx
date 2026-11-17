@@ -190,37 +190,54 @@ describe('RevalidateOnView', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1)
   })
 
-  it('asks again within seconds when a refresh does not converge', async () => {
-    // `router.refresh()` on a stale ISR entry can be served the stale render while the page
-    // regenerates behind it. Same fingerprint, so nothing re-arms — the retry is what picks up the
-    // regenerated page instead of the interval.
+  it('refreshes again within seconds when a refresh does not converge, without asking again', async () => {
+    // A refresh can come back with the same render (the page's cached entry not purged, or not
+    // yet). Same fingerprint, so nothing re-arms. The retry is what picks up the new page, and it
+    // already knows the answer.
     mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
     render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
     expect(mockRefresh).toHaveBeenCalledTimes(1)
 
     await advance(CONVERGE_RETRY_MS[0] - 1)
-    expect(mockFetch).toHaveBeenCalledTimes(1)
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
     await advance(1)
 
-    expect(mockFetch).toHaveBeenCalledTimes(2)
     expect(mockRefresh).toHaveBeenCalledTimes(2)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
   })
 
   it('stops retrying a page that cannot converge, and leaves it to the interval', async () => {
-    // Every "changed" answer reaches origin, so the retries are bounded: a page that never renders
-    // what its endpoint reports must not become a steady stream of origin requests.
     mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
     render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     for (const wait of CONVERGE_RETRY_MS) await advance(wait)
     const total = CONVERGE_RETRY_MS.reduce((sum, wait) => sum + wait, 0)
-    expect(mockFetch).toHaveBeenCalledTimes(1 + CONVERGE_RETRY_MS.length)
+    expect(mockRefresh).toHaveBeenCalledTimes(1 + CONVERGE_RETRY_MS.length)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
 
-    // Nothing more until the follow-up, which is the next timer due.
-    await advance(FOLLOW_UP_MS - total - 1)
-    expect(mockFetch).toHaveBeenCalledTimes(1 + CONVERGE_RETRY_MS.length)
+    // The follow-up hears "changed" again: one refresh, and no new retries behind it.
+    await advance(FOLLOW_UP_MS - total)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mockRefresh).toHaveBeenCalledTimes(2 + CONVERGE_RETRY_MS.length)
+
+    await advance(RECHECK_INTERVAL_MS - FOLLOW_UP_MS - 1)
+    expect(mockRefresh).toHaveBeenCalledTimes(2 + CONVERGE_RETRY_MS.length)
+  })
+
+  it('skips a retry in a hidden tab (returning to visibility checks instead)', async () => {
+    mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+
+    await setVisibility('hidden', 0)
+    await advance(CONVERGE_RETRY_MS[0])
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+
+    await setVisibility('visible')
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mockRefresh).toHaveBeenCalledTimes(2)
   })
 
   it('drops the retry once the refresh converges', async () => {
@@ -243,22 +260,23 @@ describe('RevalidateOnView', () => {
 
   it('gives a later change its own full set of retries', async () => {
     // The budget is per change, not per page lifetime: an unchanged answer resets it.
+    const perChange = 1 + CONVERGE_RETRY_MS.length
+    const total = CONVERGE_RETRY_MS.reduce((sum, wait) => sum + wait, 0)
     mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
     render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
     for (const wait of CONVERGE_RETRY_MS) await advance(wait)
+    expect(mockRefresh).toHaveBeenCalledTimes(perChange)
 
     mockFetch.mockReturnValue(answer({ changed: false }))
-    await advance(FOLLOW_UP_MS) // past the follow-up, which hears "unchanged"
-    const before = mockFetch.mock.calls.length
+    await advance(FOLLOW_UP_MS - total) // the follow-up, which hears "unchanged"
+    expect(mockRefresh).toHaveBeenCalledTimes(perChange)
 
     mockFetch.mockReturnValue(answer({ changed: true, etag: 'c'.repeat(40) }))
-    await advance(RECHECK_INTERVAL_MS) // the next interval tick hears the new change
-    const afterTick = mockFetch.mock.calls.length
-    expect(afterTick).toBeGreaterThan(before)
+    await advance(RECHECK_INTERVAL_MS - FOLLOW_UP_MS) // the interval tick hears the new change
+    for (const wait of CONVERGE_RETRY_MS) await advance(wait)
 
-    await advance(CONVERGE_RETRY_MS[0])
-    expect(mockFetch.mock.calls.length).toBeGreaterThan(afterTick)
+    expect(mockRefresh).toHaveBeenCalledTimes(2 * perChange)
   })
 
   it('stops the interval while hidden and does not accumulate timers across flips', async () => {
