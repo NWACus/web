@@ -18,10 +18,6 @@ import {
 import { CollectionConfig, DateField, DateFieldValidation, ValidateOptions } from 'payload'
 import { date } from 'payload/shared'
 import { populateStartDate } from './hooks/populateStartDate'
-import {
-  revalidateAnnouncement,
-  revalidateAnnouncementDelete,
-} from './hooks/revalidateAnnouncement'
 
 const validateStartBeforeEnd: DateFieldValidation = (
   value,
@@ -175,8 +171,6 @@ export const Announcements: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [populateStartDate, populatePublishedAt],
-    afterChange: [revalidateAnnouncement],
-    afterDelete: [revalidateAnnouncementDelete],
   },
   versions: {
     drafts: true,

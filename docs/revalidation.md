@@ -200,9 +200,22 @@ On-demand revalidation handles most cache invalidation. Time-based revalidation 
 
 - **All routable pages**: 3600 seconds (1 hour) as declared in the route's `revalidate` export
 
-Note that the declared value is a ceiling, not the effective one. Next takes the lowest `revalidate` of anything rendered on the page, and `Announcements` sits in `[center]/layout.tsx`, so `getActiveAnnouncements` and its 60 second interval pull every route under `/[center]` down to 60 seconds. That interval is load-bearing: announcements activate and expire on `startDate`/`endDate`, and no hook fires when the clock crosses them. `next build` prints the effective value per route in its Revalidate column.
+Note that the declared value is a ceiling, not the effective one. Next takes the lowest `revalidate` of anything rendered on the page, including a `fetch` or `unstable_cache` read in a shared layout. `next build` prints the effective value per route in its Revalidate column, and `.next/prerender-manifest.json` records it as `initialRevalidateSeconds`.
+
+Keep short-window reads out of `[center]/layout.tsx` for that reason. Announcements are the worked example: see [Announcements](#announcements).
 
 This interval only regenerates the HTML. It does not refresh anything behind `unstable_cache`, which is why a cached miss survives it indefinitely. See [Never cache a miss](#never-cache-a-miss).
+
+### Announcements
+
+Announcements start and end on `startDate` and `endDate`, and no hook fires when the clock crosses either, so the active list has to be re-read about once a minute. That read must stay out of `[center]/layout.tsx`: rendered there, its 60 second window became the window of every route under `/[center]`.
+
+So the browser reads them. `Announcements.client.tsx` fetches `/api/[center]/announcements` on mount. Next does not cache the route; it replies with `s-maxage=60`, so the CDN holds one answer per center for a minute.
+
+- **Scheduled start or end**: shows within a minute. The browser also drops anything whose `endDate` has passed.
+- **Editor save or delete**: also shows within a minute. There is no revalidation hook, and a save rebuilds no pages.
+
+The cost is that announcements need JavaScript and one extra request. A scheduler firing at each boundary would let the read move back to the server; #1125 — Scheduled publishing breaks on-demand revalidation: future-dated documents 404 until ISR fallback needs the same one.
 
 ### Best Practices
 

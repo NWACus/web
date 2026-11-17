@@ -118,9 +118,8 @@ test.describe('Announcement popups', () => {
 // Seeded nwac banners: one for all devices ("Backcountry Access Road Closure"),
 // one mobile-only ("Text Alerts for Forecast Updates"), one desktop-only
 // ("Explore the Interactive Danger Map") and one expired. The split is at
-// 1024px (Tailwind `lg`). Device targeting resolves after mount, deliberately,
-// to avoid a hydration mismatch — so the server HTML carries every non-expired
-// banner and nothing here asserts on first paint.
+// 1024px (Tailwind `lg`). The banners are fetched in the browser after mount,
+// so the server HTML carries none and nothing here asserts on first paint.
 test.describe('Announcement banner device targeting', () => {
   test.describe.configure({ timeout: 60000 })
 
@@ -134,13 +133,13 @@ test.describe('Announcement banner device targeting', () => {
   }
 
   /**
-   * Waits for the post-mount device filter by waiting for the banner meant for the
-   * other device to leave the DOM. The collapsed strip is a zero-height overflow
-   * container, which Playwright's visibility check does not see through, so
-   * `toBeVisible` on a banner is not proof the filter has run.
+   * Waits for the fetched banners to render, then checks the one meant for the other
+   * device is not among them. Before the fetch lands no banner is in the DOM, so the
+   * absence alone would pass on an empty strip.
    */
   async function expectDeviceFiltered(page: Page, otherDeviceBanner: string) {
-    await expect(page.getByText(otherDeviceBanner)).toHaveCount(0, { timeout: 10000 })
+    await expect(page.getByText(ALL_DEVICES)).toHaveCount(1, { timeout: 10000 })
+    await expect(page.getByText(otherDeviceBanner)).toHaveCount(0)
   }
 
   test.beforeEach(async ({ page }) => {
