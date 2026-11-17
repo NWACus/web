@@ -28,6 +28,7 @@ export const lexicalBlocksPage = ({
         blockType: 'content',
         backgroundColor: 'transparent',
         layout: '1_1',
+        verticalAlignment: 'top',
         blockName: null,
         columns: [
           {

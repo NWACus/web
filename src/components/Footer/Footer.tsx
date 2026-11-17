@@ -91,7 +91,7 @@ export async function Footer({ center }: { center?: string }) {
             <Link className="flex items-center justify-center" href="/">
               <ImageMedia
                 resource={logo}
-                pictureClassName="max-w-36 w-full"
+                pictureClassName="my-2 max-w-36 w-full"
                 imgClassName="w-full"
                 sizes={getImageWidthFromMaxHeight(logo, 200)}
               />
