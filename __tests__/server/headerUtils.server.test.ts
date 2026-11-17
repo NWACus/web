@@ -595,6 +595,29 @@ describe('Header Utilities', () => {
         })
       })
 
+      it('slugs section labels into sub-item paths', () => {
+        const tab: NavTab = {
+          items: [
+            {
+              id: 'section',
+              label: 'Courses & Workshops',
+              items: [
+                {
+                  id: 'field',
+                  link: { type: 'internal', url: '/field-classes', label: 'Field Classes' },
+                },
+              ],
+            },
+          ],
+        }
+
+        const [entry] = topLevelNavItem({ tab, label: 'Education' })
+
+        expect(entry.items?.[0].items?.[0].link?.url).toBe(
+          '/education/courses-workshops/field-classes',
+        )
+      })
+
       it('returns empty array when dropdown has no items', () => {
         const tab: NavTab = {
           options: { displayMode: 'dropdown' },
