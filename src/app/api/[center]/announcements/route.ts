@@ -5,7 +5,7 @@ import { getActiveAnnouncements } from '@/utilities/queries/getActiveAnnouncemen
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextResponse } from 'next/server'
 
-// Cached per center like a page, so a save can purge it by path (revalidateAnnouncement).
+// Cached per center like a page, so a save purges it by path (revalidateAnnouncement).
 export const dynamic = 'force-static'
 
 // How long a scheduled start or end can take to reach the site.

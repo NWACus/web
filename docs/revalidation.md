@@ -213,7 +213,7 @@ Announcements start and end on `startDate` and `endDate`, and no hook fires when
 So the browser reads them. `Announcements.client.tsx` fetches `/api/[center]/announcements` on mount. The route is cached per center like a page (`force-static`, `revalidate = 60`).
 
 - **Scheduled start or end**: shows within a minute. The browser also drops anything whose `endDate` has passed.
-- **Editor save or delete**: `revalidateAnnouncement` calls `revalidatePath` on the route, and a save rebuilds no pages. Under `next start` the purge does nothing and a save waits out the minute, because Next's file-system cache checks tags for pages and not for route handlers.
+- **Editor save or delete**: `revalidateAnnouncement` calls `revalidatePath` on the route, so on Vercel a save shows on the next request, and it rebuilds no pages. Under `next start` the purge does nothing and a save waits out the minute, because Next's file-system cache checks tags for pages and not for route handlers.
 
 The cost is that announcements need JavaScript and one extra request. A scheduler firing at each boundary would let the read move back to the server; #1125 — Scheduled publishing breaks on-demand revalidation: future-dated documents 404 until ISR fallback needs the same one.
 
