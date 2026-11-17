@@ -5,13 +5,11 @@ import { getActiveAnnouncements } from '@/utilities/queries/getActiveAnnouncemen
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextResponse } from 'next/server'
 
-// Not cached by Next: a cached route handler is not purged by tag outside Vercel. The CDN holds
-// each center's answer instead, for the window below.
-export const dynamic = 'force-dynamic'
+// Cached per center like a page, so a save can purge it by path (revalidateAnnouncement).
+export const dynamic = 'force-static'
 
-// How long a scheduled start or end, or a save in the admin, can take to reach the site. No
-// stale-while-revalidate, which would stretch that by however long the center went unvisited.
-const CACHE_CONTROL = 'public, max-age=0, s-maxage=60'
+// How long a scheduled start or end can take to reach the site.
+export const revalidate = 60
 
 export async function GET(
   _request: Request,
@@ -20,7 +18,5 @@ export async function GET(
   const { center } = await params
   if (!isValidTenantSlug(center)) return unknownCenterResponse()
 
-  return NextResponse.json(await getActiveAnnouncements(center), {
-    headers: { 'Cache-Control': CACHE_CONTROL },
-  })
+  return NextResponse.json(await getActiveAnnouncements(center))
 }

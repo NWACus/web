@@ -210,10 +210,10 @@ This interval only regenerates the HTML. It does not refresh anything behind `un
 
 Announcements start and end on `startDate` and `endDate`, and no hook fires when the clock crosses either, so the active list has to be re-read about once a minute. That read must stay out of `[center]/layout.tsx`: rendered there, its 60 second window became the window of every route under `/[center]`.
 
-So the browser reads them. `Announcements.client.tsx` fetches `/api/[center]/announcements` on mount. Next does not cache the route; it replies with `s-maxage=60`, so the CDN holds one answer per center for a minute.
+So the browser reads them. `Announcements.client.tsx` fetches `/api/[center]/announcements` on mount. The route is cached per center like a page (`force-static`, `revalidate = 60`).
 
 - **Scheduled start or end**: shows within a minute. The browser also drops anything whose `endDate` has passed.
-- **Editor save or delete**: also shows within a minute. There is no revalidation hook, and a save rebuilds no pages.
+- **Editor save or delete**: `revalidateAnnouncement` calls `revalidatePath` on the route, and a save rebuilds no pages. Under `next start` the purge does nothing and a save waits out the minute, because Next's file-system cache checks tags for pages and not for route handlers.
 
 The cost is that announcements need JavaScript and one extra request. A scheduler firing at each boundary would let the read move back to the server; #1125 — Scheduled publishing breaks on-demand revalidation: future-dated documents 404 until ISR fallback needs the same one.
 

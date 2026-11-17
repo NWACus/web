@@ -10,8 +10,8 @@ export interface ActiveAnnouncements {
   popups: Announcement[]
 }
 
-// Uncached, because "active" depends on the clock. Read it from the
-// /api/[center]/announcements route, never while rendering a page: see docs/revalidation.md.
+// "Active" depends on the clock, so its only cache is the 60s one on the
+// /api/[center]/announcements route. Never read it while rendering a page: see docs/revalidation.md.
 export async function getActiveAnnouncements(center: string): Promise<ActiveAnnouncements> {
   const payload = await getPayload({ config: configPromise })
   const now = new Date().toISOString()

@@ -3,7 +3,7 @@ jest.mock('../../src/utilities/queries/getActiveAnnouncements', () => ({
   getActiveAnnouncements: (center: string) => mockGetActiveAnnouncements(center),
 }))
 
-import { GET } from '@/app/api/[center]/announcements/route'
+import { dynamic, GET, revalidate } from '@/app/api/[center]/announcements/route'
 
 const request = new Request('http://x/api/nwac/announcements')
 const get = (center: string) => GET(request, { params: Promise.resolve({ center }) })
@@ -31,15 +31,10 @@ describe('GET /api/[center]/announcements', () => {
     expect(mockGetActiveAnnouncements).not.toHaveBeenCalled()
   })
 
-  // The CDN window is the whole schedule tolerance: stale-while-revalidate would let a center
-  // nobody has visited for hours answer with hours-old announcements.
-  it('lets the CDN hold an answer for a minute and never serve it stale', async () => {
-    mockGetActiveAnnouncements.mockResolvedValue({ banners: [], popups: [] })
-
-    const cacheControl = (await get('nwac')).headers.get('Cache-Control')
-
-    expect(cacheControl).toContain('s-maxage=60')
-    expect(cacheControl).not.toContain('stale-while-revalidate')
+  // Cached, a save can purge it by path. The window is how late a scheduled start or end can be.
+  it('is cached like a page, for a minute', () => {
+    expect(dynamic).toBe('force-static')
+    expect(revalidate).toBe(60)
   })
 
   it('does not let the CDN cache the unknown-center reply', async () => {
