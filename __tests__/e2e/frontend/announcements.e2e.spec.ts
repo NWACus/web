@@ -3,6 +3,11 @@ import { tenantBaseUrl } from '../helpers/tenant-url'
 
 const TENANT_BASE_URL = tenantBaseUrl('nwac')
 
+/** Resolves once the browser has read the announcements, which it does after hydration. */
+function announcementsRead(page: Page) {
+  return page.waitForResponse((response) => response.url().endsWith('/api/nwac/announcements'))
+}
+
 /** Marks popups as dismissed so they don't overlay banner tests. */
 async function dismissPopups(page: Page) {
   await page.addInitScript(() => {
@@ -51,7 +56,9 @@ test.describe('Announcement banners', () => {
     await page.goto(`${TENANT_BASE_URL}/`)
     await page.waitForLoadState('load')
 
-    await expect(page.getByText('Past Season Summary Available')).not.toBeVisible()
+    // The banners arrive after load, so the absence below only counts once a live one is in.
+    await expect(page.getByText('Backcountry Access Road Closure')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Past Season Summary Available')).toHaveCount(0)
   })
 
   test('banner is visible on non-homepage routes', async ({ page }) => {
@@ -99,17 +106,20 @@ test.describe('Announcement popups', () => {
     await expect(page.getByRole('dialog')).not.toBeVisible()
 
     // Reload and verify the popup does not reappear
+    const read = announcementsRead(page)
     await page.reload()
-    await page.waitForLoadState('load')
+    await read
+    // Longer than the popup delay (1s), which starts once the announcements are read
     await page.waitForTimeout(2000)
     await expect(page.getByRole('dialog')).not.toBeVisible()
   })
 
   test('homepage-only popup does not appear on other pages', async ({ page }) => {
+    const read = announcementsRead(page)
     await page.goto(`${TENANT_BASE_URL}/blog`)
-    await page.waitForLoadState('load')
+    await read
 
-    // Wait longer than the popup delay (1s) to confirm it doesn't appear
+    // Longer than the popup delay (1s), which starts once the announcements are read
     await page.waitForTimeout(2000)
     await expect(page.getByRole('dialog')).not.toBeVisible()
   })
