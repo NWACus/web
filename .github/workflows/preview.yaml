@@ -20,6 +20,9 @@ jobs:
     environment: Preview
     env:
       NODE_ENV: production
+      HEAD_REF: ${{ github.head_ref }}
+      AUTHOR_LOGIN: ${{ github.event.pull_request.user.login }}
+
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash
@@ -32,7 +35,7 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          head_ref="${{ github.head_ref }}"
+          head_ref="$HEAD_REF"
           ref="${head_ref//[^a-z0-9\-]/x}"
           # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
           # and ensuring total database name stays within 58 character limit
@@ -146,17 +149,17 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
       - name: Update database URI in Vercel
-        run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview ${{ github.head_ref }} --no-sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+        run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview "$HEAD_REF" --no-sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database token in Vercel
-        run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview ${{ github.head_ref }} --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+        run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview "$HEAD_REF" --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update bootstrap password in Vercel
-        run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview ${{ github.head_ref }} --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+        run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview "$HEAD_REF" --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update server domain in Vercel
-        run: echo -n "${{ steps.domains.outputs.preview_alias }}" | vercel env add NEXT_PUBLIC_ROOT_DOMAIN preview ${{ github.head_ref }} --no-sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+        run: echo -n "${{ steps.domains.outputs.preview_alias }}" | vercel env add NEXT_PUBLIC_ROOT_DOMAIN preview "$HEAD_REF" --no-sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Variables into .env file
-        run: vercel env pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }} .env
+        run: vercel env pull --yes --environment=preview --git-branch="$HEAD_REF" --token=${{ secrets.VERCEL_TOKEN }} .env
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=preview --git-branch="$HEAD_REF" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -173,15 +176,15 @@ jobs:
 
           fullName="${{ github.repository }}"
           DEPLOYMENT_URL=$(vercel deploy --yes --prebuilt --target=preview \
-            --meta='githubCommitAuthorName=${{ github.event.pull_request.user.login }}' \
+            --meta="githubCommitAuthorName=$AUTHOR_LOGIN" \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
-            --meta='githubCommitRef=${{ github.head_ref }}' \
+            --meta="githubCommitRef=$HEAD_REF" \
             --meta="githubCommitRepo=${fullName##*/}" \
             --meta='githubCommitSha=${{ github.sha }}' \
             --meta='githubDeployment=1' \
             --meta='githubOrg=${{ github.repository_owner }}' \
             --meta="githubRepo=${fullName##*/}" \
-            --meta='githubCommitAuthorLogin=${{ github.event.pull_request.user.login }}' \
+            --meta="githubCommitAuthorLogin=$AUTHOR_LOGIN" \
             --token=${{ secrets.VERCEL_TOKEN }})
 
           echo "url=${DEPLOYMENT_URL}" >> "${GITHUB_OUTPUT}"
