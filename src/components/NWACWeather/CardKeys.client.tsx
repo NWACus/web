@@ -38,7 +38,7 @@ export function KeyButton({
 }: {
   kind: PhoneKeyKind
   hit?: number | null
-  /** A label's unit, kept on one line with the icon so the icon never wraps alone. */
+  /** A label's unit, on one line with the icon: the space before it is where a label wraps. */
   unit?: string
   className?: string
   children: ReactNode
@@ -54,17 +54,20 @@ export function KeyButton({
     >
       {children}
       {label && (
-        <span className="whitespace-nowrap">
-          {unit && <span className="font-normal text-muted-foreground"> ({unit})</span>}
-          <Info
-            aria-hidden="true"
-            className={cn(
-              'ml-1 inline-block size-3.5 align-[-0.125em]',
-              open?.kind === kind ? 'text-primary' : 'text-muted-foreground',
-            )}
-          />
-          <span className="sr-only"> key</span>
-        </span>
+        <>
+          {' '}
+          <span className="whitespace-nowrap">
+            {unit && <span className="font-normal text-muted-foreground">({unit})</span>}
+            <Info
+              aria-hidden="true"
+              className={cn(
+                'ml-1 inline-block size-3.5 align-[-0.125em]',
+                open?.kind === kind ? 'text-primary' : 'text-muted-foreground',
+              )}
+            />
+            <span className="sr-only"> key</span>
+          </span>
+        </>
       )}
     </button>
   )

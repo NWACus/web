@@ -506,9 +506,9 @@ function PeriodCard({
       <CardKeys>
         <table className="w-full table-fixed border-collapse">
           <colgroup>
-            <col className="w-28" />
-            <col />
-            <col />
+            <col className="w-[40%]" />
+            <col className="w-[30%]" />
+            <col className="w-[30%]" />
           </colgroup>
           <tbody>
             {points.length > 0 && (
@@ -568,7 +568,7 @@ function PeriodCard({
                 <tr>
                   <th scope="row" className={CARD_LABEL}>
                     <KeyButton kind="level" unit="ft">
-                      Snow level
+                      <span className="whitespace-nowrap">Snow level</span>
                     </KeyButton>
                   </th>
                   {p.blocks.map((b) => (
@@ -589,7 +589,7 @@ function PeriodCard({
                     <tr>
                       <th scope="row" className={CARD_LABEL}>
                         <KeyButton kind="wind" unit="mph">
-                          Ridge wind
+                          <span className="whitespace-nowrap">Ridge wind</span>
                         </KeyButton>
                       </th>
                       {p.blocks.map((b) => (
