@@ -37,6 +37,7 @@ import {
   TempValue,
   WindValue,
   ZoneKeys,
+  levelFill,
   levelStep,
   snowFill,
   windFill,
@@ -165,13 +166,9 @@ function PrecipSnowHead({ periods }: { periods: PeriodView[] }) {
   )
 }
 
-/** A snow amount as its public range, on its fill across the cell. */
+/** A snow amount as its public range; its cell carries the fill. */
 function SnowAmount({ snow }: { snow: number | null }) {
-  return (
-    <span className={cn('block rounded px-1.5 py-1', snowFill(snow))}>
-      <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
-    </span>
-  )
+  return <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
 }
 
 function PeriodHead({ periods }: { periods: PeriodView[] }) {
@@ -248,8 +245,10 @@ function PeriodRow({
   unit,
   pin = false,
   divide = false,
+  flush = false,
   periods,
   cell,
+  fill,
   covered = periods.length,
 }: {
   label: string
@@ -258,8 +257,12 @@ function PeriodRow({
   pin?: boolean
   /** A heavier line above, where the stations end and the zone-wide rows begin. */
   divide?: boolean
+  /** Cells without padding, for values that fill their own halves edge to edge. */
+  flush?: boolean
   periods: PeriodView[]
   cell: (p: PeriodView) => ReactNode
+  /** A cell's background across its whole width (the snow fills). */
+  fill?: (p: PeriodView) => string | undefined
   covered?: number
 }) {
   return (
@@ -276,7 +279,10 @@ function PeriodRow({
         {unit && <Unit>{unit}</Unit>}
       </th>
       {periods.slice(0, covered).map((p) => (
-        <td key={p.period.key} className="border-l border-t p-2 text-center">
+        <td
+          key={p.period.key}
+          className={cn('border-l border-t text-center', flush ? 'h-px p-0' : 'p-2', fill?.(p))}
+        >
           {cell(p)}
         </td>
       ))}
@@ -303,13 +309,26 @@ function BlockHead({ periods }: { periods: PeriodView[] }) {
   )
 }
 
-/** A 12h cell's two 6h values side by side, under BlockHead's parts of day. */
-function BlockPair({ blocks, value }: { blocks: BlockView[]; value: (b: BlockView) => ReactNode }) {
+/**
+ * A 12h cell's two 6h values side by side, under BlockHead's parts of day, each half filled edge
+ * to edge; its row's cells drop their padding (`flush`) so the fills meet the borders.
+ */
+function BlockPair({
+  blocks,
+  value,
+  fill,
+}: {
+  blocks: BlockView[]
+  value: (b: BlockView) => ReactNode
+  fill: (b: BlockView) => string | undefined
+}) {
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {blocks.map((b) => (
-        // Every value the pill's height, so the level and wind rows line up.
-        <div key={b.block.key} className="grid min-h-7 items-center">
+    <div className="grid h-full grid-cols-2">
+      {blocks.map((b, i) => (
+        <div
+          key={b.block.key}
+          className={cn('grid min-h-11 items-center p-2', i > 0 && 'border-l', fill(b))}
+        >
           {value(b)}
         </div>
       ))}
@@ -317,14 +336,7 @@ function BlockPair({ blocks, value }: { blocks: BlockView[]; value: (b: BlockVie
   )
 }
 
-/** A 6h wind on the overview's fill for its strength, a pill like the snow level's. */
-function ShadedWind({ b }: { b: BlockView }) {
-  return (
-    <span className={cn('grid min-h-7 items-center rounded px-1', windFill(b.wind?.speed))}>
-      <WindValue cell={b.wind} compact />
-    </span>
-  )
-}
+const levelCellFill = (b: BlockView) => (b.level == null ? undefined : levelFill(b.level))
 
 /** The keys of the 6h blocks after the first `count`: the ones a value isn't forecast for. */
 function blocksPast(periods: PeriodView[], count: number) {
@@ -371,6 +383,7 @@ function PeriodTable({
               label={point.name}
               pin
               periods={periods}
+              fill={(p) => snowFill(pointSnow(issuance, point.code, p.period.key))}
               cell={(p) => (
                 <PrecipSnowPair
                   precip={
@@ -394,10 +407,14 @@ function PeriodTable({
             label="Snow level"
             unit="ft"
             periods={periods}
+            flush
             cell={(p) => (
               <BlockPair
                 blocks={p.blocks}
-                value={(b) => <SnowLevelValue level={b.level} snow={b.snow} />}
+                fill={levelCellFill}
+                value={(b) => (
+                  <SnowLevelValue level={b.level} snow={b.snow} pill={false} tight={false} />
+                )}
               />
             )}
           />
@@ -406,10 +423,14 @@ function PeriodTable({
             unit="mph"
             periods={periods}
             covered={covered.windPeriods}
+            flush
             cell={(p) => (
               <BlockPair
                 blocks={p.blocks}
-                value={(b) => (windOut.has(b.block.key) ? null : <ShadedWind b={b} />)}
+                fill={(b) => (windOut.has(b.block.key) ? undefined : windFill(b.wind?.speed))}
+                value={(b) =>
+                  windOut.has(b.block.key) ? null : <WindValue cell={b.wind} compact />
+                }
               />
             )}
           />
@@ -456,7 +477,7 @@ function CardHeads({ label, children }: { label?: string; children: ReactNode })
   )
 }
 
-/** A point's snow, its fill across the cell; tapping it opens the snow key at its step. */
+/** A point's snow; tapping it opens the snow key at its step. */
 function CardSnow({ snow }: { snow: number | null }) {
   const step = snowTier(snow)
   const value = <SnowAmount snow={snow} />
@@ -532,7 +553,9 @@ function PeriodCard({
                 <td className={CARD_CELL}>
                   <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
                 </td>
-                <td className={CARD_CELL}>
+                <td
+                  className={cn(CARD_CELL, snowFill(pointSnow(issuance, point.code, p.period.key)))}
+                >
                   <CardSnow snow={pointSnow(issuance, point.code, p.period.key)} />
                 </td>
               </tr>
@@ -567,12 +590,17 @@ function PeriodCard({
                     </KeyButton>
                   </th>
                   {p.blocks.map((b) => (
-                    <td key={b.block.key} className={CARD_CELL}>
+                    <td key={b.block.key} className={cn(CARD_CELL, 'border-l', levelCellFill(b))}>
                       {b.level == null ? (
                         <SnowLevelValue level={null} snow={b.snow} />
                       ) : (
                         <KeyButton kind="level" hit={levelStep(b.level)}>
-                          <SnowLevelValue level={b.level} snow={b.snow} />
+                          <SnowLevelValue
+                            level={b.level}
+                            snow={b.snow}
+                            pill={false}
+                            tight={false}
+                          />
                         </KeyButton>
                       )}
                     </td>
@@ -588,10 +616,17 @@ function PeriodCard({
                         </KeyButton>
                       </th>
                       {p.blocks.map((b) => (
-                        <td key={b.block.key} className={CARD_CELL}>
+                        <td
+                          key={b.block.key}
+                          className={cn(
+                            CARD_CELL,
+                            'border-l',
+                            !windOut.has(b.block.key) && windFill(b.wind?.speed),
+                          )}
+                        >
                           {!windOut.has(b.block.key) && (
                             <KeyButton kind="wind" hit={windStep(b.wind?.speed)}>
-                              <ShadedWind b={b} />
+                              <WindValue cell={b.wind} compact />
                             </KeyButton>
                           )}
                         </td>

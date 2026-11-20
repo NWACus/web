@@ -148,10 +148,7 @@ describe('ZoneTable', () => {
     const cells = within(snowRow).getAllByRole('cell')
     cells.forEach((td, i) => {
       const fill = snowFill(pointSnow(afternoon, point.code, afternoon.periods[i].key))
-      if (!fill) return
-      // The fill is the snow half's pill, not the whole period cell.
-      expect(td).not.toHaveClass(fill)
-      expect(td.getElementsByClassName(fill)).toHaveLength(1)
+      if (fill) expect(td).toHaveClass(fill)
     })
 
     const key = screen.getByText(/none, freezing level/)
