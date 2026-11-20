@@ -168,7 +168,9 @@ const periodColumn = (p: NWACWeatherPeriod): Column => ({
 
 /** Forecaster-authored HTML, or null when blank. Already sanitized: see `sanitizeIssuance`. */
 function authoredOrNull(html: string | null | undefined): string | null {
-  return html?.trim() ? html : null
+  // Drop tags and non-breaking spaces, so an editor's empty "<p></p>" or "<p>&nbsp;</p>" counts as none.
+  const text = html?.replace(/<[^>]*>|&nbsp;|\u00a0/g, '').trim()
+  return text ? (html ?? null) : null
 }
 
 function blockColumn(issuance: NWACWeatherIssuance, b: NWACWeatherBlock): Column {

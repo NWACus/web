@@ -238,6 +238,11 @@ describe('Overall extended section', () => {
     expect(screen.queryByRole('heading', { name: 'Extended' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Extended' })).toBeNull()
   })
+
+  it('treats an outlook with no text, as the editor leaves it, as none', () => {
+    render(<Overall parts={overallParts({ ...afternoon, extendedOutlook: '<p></p>' })} />)
+    expect(screen.queryByRole('heading', { name: 'Extended' })).toBeNull()
+  })
 })
 
 describe('Overall table descriptions', () => {
