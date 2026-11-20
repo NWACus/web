@@ -514,10 +514,11 @@ function PeriodCard({
             {points.length > 0 && (
               <CardHeads label="Station">
                 <th scope="col" className={CARD_HEAD}>
-                  Precip<Unit>in</Unit>
+                  Precip
+                  <span className="block">(in)</span>
                 </th>
                 <th scope="col" className={CARD_HEAD}>
-                  <KeyButton kind="snow" unit="in" className="font-normal">
+                  <KeyButton kind="snow" unit="in" unitBelow className="font-normal">
                     Snow @ 5000&apos;
                   </KeyButton>
                 </th>

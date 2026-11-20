@@ -33,6 +33,7 @@ export function KeyButton({
   kind,
   hit,
   unit,
+  unitBelow = false,
   className,
   children,
 }: {
@@ -40,6 +41,8 @@ export function KeyButton({
   hit?: number | null
   /** A label's unit, on one line with the icon: the space before it is where a label wraps. */
   unit?: string
+  /** The unit and icon on their own centered line, as in a column head. */
+  unitBelow?: boolean
   className?: string
   children: ReactNode
 }) {
@@ -50,13 +53,17 @@ export function KeyButton({
       type="button"
       aria-expanded={open?.kind === kind}
       onClick={() => toggle(kind, hit)}
-      className={cn(label ? 'text-left font-semibold' : 'block w-full', className)}
+      className={cn(
+        label ? (unitBelow ? 'text-center' : 'text-left') : 'block w-full',
+        label && 'font-semibold',
+        className,
+      )}
     >
       {children}
       {label && (
         <>
           {' '}
-          <span className="whitespace-nowrap">
+          <span className={cn('whitespace-nowrap', unitBelow && 'block')}>
             {unit && <span className="font-normal text-muted-foreground">({unit})</span>}
             <Info
               aria-hidden="true"
