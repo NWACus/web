@@ -18,7 +18,7 @@ describe('Overall', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     for (const title of [
       'Precipitation and Snow (in)',
-      "5000' Temperatures (°F)",
+      "Temperatures @ 5000' (°F)",
       'Snow and Freezing Level (ft)',
       'Snow Levels (ft)',
       'Ridgeline Winds (mph)',
@@ -29,7 +29,7 @@ describe('Overall', () => {
     expect(screen.getAllByText('Hurricane Ridge').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Olympics').length).toBeGreaterThan(0)
     // 53 / 47 °F for Olympics on Night 1, as entered.
-    const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
+    const temps = screen.getByRole('region', { name: "Temperatures @ 5000' (°F)" })
     const [olympics] = within(temps)
       .getAllByRole('rowheader', { name: 'Olympics' })
       .map((label) => label.closest('tr'))
@@ -368,7 +368,7 @@ describe('levelFill', () => {
 describe('the paired temperature and wind tables', () => {
   it('shows a phone every date of the temperatures, with no date switch', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
+    const temps = screen.getByRole('region', { name: "Temperatures @ 5000' (°F)" })
     expect(within(temps).queryByRole('tab')).not.toBeInTheDocument()
   })
 

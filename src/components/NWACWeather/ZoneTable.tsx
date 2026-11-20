@@ -20,6 +20,7 @@ import {
   pointSnow,
   sensibleSlotFor,
   snowRange,
+  snowTier,
   tempPeriods,
   windBlocks,
   zonePoints,
@@ -27,6 +28,7 @@ import {
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
+import { CardKeys, KeyButton, KeyRow } from './CardKeys.client'
 import {
   DayNightDate,
   SnowLevelValue,
@@ -34,14 +36,16 @@ import {
   TempValue,
   WindValue,
   ZoneKeys,
+  levelStep,
   snowFill,
   windFill,
+  windStep,
 } from './Values'
 
 const HEAD = 'border-b border-l p-2 text-center font-semibold'
 // The right border is the line between the labels and the cells, whatever the cells draw.
 const ROW_LABEL = 'border-r border-t p-2 pl-3 text-left align-middle font-semibold'
-/** A row's unit, always in parentheses: "Snow (in)", "5000' Temperatures (°F)". */
+/** A row's unit, always in parentheses: "Snow (in)", "Temperatures @ 5000' (°F)". */
 const Unit = ({ children }: { children: string }) => (
   <span className="font-normal text-muted-foreground"> ({children})</span>
 )
@@ -172,11 +176,9 @@ function PrecipSnowHead({ periods }: { periods: PeriodView[] }) {
   )
 }
 
-/** A snow amount as its public range; `chip` carries the snow fill itself, off a table cell. */
-function SnowAmount({ snow, chip = false }: { snow: number | null; chip?: boolean }) {
-  const value = <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
-  const fill = chip ? snowFill(snow) : undefined
-  return fill ? <span className={cn('rounded px-1.5 py-0.5', fill)}>{value}</span> : value
+/** A snow amount as its public range. */
+function SnowAmount({ snow }: { snow: number | null }) {
+  return <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
 }
 
 function PeriodHead({ periods }: { periods: PeriodView[] }) {
@@ -394,7 +396,7 @@ function PeriodTable({
             )}
           />
           <PeriodRow
-            label="5000' Temperatures"
+            label="Temperatures @ 5000'"
             unit="Lo / Hi °F"
             periods={periods}
             covered={covered.temps}
@@ -434,122 +436,42 @@ function NotCoveredChip() {
   )
 }
 
-/** One labeled line of a phone card: the name on the left, the value on the right. */
-function CardLine({
-  label,
-  unit,
-  point,
-  children,
-}: {
-  label: string
-  unit?: string
-  point?: string
-  children: ReactNode
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 px-3 py-2">
-      <dt className="min-w-0 font-semibold">
-        {label}
-        {unit && <Unit>{unit}</Unit>}
-        {point && <Point>{point}</Point>}
-      </dt>
-      {/* The values keep to one line; a long label wraps instead. */}
-      <dd className="shrink-0 whitespace-nowrap text-right">{children}</dd>
-    </div>
-  )
-}
+const CARD_LABEL = 'border-t px-3 py-2 text-left align-middle'
+const CARD_CELL = 'border-t px-2 py-1.5 text-center align-middle'
+const CARD_HEAD =
+  'border-t bg-muted px-2 py-1.5 text-center text-xs font-normal text-muted-foreground'
 
-/** A phone card's labeled lines: each point's precipitation beside its snow, then the temps. */
-function CardSummary({
-  issuance,
-  zone,
-  p,
-  tempOut,
-}: {
-  issuance: NWACWeatherIssuance
-  zone: NWACWeatherZone
-  p: PeriodView
-  tempOut: boolean
-}) {
-  const temp = tempOut ? (
-    <NotCoveredChip />
-  ) : (
-    <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />
-  )
-  const points = zonePoints(issuance, zone.id)
+/** A row of column heads, its label cell empty. */
+function CardHeads({ children }: { children: ReactNode }) {
   return (
-    <dl className="divide-y border-t">
-      {points.map((point) => (
-        <CardLine key={point.code} label="Precipitation & Snow" unit="in" point={point.name}>
-          <span className="inline-flex items-center gap-2">
-            <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
-            <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} chip />
-            <span className="text-[11px] text-muted-foreground">@ 5000&apos;</span>
-          </span>
-        </CardLine>
-      ))}
-      <CardLine label="5000' Temperatures" unit="Lo / Hi °F">
-        {temp}
-      </CardLine>
-    </dl>
-  )
-}
-
-const CARD_HEAD = 'px-3 py-2 text-left font-normal'
-
-function CardBlocksHead({ showWind }: { showWind: boolean }) {
-  return (
-    <thead className="bg-muted text-xs text-muted-foreground">
-      <tr>
-        <td className="border-r" />
-        <th scope="col" className={CARD_HEAD}>
-          Snow &amp; Freezing Level <Unit>ft</Unit>
-        </th>
-        {showWind ? (
-          <th scope="col" className={CARD_HEAD}>
-            Ridgeline Winds <Unit>mph</Unit>
-          </th>
-        ) : (
-          <td />
-        )}
-      </tr>
-    </thead>
-  )
-}
-
-function CardBlockRow({ b, wind }: { b: BlockView; wind: boolean }) {
-  return (
-    <tr className="border-t">
-      <th scope="row" className="border-r px-3 py-2 text-left font-normal text-muted-foreground">
-        {b.block.part}
-      </th>
-      <td className="px-3 py-1.5">
-        <SnowLevelValue level={b.level} snow={b.snow} />
-      </td>
-      <td className="px-3 py-1.5">{wind && <ShadedWind b={b} />}</td>
+    <tr>
+      <td className="border-t bg-muted" />
+      {children}
     </tr>
   )
 }
 
-/**
- * A phone card's 6h blocks: the snow level and ridgeline wind by part of day, in three equal
- * columns. Wind runs fewer periods than the snow level; past that its column stays empty.
- */
-function CardBlocks({ p, windOut }: { p: PeriodView; windOut: Set<string> }) {
-  const showWind = p.blocks.some((b) => !windOut.has(b.block.key))
+/** A point's snow, its fill across the cell; tapping it opens the snow key at its step. */
+function CardSnow({ snow }: { snow: number | null }) {
+  const step = snowTier(snow)
+  const value = (
+    <span className={cn('block rounded px-1.5 py-1', snowFill(snow))}>
+      <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
+    </span>
+  )
+  if (step == null) return value
   return (
-    <table className="w-full table-fixed border-collapse border-t">
-      <CardBlocksHead showWind={showWind} />
-      <tbody>
-        {p.blocks.map((b) => (
-          <CardBlockRow key={b.block.key} b={b} wind={!windOut.has(b.block.key)} />
-        ))}
-      </tbody>
-    </table>
+    <KeyButton kind="snow" hit={step}>
+      {value}
+    </KeyButton>
   )
 }
 
-/** One 12h period on a phone, every value labeled. */
+/**
+ * One 12h period on a phone: a single grid with what's measured down the left. The 12h values
+ * (temps, each point's precip and snow) span the period; snow level and wind sit under its 6h
+ * parts. Each row's key opens under it.
+ */
 function PeriodCard({
   issuance,
   zone,
@@ -565,6 +487,8 @@ function PeriodCard({
   /** The block keys past the wind's coverage. */
   windOut: Set<string>
 }) {
+  const points = zonePoints(issuance, zone.id)
+  const showWind = p.blocks.some((b) => !windOut.has(b.block.key))
   return (
     <section className="overflow-hidden rounded-lg border text-sm">
       <h4 className="flex items-center gap-2 bg-muted px-3 py-2 text-base font-semibold">
@@ -572,8 +496,104 @@ function PeriodCard({
         {p.name}
         <span className="font-normal text-muted-foreground">{p.label}</span>
       </h4>
-      <CardSummary issuance={issuance} zone={zone} p={p} tempOut={tempOut} />
-      <CardBlocks p={p} windOut={windOut} />
+      <CardKeys>
+        <table className="w-full table-fixed border-collapse">
+          <colgroup>
+            <col className="w-28" />
+            <col />
+            <col />
+          </colgroup>
+          <tbody>
+            {/* Temps lead, so they don't sink under a multipoint zone's stations. */}
+            <tr>
+              <th scope="row" className={CARD_LABEL}>
+                <KeyButton kind="temp">Temperatures @ 5000&apos;</KeyButton>
+              </th>
+              <td colSpan={2} className={CARD_CELL}>
+                {tempOut ? (
+                  <NotCoveredChip />
+                ) : (
+                  <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />
+                )}
+              </td>
+            </tr>
+            <KeyRow kind="temp" colSpan={3} />
+            {points.length > 0 && (
+              <CardHeads>
+                <th scope="col" className={CARD_HEAD}>
+                  Precip <Unit>in</Unit>
+                </th>
+                <th scope="col" className={CARD_HEAD}>
+                  <KeyButton kind="snow" className="font-normal">
+                    Snow @ 5000&apos;
+                  </KeyButton>
+                </th>
+              </CardHeads>
+            )}
+            {points.map((point) => (
+              <tr key={point.code}>
+                <th scope="row" className={cn(CARD_LABEL, 'font-normal')}>
+                  {point.name}
+                </th>
+                <td className={CARD_CELL}>
+                  <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
+                </td>
+                <td className={CARD_CELL}>
+                  <CardSnow snow={pointSnow(issuance, point.code, p.period.key)} />
+                </td>
+              </tr>
+            ))}
+            <KeyRow kind="snow" colSpan={3} />
+            {p.blocks.length > 0 && (
+              <>
+                <CardHeads>
+                  {p.blocks.map((b) => (
+                    <th key={b.block.key} scope="col" className={CARD_HEAD}>
+                      {b.block.part}
+                    </th>
+                  ))}
+                </CardHeads>
+                <tr>
+                  <th scope="row" className={CARD_LABEL}>
+                    <KeyButton kind="level">Snow level</KeyButton>
+                  </th>
+                  {p.blocks.map((b) => (
+                    <td key={b.block.key} className={CARD_CELL}>
+                      {b.level == null ? (
+                        <SnowLevelValue level={null} snow={b.snow} />
+                      ) : (
+                        <KeyButton kind="level" hit={levelStep(b.level)}>
+                          <SnowLevelValue level={b.level} snow={b.snow} />
+                        </KeyButton>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+                <KeyRow kind="level" colSpan={3} />
+                {showWind && (
+                  <>
+                    <tr>
+                      <th scope="row" className={CARD_LABEL}>
+                        <KeyButton kind="wind">Ridge wind</KeyButton>
+                      </th>
+                      {p.blocks.map((b) => (
+                        <td key={b.block.key} className={CARD_CELL}>
+                          {!windOut.has(b.block.key) && (
+                            <KeyButton kind="wind" hit={windStep(b.wind?.speed)}>
+                              <ShadedWind b={b} />
+                            </KeyButton>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                    <KeyRow kind="wind" colSpan={3} />
+                  </>
+                )}
+              </>
+            )}
+          </tbody>
+        </table>
+      </CardKeys>
       {p.summary && <p className="whitespace-pre-line border-t px-3 py-2">{p.summary}</p>}
     </section>
   )
@@ -630,7 +650,9 @@ export function ZoneTable({
       <div className="space-y-2">
         <PeriodTable issuance={issuance} zone={zone} periods={periods} />
         <PeriodCards issuance={issuance} zone={zone} periods={periods} />
-        <ZoneKeys />
+        <div className="hidden md:block print:block">
+          <ZoneKeys />
+        </div>
       </div>
     </section>
   )
