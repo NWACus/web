@@ -240,8 +240,8 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     },
     {
       id: 'temps',
-      nav: "5000' Temps",
-      title: "5000' Temperatures",
+      nav: "Temps @ 5000'",
+      title: "Temperatures @ 5000'",
       unit: '°F',
       description: TEMPS_DESCRIPTION,
       legend: <TempLegend />,

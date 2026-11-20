@@ -41,7 +41,7 @@ import {
 const HEAD = 'border-b border-l p-2 text-center font-semibold'
 // The right border is the line between the labels and the cells, whatever the cells draw.
 const ROW_LABEL = 'border-r border-t p-2 pl-3 text-left align-middle font-semibold'
-/** A row's unit, always in parentheses: "Snow (in)", "5000' Temperatures (°F)". */
+/** A row's unit, always in parentheses: "Snow (in)", "Temperatures @ 5000' (°F)". */
 const Unit = ({ children }: { children: string }) => (
   <span className="font-normal text-muted-foreground"> ({children})</span>
 )
@@ -394,7 +394,7 @@ function PeriodTable({
             )}
           />
           <PeriodRow
-            label="5000' Temperatures"
+            label="Temperatures @ 5000'"
             unit="Lo / Hi °F"
             periods={periods}
             covered={covered.temps}
@@ -488,7 +488,7 @@ function CardSummary({
           </span>
         </CardLine>
       ))}
-      <CardLine label="5000' Temperatures" unit="Lo / Hi °F">
+      <CardLine label="Temperatures @ 5000'" unit="Lo / Hi °F">
         {temp}
       </CardLine>
     </dl>

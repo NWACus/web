@@ -46,7 +46,7 @@ describe('ZoneTable', () => {
       'Precipitation & Snow (in)',
       'Snoqualmie Pass',
       'Snow & Freezing Level (ft)',
-      "5000' Temperatures (Lo / Hi °F)",
+      "Temperatures @ 5000' (Lo / Hi °F)",
       'Ridgeline Winds (mph)',
       'Summary',
     ])
@@ -85,7 +85,7 @@ describe('ZoneTable', () => {
     if (!table) throw new Error('no zone table')
     const row = within(table)
       .getAllByRole('rowheader')
-      .find((th) => th.textContent?.startsWith("5000'"))
+      .find((th) => th.textContent?.startsWith('Temperatures'))
       ?.closest('tr')
     if (!row) throw new Error('no temperature row')
 
