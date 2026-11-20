@@ -1,5 +1,5 @@
 /** How one Mountain Weather value draws in a table cell. */
-import { Moon, Navigation2, Snowflake, Sun } from 'lucide-react'
+import { Moon, Navigation2, Snowflake, Sun, ThermometerSnowflake } from 'lucide-react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import {
@@ -150,16 +150,14 @@ function SnowFillKey({ width }: { width?: string }) {
   )
 }
 
-/** What follows a level: a snowflake for a snow level, an FL tag for a dry block's freezing level. */
+/** What follows a level: a snowflake for a snow level, a thermometer for a dry block's freezing level. */
 function LevelMark({ snow }: { snow: boolean }) {
-  if (snow) return <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
+  const Icon = snow ? Snowflake : ThermometerSnowflake
   return (
-    <span
+    <Icon
       aria-hidden="true"
-      className="rounded-sm border border-current px-0.5 text-[10px] font-semibold leading-none"
-    >
-      FL
-    </span>
+      className={cn('size-3.5 shrink-0', snow ? 'text-sky-700' : 'text-stone-600')}
+    />
   )
 }
 
@@ -335,8 +333,8 @@ export function SnowLevelValue({
     >
       <span
         className={cn(
-          'grid grid-cols-[3.25rem_1.25rem] items-center gap-1.5',
-          tight && 'max-md:grid-cols-[2.75rem_1.125rem] max-md:gap-0.5 max-md:text-xs',
+          'grid grid-cols-[3.25rem_0.875rem] items-center gap-1.5',
+          tight && 'max-md:grid-cols-[2.75rem_0.875rem] max-md:gap-0.5 max-md:text-xs',
         )}
       >
         <span className="text-right">
