@@ -150,12 +150,27 @@ function SnowFillKey({ width }: { width?: string }) {
   )
 }
 
+/** What follows a level: a snowflake for a snow level, an FL tag for a dry block's freezing level. */
+function LevelMark({ snow }: { snow: boolean }) {
+  if (snow) return <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
+  return (
+    <span
+      aria-hidden="true"
+      className="rounded-sm border border-current px-0.5 text-[10px] font-semibold leading-none"
+    >
+      FL
+    </span>
+  )
+}
+
 function SnowLevelKey({ width, hit }: { width?: string; hit?: number | null }) {
   return (
     <>
-      <span className="inline-flex items-center gap-1">
-        <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
-        Snow level; none, freezing level
+      <span className="inline-flex items-center gap-1.5">
+        Snow level
+        <LevelMark snow />
+        <span className="ml-2">Freezing level (dry)</span>
+        <LevelMark snow={false} />
       </span>
       <SegmentedBar
         hit={hit}
@@ -294,8 +309,8 @@ export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
 }
 
 /**
- * A block's snow or freezing level, filled by elevation; a snow level carries a snowflake, a
- * freezing level (a dry block) none. A fixed snowflake slot lines the numbers up down a column.
+ * A block's snow or freezing level, filled by elevation, then its LevelMark. A fixed slot for
+ * the mark lines the numbers up down a column.
  */
 export function SnowLevelValue({
   level,
@@ -320,14 +335,16 @@ export function SnowLevelValue({
     >
       <span
         className={cn(
-          'grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5',
-          tight && 'max-md:grid-cols-[0.875rem_2.75rem] max-md:gap-0.5 max-md:text-xs',
+          'grid grid-cols-[3.25rem_1.25rem] items-center gap-1.5',
+          tight && 'max-md:grid-cols-[2.75rem_1.125rem] max-md:gap-0.5 max-md:text-xs',
         )}
       >
-        <span>{snow && <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />}</span>
         <span className="text-right">
           {level.toLocaleString('en-US')}&apos;
           <span className="sr-only">{snow ? ' snow level' : ' freezing level'}</span>
+        </span>
+        <span className="flex">
+          <LevelMark snow={snow} />
         </span>
       </span>
     </span>
