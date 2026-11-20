@@ -1,5 +1,5 @@
 /** How one Mountain Weather value draws in a table cell. */
-import { Moon, Navigation2, Snowflake, Sun, ThermometerSnowflake } from 'lucide-react'
+import { Moon, Navigation2, Snowflake, Sun } from 'lucide-react'
 
 import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/model/nwacWeather'
 import {
@@ -150,25 +150,27 @@ function SnowFillKey({ width }: { width?: string }) {
   )
 }
 
-/** What follows a level: a snowflake for a snow level, a thermometer for a dry block's freezing level. */
+/** A snow level's mark; a dry block's freezing level has none. */
 function LevelMark({ snow }: { snow: boolean }) {
-  const Icon = snow ? Snowflake : ThermometerSnowflake
-  return (
-    <Icon
-      aria-hidden="true"
-      className={cn('size-3.5 shrink-0', snow ? 'text-sky-700' : 'text-stone-600')}
-    />
-  )
+  return snow ? <Snowflake aria-hidden="true" className="size-3.5 shrink-0 text-sky-700" /> : null
 }
 
 function SnowLevelKey({ width, hit }: { width?: string; hit?: number | null }) {
   return (
     <>
-      <span className="inline-flex items-center gap-1.5">
-        Snow level
-        <LevelMark snow />
-        <span className="ml-2">Freezing level (dry)</span>
-        <LevelMark snow={false} />
+      <span className="inline-flex flex-wrap items-center gap-x-4 gap-y-1">
+        <span className="inline-flex items-center gap-1.5">
+          <LevelMark snow />
+          Freezing level with snow
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          {/* An empty dashed box: what a dry block shows in the icon's place. */}
+          <span
+            aria-hidden="true"
+            className="size-3 rounded-sm border border-dashed border-current"
+          />
+          No icon: dry freezing level
+        </span>
       </span>
       <SegmentedBar
         hit={hit}

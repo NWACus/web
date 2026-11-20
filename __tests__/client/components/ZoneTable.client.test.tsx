@@ -151,7 +151,7 @@ describe('ZoneTable', () => {
       if (fill) expect(td).toHaveClass(fill)
     })
 
-    const key = screen.getByText(/Freezing level \(dry\)/)
+    const key = screen.getByText(/dry freezing level/)
     expect(table.compareDocumentPosition(key) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const levelRow = within(table)
       .getByRole('rowheader', { name: /^Snow level/ })
@@ -191,10 +191,10 @@ describe('ZoneTable', () => {
       expect(within(card).queryByText(/freezing level/)).not.toBeInTheDocument()
 
       fireEvent.click(within(card).getByRole('button', { name: 'Snow level (ft) key' }))
-      expect(within(card).getByText(/Freezing level \(dry\)/)).toBeInTheDocument()
+      expect(within(card).getByText(/dry freezing level/)).toBeInTheDocument()
 
       fireEvent.click(within(card).getByRole('button', { name: 'Ridge wind (mph) key' }))
-      expect(within(card).queryByText(/Freezing level \(dry\)/)).not.toBeInTheDocument()
+      expect(within(card).queryByText(/dry freezing level/)).not.toBeInTheDocument()
       expect(within(card).getByText(/VAR: variable/)).toBeInTheDocument()
     })
   })
