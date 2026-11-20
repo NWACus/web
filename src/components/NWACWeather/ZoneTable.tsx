@@ -26,6 +26,7 @@ import {
   zonePoints,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
+import { MapPin } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { CardKeys, KeyButton, KeyRow } from './CardKeys.client'
@@ -441,11 +442,17 @@ const CARD_CELL = 'border-t px-2 py-1.5 text-center align-middle'
 const CARD_HEAD =
   'border-t bg-muted px-2 py-1.5 text-center text-xs font-normal text-muted-foreground'
 
-/** A row of column heads, its label cell empty. */
-function CardHeads({ children }: { children: ReactNode }) {
+/** A row of column heads, with a head over the row labels when they need one. */
+function CardHeads({ label, children }: { label?: string; children: ReactNode }) {
   return (
     <tr>
-      <td className="border-t bg-muted" />
+      {label ? (
+        <th scope="col" className={cn(CARD_HEAD, 'pl-3 text-left')}>
+          {label}
+        </th>
+      ) : (
+        <td className="border-t bg-muted" />
+      )}
       {children}
     </tr>
   )
@@ -505,7 +512,7 @@ function PeriodCard({
           </colgroup>
           <tbody>
             {points.length > 0 && (
-              <CardHeads>
+              <CardHeads label="Station">
                 <th scope="col" className={CARD_HEAD}>
                   Precip<Unit>in</Unit>
                 </th>
@@ -519,7 +526,13 @@ function PeriodCard({
             {points.map((point) => (
               <tr key={point.code}>
                 <th scope="row" className={cn(CARD_LABEL, 'font-normal')}>
-                  {point.name}
+                  <span className="flex items-start gap-1">
+                    <MapPin
+                      aria-hidden="true"
+                      className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
+                    />
+                    {point.name}
+                  </span>
                 </th>
                 <td className={CARD_CELL}>
                   <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
@@ -530,7 +543,8 @@ function PeriodCard({
               </tr>
             ))}
             <KeyRow kind="snow" colSpan={3} />
-            <tr>
+            {/* A heavier line where the stations end and the zone-wide rows begin. */}
+            <tr className="[&>*]:border-t-2">
               <th scope="row" className={cn(CARD_LABEL, 'font-semibold')}>
                 Temperatures @ 5000&apos;<Unit>°F</Unit>
               </th>
