@@ -233,11 +233,10 @@ describe('fmtQpf', () => {
 })
 
 describe('Overall extended section', () => {
-  it('shows the snow levels without an outlook when the forecaster wrote none', () => {
+  it('leaves the section and its link out when the forecaster wrote no outlook', () => {
     render(<Overall parts={overallParts({ ...afternoon, extendedOutlook: null })} />)
-    expect(screen.getByRole('heading', { name: 'Extended' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Outlook' })).toBeNull()
-    expect(screen.getByRole('heading', { name: 'Snow Levels (ft)' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Extended' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Extended' })).toBeNull()
   })
 })
 
