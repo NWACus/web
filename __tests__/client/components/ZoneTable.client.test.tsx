@@ -165,7 +165,7 @@ describe('ZoneTable', () => {
       return card
     }
 
-    it('leads with temps, then a row per point, then snow level and wind by part of day', () => {
+    it('gives a row per point, then temps, then snow level and wind by part of day', () => {
       const z = zone('west-south')
       const { container } = render(
         <ZoneTable issuance={afternoon} zone={z} periodKeys={DAY_ONE} heading={false} />,
@@ -175,10 +175,10 @@ describe('ZoneTable', () => {
         .map((th) => th.textContent)
 
       expect(rows).toEqual([
-        "Temperatures @ 5000' key",
         ...zonePoints(afternoon, z.id).map((p) => p.name),
-        'Snow level key',
-        'Ridge wind key',
+        "Temperatures @ 5000' (°F)",
+        'Snow level (ft) key',
+        'Ridge wind (mph) key',
       ])
     })
 
@@ -189,10 +189,10 @@ describe('ZoneTable', () => {
       const card = phoneCard(container)
       expect(within(card).queryByText(/freezing level/)).not.toBeInTheDocument()
 
-      fireEvent.click(within(card).getByRole('button', { name: 'Snow level key' }))
+      fireEvent.click(within(card).getByRole('button', { name: 'Snow level (ft) key' }))
       expect(within(card).getByText(/none, freezing level/)).toBeInTheDocument()
 
-      fireEvent.click(within(card).getByRole('button', { name: 'Ridge wind key' }))
+      fireEvent.click(within(card).getByRole('button', { name: 'Ridge wind (mph) key' }))
       expect(within(card).queryByText(/none, freezing level/)).not.toBeInTheDocument()
       expect(within(card).getByText(/VAR: variable/)).toBeInTheDocument()
     })

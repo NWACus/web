@@ -32,11 +32,14 @@ function useCardKeys() {
 export function KeyButton({
   kind,
   hit,
+  unit,
   className,
   children,
 }: {
   kind: PhoneKeyKind
   hit?: number | null
+  /** A label's unit, kept on one line with the icon so the icon never wraps alone. */
+  unit?: string
   className?: string
   children: ReactNode
 }) {
@@ -51,17 +54,17 @@ export function KeyButton({
     >
       {children}
       {label && (
-        <>
+        <span className="whitespace-nowrap">
+          {unit && <span className="font-normal text-muted-foreground"> ({unit})</span>}
           <Info
             aria-hidden="true"
             className={cn(
-              // Inline, so it trails the label's last word when the label wraps.
               'ml-1 inline-block size-3.5 align-[-0.125em]',
               open?.kind === kind ? 'text-primary' : 'text-muted-foreground',
             )}
           />
           <span className="sr-only"> key</span>
-        </>
+        </span>
       )}
     </button>
   )

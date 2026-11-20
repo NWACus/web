@@ -469,7 +469,7 @@ function CardSnow({ snow }: { snow: number | null }) {
 
 /**
  * One 12h period on a phone: a single grid with what's measured down the left. The 12h values
- * (temps, each point's precip and snow) span the period; snow level and wind sit under its 6h
+ * (each point's precip and snow, then temps) span the period; snow level and wind sit under its 6h
  * parts. Each row's key opens under it.
  */
 function PeriodCard({
@@ -504,27 +504,13 @@ function PeriodCard({
             <col />
           </colgroup>
           <tbody>
-            {/* Temps lead, so they don't sink under a multipoint zone's stations. */}
-            <tr>
-              <th scope="row" className={CARD_LABEL}>
-                <KeyButton kind="temp">Temperatures @ 5000&apos;</KeyButton>
-              </th>
-              <td colSpan={2} className={CARD_CELL}>
-                {tempOut ? (
-                  <NotCoveredChip />
-                ) : (
-                  <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />
-                )}
-              </td>
-            </tr>
-            <KeyRow kind="temp" colSpan={3} />
             {points.length > 0 && (
               <CardHeads>
                 <th scope="col" className={CARD_HEAD}>
-                  Precip <Unit>in</Unit>
+                  Precip<Unit>in</Unit>
                 </th>
                 <th scope="col" className={CARD_HEAD}>
-                  <KeyButton kind="snow" className="font-normal">
+                  <KeyButton kind="snow" unit="in" className="font-normal">
                     Snow @ 5000&apos;
                   </KeyButton>
                 </th>
@@ -544,6 +530,18 @@ function PeriodCard({
               </tr>
             ))}
             <KeyRow kind="snow" colSpan={3} />
+            <tr>
+              <th scope="row" className={cn(CARD_LABEL, 'font-semibold')}>
+                Temperatures @ 5000&apos;<Unit>°F</Unit>
+              </th>
+              <td colSpan={2} className={CARD_CELL}>
+                {tempOut ? (
+                  <NotCoveredChip />
+                ) : (
+                  <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />
+                )}
+              </td>
+            </tr>
             {p.blocks.length > 0 && (
               <>
                 <CardHeads>
@@ -555,7 +553,9 @@ function PeriodCard({
                 </CardHeads>
                 <tr>
                   <th scope="row" className={CARD_LABEL}>
-                    <KeyButton kind="level">Snow level</KeyButton>
+                    <KeyButton kind="level" unit="ft">
+                      Snow level
+                    </KeyButton>
                   </th>
                   {p.blocks.map((b) => (
                     <td key={b.block.key} className={CARD_CELL}>
@@ -574,7 +574,9 @@ function PeriodCard({
                   <>
                     <tr>
                       <th scope="row" className={CARD_LABEL}>
-                        <KeyButton kind="wind">Ridge wind</KeyButton>
+                        <KeyButton kind="wind" unit="mph">
+                          Ridge wind
+                        </KeyButton>
                       </th>
                       {p.blocks.map((b) => (
                         <td key={b.block.key} className={CARD_CELL}>

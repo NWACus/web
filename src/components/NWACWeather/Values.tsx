@@ -233,20 +233,10 @@ export function ZoneKeys() {
   )
 }
 
-export type PhoneKeyKind = 'temp' | 'snow' | 'level' | 'wind'
+export type PhoneKeyKind = 'snow' | 'level' | 'wind'
 
 /** One row's key in a phone card, opened from that row; `hit` outlines a tapped value's step. */
 export function PhoneKey({ kind, hit = null }: { kind: PhoneKeyKind; hit?: number | null }) {
-  if (kind === 'temp') {
-    return (
-      <p className={KEY_LINE}>
-        <span>
-          Lo / <span className="font-semibold text-foreground">Hi</span> °F at 5000&apos; over the
-          12 hours
-        </span>
-      </p>
-    )
-  }
   return (
     <p className={cn(KEY_LINE, 'flex-col gap-1.5')}>
       {kind === 'snow' && (
