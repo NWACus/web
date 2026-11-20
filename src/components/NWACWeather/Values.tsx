@@ -31,6 +31,11 @@ export function levelFill(level: number): string {
   return LEVEL_FILLS.find((f) => level < f.below)?.fill ?? ''
 }
 
+/** A level's step on its key's bar. */
+export function levelStep(level: number): number {
+  return LEVEL_FILLS.findIndex((f) => level < f.below)
+}
+
 /** Snow fills by `snowTier`, deepening with the amount; none without snow. */
 const SNOW_FILLS = ['bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300']
 
@@ -67,6 +72,13 @@ export function windFill(speed: number | null | undefined): string | undefined {
   return step && `${step.fill} text-stone-900`
 }
 
+/** A wind's step on its key's bar; null for calm or no wind. */
+export function windStep(speed: number | null | undefined): number | null {
+  const wording = windWording(speed)
+  const i = WIND_STEPS.findIndex((s) => wording && s.wordings.includes(wording))
+  return i < 0 ? null : i
+}
+
 const LEVEL_KEY_LABELS = [null, "2k'", null, "4k'", null, "6k'", null, "8k'", null, "10k'+"]
 
 /**
@@ -80,6 +92,7 @@ function SegmentedBar({
   cols,
   centered = false,
   width = 'w-56',
+  hit = null,
 }: {
   fills: string[]
   names: readonly string[]
@@ -90,13 +103,19 @@ function SegmentedBar({
   centered?: boolean
   /** The bar's width as static classes, so Tailwind sees them. */
   width?: string
+  /** A segment to outline: the step of a value just tapped. */
+  hit?: number | null
 }) {
   return (
     <span className={cn('inline-flex shrink-0 flex-col gap-0.5', width)}>
       <span className="sr-only">{names.join(', ')}</span>
       <span aria-hidden="true" className={cn('grid h-2.5 overflow-hidden rounded-sm', cols)}>
         {fills.map((fill, i) => (
-          <span key={i} title={names[i]} className={fill} />
+          <span
+            key={i}
+            title={names[i]}
+            className={cn(fill, hit === i && 'ring-2 ring-inset ring-foreground')}
+          />
         ))}
       </span>
       <span
@@ -131,7 +150,7 @@ function SnowFillKey({ width }: { width?: string }) {
   )
 }
 
-function SnowLevelKey({ width }: { width?: string }) {
+function SnowLevelKey({ width, hit }: { width?: string; hit?: number | null }) {
   return (
     <>
       <span className="inline-flex items-center gap-1">
@@ -139,6 +158,7 @@ function SnowLevelKey({ width }: { width?: string }) {
         Snow level; none, freezing level
       </span>
       <SegmentedBar
+        hit={hit}
         fills={LEVEL_FILLS.map((f) => f.fill)}
         names={LEVEL_FILLS.map((f) => f.label)}
         labels={LEVEL_KEY_LABELS}
@@ -209,6 +229,54 @@ export function ZoneKeys() {
         </span>
         <WindKey width="w-52" />
       </span>
+    </p>
+  )
+}
+
+export type PhoneKeyKind = 'temp' | 'snow' | 'level' | 'wind'
+
+/** One row's key in a phone card, opened from that row; `hit` outlines a tapped value's step. */
+export function PhoneKey({ kind, hit = null }: { kind: PhoneKeyKind; hit?: number | null }) {
+  if (kind === 'temp') {
+    return (
+      <p className={KEY_LINE}>
+        <span>
+          Lo / <span className="font-semibold text-foreground">Hi</span> °F at 5000&apos; over the
+          12 hours
+        </span>
+      </p>
+    )
+  }
+  return (
+    <p className={cn(KEY_LINE, 'flex-col gap-1.5')}>
+      {kind === 'snow' && (
+        <>
+          <span>Inches of snow at 5000&apos;</span>
+          <SegmentedBar
+            hit={hit}
+            fills={SNOW_FILLS}
+            names={SNOW_TIER_LABELS}
+            labels={SNOW_TIER_LABELS}
+            cols="grid-cols-4"
+            centered
+            width="w-full"
+          />
+        </>
+      )}
+      {kind === 'level' && <SnowLevelKey width="w-full" hit={hit} />}
+      {kind === 'wind' && (
+        <>
+          <span>mph · VAR: variable</span>
+          <SegmentedBar
+            hit={hit}
+            fills={WIND_STEPS.map((s) => s.fill)}
+            names={WIND_STEPS.map((s) => s.name)}
+            labels={WIND_STEPS.map((s) => s.label)}
+            cols="grid-cols-7"
+            width="w-full"
+          />
+        </>
+      )}
     </p>
   )
 }

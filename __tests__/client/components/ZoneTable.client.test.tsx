@@ -4,7 +4,7 @@ import { pointSnow, zonePoints } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
 const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
@@ -156,5 +156,45 @@ describe('ZoneTable', () => {
       .getByRole('rowheader', { name: /^Snow & Freezing Level/ })
       .closest('tr')
     expect(levelRow?.querySelector('[class*="bg-"]')).not.toBeNull()
+  })
+
+  describe('on a phone', () => {
+    const phoneCard = (container: HTMLElement) => {
+      const card = container.querySelector<HTMLElement>('section section')
+      if (!card) throw new Error('no phone card')
+      return card
+    }
+
+    it('leads with temps, then a row per point, then snow level and wind by part of day', () => {
+      const z = zone('west-south')
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={z} periodKeys={DAY_ONE} heading={false} />,
+      )
+      const rows = within(phoneCard(container))
+        .getAllByRole('rowheader')
+        .map((th) => th.textContent)
+
+      expect(rows).toEqual([
+        "Temperatures @ 5000' key",
+        ...zonePoints(afternoon, z.id).map((p) => p.name),
+        'Snow level key',
+        'Ridge wind key',
+      ])
+    })
+
+    it("opens a row's key under it, one at a time", () => {
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
+      )
+      const card = phoneCard(container)
+      expect(within(card).queryByText(/freezing level/)).not.toBeInTheDocument()
+
+      fireEvent.click(within(card).getByRole('button', { name: 'Snow level key' }))
+      expect(within(card).getByText(/none, freezing level/)).toBeInTheDocument()
+
+      fireEvent.click(within(card).getByRole('button', { name: 'Ridge wind key' }))
+      expect(within(card).queryByText(/none, freezing level/)).not.toBeInTheDocument()
+      expect(within(card).getByText(/VAR: variable/)).toBeInTheDocument()
+    })
   })
 })
