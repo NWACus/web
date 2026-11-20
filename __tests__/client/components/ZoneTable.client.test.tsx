@@ -43,11 +43,11 @@ describe('ZoneTable', () => {
         .getAllByRole('rowheader')
         .map((row) => row.textContent),
     ).toEqual([
-      'Precipitation & Snow (in)',
+      'Station',
       'Snoqualmie Pass',
-      'Snow & Freezing Level (ft)',
-      "Temperatures @ 5000' (Lo / Hi °F)",
-      'Ridgeline Winds (mph)',
+      "Temperatures @ 5000' (°F)",
+      'Snow level (ft)',
+      'Ridge wind (mph)',
       'Summary',
     ])
   })
@@ -62,7 +62,7 @@ describe('ZoneTable', () => {
     const rows = within(table)
       .getAllByRole('rowheader')
       .map((row) => row.textContent)
-    expect(rows.slice(0, names.length + 1)).toEqual(['Precipitation & Snow (in)', ...names])
+    expect(rows.slice(0, names.length + 1)).toEqual(['Station', ...names])
   })
 
   it('names the 24 hours Tonight and Tomorrow from 6 pm, with their dates', () => {
@@ -77,7 +77,7 @@ describe('ZoneTable', () => {
     ])
   })
 
-  it('gives the temperatures low then high, under a Lo / Hi label', () => {
+  it('gives the temperatures low then high, in °F', () => {
     const { container } = render(
       <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
     )
@@ -90,7 +90,7 @@ describe('ZoneTable', () => {
     if (!row) throw new Error('no temperature row')
 
     const [first] = within(row).getAllByRole('cell')
-    expect(row.querySelector('th')?.textContent).toContain('Lo / Hi °F')
+    expect(row.querySelector('th')?.textContent).toContain('(°F)')
     expect(first.textContent).toMatch(/^\d+° \/ \d+°$/)
   })
 
@@ -116,19 +116,20 @@ describe('ZoneTable', () => {
     expect(heads.map((th) => th.textContent?.split(' · ')[0])).toEqual(['Night', 'Day'])
   })
 
-  it('labels the 6h parts of day Morn, Aft, Eve and Night', () => {
+  it('heads the 6h rows with their parts of day, right above snow level', () => {
     const { container } = render(
       <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={['n1', 'd2']} />,
     )
     const table = container.querySelector('table')
     if (!table) throw new Error('no zone table')
     const levelRow = within(table)
-      .getByRole('rowheader', { name: /^Snow & Freezing Level/ })
+      .getByRole('rowheader', { name: /^Snow level/ })
       .closest('tr')
-    if (!levelRow) throw new Error('no snow level row')
+    const head = levelRow?.previousElementSibling
+    if (!(head instanceof HTMLElement)) throw new Error('no 6h head row')
 
-    for (const part of ['Eve', 'Night', 'Morn', 'Aft']) {
-      expect(within(levelRow).getByText(part)).toBeInTheDocument()
+    for (const part of ['Evening', 'Night', 'Morning', 'Afternoon']) {
+      expect(within(head).getByText(part)).toBeInTheDocument()
     }
   })
 
@@ -147,13 +148,16 @@ describe('ZoneTable', () => {
     const cells = within(snowRow).getAllByRole('cell')
     cells.forEach((td, i) => {
       const fill = snowFill(pointSnow(afternoon, point.code, afternoon.periods[i].key))
-      if (fill) expect(td).toHaveClass(fill)
+      if (!fill) return
+      // The fill is the snow half's pill, not the whole period cell.
+      expect(td).not.toHaveClass(fill)
+      expect(td.getElementsByClassName(fill)).toHaveLength(1)
     })
 
     const key = screen.getByText(/none, freezing level/)
     expect(table.compareDocumentPosition(key) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const levelRow = within(table)
-      .getByRole('rowheader', { name: /^Snow & Freezing Level/ })
+      .getByRole('rowheader', { name: /^Snow level/ })
       .closest('tr')
     expect(levelRow?.querySelector('[class*="bg-"]')).not.toBeNull()
   })

@@ -50,10 +50,6 @@ const ROW_LABEL = 'border-r border-t p-2 pl-3 text-left align-middle font-semibo
 const Unit = ({ children }: { children: string }) => (
   <span className="font-normal text-muted-foreground"> ({children})</span>
 )
-/** The forecast point a precipitation or snow row is for: "Snow (in): Paradise". */
-const Point = ({ children }: { children: string }) => (
-  <span className="font-normal">: {children}</span>
-)
 
 interface PeriodView {
   period: NWACWeatherPeriod
@@ -116,16 +112,6 @@ function periodName(period: NWACWeatherPeriod, index: number, held: boolean): st
   return index === 0 ? 'Today' : 'Tomorrow'
 }
 
-/** A snow row's cells and their fills, each period's amount worked out once. */
-function snowCells(periods: PeriodView[], snowOf: (periodKey: string) => number | null) {
-  const snow = new Map(periods.map((p) => [p.period.key, snowOf(p.period.key)]))
-  const of = (p: PeriodView) => snow.get(p.period.key) ?? null
-  return {
-    cell: (p: PeriodView) => <SnowAmount snow={of(p)} />,
-    fill: (p: PeriodView) => snowFill(of(p)),
-  }
-}
-
 /** A point's water equivalent for a period. */
 function PrecipAmount({
   issuance,
@@ -144,31 +130,33 @@ function PrecipAmount({
 /** A point's precipitation then its snow, under the Precip and Snow headings over them. */
 function PrecipSnowPair({ precip, snow }: { precip: ReactNode; snow: ReactNode }) {
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 items-center gap-2">
       <span>{precip}</span>
       <span>{snow}</span>
     </div>
   )
 }
 
-/** Heads the points' rows, as the overview's paired columns are headed: Precip, then Snow. */
+/** A sub-head row: muted, its pair of heads per period in the two halves of each cell. */
+const SUB_HEAD_CELL = 'border-l border-t p-1.5 text-center text-xs text-muted-foreground'
+
+/** Heads the stations' rows, as the phone card does: Station, then Precip and Snow by period. */
 function PrecipSnowHead({ periods }: { periods: PeriodView[] }) {
   return (
-    <tr className="bg-muted/40">
-      <th scope="rowgroup" className={ROW_LABEL}>
-        Precipitation &amp; Snow
-        <Unit>in</Unit>
+    <tr className="bg-muted">
+      <th scope="rowgroup" className={cn(ROW_LABEL, 'text-sm font-normal text-muted-foreground')}>
+        Station
       </th>
       {periods.map((p) => (
-        <td
-          key={p.period.key}
-          className="border-l border-t p-1.5 text-center text-xs text-muted-foreground"
-        >
+        <td key={p.period.key} className={SUB_HEAD_CELL}>
           <div className="grid grid-cols-2 gap-2">
-            <span>Precip</span>
             <span>
-              Snow
-              <span className="block text-[11px] text-muted-foreground">@ 5000&apos;</span>
+              Precip
+              <span className="block">(in)</span>
+            </span>
+            <span>
+              Snow @ 5000&apos;
+              <span className="block">(in)</span>
             </span>
           </div>
         </td>
@@ -177,9 +165,13 @@ function PrecipSnowHead({ periods }: { periods: PeriodView[] }) {
   )
 }
 
-/** A snow amount as its public range. */
+/** A snow amount as its public range, on its fill across the cell. */
 function SnowAmount({ snow }: { snow: number | null }) {
-  return <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
+  return (
+    <span className={cn('block rounded px-1.5 py-1', snowFill(snow))}>
+      <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
+    </span>
+  )
 }
 
 function PeriodHead({ periods }: { periods: PeriodView[] }) {
@@ -254,33 +246,37 @@ function NotCovered({ colSpan }: { colSpan: number }) {
 function PeriodRow({
   label,
   unit,
-  point,
-  sub = false,
+  pin = false,
+  divide = false,
   periods,
   cell,
-  fill,
   covered = periods.length,
 }: {
   label: string
   unit?: string
-  point?: string
-  /** One of a heading row's rows: its label indented and plain. */
-  sub?: boolean
+  /** A station's row: its name plain, after a pin. */
+  pin?: boolean
+  /** A heavier line above, where the stations end and the zone-wide rows begin. */
+  divide?: boolean
   periods: PeriodView[]
   cell: (p: PeriodView) => ReactNode
-  /** A cell's background (the snow fills). */
-  fill?: (p: PeriodView) => string | undefined
   covered?: number
 }) {
   return (
-    <tr>
-      <th scope="row" className={cn(ROW_LABEL, sub && 'pl-6 font-normal')}>
-        {label}
+    <tr className={cn(divide && '[&>*]:border-t-2')}>
+      <th scope="row" className={cn(ROW_LABEL, pin && 'font-normal')}>
+        {pin ? (
+          <span className="flex items-start gap-1.5">
+            <MapPin aria-hidden="true" className="mt-1 size-4 shrink-0 text-muted-foreground" />
+            {label}
+          </span>
+        ) : (
+          label
+        )}
         {unit && <Unit>{unit}</Unit>}
-        {point && <Point>{point}</Point>}
       </th>
       {periods.slice(0, covered).map((p) => (
-        <td key={p.period.key} className={cn('border-l border-t p-2 text-center', fill?.(p))}>
+        <td key={p.period.key} className="border-l border-t p-2 text-center">
           {cell(p)}
         </td>
       ))}
@@ -289,28 +285,32 @@ function PeriodRow({
   )
 }
 
-const PART_SHORT: Record<string, string> = {
-  Evening: 'Eve',
-  Night: 'Night',
-  Morning: 'Morn',
-  Afternoon: 'Aft',
+/** Heads the 6h rows: each period's parts of day over the two halves of its cell. */
+function BlockHead({ periods }: { periods: PeriodView[] }) {
+  return (
+    <tr className="bg-muted">
+      <td className="border-r border-t" />
+      {periods.map((p) => (
+        <th key={p.period.key} scope="col" className={cn(SUB_HEAD_CELL, 'font-normal')}>
+          <div className="grid grid-cols-2 gap-2">
+            {p.blocks.map((b) => (
+              <span key={b.block.key}>{b.block.part}</span>
+            ))}
+          </div>
+        </th>
+      ))}
+    </tr>
+  )
 }
 
-/**
- * A 12h cell's two 6h values on one line, each after its part of day: how snow level and wind
- * sit in a table whose columns are all 12h periods, so no part-of-day header is needed.
- */
+/** A 12h cell's two 6h values side by side, under BlockHead's parts of day. */
 function BlockPair({ blocks, value }: { blocks: BlockView[]; value: (b: BlockView) => ReactNode }) {
   return (
     <div className="grid grid-cols-2 gap-2">
       {blocks.map((b) => (
-        <div key={b.block.key} className="flex items-center justify-center gap-2">
-          <span className="text-xs text-muted-foreground">
-            {PART_SHORT[b.block.part] ?? b.block.part}
-          </span>
-          {/* Fills the rest of its half, which stretches a snow-level pill as it was when stacked;
-              every value the pill's height, so wind rows line up the same. */}
-          <div className="grid min-h-7 flex-1 items-center">{value(b)}</div>
+        // Every value the pill's height, so the level and wind rows line up.
+        <div key={b.block.key} className="grid min-h-7 items-center">
+          {value(b)}
         </div>
       ))}
     </div>
@@ -365,28 +365,33 @@ function PeriodTable({
         <PeriodHead periods={periods} />
         <tbody>
           <PrecipSnowHead periods={periods} />
-          {points.map((point) => {
-            const snow = snowCells(periods, (key) => pointSnow(issuance, point.code, key))
-            return (
-              <PeriodRow
-                key={point.code}
-                label={point.name}
-                sub
-                periods={periods}
-                fill={snow.fill}
-                cell={(p) => (
-                  <PrecipSnowPair
-                    precip={
-                      <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
-                    }
-                    snow={snow.cell(p)}
-                  />
-                )}
-              />
-            )
-          })}
+          {points.map((point) => (
+            <PeriodRow
+              key={point.code}
+              label={point.name}
+              pin
+              periods={periods}
+              cell={(p) => (
+                <PrecipSnowPair
+                  precip={
+                    <PrecipAmount issuance={issuance} point={point} periodKey={p.period.key} />
+                  }
+                  snow={<SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} />}
+                />
+              )}
+            />
+          ))}
           <PeriodRow
-            label="Snow & Freezing Level"
+            label="Temperatures @ 5000'"
+            unit="°F"
+            divide
+            periods={periods}
+            covered={covered.temps}
+            cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />}
+          />
+          <BlockHead periods={periods} />
+          <PeriodRow
+            label="Snow level"
             unit="ft"
             periods={periods}
             cell={(p) => (
@@ -397,14 +402,7 @@ function PeriodTable({
             )}
           />
           <PeriodRow
-            label="Temperatures @ 5000'"
-            unit="Lo / Hi °F"
-            periods={periods}
-            covered={covered.temps}
-            cell={(p) => <TempValue cell={issuance.temp[zone.id]?.[p.period.key]} />}
-          />
-          <PeriodRow
-            label="Ridgeline Winds"
+            label="Ridge wind"
             unit="mph"
             periods={periods}
             covered={covered.windPeriods}
@@ -461,11 +459,7 @@ function CardHeads({ label, children }: { label?: string; children: ReactNode })
 /** A point's snow, its fill across the cell; tapping it opens the snow key at its step. */
 function CardSnow({ snow }: { snow: number | null }) {
   const step = snowTier(snow)
-  const value = (
-    <span className={cn('block rounded px-1.5 py-1', snowFill(snow))}>
-      <SnowValue text={snowRange(snow)} some={snow != null && snow > 0} />
-    </span>
-  )
+  const value = <SnowAmount snow={snow} />
   if (step == null) return value
   return (
     <KeyButton kind="snow" hit={step}>
