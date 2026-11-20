@@ -1066,20 +1066,27 @@ function ExtendedSection({
   extended: string | null
   table: Table
 }) {
-  // No outlook, no section: the extended snow levels don't stand on their own.
-  if (!extended) return null
   const showTable = hasContent(table)
+  if (!extended && !showTable) return null
   const headingId = `${anchor}-extended`
   return (
     <section aria-labelledby={headingId} className="space-y-4 border-t pt-6">
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
         Extended
       </h3>
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:items-start">
-        <section className="space-y-2">
-          <h4 className="text-base font-semibold">Outlook</h4>
-          <DiscussionBody html={extended} />
-        </section>
+      {/* The outlook text is optional; without it the table takes the full width. */}
+      <div
+        className={cn(
+          'grid gap-8',
+          extended && 'xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:items-start',
+        )}
+      >
+        {extended && (
+          <section className="space-y-2">
+            <h4 className="text-base font-semibold">Outlook</h4>
+            <DiscussionBody html={extended} />
+          </section>
+        )}
         {showTable && <GridTable table={table} anchor={anchor} headingLevel="h4" />}
       </div>
     </section>
@@ -1140,6 +1147,7 @@ export function overallParts(
 }
 
 function sectionLinks(p: OverallParts): SectionLink[] {
+  const hasExtended = !!p.extended || hasContent(p.ext)
   return [
     ...(p.synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
     ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Zone Summary' }] : []),
@@ -1148,7 +1156,7 @@ function sectionLinks(p: OverallParts): SectionLink[] {
       ? [{ id: 'precip-snow', label: p.precipSnow['12'].nav }]
       : []),
     ...[p.snowLevel, p.temps, p.wind].filter(hasContent).map((t) => ({ id: t.id, label: t.nav })),
-    ...(p.extended ? [{ id: 'extended', label: 'Extended' }] : []),
+    ...(hasExtended ? [{ id: 'extended', label: 'Extended' }] : []),
   ].map((l) => ({ ...l, id: `${p.issuance.type}-${l.id}` }))
 }
 
