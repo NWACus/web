@@ -82,57 +82,52 @@ export function windStep(speed: number | null | undefined): number | null {
 const LEVEL_KEY_LABELS = [null, "2k'", null, "4k'", null, "6k'", null, "8k'", null, "10k'+"]
 
 /**
- * Fills as one bar, each segment labeled under it where `labels` has one. `names` gives every
+ * Fills as one bar, each label printed inside its own segment like a table cell. Labeled segments
+ * are twice as wide as the unlabeled steps between them, so the labels fit. `names` gives every
  * segment its full name, as a hover title and as text for screen readers.
  */
 function SegmentedBar({
   fills,
   names,
   labels,
-  cols,
-  centered = false,
-  width = 'w-56',
+  width = 'w-full sm:w-80',
   hit = null,
 }: {
   fills: string[]
   names: readonly string[]
   labels: readonly (string | null)[]
-  /** The grid's column count as a static class (`grid-cols-4`), so Tailwind sees it. */
-  cols: string
-  /** Center each label under its segment, for labels that name the segment, not a tick. */
-  centered?: boolean
   /** The bar's width as static classes, so Tailwind sees them. */
   width?: string
   /** A segment to outline: the step of a value just tapped. */
   hit?: number | null
 }) {
   return (
-    <span className={cn('inline-flex shrink-0 flex-col gap-0.5', width)}>
+    <span className={cn('inline-block shrink-0', width)}>
       <span className="sr-only">{names.join(', ')}</span>
-      <span aria-hidden="true" className={cn('grid h-2.5 overflow-hidden rounded-sm', cols)}>
+      <span
+        aria-hidden="true"
+        className="grid h-7 overflow-hidden rounded-sm text-xs font-medium text-stone-900"
+        style={{ gridTemplateColumns: labels.map((l) => (l ? '2fr' : '1fr')).join(' ') }}
+      >
         {fills.map((fill, i) => (
           <span
             key={i}
             title={names[i]}
-            className={cn(fill, hit === i && 'ring-2 ring-inset ring-foreground')}
-          />
-        ))}
-      </span>
-      <span
-        aria-hidden="true"
-        className={cn('grid text-[10px] leading-none', centered && 'text-center', cols)}
-      >
-        {labels.map((label, i) => (
-          <span key={i}>{label}</span>
+            className={cn(
+              'flex items-center justify-center whitespace-nowrap px-0.5',
+              fill,
+              hit === i && 'ring-2 ring-inset ring-foreground',
+            )}
+          >
+            {labels[i]}
+          </span>
         ))}
       </span>
     </span>
   )
 }
 
-// Labels sit level with their bars' tops, so the tick labels hang below the line.
-const KEY_LINE =
-  'flex flex-wrap items-start gap-3 whitespace-nowrap text-xs leading-3 text-muted-foreground'
+const KEY_LINE = 'flex flex-wrap items-center gap-3 whitespace-nowrap text-sm text-muted-foreground'
 
 function SnowFillKey({ width }: { width?: string }) {
   return (
@@ -142,8 +137,6 @@ function SnowFillKey({ width }: { width?: string }) {
         fills={SNOW_FILLS}
         names={SNOW_TIER_LABELS}
         labels={SNOW_TIER_LABELS}
-        cols="grid-cols-4"
-        centered
         width={width}
       />
     </>
@@ -177,7 +170,6 @@ function SnowLevelKey({ width, hit }: { width?: string; hit?: number | null }) {
         fills={LEVEL_FILLS.map((f) => f.fill)}
         names={LEVEL_FILLS.map((f) => f.label)}
         labels={LEVEL_KEY_LABELS}
-        cols="grid-cols-10"
         width={width}
       />
     </>
@@ -215,7 +207,7 @@ export function PrecipLegend({
       {snow && (
         <span className="inline-flex items-center gap-3">
           {/* Narrower on a phone, to leave room for the hours toggle across from it. */}
-          <SnowFillKey width="w-40 sm:w-56" />
+          <SnowFillKey width="w-48 sm:w-60" />
         </span>
       )}
     </p>
@@ -233,16 +225,16 @@ export function ZoneKeys() {
   return (
     <p className={cn(KEY_LINE, 'items-end gap-x-12 gap-y-3')}>
       <span className={STACKED_KEY}>
-        <SnowFillKey width="w-36" />
+        <SnowFillKey width="w-60" />
       </span>
       <span className={STACKED_KEY}>
-        <SnowLevelKey width="w-40" />
+        <SnowLevelKey width="w-80" />
       </span>
       <span className={STACKED_KEY}>
         <span className="inline-flex items-center gap-3">
           <WindNotes />
         </span>
-        <WindKey width="w-52" />
+        <WindKey width="w-80" />
       </span>
     </p>
   )
@@ -253,7 +245,7 @@ export type PhoneKeyKind = 'snow' | 'level' | 'wind'
 /** One row's key in a phone card, opened from that row; `hit` outlines a tapped value's step. */
 export function PhoneKey({ kind, hit = null }: { kind: PhoneKeyKind; hit?: number | null }) {
   return (
-    <p className={cn(KEY_LINE, 'flex-col gap-1.5')}>
+    <p className={cn(KEY_LINE, 'flex-col items-start gap-1.5')}>
       {kind === 'snow' && (
         <>
           <span>Inches of snow at 5000&apos;</span>
@@ -262,8 +254,6 @@ export function PhoneKey({ kind, hit = null }: { kind: PhoneKeyKind; hit?: numbe
             fills={SNOW_FILLS}
             names={SNOW_TIER_LABELS}
             labels={SNOW_TIER_LABELS}
-            cols="grid-cols-4"
-            centered
             width="w-full"
           />
         </>
@@ -277,7 +267,6 @@ export function PhoneKey({ kind, hit = null }: { kind: PhoneKeyKind; hit?: numbe
             fills={WIND_STEPS.map((s) => s.fill)}
             names={WIND_STEPS.map((s) => s.name)}
             labels={WIND_STEPS.map((s) => s.label)}
-            cols="grid-cols-7"
             width="w-full"
           />
         </>
@@ -394,7 +383,6 @@ function WindKey({ width }: { width?: string }) {
         fills={WIND_STEPS.map((s) => s.fill)}
         names={WIND_STEPS.map((s) => s.name)}
         labels={WIND_STEPS.map((s) => s.label)}
-        cols="grid-cols-7"
         width={width}
       />
     </span>

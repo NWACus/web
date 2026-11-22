@@ -3,10 +3,10 @@ import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 
 describe('the weather table keys', () => {
-  it('centers the snow labels under their segments', () => {
+  it('prints each snow label inside its own color', () => {
     render(<PrecipLegend day={null} night={null} snow />)
 
-    expect(screen.getAllByText('1–7"').at(-1)?.parentElement).toHaveClass('text-center')
+    expect(screen.getAllByText('1–7"').at(-1)).toHaveClass('bg-blue-100')
   })
 
   it('puts the Day and Night hours before the snow bar, on its line', () => {
@@ -16,9 +16,11 @@ describe('the weather table keys', () => {
     expect(key?.textContent).toMatch(/^Day 4 am–4 pm PSTNight 4 pm–4 am PSTSnow/)
   })
 
-  it('leaves the snow level ticks where they fall', () => {
+  it('gives labeled snow level steps twice the room of the steps between them', () => {
     render(<SnowLevelLegend />)
 
-    expect(screen.getByText("2k'").parentElement).not.toHaveClass('text-center')
+    expect(screen.getByText("2k'").parentElement).toHaveStyle({
+      gridTemplateColumns: '1fr 2fr 1fr 2fr 1fr 2fr 1fr 2fr 1fr 2fr',
+    })
   })
 })
