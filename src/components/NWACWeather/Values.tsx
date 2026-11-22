@@ -400,7 +400,7 @@ export function TempLegend() {
   return (
     <p className={KEY_LINE}>
       <span>
-        Lo / <span className="font-semibold text-foreground">Hi</span> in 12 hours
+        Lo / <span className="font-semibold text-foreground">Hi</span>
       </span>
     </p>
   )
