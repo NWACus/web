@@ -96,15 +96,18 @@ function Example({
   return (
     <figure aria-label={label} className="flex flex-wrap items-start gap-x-8 gap-y-4">
       {/* The callouts carry the meaning; the cells are a picture of them. */}
-      <div aria-hidden="true" className="flex max-w-full shrink-0 flex-wrap gap-x-4 gap-y-6 p-3">
+      <div
+        aria-hidden="true"
+        className="flex max-w-full shrink-0 flex-wrap gap-x-4 gap-y-6 p-3 text-foreground"
+      >
         {cells}
       </div>
-      <ol className="min-w-56 flex-1 space-y-1.5 text-foreground/85">
+      <ol className="min-w-56 flex-1 space-y-1.5 text-foreground">
         {callouts.map((c, i) => (
           <li key={i} className="flex items-start gap-2">
             <Badge n={i + 1} className="mt-px" />
             <span className="min-w-0">
-              <span className="inline-flex items-center gap-1 font-semibold text-foreground">
+              <span className="inline-flex items-center gap-1 align-bottom font-semibold">
                 {c.part}
               </span>{' '}
               {c.text}
@@ -226,8 +229,8 @@ export function PrecipExample({ withSnow }: { withSnow: boolean }) {
   const station = (n: number) => (
     <Cell
       width="w-28 sm:w-36"
-      marks={[{ n, at: 18 }]}
-      className="justify-start px-2 font-normal leading-tight"
+      marks={[{ n, edge: 'left' }]}
+      className="justify-start pl-4 pr-1 font-normal leading-tight"
     >
       Hurricane Ridge
     </Cell>

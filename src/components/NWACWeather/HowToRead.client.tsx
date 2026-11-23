@@ -69,7 +69,7 @@ export function HowToRead({
       <div
         id={panelId}
         hidden={!open}
-        className="mt-2 space-y-3 rounded-md bg-muted/40 p-3 text-sm text-muted-foreground print:block print:bg-transparent print:p-0"
+        className="mt-2 space-y-3 rounded-md bg-muted p-3 text-sm text-muted-foreground print:block print:bg-transparent print:p-0"
       >
         {children}
       </div>
