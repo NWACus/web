@@ -248,25 +248,86 @@ describe('Overall extended section', () => {
 })
 
 describe('Overall table descriptions', () => {
-  it('explains each table, with a legend where its cells need one', () => {
+  const helpButton = (table: string) =>
+    screen.getByRole('button', { name: `How to read the ${table} table` })
+  const panelOf = (button: HTMLElement) => {
+    const id = button.getAttribute('aria-controls')
+    const panel = id && document.getElementById(id)
+    if (!panel) throw new Error('the button should control a panel')
+    return panel
+  }
+
+  it('keeps each explanation in a closed "How to read" panel, with a legend where its cells need one', () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
     // The main and extended snow level tables share their explanation.
-    expect(
-      screen.getAllByText(/^The snow level forecast represents the general snow level/),
-    ).toHaveLength(2)
-    expect(
+    const levels = screen.getAllByText(/^The snow level forecast represents the general snow level/)
+    expect(levels).toHaveLength(2)
+    for (const text of [
+      ...levels,
       screen.getByText(/^The low and high temperature at 5000’ over a 12 hr period/),
-    ).toBeInTheDocument()
-    expect(
       screen.getByText(/^Ridgeline winds represent the average wind speed/),
-    ).toBeInTheDocument()
-    // The 12 and 24 hour tables both carry it; one is hidden.
-    expect(
-      screen.getAllByText(/^Precipitation: Water Equivalent \(WE\) .* presented in a range\.$/),
-    ).toHaveLength(2)
-    expect(screen.getByText('VAR: variable')).toBeInTheDocument()
-    expect(screen.queryByText('Points downwind')).toBeNull()
+      // The 12 and 24 hour tables both carry it.
+      ...screen.getAllByText(/^Precipitation: Water Equivalent \(WE\) .* presented in a range\.$/),
+    ]) {
+      expect(text).not.toBeVisible()
+    }
+    for (const button of screen.getAllByRole('button', { name: /^How to read/ })) {
+      expect(button).toHaveAttribute('aria-expanded', 'false')
+    }
+    expect(screen.getByText('VAR: variable')).toBeVisible()
+  })
+
+  it('opens and closes each table’s panel on its own', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const wind = helpButton('Ridgeline Winds')
+    const description = screen.getByText(/^Ridgeline winds represent the average wind speed/)
+
+    fireEvent.click(wind)
+    expect(wind).toHaveAttribute('aria-expanded', 'true')
+    expect(description).toBeVisible()
+    expect(panelOf(wind)).toContainElement(description)
+    expect(screen.getByText(/^The low and high temperature/)).not.toBeVisible()
+
+    fireEvent.click(wind)
+    expect(wind).toHaveAttribute('aria-expanded', 'false')
+    expect(description).not.toBeVisible()
+  })
+
+  it('has an annotated example cell for the coded tables, and none for the temperatures', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const example = (table: string) =>
+      within(panelOf(helpButton(table))).queryByRole('figure', { hidden: true })
+
+    expect(example('Ridgeline Winds')).toHaveAccessibleName('Example wind cell')
+    expect(example('Ridgeline Winds')).toHaveTextContent(/16-point compass/)
+    expect(example('Snow and Freezing Level')).toHaveAccessibleName(
+      'Example snow and freezing level cells',
+    )
+    expect(example('Snow Levels')).toHaveAccessibleName('Example snow and freezing level cells')
+    const [precip12] = screen.getAllByRole('button', {
+      name: 'How to read the Precipitation and Snow table',
+    })
+    expect(within(panelOf(precip12)).getByRole('figure', { hidden: true })).toHaveAccessibleName(
+      'Example precipitation and snow cells',
+    )
+    expect(example("Temperatures @ 5000'")).toBeNull()
+  })
+
+  it('keeps the precipitation help open when switching to 24 hours', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const [precip12] = screen.getAllByRole('button', {
+      name: 'How to read the Precipitation and Snow table',
+    })
+    fireEvent.click(precip12)
+    fireEvent.click(screen.getByRole('radio', { name: '24 hours' }))
+    // Only the 24-hour table's button is shown now, and it is open too.
+    const precip24 = screen.getByRole('button', {
+      name: 'How to read the Precipitation and Snow table',
+    })
+    expect(precip24).not.toBe(precip12)
+    expect(precip24).toHaveAttribute('aria-expanded', 'true')
+    expect(within(panelOf(precip24)).getByText(/^Precipitation: Water Equivalent/)).toBeVisible()
   })
 })
 
