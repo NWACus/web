@@ -554,6 +554,11 @@ function FlatHead({ table: t }: { table: Table }) {
   )
 }
 
+/** "Day" or "Night" with its sun or moon, as a date's periods are labeled. */
+const DayNightWord = ({ night }: { night: boolean }) => (
+  <DayNightDate date={night ? 'Night' : 'Day'} night={night} label={false} />
+)
+
 /** A group's day or night for its date: a period's blocks share one; a date's periods don't. */
 function groupNight(columns: Column[]) {
   const first = columns[0]
@@ -563,8 +568,8 @@ function groupNight(columns: Column[]) {
 
 /**
  * Two rows, as on the zone page: a date per group over its columns' sub-labels, with no rule
- * between them. The sun or moon sits on the date for a period's blocks, and on each sub-label for
- * a date's Day and Night.
+ * between them. A period's blocks get its Day or Night under the date; a date's Day and Night are
+ * the sub-labels.
  */
 function GroupedHead({ table: t }: { table: Table }) {
   const groups = columnGroups(t.columns).map((g) => {
@@ -572,6 +577,8 @@ function GroupedHead({ table: t }: { table: Table }) {
     const columns = t.columns.slice(start, start + g.span)
     return { ...g, columns, night: groupNight(columns) }
   })
+  // A phone's day has no date row, so a period's blocks get their Day or Night in a row of its own.
+  const dayParts = t.day && groups.some((g) => g.night !== undefined)
   return (
     <>
       {!t.day && (
@@ -591,13 +598,37 @@ function GroupedHead({ table: t }: { table: Table }) {
                 g.first.total && 'border-l-2',
               )}
             >
-              <DayNightDate date={g.first.date} night={g.night} />
+              {g.first.date}
+              {g.night !== undefined && (
+                <span className={cn(SUB, t.narrow && 'text-xs')}>
+                  <DayNightWord night={g.night} />
+                </span>
+              )}
+            </th>
+          ))}
+        </tr>
+      )}
+      {dayParts && (
+        <tr className="bg-muted">
+          <RowLabelHead table={t} rowSpan={2} />
+          {groups.map((g) => (
+            <th
+              key={g.key}
+              scope="colgroup"
+              colSpan={g.span}
+              className="border-l px-0 pt-2 text-center"
+            >
+              {g.night !== undefined && (
+                <span className={cn(SUB, 'text-xs')}>
+                  <DayNightWord night={g.night} />
+                </span>
+              )}
             </th>
           ))}
         </tr>
       )}
       <tr className="bg-muted">
-        {t.day && <RowLabelHead table={t} rowSpan={1} />}
+        {t.day && !dayParts && <RowLabelHead table={t} rowSpan={1} />}
         {groups
           .filter((g) => t.day || g.first.sub)
           .flatMap((g) =>
