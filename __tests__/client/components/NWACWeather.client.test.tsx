@@ -274,7 +274,7 @@ describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
     render(<OverallSectionTabs parts={overallParts(afternoon)} />)
     const nav = screen.getByRole('navigation', { name: 'Forecast sections' })
-    expect(within(nav).getByRole('link', { name: 'Zone Summary' })).toHaveAttribute(
+    expect(within(nav).getByRole('link', { name: 'Weather Summary by Zone' })).toHaveAttribute(
       'href',
       '#afternoon-sensible',
     )

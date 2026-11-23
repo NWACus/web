@@ -94,8 +94,7 @@ interface Group {
 }
 interface Table {
   id: string
-  /** The section link's text. */
-  nav: string
+  /** The heading, and the section link's text. */
   title: string
   /** Shown quietly after the title, in parentheses. */
   unit?: string
@@ -216,7 +215,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   return [
     {
       id: 'snow-level',
-      nav: 'Snow & Freezing Level',
       title: 'Snow and Freezing Level',
       unit: 'ft',
       description: SNOW_LEVEL_DESCRIPTION,
@@ -242,7 +240,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     },
     {
       id: 'temps',
-      nav: "Temps @ 5000'",
       title: "Temperatures @ 5000'",
       unit: '°F',
       description: TEMPS_DESCRIPTION,
@@ -260,7 +257,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     },
     {
       id: 'wind',
-      nav: 'Ridgeline Winds',
       title: 'Ridgeline Winds',
       unit: 'mph',
       description: WIND_DESCRIPTION,
@@ -386,7 +382,6 @@ function precipSnowTable(
       : [{ ...column, split: column.key }]
   return {
     id: `precip-snow-${hours}`,
-    nav: withSnow ? 'Precipitation & Snow' : 'Precipitation',
     title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
     description: withSnow ? PRECIP_SNOW_DESCRIPTION : PRECIP_ONLY_DESCRIPTION,
@@ -439,7 +434,6 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
   // marked it a freezing level.
   return {
     id: 'extended-snow-level',
-    nav: 'Extended',
     title: 'Snow Levels',
     unit: 'ft',
     description: SNOW_LEVEL_DESCRIPTION,
@@ -1149,13 +1143,13 @@ export function overallParts(
 function sectionLinks(p: OverallParts): SectionLink[] {
   const hasExtended = !!p.extended || hasContent(p.ext)
   return [
-    ...(p.synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Zone Summary' }] : []),
+    ...(p.synopsis ? [{ id: 'synopsis', label: 'Weather Synopsis' }] : []),
+    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Weather Summary by Zone' }] : []),
     // The precipitation tables share one anchor, on the wrapper both sit in.
     ...(hasContent(p.precipSnow['12'])
-      ? [{ id: 'precip-snow', label: p.precipSnow['12'].nav }]
+      ? [{ id: 'precip-snow', label: p.precipSnow['12'].title }]
       : []),
-    ...[p.snowLevel, p.temps, p.wind].filter(hasContent).map((t) => ({ id: t.id, label: t.nav })),
+    ...[p.snowLevel, p.temps, p.wind].filter(hasContent).map((t) => ({ id: t.id, label: t.title })),
     ...(hasExtended ? [{ id: 'extended', label: 'Extended' }] : []),
   ].map((l) => ({ ...l, id: `${p.issuance.type}-${l.id}` }))
 }
