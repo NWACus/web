@@ -40,18 +40,15 @@ function shouldExpandOnLoad(activeIds: number[], stored: BannerState): boolean {
 }
 
 // Carries the visitor's collapse choice and the banners they have already seen across visits.
-// Nothing is read or written until the provider has narrowed the list by device: before that the
-// list still holds banners meant for the other device, and marking those seen here would keep
-// them from expanding on the device they were written for.
+// Nothing is read or written until the banners have loaded. Only this device's banners are
+// marked seen, so one written for the other device still expands there.
 function useStoredBannerState({
   activeBanners,
-  deviceResolved,
   collapsed,
   collapse,
   expand,
 }: {
   activeBanners: Announcement[]
-  deviceResolved: boolean
   collapsed: boolean
   collapse: () => void
   expand: () => void
@@ -60,7 +57,7 @@ function useStoredBannerState({
   const restored = useRef(false)
 
   useEffect(() => {
-    if (!deviceResolved || activeBanners.length === 0) return
+    if (activeBanners.length === 0) return
 
     const activeIds = activeBanners.map((b) => b.id)
 
@@ -72,7 +69,7 @@ function useStoredBannerState({
 
     setSeenIds(activeIds)
     restored.current = true
-  }, [deviceResolved]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeBanners, collapse, expand])
 
   useEffect(() => {
     if (!restored.current) return
@@ -158,9 +155,9 @@ function BannerPanel({
 export function AnnouncementBanners() {
   // Expiry- and device-filtered banners come from the provider so the banner list
   // and the count surfaced elsewhere (e.g. the mobile nav badge) stay in lockstep.
-  const { activeBanners, deviceResolved, collapsed, collapse, expand } = useAnnouncementBanners()
+  const { activeBanners, collapsed, collapse, expand } = useAnnouncementBanners()
 
-  useStoredBannerState({ activeBanners, deviceResolved, collapsed, collapse, expand })
+  useStoredBannerState({ activeBanners, collapsed, collapse, expand })
 
   const handleExpand = useCallback(() => {
     expand()

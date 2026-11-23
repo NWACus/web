@@ -1,16 +1,18 @@
+'use client'
+
 import { AnnouncementBannerProvider } from '@/providers/AnnouncementBannerProvider'
-import { getCachedActiveAnnouncements } from '@/utilities/queries/getActiveAnnouncements'
 import { AnnouncementBanners } from './AnnouncementBanners.client'
 import { AnnouncementPopup } from './AnnouncementPopup.client'
 import { StickyHeaderStrip } from './StickyHeaderStrip.client'
+import { useActiveAnnouncements } from './useActiveAnnouncements'
 
 interface AnnouncementsProps {
   center: string
   children?: React.ReactNode
 }
 
-export async function Announcements({ center, children }: AnnouncementsProps) {
-  const { banners, popups } = await getCachedActiveAnnouncements(center)()
+export function Announcements({ center, children }: AnnouncementsProps) {
+  const { banners, popups } = useActiveAnnouncements(center)
 
   return (
     <AnnouncementBannerProvider banners={banners}>

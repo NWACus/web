@@ -2,11 +2,10 @@
 import { matchesDevice } from '@/components/Announcements/announcementUtils'
 import { isExpired } from '@/components/Announcements/isExpired'
 import type { Announcement } from '@/payload-types'
-import React, { createContext, use, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, use, useCallback, useMemo, useState } from 'react'
 
 interface AnnouncementBannerContextValue {
   activeBanners: Announcement[]
-  deviceResolved: boolean
   count: number
   collapsed: boolean
   collapse: () => void
@@ -16,7 +15,6 @@ interface AnnouncementBannerContextValue {
 
 const AnnouncementBannerContext = createContext<AnnouncementBannerContextValue>({
   activeBanners: [],
-  deviceResolved: false,
   count: 0,
   collapsed: true,
   collapse: () => {},
@@ -33,19 +31,11 @@ export function AnnouncementBannerProvider({
 }) {
   const [collapsed, setCollapsed] = useState(true)
 
-  // Device targeting is viewport-based, so it can only be resolved on the client.
-  // Until mounted we render every non-expired banner (matching the server) to avoid
-  // a hydration mismatch; the effect then narrows the list by device — the same
-  // client-side-check approach the pop-up renderer uses.
-  const [deviceResolved, setDeviceResolved] = useState(false)
-  useEffect(() => setDeviceResolved(true), [])
-
+  // Device targeting reads the viewport. That is safe during render because the banners come
+  // from a browser fetch: the list is empty on the server and on the first client render.
   const activeBanners = useMemo(
-    () =>
-      banners.filter(
-        (banner) => !isExpired(banner) && (!deviceResolved || matchesDevice(banner.deviceTarget)),
-      ),
-    [banners, deviceResolved],
+    () => banners.filter((banner) => !isExpired(banner) && matchesDevice(banner.deviceTarget)),
+    [banners],
   )
 
   const collapse = useCallback(() => setCollapsed(true), [])
@@ -56,7 +46,6 @@ export function AnnouncementBannerProvider({
     <AnnouncementBannerContext
       value={{
         activeBanners,
-        deviceResolved,
         count: activeBanners.length,
         collapsed,
         collapse,
