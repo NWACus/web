@@ -18,7 +18,12 @@ import { render, screen } from '@testing-library/react'
 import type { ComponentProps } from 'react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
-const nwacWeather = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
+const mapped = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
+if (!mapped) throw new Error('fixture should map to a forecast day')
+const nwacWeather = {
+  ...mapped,
+  windows: [{ startsAt: '2026-09-15T01:00:00.000Z', issuance: 0, periodKeys: ['n1', 'd2'] }],
+}
 const OLYMPICS = 1645
 
 // A summary with no discussion or media: the panel holds nothing but the weather, if that.

@@ -1,6 +1,7 @@
 'use client'
 import { cn } from '@/utilities/ui'
 import { AccordionContent } from '@radix-ui/react-accordion'
+import { useRef } from 'react'
 import { Accordion, AccordionItem, AccordionTrigger } from '../ui/accordion'
 import {
   NavigationMenu,
@@ -18,6 +19,8 @@ const underlineHoverClassName =
   "relative w-fit after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-nav-underline after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)] hover:text-header-foreground-highlight"
 
 export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNavItem[] }) => {
+  const pointerDownTypeRef = useRef<string | null>(null)
+
   return (
     <NavigationMenu delayDuration={100} className="z-[60]">
       <NavigationMenuList>
@@ -47,12 +50,17 @@ export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNav
           return (
             <NavigationMenuItem key={label} value={label}>
               <NavigationMenuTrigger
+                onPointerDown={(e) => {
+                  pointerDownTypeRef.current = e.pointerType
+                }}
                 onClick={(e) => {
-                  // maintains accessibility via clicking space bar or enter with this trigger focused
-                  // but disables mouse clicks or touch events
-                  if ('pointerType' in e.nativeEvent && e.nativeEvent.pointerType !== '') {
+                  // Hover already opens the menu for a mouse, so a click would just close it again.
+                  // Touch and pen can't hover, so their tap (and keyboard Enter/Space) must toggle it.
+                  // Read the type from pointerdown: iOS Safari reports taps as 'mouse' on the click itself.
+                  if (pointerDownTypeRef.current === 'mouse') {
                     e.preventDefault()
                   }
+                  pointerDownTypeRef.current = null
                 }}
                 className="data-[state=open]:text-header-foreground-highlight font-medium lg:px-1.5 xl:px-3.5"
               >

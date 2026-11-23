@@ -14,6 +14,16 @@ const NEIGHBOURS = ['b', 'c'].map((c) => `/api/nwac/forecast-freshness/zone-${c}
 const GRID = [ENDPOINT, ...NEIGHBOURS]
 const RECHECK_INTERVAL_MS = 2 * 60 * 1000
 const MIN_CHECK_INTERVAL_MS = 30 * 1000
+const FOLLOW_UP_MS = 60 * 1000
+const CONVERGE_RETRY_MS = [5 * 1000, 15 * 1000, 30 * 1000]
+
+/** Advance the fake clock and let whatever check it fired settle. */
+async function advance(ms: number) {
+  await act(async () => {
+    jest.advanceTimersByTime(ms)
+  })
+  await settle()
+}
 
 let visibility: DocumentVisibilityState = 'visible'
 let mockFetch: jest.Mock
@@ -150,7 +160,123 @@ describe('RevalidateOnView', () => {
     })
     await settle()
 
-    expect(mockFetch).toHaveBeenCalledTimes(4) // mount + three ticks
+    expect(mockFetch).toHaveBeenCalledTimes(5) // mount + the follow-up + three ticks
+  })
+
+  it('asks once more after the detection budget, so a just-published product is not missed', async () => {
+    // The mount check can be answered from inside the 60s budget (edge + fresh-fetch caches), so a
+    // page opened right after a publish hears "you're current". Without the follow-up it would not
+    // ask again until the two-minute interval.
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+    expect(mockRefresh).not.toHaveBeenCalled()
+
+    mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
+    await advance(FOLLOW_UP_MS - 1)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+
+    await advance(1)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  it('skips the follow-up in a hidden tab (returning to visibility checks instead)', async () => {
+    visibility = 'hidden'
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+
+    await advance(FOLLOW_UP_MS)
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('refreshes again within seconds when a refresh does not converge, without asking again', async () => {
+    // A refresh can come back with the same render (the page's cached entry not purged, or not
+    // yet). Same fingerprint, so nothing re-arms. The retry is what picks up the new page, and it
+    // already knows the answer.
+    mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+
+    await advance(CONVERGE_RETRY_MS[0] - 1)
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+    await advance(1)
+
+    expect(mockRefresh).toHaveBeenCalledTimes(2)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('stops retrying a page that cannot converge, and leaves it to the interval', async () => {
+    mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+
+    for (const wait of CONVERGE_RETRY_MS) await advance(wait)
+    const total = CONVERGE_RETRY_MS.reduce((sum, wait) => sum + wait, 0)
+    expect(mockRefresh).toHaveBeenCalledTimes(1 + CONVERGE_RETRY_MS.length)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+
+    // The follow-up hears "changed" again: one refresh, and no new retries behind it.
+    await advance(FOLLOW_UP_MS - total)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mockRefresh).toHaveBeenCalledTimes(2 + CONVERGE_RETRY_MS.length)
+
+    await advance(RECHECK_INTERVAL_MS - FOLLOW_UP_MS - 1)
+    expect(mockRefresh).toHaveBeenCalledTimes(2 + CONVERGE_RETRY_MS.length)
+  })
+
+  it('skips a retry in a hidden tab (returning to visibility checks instead)', async () => {
+    mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+
+    await setVisibility('hidden', 0)
+    await advance(CONVERGE_RETRY_MS[0])
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+
+    await setVisibility('visible')
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mockRefresh).toHaveBeenCalledTimes(2)
+  })
+
+  it('drops the retry once the refresh converges', async () => {
+    mockFetch.mockReturnValue(answer({ changed: true, etag: 'd'.repeat(40) }))
+    const { rerender } = render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+
+    // The refresh re-rendered the page with the current product: a new address, and it is current.
+    mockFetch.mockReturnValue(answer({ changed: false }))
+    const next = '/api/nwac/forecast-freshness/west-slopes-north/' + 'd'.repeat(40)
+    rerender(<RevalidateOnView endpoints={[next]} />)
+    await settle()
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+
+    await advance(CONVERGE_RETRY_MS[0])
+
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  it('gives a later change its own full set of retries', async () => {
+    // The budget is per change, not per page lifetime: an unchanged answer resets it.
+    const perChange = 1 + CONVERGE_RETRY_MS.length
+    const total = CONVERGE_RETRY_MS.reduce((sum, wait) => sum + wait, 0)
+    mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+    for (const wait of CONVERGE_RETRY_MS) await advance(wait)
+    expect(mockRefresh).toHaveBeenCalledTimes(perChange)
+
+    mockFetch.mockReturnValue(answer({ changed: false }))
+    await advance(FOLLOW_UP_MS - total) // the follow-up, which hears "unchanged"
+    expect(mockRefresh).toHaveBeenCalledTimes(perChange)
+
+    mockFetch.mockReturnValue(answer({ changed: true, etag: 'c'.repeat(40) }))
+    await advance(RECHECK_INTERVAL_MS - FOLLOW_UP_MS) // the interval tick hears the new change
+    for (const wait of CONVERGE_RETRY_MS) await advance(wait)
+
+    expect(mockRefresh).toHaveBeenCalledTimes(2 * perChange)
   })
 
   it('stops the interval while hidden and does not accumulate timers across flips', async () => {

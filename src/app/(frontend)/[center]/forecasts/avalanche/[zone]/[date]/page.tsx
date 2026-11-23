@@ -239,6 +239,8 @@ export default async function Page({ params }: Args) {
       resolvedZone.zone.id,
       forecastResult.published_time,
       metadata.timezone,
+      // This page is cached as first rendered, so it can't follow a later issuance.
+      { archived: true },
     ).catch(() => null),
   ])
 

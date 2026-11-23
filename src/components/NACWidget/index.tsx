@@ -2,7 +2,9 @@
 
 import { useNACWidgetsConfig } from '@/providers/NACWidgetsConfigProvider'
 import { nacCenterId } from '@/services/nac/centerSlug'
+import { createWidgetPostHogClient } from '@/utilities/widgetPostHogClient'
 import Script from 'next/script'
+import posthog from 'posthog-js'
 import { useEffect, useState } from 'react'
 
 export type Widget = 'map' | 'forecast' | 'warnings' | 'stations' | 'observations' | 'media'
@@ -58,6 +60,8 @@ export const loadersByWidget: Record<
     widgetControllerKey: 'mediaWidget',
   },
 }
+
+const widgetPostHogClient = createWidgetPostHogClient(posthog)
 
 const loadCSS = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -128,6 +132,9 @@ export function NACWidget({
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
       controlledMount: true,
+      // Hand the widget our PostHog client so it doesn't init a second one and double-count.
+      // PostHogProvider inits the singleton no later than the commit that appends the script.
+      ...(process.env.NEXT_PUBLIC_POSTHOG_KEY && { posthog: widgetPostHogClient }),
       ...(widget === 'media' && { mode: mediaMode }),
       ...(widget === 'map' && { height: mapHeight }),
       ...(widget === 'observations' &&

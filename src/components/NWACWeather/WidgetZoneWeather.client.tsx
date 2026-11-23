@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { z } from 'zod'
 
-import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
+import type { NWACWeatherZoneDay } from '@/services/nac/model/nwacWeather'
 
 import { OverallSummary, ZoneSummary } from './ZoneSummary'
 
@@ -21,7 +21,7 @@ interface Slots {
   forecast: HTMLElement | null
   /** The Weather Forecast tab's pane; whenever the tab exists. */
   tab: HTMLElement | null
-  day: NWACWeatherForecastDay | null
+  day: NWACWeatherZoneDay | null
   zoneId: number
   /** The read failed, so the tab can't say whether the day had a forecast. */
   failed: boolean
@@ -83,11 +83,11 @@ async function fetchZoneDay(
   zoneId: number,
   published: string,
   signal: AbortSignal,
-): Promise<NWACWeatherForecastDay | null> {
+): Promise<NWACWeatherZoneDay | null> {
   const params = new URLSearchParams({ zone: String(zoneId), published })
   const res = await fetch(`/api/${center}/nwac-weather-zone?${params}`, { signal })
   if (!res.ok) throw new Error(`nwac-weather-zone answered ${res.status}`)
-  const body: { day: NWACWeatherForecastDay | null } = await res.json()
+  const body: { day: NWACWeatherZoneDay | null } = await res.json()
   return body.day
 }
 

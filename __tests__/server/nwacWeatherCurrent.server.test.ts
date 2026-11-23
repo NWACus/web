@@ -1,5 +1,5 @@
 import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
-import { currentNWACWeatherDay } from '@/services/nac/nwacWeatherCurrent'
+import { currentNWACWeatherDay, isPastNWACWeatherDate } from '@/services/nac/nwacWeatherCurrent'
 
 const dayOf = (serviceDate: string): NWACWeatherForecastDay => ({ serviceDate, issuances: [] })
 
@@ -21,5 +21,24 @@ describe('currentNWACWeatherDay', () => {
 
   it('shows nothing when nothing has been published', () => {
     expect(currentNWACWeatherDay(null, '2026-09-15')).toBeNull()
+  })
+})
+
+describe('isPastNWACWeatherDate', () => {
+  it('is not past for today', () => {
+    expect(isPastNWACWeatherDate('2026-09-15', dayOf('2026-09-15'), '2026-09-15')).toBe(false)
+  })
+
+  it('is not past for yesterday while yesterday’s is still the current forecast', () => {
+    expect(isPastNWACWeatherDate('2026-09-14', dayOf('2026-09-14'), '2026-09-15')).toBe(false)
+  })
+
+  it('is past for yesterday once today’s is issued, and for anything older', () => {
+    expect(isPastNWACWeatherDate('2026-09-14', dayOf('2026-09-15'), '2026-09-15')).toBe(true)
+    expect(isPastNWACWeatherDate('2026-09-10', dayOf('2026-09-14'), '2026-09-15')).toBe(true)
+  })
+
+  it('is past for any earlier date when nothing is current', () => {
+    expect(isPastNWACWeatherDate('2026-09-14', null, '2026-09-15')).toBe(true)
   })
 })

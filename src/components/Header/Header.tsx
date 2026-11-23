@@ -50,7 +50,7 @@ export async function Header({ center }: { center: string }) {
 
   return (
     // Below lg this pins to the top of the viewport as the page scrolls, via the sticky wrapper it
-    // shares with the announcement banners in Announcements.tsx.
+    // shares with the announcement banners in Announcements.client.tsx.
     <header className="bg-header lg:shadow-sm lg:border-b">
       <MobileNav topLevelNavItems={topLevelNavItems} banner={banner} usfsLogo={usfsLogo} />
 

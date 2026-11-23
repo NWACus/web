@@ -1,29 +1,23 @@
-import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
+import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, PayloadRequest } from 'payload'
 
 import type { Announcement } from '@/payload-types'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 
-export const revalidateAnnouncement: CollectionAfterChangeHook<Announcement> = async ({
-  doc,
-  req: { payload, context },
-}) => {
-  if (context.disableRevalidate) return
+// Purges the cached /api/[center]/announcements answer, so a save shows before its 60s window.
+async function revalidateAnnouncementsRoute(doc: Announcement, req: PayloadRequest) {
+  if (req.context.disableRevalidate) return
 
   const tenant = await resolveTenant(doc.tenant)
 
-  payload.logger.info(`Revalidating announcements for tenant: ${tenant.slug}`)
-  revalidateTag(`announcements-${tenant.slug}`)
+  req.payload.logger.info(`Revalidating announcements for tenant: ${tenant.slug}`)
+  revalidatePath(`/api/${tenant.slug}/announcements`)
 }
 
-export const revalidateAnnouncementDelete: CollectionAfterDeleteHook<Announcement> = async ({
+export const revalidateAnnouncement: CollectionAfterChangeHook<Announcement> = ({ doc, req }) =>
+  revalidateAnnouncementsRoute(doc, req)
+
+export const revalidateAnnouncementDelete: CollectionAfterDeleteHook<Announcement> = ({
   doc,
-  req: { payload, context },
-}) => {
-  if (context.disableRevalidate) return
-
-  const tenant = await resolveTenant(doc.tenant)
-
-  payload.logger.info(`Revalidating announcements for deleted announcement, tenant: ${tenant.slug}`)
-  revalidateTag(`announcements-${tenant.slug}`)
-}
+  req,
+}) => revalidateAnnouncementsRoute(doc, req)

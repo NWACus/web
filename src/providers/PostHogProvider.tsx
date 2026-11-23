@@ -27,9 +27,16 @@ function PostHogInit({ persistence }: { persistence: PersistenceMode }) {
           defaults: '2025-05-24',
           debug: process.env.NODE_ENV !== 'production',
           persistence, // localStorage+cookie is the PostHog default
+          // advanced_disable_flags would also skip remote config, which replay depends on.
           advanced_disable_feature_flags_on_first_load: true,
           advanced_disable_feature_flags: true,
           disable_surveys: true,
+          disable_product_tours: true,
+          disable_conversations: true,
+          // The project is shared with AvyApp, so don't let its toggles decide these for the web.
+          capture_exceptions: false, // Sentry owns error tracking (ADR 003)
+          capture_heatmaps: true,
+          capture_dead_clicks: true,
         })
         posthog.register(getPostHogSuperProperties())
       }

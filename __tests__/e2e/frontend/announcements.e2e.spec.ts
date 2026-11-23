@@ -3,6 +3,11 @@ import { tenantBaseUrl } from '../helpers/tenant-url'
 
 const TENANT_BASE_URL = tenantBaseUrl('nwac')
 
+/** Resolves once the browser has read the announcements, which it does after hydration. */
+function announcementsRead(page: Page) {
+  return page.waitForResponse((response) => response.url().endsWith('/api/nwac/announcements'))
+}
+
 /** Marks popups as dismissed so they don't overlay banner tests. */
 async function dismissPopups(page: Page) {
   await page.addInitScript(() => {
@@ -51,7 +56,9 @@ test.describe('Announcement banners', () => {
     await page.goto(`${TENANT_BASE_URL}/`)
     await page.waitForLoadState('load')
 
-    await expect(page.getByText('Past Season Summary Available')).not.toBeVisible()
+    // The banners arrive after load, so the absence below only counts once a live one is in.
+    await expect(page.getByText('Backcountry Access Road Closure')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText('Past Season Summary Available')).toHaveCount(0)
   })
 
   test('banner is visible on non-homepage routes', async ({ page }) => {
@@ -99,17 +106,20 @@ test.describe('Announcement popups', () => {
     await expect(page.getByRole('dialog')).not.toBeVisible()
 
     // Reload and verify the popup does not reappear
+    const read = announcementsRead(page)
     await page.reload()
-    await page.waitForLoadState('load')
+    await read
+    // Longer than the popup delay (1s), which starts once the announcements are read
     await page.waitForTimeout(2000)
     await expect(page.getByRole('dialog')).not.toBeVisible()
   })
 
   test('homepage-only popup does not appear on other pages', async ({ page }) => {
+    const read = announcementsRead(page)
     await page.goto(`${TENANT_BASE_URL}/blog`)
-    await page.waitForLoadState('load')
+    await read
 
-    // Wait longer than the popup delay (1s) to confirm it doesn't appear
+    // Longer than the popup delay (1s), which starts once the announcements are read
     await page.waitForTimeout(2000)
     await expect(page.getByRole('dialog')).not.toBeVisible()
   })
@@ -118,9 +128,8 @@ test.describe('Announcement popups', () => {
 // Seeded nwac banners: one for all devices ("Backcountry Access Road Closure"),
 // one mobile-only ("Text Alerts for Forecast Updates"), one desktop-only
 // ("Explore the Interactive Danger Map") and one expired. The split is at
-// 1024px (Tailwind `lg`). Device targeting resolves after mount, deliberately,
-// to avoid a hydration mismatch — so the server HTML carries every non-expired
-// banner and nothing here asserts on first paint.
+// 1024px (Tailwind `lg`). The banners are fetched in the browser after mount,
+// so the server HTML carries none and nothing here asserts on first paint.
 test.describe('Announcement banner device targeting', () => {
   test.describe.configure({ timeout: 60000 })
 
@@ -134,13 +143,13 @@ test.describe('Announcement banner device targeting', () => {
   }
 
   /**
-   * Waits for the post-mount device filter by waiting for the banner meant for the
-   * other device to leave the DOM. The collapsed strip is a zero-height overflow
-   * container, which Playwright's visibility check does not see through, so
-   * `toBeVisible` on a banner is not proof the filter has run.
+   * Waits for the fetched banners to render, then checks the one meant for the other
+   * device is not among them. Before the fetch lands no banner is in the DOM, so the
+   * absence alone would pass on an empty strip.
    */
   async function expectDeviceFiltered(page: Page, otherDeviceBanner: string) {
-    await expect(page.getByText(otherDeviceBanner)).toHaveCount(0, { timeout: 10000 })
+    await expect(page.getByText(ALL_DEVICES)).toHaveCount(1, { timeout: 10000 })
+    await expect(page.getByText(otherDeviceBanner)).toHaveCount(0)
   }
 
   test.beforeEach(async ({ page }) => {

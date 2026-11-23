@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import React from 'react'
 
-import { Announcements } from '@/components/Announcements/Announcements'
+import { Announcements } from '@/components/Announcements/Announcements.client'
 import { Footer } from '@/components/Footer/Footer'
 import { Header } from '@/components/Header/Header'
 
