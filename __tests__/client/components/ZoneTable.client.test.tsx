@@ -177,7 +177,7 @@ describe('ZoneTable', () => {
 
       expect(rows).toEqual([
         ...zonePoints(afternoon, z.id).map((p) => p.name),
-        "Temperatures @ 5000' (°F)",
+        "Temperatures @ 5000' (°F) key",
         'Snow level (ft) key',
         'Ridge wind (mph) key',
       ])
@@ -196,6 +196,46 @@ describe('ZoneTable', () => {
       fireEvent.click(within(card).getByRole('button', { name: 'Ridge wind (mph) key' }))
       expect(within(card).queryByText(/no precipitation expected/)).not.toBeInTheDocument()
       expect(within(card).getByText(/VAR: variable/)).toBeInTheDocument()
+    })
+
+    it('closes a key from its own label', () => {
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
+      )
+      const card = phoneCard(container)
+      const temps = within(card).getByRole('button', { name: "Temperatures @ 5000' (°F) key" })
+
+      fireEvent.click(temps)
+      expect(within(card).getByText('Hi')).toBeInTheDocument()
+      expect(temps).toHaveAttribute('aria-expanded', 'true')
+
+      fireEvent.click(temps)
+      expect(within(card).queryByText('Hi')).not.toBeInTheDocument()
+    })
+
+    it('opens the snow key under its column head, above the stations', () => {
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={zone('west-south')} periodKeys={DAY_ONE} />,
+      )
+      const card = phoneCard(container)
+      fireEvent.click(within(card).getByRole('button', { name: "Snow @ 5000' (in) key" }))
+
+      expect(within(card).getAllByRole('row')[1]).toHaveTextContent("Inches of snow at 5000'")
+    })
+
+    it('has buttons on the labels only, not the values', () => {
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={zone('west-south')} periodKeys={DAY_ONE} />,
+      )
+      const names = within(phoneCard(container))
+        .getAllByRole('button')
+        .map((b) => b.textContent)
+      expect(names).toEqual([
+        "Snow @ 5000' (in) key",
+        "Temperatures @ 5000' (°F) key",
+        'Snow level (ft) key',
+        'Ridge wind (mph) key',
+      ])
     })
   })
 })

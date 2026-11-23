@@ -38,11 +38,6 @@ export function levelFill(level: number): string {
   return LEVEL_FILLS.find((f) => level < f.below)?.fill ?? ''
 }
 
-/** A level's step on its key's bar. */
-export function levelStep(level: number): number {
-  return LEVEL_FILLS.findIndex((f) => level < f.below)
-}
-
 /** Snow fills by `snowTier`, deepening with the amount; none without snow. */
 const SNOW_FILLS = ['bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300']
 const SNOW_COLORS = [colors.blue[50], colors.blue[100], colors.blue[200], colors.blue[300]]
@@ -118,13 +113,6 @@ export function windFill(speed: number | null | undefined): string | undefined {
   return step && `${step.fill} text-stone-900`
 }
 
-/** A wind's step on its key's bar; null for calm or no wind. */
-export function windStep(speed: number | null | undefined): number | null {
-  const wording = windWording(speed)
-  const i = WIND_STEPS.findIndex((s) => wording && s.wordings.includes(wording))
-  return i < 0 ? null : i
-}
-
 const LEVEL_KEY_LABELS = [null, "2k'", null, "4k'", null, "6k'", null, "8k'", null, "10k'+"]
 
 /**
@@ -138,15 +126,12 @@ function SegmentedBar({
   names,
   labels,
   width = 'w-full sm:w-80',
-  hit = null,
 }: {
   colors: string[]
   names: readonly string[]
   labels: readonly (string | null)[]
   /** The bar's width as static classes, so Tailwind sees them. */
   width?: string
-  /** A step to outline: the step of a value just tapped. */
-  hit?: number | null
 }) {
   const widths = labels.map((l) => (l ? 2 : 1))
   const total = widths.reduce((a, b) => a + b, 0)
@@ -172,10 +157,7 @@ function SegmentedBar({
           <span
             key={i}
             title={names[i]}
-            className={cn(
-              'flex items-center justify-center whitespace-nowrap px-0.5',
-              hit === i && 'ring-2 ring-inset ring-foreground',
-            )}
+            className="flex items-center justify-center whitespace-nowrap px-0.5"
           >
             {label}
           </span>
@@ -203,7 +185,7 @@ function LevelMark({ snow }: { snow: boolean }) {
   return snow ? <Snowflake aria-hidden="true" className="size-3.5 shrink-0 text-sky-700" /> : null
 }
 
-function SnowLevelKey({ width, hit }: { width?: string; hit?: number | null }) {
+function SnowLevelKey({ width }: { width?: string }) {
   return (
     <>
       <span className="inline-flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -221,7 +203,6 @@ function SnowLevelKey({ width, hit }: { width?: string; hit?: number | null }) {
         </span>
       </span>
       <SegmentedBar
-        hit={hit}
         colors={LEVEL_FILLS.map((f) => f.color)}
         names={LEVEL_FILLS.map((f) => f.label)}
         labels={LEVEL_KEY_LABELS}
@@ -295,17 +276,16 @@ export function ZoneKeys() {
   )
 }
 
-export type PhoneKeyKind = 'snow' | 'level' | 'wind'
+export type PhoneKeyKind = 'snow' | 'temp' | 'level' | 'wind'
 
-/** One row's key in a phone card, opened from that row; `hit` outlines a tapped value's step. */
-export function PhoneKey({ kind, hit = null }: { kind: PhoneKeyKind; hit?: number | null }) {
+/** One row's key in a phone card, opened from its label. */
+export function PhoneKey({ kind }: { kind: PhoneKeyKind }) {
   return (
     <p className={cn(KEY_LINE, 'flex-col items-start gap-1.5')}>
       {kind === 'snow' && (
         <>
           <span>Inches of snow at 5000&apos;</span>
           <SegmentedBar
-            hit={hit}
             colors={SNOW_COLORS}
             names={SNOW_TIER_LABELS}
             labels={SNOW_TIER_LABELS}
@@ -313,12 +293,12 @@ export function PhoneKey({ kind, hit = null }: { kind: PhoneKeyKind; hit?: numbe
           />
         </>
       )}
-      {kind === 'level' && <SnowLevelKey width="w-full" hit={hit} />}
+      {kind === 'temp' && <LoHi />}
+      {kind === 'level' && <SnowLevelKey width="w-full" />}
       {kind === 'wind' && (
         <>
           <span>mph · VAR: variable</span>
           <SegmentedBar
-            hit={hit}
             colors={WIND_STEPS.map((s) => s.color)}
             names={WIND_STEPS.map((s) => s.name)}
             labels={WIND_STEPS.map((s) => s.label)}
@@ -395,13 +375,20 @@ export function SnowLevelValue({
   )
 }
 
+/** How a temperature cell reads. */
+function LoHi() {
+  return (
+    <span>
+      Lo / <span className="font-semibold text-foreground">Hi</span>
+    </span>
+  )
+}
+
 /** How to read a temperature cell, under the table. */
 export function TempLegend() {
   return (
     <p className={KEY_LINE}>
-      <span>
-        Lo / <span className="font-semibold text-foreground">Hi</span>
-      </span>
+      <LoHi />
     </p>
   )
 }

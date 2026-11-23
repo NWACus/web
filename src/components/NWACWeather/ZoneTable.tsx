@@ -20,7 +20,6 @@ import {
   pointSnow,
   sensibleSlotFor,
   snowRange,
-  snowTier,
   tempPeriods,
   windBlocks,
   zonePoints,
@@ -38,10 +37,8 @@ import {
   WindValue,
   ZoneKeys,
   levelFill,
-  levelStep,
   snowFill,
   windFill,
-  windStep,
 } from './Values'
 
 const HEAD = 'border-b border-l p-2 text-center font-semibold'
@@ -457,6 +454,8 @@ function NotCoveredChip() {
 }
 
 const CARD_LABEL = 'border-t px-3 py-2 text-left align-middle'
+/** A label that is its key's button, which fills the cell. */
+const CARD_KEY_LABEL = 'h-px border-t p-0 text-left align-middle'
 const CARD_CELL = 'border-t px-2 py-1.5 text-center align-middle'
 const CARD_HEAD =
   'border-t bg-muted px-2 py-1.5 text-center text-xs font-normal text-muted-foreground'
@@ -477,22 +476,10 @@ function CardHeads({ label, children }: { label?: string; children: ReactNode })
   )
 }
 
-/** A point's snow; tapping it opens the snow key at its step. */
-function CardSnow({ snow }: { snow: number | null }) {
-  const step = snowTier(snow)
-  const value = <SnowAmount snow={snow} />
-  if (step == null) return value
-  return (
-    <KeyButton kind="snow" hit={step}>
-      {value}
-    </KeyButton>
-  )
-}
-
 /**
  * One 12h period on a phone: a single grid with what's measured down the left. The 12h values
  * (each point's precip and snow, then temps) span the period; snow level and wind sit under its 6h
- * parts. Each row's key opens under it.
+ * parts. Each label's key opens under its row.
  */
 function PeriodCard({
   issuance,
@@ -527,17 +514,20 @@ function PeriodCard({
           </colgroup>
           <tbody>
             {points.length > 0 && (
-              <CardHeads label="Station">
-                <th scope="col" className={CARD_HEAD}>
-                  Precip
-                  <span className="block">(in)</span>
-                </th>
-                <th scope="col" className={CARD_HEAD}>
-                  <KeyButton kind="snow" unit="in" unitBelow className="font-normal">
-                    Snow @ 5000&apos;
-                  </KeyButton>
-                </th>
-              </CardHeads>
+              <>
+                <CardHeads label="Station">
+                  <th scope="col" className={CARD_HEAD}>
+                    Precip
+                    <span className="block">(in)</span>
+                  </th>
+                  <th scope="col" className={cn(CARD_HEAD, 'h-px p-0')}>
+                    <KeyButton kind="snow" unit="in" unitBelow className="px-1 font-normal">
+                      Snow @ 5000&apos;
+                    </KeyButton>
+                  </th>
+                </CardHeads>
+                <KeyRow kind="snow" colSpan={3} />
+              </>
             )}
             {points.map((point) => (
               <tr key={point.code}>
@@ -556,15 +546,16 @@ function PeriodCard({
                 <td
                   className={cn(CARD_CELL, snowFill(pointSnow(issuance, point.code, p.period.key)))}
                 >
-                  <CardSnow snow={pointSnow(issuance, point.code, p.period.key)} />
+                  <SnowAmount snow={pointSnow(issuance, point.code, p.period.key)} />
                 </td>
               </tr>
             ))}
-            <KeyRow kind="snow" colSpan={3} />
             {/* A heavier line where the stations end and the zone-wide rows begin. */}
             <tr className="[&>*]:border-t-2">
-              <th scope="row" className={cn(CARD_LABEL, 'font-semibold')}>
-                Temperatures @ 5000&apos;<Unit>°F</Unit>
+              <th scope="row" className={CARD_KEY_LABEL}>
+                <KeyButton kind="temp" unit="°F" className="px-3 py-2">
+                  Temperatures @ 5000&apos;
+                </KeyButton>
               </th>
               <td colSpan={2} className={CARD_CELL}>
                 {tempOut ? (
@@ -574,6 +565,7 @@ function PeriodCard({
                 )}
               </td>
             </tr>
+            <KeyRow kind="temp" colSpan={3} />
             {p.blocks.length > 0 && (
               <>
                 <CardHeads>
@@ -584,25 +576,14 @@ function PeriodCard({
                   ))}
                 </CardHeads>
                 <tr>
-                  <th scope="row" className={CARD_LABEL}>
-                    <KeyButton kind="level" unit="ft">
+                  <th scope="row" className={CARD_KEY_LABEL}>
+                    <KeyButton kind="level" unit="ft" className="px-3 py-2">
                       <span className="whitespace-nowrap">Snow level</span>
                     </KeyButton>
                   </th>
                   {p.blocks.map((b) => (
                     <td key={b.block.key} className={cn(CARD_CELL, 'border-l', levelCellFill(b))}>
-                      {b.level == null ? (
-                        <SnowLevelValue level={null} snow={b.snow} />
-                      ) : (
-                        <KeyButton kind="level" hit={levelStep(b.level)}>
-                          <SnowLevelValue
-                            level={b.level}
-                            snow={b.snow}
-                            pill={false}
-                            tight={false}
-                          />
-                        </KeyButton>
-                      )}
+                      <SnowLevelValue level={b.level} snow={b.snow} pill={false} tight={false} />
                     </td>
                   ))}
                 </tr>
@@ -610,8 +591,8 @@ function PeriodCard({
                 {showWind && (
                   <>
                     <tr>
-                      <th scope="row" className={CARD_LABEL}>
-                        <KeyButton kind="wind" unit="mph">
+                      <th scope="row" className={CARD_KEY_LABEL}>
+                        <KeyButton kind="wind" unit="mph" className="px-3 py-2">
                           <span className="whitespace-nowrap">Ridge wind</span>
                         </KeyButton>
                       </th>
@@ -624,11 +605,7 @@ function PeriodCard({
                             !windOut.has(b.block.key) && windFill(b.wind?.speed),
                           )}
                         >
-                          {!windOut.has(b.block.key) && (
-                            <KeyButton kind="wind" hit={windStep(b.wind?.speed)}>
-                              <WindValue cell={b.wind} compact />
-                            </KeyButton>
-                          )}
+                          {!windOut.has(b.block.key) && <WindValue cell={b.wind} compact />}
                         </td>
                       ))}
                     </tr>
