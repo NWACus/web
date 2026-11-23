@@ -86,7 +86,7 @@ export function KeyRow({ kind, colSpan }: { kind: PhoneKeyKind; colSpan: number 
   if (open?.kind !== kind) return null
   return (
     <tr>
-      <td colSpan={colSpan} className="border-t bg-muted/40 px-3 py-2">
+      <td colSpan={colSpan} className="border-t bg-muted px-3 py-2">
         <PhoneKey kind={kind} hit={open.hit} />
       </td>
     </tr>
