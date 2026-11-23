@@ -62,13 +62,14 @@ function optionalString(value: unknown): string | undefined {
 }
 
 function toDocumentReference(
-  doc: { id: number },
+  doc: { id: number | string },
   collection: ReferencingCollection,
 ): DocumentReference[] {
   // Payload's generated types don't have index signatures
   const record: Record<string, unknown> = { ...doc }
   const tenant = record['tenant']
-  if (!isTenantValue(tenant)) return []
+  // Members use text ids and never carry documentReferences
+  if (typeof doc.id !== 'number' || !isTenantValue(tenant)) return []
 
   return [
     {

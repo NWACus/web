@@ -48,6 +48,7 @@
     "test:all": "pnpm test && pnpm test:e2e && pnpm test:e2e:afp-products",
     "migrate": "payload migrate",
     "check:centers": "tsx ./src/scripts/check-centers.ts",
+    "poc:members-auth": "cross-env TSX_TSCONFIG_PATH=tsconfig.scripts.json NODE_OPTIONS=--no-deprecation payload run ./src/scripts/poc/better-auth-members.ts",
     "report:404s": "tsx ./src/scripts/report-404s.ts",
     "migrate:check": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/check-migrations.ts",
     "migrate:diff": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/analyze-migration-diff.ts",
@@ -62,6 +63,7 @@
     "**/*": "pnpm run prettify"
   },
   "dependencies": {
+    "@better-auth/expo": "1.7.14",
     "@date-fns/tz": "^1.4.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
@@ -101,6 +103,7 @@
     "@types/lodash.merge": "^4.6.9",
     "@vercel/blob": "^2.3.3",
     "@vercel/og": "^0.11.1",
+    "better-auth": "1.7.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cross-env": "^7.0.3",

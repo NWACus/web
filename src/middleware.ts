@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { silentReSignInRedirect } from './auth/members/silentReSignIn'
+import { PROTOCOL } from './utilities/domain'
 import { getURL } from './utilities/getURL'
 import {
   findCenterByDomain,
@@ -59,6 +61,24 @@ export default function middleware(req: NextRequest) {
 
   const host = new URL(getURL()).host
   const requestedHost = req.headers.get('host')
+
+  // A marked browser whose site session expired silently re-signs in through the apex (ADR 026)
+  // nextUrl carries the server's own host, so rebuild the page URL from the requested host
+  const reSignIn = silentReSignInRedirect({
+    host: requestedHost,
+    method: req.method,
+    url: `${PROTOCOL}://${requestedHost}${req.nextUrl.pathname}${req.nextUrl.search}`,
+    cookieHeader: req.headers.get('cookie'),
+    isPrefetch:
+      req.headers.get('next-router-prefetch') !== null ||
+      req.headers.get('purpose') === 'prefetch' ||
+      req.headers.get('sec-purpose')?.includes('prefetch') === true,
+  })
+  if (reSignIn) {
+    logCompletion('member-silent-re-sign-in')
+    // Built by hand: NextResponse.redirect would relativize a Location on the server's own origin
+    return new NextResponse(null, { status: 302, headers: { location: reSignIn.toString() } })
+  }
   const isDraftMode = req.cookies.has('__prerender_bypass')
   const hasNextInPath = req.nextUrl.pathname.includes('/next/')
   const isSeedEndpoint = req.nextUrl.pathname.includes('/next/seed')
