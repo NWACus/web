@@ -43,15 +43,17 @@ export function TableDescription({
     <div className={cn(control && 'grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4')}>
       <div className="min-w-0">{heading}</div>
       {control && (
-        // Beside the title and description; a phone's wrapped title clears it on its own. The
-        // margin is the space above the capitals in the title's first line.
-        <div className="mt-2 sm:row-span-2 print:hidden">{control}</div>
+        // The margin is the space above the capitals in the title's first line.
+        <div className={cn('mt-2 print:hidden', open ? 'sm:row-span-2' : 'row-span-2')}>
+          {control}
+        </div>
       )}
       <div
         className={cn(
           'py-2 text-sm text-muted-foreground md:py-1',
           !open && 'flex items-baseline gap-1.5 print:block',
-          control && 'col-span-2 sm:col-span-1',
+          // Opened on a phone, the text takes the full width under the switch.
+          control && open && 'col-span-2 sm:col-span-1',
         )}
       >
         <span
