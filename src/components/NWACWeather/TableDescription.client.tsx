@@ -17,7 +17,7 @@ export function SharedDescription({ children }: { children: ReactNode }) {
 }
 
 /**
- * A table's title row over its description: the first line, which opens to the rest. Always
+ * A table's title row over its description: the first line, and More for the rest. Always
  * printed in full.
  */
 export function TableDescription({
@@ -49,27 +49,23 @@ export function TableDescription({
       )}
       <div
         className={cn(
-          'relative min-h-11 py-2 text-sm text-muted-foreground md:min-h-8 md:py-1',
-          !open && 'flex items-center gap-2',
+          'py-2 text-sm text-muted-foreground md:py-1',
+          !open && 'flex items-baseline gap-1.5 print:block',
           control && 'col-span-2 sm:col-span-1',
         )}
       >
-        <p
+        <span
           id={descriptionId}
-          className={cn(
-            'min-w-0 flex-1',
-            !open && 'truncate print:overflow-visible print:whitespace-normal',
-          )}
+          className={cn(!open && 'min-w-0 truncate print:overflow-visible print:whitespace-normal')}
         >
           {children}
-        </p>
-        {/* Its overlay makes the whole description the tap area. */}
+        </span>{' '}
         <button
           type="button"
           aria-expanded={open}
           aria-controls={descriptionId}
           onClick={() => setOpen(!open)}
-          className="shrink-0 font-semibold text-primary after:absolute after:inset-0 after:rounded-md after:content-[''] hover:underline focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring print:hidden"
+          className="relative shrink-0 rounded-sm font-semibold text-primary after:absolute after:-inset-x-2 after:-inset-y-2 after:content-[''] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring print:hidden"
         >
           {open ? 'Less' : 'More'}
           <span className="sr-only"> about {title}</span>
