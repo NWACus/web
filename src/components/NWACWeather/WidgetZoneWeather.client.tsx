@@ -9,6 +9,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { z } from 'zod'
 
+import { MOUNTAIN_WEATHER_ID } from '@/components/forecast/zoneWeather'
 import type { NWACWeatherZoneDay } from '@/services/nac/model/nwacWeather'
 
 import { OverallSummary, ZoneSummary } from './ZoneSummary'
@@ -85,9 +86,15 @@ function tabMount(): HTMLElement | null {
 /** Input a reader scrolls with. Not `scroll` itself: the router scrolls too, after a link click. */
 const READER_INPUT = ['wheel', 'touchmove', 'keydown', 'pointerdown'] as const
 
+function scrollToWeather(slots: Slots) {
+  const root = slots.forecast?.getRootNode()
+  if (root instanceof ShadowRoot) root.host.scrollIntoView()
+}
+
 /** Scrolls to the weather once, when the reader came for it and hasn't moved since. */
 function useScrollToWeather(slots: Slots | null) {
   const wanted = useRef(false)
+  const loaded = useRef<Slots | null>(null)
 
   // Before WidgetRouterHandler's effect replaces the hash with the widget's own route.
   useLayoutEffect(() => {
@@ -99,11 +106,30 @@ function useScrollToWeather(slots: Slots | null) {
     return () => READER_INPUT.forEach((type) => window.removeEventListener(type, cancel))
   }, [])
 
+  // The widget's router reads an unknown hash as a missing product, so on an open page it must not
+  // see this one. Capture runs ahead of its own listeners; the browser fires popstate first.
+  useLayoutEffect(() => {
+    const onHash = (event: Event) => {
+      if (window.location.hash !== `#${MOUNTAIN_WEATHER_ID}`) return
+      event.stopImmediatePropagation()
+      if (!(event instanceof HashChangeEvent)) return
+      window.history.replaceState(null, '', new URL(event.oldURL).hash || window.location.pathname)
+      if (loaded.current) scrollToWeather(loaded.current)
+      else wanted.current = true
+    }
+    window.addEventListener('popstate', onHash, true)
+    window.addEventListener('hashchange', onHash, true)
+    return () => {
+      window.removeEventListener('popstate', onHash, true)
+      window.removeEventListener('hashchange', onHash, true)
+    }
+  }, [])
+
   useEffect(() => {
+    loaded.current = slots
     if (!slots || !wanted.current) return
     wanted.current = false
-    const root = slots.forecast?.getRootNode()
-    if (root instanceof ShadowRoot) root.host.scrollIntoView()
+    scrollToWeather(slots)
   }, [slots])
 }
 

@@ -202,6 +202,32 @@ describe('WidgetZoneWeather', () => {
       expect(scrollIntoView).not.toHaveBeenCalled()
     })
 
+    it("scrolls on a page already open, and keeps the hash from the widget's router", async () => {
+      window.history.replaceState(null, '', `${PAGE}#/olympics`)
+      const { container } = renderInWidget()
+      const router = jest.fn()
+      window.addEventListener('popstate', router)
+      window.addEventListener('hashchange', router)
+      try {
+        fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+        await waitFor(() => expect(shadowMount(container)).not.toBeNull())
+        expect(scrollIntoView).not.toHaveBeenCalled()
+
+        window.history.replaceState(null, '', '#mountain-weather')
+        fireEvent(window, new PopStateEvent('popstate'))
+        fireEvent(
+          window,
+          new HashChangeEvent('hashchange', { oldURL: `http://localhost${PAGE}#/olympics` }),
+        )
+        expect(scrollIntoView).toHaveBeenCalledTimes(1)
+        expect(window.location.hash).toBe('#/olympics')
+        expect(router).not.toHaveBeenCalled()
+      } finally {
+        window.removeEventListener('popstate', router)
+        window.removeEventListener('hashchange', router)
+      }
+    })
+
     it('does nothing when the day has no weather', async () => {
       fetchMock.mockResolvedValue({ ok: true, json: async () => ({ day: null }) })
       await loadedTab()
