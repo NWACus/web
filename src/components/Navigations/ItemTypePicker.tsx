@@ -5,7 +5,7 @@ import { isRecord } from '@/utilities/isRecord'
 import { type NavItemType } from '@/utilities/navItemType'
 import { ConfirmationModal, FieldLabel, useForm, useFormFields, useModal } from '@payloadcms/ui'
 import { ListTree, SquareArrowOutUpRight } from 'lucide-react'
-import type { FormState, UIFieldClientProps } from 'payload'
+import type { UIFieldClientProps } from 'payload'
 import { useState } from 'react'
 import { fetchReferenceTitle } from './useReferenceTitle'
 
@@ -16,92 +16,49 @@ const options: { value: NavItemType; label: string; icon: typeof ListTree }[] = 
 
 const LINK_KEYS = ['type', 'reference', 'url', 'label', 'newTab'] as const
 
-type Link = Record<string, unknown>
+const linkOf = (value: unknown): Record<string, unknown> => (isRecord(value) ? value : {})
 
-const linkOf = (value: unknown): Link => (isRecord(value) ? value : {})
-
-const hasDestination = (link: Link) => Boolean(link.reference || link.url)
-
-const text = (value: unknown): string | undefined =>
-  typeof value === 'string' && value ? value : undefined
-
-// Form state for a new sub-item row carrying `link`, keyed relative to the row
-const subItemState = (link: Link): FormState =>
-  Object.fromEntries(
-    LINK_KEYS.map((key) => [`link.${key}`, { value: link[key], initialValue: link[key] }]),
-  )
-
-const firstSubItemLink = (subItems: unknown) =>
-  Array.isArray(subItems) ? linkOf(subItems[0]?.link) : {}
-
-const rowCount = (rows: unknown) => (Array.isArray(rows) ? rows.length : 0)
+const hasDestination = (link: Record<string, unknown>) => Boolean(link.reference || link.url)
 
 const plural = (count: number) => `${count} sub-item${count === 1 ? '' : 's'}`
-
-const switchToLinkMessage = (count: number, keepsFirst: boolean) =>
-  keepsFirst
-    ? `The first sub-item becomes this item's link, and the other ${plural(count - 1)} will be removed.`
-    : `All ${plural(count)} will be removed, and you'll need to pick this item's page.`
-
-const TypeToggle = ({
-  value,
-  onChange,
-}: {
-  value: NavItemType
-  onChange: (next: string) => void
-}) => (
-  <ToggleGroup
-    type="single"
-    value={value}
-    onValueChange={onChange}
-    variant="outline"
-    className="justify-start"
-  >
-    {options.map(({ value: option, label, icon: Icon }) => (
-      <ToggleGroupItem
-        key={option}
-        value={option}
-        aria-label={label}
-        className="cursor-pointer gap-1.5"
-      >
-        <Icon style={{ width: '16px', height: '16px' }} />
-        {label}
-      </ToggleGroupItem>
-    ))}
-  </ToggleGroup>
-)
 
 // Moves an item's link into a new first sub-item and back, editing form state directly
 const useItemTypeSwitch = (itemPath: string) => {
   const { addFieldRow, dispatchFields, getDataByPath, removeFieldRow } = useForm()
+  const labelPath = `${itemPath}.label`
   const subItemsPath = `${itemPath}.items`
   // An array field's form state value is its row count
   const subItemCount = useFormFields(([fields]) => Number(fields[subItemsPath]?.value) || 0)
 
-  const update = (fieldPath: string, value: unknown) =>
-    dispatchFields({ type: 'UPDATE', path: fieldPath, value })
+  const update = (path: string, value: unknown) => dispatchFields({ type: 'UPDATE', path, value })
+  const hasName = () => Boolean(getDataByPath(labelPath))
+  const subItems = () => {
+    const rows: unknown = getDataByPath(subItemsPath)
+    return Array.isArray(rows) ? rows : []
+  }
+  const firstLink = () => linkOf(subItems()[0]?.link)
 
-  const hasName = () => Boolean(text(getDataByPath(`${itemPath}.label`)))
-  // Once the page title loads, the editor may have typed a name or switched back to a link
-  const stillUnnamedSection = () => !hasName() && rowCount(getDataByPath(subItemsPath)) > 0
-
-  const nameSection = (link: Link) => {
+  const nameSection = (link: Record<string, unknown>) => {
     if (hasName()) return
-    const linkLabel = text(link.label)
-    if (linkLabel) return update(`${itemPath}.label`, linkLabel)
+    if (link.label) return update(labelPath, link.label)
     fetchReferenceTitle(link.reference)
-      .then((title) => title && stillUnnamedSection() && update(`${itemPath}.label`, title))
+      .then((title) => {
+        // The editor may have typed a name or switched back to a link while the title loaded
+        if (title && !hasName() && subItems().length > 0) update(labelPath, title)
+      })
       .catch(() => {})
   }
 
   const toSection = () => {
     const link = linkOf(getDataByPath(`${itemPath}.link`))
-    const subFieldState = hasDestination(link) ? subItemState(link) : undefined
+    const subFieldState = hasDestination(link)
+      ? Object.fromEntries(
+          LINK_KEYS.map((key) => [`link.${key}`, { value: link[key], initialValue: link[key] }]),
+        )
+      : undefined
     addFieldRow({ path: subItemsPath, rowIndex: 0, schemaPath: subItemsPath, subFieldState })
     nameSection(link)
   }
-
-  const firstLink = () => firstSubItemLink(getDataByPath(subItemsPath))
 
   const toLink = () => {
     const first = firstLink()
@@ -125,35 +82,57 @@ export const ItemTypePicker = ({ path }: UIFieldClientProps) => {
   const modalSlug = `nav-item-type-${itemPath}`
   const { subItemCount, toSection, toLink, keepsFirst } = useItemTypeSwitch(itemPath)
   const { closeModal, openModal } = useModal()
-  const [confirmingKeepsFirst, setConfirmingKeepsFirst] = useState<boolean>()
-  const current: NavItemType = subItemCount > 0 ? 'section' : 'link'
+  const [confirmMessage, setConfirmMessage] = useState<string>()
 
   // The modal mounts only while this item is asking, rather than one per nav item
   const requestLink = () => {
     if (subItemCount <= 1) return toLink()
-    setConfirmingKeepsFirst(keepsFirst())
+    setConfirmMessage(
+      keepsFirst()
+        ? `The first sub-item becomes this item's link, and the other ${plural(subItemCount - 1)} will be removed.`
+        : `All ${plural(subItemCount)} will be removed, and you'll need to pick this item's page.`,
+    )
     openModal(modalSlug)
   }
 
   const endConfirming = () => {
     closeModal(modalSlug)
-    setConfirmingKeepsFirst(undefined)
+    setConfirmMessage(undefined)
   }
 
-  const transitions: Record<string, () => void> = {
-    'link>section': toSection,
-    'section>link': requestLink,
+  // Clicking the current type emits ''
+  const onChange = (next: string) => {
+    if (next === 'section') toSection()
+    if (next === 'link') requestLink()
   }
 
   return (
     <div className="mb-4">
       <FieldLabel label="Type" />
-      <TypeToggle value={current} onChange={(next) => transitions[`${current}>${next}`]?.()} />
-      {confirmingKeepsFirst !== undefined && (
+      <ToggleGroup
+        type="single"
+        value={subItemCount > 0 ? 'section' : 'link'}
+        onValueChange={onChange}
+        variant="outline"
+        className="justify-start"
+      >
+        {options.map(({ value, label, icon: Icon }) => (
+          <ToggleGroupItem
+            key={value}
+            value={value}
+            aria-label={label}
+            className="cursor-pointer gap-1.5"
+          >
+            <Icon style={{ width: '16px', height: '16px' }} />
+            {label}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+      {confirmMessage && (
         <ConfirmationModal
           modalSlug={modalSlug}
           heading="Switch to a link?"
-          body={switchToLinkMessage(subItemCount, confirmingKeepsFirst)}
+          body={confirmMessage}
           confirmLabel="Switch to link"
           onCancel={endConfirming}
           onConfirm={() => {
