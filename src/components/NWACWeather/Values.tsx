@@ -5,7 +5,6 @@ import type { NWACWeatherTempCell, NWACWeatherWindCell } from '@/services/nac/mo
 import {
   DASH,
   SNOW_TIER_LABELS,
-  fmtQpf,
   snowTier,
   windBearing,
   windRange,
@@ -309,11 +308,6 @@ export function PhoneKey({ kind }: { kind: PhoneKeyKind }) {
       )}
     </p>
   )
-}
-
-/** A station's water equivalent, quieter than the snow beside it. */
-export function PrecipValue({ qpf }: { qpf: number | null | undefined }) {
-  return <span className="tabular-nums text-foreground/75">{fmtQpf(qpf)}</span>
 }
 
 /** Any snow in bold, so the few periods with some stand out from the muted zeros. */

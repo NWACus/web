@@ -19,6 +19,7 @@ import {
   deriveSnow,
   deriveSnowLevel,
   fmtCalendarDate,
+  fmtQpf,
   hasSnowAmounts,
   hoursCovered,
   isSnowUnknown,
@@ -34,7 +35,6 @@ import {
 import { cn } from '@/utilities/ui'
 
 import { DaySwitch } from './DaySwitch.client'
-import { HowToRead, SharedHowToRead } from './HowToRead.client'
 import {
   PrecipHoursPanel,
   PrecipHoursSelect,
@@ -42,11 +42,10 @@ import {
   PrecipHoursToggle,
 } from './PrecipHours.client'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
-import { PrecipExample, SnowLevelExample, WindExample } from './TableExamples'
+import { SharedDescription, TableDescription } from './TableDescription.client'
 import {
   DayNightDate,
   PrecipLegend,
-  PrecipValue,
   SnowLevelLegend,
   SnowLevelValue,
   SnowValue,
@@ -100,10 +99,8 @@ interface Table {
   title: string
   /** Shown quietly after the title, in parentheses. */
   unit?: string
-  /** What the table shows, in its "How to read" panel. */
-  description?: ReactNode
-  /** An annotated example cell, after the description in that panel. */
-  example?: ReactNode
+  /** What the table shows, opened from the icon by its title. */
+  description: ReactNode
   rowLabel: string
   columns: Column[]
   groups: Group[]
@@ -113,7 +110,7 @@ interface Table {
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
-  /** A control for the table: at the right of its title, and on a phone beside the date. */
+  /** A control for the table: at the right just above it, and on a phone beside the date. */
   control?: { title: ReactNode; phone: ReactNode }
   /** Under the table: what the shading means. */
   legend?: ReactNode
@@ -222,7 +219,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       title: 'Snow and Freezing Level',
       unit: 'ft',
       description: SNOW_LEVEL_DESCRIPTION,
-      example: <SnowLevelExample />,
       legend: <SnowLevelLegend />,
       rowLabel: 'Zone',
       columns: levelBlocks.map((b) => blockColumn(issuance, b)),
@@ -265,7 +261,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
       title: 'Ridgeline Winds',
       unit: 'mph',
       description: WIND_DESCRIPTION,
-      example: <WindExample />,
       legend: <WindLegend />,
       labelVars: '[--label:6.5rem] md:[--label:10.5rem]',
       minColRem: 7.5,
@@ -295,6 +290,10 @@ function sumOf(values: (number | null | undefined)[]): number | null {
 /** A sum of hundredths back to hundredths, dropping float noise (0.1 + 0.2 → 0.3). */
 function hundredths(value: number | null): number | null {
   return value == null ? null : Math.round(value * 100) / 100
+}
+
+function PrecipValue({ qpf }: { qpf: number | null | undefined }) {
+  return <span className="tabular-nums text-foreground/75">{fmtQpf(qpf)}</span>
 }
 
 /** One period's (or the total's) water equivalent then snow, the pair shaded by the snow. */
@@ -387,7 +386,6 @@ function precipSnowTable(
     title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
     description: withSnow ? PRECIP_SNOW_DESCRIPTION : PRECIP_ONLY_DESCRIPTION,
-    example: <PrecipExample withSnow={withSnow} />,
     legend: <PrecipLegend day={hoursOf('day')} night={hoursOf('night')} snow={withSnow} />,
     control: { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> },
     rowLabel: 'Station',
@@ -440,7 +438,6 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
     title: 'Snow Levels',
     unit: 'ft',
     description: SNOW_LEVEL_DESCRIPTION,
-    example: <SnowLevelExample />,
     legend: <SnowLevelLegend />,
     rowLabel: 'Zone',
     columns: blocks.map((b) => ({
@@ -873,26 +870,29 @@ function TableTitle({
   headingId: string
   Heading: 'h3' | 'h4'
 }) {
-  const heading = (
-    <Heading
-      id={headingId}
-      className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
-    >
-      {t.title}
-      {t.unit && <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>}
-    </Heading>
-  )
   return (
-    <HowToRead
-      heading={heading}
-      label={`the ${t.title} table`}
-      panelId={`${headingId}-how-to-read`}
+    <TableDescription
+      heading={
+        <Heading
+          id={headingId}
+          className={cn(
+            'inline scroll-mt-24 font-semibold',
+            Heading === 'h4' ? 'text-base' : 'text-lg',
+          )}
+        >
+          {t.title}
+          {t.unit && (
+            <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
+          )}
+        </Heading>
+      }
+      title={t.title}
+      panelId={`${headingId}-description`}
       control={t.control?.title}
       className={cn(t.paired && 'xl:pb-3')}
     >
-      {t.description && <p>{t.description}</p>}
-      {t.example}
-    </HowToRead>
+      <p>{t.description}</p>
+    </TableDescription>
   )
 }
 
@@ -956,7 +956,7 @@ function GridTable({
       aria-labelledby={headingId}
       className={cn(
         'min-w-0 space-y-2',
-        // Shares the pair's rows, so the tables start together whichever help panel is open.
+        // Shares the pair's rows, so the tables start together whichever description is open.
         t.paired && 'xl:row-span-3 xl:grid xl:grid-rows-subgrid xl:space-y-0',
       )}
     >
@@ -1223,14 +1223,14 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
       />
       {hasContent(precipSnow['12']) && (
         <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
-          <SharedHowToRead>
+          <SharedDescription>
             <PrecipHoursPanel hours="12">
               <GridTable table={precipSnow['12']} anchor={anchor} />
             </PrecipHoursPanel>
             <PrecipHoursPanel hours="24">
               <GridTable table={precipSnow['24']} anchor={anchor} />
             </PrecipHoursPanel>
-          </SharedHowToRead>
+          </SharedDescription>
         </PrecipHoursSwitch>
       )}
       <MaybeTable table={snowLevel} anchor={anchor} />
