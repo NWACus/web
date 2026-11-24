@@ -14,6 +14,7 @@ import { listCsv, type ListColumn, type ListSpec } from '../lists'
 import { parseRows, useReport, type ReportRequest } from '../useReport'
 import { BarList, type BarListRow } from './BarList'
 import { csvExportItems, ExportMenu } from './ExportMenu'
+import { DocAnchor, InfoPopup } from './InfoPopup'
 import { MUTED, PanelBody, PanelFrame } from './Panel'
 
 type TabOption = { key: string; label: string }
@@ -108,6 +109,33 @@ function ListRows<K extends ListReport>({
   )
 }
 
+function ListAbout<K extends ListReport>({
+  spec,
+  about,
+}: {
+  spec: ListSpec<K>
+  about: NonNullable<ListSpec<K>['about']>
+}) {
+  return (
+    <InfoPopup name={spec.label}>
+      <p className="m-0">
+        <strong>{spec.label}:</strong> {about.text}
+      </p>
+      {spec.share && (
+        <p className={cn('m-0', MUTED)}>
+          Visitors are people, each counted once. The percentage is their share of everyone who
+          visited in this period.
+        </p>
+      )}
+      {about.link && (
+        <p className="m-0">
+          <DocAnchor link={about.link} />
+        </p>
+      )}
+    </InfoPopup>
+  )
+}
+
 /** Binds a spec to its panel's row schema; call once at module level so the parser is stable. */
 export function listTab<K extends ListReport>(spec: ListSpec<K>): ListTab {
   const parse = parseRows(LIST_ROW_SCHEMAS[spec.report])
@@ -122,6 +150,7 @@ export function listTab<K extends ListReport>(spec: ListSpec<K>): ListTab {
         tabs={tabs}
         active={spec.report}
         onTab={onTab}
+        info={spec.about && <ListAbout spec={spec} about={spec.about} />}
         actions={<ExportMenu name={spec.label} items={exportItems} />}
       >
         {spec.note && (

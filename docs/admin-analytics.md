@@ -18,6 +18,8 @@
 
 The breakdown cards are titled Pages, Traffic sources, Visitor locations, Devices, Sponsors and Things to fix (Top 404s and Dead clicks), with a tab per list; a card with one list shows no tabs. Each list query returns up to `LIST_ROW_CAP` (100) rows. A card shows the first 10, or 15 for sponsors, behind a "Show all" toggle, which reads "Show top 100" when the cap was hit. Things to fix explains each list above its rows: what a dead click is and how to fix one, and that 404s are fixed with redirects.
 
+Each card's title has an ⓘ ([`InfoPopup`](../src/views/Analytics/panels/InfoPopup.tsx)) that opens plain-language definitions for staff, linking PostHog's docs where PostHog defines the term: the stats on Traffic overview, and the active tab on the lists, from the `about` on its spec in [`lists.ts`](../src/views/Analytics/lists.ts). Referrers has no PostHog link because ours differs from PostHog's dashboard, which credits a visit to its first page's referrer; ours counts any pageview's. Sponsors, Top 404s and Dead clicks keep their visible notes instead.
+
 Breakdown rows carry a fill bar (share of the largest row) and a percentage (share of the period's unique visitors), as in Plausible.
 
 The trend chart is Apache ECharts through the site's [`EChart`](../src/components/charts/EChart.tsx) wrapper. Its colors are resolved from CSS variables through an element's computed `color`, because the `hsl(215 25% 47%)` form in `colors.css` draws once but turns transparent when ECharts re-derives it for hover; hover emphasis is disabled outright.

@@ -208,12 +208,12 @@ sig = "b305cdb0f7198ba4"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/analyticsRange.ts"
-sig = "23d9fd50a7385aa2"
+sig = "e3dcc199dd5335a2"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/services/posthog/centerAnalyticsQueries.ts"
-sig = "acf4848c5eb89e99"
+sig = "2ee44cc4957139dd"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -268,7 +268,7 @@ sig = "fa51a0705c28b974"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/LongRangeGate.tsx"
-sig = "79ea4b5394fa5b0d"
+sig = "2032573481910415"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -293,7 +293,7 @@ sig = "e7a15244b369221c"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/lists.ts"
-sig = "085fc1b3d286a229"
+sig = "cd86b35d2373e97a"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
@@ -308,22 +308,27 @@ sig = "10b68ca11a7c7416"
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/ExportMenu.tsx"
-sig = "eef2a127d4bde3bd"
+sig = "50ca63e386081e8d"
+
+[[bindings]]
+doc = "docs/admin-analytics.md"
+target = "src/views/Analytics/panels/InfoPopup.tsx"
+sig = "5de4859fba2fd1e7"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/ListPanel.tsx"
-sig = "8cbd6b147f5027f6"
+sig = "55e746aef02e14a1"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/OverviewCard.tsx"
-sig = "7668f7c68c474d79"
+sig = "3bb0b9771e4ef832"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"
 target = "src/views/Analytics/panels/Panel.tsx"
-sig = "a6f25328766ee978"
+sig = "feab13f83fe2bc1a"
 
 [[bindings]]
 doc = "docs/admin-analytics.md"

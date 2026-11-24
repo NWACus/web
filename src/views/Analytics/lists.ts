@@ -35,6 +35,8 @@ export type ListSpec<K extends ListReport> = {
   note?: string
   /** A link after the note, e.g. to where the fix is made. */
   noteLink?: { label: string; href: string }
+  /** How the list is defined, behind the ⓘ beside the card's title. */
+  about?: { text: string; link?: { label: string; href: string } }
   /** What each row is: the first column. */
   name: RowText<ListRowMap[K]>
   /** A second line under the name on the card, and its own column in the CSV. */
@@ -93,27 +95,85 @@ function breakdown(
   }
 }
 
-export const TOP_PAGES = breakdown('pages', 'Top pages', 'Page', 'pageviews')
-export const ENTRY_PAGES = breakdown('entryPages', 'Entry pages', 'Page', 'visits')
-export const EXIT_PAGES = breakdown('exitPages', 'Exit pages', 'Page', 'visits')
-export const REFERRERS = breakdown('referrers', 'Referrers', 'Source', 'visits', (label) =>
-  label === '$direct' ? 'Direct' : label,
-)
-export const CHANNELS = breakdown('channels', 'Channels', 'Channel', 'visits')
+const PATHS_DOC = {
+  label: 'PostHog: paths',
+  href: 'https://posthog.com/docs/web-analytics/dashboard#paths',
+}
+const GEOIP_DOC = {
+  label: 'PostHog: GeoIP enrichment',
+  href: 'https://posthog.com/docs/cdp/geoip-enrichment',
+}
+const LOCATION_ABOUT = {
+  text: "Where the visitor's internet connection is, looked up from its IP address. Mobile networks and VPNs can place people far from where they are.",
+  link: GEOIP_DOC,
+}
+const USER_AGENT =
+  'Read from the identification every browser sends with each request (its user agent).'
+
+export const TOP_PAGES = {
+  ...breakdown('pages', 'Top pages', 'Page', 'pageviews'),
+  about: {
+    text: 'Pages ranked by how many people viewed them. Views counts every time a page loaded, including repeat views by the same person.',
+    link: PATHS_DOC,
+  },
+}
+export const ENTRY_PAGES = {
+  ...breakdown('entryPages', 'Entry pages', 'Page', 'visits'),
+  about: {
+    text: 'The page each visit started on: where people arrive on the site. Visits counts the visits that started there.',
+    link: PATHS_DOC,
+  },
+}
+export const EXIT_PAGES = {
+  ...breakdown('exitPages', 'Exit pages', 'Page', 'visits'),
+  about: {
+    text: 'The last page of each visit, where people left the site or stopped for 30 minutes. Visits counts the visits that ended there.',
+    link: PATHS_DOC,
+  },
+}
+export const REFERRERS = {
+  ...breakdown('referrers', 'Referrers', 'Source', 'visits', (label) =>
+    label === '$direct' ? 'Direct' : label,
+  ),
+  about: {
+    text: "Other websites that sent people here, by domain. Direct means no website was passed along: a typed address, a bookmark, or a link in an app or email. The center's own site is left out, and a visit that arrived from two sites counts under both.",
+  },
+}
+export const CHANNELS = {
+  ...breakdown('channels', 'Channels', 'Channel', 'visits'),
+  about: {
+    text: 'Each visit sorted by kind of source, such as Organic Search, Organic Social, Referral, AI, Email or Direct. PostHog decides from the site that sent the visit and any UTM tags on the link it arrived by.',
+    link: {
+      label: 'PostHog: how channels are assigned',
+      href: 'https://posthog.com/docs/data/channel-type',
+    },
+  },
+}
 export const CITIES = {
   ...breakdown('cities', 'Cities', 'City', 'pageviews'),
   note: 'Locations come from IP addresses, so they are approximate. A data-center town such as Council Bluffs, IA is usually crawlers or VPNs.',
+  about: LOCATION_ABOUT,
 }
-export const REGIONS = breakdown('regions', 'Regions', 'Region', 'pageviews')
-export const COUNTRIES = breakdown('countries', 'Countries', 'Country', 'pageviews')
-export const DEVICE_TYPES = breakdown('deviceTypes', 'Device', 'Device', 'pageviews')
-export const BROWSERS = breakdown('browsers', 'Browser', 'Browser', 'pageviews')
-export const OPERATING_SYSTEMS = breakdown(
-  'operatingSystems',
-  'OS',
-  'Operating system',
-  'pageviews',
-)
+export const REGIONS = {
+  ...breakdown('regions', 'Regions', 'Region', 'pageviews'),
+  about: LOCATION_ABOUT,
+}
+export const COUNTRIES = {
+  ...breakdown('countries', 'Countries', 'Country', 'pageviews'),
+  about: LOCATION_ABOUT,
+}
+export const DEVICE_TYPES = {
+  ...breakdown('deviceTypes', 'Device', 'Device', 'pageviews'),
+  about: { text: `Desktop, Mobile or Tablet. ${USER_AGENT}` },
+}
+export const BROWSERS = {
+  ...breakdown('browsers', 'Browser', 'Browser', 'pageviews'),
+  about: { text: USER_AGENT },
+}
+export const OPERATING_SYSTEMS = {
+  ...breakdown('operatingSystems', 'OS', 'Operating system', 'pageviews'),
+  about: { text: USER_AGENT },
+}
 
 export const SPONSORS: ListSpec<'sponsors'> = {
   report: 'sponsors',

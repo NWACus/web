@@ -8,11 +8,22 @@ import type { ReportState } from '../useReport'
 
 export const MUTED = 'text-[var(--theme-elevation-600)]'
 
-/** A card's title, with its actions such as the download menu opposite. */
-export function PanelHeader({ title, actions }: { title: string; actions?: ReactNode }) {
+/** A card's title and its ⓘ, with its actions such as the download menu opposite. */
+export function PanelHeader({
+  title,
+  info,
+  actions,
+}: {
+  title: string
+  info?: ReactNode
+  actions?: ReactNode
+}) {
   return (
     <div className="mb-4 flex items-start justify-between gap-2">
-      <h3 className="m-0 text-base font-semibold">{title}</h3>
+      <div className="flex items-center gap-1.5">
+        <h3 className="m-0 text-base font-semibold">{title}</h3>
+        {info}
+      </div>
       {actions}
     </div>
   )
@@ -24,6 +35,7 @@ export function PanelFrame({
   tabs,
   active,
   onTab,
+  info,
   actions,
   children,
   className,
@@ -33,6 +45,8 @@ export function PanelFrame({
   tabs: ReadonlyArray<{ key: string; label: string }>
   active: string
   onTab: (key: string) => void
+  /** Beside the title, e.g. the active tab's definition. */
+  info?: ReactNode
   /** Sits opposite the tabs, e.g. the export menu. */
   actions?: ReactNode
   children: ReactNode
@@ -40,7 +54,7 @@ export function PanelFrame({
 }) {
   return (
     <section className={cn('card min-w-0 flex-col gap-0', className)}>
-      <PanelHeader title={title} actions={actions} />
+      <PanelHeader title={title} info={info} actions={actions} />
       {tabs.length > 1 && (
         <div className="mb-4">
           <TabPills options={tabs} active={active} onChange={onTab} />
