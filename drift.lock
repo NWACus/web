@@ -508,12 +508,12 @@ sig = "e77cc413f35f251b"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/NWACWeather/ZoneSummary.tsx"
-sig = "c29c784f21b2c7ce"
+sig = "72f29de4deff8bc9"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/NWACWeather/ZoneWeatherLink.client.tsx"
-sig = "fc5dd77e69f2fd3d"
+sig = "d09e4d4779677479"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

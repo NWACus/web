@@ -6,6 +6,9 @@
 import type { Weather, WeatherTable } from '@/services/nac/model/forecast'
 import type { NWACWeatherForecastDay } from '@/services/nac/model/nwacWeather'
 
+/** The section's id on a zone page, and the hash that opens the page at it. */
+export const MOUNTAIN_WEATHER_ID = 'mountain-weather'
+
 export interface ZoneWeather {
   table: WeatherTable | null
   discussion: string | null

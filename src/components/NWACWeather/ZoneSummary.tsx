@@ -10,6 +10,7 @@ import type { ReactNode } from 'react'
 
 import { ForecastHeader } from '@/components/forecast/ForecastHeader'
 import { sectionHeading } from '@/components/forecast/forecastHeadings'
+import { MOUNTAIN_WEATHER_ID } from '@/components/forecast/zoneWeather'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import type {
   NWACWeatherForecastDay,
@@ -18,7 +19,6 @@ import type {
 } from '@/services/nac/model/nwacWeather'
 import { issuanceLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
 
-import { MOUNTAIN_WEATHER_ID } from './mountainWeatherId'
 import { Overall, overallParts } from './Overall'
 import { WindowRollover } from './WindowRollover.client'
 import { ZoneTable } from './ZoneTable'

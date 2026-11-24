@@ -4,7 +4,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 
-import { MOUNTAIN_WEATHER_ID } from './mountainWeatherId'
+import { MOUNTAIN_WEATHER_ID } from '@/components/forecast/zoneWeather'
 
 // A dated address redirects on a widget center, which drops the hash, so the click is kept too.
 let clickedHref: string | null = null

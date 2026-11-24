@@ -25,7 +25,6 @@ import type { ForecastZoneFacts } from '@/services/nac/resolveZone'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 import { MapPin } from 'lucide-react'
 
-import { MOUNTAIN_WEATHER_ID } from '@/components/NWACWeather/mountainWeatherId'
 import { ZoneSummary } from '@/components/NWACWeather/ZoneSummary'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -52,7 +51,7 @@ import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
 import { WeatherSummary } from './WeatherSummary'
 import { bottomLineDangerLevel } from './zoneCardDanger'
-import { hasMountainWeather } from './zoneWeather'
+import { MOUNTAIN_WEATHER_ID, hasMountainWeather } from './zoneWeather'
 
 interface NativeForecastViewProps {
   center: string
