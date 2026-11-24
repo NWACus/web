@@ -96,7 +96,7 @@ export function LongRangeGate({
           Load it
         </Button>
         <Button buttonStyle="secondary" size="small" className="m-0" onClick={onFallback}>
-          Back to last 30 days
+          Back to last 7 days
         </Button>
       </div>
     </div>

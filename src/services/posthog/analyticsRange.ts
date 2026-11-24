@@ -3,7 +3,7 @@ import { TZDate } from '@date-fns/tz'
 
 export const RANGE_PRESETS = ['7d', '30d', '90d', 'seasonToDate', 'lastSeason'] as const
 export type RangePreset = (typeof RANGE_PRESETS)[number]
-export const DEFAULT_PRESET: RangePreset = '30d'
+export const DEFAULT_PRESET: RangePreset = '7d'
 
 const PRESET_DAYS = { '7d': 7, '30d': 30, '90d': 90 } as const
 
