@@ -160,7 +160,7 @@ const unknownIfEmpty = (expression: string) => `coalesce(nullIf(${expression}, '
 const BREAKDOWNS: Record<BreakdownReport, BreakdownSpec> = {
   pages: { label: `coalesce(properties.$pathname, '')` },
   entryPages: { label: unknownIfEmpty('session.$entry_pathname') },
-  exitPages: { label: unknownIfEmpty('session.$end_pathname') },
+  exitPages: { label: unknownIfEmpty('session.$exit_pathname') },
   referrers: {
     label: unknownIfEmpty('properties.$referring_domain'),
     // A center's own hosts are internal navigation, not a source
