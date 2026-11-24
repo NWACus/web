@@ -34,7 +34,7 @@ export function TableDescription({
   /** The table's name, for the icon's label. */
   title: string
   panelId: string
-  /** At the right from md up; a phone has its own form beside the date. */
+  /** At the right. */
   control?: ReactNode
   className?: string
   children: ReactNode
@@ -66,7 +66,7 @@ export function TableDescription({
             <Info aria-hidden="true" className="size-[1.0625rem]" />
           </button>
         </div>
-        {control && <div className="hidden shrink-0 md:block print:hidden">{control}</div>}
+        {control && <div className="shrink-0 print:hidden">{control}</div>}
       </div>
       <div
         id={panelId}

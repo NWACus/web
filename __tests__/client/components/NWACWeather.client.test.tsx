@@ -433,26 +433,34 @@ describe('the paired temperature and wind tables', () => {
 
   it('keeps the picked date when a phone switches the precipitation to 24 hours', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const pickSecond = (trigger: HTMLElement) => {
-      fireEvent.keyDown(trigger, { key: 'Enter' })
-      fireEvent.keyDown(screen.getAllByRole('option')[1], { key: 'Enter' })
-    }
-    const dates = () => screen.getAllByRole('combobox', { name: /^Precipitation and Snow date$/ })
-    pickSecond(dates()[0])
-    const second = dates()[0].textContent
+    const picked = () =>
+      within(screen.getByRole('region', { name: /^Precipitation and Snow/ })).getByRole('tab', {
+        selected: true,
+      })
+    const tabs = within(screen.getByRole('region', { name: /^Precipitation and Snow/ }))
+    fireEvent.click(tabs.getAllByRole('tab')[1])
+    const second = picked().textContent
 
-    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
-    fireEvent.keyDown(screen.getByRole('option', { name: '24 hours' }), { key: 'Enter' })
+    fireEvent.click(screen.getByRole('radio', { name: '24 hours' }))
 
     // The 24-hour dates are ranges: the first one covering the picked date is kept.
-    const [date24] = dates()
-    expect(date24.textContent).not.toBe(second)
-    expect(date24.textContent).toContain(second)
+    const date24 = picked().textContent
+    expect(date24).not.toBe(second)
+    expect(date24).toContain(second)
 
-    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
-    fireEvent.keyDown(screen.getByRole('option', { name: '12 hours' }), { key: 'Enter' })
+    fireEvent.click(screen.getByRole('radio', { name: '12 hours' }))
     // Back to 12 hours: the range's last date.
-    expect(dates()[0].textContent).toBe(date24.textContent?.split(' – ').at(-1))
+    expect(picked().textContent).toBe(date24?.split(' – ').at(-1))
+  })
+
+  it("shortens the precipitation tabs' dates, keeping the full ones for screen readers", () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const region = screen.getByRole('region', { name: /^Precipitation and Snow/ })
+    const tabs = within(region).getAllByRole('tab')
+
+    expect(tabs[0].textContent).toMatch(/^\w{3} \w{3} \d+$/)
+    expect(tabs[0].querySelector('.sr-only')).toHaveTextContent(/^\w{3}$/)
+    expect(tabs.at(-1)).toHaveTextContent('Total')
   })
 })
 

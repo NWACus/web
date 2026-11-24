@@ -35,12 +35,7 @@ import {
 import { cn } from '@/utilities/ui'
 
 import { DaySwitch } from './DaySwitch.client'
-import {
-  PrecipHoursPanel,
-  PrecipHoursSelect,
-  PrecipHoursSwitch,
-  PrecipHoursToggle,
-} from './PrecipHours.client'
+import { PrecipHoursPanel, PrecipHoursSwitch, PrecipHoursToggle } from './PrecipHours.client'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
 import { SharedDescription, TableDescription } from './TableDescription.client'
 import {
@@ -110,8 +105,8 @@ interface Table {
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
-  /** A control for the table: at the right just above it, and on a phone beside the date. */
-  control?: { title: ReactNode; phone: ReactNode }
+  /** A control for the table, at the right of its title. */
+  control?: ReactNode
   /** Under the table: what the shading means. */
   legend?: ReactNode
   /** Label widths in place of `LABEL_VARS`. */
@@ -387,7 +382,7 @@ function precipSnowTable(
     unit: 'in',
     description: withSnow ? PRECIP_SNOW_DESCRIPTION : PRECIP_ONLY_DESCRIPTION,
     legend: <PrecipLegend day={hoursOf('day')} night={hoursOf('night')} snow={withSnow} />,
-    control: { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> },
+    control: <PrecipHoursToggle />,
     rowLabel: 'Station',
     groupColumn: 'Zone',
     dateRanges: !withSnow,
@@ -888,7 +883,7 @@ function TableTitle({
       }
       title={t.title}
       panelId={`${headingId}-description`}
-      control={t.control?.title}
+      control={t.control}
       className={cn(t.paired && 'xl:pb-3')}
     >
       <p>{t.description}</p>
@@ -941,6 +936,35 @@ function TableColumns({ table: t }: { table: Table }) {
   )
 }
 
+/** "Mon 23" or "Mon–Tue" for a tab; a screen reader still gets the full dates. */
+function shortDay(label: string): ReactNode {
+  const dates = label.split(' – ').map((d) => d.split(' '))
+  if (dates.some((d) => d.length !== 3)) return label
+  if (dates.length === 1) {
+    const [weekday, month, day] = dates[0]
+    return (
+      <>
+        {weekday} <span className="sr-only">{month} </span>
+        {day}
+      </>
+    )
+  }
+  return dates.map(([weekday, month, day], i) => (
+    <Fragment key={i}>
+      {i > 0 && (
+        <>
+          <span className="sr-only"> </span>–<span className="sr-only"> </span>
+        </>
+      )}
+      {weekday}
+      <span className="sr-only">
+        {' '}
+        {month} {day}
+      </span>
+    </Fragment>
+  ))
+}
+
 function GridTable({
   table: t,
   anchor,
@@ -973,10 +997,10 @@ function GridTable({
         <DaySwitch
           label={t.title}
           className="md:hidden print:hidden"
-          aside={t.control?.phone}
           days={dayTables(t).map((d) => ({
             key: d.key,
             label: d.label,
+            short: t.control ? shortDay(d.label) : undefined,
             // "Thu Oct 15 – Fri Oct 16" → its two dates; a single date stays one.
             covers: d.label.split(' – '),
             content: <TableBox table={{ ...d.table, control: undefined }} />,
