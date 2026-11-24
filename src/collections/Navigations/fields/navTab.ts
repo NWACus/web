@@ -45,7 +45,7 @@ export const navTab = ({
     label: 'Show as',
     defaultValue: defaultMode,
     options: MODE_OPTIONS,
-    admin: { isClearable: false, width: '50%' },
+    admin: { isClearable: false, style: { flex: '0 0 auto', minWidth: '160px' } },
   }
 
   const enabledField: Field = {
