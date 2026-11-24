@@ -13,7 +13,7 @@ const isColumnLayout = (value: unknown): value is string =>
 
 const layoutName = (layout: string) => {
   const parts = layout.split('_')[1]
-  return parts === '1' ? 'Full width' : parts.split('').join(':')
+  return parts === '1' ? '1 column' : parts.split('').join(':')
 }
 
 const optionLabel = (field: NamedField, value: unknown) => {
@@ -53,24 +53,24 @@ export const LayoutSummaryLabel: CollapsibleFieldLabelClientComponent = ({ field
   const fieldPath = (name: string) => (blockPath ? `${blockPath}.${name}` : name)
   const fields = namedFields(field?.fields ?? [])
 
-  const state = useFormFields(([formFields]) =>
-    Object.fromEntries(fields.map((f) => [f.name, formFields[fieldPath(f.name)]])),
-  )
-  const values = Object.fromEntries(fields.map((f) => [f.name, state[f.name]?.value]))
+  // Selecting a string keeps unrelated form changes from re-rendering every block's label
+  const summary = useFormFields(([formFields]) => {
+    const state = Object.fromEntries(fields.map((f) => [f.name, formFields[fieldPath(f.name)]]))
+    const values = Object.fromEntries(fields.map((f) => [f.name, state[f.name]?.value]))
 
-  const parts = fields
-    .filter((f) => state[f.name] && state[f.name].passesCondition !== false)
-    .map((f) =>
-      (summaries[f.name] ?? ((value) => optionLabel(f, value)))(values[f.name], f, values),
-    )
-    .filter((part): part is string => typeof part === 'string' && part !== '')
+    return fields
+      .filter((f) => state[f.name] && state[f.name].passesCondition !== false)
+      .map((f) =>
+        (summaries[f.name] ?? ((value) => optionLabel(f, value)))(values[f.name], f, values),
+      )
+      .filter((part) => typeof part === 'string' && part !== '')
+      .join(' · ')
+  })
 
   return (
     <span>
       Layout
-      {parts.length > 0 && (
-        <span className="text-[var(--theme-elevation-500)]"> · {parts.join(' · ')}</span>
-      )}
+      {summary && <span className="text-[var(--theme-elevation-500)]"> · {summary}</span>}
     </span>
   )
 }

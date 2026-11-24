@@ -206,7 +206,7 @@ describe('LayoutSummaryLabel', () => {
     mockFieldValues.set('layout.0.verticalAlignment', 'top')
     renderLabel(contentFields)
 
-    expect(screen.getByText('· Transparent · Full width')).toBeInTheDocument()
+    expect(screen.getByText('· Transparent · 1 column')).toBeInTheDocument()
   })
 
   it("shows each of a block's own options", () => {
