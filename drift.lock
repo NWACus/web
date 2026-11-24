@@ -128,7 +128,7 @@ sig = "12af29a2c1e472cc"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/app/(embeds)/layout.tsx"
-sig = "202a13463de08446"
+sig = "75c2b5ba3463fd29"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"

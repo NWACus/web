@@ -18,8 +18,8 @@ const fjallaOne = localFont({
 
 const libreFranklin = localFont({
   src: [
-    { path: './fonts/LibreFranklin-Variable.woff2', weight: '400 700', style: 'normal' },
-    { path: './fonts/LibreFranklin-VariableItalic.woff2', weight: '400 700', style: 'italic' },
+    { path: './fonts/LibreFranklin-Variable.woff2', weight: '100 900', style: 'normal' },
+    { path: './fonts/LibreFranklin-VariableItalic.woff2', weight: '100 900', style: 'italic' },
   ],
   display: 'swap',
   variable: '--font-libre-franklin',
