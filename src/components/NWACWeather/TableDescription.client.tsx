@@ -40,16 +40,18 @@ export function TableDescription({
   const shared = useContext(SharedOpenContext)
   const [open, setOpen] = shared ? [shared.open, shared.setOpen] : own
   return (
-    <div>
-      <div className="flex items-start gap-4 md:items-end">
-        <div className="min-w-0 flex-1">{heading}</div>
-        {/* The margin is the space above the capitals in the title's first line. */}
-        {control && <div className="mt-2 shrink-0 md:mt-0 print:hidden">{control}</div>}
-      </div>
+    <div className={cn(control && 'grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4')}>
+      <div className="min-w-0">{heading}</div>
+      {control && (
+        // Beside the title and description; a phone's wrapped title clears it on its own. The
+        // margin is the space above the capitals in the title's first line.
+        <div className="mt-2 sm:row-span-2 print:hidden">{control}</div>
+      )}
       <div
         className={cn(
           'relative min-h-11 py-2 text-sm text-muted-foreground md:min-h-8 md:py-1',
           !open && 'flex items-center gap-2',
+          control && 'col-span-2 sm:col-span-1',
         )}
       >
         <p
