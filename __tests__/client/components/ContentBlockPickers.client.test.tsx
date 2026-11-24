@@ -1,3 +1,4 @@
+import { DefaultColumnAdder } from '@/blocks/Content/components/DefaultColumnAdder'
 import { ColorPicker } from '@/components/ColorPicker'
 import { ColumnLayoutPicker } from '@/components/ColumnLayoutPicker'
 import { LayoutSummaryLabel } from '@/components/LayoutSummaryLabel'
@@ -7,6 +8,13 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import type { ClientField, SelectFieldClientProps, TextFieldClientProps } from 'payload'
 
 const mockSetValue = jest.fn()
+const mockDispatchFields = jest.fn()
+const mockForm = {
+  addFieldRow: jest.fn(),
+  dispatchFields: mockDispatchFields,
+  setModified: jest.fn(),
+  disabled: false,
+}
 const mockFieldValues = new Map<string, unknown>()
 
 jest.mock('@payloadcms/ui', () => ({
@@ -16,6 +24,7 @@ jest.mock('@payloadcms/ui', () => ({
     showError: false,
     errorMessage: undefined,
   }),
+  useForm: () => mockForm,
   useFormFields: <T,>(selector: (context: [Record<string, { value: unknown }>]) => T) =>
     selector([Object.fromEntries([...mockFieldValues].map(([path, value]) => [path, { value }]))]),
   useDocumentInfo: () => ({ data: { tenant: 1 } }),
@@ -52,8 +61,51 @@ const colorProps: TextFieldClientProps = {
 }
 
 beforeEach(() => {
-  mockSetValue.mockClear()
+  jest.clearAllMocks()
+  mockForm.disabled = false
   mockFieldValues.clear()
+})
+
+describe('DefaultColumnAdder', () => {
+  const renderAdder = () =>
+    render(
+      <DefaultColumnAdder
+        path="layout.0.defaultColumnAdder"
+        schemaPath="pages.layout.content.defaultColumnAdder"
+        field={{ name: 'defaultColumnAdder', type: 'ui', admin: {} }}
+      />,
+    )
+
+  it.each([
+    ['a column was added', 2, '1_1', '2_11'],
+    ['a column was removed', 1, '2_21', '1_1'],
+    ['the layout is missing', 3, null, '3_111'],
+  ])('picks a matching layout when %s', (_, columns, layout, expected) => {
+    mockFieldValues.set('layout.0.columns', columns)
+    mockFieldValues.set('layout.0.layout', layout)
+    renderAdder()
+
+    expect(mockDispatchFields).toHaveBeenCalledWith(
+      expect.objectContaining({ path: 'layout.0.layout', value: expected, valid: true }),
+    )
+  })
+
+  it('keeps a layout that matches the column count', () => {
+    mockFieldValues.set('layout.0.columns', 2)
+    mockFieldValues.set('layout.0.layout', '2_12')
+    renderAdder()
+
+    expect(mockDispatchFields).not.toHaveBeenCalled()
+  })
+
+  it('leaves a read-only form alone', () => {
+    mockForm.disabled = true
+    mockFieldValues.set('layout.0.columns', 2)
+    mockFieldValues.set('layout.0.layout', '1_1')
+    renderAdder()
+
+    expect(mockDispatchFields).not.toHaveBeenCalled()
+  })
 })
 
 describe('ColumnLayoutPicker', () => {
