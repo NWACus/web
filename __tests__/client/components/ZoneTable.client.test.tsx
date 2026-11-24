@@ -4,7 +4,7 @@ import { pointSnow, zonePoints } from '@/services/nac/nwacWeatherFormat'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
 const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
@@ -43,11 +43,11 @@ describe('ZoneTable', () => {
         .getAllByRole('rowheader')
         .map((row) => row.textContent),
     ).toEqual([
-      'Precipitation & Snow (in)',
+      'Station',
       'Snoqualmie Pass',
-      'Snow & Freezing Level (ft)',
-      "5000' Temperatures (Lo / Hi °F)",
-      'Ridgeline Winds (mph)',
+      "Temperatures @ 5000' (°F)",
+      'Snow level (ft)',
+      'Ridge wind (mph)',
       'Summary',
     ])
   })
@@ -62,7 +62,7 @@ describe('ZoneTable', () => {
     const rows = within(table)
       .getAllByRole('rowheader')
       .map((row) => row.textContent)
-    expect(rows.slice(0, names.length + 1)).toEqual(['Precipitation & Snow (in)', ...names])
+    expect(rows.slice(0, names.length + 1)).toEqual(['Station', ...names])
   })
 
   it('names the 24 hours Tonight and Tomorrow from 6 pm, with their dates', () => {
@@ -77,7 +77,7 @@ describe('ZoneTable', () => {
     ])
   })
 
-  it('gives the temperatures low then high, under a Lo / Hi label', () => {
+  it('gives the temperatures low then high, in °F', () => {
     const { container } = render(
       <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
     )
@@ -85,12 +85,12 @@ describe('ZoneTable', () => {
     if (!table) throw new Error('no zone table')
     const row = within(table)
       .getAllByRole('rowheader')
-      .find((th) => th.textContent?.startsWith("5000'"))
+      .find((th) => th.textContent?.startsWith('Temperatures'))
       ?.closest('tr')
     if (!row) throw new Error('no temperature row')
 
     const [first] = within(row).getAllByRole('cell')
-    expect(row.querySelector('th')?.textContent).toContain('Lo / Hi °F')
+    expect(row.querySelector('th')?.textContent).toContain('(°F)')
     expect(first.textContent).toMatch(/^\d+° \/ \d+°$/)
   })
 
@@ -116,19 +116,20 @@ describe('ZoneTable', () => {
     expect(heads.map((th) => th.textContent?.split(' · ')[0])).toEqual(['Night', 'Day'])
   })
 
-  it('labels the 6h parts of day Morn, Aft, Eve and Night', () => {
+  it('heads the 6h rows with their parts of day, right above snow level', () => {
     const { container } = render(
       <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={['n1', 'd2']} />,
     )
     const table = container.querySelector('table')
     if (!table) throw new Error('no zone table')
     const levelRow = within(table)
-      .getByRole('rowheader', { name: /^Snow & Freezing Level/ })
+      .getByRole('rowheader', { name: /^Snow level/ })
       .closest('tr')
-    if (!levelRow) throw new Error('no snow level row')
+    const head = levelRow?.previousElementSibling
+    if (!(head instanceof HTMLElement)) throw new Error('no 6h head row')
 
-    for (const part of ['Eve', 'Night', 'Morn', 'Aft']) {
-      expect(within(levelRow).getByText(part)).toBeInTheDocument()
+    for (const part of ['Evening', 'Night', 'Morning', 'Afternoon']) {
+      expect(within(head).getByText(part)).toBeInTheDocument()
     }
   })
 
@@ -150,11 +151,91 @@ describe('ZoneTable', () => {
       if (fill) expect(td).toHaveClass(fill)
     })
 
-    const key = screen.getByText(/none, freezing level/)
+    const key = screen.getByText(/No icon: freezing level/)
     expect(table.compareDocumentPosition(key) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const levelRow = within(table)
-      .getByRole('rowheader', { name: /^Snow & Freezing Level/ })
+      .getByRole('rowheader', { name: /^Snow level/ })
       .closest('tr')
     expect(levelRow?.querySelector('[class*="bg-"]')).not.toBeNull()
+  })
+
+  describe('on a phone', () => {
+    const phoneCard = (container: HTMLElement) => {
+      const card = container.querySelector<HTMLElement>('section section')
+      if (!card) throw new Error('no phone card')
+      return card
+    }
+
+    it('gives a row per point, then temps, then snow level and wind by part of day', () => {
+      const z = zone('west-south')
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={z} periodKeys={DAY_ONE} heading={false} />,
+      )
+      const rows = within(phoneCard(container))
+        .getAllByRole('rowheader')
+        .map((th) => th.textContent)
+
+      expect(rows).toEqual([
+        ...zonePoints(afternoon, z.id).map((p) => p.name),
+        "Temperatures @ 5000' (°F) key",
+        'Snow level (ft) key',
+        'Ridge wind (mph) key',
+      ])
+    })
+
+    it("opens a row's key under it, one at a time", () => {
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
+      )
+      const card = phoneCard(container)
+      expect(within(card).queryByText(/freezing level/)).not.toBeInTheDocument()
+
+      fireEvent.click(within(card).getByRole('button', { name: 'Snow level (ft) key' }))
+      expect(within(card).getByText(/No icon: freezing level/)).toBeInTheDocument()
+
+      fireEvent.click(within(card).getByRole('button', { name: 'Ridge wind (mph) key' }))
+      expect(within(card).queryByText(/No icon: freezing level/)).not.toBeInTheDocument()
+      expect(within(card).getByText(/VAR: variable/)).toBeInTheDocument()
+    })
+
+    it('closes a key from its own label', () => {
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={zone('olympics')} periodKeys={DAY_ONE} />,
+      )
+      const card = phoneCard(container)
+      const temps = within(card).getByRole('button', { name: "Temperatures @ 5000' (°F) key" })
+
+      fireEvent.click(temps)
+      expect(within(card).getByText('Hi')).toBeInTheDocument()
+      expect(temps).toHaveAttribute('aria-expanded', 'true')
+
+      fireEvent.click(temps)
+      expect(within(card).queryByText('Hi')).not.toBeInTheDocument()
+    })
+
+    it('opens the snow key under its column head, above the stations', () => {
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={zone('west-south')} periodKeys={DAY_ONE} />,
+      )
+      const card = phoneCard(container)
+      fireEvent.click(within(card).getByRole('button', { name: "Snow @ 5000' (in) key" }))
+
+      expect(within(card).getAllByRole('row')[1]).toHaveTextContent("Inches of snow at 5000'")
+    })
+
+    it('has buttons on the labels only, not the values', () => {
+      const { container } = render(
+        <ZoneTable issuance={afternoon} zone={zone('west-south')} periodKeys={DAY_ONE} />,
+      )
+      const names = within(phoneCard(container))
+        .getAllByRole('button')
+        .map((b) => b.textContent)
+      expect(names).toEqual([
+        "Snow @ 5000' (in) key",
+        "Temperatures @ 5000' (°F) key",
+        'Snow level (ft) key',
+        'Ridge wind (mph) key',
+      ])
+    })
   })
 })

@@ -35,13 +35,9 @@ import {
 import { cn } from '@/utilities/ui'
 
 import { DaySwitch } from './DaySwitch.client'
-import {
-  PrecipHoursPanel,
-  PrecipHoursSelect,
-  PrecipHoursSwitch,
-  PrecipHoursToggle,
-} from './PrecipHours.client'
+import { PrecipHoursPanel, PrecipHoursSwitch, PrecipHoursToggle } from './PrecipHours.client'
 import { SectionTabs, type SectionLink } from './SectionTabs.client'
+import { SharedDescription, TableDescription } from './TableDescription.client'
 import {
   DayNightDate,
   PrecipLegend,
@@ -94,13 +90,12 @@ interface Group {
 }
 interface Table {
   id: string
-  /** The section link's text. */
-  nav: string
+  /** The heading, and the section link's text. */
   title: string
   /** Shown quietly after the title, in parentheses. */
   unit?: string
-  /** What the table shows, under its title. */
-  description?: ReactNode
+  /** What the table shows, opened from the icon by its title. */
+  description: ReactNode
   rowLabel: string
   columns: Column[]
   groups: Group[]
@@ -110,9 +105,9 @@ interface Table {
   filled?: boolean
   /** Group labels as a first column spanning their rows, headed with this; else heading rows. */
   groupColumn?: string
-  /** A control for the table: at the right just above it, and on a phone beside the date. */
-  control?: { title: ReactNode; phone: ReactNode }
-  /** After the description, over the table: what the shading means. */
+  /** A control for the table, at the right of its title. */
+  control?: ReactNode
+  /** Under the table: what the shading means. */
   legend?: ReactNode
   /** Label widths in place of `LABEL_VARS`. */
   labelVars?: string
@@ -168,7 +163,9 @@ const periodColumn = (p: NWACWeatherPeriod): Column => ({
 
 /** Forecaster-authored HTML, or null when blank. Already sanitized: see `sanitizeIssuance`. */
 function authoredOrNull(html: string | null | undefined): string | null {
-  return html?.trim() ? html : null
+  // Drop tags and non-breaking spaces, so an editor's empty "<p></p>" or "<p>&nbsp;</p>" counts as none.
+  const text = html?.replace(/<[^>]*>|&nbsp;|\u00a0/g, '').trim()
+  return text ? (html ?? null) : null
 }
 
 function blockColumn(issuance: NWACWeatherIssuance, b: NWACWeatherBlock): Column {
@@ -214,7 +211,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
   return [
     {
       id: 'snow-level',
-      nav: 'Snow & Freezing Level',
       title: 'Snow and Freezing Level',
       unit: 'ft',
       description: SNOW_LEVEL_DESCRIPTION,
@@ -240,8 +236,7 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     },
     {
       id: 'temps',
-      nav: "5000' Temps",
-      title: "5000' Temperatures",
+      title: "Temperatures @ 5000'",
       unit: '°F',
       description: TEMPS_DESCRIPTION,
       legend: <TempLegend />,
@@ -258,7 +253,6 @@ function zoneTables(issuance: NWACWeatherIssuance): Table[] {
     },
     {
       id: 'wind',
-      nav: 'Ridgeline Winds',
       title: 'Ridgeline Winds',
       unit: 'mph',
       description: WIND_DESCRIPTION,
@@ -384,12 +378,11 @@ function precipSnowTable(
       : [{ ...column, split: column.key }]
   return {
     id: `precip-snow-${hours}`,
-    nav: withSnow ? 'Precipitation & Snow' : 'Precipitation',
     title: withSnow ? 'Precipitation and Snow' : 'Precipitation',
     unit: 'in',
     description: withSnow ? PRECIP_SNOW_DESCRIPTION : PRECIP_ONLY_DESCRIPTION,
     legend: <PrecipLegend day={hoursOf('day')} night={hoursOf('night')} snow={withSnow} />,
-    control: { title: <PrecipHoursToggle />, phone: <PrecipHoursSelect /> },
+    control: <PrecipHoursToggle />,
     rowLabel: 'Station',
     groupColumn: 'Zone',
     dateRanges: !withSnow,
@@ -437,7 +430,6 @@ function extendedTable(issuance: NWACWeatherIssuance): Table {
   // marked it a freezing level.
   return {
     id: 'extended-snow-level',
-    nav: 'Extended',
     title: 'Snow Levels',
     unit: 'ft',
     description: SNOW_LEVEL_DESCRIPTION,
@@ -558,6 +550,11 @@ function FlatHead({ table: t }: { table: Table }) {
   )
 }
 
+/** "Day" or "Night" with its sun or moon, as a date's periods are labeled. */
+const DayNightWord = ({ night }: { night: boolean }) => (
+  <DayNightDate date={night ? 'Night' : 'Day'} night={night} label={false} />
+)
+
 /** A group's day or night for its date: a period's blocks share one; a date's periods don't. */
 function groupNight(columns: Column[]) {
   const first = columns[0]
@@ -567,8 +564,8 @@ function groupNight(columns: Column[]) {
 
 /**
  * Two rows, as on the zone page: a date per group over its columns' sub-labels, with no rule
- * between them. The sun or moon sits on the date for a period's blocks, and on each sub-label for
- * a date's Day and Night.
+ * between them. A period's blocks get its Day or Night under the date; a date's Day and Night are
+ * the sub-labels.
  */
 function GroupedHead({ table: t }: { table: Table }) {
   const groups = columnGroups(t.columns).map((g) => {
@@ -576,6 +573,8 @@ function GroupedHead({ table: t }: { table: Table }) {
     const columns = t.columns.slice(start, start + g.span)
     return { ...g, columns, night: groupNight(columns) }
   })
+  // A phone's day has no date row, so a period's blocks get their Day or Night in a row of its own.
+  const dayParts = t.day && groups.some((g) => g.night !== undefined)
   return (
     <>
       {!t.day && (
@@ -595,13 +594,37 @@ function GroupedHead({ table: t }: { table: Table }) {
                 g.first.total && 'border-l-2',
               )}
             >
-              <DayNightDate date={g.first.date} night={g.night} />
+              {g.first.date}
+              {g.night !== undefined && (
+                <span className={cn(SUB, t.narrow && 'text-xs')}>
+                  <DayNightWord night={g.night} />
+                </span>
+              )}
+            </th>
+          ))}
+        </tr>
+      )}
+      {dayParts && (
+        <tr className="bg-muted">
+          <RowLabelHead table={t} rowSpan={2} />
+          {groups.map((g) => (
+            <th
+              key={g.key}
+              scope="colgroup"
+              colSpan={g.span}
+              className="border-l px-0 pt-2 text-center"
+            >
+              {g.night !== undefined && (
+                <span className={cn(SUB, 'text-xs')}>
+                  <DayNightWord night={g.night} />
+                </span>
+              )}
             </th>
           ))}
         </tr>
       )}
       <tr className="bg-muted">
-        {t.day && <RowLabelHead table={t} rowSpan={1} />}
+        {t.day && !dayParts && <RowLabelHead table={t} rowSpan={1} />}
         {groups
           .filter((g) => t.day || g.first.sub)
           .flatMap((g) =>
@@ -843,9 +866,8 @@ function TableTitle({
   Heading: 'h3' | 'h4'
 }) {
   return (
-    // The control sits at the right, level with the title's last line, just above the table.
-    <div className={cn('flex items-end gap-4', t.paired && 'xl:pb-3')}>
-      <div className="min-w-0 flex-1">
+    <TableDescription
+      heading={
         <Heading
           id={headingId}
           className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
@@ -855,11 +877,13 @@ function TableTitle({
             <span className="text-base font-normal text-muted-foreground"> ({t.unit})</span>
           )}
         </Heading>
-        {t.description && <p className="text-sm text-muted-foreground">{t.description}</p>}
-      </div>
-      {/* A phone has its own form of the control, beside the date. */}
-      {t.control && <div className="hidden shrink-0 md:block print:hidden">{t.control.title}</div>}
-    </div>
+      }
+      title={t.title}
+      descriptionId={`${headingId}-description`}
+      control={t.control}
+    >
+      {t.description}
+    </TableDescription>
   )
 }
 
@@ -908,6 +932,35 @@ function TableColumns({ table: t }: { table: Table }) {
   )
 }
 
+/** "Mon 23" or "Mon–Tue" for a tab; a screen reader still gets the full dates. */
+function shortDay(label: string): ReactNode {
+  const dates = label.split(' – ').map((d) => d.split(' '))
+  if (dates.some((d) => d.length !== 3)) return label
+  if (dates.length === 1) {
+    const [weekday, month, day] = dates[0]
+    return (
+      <>
+        {weekday} <span className="sr-only">{month} </span>
+        {day}
+      </>
+    )
+  }
+  return dates.map(([weekday, month, day], i) => (
+    <Fragment key={i}>
+      {i > 0 && (
+        <>
+          <span className="sr-only"> </span>–<span className="sr-only"> </span>
+        </>
+      )}
+      {weekday}
+      <span className="sr-only">
+        {' '}
+        {month} {day}
+      </span>
+    </Fragment>
+  ))
+}
+
 function GridTable({
   table: t,
   anchor,
@@ -923,34 +976,36 @@ function GridTable({
       aria-labelledby={headingId}
       className={cn(
         'min-w-0 space-y-2',
-        // Shares the pair's rows, so the tables start together whatever their descriptions' lengths.
-        t.paired && 'xl:row-span-3 xl:grid xl:grid-rows-subgrid xl:space-y-0',
+        // Shares the pair's rows, so the tables start together whichever description is open.
+        t.paired && 'xl:row-span-2 xl:grid xl:grid-cols-1 xl:grid-rows-subgrid xl:space-y-0',
       )}
     >
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
-      <div className="hidden min-w-0 md:block print:block">
-        <TableBox table={t} />
+      <div className="min-w-0 space-y-2">
+        <div className="hidden min-w-0 md:block print:block">
+          <TableBox table={t} />
+        </div>
+        {t.fitsPhone ? (
+          <TableBox
+            table={{ ...t, narrow: true, control: undefined }}
+            className="md:hidden print:hidden"
+          />
+        ) : (
+          <DaySwitch
+            label={t.title}
+            className="md:hidden print:hidden"
+            days={dayTables(t).map((d) => ({
+              key: d.key,
+              label: d.label,
+              short: t.control ? shortDay(d.label) : undefined,
+              // "Thu Oct 15 – Fri Oct 16" → its two dates; a single date stays one.
+              covers: d.label.split(' – '),
+              content: <TableBox table={{ ...d.table, control: undefined }} />,
+            }))}
+          />
+        )}
+        {t.legend}
       </div>
-      {t.fitsPhone ? (
-        <TableBox
-          table={{ ...t, narrow: true, control: undefined }}
-          className="md:hidden print:hidden"
-        />
-      ) : (
-        <DaySwitch
-          label={t.title}
-          className="md:hidden print:hidden"
-          aside={t.control?.phone}
-          days={dayTables(t).map((d) => ({
-            key: d.key,
-            label: d.label,
-            // "Thu Oct 15 – Fri Oct 16" → its two dates; a single date stays one.
-            covers: d.label.split(' – '),
-            content: <TableBox table={{ ...d.table, control: undefined }} />,
-          }))}
-        />
-      )}
-      {t.legend}
     </section>
   )
 }
@@ -1072,8 +1127,13 @@ function ExtendedSection({
       <h3 id={headingId} className="scroll-mt-24 text-lg font-semibold">
         Extended
       </h3>
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:items-start">
-        {/* The outlook text is optional; without it the table takes the first column. */}
+      {/* The outlook text is optional; without it the table takes the full width. */}
+      <div
+        className={cn(
+          'grid gap-8',
+          extended && 'xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:items-start',
+        )}
+      >
         {extended && (
           <section className="space-y-2">
             <h4 className="text-base font-semibold">Outlook</h4>
@@ -1142,13 +1202,13 @@ export function overallParts(
 function sectionLinks(p: OverallParts): SectionLink[] {
   const hasExtended = !!p.extended || hasContent(p.ext)
   return [
-    ...(p.synopsis ? [{ id: 'synopsis', label: 'Synopsis' }] : []),
-    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Zone Summary' }] : []),
+    ...(p.synopsis ? [{ id: 'synopsis', label: 'Weather Synopsis' }] : []),
+    ...(p.sensible.rows.length ? [{ id: 'sensible', label: 'Weather Summary by Zone' }] : []),
     // The precipitation tables share one anchor, on the wrapper both sit in.
     ...(hasContent(p.precipSnow['12'])
-      ? [{ id: 'precip-snow', label: p.precipSnow['12'].nav }]
+      ? [{ id: 'precip-snow', label: p.precipSnow['12'].title }]
       : []),
-    ...[p.snowLevel, p.temps, p.wind].filter(hasContent).map((t) => ({ id: t.id, label: t.nav })),
+    ...[p.snowLevel, p.temps, p.wind].filter(hasContent).map((t) => ({ id: t.id, label: t.title })),
     ...(hasExtended ? [{ id: 'extended', label: 'Extended' }] : []),
   ].map((l) => ({ ...l, id: `${p.issuance.type}-${l.id}` }))
 }
@@ -1185,12 +1245,14 @@ export function Overall({ parts, zonePaths = {} }: { parts: OverallParts; zonePa
       />
       {hasContent(precipSnow['12']) && (
         <PrecipHoursSwitch id={`${anchor}-precip-snow`}>
-          <PrecipHoursPanel hours="12">
-            <GridTable table={precipSnow['12']} anchor={anchor} />
-          </PrecipHoursPanel>
-          <PrecipHoursPanel hours="24">
-            <GridTable table={precipSnow['24']} anchor={anchor} />
-          </PrecipHoursPanel>
+          <SharedDescription>
+            <PrecipHoursPanel hours="12">
+              <GridTable table={precipSnow['12']} anchor={anchor} />
+            </PrecipHoursPanel>
+            <PrecipHoursPanel hours="24">
+              <GridTable table={precipSnow['24']} anchor={anchor} />
+            </PrecipHoursPanel>
+          </SharedDescription>
         </PrecipHoursSwitch>
       )}
       <MaybeTable table={snowLevel} anchor={anchor} />
