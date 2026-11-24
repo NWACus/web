@@ -14,7 +14,7 @@ import {
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import type { ComponentProps } from 'react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
@@ -113,6 +113,25 @@ describe('NativeForecastView, Mountain Weather', () => {
 
     expect(screen.getAllByRole('heading', { name: /^Mountain Weather/ })).toHaveLength(1)
     expect(screen.queryByText('The AFP product')).toBeNull()
+  })
+
+  it('gives the section one id, which survives a roll to the next window', () => {
+    jest.useFakeTimers({ now: new Date('2026-09-15T00:59:30Z') })
+    const [window] = nwacWeather.windows
+    const earlier = { ...window, startsAt: '2026-09-14T13:00:00.000Z', periodKeys: ['d1', 'n1'] }
+    const { container } = renderView({
+      nwacWeather: { ...nwacWeather, windows: [earlier, window] },
+    })
+    const sections = () => container.querySelectorAll('#mountain-weather')
+    expect(sections()).toHaveLength(1)
+
+    act(() => {
+      jest.advanceTimersByTime(60 * 1000)
+    })
+
+    expect(sections()).toHaveLength(1)
+    expect(sections()[0]).toHaveTextContent(/Mountain Weather/)
+    jest.useRealTimers()
   })
 
   it('shows no panel with neither', () => {

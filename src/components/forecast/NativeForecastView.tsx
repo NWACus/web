@@ -25,6 +25,7 @@ import type { ForecastZoneFacts } from '@/services/nac/resolveZone'
 import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 import { MapPin } from 'lucide-react'
 
+import { MOUNTAIN_WEATHER_ID } from '@/components/NWACWeather/mountainWeatherId'
 import { ZoneSummary } from '@/components/NWACWeather/ZoneSummary'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -462,7 +463,7 @@ function WeatherPanelSection(props: ForecastPanelProps) {
   if (!hasMountainWeather(props.weather, props.zoneId, props.nwacWeather)) return null
 
   return (
-    <PanelSection printSection="weather">
+    <PanelSection printSection="weather" id={MOUNTAIN_WEATHER_ID}>
       <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
         <MountainWeather {...props} />
       </ForecastErrorBoundary>
@@ -497,16 +498,19 @@ function MountainWeather({
  * renders nothing (a weather product with nothing tabulable, say).
  */
 function PanelSection({
+  id,
   printSection,
   printHide,
   children,
 }: {
+  id?: string
   printSection?: PrintSection
   printHide?: boolean
   children: ReactNode
 }) {
   return (
     <div
+      id={id}
       data-print-section={printSection}
       data-print-hide={printHide || undefined}
       className="py-12 empty:hidden first:pt-0 last:pb-0"

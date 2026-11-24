@@ -1,8 +1,34 @@
+// jsdom can't navigate: a click runs `onNavigate` alone, as the router's would.
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({
+    href,
+    onNavigate,
+    children,
+  }: {
+    href: string
+    onNavigate?: () => void
+    children: React.ReactNode
+  }) => (
+    <a
+      href={href}
+      onClick={(event) => {
+        event.preventDefault()
+        onNavigate?.()
+      }}
+    >
+      {children}
+    </a>
+  ),
+}))
+
 import { WidgetZoneWeather } from '@/components/NWACWeather/WidgetZoneWeather.client'
+import { ZoneWeatherLink } from '@/components/NWACWeather/ZoneWeatherLink.client'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
-import { act, render, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import type React from 'react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
 const mapped = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
@@ -137,5 +163,80 @@ describe('WidgetZoneWeather', () => {
     expect(shadowMount(container)).toBeNull()
     expect(within(tab).getByText(/couldn't be loaded/)).toBeInTheDocument()
     expect(within(tab).queryByText(/was issued/)).toBeNull()
+  })
+
+  describe('opened at the weather', () => {
+    const PAGE = '/forecasts/avalanche/olympics'
+    const scrollIntoView = jest.fn()
+
+    beforeEach(() => {
+      scrollIntoView.mockReset()
+      Element.prototype.scrollIntoView = scrollIntoView
+      window.history.replaceState(null, '', `${PAGE}#mountain-weather`)
+    })
+
+    afterEach(() => {
+      window.history.replaceState(null, '', '/')
+    })
+
+    it('scrolls to the weather once, though the widget replaces the hash first', async () => {
+      const { container } = renderInWidget()
+      window.history.replaceState(null, '', '#/olympics/')
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1))
+      expect(scrollIntoView.mock.contexts[0]).toBe(
+        container.querySelector('#nac-additional-content > div'),
+      )
+
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-16T01:00:00Z' })
+      await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
+      await waitFor(() => expect(shadowMount(container)).not.toBeNull())
+      expect(scrollIntoView).toHaveBeenCalledTimes(1)
+    })
+
+    it('leaves a reader who has already moved where they are', async () => {
+      const { container } = renderInWidget()
+      fireEvent.wheel(window)
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(shadowMount(container)).not.toBeNull())
+      expect(scrollIntoView).not.toHaveBeenCalled()
+    })
+
+    it('does nothing when the day has no weather', async () => {
+      fetchMock.mockResolvedValue({ ok: true, json: async () => ({ day: null }) })
+      await loadedTab()
+      expect(scrollIntoView).not.toHaveBeenCalled()
+    })
+
+    it('does nothing for an ordinary link', async () => {
+      window.history.replaceState(null, '', PAGE)
+      await loadedTab()
+      expect(scrollIntoView).not.toHaveBeenCalled()
+    })
+
+    it('scrolls after a dated link whose redirect dropped the hash, and only for that zone', async () => {
+      window.history.replaceState(null, '', '/weather/forecast/2026-09-14')
+      const link = render(<ZoneWeatherLink href={`${PAGE}/2026-09-14`}>Olympics</ZoneWeatherLink>)
+      const click = () => fireEvent.click(screen.getByRole('link', { name: 'Olympics' }))
+      expect(screen.getByRole('link', { name: 'Olympics' })).toHaveAttribute(
+        'href',
+        `${PAGE}/2026-09-14#mountain-weather`,
+      )
+
+      click()
+      window.history.replaceState(null, '', '/forecasts/avalanche/mt-hood#/mt-hood/')
+      const other = renderInWidget()
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(shadowMount(other.container)).not.toBeNull())
+      expect(scrollIntoView).not.toHaveBeenCalled()
+      other.unmount()
+
+      click()
+      link.unmount()
+      window.history.replaceState(null, '', `${PAGE}#/forecast/1/2`)
+      renderInWidget()
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1))
+    })
   })
 })

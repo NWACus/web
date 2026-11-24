@@ -18,6 +18,7 @@ import type {
 } from '@/services/nac/model/nwacWeather'
 import { issuanceLabel, zonesFor } from '@/services/nac/nwacWeatherFormat'
 
+import { MOUNTAIN_WEATHER_ID } from './mountainWeatherId'
 import { Overall, overallParts } from './Overall'
 import { WindowRollover } from './WindowRollover.client'
 import { ZoneTable } from './ZoneTable'
@@ -85,7 +86,7 @@ function WeatherCard({
 
   return (
     <Card
-      id="mountain-weather"
+      id={MOUNTAIN_WEATHER_ID}
       className="scroll-mt-24 rounded-none border-0 bg-transparent pb-8 shadow-none"
     >
       <CardContent className="space-y-6 p-0">{content}</CardContent>

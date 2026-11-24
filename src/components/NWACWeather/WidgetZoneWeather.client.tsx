@@ -5,13 +5,14 @@
  * `nac-loaded` event. Why and how: docs/afp-products/architecture.md, "NWAC's weather".
  */
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { z } from 'zod'
 
 import type { NWACWeatherZoneDay } from '@/services/nac/model/nwacWeather'
 
 import { OverallSummary, ZoneSummary } from './ZoneSummary'
+import { takeWeatherRequest } from './ZoneWeatherLink.client'
 
 /** The part of the widget's `ForecastProduct` event detail this needs. */
 const nacLoadedDetailSchema = z.object({ zone_id: z.number(), published: z.string() })
@@ -57,7 +58,10 @@ function shadowMount(place: (host: HTMLElement) => void): HTMLElement {
 function forecastMount(): HTMLElement | null {
   const slot = document.getElementById(SLOT_ID)
   if (!slot) return null
-  const mount = shadowMount((host) => slot.replaceChildren(host))
+  const mount = shadowMount((host) => {
+    host.style.scrollMarginTop = '1.5rem'
+    slot.replaceChildren(host)
+  })
   mount.classList.add('mt-6')
   return mount
 }
@@ -76,6 +80,31 @@ function tabMount(): HTMLElement | null {
     host.setAttribute(TAB_HOST_ATTR, '')
     pane.after(host)
   })
+}
+
+/** Input a reader scrolls with. Not `scroll` itself: the router scrolls too, after a link click. */
+const READER_INPUT = ['wheel', 'touchmove', 'keydown', 'pointerdown'] as const
+
+/** Scrolls to the weather once, when the reader came for it and hasn't moved since. */
+function useScrollToWeather(slots: Slots | null) {
+  const wanted = useRef(false)
+
+  // Before WidgetRouterHandler's effect replaces the hash with the widget's own route.
+  useLayoutEffect(() => {
+    if (takeWeatherRequest()) wanted.current = true
+    const cancel = () => {
+      wanted.current = false
+    }
+    READER_INPUT.forEach((type) => window.addEventListener(type, cancel, { passive: true }))
+    return () => READER_INPUT.forEach((type) => window.removeEventListener(type, cancel))
+  }, [])
+
+  useEffect(() => {
+    if (!slots || !wanted.current) return
+    wanted.current = false
+    const root = slots.forecast?.getRootNode()
+    if (root instanceof ShadowRoot) root.host.scrollIntoView()
+  }, [slots])
 }
 
 async function fetchZoneDay(
@@ -99,6 +128,7 @@ export function WidgetZoneWeather({
   timezone: string | null | undefined
 }) {
   const [slots, setSlots] = useState<Slots | null>(null)
+  useScrollToWeather(slots)
 
   useEffect(() => {
     let controller: AbortController | null = null
