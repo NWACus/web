@@ -52,13 +52,13 @@ describe('Overall', () => {
       'href',
       '/forecasts/avalanche/olympics#mountain-weather',
     )
-    // The picked zone's summary links to the forecast itself.
+    // The picked zone's summary links there too.
     const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
     expect(
       within(summary).getByRole('link', {
         name: 'avalanche forecast',
       }),
-    ).toHaveAttribute('href', '/forecasts/avalanche/olympics')
+    ).toHaveAttribute('href', '/forecasts/avalanche/olympics#mountain-weather')
   })
 
   it('puts the weather summary beside the synopsis, and leaves out the zone links when no zone has a page', () => {
