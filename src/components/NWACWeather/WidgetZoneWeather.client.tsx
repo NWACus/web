@@ -83,15 +83,12 @@ function tabMount(): HTMLElement | null {
   })
 }
 
-/** Input a reader scrolls with. Not `scroll` itself: the router scrolls too, after a link click. */
-const READER_INPUT = ['wheel', 'touchmove', 'keydown', 'pointerdown'] as const
-
 function scrollToWeather(slots: Slots) {
   const root = slots.forecast?.getRootNode()
   if (root instanceof ShadowRoot) root.host.scrollIntoView()
 }
 
-/** Scrolls to the weather once, when the reader came for it and hasn't moved since. */
+/** Scrolls to the weather once it mounts, when the reader came for it. */
 function useScrollToWeather(slots: Slots | null) {
   const wanted = useRef(false)
   const loaded = useRef<Slots | null>(null)
@@ -99,11 +96,6 @@ function useScrollToWeather(slots: Slots | null) {
   // Before WidgetRouterHandler's effect replaces the hash with the widget's own route.
   useLayoutEffect(() => {
     if (takeWeatherRequest()) wanted.current = true
-    const cancel = () => {
-      wanted.current = false
-    }
-    READER_INPUT.forEach((type) => window.addEventListener(type, cancel, { passive: true }))
-    return () => READER_INPUT.forEach((type) => window.removeEventListener(type, cancel))
   }, [])
 
   // The widget's router reads an unknown hash as a missing product, so on an open page it must not

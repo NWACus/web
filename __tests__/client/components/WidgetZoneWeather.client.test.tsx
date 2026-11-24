@@ -194,12 +194,11 @@ describe('WidgetZoneWeather', () => {
       expect(scrollIntoView).toHaveBeenCalledTimes(1)
     })
 
-    it('leaves a reader who has already moved where they are', async () => {
-      const { container } = renderInWidget()
+    it('scrolls even when the reader moved while it loaded', async () => {
+      renderInWidget()
       fireEvent.wheel(window)
       fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
-      await waitFor(() => expect(shadowMount(container)).not.toBeNull())
-      expect(scrollIntoView).not.toHaveBeenCalled()
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1))
     })
 
     it("scrolls on a page already open, and keeps the hash from the widget's router", async () => {
