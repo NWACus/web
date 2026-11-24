@@ -62,7 +62,7 @@ export function PrecipHoursToggle() {
           aria-label={o.name}
           size="sm"
           className={cn(
-            'h-11 min-w-0 rounded-none md:h-8 bg-background px-3 text-sm font-semibold text-foreground hover:bg-muted',
+            'h-8 min-w-0 rounded-none bg-background px-3 text-sm font-semibold text-foreground hover:bg-muted',
             'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
             i > 0 && 'border-l',
           )}
