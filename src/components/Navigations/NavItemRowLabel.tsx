@@ -1,9 +1,11 @@
 'use client'
 
+import { formatSlug } from '@/fields/slug/formatSlug'
 import { isRecord } from '@/utilities/isRecord'
 import { itemTypeOf } from '@/utilities/navItemType'
-import { Pill, useRowLabel } from '@payloadcms/ui'
-import { useReferenceTitle } from './useReferenceTitle'
+import { useForm, useFormFields, useRowLabel } from '@payloadcms/ui'
+import { useEffect } from 'react'
+import { useReferenceDoc } from './referenceDoc'
 
 type Row = Record<string, unknown>
 
@@ -16,47 +18,67 @@ const subItemCount = (row: Row) => (Array.isArray(row.items) ? row.items.length 
 
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`
 
-const firstText = (...values: unknown[]) => values.map(text).find(Boolean)
-
 // Row paths look like `education.items.0` (item) or `education.items.0.items.2` (sub-item)
-const isSubItemPath = (path: string) => /\.items\.\d+\.items\.\d+$/.test(path)
+const sectionPathOf = (path: string) => path.match(/^(.+\.items\.\d+)\.items\.\d+$/)?.[1]
 
-const Label = ({ name, chip, detail }: { name: string; chip?: string; detail?: string }) => (
-  <span className="flex items-center gap-2">
+// The URL segments an item nests under: its tab, then its section's name
+const useParentSegments = (path: string) => {
+  const sectionPath = sectionPathOf(path)
+  const section = useFormFields(([fields]) =>
+    sectionPath ? text(fields[`${sectionPath}.label`]?.value) : undefined,
+  )
+  return [path.split('.')[0], formatSlug(section ?? null)].filter(Boolean)
+}
+
+// Rows start collapsed, which would also hide a row that was just added and has nothing in it yet
+const useOpenWhenEmpty = (path: string, isEmpty: boolean) => {
+  const { dispatchFields, getField } = useForm()
+  useEffect(() => {
+    if (!isEmpty) return
+    const arrayPath = path.replace(/\.\d+$/, '')
+    const index = Number(path.slice(arrayPath.length + 1))
+    const rows = getField(arrayPath)?.rows ?? []
+    if (!rows[index]) return
+    dispatchFields({
+      type: 'SET_ROW_COLLAPSED',
+      path: arrayPath,
+      updatedRows: rows.map((row, i) => (i === index ? { ...row, collapsed: false } : row)),
+    })
+    // Once, when the row appears: an editor can still collapse it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+}
+
+const Label = ({ name, detail }: { name: string; detail?: string }) => (
+  <span className="flex min-w-0 items-baseline gap-3">
     <span className="font-medium">{name}</span>
-    {chip && (
-      <Pill pillStyle="light-gray" size="small">
-        {chip}
-      </Pill>
-    )}
-    {detail && <span className="text-sm text-[var(--theme-elevation-500)]">{detail}</span>}
+    {detail && <span className="truncate text-sm text-[var(--theme-elevation-600)]">{detail}</span>}
   </span>
 )
 
-const LinkRowLabel = ({ row, fallback, chip }: { row: Row; fallback: string; chip?: string }) => {
+const LinkRowLabel = ({ row, path, fallback }: { row: Row; path: string; fallback: string }) => {
   const link = recordOf(row.link)
-  const label = text(link.label)
-  // Only look the page up when the link doesn't carry its own label
-  const title = useReferenceTitle(label ? undefined : link.reference)
-  return <Label name={firstText(label, title, link.url) ?? fallback} chip={chip} />
+  const url = text(link.url)
+  const isExternal = link.type === 'external'
+  const doc = useReferenceDoc(isExternal ? undefined : link.reference, useParentSegments(path))
+  useOpenWhenEmpty(path, !link.reference && !url)
+  const name = text(link.label) ?? doc.title ?? url ?? fallback
+  return <Label name={name} detail={isExternal ? url : (doc.path ?? url)} />
 }
 
 const SectionRowLabel = ({ row }: { row: Row }) => (
   <Label
     name={text(row.label) ?? 'Untitled section'}
-    chip="Section"
-    detail={plural(subItemCount(row), 'sub-item')}
+    detail={`Section with ${plural(subItemCount(row), 'item')}`}
   />
 )
 
 const itemFallback = (rowNumber = 0) => `Item ${rowNumber + 1}`
 
-/** Row header for nav items and sub-items: the item's name and, for top-level items, its type. */
+/** Row header for nav items and sub-items: the item's name and its address on the site. */
 export const NavItemRowLabel = () => {
   const { data, path, rowNumber } = useRowLabel<Row>()
   const row = recordOf(data)
-  const isSubItem = isSubItemPath(path)
-  if (!isSubItem && itemTypeOf(row) === 'section') return <SectionRowLabel row={row} />
-  const chip = isSubItem ? undefined : 'Link'
-  return <LinkRowLabel row={row} fallback={itemFallback(rowNumber)} chip={chip} />
+  if (!sectionPathOf(path) && itemTypeOf(row) === 'section') return <SectionRowLabel row={row} />
+  return <LinkRowLabel row={row} path={path} fallback={itemFallback(rowNumber)} />
 }

@@ -94,6 +94,18 @@ const restoreEducation = (page: Page, id: number, education: unknown) =>
     { id, education },
   )
 
+// Rows start collapsed, but Payload remembers the ones a user has opened
+async function openRow(page: Page, id: string) {
+  const row = page.locator(`#${id}`)
+  const toggle = row.locator('.collapsible__toggle').first()
+  await toggle.waitFor()
+  const isCollapsed = await row
+    .locator('.collapsible')
+    .first()
+    .evaluate((el) => el.classList.contains('collapsible--collapsed'))
+  if (isCollapsed) await toggle.click()
+}
+
 // Opens the Education tab on the first linked item that has no sub-items
 async function openLinkedEducationItem(page: Page) {
   const doc = await readNwacNavigation(page)
@@ -107,6 +119,7 @@ async function openLinkedEducationItem(page: Page) {
   await waitForFormReady(page)
   await page.getByRole('button', { name: 'Education', exact: true }).first().click()
 
+  await openRow(page, `education-items-row-${index}`)
   const link = page.locator(`#field-education__items__${index}__link`)
   const pageTitle = (await link.locator('.relationship--single-value__text').innerText()).trim()
   const linkLabel = await page
@@ -133,7 +146,9 @@ authTest.describe('Navigations item type picker', () => {
       await expect(adminPage.locator(`#field-education__items__${index}__label`)).toHaveValue(
         sectionName,
       )
-      const firstSubItem = adminPage.locator(`#field-education__items__${index}__items__0__link`)
+      const firstSubItem = adminPage.locator(`#education-items-${index}-items-row-0`)
+      await expect(firstSubItem).toContainText(sectionName)
+      await openRow(adminPage, `education-items-${index}-items-row-0`)
       await expect(firstSubItem.locator('.relationship--single-value__text')).toHaveText(pageTitle)
       await expect(link).toBeHidden()
 

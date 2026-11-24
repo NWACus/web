@@ -48,6 +48,7 @@ const subItems: Field = {
   type: 'array',
   label: 'Sub-items',
   admin: {
+    initCollapsed: true,
     condition: isSection,
     components: {
       RowLabel: '@/components/Navigations/NavItemRowLabel#NavItemRowLabel',
@@ -72,6 +73,7 @@ export const itemsField = ({
       label,
       admin: {
         description,
+        initCollapsed: true,
         components: {
           RowLabel: '@/components/Navigations/NavItemRowLabel#NavItemRowLabel',
         },

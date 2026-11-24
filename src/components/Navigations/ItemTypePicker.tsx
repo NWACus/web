@@ -7,7 +7,7 @@ import { ConfirmationModal, FieldLabel, useForm, useFormFields, useModal } from 
 import { ListTree, SquareArrowOutUpRight } from 'lucide-react'
 import type { UIFieldClientProps } from 'payload'
 import { useState } from 'react'
-import { fetchReferenceTitle } from './useReferenceTitle'
+import { fetchReferenceTitle } from './referenceDoc'
 
 const options: { value: NavItemType; label: string; icon: typeof ListTree }[] = [
   { value: 'link', label: 'Link to a page', icon: SquareArrowOutUpRight },
