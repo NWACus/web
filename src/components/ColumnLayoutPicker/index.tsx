@@ -8,8 +8,8 @@ import { ColumnsIcon } from './icons'
 import { columnCount, layoutOptions } from './layouts'
 
 export const ColumnLayoutPicker = (props: SelectFieldClientProps) => {
-  const { path, field } = props
-  const { value, setValue, showError, errorMessage } = useField<string>({ path })
+  const { path, field, readOnly } = props
+  const { value, setValue, showError, errorMessage, disabled } = useField<string>({ path })
 
   const parentPath = path.split(`.${field.name}`)[0]
   const columnsPath = `${parentPath}.columns`
@@ -27,6 +27,7 @@ export const ColumnLayoutPicker = (props: SelectFieldClientProps) => {
       <ToggleGroup
         type="single"
         value={value || ''}
+        disabled={readOnly || disabled}
         onValueChange={(newValue: string) => {
           if (newValue) setValue(newValue)
         }}

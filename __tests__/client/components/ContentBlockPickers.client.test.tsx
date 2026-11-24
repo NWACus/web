@@ -4,7 +4,7 @@ import { ColumnLayoutPicker } from '@/components/ColumnLayoutPicker'
 import { LayoutSummaryLabel } from '@/components/LayoutSummaryLabel'
 import { VerticalAlignmentPicker } from '@/components/VerticalAlignmentPicker'
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ClientField, SelectFieldClientProps, TextFieldClientProps } from 'payload'
 
 const mockSetValue = jest.fn()
@@ -154,7 +154,37 @@ describe('VerticalAlignmentPicker', () => {
   })
 })
 
+describe('read-only pickers', () => {
+  it('disables every control', async () => {
+    mockFieldValues.set('layout.0.columns', 2)
+    mockFieldValues.set('layout.0.layout', '2_11')
+    render(
+      <>
+        <ColumnLayoutPicker {...layoutProps} readOnly />
+        <VerticalAlignmentPicker {...alignmentProps} readOnly />
+        <ColorPicker {...colorProps} readOnly />
+      </>,
+    )
+
+    await waitFor(() => expect(document.querySelector('button span.shrink-0')).toBeInTheDocument())
+    const controls = [...screen.getAllByRole('radio'), ...screen.getAllByRole('button')]
+    expect(controls).toHaveLength(8)
+    controls.forEach((control) => expect(control).toBeDisabled())
+  })
+})
+
 describe('ColorPicker', () => {
+  it('moves between swatches with the arrow keys', async () => {
+    mockFieldValues.set('layout.0.backgroundColor', 'brand-300')
+    render(<ColorPicker {...colorProps} />)
+    fireEvent.click(screen.getByRole('button', { name: /Brand 300/ }))
+
+    const current = await screen.findByRole('radio', { name: 'Brand 300' })
+    current.focus()
+    fireEvent.keyDown(current, { key: 'ArrowRight' })
+    await waitFor(() => expect(screen.getByRole('radio', { name: 'Brand 400' })).toHaveFocus())
+  })
+
   it('shows the current color and picks a new one from the dropdown', async () => {
     mockFieldValues.set('layout.0.backgroundColor', 'brand-300')
     render(<ColorPicker {...colorProps} />)

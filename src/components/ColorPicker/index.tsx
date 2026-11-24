@@ -6,6 +6,7 @@ import { getSlugFromTenantId } from '@/utilities/getSlugFromTenantId'
 import { cn } from '@/utilities/ui'
 import { FieldLabel, useDocumentInfo, useField } from '@payloadcms/ui'
 import { mergeFieldStyles } from '@payloadcms/ui/shared'
+import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group'
 import { ChevronDown } from 'lucide-react'
 import { TextFieldClientProps } from 'payload'
 import { ReactNode, useEffect, useState } from 'react'
@@ -25,8 +26,8 @@ const checkerboard =
 const swatchFill = (color: string) => (color === 'transparent' ? checkerboard : `bg-${color}`)
 
 export const ColorPicker = (props: TextFieldClientProps) => {
-  const { path, field } = props
-  const { value, setValue } = useField<string>({ path })
+  const { path, field, readOnly } = props
+  const { value, setValue, disabled } = useField<string>({ path })
   const tenantSlug = useTenantSlug()
   const [open, setOpen] = useState(false)
 
@@ -36,7 +37,12 @@ export const ColorPicker = (props: TextFieldClientProps) => {
     <div className={cn('flex flex-col mb-6', tenantSlug)} style={mergeFieldStyles(field)}>
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
       <Popover open={open && Boolean(tenantSlug)} onOpenChange={setOpen}>
-        <ColorTrigger id={path} selected={selected} showSwatch={Boolean(tenantSlug)} />
+        <ColorTrigger
+          id={path}
+          selected={selected}
+          showSwatch={Boolean(tenantSlug)}
+          disabled={Boolean(readOnly || disabled)}
+        />
         {/* Content portals to body, so it needs the tenant class again for the brand shades */}
         <PopoverContent
           align="start"
@@ -63,15 +69,18 @@ const ColorTrigger = ({
   id,
   selected,
   showSwatch,
+  disabled,
 }: {
   id: string
   selected: string
   showSwatch: boolean
+  disabled: boolean
 }) => (
   <PopoverTrigger
     id={id}
     type="button"
-    className="flex items-center gap-2 w-44 max-w-full h-9 px-2.5 rounded border border-solid border-[var(--theme-elevation-250)] bg-[var(--theme-elevation-50)] text-[var(--theme-text)] cursor-pointer"
+    disabled={disabled}
+    className="flex items-center gap-2 w-44 max-w-full h-9 px-2.5 rounded border border-solid border-[var(--theme-elevation-250)] bg-[var(--theme-elevation-50)] text-[var(--theme-text)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
   >
     {showSwatch && (
       <span
@@ -106,19 +115,24 @@ const SwatchPanel = ({
   selected: string
   onPick: (color: string) => void
 }) => (
-  <div role="radiogroup" aria-label={label} className="flex items-start gap-3">
+  <ToggleGroupPrimitive.Root
+    type="single"
+    role="radiogroup"
+    aria-label={label}
+    value={selected}
+    // Radix sends '' when the selected swatch is clicked again
+    onValueChange={(color) => onPick(color || selected)}
+    className="flex items-start gap-3"
+  >
     {baseColors.map((color) => (
       <div key={color} className="flex flex-col items-center gap-1.5">
         <Swatch
           color={color}
           selected={color === selected}
-          onPick={onPick}
           className="size-8 rounded border border-solid border-gray-500"
           selectedClassName="ring-2 ring-[var(--theme-text)] ring-offset-2 ring-offset-[var(--theme-elevation-50)]"
         />
-        <SwatchLabel selected={color === selected}>
-          {color === 'transparent' ? 'None' : 'White'}
-        </SwatchLabel>
+        <SwatchLabel selected={color === selected}>{colorName(color)}</SwatchLabel>
       </div>
     ))}
     <div className="flex flex-col gap-1.5">
@@ -128,7 +142,6 @@ const SwatchPanel = ({
             key={color}
             color={color}
             selected={color === selected}
-            onPick={onPick}
             className="w-9 h-8 border-0"
             selectedClassName="shadow-[inset_0_0_0_2px_var(--theme-elevation-50),inset_0_0_0_4px_var(--theme-text)]"
           />
@@ -142,29 +155,24 @@ const SwatchPanel = ({
         ))}
       </div>
     </div>
-  </div>
+  </ToggleGroupPrimitive.Root>
 )
 
 const Swatch = ({
   color,
   selected,
-  onPick,
   className,
   selectedClassName,
 }: {
   color: string
   selected: boolean
-  onPick: (color: string) => void
   className: string
   selectedClassName: string
 }) => (
-  <button
-    type="button"
-    role="radio"
-    aria-checked={selected}
+  <ToggleGroupPrimitive.Item
+    value={color}
     aria-label={colorName(color)}
     title={colorName(color)}
-    onClick={() => onPick(color)}
     className={cn(
       'p-0 cursor-pointer',
       className,
