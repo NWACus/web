@@ -1010,7 +1010,7 @@ function ZoneLinks({ links, headingId }: { links: ZoneLink[]; headingId: string 
           <li key={l.id}>
             <ZoneWeatherLink
               href={l.href}
-              className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground no-underline transition-colors hover:bg-primary/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex h-9 items-center rounded-md bg-secondary px-3 text-sm font-semibold text-secondary-foreground no-underline transition-colors hover:bg-secondary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {l.name}
             </ZoneWeatherLink>
