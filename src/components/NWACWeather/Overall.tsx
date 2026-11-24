@@ -870,10 +870,7 @@ function TableTitle({
       heading={
         <Heading
           id={headingId}
-          className={cn(
-            'inline scroll-mt-24 font-semibold',
-            Heading === 'h4' ? 'text-base' : 'text-lg',
-          )}
+          className={cn('scroll-mt-24 font-semibold', Heading === 'h4' ? 'text-base' : 'text-lg')}
         >
           {t.title}
           {t.unit && (
@@ -882,11 +879,11 @@ function TableTitle({
         </Heading>
       }
       title={t.title}
-      panelId={`${headingId}-description`}
+      descriptionId={`${headingId}-description`}
       control={t.control}
       className={cn(t.paired && 'xl:pb-3')}
     >
-      <p>{t.description}</p>
+      {t.description}
     </TableDescription>
   )
 }
@@ -981,7 +978,7 @@ function GridTable({
       className={cn(
         'min-w-0 space-y-2',
         // Shares the pair's rows, so the tables start together whichever description is open.
-        t.paired && 'xl:row-span-3 xl:grid xl:grid-rows-subgrid xl:space-y-0',
+        t.paired && 'xl:row-span-3 xl:grid xl:grid-cols-1 xl:grid-rows-subgrid xl:space-y-0',
       )}
     >
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />

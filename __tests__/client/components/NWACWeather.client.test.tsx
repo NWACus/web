@@ -249,15 +249,8 @@ describe('Overall extended section', () => {
 
 describe('Overall table descriptions', () => {
   const showButton = (table: string) =>
-    screen.getByRole('button', { name: `Show description: ${table}` })
-  const panelOf = (button: HTMLElement) => {
-    const id = button.getAttribute('aria-controls')
-    const panel = id && document.getElementById(id)
-    if (!panel) throw new Error('the button should control a panel')
-    return panel
-  }
-
-  it('keeps each explanation in a closed panel, with a legend where its cells need one', () => {
+    screen.getByRole('button', { name: `Show full description: ${table}` })
+  it("shows each explanation's first line, with a legend where its cells need one", () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
     // The main and extended snow level tables share their explanation.
@@ -270,45 +263,44 @@ describe('Overall table descriptions', () => {
       // The 12 and 24 hour tables both carry it.
       ...screen.getAllByText(/^Precipitation: Water Equivalent \(WE\) .* presented in a range\.$/),
     ]) {
-      expect(text).not.toBeVisible()
+      expect(text).toHaveClass('truncate')
     }
-    for (const button of screen.getAllByRole('button', { name: /^Show description/ })) {
+    for (const button of screen.getAllByRole('button', { name: /^Show full description/ })) {
       expect(button).toHaveAttribute('aria-expanded', 'false')
     }
     expect(screen.getByText('VAR: variable')).toBeVisible()
   })
 
-  it('opens and closes each table’s panel on its own', () => {
+  it('opens and closes each table’s description on its own', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     const wind = showButton('Ridgeline Winds')
     const description = screen.getByText(/^Ridgeline winds represent the average wind speed/)
 
     fireEvent.click(wind)
     expect(wind).toHaveAttribute('aria-expanded', 'true')
-    expect(wind).toHaveAccessibleName('Hide description: Ridgeline Winds')
-    expect(description).toBeVisible()
-    expect(panelOf(wind)).toContainElement(description)
-    expect(screen.getByText(/^The low and high temperature/)).not.toBeVisible()
+    expect(wind).toHaveAccessibleName('Hide full description: Ridgeline Winds')
+    expect(wind).toHaveAttribute('aria-controls', description.id)
+    expect(description).not.toHaveClass('truncate')
+    expect(screen.getByText(/^The low and high temperature/)).toHaveClass('truncate')
 
     fireEvent.click(wind)
     expect(wind).toHaveAttribute('aria-expanded', 'false')
-    expect(description).not.toBeVisible()
+    expect(description).toHaveClass('truncate')
   })
 
   it('keeps the precipitation description open when switching to 24 hours', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     const [precip12] = screen.getAllByRole('button', {
-      name: 'Show description: Precipitation and Snow',
+      name: 'Show full description: Precipitation and Snow',
     })
     fireEvent.click(precip12)
     fireEvent.click(screen.getByRole('radio', { name: '24 hours' }))
     // Only the 24-hour table's button is shown now, and it is open too.
     const precip24 = screen.getByRole('button', {
-      name: 'Hide description: Precipitation and Snow',
+      name: 'Hide full description: Precipitation and Snow',
     })
     expect(precip24).not.toBe(precip12)
     expect(precip24).toHaveAttribute('aria-expanded', 'true')
-    expect(within(panelOf(precip24)).getByText(/^Precipitation: Water Equivalent/)).toBeVisible()
   })
 })
 
