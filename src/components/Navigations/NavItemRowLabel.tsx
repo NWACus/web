@@ -50,7 +50,7 @@ const useOpenWhenEmpty = (path: string, isEmpty: boolean) => {
 }
 
 const Label = ({ name, detail }: { name: string; detail?: string }) => (
-  <span className="flex min-w-0 items-baseline gap-3">
+  <span className="nav-item-label flex min-w-0 items-baseline gap-3">
     <span className="font-medium">{name}</span>
     {detail && <span className="truncate text-sm text-[var(--theme-elevation-600)]">{detail}</span>}
   </span>
@@ -67,10 +67,12 @@ const LinkRowLabel = ({ row, path, fallback }: { row: Row; path: string; fallbac
 }
 
 const SectionRowLabel = ({ row }: { row: Row }) => (
-  <Label
-    name={text(row.label) ?? 'Untitled section'}
-    detail={`Section with ${plural(subItemCount(row), 'item')}`}
-  />
+  <span className="nav-item-label--section">
+    <Label
+      name={text(row.label) ?? 'Untitled section'}
+      detail={`Section with ${plural(subItemCount(row), 'item')}`}
+    />
+  </span>
 )
 
 const itemFallback = (rowNumber = 0) => `Item ${rowNumber + 1}`

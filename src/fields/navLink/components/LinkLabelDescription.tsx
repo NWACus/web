@@ -17,8 +17,8 @@ export const LinkLabelDescription: FieldDescriptionClientComponent = ({ path }) 
   return (
     <div className="field-description">
       {field.value === 'internal'
-        ? 'Uses the page title if left blank.'
-        : 'Required for web addresses.'}
+        ? 'The text shown in the menu. Leave blank to use the page title.'
+        : 'The text shown in the menu. Required for external links.'}
     </div>
   )
 }

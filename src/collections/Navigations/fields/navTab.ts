@@ -45,11 +45,7 @@ export const navTab = ({
     label: 'Show as',
     defaultValue: defaultMode,
     options: MODE_OPTIONS,
-    admin: {
-      components: {
-        Field: '@/components/Navigations/DisplayModePicker',
-      },
-    },
+    admin: { isClearable: false, width: '50%' },
   }
 
   const enabledField: Field = {
@@ -57,14 +53,23 @@ export const navTab = ({
     defaultValue: true,
     name: 'enabled',
     label: 'Show in navigation',
-    admin: { description: enabledToggleDescription },
+    admin: {
+      description: enabledToggleDescription,
+      style: { alignSelf: 'flex-end', marginBottom: '4px' },
+      width: '50%',
+    },
   }
 
   const optionsGroup: Field = {
     type: 'group',
     name: 'options',
     label: '',
-    fields: hasEnabledToggle ? [displayModeField, enabledField] : [displayModeField],
+    fields: [
+      {
+        type: 'row',
+        fields: hasEnabledToggle ? [enabledField, displayModeField] : [displayModeField],
+      },
+    ],
   }
 
   const linkField: Field = {

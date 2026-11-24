@@ -57,8 +57,10 @@ type LinkFieldsOptions = {
   newTabDefaultsToChecked?: boolean
   /** Custom admin Description component path for the label field */
   labelDescriptionComponent?: string
-  /** Custom Field component path for the link type. Replaces the radio and goes below the link's fields */
+  /** Custom Field component path for the link type */
   typeComponent?: string
+  /** Custom Field component path for the label */
+  labelComponent?: string
   /** Admin labels that differ from the defaults */
   labels?: { reference?: string; url?: string; label?: string }
 }
@@ -76,6 +78,7 @@ const buildLinkFields = ({
   newTabDefaultsToChecked = false,
   labelDescriptionComponent,
   typeComponent,
+  labelComponent,
   labels = {},
 }: LinkFieldsOptions = {}): Field[] => {
   const newTabField: Field = {
@@ -125,13 +128,10 @@ const buildLinkFields = ({
     type: 'text',
     admin: {
       width: '50%',
-      ...(labelDescriptionComponent
-        ? {
-            components: {
-              Description: labelDescriptionComponent,
-            },
-          }
-        : {}),
+      components: {
+        ...(labelDescriptionComponent ? { Description: labelDescriptionComponent } : {}),
+        ...(labelComponent ? { Field: labelComponent } : {}),
+      },
     },
     label: labels.label ?? 'Label',
     validate: validateLabel,
@@ -161,10 +161,7 @@ const buildLinkFields = ({
     fields: [referenceField, urlField, ...(includeLabel ? [labelField] : [])],
   }
 
-  return [
-    ...(typeComponent ? [destinationRow, typeRow] : [typeRow, destinationRow]),
-    ...(newTabDefaultsToChecked ? [newTabField] : []),
-  ]
+  return [typeRow, destinationRow, ...(newTabDefaultsToChecked ? [newTabField] : [])]
 }
 
 /**
@@ -188,6 +185,7 @@ export const linkField = ({
   newTabDefaultsToChecked = false,
   labelDescriptionComponent,
   typeComponent,
+  labelComponent,
   labels,
 }: LinkFieldOptions = {}): NamedGroupField => ({
   name: fieldName,
@@ -203,6 +201,7 @@ export const linkField = ({
     newTabDefaultsToChecked,
     labelDescriptionComponent,
     typeComponent,
+    labelComponent,
     labels,
   }),
 })

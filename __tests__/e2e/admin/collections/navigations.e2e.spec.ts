@@ -127,7 +127,10 @@ async function openLinkedEducationItem(page: Page) {
     .inputValue()
   // One picker per top-level item, in order
   const typePicker = (name: string) =>
-    page.getByRole('radio', { name }).or(page.getByRole('button', { name })).nth(index)
+    page
+      .locator('label')
+      .filter({ has: page.getByRole('radio', { name, exact: true }) })
+      .nth(index)
 
   return { doc, index, link, pageTitle, sectionName: linkLabel || pageTitle, typePicker }
 }
@@ -141,7 +144,7 @@ authTest.describe('Navigations item type picker', () => {
       const { index, link, pageTitle, sectionName, typePicker } =
         await openLinkedEducationItem(adminPage)
 
-      await typePicker('Section with sub-items').click()
+      await typePicker('Section').click()
 
       await expect(adminPage.locator(`#field-education__items__${index}__label`)).toHaveValue(
         sectionName,
@@ -152,7 +155,7 @@ authTest.describe('Navigations item type picker', () => {
       await expect(firstSubItem.locator('.relationship--single-value__text')).toHaveText(pageTitle)
       await expect(link).toBeHidden()
 
-      await typePicker('Link to a page').click()
+      await typePicker('Link').click()
 
       await expect(link.locator('.relationship--single-value__text')).toHaveText(pageTitle)
       await expect(adminPage.locator(`[id^="education-items-${index}-items-row-"]`)).toHaveCount(0)
@@ -164,7 +167,7 @@ authTest.describe('Navigations item type picker', () => {
     const reference = doc.education.items[index].link.reference
 
     try {
-      await typePicker('Section with sub-items').click()
+      await typePicker('Section').click()
       await expect(adminPage.locator(`#field-education__items__${index}__label`)).toHaveValue(
         sectionName,
       )

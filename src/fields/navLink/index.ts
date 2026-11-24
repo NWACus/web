@@ -5,6 +5,7 @@ export const navLink = linkField({
   newTabDefaultsToChecked: true,
   labelDescriptionComponent:
     '@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription',
-  typeComponent: '@/fields/navLink/components/LinkTypeSwitch#LinkTypeSwitch',
-  labels: { reference: 'Goes to', url: 'Web address', label: 'Menu text' },
+  typeComponent: '@/fields/navLink/components/LinkTypeRadio#LinkTypeRadio',
+  labelComponent: '@/fields/navLink/components/LinkLabelField#LinkLabelField',
+  labels: { reference: 'Page or post', url: 'Web address', label: 'Menu text' },
 })

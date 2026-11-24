@@ -1,17 +1,17 @@
 'use client'
 
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { IconRadioGroup, type IconRadioOption } from '@/components/IconRadioGroup'
 import { isRecord } from '@/utilities/isRecord'
 import { type NavItemType } from '@/utilities/navItemType'
-import { ConfirmationModal, FieldLabel, useForm, useFormFields, useModal } from '@payloadcms/ui'
-import { ListTree, SquareArrowOutUpRight } from 'lucide-react'
+import { ConfirmationModal, useForm, useFormFields, useModal } from '@payloadcms/ui'
+import { Link, ListTree } from 'lucide-react'
 import type { UIFieldClientProps } from 'payload'
 import { useState } from 'react'
 import { fetchReferenceTitle } from './referenceDoc'
 
-const options: { value: NavItemType; label: string; icon: typeof ListTree }[] = [
-  { value: 'link', label: 'Link to a page', icon: SquareArrowOutUpRight },
-  { value: 'section', label: 'Section with sub-items', icon: ListTree },
+const options: IconRadioOption<NavItemType>[] = [
+  { value: 'link', label: 'Link', icon: Link },
+  { value: 'section', label: 'Section', icon: ListTree },
 ]
 
 const LINK_KEYS = ['type', 'reference', 'url', 'label', 'newTab'] as const
@@ -125,34 +125,19 @@ export const ItemTypePicker = ({ path }: UIFieldClientProps) => {
     setConfirmMessage(undefined)
   }
 
-  // Clicking the current type emits ''
-  const onChange = (next: string) => {
-    if (next === 'section') toSection()
-    if (next === 'link') requestLink()
-  }
+  const onChange = (next: NavItemType) => (next === 'section' ? toSection() : requestLink())
 
   return (
-    <div className="mb-4">
-      <FieldLabel label="Type" />
-      <ToggleGroup
-        type="single"
-        value={subItemCount > 0 ? 'section' : 'link'}
-        onValueChange={onChange}
-        variant="outline"
-        className="justify-start"
-      >
-        {options.map(({ value, label, icon: Icon }) => (
-          <ToggleGroupItem
-            key={value}
-            value={value}
-            aria-label={label}
-            className="cursor-pointer gap-1.5"
-          >
-            <Icon style={{ width: '16px', height: '16px' }} />
-            {label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+    <>
+      <div className="mb-4">
+        <IconRadioGroup
+          name={path}
+          label="Type"
+          options={options}
+          value={subItemCount > 0 ? 'section' : 'link'}
+          onChange={onChange}
+        />
+      </div>
       {confirmMessage && (
         <ConfirmationModal
           modalSlug={modalSlug}
@@ -166,6 +151,6 @@ export const ItemTypePicker = ({ path }: UIFieldClientProps) => {
           }}
         />
       )}
-    </div>
+    </>
   )
 }
