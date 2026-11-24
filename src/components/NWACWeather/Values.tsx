@@ -193,14 +193,7 @@ function SnowLevelKey({ width }: { width?: string }) {
           <LevelMark snow />
           Snow level
         </span>
-        <span className="inline-flex items-center gap-1.5">
-          {/* An empty dashed box: what a dry block shows in the icon's place. */}
-          <span
-            aria-hidden="true"
-            className="size-3 rounded-sm border border-dashed border-current"
-          />
-          No icon: freezing level (no precipitation expected)
-        </span>
+        <span>No icon: freezing level</span>
       </span>
       <SegmentedBar
         colors={LEVEL_FILLS.map((f) => f.color)}
