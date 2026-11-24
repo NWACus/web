@@ -323,6 +323,34 @@ describe('OverallSectionTabs', () => {
     expect(within(nav).getByRole('link', { name: 'Extended' })).toBeInTheDocument()
   })
 
+  it.each([
+    ['side by side', 100, ["Temperatures @ 5000'", 'Ridgeline Winds']],
+    ['stacked', -400, ['Ridgeline Winds']],
+  ])('marks the sections at the top of the viewport when %s', (_, tempsTop, expected) => {
+    const tops: Record<string, number> = {
+      'afternoon-temps': tempsTop,
+      'afternoon-wind': 100,
+      'afternoon-extended': 900,
+    }
+    const headings = Object.entries(tops).map(([id, top]) => {
+      const el = document.createElement('h3')
+      el.id = id
+      el.getBoundingClientRect = () => new DOMRect(0, top, 0, 0)
+      document.body.append(el)
+      return el
+    })
+    const shown = jest
+      .spyOn(HTMLElement.prototype, 'offsetParent', 'get')
+      .mockReturnValue(document.body)
+    render(<OverallSectionTabs parts={overallParts(afternoon)} />)
+
+    const current = screen.getAllByRole('link').filter((l) => l.hasAttribute('aria-current'))
+    expect(current.map((l) => l.textContent)).toEqual(expected)
+
+    shown.mockRestore()
+    headings.forEach((h) => h.remove())
+  })
+
   it('leaves out Extended on a morning issuance', () => {
     render(<OverallSectionTabs parts={overallParts(morning)} />)
     expect(screen.queryByRole('link', { name: 'Extended' })).toBeNull()
