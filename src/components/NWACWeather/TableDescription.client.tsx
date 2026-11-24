@@ -44,9 +44,10 @@ export function TableDescription({
   const [open, setOpen] = shared ? [shared.open, shared.setOpen] : own
   return (
     <div className={className}>
-      <div className="flex items-end gap-4">
+      <div className="flex items-start gap-4 md:items-end">
         <div className="min-w-0 flex-1">{heading}</div>
-        {control && <div className="shrink-0 print:hidden">{control}</div>}
+        {/* The margin is the space above the capitals in the title's first line. */}
+        {control && <div className="mt-2 shrink-0 md:mt-0 print:hidden">{control}</div>}
       </div>
       <div
         className={cn(
