@@ -176,7 +176,7 @@ test.describe('Printing a forecast', () => {
     const announcement = page.getByRole('heading', { name: 'Backcountry Access Road Closure' })
     test.skip(
       (await announcement.count()) === 0,
-      'The seed gives announcements to nwac and dvac only, and neither renders a native forecast — no page in this suite has both a banner and the print control. Turns on if snfac is ever seeded one.',
+      'The seed gives announcements to dvac only, and it does not render a native forecast — no page in this suite has both a banner and the print control. Turns on if snfac is ever seeded one.',
     )
 
     // The banners sit beside the site `<header>` rather than inside it, so the rule that hides
