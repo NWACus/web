@@ -24,13 +24,25 @@ const plural = (count: number) => `${count} sub-item${count === 1 ? '' : 's'}`
 
 // Moves an item's link into a new first sub-item and back, editing form state directly
 const useItemTypeSwitch = (itemPath: string) => {
-  const { addFieldRow, dispatchFields, getDataByPath, removeFieldRow } = useForm()
+  const { addFieldRow, dispatchFields, getDataByPath, getField, removeFieldRow } = useForm()
   const labelPath = `${itemPath}.label`
   const subItemsPath = `${itemPath}.items`
   // An array field's form state value is its row count
   const subItemCount = useFormFields(([fields]) => Number(fields[subItemsPath]?.value) || 0)
 
   const update = (path: string, value: unknown) => dispatchFields({ type: 'UPDATE', path, value })
+  // The server decides which fields show, a form refresh after the switch. Setting visibility here
+  // swaps them right away. Whole field states are replaced, so this has to run before rows change.
+  const showFields = (visibility: Record<string, boolean>) =>
+    dispatchFields({
+      type: 'UPDATE_MANY',
+      formState: Object.fromEntries(
+        Object.entries(visibility).map(([name, passesCondition]) => [
+          `${itemPath}.${name}`,
+          { ...getField(`${itemPath}.${name}`), passesCondition },
+        ]),
+      ),
+    })
   const hasName = () => Boolean(getDataByPath(labelPath))
   const subItems = () => {
     const rows: unknown = getDataByPath(subItemsPath)
@@ -56,12 +68,25 @@ const useItemTypeSwitch = (itemPath: string) => {
           LINK_KEYS.map((key) => [`link.${key}`, { value: link[key], initialValue: link[key] }]),
         )
       : undefined
+    showFields({ label: true, items: true, link: false })
     addFieldRow({ path: subItemsPath, rowIndex: 0, schemaPath: subItemsPath, subFieldState })
     nameSection(link)
   }
 
   const toLink = () => {
     const first = firstLink()
+    const current = linkOf(getDataByPath(`${itemPath}.link`))
+    const isExternal = (hasDestination(first) ? first : current).type === 'external'
+    showFields({
+      label: false,
+      items: false,
+      link: true,
+      'link.type': true,
+      'link.label': true,
+      'link.reference': !isExternal,
+      'link.url': isExternal,
+      'link.newTab': isExternal,
+    })
     if (hasDestination(first))
       LINK_KEYS.forEach((key) => update(`${itemPath}.link.${key}`, first[key]))
     for (let row = subItemCount - 1; row >= 0; row--)
