@@ -1,6 +1,5 @@
 'use client'
 
-import { ChevronDown } from 'lucide-react'
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
 import { cn } from '@/utilities/ui'
@@ -49,8 +48,8 @@ export function TableDescription({
       </div>
       <div
         className={cn(
-          'relative flex min-h-11 gap-2 py-2 text-sm text-muted-foreground md:min-h-8 md:py-1',
-          open ? 'items-start' : 'items-center',
+          'relative min-h-11 py-2 text-sm text-muted-foreground md:min-h-8 md:py-1',
+          !open && 'flex items-center gap-2',
         )}
       >
         <p
@@ -62,16 +61,16 @@ export function TableDescription({
         >
           {children}
         </p>
-        {/* Its overlay makes the whole line the tap area, with a label shorter than the text. */}
+        {/* Its overlay makes the whole description the tap area. */}
         <button
           type="button"
           aria-expanded={open}
           aria-controls={descriptionId}
-          aria-label={`${open ? 'Hide' : 'Show'} full description: ${title}`}
           onClick={() => setOpen(!open)}
-          className="shrink-0 after:absolute after:inset-0 after:rounded-md after:content-[''] hover:text-foreground focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring print:hidden"
+          className="shrink-0 font-semibold text-primary after:absolute after:inset-0 after:rounded-md after:content-[''] hover:underline focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring print:hidden"
         >
-          <ChevronDown aria-hidden="true" className={cn('size-5', open && 'rotate-180')} />
+          {open ? 'Less' : 'More'}
+          <span className="sr-only"> about {title}</span>
         </button>
       </div>
     </div>

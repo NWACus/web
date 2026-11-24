@@ -248,8 +248,7 @@ describe('Overall extended section', () => {
 })
 
 describe('Overall table descriptions', () => {
-  const showButton = (table: string) =>
-    screen.getByRole('button', { name: `Show full description: ${table}` })
+  const showButton = (table: string) => screen.getByRole('button', { name: `More about ${table}` })
   it("shows each explanation's first line, with a legend where its cells need one", () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
@@ -265,7 +264,7 @@ describe('Overall table descriptions', () => {
     ]) {
       expect(text).toHaveClass('truncate')
     }
-    for (const button of screen.getAllByRole('button', { name: /^Show full description/ })) {
+    for (const button of screen.getAllByRole('button', { name: /^More about/ })) {
       expect(button).toHaveAttribute('aria-expanded', 'false')
     }
     expect(screen.getByText('VAR: variable')).toBeVisible()
@@ -278,7 +277,7 @@ describe('Overall table descriptions', () => {
 
     fireEvent.click(wind)
     expect(wind).toHaveAttribute('aria-expanded', 'true')
-    expect(wind).toHaveAccessibleName('Hide full description: Ridgeline Winds')
+    expect(wind).toHaveAccessibleName('Less about Ridgeline Winds')
     expect(wind).toHaveAttribute('aria-controls', description.id)
     expect(description).not.toHaveClass('truncate')
     expect(screen.getByText(/^The low and high temperature/)).toHaveClass('truncate')
@@ -291,13 +290,13 @@ describe('Overall table descriptions', () => {
   it('keeps the precipitation description open when switching to 24 hours', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     const [precip12] = screen.getAllByRole('button', {
-      name: 'Show full description: Precipitation and Snow',
+      name: 'More about Precipitation and Snow',
     })
     fireEvent.click(precip12)
     fireEvent.click(screen.getByRole('radio', { name: '24 hours' }))
     // Only the 24-hour table's button is shown now, and it is open too.
     const precip24 = screen.getByRole('button', {
-      name: 'Hide full description: Precipitation and Snow',
+      name: 'Less about Precipitation and Snow',
     })
     expect(precip24).not.toBe(precip12)
     expect(precip24).toHaveAttribute('aria-expanded', 'true')
