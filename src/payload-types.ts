@@ -2416,9 +2416,13 @@ export interface Navigation {
         }[]
       | null;
   };
-  observations?: {
+  weather?: {
     options?: {
       displayMode?: ('dropdown' | 'link' | 'button') | null;
+      /**
+       * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
+       */
+      enabled?: boolean | null;
     };
     link?: {
       reference?:
@@ -2504,13 +2508,9 @@ export interface Navigation {
         }[]
       | null;
   };
-  weather?: {
+  observations?: {
     options?: {
       displayMode?: ('dropdown' | 'link' | 'button') | null;
-      /**
-       * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
-       */
-      enabled?: boolean | null;
     };
     link?: {
       reference?:
@@ -4821,13 +4821,14 @@ export interface NavigationsSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  observations?:
+  weather?:
     | T
     | {
         options?:
           | T
           | {
               displayMode?: T;
+              enabled?: T;
             };
         link?:
           | T
@@ -4868,14 +4869,13 @@ export interface NavigationsSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  weather?:
+  observations?:
     | T
     | {
         options?:
           | T
           | {
               displayMode?: T;
-              enabled?: T;
             };
         link?:
           | T

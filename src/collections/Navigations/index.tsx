@@ -43,11 +43,11 @@ export const Navigations: CollectionConfig = {
           hasEnabledToggle: false,
         }),
         navTab({
-          name: 'observations',
-          hasEnabledToggle: false,
+          name: 'weather',
         }),
         navTab({
-          name: 'weather',
+          name: 'observations',
+          hasEnabledToggle: false,
         }),
         navTab({
           name: 'education',
