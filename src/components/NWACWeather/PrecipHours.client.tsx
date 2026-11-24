@@ -2,7 +2,7 @@
 
 /**
  * The 12 / 24 hour switch on the precipitation and snow table: both tables are rendered, and the
- * switch shows one. It sits at the right of the title.
+ * switch shows one. It sits above the days on a phone, and at the right of the title from md up.
  */
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
@@ -53,7 +53,7 @@ export function PrecipHoursToggle() {
       value={hours}
       // Radix sends '' when the pressed item is pressed again; keep the switch on a value.
       onValueChange={(value) => isHours(value) && setHours(value)}
-      className="inline-flex shrink-0 gap-0 overflow-hidden rounded-md border text-sm font-semibold"
+      className="flex gap-0 overflow-hidden md:inline-flex rounded-md border text-sm font-semibold"
     >
       {OPTIONS.map((o, i) => (
         <ToggleGroupItem
@@ -62,7 +62,7 @@ export function PrecipHoursToggle() {
           aria-label={o.name}
           size="sm"
           className={cn(
-            'h-8 min-w-0 rounded-none bg-background px-3 text-sm font-semibold text-foreground hover:bg-muted',
+            'h-8 min-w-0 flex-1 rounded-none bg-background px-3 text-sm font-semibold text-foreground hover:bg-muted',
             'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
             i > 0 && 'border-l',
           )}
