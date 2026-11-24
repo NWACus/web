@@ -26,7 +26,6 @@ export function TableDescription({
   title,
   descriptionId,
   control,
-  className,
   children,
 }: {
   heading: ReactNode
@@ -35,7 +34,6 @@ export function TableDescription({
   descriptionId: string
   /** At the right of the title. */
   control?: ReactNode
-  className?: string
   /** Text, with at most inline elements. */
   children: ReactNode
 }) {
@@ -43,7 +41,7 @@ export function TableDescription({
   const shared = useContext(SharedOpenContext)
   const [open, setOpen] = shared ? [shared.open, shared.setOpen] : own
   return (
-    <div className={className}>
+    <div>
       <div className="flex items-start gap-4 md:items-end">
         <div className="min-w-0 flex-1">{heading}</div>
         {/* The margin is the space above the capitals in the title's first line. */}

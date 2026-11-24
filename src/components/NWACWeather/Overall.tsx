@@ -881,7 +881,6 @@ function TableTitle({
       title={t.title}
       descriptionId={`${headingId}-description`}
       control={t.control}
-      className={cn(t.paired && 'xl:pb-3')}
     >
       {t.description}
     </TableDescription>
@@ -978,33 +977,35 @@ function GridTable({
       className={cn(
         'min-w-0 space-y-2',
         // Shares the pair's rows, so the tables start together whichever description is open.
-        t.paired && 'xl:row-span-3 xl:grid xl:grid-cols-1 xl:grid-rows-subgrid xl:space-y-0',
+        t.paired && 'xl:row-span-2 xl:grid xl:grid-cols-1 xl:grid-rows-subgrid xl:space-y-0',
       )}
     >
       <TableTitle table={t} headingId={headingId} Heading={headingLevel} />
-      <div className="hidden min-w-0 md:block print:block">
-        <TableBox table={t} />
+      <div className="min-w-0 space-y-2">
+        <div className="hidden min-w-0 md:block print:block">
+          <TableBox table={t} />
+        </div>
+        {t.fitsPhone ? (
+          <TableBox
+            table={{ ...t, narrow: true, control: undefined }}
+            className="md:hidden print:hidden"
+          />
+        ) : (
+          <DaySwitch
+            label={t.title}
+            className="md:hidden print:hidden"
+            days={dayTables(t).map((d) => ({
+              key: d.key,
+              label: d.label,
+              short: t.control ? shortDay(d.label) : undefined,
+              // "Thu Oct 15 – Fri Oct 16" → its two dates; a single date stays one.
+              covers: d.label.split(' – '),
+              content: <TableBox table={{ ...d.table, control: undefined }} />,
+            }))}
+          />
+        )}
+        {t.legend}
       </div>
-      {t.fitsPhone ? (
-        <TableBox
-          table={{ ...t, narrow: true, control: undefined }}
-          className="md:hidden print:hidden"
-        />
-      ) : (
-        <DaySwitch
-          label={t.title}
-          className="md:hidden print:hidden"
-          days={dayTables(t).map((d) => ({
-            key: d.key,
-            label: d.label,
-            short: t.control ? shortDay(d.label) : undefined,
-            // "Thu Oct 15 – Fri Oct 16" → its two dates; a single date stays one.
-            covers: d.label.split(' – '),
-            content: <TableBox table={{ ...d.table, control: undefined }} />,
-          }))}
-        />
-      )}
-      {t.legend}
     </section>
   )
 }
