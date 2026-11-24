@@ -219,7 +219,7 @@ describe('WidgetZoneWeather', () => {
           window,
           new HashChangeEvent('hashchange', { oldURL: `http://localhost${PAGE}#/olympics` }),
         )
-        expect(scrollIntoView).toHaveBeenCalledTimes(1)
+        await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1))
         expect(window.location.hash).toBe('#/olympics')
         expect(router).not.toHaveBeenCalled()
       } finally {
