@@ -31,6 +31,7 @@ import {
   type DangerOverTime,
   type ZoneDangerOverTime,
 } from '@/services/nac/forecastArchive'
+import { saveCsv, saveUrl } from '@/utilities/export/saveFile'
 
 import { dangerCsv, dangerExportFilename } from './dangerOverTimeExport'
 import { buildDangerOverTimeOption, DANGER_CHART_HEIGHT } from './dangerOverTimeOptions'
@@ -60,17 +61,6 @@ export function DangerOverTimeCharts({ data }: DangerOverTimeChartsProps) {
       ))}
     </ul>
   )
-}
-
-/** Save a URL as `filename`. */
-function saveUrl(url: string, filename: string) {
-  const link = document.createElement('a')
-  link.download = filename
-  link.href = url
-  // Firefox only follows a click on an anchor that is in the document.
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
 }
 
 function ZoneDangerCard({
@@ -165,12 +155,7 @@ function ZoneExportMenu({
   }
 
   const downloadCsv = () => {
-    const url = URL.createObjectURL(
-      new Blob([dangerCsv(points, extent)], { type: 'text/csv;charset=utf-8' }),
-    )
-    saveUrl(url, dangerExportFilename(zone.slug, extent, 'csv'))
-    // Revoking in the same tick can cancel the save.
-    setTimeout(() => URL.revokeObjectURL(url), 0)
+    saveCsv(dangerCsv(points, extent), dangerExportFilename(zone.slug, extent, 'csv'))
   }
 
   return (
