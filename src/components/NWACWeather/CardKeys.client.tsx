@@ -7,18 +7,15 @@ import { cn } from '@/utilities/ui'
 
 import { PhoneKey, type PhoneKeyKind } from './Values'
 
-type OpenKey = { kind: PhoneKeyKind; hit: number | null }
-
 const CardKeyContext = createContext<{
-  open: OpenKey | null
-  toggle: (kind: PhoneKeyKind, hit?: number | null) => void
+  open: PhoneKeyKind | null
+  toggle: (kind: PhoneKeyKind) => void
 } | null>(null)
 
-/** A phone card's keys: one open at a time, under its row, with the tapped value's step marked. */
+/** A phone card's keys: one open at a time, under the label that opened it. */
 export function CardKeys({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState<OpenKey | null>(null)
-  const toggle = (kind: PhoneKeyKind, hit: number | null = null) =>
-    setOpen((cur) => (cur?.kind === kind && cur.hit === hit ? null : { kind, hit }))
+  const [open, setOpen] = useState<PhoneKeyKind | null>(null)
+  const toggle = (kind: PhoneKeyKind) => setOpen((cur) => (cur === kind ? null : kind))
   return <CardKeyContext.Provider value={{ open, toggle }}>{children}</CardKeyContext.Provider>
 }
 
@@ -28,54 +25,48 @@ function useCardKeys() {
   return ctx
 }
 
-/** Opens `kind`'s key: a row label with a trailing info icon, or a value marking its `hit` step. */
+/** A label with a trailing info icon that toggles `kind`'s key; fills its cell (`h-px p-0`). */
 export function KeyButton({
   kind,
-  hit,
   unit,
   unitBelow = false,
   className,
   children,
 }: {
   kind: PhoneKeyKind
-  hit?: number | null
-  /** A label's unit, on one line with the icon: the space before it is where a label wraps. */
-  unit?: string
+  /** On one line with the icon: the space before it is where a label wraps. */
+  unit: string
   /** The unit and icon on their own centered line, as in a column head. */
   unitBelow?: boolean
   className?: string
   children: ReactNode
 }) {
   const { open, toggle } = useCardKeys()
-  const label = hit === undefined
   return (
     <button
       type="button"
-      aria-expanded={open?.kind === kind}
-      onClick={() => toggle(kind, hit)}
+      aria-expanded={open === kind}
+      onClick={() => toggle(kind)}
       className={cn(
-        label ? (unitBelow ? 'text-center' : 'text-left') : 'block w-full',
-        label && 'font-semibold',
+        'flex h-full min-h-11 w-full items-center font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+        unitBelow ? 'justify-center text-center' : 'text-left',
         className,
       )}
     >
-      {children}
-      {label && (
-        <>
-          {' '}
-          <span className={cn('whitespace-nowrap', unitBelow && 'block')}>
-            {unit && <span className="font-normal text-muted-foreground">({unit})</span>}
-            <Info
-              aria-hidden="true"
-              className={cn(
-                'ml-1 inline-block size-3.5 align-[-0.125em]',
-                open?.kind === kind ? 'text-primary' : 'text-muted-foreground',
-              )}
-            />
-            <span className="sr-only"> key</span>
-          </span>
-        </>
-      )}
+      <span>
+        {children}{' '}
+        <span className={cn('whitespace-nowrap', unitBelow && 'block')}>
+          <span className="font-normal text-muted-foreground">({unit})</span>
+          <Info
+            aria-hidden="true"
+            className={cn(
+              'ml-1 inline-block size-3.5 align-[-0.125em]',
+              open === kind ? 'text-primary' : 'text-muted-foreground',
+            )}
+          />
+          <span className="sr-only"> key</span>
+        </span>
+      </span>
     </button>
   )
 }
@@ -83,11 +74,11 @@ export function KeyButton({
 /** `kind`'s key across the card, while it's open. */
 export function KeyRow({ kind, colSpan }: { kind: PhoneKeyKind; colSpan: number }) {
   const { open } = useCardKeys()
-  if (open?.kind !== kind) return null
+  if (open !== kind) return null
   return (
     <tr>
-      <td colSpan={colSpan} className="border-t bg-muted/40 px-3 py-2">
-        <PhoneKey kind={kind} hit={open.hit} />
+      <td colSpan={colSpan} className="border-t bg-muted px-3 py-2">
+        <PhoneKey kind={kind} />
       </td>
     </tr>
   )
