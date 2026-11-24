@@ -54,7 +54,7 @@ const subItems: Field = {
       RowLabel: '@/components/Navigations/NavItemRowLabel#NavItemRowLabel',
     },
   },
-  fields: [navLink],
+  fields: [{ ...navLink, label: '' }],
 }
 
 export const itemsField = ({
@@ -83,6 +83,7 @@ export const itemsField = ({
         sectionLabel,
         {
           ...navLink,
+          label: '',
           admin: {
             ...navLink.admin,
             condition: isLink,

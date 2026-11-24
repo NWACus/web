@@ -57,6 +57,10 @@ type LinkFieldsOptions = {
   newTabDefaultsToChecked?: boolean
   /** Custom admin Description component path for the label field */
   labelDescriptionComponent?: string
+  /** Custom Field component path for the link type. Replaces the radio and goes below the link's fields */
+  typeComponent?: string
+  /** Admin labels that differ from the defaults */
+  labels?: { reference?: string; url?: string; label?: string }
 }
 
 type LinkFieldOptions = LinkFieldsOptions & {
@@ -71,6 +75,8 @@ const buildLinkFields = ({
   includeLabel = false,
   newTabDefaultsToChecked = false,
   labelDescriptionComponent,
+  typeComponent,
+  labels = {},
 }: LinkFieldsOptions = {}): Field[] => {
   const newTabField: Field = {
     name: 'newTab',
@@ -95,10 +101,13 @@ const buildLinkFields = ({
     label: 'Open in new tab',
   }
 
-  const referenceField = linkReferenceField({
-    name: 'reference',
-    condition: (_, siblingData) => siblingData?.type === 'internal',
-  })
+  const referenceField: Field = {
+    ...linkReferenceField({
+      name: 'reference',
+      condition: (_, siblingData) => siblingData?.type === 'internal',
+    }),
+    ...(labels.reference ? { label: labels.reference } : {}),
+  }
 
   const urlField: Field = {
     name: 'url',
@@ -107,7 +116,7 @@ const buildLinkFields = ({
       condition: (_, siblingData) => siblingData?.type === 'external',
       width: '100%',
     },
-    label: 'External URL',
+    label: labels.url ?? 'External URL',
     validate: validateExternalUrl,
   }
 
@@ -124,34 +133,36 @@ const buildLinkFields = ({
           }
         : {}),
     },
-    label: 'Label',
+    label: labels.label ?? 'Label',
     validate: validateLabel,
   }
 
+  const typeField: Field = {
+    name: 'type',
+    type: 'radio',
+    admin: {
+      layout: 'horizontal',
+      width: '50%',
+      ...(typeComponent ? { components: { Field: typeComponent } } : {}),
+    },
+    defaultValue: 'internal',
+    options: [
+      { label: 'Internal link', value: 'internal' },
+      { label: 'External link', value: 'external' },
+    ],
+  }
+
+  const typeRow: Field = {
+    type: 'row',
+    fields: [typeField, ...(newTabDefaultsToChecked ? [] : [newTabField])],
+  }
+  const destinationRow: Field = {
+    type: 'row',
+    fields: [referenceField, urlField, ...(includeLabel ? [labelField] : [])],
+  }
+
   return [
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'type',
-          type: 'radio',
-          admin: {
-            layout: 'horizontal',
-            width: '50%',
-          },
-          defaultValue: 'internal',
-          options: [
-            { label: 'Internal link', value: 'internal' },
-            { label: 'External link', value: 'external' },
-          ],
-        },
-        ...(newTabDefaultsToChecked ? [] : [newTabField]),
-      ],
-    },
-    {
-      type: 'row',
-      fields: [referenceField, urlField, ...(includeLabel ? [labelField] : [])],
-    },
+    ...(typeComponent ? [destinationRow, typeRow] : [typeRow, destinationRow]),
     ...(newTabDefaultsToChecked ? [newTabField] : []),
   ]
 }
@@ -176,6 +187,8 @@ export const linkField = ({
   includeLabel = false,
   newTabDefaultsToChecked = false,
   labelDescriptionComponent,
+  typeComponent,
+  labels,
 }: LinkFieldOptions = {}): NamedGroupField => ({
   name: fieldName,
   type: 'group',
@@ -185,7 +198,13 @@ export const linkField = ({
   hooks: {
     beforeChange: [clearIrrelevantLinkValues],
   },
-  fields: buildLinkFields({ includeLabel, newTabDefaultsToChecked, labelDescriptionComponent }),
+  fields: buildLinkFields({
+    includeLabel,
+    newTabDefaultsToChecked,
+    labelDescriptionComponent,
+    typeComponent,
+    labels,
+  }),
 })
 
 /**

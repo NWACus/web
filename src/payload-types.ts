@@ -2333,7 +2333,6 @@ export interface Navigation {
       displayMode?: ('dropdown' | 'link' | 'button') | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -2353,11 +2352,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Forecasts
-     */
     items?:
       | {
           /**
@@ -2365,7 +2362,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -2385,12 +2381,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -2410,6 +2406,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -2424,7 +2421,6 @@ export interface Navigation {
       displayMode?: ('dropdown' | 'link' | 'button') | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -2444,11 +2440,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Observations
-     */
     items?:
       | {
           /**
@@ -2456,7 +2450,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -2476,12 +2469,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -2501,6 +2494,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -2519,7 +2513,6 @@ export interface Navigation {
       enabled?: boolean | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -2539,11 +2532,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Weather
-     */
     items?:
       | {
           /**
@@ -2551,7 +2542,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -2571,12 +2561,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -2596,6 +2586,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -2614,7 +2605,6 @@ export interface Navigation {
       enabled?: boolean | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -2634,11 +2624,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Education
-     */
     items?:
       | {
           /**
@@ -2646,7 +2634,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -2666,12 +2653,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -2691,6 +2678,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -2709,7 +2697,6 @@ export interface Navigation {
       enabled?: boolean | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -2729,11 +2716,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Accidents
-     */
     items?:
       | {
           /**
@@ -2741,7 +2726,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -2761,12 +2745,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -2786,6 +2770,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -2804,7 +2789,6 @@ export interface Navigation {
       enabled?: boolean | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -2824,11 +2808,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Blog
-     */
     items?:
       | {
           /**
@@ -2836,7 +2818,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -2856,12 +2837,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -2881,6 +2862,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -2899,7 +2881,6 @@ export interface Navigation {
       enabled?: boolean | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -2919,11 +2900,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Events
-     */
     items?:
       | {
           /**
@@ -2931,7 +2910,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -2951,12 +2929,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -2976,6 +2954,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -2994,7 +2973,6 @@ export interface Navigation {
       enabled?: boolean | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -3014,11 +2992,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under About
-     */
     items?:
       | {
           /**
@@ -3026,7 +3002,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -3046,12 +3021,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -3071,6 +3046,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -3089,7 +3065,6 @@ export interface Navigation {
       enabled?: boolean | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -3109,11 +3084,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Support
-     */
     items?:
       | {
           /**
@@ -3121,7 +3094,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -3141,12 +3113,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -3166,6 +3138,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -3184,7 +3157,6 @@ export interface Navigation {
       enabled?: boolean | null;
     };
     link?: {
-      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -3204,11 +3176,9 @@ export interface Navigation {
           } | null);
       url?: string | null;
       label?: string | null;
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Donate
-     */
     items?:
       | {
           /**
@@ -3216,7 +3186,6 @@ export interface Navigation {
            */
           label?: string | null;
           link?: {
-            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -3236,12 +3205,12 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label?: string | null;
+            type?: ('internal' | 'external') | null;
             newTab?: boolean | null;
           };
           items?:
             | {
                 link?: {
-                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -3261,6 +3230,7 @@ export interface Navigation {
                       } | null);
                   url?: string | null;
                   label?: string | null;
+                  type?: ('internal' | 'external') | null;
                   newTab?: boolean | null;
                 };
                 id?: string | null;
@@ -4815,10 +4785,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -4828,10 +4798,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -4840,10 +4810,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;
@@ -4862,10 +4832,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -4875,10 +4845,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -4887,10 +4857,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;
@@ -4910,10 +4880,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -4923,10 +4893,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -4935,10 +4905,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;
@@ -4958,10 +4928,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -4971,10 +4941,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -4983,10 +4953,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;
@@ -5006,10 +4976,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -5019,10 +4989,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -5031,10 +5001,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;
@@ -5054,10 +5024,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -5067,10 +5037,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -5079,10 +5049,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;
@@ -5102,10 +5072,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -5115,10 +5085,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -5127,10 +5097,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;
@@ -5150,10 +5120,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -5163,10 +5133,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -5175,10 +5145,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;
@@ -5198,10 +5168,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -5211,10 +5181,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -5223,10 +5193,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;
@@ -5246,10 +5216,10 @@ export interface NavigationsSelect<T extends boolean = true> {
         link?:
           | T
           | {
-              type?: T;
               reference?: T;
               url?: T;
               label?: T;
+              type?: T;
               newTab?: T;
             };
         items?:
@@ -5259,10 +5229,10 @@ export interface NavigationsSelect<T extends boolean = true> {
               link?:
                 | T
                 | {
-                    type?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    type?: T;
                     newTab?: T;
                   };
               items?:
@@ -5271,10 +5241,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                     link?:
                       | T
                       | {
-                          type?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          type?: T;
                           newTab?: T;
                         };
                     id?: T;

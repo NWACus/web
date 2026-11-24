@@ -42,6 +42,7 @@ export const navTab = ({
   const displayModeField: Field = {
     name: 'displayMode',
     type: 'select',
+    label: 'Show as',
     defaultValue: defaultMode,
     options: MODE_OPTIONS,
     admin: {
@@ -62,6 +63,7 @@ export const navTab = ({
   const optionsGroup: Field = {
     type: 'group',
     name: 'options',
+    label: '',
     fields: hasEnabledToggle ? [displayModeField, enabledField] : [displayModeField],
   }
 
@@ -78,8 +80,7 @@ export const navTab = ({
   }
 
   const items: Field = itemsField({
-    label: `${toWords(name)} Nav Items`,
-    description: `Dropdown items under ${toWords(name)}`,
+    label: `${toWords(name)} menu`,
     overrides: {
       admin: {
         condition: (_, siblingData) => getMode(siblingData) === 'dropdown',
