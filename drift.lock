@@ -1608,7 +1608,7 @@ sig = "b7ee1c15e57e0bab"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/app/(payload)/layout.tsx"
-sig = "7da7ca065ec53d40"
+sig = "dc520479667b002a"
 
 [[bindings]]
 doc = "docs/error-tracking.md"

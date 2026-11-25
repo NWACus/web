@@ -6,6 +6,7 @@ import { handleServerFunctions, RootLayout } from '@payloadcms/next/layouts'
 import type { ServerFunctionClient } from 'payload'
 import React from 'react'
 
+import { AdminSessionMarker } from '@/components/AdminSessionMarker.client'
 import { PostHogAdminIdentity } from '@/components/PostHogAdminIdentity.client'
 import { PostHogProvider } from '@/providers/PostHogProvider'
 import { importMap } from './admin/importMap.js'
@@ -26,6 +27,7 @@ const serverFunction: ServerFunctionClient = async function (args) {
 
 const Layout = ({ children }: Args) => (
   <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
+    <AdminSessionMarker />
     <PostHogProvider>
       <PostHogAdminIdentity />
       {children}

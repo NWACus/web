@@ -8,6 +8,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 import { useTenant } from '@/providers/TenantProvider'
+import { clearAdminSessionMarker, hasAdminSessionMarker } from '@/utilities/adminSessionMarker'
 import { getURL } from '@/utilities/getURL'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import './index.scss'
@@ -21,10 +22,17 @@ const ADMIN_BAR_HEIGHT = 36
 export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
   const { adminBarProps } = props || {}
   const [show, setShow] = useState(false)
+  const [mayBeLoggedIn, setMayBeLoggedIn] = useState(false)
   const router = useRouter()
 
   const onAuthChange = React.useCallback((user: PayloadMeUser) => {
     setShow(!!user?.id)
+    // undefined means the request hasn't resolved (or failed); only null is a definite logged out
+    if (user === null) clearAdminSessionMarker()
+  }, [])
+
+  React.useEffect(() => {
+    setMayBeLoggedIn(hasAdminSessionMarker())
   }, [])
 
   // The sticky mobile header reads this to park itself below the admin bar instead of under it.
@@ -42,7 +50,8 @@ export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
   const { tenant } = useTenant()
   const hostname = getHostnameFromTenant(tenant)
 
-  if (pathname.startsWith('/embeds')) {
+  // PayloadAdminBar requests /api/users/me on mount, so anonymous visitors must never mount it.
+  if (pathname.startsWith('/embeds') || (!mayBeLoggedIn && !adminBarProps?.preview)) {
     return null
   }
 
