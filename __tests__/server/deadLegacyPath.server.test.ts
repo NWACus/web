@@ -11,15 +11,12 @@ describe('isDeadLegacyPath', () => {
     '/weather-station-map',
     '/classes-events/list/',
     '/classes-events/category/class/list/',
-    '/data-portal/csv/q',
     '/forecasts/tabs/bottom-line',
     '/FAQ',
     '/ie-incompatible.html',
     '/wp-admin',
     '/wp-content/uploads/2019/01/photo.jpg',
     '/xmlrpc.php',
-    '/apple-touch-icon.png',
-    '/apple-touch-icon-precomposed.png',
     '/apple-touch-icon-120x120.png',
   ])('matches %s', (pathname) => {
     expect(isDeadLegacyPath(pathname)).toBe(true)
@@ -37,6 +34,11 @@ describe('isDeadLegacyPath', () => {
     '/events',
     '/feeds-and-speeds',
     '/rss.xml',
+    '/sitemap.xml',
+    '/data-portal/csv/q',
+    '/favicon.ico',
+    '/apple-touch-icon.png',
+    '/apple-touch-icon-precomposed.png',
   ])('does not match %s', (pathname) => {
     expect(isDeadLegacyPath(pathname)).toBe(false)
   })
