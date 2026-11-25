@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { getCenterSettings } from '@/utilities/getCenterSettings'
 import { getImageWidthFromMaxHeight } from '@/utilities/getImageWidthFromMaxHeight'
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
@@ -14,17 +15,7 @@ export async function Header({ center }: { center: string }) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
 
-  const settingsRes = await payload.find({
-    collection: 'settings',
-    depth: 99,
-    where: {
-      'tenant.slug': {
-        equals: center,
-      },
-    },
-  })
-
-  const settings = settingsRes.docs[0]
+  const settings = await getCenterSettings(center)
 
   invariant(settings, `Settings for center value ${center} not found.`)
 

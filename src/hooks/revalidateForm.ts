@@ -1,5 +1,6 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
+import { revalidateTenantSettings } from '@/utilities/revalidateCenterSettings'
 import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 
 async function revalidate(docId: number) {
@@ -19,4 +20,5 @@ export const revalidateFormDelete: CollectionAfterDeleteHook = async ({
   if (context.disableRevalidate) return
 
   await revalidate(doc.id)
+  await revalidateTenantSettings(doc.tenant)
 }

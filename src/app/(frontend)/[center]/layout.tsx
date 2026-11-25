@@ -11,12 +11,12 @@ import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
 import { NACWidgetsConfigProvider } from '@/providers/NACWidgetsConfigProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { getCenterSettings } from '@/utilities/getCenterSettings'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { getMediaURL, getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
-import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { cn } from '@/utilities/ui'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
@@ -57,18 +57,9 @@ export default async function RootLayout({ children, params }: Args) {
     notFound()
   }
 
-  const payload = await getPayload({ config: configPromise })
-  const tenantsRes = await payload.find({
-    collection: 'tenants',
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
-  const tenant = tenantsRes.docs.length >= 1 ? tenantsRes.docs[0] : null
+  const settings = await getCenterSettings(center)
 
-  if (!tenant) {
+  if (!settings) {
     notFound()
   }
 
@@ -81,7 +72,7 @@ export default async function RootLayout({ children, params }: Args) {
   const nacWidgetsConfig = await getNACWidgetsConfig()
 
   return (
-    <TenantProvider tenant={tenant}>
+    <TenantProvider tenant={settings.tenant}>
       <PostHogCenterRegister />
       <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
         <NACWidgetsConfigProvider config={nacWidgetsConfig}>
@@ -100,44 +91,16 @@ export default async function RootLayout({ children, params }: Args) {
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
   const { center } = await params
 
-  const settingsRes = await payload.find({
-    collection: 'settings',
-    depth: 1,
-    where: {
-      'tenant.slug': {
-        equals: center,
-      },
-    },
-    populate: {
-      tenants: {
-        slug: true,
-        name: true,
-      },
-    },
-  })
-
-  const settings = settingsRes.docs[0]
+  const settings = await getCenterSettings(center)
   if (!settings) {
     return {
       title: 'Not found',
     }
   }
 
-  const tenant = await resolveTenant(settings.tenant, {
-    select: {
-      name: true,
-    },
-  })
-
-  if (!tenant) {
-    return {
-      title: 'Not found',
-    }
-  }
-
+  const { tenant } = settings
   const hostname = getHostnameFromTenant(tenant)
   const serverURL = getURL(hostname)
 
