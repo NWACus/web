@@ -57,6 +57,12 @@ type LinkFieldsOptions = {
   newTabDefaultsToChecked?: boolean
   /** Custom admin Description component path for the label field */
   labelDescriptionComponent?: string
+  /** Custom Field component path for the link type */
+  typeComponent?: string
+  /** Custom Field component path for the label */
+  labelComponent?: string
+  /** Admin labels that differ from the defaults */
+  labels?: { reference?: string; url?: string; label?: string }
 }
 
 type LinkFieldOptions = LinkFieldsOptions & {
@@ -71,6 +77,9 @@ const buildLinkFields = ({
   includeLabel = false,
   newTabDefaultsToChecked = false,
   labelDescriptionComponent,
+  typeComponent,
+  labelComponent,
+  labels = {},
 }: LinkFieldsOptions = {}): Field[] => {
   const newTabField: Field = {
     name: 'newTab',
@@ -95,10 +104,13 @@ const buildLinkFields = ({
     label: 'Open in new tab',
   }
 
-  const referenceField = linkReferenceField({
-    name: 'reference',
-    condition: (_, siblingData) => siblingData?.type === 'internal',
-  })
+  const referenceField: Field = {
+    ...linkReferenceField({
+      name: 'reference',
+      condition: (_, siblingData) => siblingData?.type === 'internal',
+    }),
+    ...(labels.reference ? { label: labels.reference } : {}),
+  }
 
   const urlField: Field = {
     name: 'url',
@@ -107,7 +119,7 @@ const buildLinkFields = ({
       condition: (_, siblingData) => siblingData?.type === 'external',
       width: '100%',
     },
-    label: 'External URL',
+    label: labels.url ?? 'External URL',
     validate: validateExternalUrl,
   }
 
@@ -116,44 +128,40 @@ const buildLinkFields = ({
     type: 'text',
     admin: {
       width: '50%',
-      ...(labelDescriptionComponent
-        ? {
-            components: {
-              Description: labelDescriptionComponent,
-            },
-          }
-        : {}),
+      components: {
+        ...(labelDescriptionComponent ? { Description: labelDescriptionComponent } : {}),
+        ...(labelComponent ? { Field: labelComponent } : {}),
+      },
     },
-    label: 'Label',
+    label: labels.label ?? 'Label',
     validate: validateLabel,
   }
 
-  return [
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'type',
-          type: 'radio',
-          admin: {
-            layout: 'horizontal',
-            width: '50%',
-          },
-          defaultValue: 'internal',
-          options: [
-            { label: 'Internal link', value: 'internal' },
-            { label: 'External link', value: 'external' },
-          ],
-        },
-        ...(newTabDefaultsToChecked ? [] : [newTabField]),
-      ],
+  const typeField: Field = {
+    name: 'type',
+    type: 'radio',
+    admin: {
+      layout: 'horizontal',
+      width: '50%',
+      ...(typeComponent ? { components: { Field: typeComponent } } : {}),
     },
-    {
-      type: 'row',
-      fields: [referenceField, urlField, ...(includeLabel ? [labelField] : [])],
-    },
-    ...(newTabDefaultsToChecked ? [newTabField] : []),
-  ]
+    defaultValue: 'internal',
+    options: [
+      { label: 'Internal link', value: 'internal' },
+      { label: 'External link', value: 'external' },
+    ],
+  }
+
+  const typeRow: Field = {
+    type: 'row',
+    fields: [typeField, ...(newTabDefaultsToChecked ? [] : [newTabField])],
+  }
+  const destinationRow: Field = {
+    type: 'row',
+    fields: [referenceField, urlField, ...(includeLabel ? [labelField] : [])],
+  }
+
+  return [typeRow, destinationRow, ...(newTabDefaultsToChecked ? [newTabField] : [])]
 }
 
 /**
@@ -176,6 +184,9 @@ export const linkField = ({
   includeLabel = false,
   newTabDefaultsToChecked = false,
   labelDescriptionComponent,
+  typeComponent,
+  labelComponent,
+  labels,
 }: LinkFieldOptions = {}): NamedGroupField => ({
   name: fieldName,
   type: 'group',
@@ -185,7 +196,14 @@ export const linkField = ({
   hooks: {
     beforeChange: [clearIrrelevantLinkValues],
   },
-  fields: buildLinkFields({ includeLabel, newTabDefaultsToChecked, labelDescriptionComponent }),
+  fields: buildLinkFields({
+    includeLabel,
+    newTabDefaultsToChecked,
+    labelDescriptionComponent,
+    typeComponent,
+    labelComponent,
+    labels,
+  }),
 })
 
 /**

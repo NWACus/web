@@ -42,13 +42,10 @@ export const navTab = ({
   const displayModeField: Field = {
     name: 'displayMode',
     type: 'select',
+    label: 'Show as',
     defaultValue: defaultMode,
     options: MODE_OPTIONS,
-    admin: {
-      components: {
-        Field: '@/components/Navigations/DisplayModePicker',
-      },
-    },
+    admin: { isClearable: false, style: { flex: '0 0 auto', minWidth: '160px' } },
   }
 
   const enabledField: Field = {
@@ -56,13 +53,23 @@ export const navTab = ({
     defaultValue: true,
     name: 'enabled',
     label: 'Show in navigation',
-    admin: { description: enabledToggleDescription },
+    admin: {
+      description: enabledToggleDescription,
+      style: { alignSelf: 'flex-end', marginBottom: '4px' },
+      width: '50%',
+    },
   }
 
   const optionsGroup: Field = {
     type: 'group',
     name: 'options',
-    fields: hasEnabledToggle ? [displayModeField, enabledField] : [displayModeField],
+    label: '',
+    fields: [
+      {
+        type: 'row',
+        fields: hasEnabledToggle ? [enabledField, displayModeField] : [displayModeField],
+      },
+    ],
   }
 
   const linkField: Field = {
@@ -78,8 +85,7 @@ export const navTab = ({
   }
 
   const items: Field = itemsField({
-    label: `${toWords(name)} Nav Items`,
-    description: `Dropdown items under ${toWords(name)}`,
+    label: `${toWords(name)} menu`,
     overrides: {
       admin: {
         condition: (_, siblingData) => getMode(siblingData) === 'dropdown',

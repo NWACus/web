@@ -3,13 +3,6 @@
 /** A phone's way through a table's dates: one date's columns at a time, so nothing scrolls. */
 import { createContext, useContext, useId, useState, type ReactNode } from 'react'
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { cn } from '@/utilities/ui'
 
 import { useTabListKeys } from './useTabListKeys'
@@ -36,72 +29,40 @@ export function SharedDayProvider({ children }: { children: ReactNode }) {
   return <SharedDay.Provider value={{ picked, setPicked }}>{children}</SharedDay.Provider>
 }
 
-/** A phone dropdown's trigger, the date's and the 12 / 24 hour one alike. */
-export const PHONE_TRIGGER = 'h-10 rounded-md text-sm font-semibold'
-
 interface Day {
   key: string
   label: string
+  /** The tab's text in place of `label`, when that is too long for it. */
+  short?: ReactNode
   /** The dates it covers, matched when another table's key isn't one of these. */
   covers?: string[]
   content: ReactNode
 }
 
-/**
- * Tabs over the table, or, for a table with another control (`aside`), a date dropdown with that
- * control beside it.
- */
+/** Tabs over the table, one per date. */
 export function DaySwitch({
   label,
   days,
-  aside,
   className,
 }: {
   label: string
   days: Day[]
-  aside?: ReactNode
   className?: string
 }) {
   const shared = useContext(SharedDay)
   const [localPicked, setLocalPicked] = useState<Picked | null>(null)
   const picked = shared ? shared.picked : localPicked
   const setPicked = shared ? shared.setPicked : setLocalPicked
-  const active = activeDay(days, picked)
   const pick = (index: number) =>
     setPicked({ key: days[index].key, index, covers: days[index].covers })
-
-  if (!aside) {
-    return <DayTabs label={label} days={days} active={active} pick={pick} className={className} />
-  }
   return (
-    <div className={cn('space-y-2', className)}>
-      <div className="flex items-center gap-2">
-        {days.length > 1 && (
-          <Select
-            value={days[active].key}
-            onValueChange={(key) => pick(days.findIndex((d) => d.key === key))}
-          >
-            <SelectTrigger
-              aria-label={`${label} date`}
-              className={cn(PHONE_TRIGGER, 'min-w-0 flex-1')}
-            >
-              {/* The label itself, so the server's HTML shows it before the select hydrates. */}
-              <SelectValue>{days[active].label}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {days.map((d) => (
-                <SelectItem key={d.key} value={d.key}>
-                  {d.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-        {aside}
-      </div>
-      {/* Only the picked date's table is drawn. */}
-      <div>{days[active]?.content}</div>
-    </div>
+    <DayTabs
+      label={label}
+      days={days}
+      active={activeDay(days, picked)}
+      pick={pick}
+      className={className}
+    />
   )
 }
 
@@ -151,14 +112,14 @@ function DayTabs({
               tabIndex={i === active ? 0 : -1}
               onClick={() => pick(i)}
               className={cn(
-                'min-h-10 rounded-md px-1 py-1 leading-tight',
-                days.length > 3 ? 'text-xs' : 'text-sm',
+                'min-h-11 rounded-md px-1 py-1 leading-tight',
+                days.length > 3 && !d.short ? 'text-xs' : 'text-sm',
                 i === active
                   ? 'bg-card font-semibold text-foreground shadow-sm'
                   : 'font-medium text-muted-foreground',
               )}
             >
-              {d.label}
+              {d.short ?? d.label}
             </button>
           ))}
         </div>

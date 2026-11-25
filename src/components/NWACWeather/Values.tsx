@@ -11,19 +11,26 @@ import {
   windWording,
 } from '@/services/nac/nwacWeatherFormat'
 import { cn } from '@/utilities/ui'
+import colors from 'tailwindcss/colors'
 
 /** Level fills: blue low, faint tints around a neutral 5,000', orange from 8,000', red 10,000'+. */
-const LEVEL_FILLS: { below: number; fill: string; label: string }[] = [
-  { below: 2000, fill: 'bg-blue-200 text-stone-900', label: "<2,000'" },
-  { below: 3000, fill: 'bg-sky-100 text-stone-900', label: "2,000'" },
-  { below: 4000, fill: 'bg-teal-50 text-stone-900', label: "3,000'" },
-  { below: 5000, fill: 'bg-emerald-50 text-stone-900', label: "4,000'" },
-  { below: 6000, fill: 'bg-stone-100 text-stone-900', label: "5,000'" },
-  { below: 7000, fill: 'bg-yellow-50 text-stone-900', label: "6,000'" },
-  { below: 8000, fill: 'bg-amber-50 text-stone-900', label: "7,000'" },
-  { below: 9000, fill: 'bg-orange-100 text-stone-900', label: "8,000'" },
-  { below: 10000, fill: 'bg-orange-200 text-stone-900', label: "9,000'" },
-  { below: Infinity, fill: 'bg-red-200 text-stone-900', label: "10,000'+" },
+// Each `color` is its `fill` as a value, for the key's gradient.
+const LEVEL_FILLS: { below: number; fill: string; color: string; label: string }[] = [
+  { below: 2000, fill: 'bg-blue-200 text-stone-900', color: colors.blue[200], label: "<2,000'" },
+  { below: 3000, fill: 'bg-sky-100 text-stone-900', color: colors.sky[100], label: "2,000'" },
+  { below: 4000, fill: 'bg-teal-50 text-stone-900', color: colors.teal[50], label: "3,000'" },
+  { below: 5000, fill: 'bg-emerald-50 text-stone-900', color: colors.emerald[50], label: "4,000'" },
+  { below: 6000, fill: 'bg-stone-100 text-stone-900', color: colors.stone[100], label: "5,000'" },
+  { below: 7000, fill: 'bg-yellow-50 text-stone-900', color: colors.yellow[50], label: "6,000'" },
+  { below: 8000, fill: 'bg-amber-50 text-stone-900', color: colors.amber[50], label: "7,000'" },
+  { below: 9000, fill: 'bg-orange-100 text-stone-900', color: colors.orange[100], label: "8,000'" },
+  {
+    below: 10000,
+    fill: 'bg-orange-200 text-stone-900',
+    color: colors.orange[200],
+    label: "9,000'",
+  },
+  { below: Infinity, fill: 'bg-red-200 text-stone-900', color: colors.red[200], label: "10,000'+" },
 ]
 
 /** A snow or freezing level's fill, on its pill or its table cell. */
@@ -33,31 +40,70 @@ export function levelFill(level: number): string {
 
 /** Snow fills by `snowTier`, deepening with the amount; none without snow. */
 const SNOW_FILLS = ['bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300']
+const SNOW_COLORS = [colors.blue[50], colors.blue[100], colors.blue[200], colors.blue[300]]
 
 export function snowFill(snow: number | null): string | undefined {
   const tier = snowTier(snow)
   return tier == null ? undefined : SNOW_FILLS[tier]
 }
 
-/** Wind fills, one step per strength: violet at Light, pale yellow at Moderate, pink to Extreme. */
-const WIND_STEPS: { fill: string; name: string; wordings: string[]; label: string | null }[] = [
-  { fill: 'bg-violet-100', name: 'Light', wordings: ['Light'], label: 'Light' },
+/** Wind fills, one step per strength: one violet, deeper as it strengthens. */
+const WIND_STEPS: {
+  fill: string
+  color: string
+  name: string
+  wordings: string[]
+  label: string | null
+}[] = [
   {
-    fill: 'bg-violet-50',
+    fill: 'bg-[#f8f7ff]',
+    color: '#f8f7ff',
+    name: 'Light',
+    wordings: ['Light'],
+    label: 'Light',
+  },
+  {
+    fill: 'bg-[#f0edff]',
+    color: '#f0edff',
     name: 'Light to Moderate',
     wordings: ['Light to occasionally Moderate', 'Light to Moderate'],
     label: null,
   },
-  { fill: 'bg-yellow-50', name: 'Moderate', wordings: ['Moderate'], label: 'Moderate' },
   {
-    fill: 'bg-yellow-100',
+    fill: 'bg-[#e6e0fe]',
+    color: '#e6e0fe',
+    name: 'Moderate',
+    wordings: ['Moderate'],
+    label: 'Moderate',
+  },
+  {
+    fill: 'bg-[#dbd2fe]',
+    color: '#dbd2fe',
     name: 'Moderate to Strong',
     wordings: ['Moderate to Strong'],
     label: null,
   },
-  { fill: 'bg-pink-100', name: 'Strong', wordings: ['Strong'], label: 'Strong' },
-  { fill: 'bg-pink-200', name: 'Strong to Extreme', wordings: ['Strong to Extreme'], label: null },
-  { fill: 'bg-pink-300', name: 'Extreme', wordings: ['Extreme'], label: 'Extreme' },
+  {
+    fill: 'bg-[#cdbffd]',
+    color: '#cdbffd',
+    name: 'Strong',
+    wordings: ['Strong'],
+    label: 'Strong',
+  },
+  {
+    fill: 'bg-[#bba8fb]',
+    color: '#bba8fb',
+    name: 'Strong to Extreme',
+    wordings: ['Strong to Extreme'],
+    label: null,
+  },
+  {
+    fill: 'bg-[#a78bfa]',
+    color: '#a78bfa',
+    name: 'Extreme',
+    wordings: ['Extreme'],
+    label: 'Extreme',
+  },
 ]
 
 /** A wind cell's fill by its wording; none for calm or no wind. */
@@ -70,79 +116,89 @@ export function windFill(speed: number | null | undefined): string | undefined {
 const LEVEL_KEY_LABELS = [null, "2k'", null, "4k'", null, "6k'", null, "8k'", null, "10k'+"]
 
 /**
- * Fills as one bar, each segment labeled under it where `labels` has one. `names` gives every
- * segment its full name, as a hover title and as text for screen readers.
+ * The steps as one smooth gradient, each label printed at its step: the blends between the named
+ * steps read as in between without labels of their own. Labeled steps take twice the width of the
+ * unlabeled ones between them, so the labels fit. `names` gives every step its full name, as a
+ * hover title and as text for screen readers.
  */
 function SegmentedBar({
-  fills,
+  colors: stepColors,
   names,
   labels,
-  cols,
-  centered = false,
-  width = 'w-56',
+  width = 'w-full sm:w-80',
 }: {
-  fills: string[]
+  colors: string[]
   names: readonly string[]
   labels: readonly (string | null)[]
-  /** The grid's column count as a static class (`grid-cols-4`), so Tailwind sees it. */
-  cols: string
-  /** Center each label under its segment, for labels that name the segment, not a tick. */
-  centered?: boolean
   /** The bar's width as static classes, so Tailwind sees them. */
   width?: string
 }) {
+  const widths = labels.map((l) => (l ? 2 : 1))
+  const total = widths.reduce((a, b) => a + b, 0)
+  // Each color sits at the middle of its step, so a step's label is on its own color.
+  let start = 0
+  const stops = stepColors.map((color, i) => {
+    const middle = ((start + widths[i] / 2) / total) * 100
+    start += widths[i]
+    return `${color} ${middle.toFixed(1)}%`
+  })
   return (
-    <span className={cn('inline-flex shrink-0 flex-col gap-0.5', width)}>
+    <span className={cn('inline-block shrink-0', width)}>
       <span className="sr-only">{names.join(', ')}</span>
-      <span aria-hidden="true" className={cn('grid h-2.5 overflow-hidden rounded-sm', cols)}>
-        {fills.map((fill, i) => (
-          <span key={i} title={names[i]} className={fill} />
-        ))}
-      </span>
       <span
         aria-hidden="true"
-        className={cn('grid text-[10px] leading-none', centered && 'text-center', cols)}
+        className="grid h-7 overflow-hidden rounded-sm text-xs font-medium text-stone-900"
+        style={{
+          gridTemplateColumns: widths.map((w) => `${w}fr`).join(' '),
+          backgroundImage: `linear-gradient(90deg, ${stops.join(', ')})`,
+        }}
       >
         {labels.map((label, i) => (
-          <span key={i}>{label}</span>
+          <span
+            key={i}
+            title={names[i]}
+            className="flex items-center justify-center whitespace-nowrap px-0.5"
+          >
+            {label}
+          </span>
         ))}
       </span>
     </span>
   )
 }
 
-// Labels sit level with their bars' tops, so the tick labels hang below the line.
-const KEY_LINE =
-  'flex flex-wrap items-start gap-3 whitespace-nowrap text-xs leading-3 text-muted-foreground'
+const KEY_LINE = 'flex flex-wrap items-center gap-3 whitespace-nowrap text-sm text-muted-foreground'
 
 function SnowFillKey({ width }: { width?: string }) {
   return (
-    <>
-      Snow
-      <SegmentedBar
-        fills={SNOW_FILLS}
-        names={SNOW_TIER_LABELS}
-        labels={SNOW_TIER_LABELS}
-        cols="grid-cols-4"
-        centered
-        width={width}
-      />
-    </>
+    <SegmentedBar
+      colors={SNOW_COLORS}
+      names={SNOW_TIER_LABELS}
+      labels={SNOW_TIER_LABELS}
+      width={width}
+    />
   )
+}
+
+/** A snow level's mark; a dry block's freezing level has none. */
+function LevelMark({ snow }: { snow: boolean }) {
+  return snow ? <Snowflake aria-hidden="true" className="size-3.5 shrink-0 text-sky-700" /> : null
 }
 
 function SnowLevelKey({ width }: { width?: string }) {
   return (
     <>
-      <span className="inline-flex items-center gap-1">
-        <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />
-        Snow level; none, freezing level
+      <span className="inline-flex flex-wrap items-center gap-x-4 gap-y-1">
+        <span className="inline-flex items-center gap-1.5">
+          <LevelMark snow />
+          Snow level
+        </span>
+        <span>No icon: freezing level</span>
       </span>
       <SegmentedBar
-        fills={LEVEL_FILLS.map((f) => f.fill)}
+        colors={LEVEL_FILLS.map((f) => f.color)}
         names={LEVEL_FILLS.map((f) => f.label)}
         labels={LEVEL_KEY_LABELS}
-        cols="grid-cols-10"
         width={width}
       />
     </>
@@ -180,7 +236,7 @@ export function PrecipLegend({
       {snow && (
         <span className="inline-flex items-center gap-3">
           {/* Narrower on a phone, to leave room for the hours toggle across from it. */}
-          <SnowFillKey width="w-40 sm:w-56" />
+          <SnowFillKey width="w-48 sm:w-60" />
         </span>
       )}
     </p>
@@ -198,17 +254,51 @@ export function ZoneKeys() {
   return (
     <p className={cn(KEY_LINE, 'items-end gap-x-12 gap-y-3')}>
       <span className={STACKED_KEY}>
-        <SnowFillKey width="w-36" />
+        <SnowFillKey width="w-60" />
       </span>
       <span className={STACKED_KEY}>
-        <SnowLevelKey width="w-40" />
+        <SnowLevelKey width="w-80" />
       </span>
       <span className={STACKED_KEY}>
         <span className="inline-flex items-center gap-3">
           <WindNotes />
         </span>
-        <WindKey width="w-52" />
+        <WindKey width="w-80" />
       </span>
+    </p>
+  )
+}
+
+export type PhoneKeyKind = 'snow' | 'temp' | 'level' | 'wind'
+
+/** One row's key in a phone card, opened from its label. */
+export function PhoneKey({ kind }: { kind: PhoneKeyKind }) {
+  return (
+    <p className={cn(KEY_LINE, 'flex-col items-start gap-1.5')}>
+      {kind === 'snow' && (
+        <>
+          <span>Inches of snow at 5000&apos;</span>
+          <SegmentedBar
+            colors={SNOW_COLORS}
+            names={SNOW_TIER_LABELS}
+            labels={SNOW_TIER_LABELS}
+            width="w-full"
+          />
+        </>
+      )}
+      {kind === 'temp' && <LoHi />}
+      {kind === 'level' && <SnowLevelKey width="w-full" />}
+      {kind === 'wind' && (
+        <>
+          <span>mph · VAR: variable</span>
+          <SegmentedBar
+            colors={WIND_STEPS.map((s) => s.color)}
+            names={WIND_STEPS.map((s) => s.name)}
+            labels={WIND_STEPS.map((s) => s.label)}
+            width="w-full"
+          />
+        </>
+      )}
     </p>
   )
 }
@@ -236,18 +326,21 @@ export function TempValue({ cell }: { cell: NWACWeatherTempCell | undefined }) {
 }
 
 /**
- * A block's snow or freezing level, filled by elevation; a snow level carries a snowflake, a
- * freezing level (a dry block) none. A fixed snowflake slot lines the numbers up down a column.
+ * A block's snow or freezing level, filled by elevation, then its LevelMark. A fixed slot for
+ * the mark lines the numbers up down a column.
  */
 export function SnowLevelValue({
   level,
   snow,
   pill = true,
+  tight = !pill,
 }: {
   level: number | null
   snow: boolean
   /** Off where the table fills the cell itself (`levelFill`); tighter on a phone there. */
   pill?: boolean
+  /** Narrower on a phone; on by default where the table fills the cell. */
+  tight?: boolean
 }) {
   if (level == null) return <span className="block text-center text-muted-foreground">{DASH}</span>
   return (
@@ -259,16 +352,27 @@ export function SnowLevelValue({
     >
       <span
         className={cn(
-          'grid grid-cols-[0.875rem_3.25rem] items-center gap-1.5',
-          !pill && 'max-md:grid-cols-[0.875rem_2.75rem] max-md:gap-0.5 max-md:text-xs',
+          'grid grid-cols-[3.25rem_0.875rem] items-center gap-1.5',
+          tight && 'max-md:grid-cols-[2.75rem_0.875rem] max-md:gap-0.5 max-md:text-xs',
         )}
       >
-        <span>{snow && <Snowflake aria-hidden="true" className="size-3.5 text-sky-700" />}</span>
         <span className="text-right">
           {level.toLocaleString('en-US')}&apos;
           <span className="sr-only">{snow ? ' snow level' : ' freezing level'}</span>
         </span>
+        <span className="flex">
+          <LevelMark snow={snow} />
+        </span>
       </span>
+    </span>
+  )
+}
+
+/** How a temperature cell reads. */
+function LoHi() {
+  return (
+    <span>
+      Lo / <span className="font-semibold text-foreground">Hi</span>
     </span>
   )
 }
@@ -277,9 +381,7 @@ export function SnowLevelValue({
 export function TempLegend() {
   return (
     <p className={KEY_LINE}>
-      <span>
-        Lo / <span className="font-semibold text-foreground">Hi</span> in 12 hours
-      </span>
+      <LoHi />
     </p>
   )
 }
@@ -313,10 +415,9 @@ function WindKey({ width }: { width?: string }) {
   return (
     <span className="inline-flex items-center gap-3">
       <SegmentedBar
-        fills={WIND_STEPS.map((s) => s.fill)}
+        colors={WIND_STEPS.map((s) => s.color)}
         names={WIND_STEPS.map((s) => s.name)}
         labels={WIND_STEPS.map((s) => s.label)}
-        cols="grid-cols-7"
         width={width}
       />
     </span>

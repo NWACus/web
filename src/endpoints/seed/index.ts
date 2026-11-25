@@ -1195,10 +1195,14 @@ export const seed = async ({
     )
 
     payload.logger.info(`— Seeding announcements...`)
-    await upsert('announcements', payload, incremental, tenantsById, (obj) => obj.title, [
-      ...getAnnouncementsData(tenants['dvac']),
-      ...getAnnouncementsData(tenants['nwac']),
-    ])
+    await upsert(
+      'announcements',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.title,
+      getAnnouncementsData(tenants['dvac']),
+    )
 
     payload.logger.info(`— Seeding galleries...`)
     const galleries = await upsert(

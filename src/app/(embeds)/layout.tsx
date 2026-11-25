@@ -3,22 +3,24 @@ import { PostHogProvider } from '@/providers/PostHogProvider'
 import { getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { Metadata } from 'next'
-import { Fjalla_One, Libre_Franklin } from 'next/font/google'
+import localFont from 'next/font/local'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Suspense } from 'react'
 import './a3-globals.css'
 
-const fjallaOne = Fjalla_One({
+// Self-hosted (latin subset) because next/font/google intermittently failed builds.
+const fjallaOne = localFont({
+  src: './fonts/FjallaOne-Regular.woff2',
   weight: '400',
-  subsets: ['latin'],
   display: 'swap',
   variable: '--font-fjalla-one',
 })
 
-const libreFranklin = Libre_Franklin({
-  weight: ['400', '500', '700'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
+const libreFranklin = localFont({
+  src: [
+    { path: './fonts/LibreFranklin-Variable.woff2', weight: '100 900', style: 'normal' },
+    { path: './fonts/LibreFranklin-VariableItalic.woff2', weight: '100 900', style: 'italic' },
+  ],
   display: 'swap',
   variable: '--font-libre-franklin',
 })

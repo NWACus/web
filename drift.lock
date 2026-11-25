@@ -128,7 +128,7 @@ sig = "12af29a2c1e472cc"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/app/(embeds)/layout.tsx"
-sig = "1455813193c0068d"
+sig = "75c2b5ba3463fd29"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -1078,7 +1078,7 @@ sig = "f99d16de5ee59342"
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
 target = "src/collections/Navigations/index.tsx"
-sig = "7c11051944f82644"
+sig = "336fd5a031686c5d"
 
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
@@ -1103,7 +1103,7 @@ sig = "149248bba9393561"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/Navigations/index.tsx"
-sig = "7c11051944f82644"
+sig = "336fd5a031686c5d"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -2158,7 +2158,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/endpoints/seed/index.ts"
-sig = "c82dc0ebc023be44"
+sig = "9544a6019934bf12"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"
