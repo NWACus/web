@@ -2,26 +2,35 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { addYears, endOfYear, format, startOfYear, subYears } from 'date-fns'
+import type { StartDateBounds } from '@/utilities/queries/getStartDateBounds'
+import { endOfMonth, format, max, min, startOfMonth } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
-
-const YEARS_BEFORE_CURRENT = 5
-const YEARS_AFTER_CURRENT = 1
 
 type DatePickerFieldProps = {
   label: string
   value: string
   id: string
   onChange: (date: string) => void
+  dateBounds: StartDateBounds
 }
 
-export const DatePickerField = ({ label, value, id, onChange }: DatePickerFieldProps) => {
+// Today is always in range so the calendar can still open on the current month
+const calendarBounds = ({ earliest, latest }: StartDateBounds, today: Date) => ({
+  startMonth: startOfMonth(earliest ? min([new Date(earliest), today]) : today),
+  endMonth: endOfMonth(latest ? max([new Date(latest), today]) : today),
+})
+
+export const DatePickerField = ({
+  label,
+  value,
+  id,
+  onChange,
+  dateBounds,
+}: DatePickerFieldProps) => {
   const [open, setOpen] = useState(false)
 
-  const today = new Date()
-  const startMonth = startOfYear(subYears(today, YEARS_BEFORE_CURRENT))
-  const endMonth = endOfYear(addYears(today, YEARS_AFTER_CURRENT))
+  const { startMonth, endMonth } = calendarBounds(dateBounds, new Date())
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
