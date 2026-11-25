@@ -4,6 +4,7 @@ import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
+import { cache } from 'react'
 import { extractAllInternalUrls, findNavigationItemBySlug, topLevelNavItem } from './utils-pure'
 
 export {
@@ -91,7 +92,8 @@ export const getTopLevelNavItems = async ({
   return { topLevelNavItems }
 }
 
-export const getCachedTopLevelNavItems = (center: string, draft: boolean = false) =>
+// `cache` so a miss is read once per render, not once each by the page, its metadata and the header
+const loadTopLevelNavItems = cache((center: string, draft: boolean) =>
   unstable_cache(
     async (): Promise<{ topLevelNavItems: TopLevelNavItem[] }> => {
       const payload = await getPayload({ config: configPromise })
@@ -100,6 +102,8 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
         collection: 'navigations',
         depth: 99,
         draft,
+        limit: 1,
+        pagination: false,
         where: {
           'tenant.slug': {
             equals: center,
@@ -125,7 +129,13 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
     {
       tags: ['navigation', `navigation-${center}`],
     },
-  )
+  )(),
+)
+
+export const getCachedTopLevelNavItems =
+  (center: string, draft: boolean = false) =>
+  () =>
+    loadTopLevelNavItems(center, draft)
 
 export async function getCanonicalUrlForSlug(center: string, slug: string): Promise<string | null> {
   try {
