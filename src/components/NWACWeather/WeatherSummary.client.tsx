@@ -5,12 +5,12 @@
  * list of the zones beside the picked zone's two days. Arrow keys move between the zones, as a
  * tablist's do.
  */
-import Link from 'next/link'
 import { useId, useState } from 'react'
 
 import { cn } from '@/utilities/ui'
 
 import { useTabListKeys } from './useTabListKeys'
+import { ZoneWeatherLink } from './ZoneWeatherLink.client'
 
 export interface SensibleDay {
   key: string
@@ -46,12 +46,12 @@ function ZoneDays({ row, days }: { row: SensibleRow; days: SensibleDay[] }) {
       {row.href && (
         <p className="border-t pt-4 text-sm">
           View the{' '}
-          <Link
+          <ZoneWeatherLink
             href={row.href}
             className="font-semibold text-primary underline underline-offset-4 hover:decoration-2"
           >
             avalanche forecast
-          </Link>{' '}
+          </ZoneWeatherLink>{' '}
           for this zone<span className="sr-only"> ({row.zone})</span>.
         </p>
       )}

@@ -6,7 +6,7 @@ import { dayGroups, fmtQpf, hasSnowAmounts, precipPeriods } from '@/services/nac
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
 const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
@@ -40,7 +40,7 @@ describe('Overall', () => {
     render(
       <Overall
         parts={overallParts(afternoon)}
-        zonePaths={{ 1645: '/forecasts/avalanche/olympics#mountain-weather' }}
+        zonePaths={{ 1645: '/forecasts/avalanche/olympics' }}
       />,
     )
     const headings = screen.getAllByRole('heading').map((h) => h.textContent)
@@ -52,7 +52,7 @@ describe('Overall', () => {
       'href',
       '/forecasts/avalanche/olympics#mountain-weather',
     )
-    // The picked zone's summary links to its forecast too.
+    // The picked zone's summary links there too.
     const summary = screen.getByRole('region', { name: 'Weather Summary by Zone' })
     expect(
       within(summary).getByRole('link', {
@@ -312,6 +312,30 @@ describe('OverallSectionTabs', () => {
       '#afternoon-sensible',
     )
     expect(within(nav).getByRole('link', { name: 'Extended' })).toBeInTheDocument()
+  })
+
+  it('scrolls smoothly for the click only', async () => {
+    render(<OverallSectionTabs parts={overallParts(afternoon)} />)
+    const { style } = document.documentElement
+    fireEvent.click(screen.getByRole('link', { name: 'Weather Summary by Zone' }))
+    expect(style.scrollBehavior).toBe('smooth')
+    await waitFor(() => expect(style.scrollBehavior).toBe(''))
+  })
+
+  it('jumps for a reader who prefers reduced motion', () => {
+    const matchMedia = jest.spyOn(window, 'matchMedia').mockImplementation((query) =>
+      Object.assign(new EventTarget(), {
+        matches: true,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      }),
+    )
+    render(<OverallSectionTabs parts={overallParts(afternoon)} />)
+    fireEvent.click(screen.getByRole('link', { name: 'Weather Summary by Zone' }))
+    expect(document.documentElement.style.scrollBehavior).toBe('')
+    matchMedia.mockRestore()
   })
 
   it.each([

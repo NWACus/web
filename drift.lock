@@ -508,7 +508,12 @@ sig = "e77cc413f35f251b"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/NWACWeather/ZoneSummary.tsx"
-sig = "d4a42a7fc808f1fc"
+sig = "72f29de4deff8bc9"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/NWACWeather/ZoneWeatherLink.client.tsx"
+sig = "d09e4d4779677479"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -528,7 +533,7 @@ sig = "02e2f11de7abb4c0"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/CurrentForecastRedirect.client.tsx"
-sig = "bc63628cae2e371d"
+sig = "c81cee00d20033df"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -643,7 +648,7 @@ sig = "753d056d3881b84c"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/archiveDates.ts"
-sig = "dbc49848db09a192"
+sig = "25b29a76559714c5"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

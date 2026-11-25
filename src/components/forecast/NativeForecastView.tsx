@@ -51,7 +51,7 @@ import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
 import { WeatherSummary } from './WeatherSummary'
 import { bottomLineDangerLevel } from './zoneCardDanger'
-import { hasMountainWeather } from './zoneWeather'
+import { MOUNTAIN_WEATHER_ID, hasMountainWeather } from './zoneWeather'
 
 interface NativeForecastViewProps {
   center: string
@@ -462,7 +462,7 @@ function WeatherPanelSection(props: ForecastPanelProps) {
   if (!hasMountainWeather(props.weather, props.zoneId, props.nwacWeather)) return null
 
   return (
-    <PanelSection printSection="weather">
+    <PanelSection printSection="weather" id={MOUNTAIN_WEATHER_ID}>
       <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
         <MountainWeather {...props} />
       </ForecastErrorBoundary>
@@ -497,16 +497,19 @@ function MountainWeather({
  * renders nothing (a weather product with nothing tabulable, say).
  */
 function PanelSection({
+  id,
   printSection,
   printHide,
   children,
 }: {
+  id?: string
   printSection?: PrintSection
   printHide?: boolean
   children: ReactNode
 }) {
   return (
     <div
+      id={id}
       data-print-section={printSection}
       data-print-hide={printHide || undefined}
       className="py-12 empty:hidden first:pt-0 last:pb-0"

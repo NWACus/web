@@ -11,6 +11,7 @@ import {
   validDateForProduct,
   widgetArchiveAddress,
   widgetArchiveHandOverPath,
+  zoneForecastPath,
   type ArchiveProductSummary,
 } from '@/services/nac/archiveDates'
 
@@ -372,5 +373,37 @@ describe('widgetArchiveHandOverPath', () => {
     expect(widgetArchiveHandOverPath('banner-summit', '2026-01-05')).toBe(
       '/forecasts/avalanche/banner-summit/2026-01-05/widget',
     )
+  })
+})
+
+describe('zoneForecastPath', () => {
+  const PAGE = '/forecasts/avalanche/olympics'
+  // Issued 6 pm on the 23rd and the 24th, Pacific.
+  const for24 = item({ id: 1, published_time: '2026-11-24T02:00:00+00:00' })
+  const for25 = item({ id: 2, published_time: '2026-11-25T02:00:00+00:00' })
+  const path = (items: ArchiveProductSummary[]) =>
+    zoneForecastPath('olympics', buildZoneArchiveDates(items, 1646, TZ), '2026-11-24', TZ)
+
+  it("keeps the live page while it shows the date's forecast", () => {
+    expect(path([for24])).toBe(PAGE)
+  })
+
+  it("links the date once the next day's forecast is live", () => {
+    expect(path([for24, for25])).toBe(`${PAGE}/2026-11-24`)
+  })
+
+  it('keeps the live page for a multi-day product that still covers the date', () => {
+    const multiDay = item({
+      id: 3,
+      published_time: '2026-11-21T02:00:00+00:00',
+      expires_time: '2026-11-25T02:00:00+00:00',
+    })
+    expect(path([multiDay])).toBe(PAGE)
+    expect(path([multiDay, for25])).toBe(`${PAGE}/2026-11-24`)
+  })
+
+  it('keeps the live page when nothing covers the date', () => {
+    expect(path([for25])).toBe(PAGE)
+    expect(path([])).toBe(PAGE)
   })
 })

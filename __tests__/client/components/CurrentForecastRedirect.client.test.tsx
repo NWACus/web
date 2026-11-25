@@ -36,6 +36,15 @@ describe('CurrentForecastRedirect', () => {
     expect(global.fetch).toHaveBeenCalledWith(ENDPOINT)
   })
 
+  it('keeps the section the link asked for', async () => {
+    window.history.replaceState(null, '', '#mountain-weather')
+    answer({ date: '2026-04-05' })
+    renderRedirect()
+
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(`${LIVE}#mountain-weather`))
+    window.history.replaceState(null, '', window.location.pathname)
+  })
+
   it.each([
     // Yesterday stops redirecting once today's product is live.
     ['a newer product is live', { date: '2026-04-06' }, true],
