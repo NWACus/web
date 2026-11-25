@@ -66,20 +66,6 @@ describe('MobileFiltersDrawer', () => {
     expect(onOpenChange).not.toHaveBeenCalledWith(false)
   })
 
-  it('raises a popover opened inside it above the header, but not one outside', async () => {
-    renderDrawer()
-    render(
-      <Popover defaultOpen>
-        <PopoverContent>outside</PopoverContent>
-      </Popover>,
-    )
-    expect(screen.getByText('outside')).toHaveClass('z-50')
-
-    await openDrawer()
-    fireEvent.click(screen.getByRole('button', { name: 'Pick a date' }))
-    expect(await screen.findByText('calendar')).toHaveClass('z-[60]')
-  })
-
   it('keeps the filters and their state while closed', async () => {
     renderDrawer()
     await openDrawer()

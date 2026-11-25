@@ -132,7 +132,7 @@ function SeasonSelect({
         <SelectTrigger id={id} aria-label="Season">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-[60] md:z-50">
           {seasons.map((option) => (
             <SelectItem key={option.value} value={String(option.value)}>
               {option.label}
@@ -181,7 +181,7 @@ function ArchiveDateField({
             <CalendarIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+        <PopoverContent className="z-[60] w-auto overflow-hidden p-0 md:z-50" align="start">
           <Calendar
             mode="single"
             selected={selected}

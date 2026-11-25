@@ -27,7 +27,7 @@ export const PostsSort = ({ initialSort: _initialSort, className }: Props) => {
         <SelectTrigger className="mb-4">
           <SelectValue placeholder="Sort" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-[60] md:z-50">
           <SelectItem value="-publishedAt">Newest to Oldest</SelectItem>
           <SelectItem value="publishedAt">Oldest to Newest</SelectItem>
         </SelectContent>

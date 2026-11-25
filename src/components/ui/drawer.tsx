@@ -3,7 +3,6 @@
 import { Drawer as DrawerPrimitive } from '@base-ui/react/drawer'
 import * as React from 'react'
 
-import { InDrawerProvider } from '@/components/ui/popup-layer'
 import { cn } from '@/utilities/ui'
 
 /**
@@ -79,7 +78,7 @@ function DrawerContent({ className, children, keepMounted, ...props }: DrawerCon
           {...props}
         >
           {showSwipeHandle && <DrawerSwipeHandle />}
-          <InDrawerProvider value={true}>{children}</InDrawerProvider>
+          {children}
         </DrawerPrimitive.Popup>
       </DrawerPrimitive.Viewport>
     </DrawerPrimitive.Portal>
