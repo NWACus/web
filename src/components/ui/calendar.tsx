@@ -1,10 +1,24 @@
 'use client'
 
+import { setMonth, setYear } from 'date-fns'
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
 import * as React from 'react'
-import { DayButton, DayPicker, getDefaultClassNames } from 'react-day-picker'
+import {
+  DayButton,
+  DayPicker,
+  DropdownProps,
+  getDefaultClassNames,
+  useDayPicker,
+} from 'react-day-picker'
 
 import { Button, buttonVariants } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/utilities/ui'
 
 function Calendar({
@@ -120,6 +134,8 @@ function Calendar({
           return <ChevronDownIcon className={cn('size-4', className)} {...props} />
         },
         DayButton: CalendarDayButton,
+        MonthsDropdown: CalendarMonthsDropdown,
+        YearsDropdown: CalendarYearsDropdown,
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>
@@ -134,6 +150,56 @@ function Calendar({
       {...props}
     />
   )
+}
+
+type CalendarSelectProps = DropdownProps & {
+  onValueChange: (value: number) => void
+}
+
+function CalendarSelect({
+  options,
+  value,
+  disabled,
+  onValueChange,
+  'aria-label': ariaLabel,
+}: CalendarSelectProps) {
+  return (
+    <Select
+      value={String(value)}
+      disabled={disabled}
+      onValueChange={(next) => onValueChange(Number(next))}
+    >
+      {/* `relative` stacks the trigger above the absolute prev/next nav that spans the caption */}
+      <SelectTrigger
+        aria-label={ariaLabel}
+        className="relative h-8 w-fit gap-1 px-2 text-sm font-medium"
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent className="max-h-64">
+        {options?.map((option) => (
+          <SelectItem key={option.value} value={String(option.value)} disabled={option.disabled}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
+// react-day-picker's handlers expect a native select change event, so navigate via the context instead
+function CalendarMonthsDropdown(props: DropdownProps) {
+  const { months, goToMonth } = useDayPicker()
+  const current = months[0]?.date ?? new Date()
+  return (
+    <CalendarSelect {...props} onValueChange={(month) => goToMonth(setMonth(current, month))} />
+  )
+}
+
+function CalendarYearsDropdown(props: DropdownProps) {
+  const { months, goToMonth } = useDayPicker()
+  const current = months[0]?.date ?? new Date()
+  return <CalendarSelect {...props} onValueChange={(year) => goToMonth(setYear(current, year))} />
 }
 
 function CalendarDayButton({

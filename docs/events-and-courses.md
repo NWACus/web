@@ -31,6 +31,7 @@ Tenant-scoped collection for tagging events with attributes (e.g., "Women Only",
 Main events listing page with:
 - Filtering by event type, date range, groups, tags
 - Quick date filters (this week, next week, this month, etc.)
+- Custom date range pickers that run from the month of the center's earliest published event to the month of its latest (always including the current month), via `getEventsStartDateBounds` (`src/utilities/queries/getStartDateBounds.ts`)
 - Sorting by start date or registration deadline
 - Pagination support
 - Respects `navigation.events.enabled` setting

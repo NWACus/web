@@ -20,6 +20,7 @@ function filterTree(startDate = '', endDate = '') {
         startDate={startDate}
         endDate={endDate}
         quickFilters={QUICK_DATE_FILTERS_EVENTS}
+        dateBounds={{ earliest: null, latest: null }}
       />
     </NuqsAdapter>
   )

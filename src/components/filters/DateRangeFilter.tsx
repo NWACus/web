@@ -3,6 +3,7 @@
 import { DatePickerField } from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
 import { QuickDateFilter } from '@/utilities/createQuickDateFilters'
+import type { StartDateBounds } from '@/utilities/queries/getStartDateBounds'
 import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
 import { Options, parseAsString, useQueryStates } from 'nuqs'
@@ -12,6 +13,7 @@ type DateRangeFilterProps = {
   startDate: string
   endDate: string
   quickFilters: QuickDateFilter[]
+  dateBounds: StartDateBounds
   title?: string
   titleClassName?: string
   defaultOpen?: boolean
@@ -151,9 +153,11 @@ const QuickFilterButtons = ({
 
 const DateRangeOptions = ({
   quickFilters,
+  dateBounds,
   range: { startDate, endDate, quickFilter, updateDateSelection, handleQuickFilter },
 }: {
   quickFilters: QuickDateFilter[]
+  dateBounds: StartDateBounds
   range: ReturnType<typeof useDateRange>
 }) => (
   <div className="pb-4">
@@ -178,12 +182,14 @@ const DateRangeOptions = ({
           label="Start Date"
           value={startDate}
           id="customStart"
+          dateBounds={dateBounds}
           onChange={(date) => updateDateSelection('custom', date, endDate)}
         />
         <DatePickerField
           label="End Date"
           value={endDate}
           id="customEnd"
+          dateBounds={dateBounds}
           onChange={(date) => updateDateSelection('custom', startDate, date)}
         />
       </div>
@@ -233,6 +239,7 @@ export const DateRangeFilter = ({
   startDate: initialStartDate,
   endDate: initialEndDate,
   quickFilters,
+  dateBounds,
   title = 'Date Range',
   titleClassName,
   defaultOpen = true,
@@ -253,7 +260,9 @@ export const DateRangeFilter = ({
           showClear={Boolean(quickFilter) && quickFilter !== 'upcoming'}
           onClear={() => handleQuickFilter('upcoming')}
         />
-        {isOpen && <DateRangeOptions quickFilters={quickFilters} range={range} />}
+        {isOpen && (
+          <DateRangeOptions quickFilters={quickFilters} dateBounds={dateBounds} range={range} />
+        )}
       </div>
     </div>
   )
