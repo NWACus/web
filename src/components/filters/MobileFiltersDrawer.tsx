@@ -1,6 +1,16 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import {
+  Drawer,
+  DrawerBody,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 import { useState } from 'react'
 import { FiltersButton } from './FiltersButton'
 
@@ -34,46 +44,25 @@ export const MobileFiltersDrawer = ({
   }
 
   return (
-    <>
-      <FiltersButton
-        hasActiveFilters={hasActiveFilters}
-        onClick={() => setIsOpen(true)}
-        aria-label="Open filters"
+    <Drawer open={isOpen} onOpenChange={setIsOpen} showSwipeHandle>
+      <DrawerTrigger
+        render={<FiltersButton hasActiveFilters={hasActiveFilters} aria-label="Open filters" />}
       />
 
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+      {/* The filters stay mounted while closed so they keep their state. */}
+      <DrawerContent keepMounted className="h-[90dvh] max-h-none">
+        <DrawerHeader className="cursor-grab select-none border-b border-gray-200 active:cursor-grabbing">
+          <DrawerTitle>Filters</DrawerTitle>
+        </DrawerHeader>
 
-      {/* Drawer: it stays mounted off-screen so it can slide, so keep it out of reach while closed. */}
-      <div
-        className={`fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-lg transition-transform duration-300 ease-out h-[90vh] flex flex-col ${
-          isOpen ? 'translate-y-0' : 'translate-y-full'
-        }`}
-        aria-hidden={!isOpen}
-        inert={!isOpen}
-      >
-        {/* Handle */}
-        <div className="flex justify-center pt-2 pb-1">
-          <div className="h-1 w-12 bg-gray-300 rounded-full" />
-        </div>
+        <DrawerBody className="px-6">{children}</DrawerBody>
 
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold">Filters</h2>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-6">{children}</div>
-
-        <div className="sticky bottom-0 px-4 py-4 border-t bg-white">
-          <Button variant="callout" onClick={() => setIsOpen(false)} className="w-full px-4 py-3">
+        <DrawerFooter className="border-t">
+          <DrawerClose render={<Button variant="callout" className="w-full px-4 py-3" />}>
             Show {docCount} {docLabel}
-          </Button>
-        </div>
-      </div>
-    </>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   )
 }

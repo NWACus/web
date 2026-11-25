@@ -62,7 +62,7 @@ export const DatePickerField = ({
             <CalendarIcon />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+        <PopoverContent className="z-[60] w-auto overflow-hidden p-0 md:z-50" align="start">
           <Calendar
             mode="single"
             selected={parseDate(value)}
