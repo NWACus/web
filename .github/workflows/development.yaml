@@ -116,7 +116,7 @@ jobs:
         id: deployment
         run: |
           fullName="${{ github.repository }}"
-          vercel deploy --yes --prebuilt --target=preview \
+          vercel deploy --yes --prebuilt --archive=tgz --target=preview \
             --meta='githubCommitAuthorName=${{ github.event.pusher.name }}' \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
             --meta='githubCommitRef=main' \

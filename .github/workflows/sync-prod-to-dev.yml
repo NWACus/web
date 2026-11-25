@@ -118,7 +118,7 @@ jobs:
           set -o pipefail
 
           fullName="${{ github.repository }}"
-          vercel deploy --yes --prebuilt --target=preview \
+          vercel deploy --yes --prebuilt --archive=tgz --target=preview \
             --meta='githubCommitAuthorName=${{ github.workflow }}' \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
             --meta='githubCommitRef=main' \

@@ -89,7 +89,7 @@ jobs:
 
           fullName="${{ github.repository }}"
           author="${{ github.event.pusher.name || github.actor }}"
-          vercel deploy --yes --prebuilt --target=production \
+          vercel deploy --yes --prebuilt --archive=tgz --target=production \
             --meta="githubCommitAuthorName=${author}" \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
             --meta='githubCommitRef=release' \
