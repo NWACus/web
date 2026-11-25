@@ -2355,13 +2355,102 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Forecasts
-     */
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
+           */
+          label?: string | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'stationPages';
+                  value: number | StationPage;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null)
+                    | ({
+                        relationTo: 'stationPages';
+                        value: number | StationPage;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  weather?: {
+    options?: {
+      /**
+       * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
+       */
+      enabled?: boolean | null;
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'stationPages';
+            value: number | StationPage;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
+    items?:
+      | {
+          /**
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2446,108 +2535,10 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Observations
-     */
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
-           */
-          label?: string | null;
-          link?: {
-            type?: ('internal' | 'external') | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: number | Page;
-                } | null)
-              | ({
-                  relationTo: 'builtInPages';
-                  value: number | BuiltInPage;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: number | Post;
-                } | null)
-              | ({
-                  relationTo: 'stationPages';
-                  value: number | StationPage;
-                } | null);
-            url?: string | null;
-            label?: string | null;
-            newTab?: boolean | null;
-          };
-          items?:
-            | {
-                link?: {
-                  type?: ('internal' | 'external') | null;
-                  reference?:
-                    | ({
-                        relationTo: 'pages';
-                        value: number | Page;
-                      } | null)
-                    | ({
-                        relationTo: 'builtInPages';
-                        value: number | BuiltInPage;
-                      } | null)
-                    | ({
-                        relationTo: 'posts';
-                        value: number | Post;
-                      } | null)
-                    | ({
-                        relationTo: 'stationPages';
-                        value: number | StationPage;
-                      } | null);
-                  url?: string | null;
-                  label?: string | null;
-                  newTab?: boolean | null;
-                };
-                id?: string | null;
-              }[]
-            | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  weather?: {
-    options?: {
-      displayMode?: ('dropdown' | 'link' | 'button') | null;
-      /**
-       * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
-       */
-      enabled?: boolean | null;
-    };
-    link?: {
-      type?: ('internal' | 'external') | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'builtInPages';
-            value: number | BuiltInPage;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null)
-        | ({
-            relationTo: 'stationPages';
-            value: number | StationPage;
-          } | null);
-      url?: string | null;
-      label?: string | null;
-      newTab?: boolean | null;
-    };
-    /**
-     * Dropdown items under Weather
-     */
-    items?:
-      | {
-          /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2607,11 +2598,11 @@ export interface Navigation {
   };
   education?: {
     options?: {
-      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
        */
       enabled?: boolean | null;
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
     };
     link?: {
       type?: ('internal' | 'external') | null;
@@ -2636,13 +2627,10 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Education
-     */
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2702,11 +2690,11 @@ export interface Navigation {
   };
   accidents?: {
     options?: {
-      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
        */
       enabled?: boolean | null;
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
     };
     link?: {
       type?: ('internal' | 'external') | null;
@@ -2731,13 +2719,10 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Accidents
-     */
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2797,11 +2782,11 @@ export interface Navigation {
   };
   blog?: {
     options?: {
-      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden from the nav, the blog landing page will still be accessible to visitors for filtered blog lists.
        */
       enabled?: boolean | null;
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
     };
     link?: {
       type?: ('internal' | 'external') | null;
@@ -2826,13 +2811,10 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Blog
-     */
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2892,11 +2874,11 @@ export interface Navigation {
   };
   events?: {
     options?: {
-      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.
        */
       enabled?: boolean | null;
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
     };
     link?: {
       type?: ('internal' | 'external') | null;
@@ -2921,13 +2903,10 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Events
-     */
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -2987,11 +2966,11 @@ export interface Navigation {
   };
   about?: {
     options?: {
-      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
        */
       enabled?: boolean | null;
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
     };
     link?: {
       type?: ('internal' | 'external') | null;
@@ -3016,13 +2995,10 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under About
-     */
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -3082,11 +3058,11 @@ export interface Navigation {
   };
   support?: {
     options?: {
-      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
        */
       enabled?: boolean | null;
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
     };
     link?: {
       type?: ('internal' | 'external') | null;
@@ -3111,13 +3087,10 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Support
-     */
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -3177,11 +3150,11 @@ export interface Navigation {
   };
   donate?: {
     options?: {
-      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, the button will not appear in the nav.
        */
       enabled?: boolean | null;
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
     };
     link?: {
       type?: ('internal' | 'external') | null;
@@ -3206,13 +3179,10 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Donate
-     */
     items?:
       | {
           /**
-           * Label for this nav section (shown when item has sub-items)
+           * Shown as the section's heading. Sections aren't clickable on the site.
            */
           label?: string | null;
           link?: {
@@ -4851,6 +4821,54 @@ export interface NavigationsSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  weather?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              displayMode?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
+        items?:
+          | T
+          | {
+              label?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
   observations?:
     | T
     | {
@@ -4898,62 +4916,14 @@ export interface NavigationsSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  weather?:
-    | T
-    | {
-        options?:
-          | T
-          | {
-              displayMode?: T;
-              enabled?: T;
-            };
-        link?:
-          | T
-          | {
-              type?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              newTab?: T;
-            };
-        items?:
-          | T
-          | {
-              label?: T;
-              link?:
-                | T
-                | {
-                    type?: T;
-                    reference?: T;
-                    url?: T;
-                    label?: T;
-                    newTab?: T;
-                  };
-              items?:
-                | T
-                | {
-                    link?:
-                      | T
-                      | {
-                          type?: T;
-                          reference?: T;
-                          url?: T;
-                          label?: T;
-                          newTab?: T;
-                        };
-                    id?: T;
-                  };
-              id?: T;
-            };
-      };
   education?:
     | T
     | {
         options?:
           | T
           | {
-              displayMode?: T;
               enabled?: T;
+              displayMode?: T;
             };
         link?:
           | T
@@ -5000,8 +4970,8 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
-              displayMode?: T;
               enabled?: T;
+              displayMode?: T;
             };
         link?:
           | T
@@ -5048,8 +5018,8 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
-              displayMode?: T;
               enabled?: T;
+              displayMode?: T;
             };
         link?:
           | T
@@ -5096,8 +5066,8 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
-              displayMode?: T;
               enabled?: T;
+              displayMode?: T;
             };
         link?:
           | T
@@ -5144,8 +5114,8 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
-              displayMode?: T;
               enabled?: T;
+              displayMode?: T;
             };
         link?:
           | T
@@ -5192,8 +5162,8 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
-              displayMode?: T;
               enabled?: T;
+              displayMode?: T;
             };
         link?:
           | T
@@ -5240,8 +5210,8 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
-              displayMode?: T;
               enabled?: T;
+              displayMode?: T;
             };
         link?:
           | T
