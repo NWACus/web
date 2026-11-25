@@ -12,8 +12,8 @@ const options: IconRadioOption<LinkType>[] = [
   { value: 'external', label: 'External link', icon: ExternalLink },
 ]
 
-export const LinkTypeRadio = ({ path }: RadioFieldClientProps) => {
-  const { value, setValue } = useField<LinkType>({ path })
+export const LinkTypeRadio = ({ path, readOnly }: RadioFieldClientProps) => {
+  const { disabled, value, setValue } = useField<LinkType>({ path })
   const { dispatchFields, getField } = useForm()
   const linkPath = path.replace(/\.type$/, '')
 
@@ -39,6 +39,7 @@ export const LinkTypeRadio = ({ path }: RadioFieldClientProps) => {
       label="Goes to"
       options={options}
       value={value === 'external' ? 'external' : 'internal'}
+      readOnly={readOnly || disabled}
       onChange={onChange}
     />
   )

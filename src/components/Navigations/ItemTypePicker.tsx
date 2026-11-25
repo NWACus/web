@@ -3,7 +3,13 @@
 import { IconRadioGroup, type IconRadioOption } from '@/components/IconRadioGroup'
 import { isRecord } from '@/utilities/isRecord'
 import { type NavItemType } from '@/utilities/navItemType'
-import { ConfirmationModal, useForm, useFormFields, useModal } from '@payloadcms/ui'
+import {
+  ConfirmationModal,
+  useDocumentInfo,
+  useForm,
+  useFormFields,
+  useModal,
+} from '@payloadcms/ui'
 import { Link, ListTree } from 'lucide-react'
 import type { UIFieldClientProps } from 'payload'
 import { useState } from 'react'
@@ -107,6 +113,9 @@ export const ItemTypePicker = ({ path }: UIFieldClientProps) => {
   const modalSlug = `nav-item-type-${itemPath}`
   const { subItemCount, toSection, toLink, keepsFirst } = useItemTypeSwitch(itemPath)
   const { closeModal, openModal } = useModal()
+  const form = useForm()
+  // Payload's readOnly prop is based on field permissions, which a UI field may not have
+  const { hasSavePermission } = useDocumentInfo()
   const [confirmMessage, setConfirmMessage] = useState<string>()
 
   // The modal mounts only while this item is asking, rather than one per nav item
@@ -125,7 +134,12 @@ export const ItemTypePicker = ({ path }: UIFieldClientProps) => {
     setConfirmMessage(undefined)
   }
 
-  const onChange = (next: NavItemType) => (next === 'section' ? toSection() : requestLink())
+  const onChange = (next: NavItemType) => {
+    // Set while someone else has the document locked. Read here because it doesn't rerender.
+    if (form.disabled) return
+    if (next === 'section') toSection()
+    else requestLink()
+  }
 
   return (
     <>
@@ -135,6 +149,7 @@ export const ItemTypePicker = ({ path }: UIFieldClientProps) => {
           label="Type"
           options={options}
           value={subItemCount > 0 ? 'section' : 'link'}
+          readOnly={hasSavePermission === false}
           onChange={onChange}
         />
       </div>
