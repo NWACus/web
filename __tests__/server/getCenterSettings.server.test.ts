@@ -2,13 +2,15 @@ import { getCenterSettings } from '@/utilities/getCenterSettings'
 
 const mockFind = jest.fn()
 
+let cacheKeyParts: string[] | undefined
 let cacheOptions: { tags?: string[] } | undefined
 let cacheResolved = false
 
 jest.mock('next/cache', () => ({
   unstable_cache:
-    (cb: () => Promise<unknown>, _keyParts: string[], options: Record<string, unknown>) =>
+    (cb: () => Promise<unknown>, keyParts: string[], options: Record<string, unknown>) =>
     async () => {
+      cacheKeyParts = keyParts
       cacheOptions = options
       cacheResolved = false
       const value = await cb()
@@ -34,6 +36,21 @@ describe('utilities: getCenterSettings', () => {
 
     await expect(getCenterSettings('nwac')).resolves.toEqual(settings)
     expect(cacheOptions?.tags).toEqual(['settings-nwac'])
+  })
+
+  it('keys the entry by deployment, so a release starts from a fresh read', async () => {
+    const original = process.env.VERCEL_DEPLOYMENT_ID
+    process.env.VERCEL_DEPLOYMENT_ID = 'dpl_test'
+    mockFind.mockResolvedValue({ docs: [] })
+
+    try {
+      await getCenterSettings('nwac')
+    } finally {
+      if (original === undefined) delete process.env.VERCEL_DEPLOYMENT_ID
+      else process.env.VERCEL_DEPLOYMENT_ID = original
+    }
+
+    expect(cacheKeyParts).toEqual(['center-settings', 'nwac', 'dpl_test'])
   })
 
   // tenants default-populate to the slug alone, which would blank the center name in the footer

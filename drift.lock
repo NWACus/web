@@ -78,7 +78,7 @@ sig = "9dcd658f517de266"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/revalidation.md"
-sig = "a6904bdf197a760f"
+sig = "69381753d34136f7"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -2018,7 +2018,7 @@ sig = "3b9b1daf53f8e500"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/utilities/getCenterSettings.ts"
-sig = "82fe3693a49e915f"
+sig = "f80468b6e850657f"
 
 [[bindings]]
 doc = "docs/revalidation.md"

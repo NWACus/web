@@ -10,8 +10,9 @@ type CenterSettings = Omit<Setting, 'tenant'> & { tenant: Tenant }
 
 class SettingsNotFoundError extends Error {}
 
-// Vercel shares the data cache across deployments, but each preview seeds its own database
-const cacheScope = process.env.VERCEL_ENV === 'preview' ? process.env.VERCEL_DEPLOYMENT_ID : null
+// The data cache outlives a deployment, and a release can migrate settings without a save to clear it.
+// Previews also share it, though each seeds its own database.
+const deploymentKey = () => process.env.VERCEL_DEPLOYMENT_ID ?? 'local'
 
 // Throws on a miss so the miss is never cached. See docs/revalidation.md.
 const getCachedCenterSettings = (center: string) =>
@@ -42,7 +43,7 @@ const getCachedCenterSettings = (center: string) =>
 
       return { ...settings, tenant: settings.tenant }
     },
-    ['center-settings', center, ...(cacheScope ? [cacheScope] : [])],
+    ['center-settings', center, deploymentKey()],
     { tags: [centerSettingsTag(center)] },
   )
 

@@ -136,6 +136,8 @@ Every render needs the center's settings, so `getCenterSettings` serves them fro
 
 The tag is also on every page rendered with the entry, so clearing it re-renders that center's pages. That is why unrelated media saves must not clear it.
 
+The key includes the deployment, so a migration that changes settings takes effect on release without a save.
+
 **🧑‍💻 Code to update**: a new relationship on Settings needs an entry in `SETTINGS_REFERENCE_FIELDS` in `revalidateCenterSettings.ts`.
 
 Page, post and event bodies are deliberately not cached this way. Their hourly regeneration is the fallback for references the tracking misses, and a tag-only entry would remove it.
