@@ -8,6 +8,7 @@ import { ProvidersFilter } from '@/components/filters/ProvidersFilter'
 import { StatesFilter } from '@/components/filters/StatesFilter'
 import { courseTypesData } from '@/constants/courseTypes'
 import { QUICK_DATE_FILTERS_COURSES } from '@/constants/quickDateFilters'
+import type { StartDateBounds } from '@/utilities/queries/getStartDateBounds'
 
 export type FilterProvider = { label: string; value: string }
 export type FilterState = { label: string; value: string }
@@ -15,6 +16,7 @@ export type FilterState = { label: string; value: string }
 export const CoursesFilters = ({
   startDate,
   endDate,
+  dateBounds,
   states,
   providers,
 }: {
@@ -22,12 +24,14 @@ export const CoursesFilters = ({
   states: FilterState[]
   startDate: string
   endDate: string
+  dateBounds: StartDateBounds
 }) => {
   return (
     <>
       <DateRangeFilter
         startDate={startDate}
         endDate={endDate}
+        dateBounds={dateBounds}
         quickFilters={QUICK_DATE_FILTERS_COURSES}
         title="Date Range"
         defaultOpen={true}

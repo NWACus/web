@@ -63,6 +63,19 @@ function useCurrentSections(ids: string[], nav: RefObject<HTMLElement | null>) {
   return current.split(' ')
 }
 
+/**
+ * Makes the link's own jump smooth, so its hash, Back and keyboard focus stay the browser's. Only
+ * for the click: left on, it would animate the router's scrolls too.
+ */
+function smoothNextJump() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  const { style } = document.documentElement
+  style.scrollBehavior = 'smooth'
+  setTimeout(() => {
+    style.scrollBehavior = ''
+  }, 100)
+}
+
 export function SectionTabs({ links }: { links: SectionLink[] }) {
   const nav = useRef<HTMLElement>(null)
   const current = useCurrentSections(
@@ -102,6 +115,7 @@ export function SectionTabs({ links }: { links: SectionLink[] }) {
             <li key={l.id} className="shrink-0">
               <a
                 href={`#${l.id}`}
+                onClick={smoothNextJump}
                 aria-current={on ? 'location' : undefined}
                 className={cn(
                   'inline-flex h-8 items-center whitespace-nowrap rounded-full border px-3 text-sm font-semibold no-underline',

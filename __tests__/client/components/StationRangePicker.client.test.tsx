@@ -67,6 +67,17 @@ describe('StationRangePicker', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Pick a range of up to 30 days.')
   })
 
+  it('uses the shadcn select for the month and year dropdowns', () => {
+    renderPicker()
+    // A native <select> is also a combobox; the shadcn trigger is a button.
+    const month = screen.getByRole('combobox', { name: /month/i })
+    const year = screen.getByRole('combobox', { name: /year/i })
+    expect(month.tagName).toBe('BUTTON')
+    expect(month).toHaveTextContent('Oct')
+    expect(year.tagName).toBe('BUTTON')
+    expect(year).toHaveTextContent('2026')
+  })
+
   it('reverts text that is not a date', () => {
     renderPicker()
     fireEvent.blur(typeInto('Start date', 'soon'))

@@ -341,6 +341,21 @@ export function widgetArchiveAddress(
     : `${page}#/forecast/${zone.zoneId}/${productId}`
 }
 
+/**
+ * The zone's forecast page for `date` from a page about that day: dated only once a newer product
+ * has replaced the one covering it. Until then the live page shows it, with no redirect.
+ */
+export function zoneForecastPath(
+  zoneSlug: string,
+  archiveDates: ZoneArchiveDate[],
+  date: string,
+  timezone: string | null | undefined,
+): string {
+  const page = `/forecasts/avalanche/${zoneSlug}`
+  const covering = findCoveringProductDate(archiveDates, date, timezone)
+  return covering && archiveDates[0].date > covering ? `${page}/${date}` : page
+}
+
 /** Where a widget center's dated address hands over, decided per request there. */
 export function widgetArchiveHandOverPath(zoneSlug: string, date: string): string {
   return `/forecasts/avalanche/${zoneSlug}/${date}/widget`

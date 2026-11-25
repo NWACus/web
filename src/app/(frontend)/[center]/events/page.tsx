@@ -10,6 +10,7 @@ import { getEventGroups } from '@/utilities/queries/getEventGroups'
 import { getEvents } from '@/utilities/queries/getEvents'
 import { getEventTags } from '@/utilities/queries/getEventTags'
 import { getEventTypes } from '@/utilities/queries/getEventTypes'
+import { getEventsStartDateBounds } from '@/utilities/queries/getStartDateBounds'
 import { notFound } from 'next/navigation'
 import { createLoader, parseAsArrayOf, parseAsString, SearchParams } from 'nuqs/server'
 import { EventsFilters } from './EventsFilters'
@@ -70,6 +71,7 @@ export default async function Page({ params, searchParams }: Args) {
   const { eventTypes } = await getEventTypes({ center })
   const { eventGroups } = await getEventGroups({ center })
   const { eventTags } = await getEventTags({ center })
+  const dateBounds = await getEventsStartDateBounds({ center })
 
   const hasActiveFilters = Boolean(types || groups || tags || modesOfTravel || startDate || endDate)
 
@@ -86,6 +88,7 @@ export default async function Page({ params, searchParams }: Args) {
               hasActiveFilters={hasActiveFilters}
               startDate={startDate}
               endDate={endDate}
+              dateBounds={dateBounds}
             />
           </div>
 
@@ -102,6 +105,7 @@ export default async function Page({ params, searchParams }: Args) {
             <EventsFilters
               startDate={startDate}
               endDate={endDate}
+              dateBounds={dateBounds}
               types={eventTypes}
               groups={eventGroups}
               tags={eventTags}

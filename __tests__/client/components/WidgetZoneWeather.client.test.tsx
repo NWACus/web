@@ -1,8 +1,34 @@
+// jsdom can't navigate: a click runs `onNavigate` alone, as the router's would.
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({
+    href,
+    onNavigate,
+    children,
+  }: {
+    href: string
+    onNavigate?: () => void
+    children: React.ReactNode
+  }) => (
+    <a
+      href={href}
+      onClick={(event) => {
+        event.preventDefault()
+        onNavigate?.()
+      }}
+    >
+      {children}
+    </a>
+  ),
+}))
+
 import { WidgetZoneWeather } from '@/components/NWACWeather/WidgetZoneWeather.client'
+import { ZoneWeatherLink } from '@/components/NWACWeather/ZoneWeatherLink.client'
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
-import { act, render, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import type React from 'react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
 const mapped = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
@@ -58,6 +84,18 @@ async function loadedTab() {
 // These tests render the whole issuance, desktop and phone tables both, and ran past 5s when the
 // pre-commit suite shared the machine.
 jest.setTimeout(15_000)
+
+function setReducedMotion(reduced: boolean) {
+  jest.spyOn(window, 'matchMedia').mockImplementation((query) =>
+    Object.assign(new EventTarget(), {
+      matches: reduced && query === '(prefers-reduced-motion: reduce)',
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    }),
+  )
+}
 
 describe('WidgetZoneWeather', () => {
   const fetchMock = jest.fn()
@@ -137,5 +175,132 @@ describe('WidgetZoneWeather', () => {
     expect(shadowMount(container)).toBeNull()
     expect(within(tab).getByText(/couldn't be loaded/)).toBeInTheDocument()
     expect(within(tab).queryByText(/was issued/)).toBeNull()
+  })
+
+  describe('opened at the weather', () => {
+    const PAGE = '/forecasts/avalanche/olympics'
+    const scrollIntoView = jest.fn()
+    const scrollTo = jest.fn()
+
+    beforeEach(() => {
+      scrollIntoView.mockReset()
+      scrollTo.mockReset()
+      window.scrollTo = scrollTo
+      // The plain jump, so these don't wait on frames; the glide has its own test.
+      setReducedMotion(true)
+      Element.prototype.scrollIntoView = scrollIntoView
+      window.history.replaceState(null, '', `${PAGE}#mountain-weather`)
+    })
+
+    afterEach(() => {
+      // Ends any glide still running.
+      fireEvent.wheel(window)
+      jest.mocked(window.matchMedia).mockRestore()
+      window.history.replaceState(null, '', '/')
+    })
+
+    it('scrolls to the weather once, though the widget replaces the hash first', async () => {
+      const { container } = renderInWidget()
+      window.history.replaceState(null, '', '#/olympics/')
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1))
+      expect(scrollTo).not.toHaveBeenCalled()
+      expect(scrollIntoView.mock.contexts[0]).toBe(
+        container.querySelector('#nac-additional-content > div'),
+      )
+
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-16T01:00:00Z' })
+      await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
+      await waitFor(() => expect(shadowMount(container)).not.toBeNull())
+      expect(scrollIntoView).toHaveBeenCalledTimes(1)
+    })
+
+    it('scrolls even when the reader moved while it loaded', async () => {
+      renderInWidget()
+      fireEvent.wheel(window)
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1))
+    })
+
+    it("scrolls on a page already open, and keeps the hash from the widget's router", async () => {
+      window.history.replaceState(null, '', `${PAGE}#/olympics`)
+      const { container } = renderInWidget()
+      const router = jest.fn()
+      window.addEventListener('popstate', router)
+      window.addEventListener('hashchange', router)
+      try {
+        fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+        await waitFor(() => expect(shadowMount(container)).not.toBeNull())
+        expect(scrollIntoView).not.toHaveBeenCalled()
+
+        window.history.replaceState(null, '', '#mountain-weather')
+        fireEvent(window, new PopStateEvent('popstate'))
+        fireEvent(
+          window,
+          new HashChangeEvent('hashchange', { oldURL: `http://localhost${PAGE}#/olympics` }),
+        )
+        await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1))
+        expect(window.location.hash).toBe('#/olympics')
+        expect(router).not.toHaveBeenCalled()
+      } finally {
+        window.removeEventListener('popstate', router)
+        window.removeEventListener('hashchange', router)
+      }
+    })
+
+    it('glides there, and lands on it', async () => {
+      setReducedMotion(false)
+      renderInWidget()
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(scrollTo).toHaveBeenCalled(), { timeout: 5000 })
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1), { timeout: 5000 })
+    })
+
+    it('stops gliding when the reader scrolls', async () => {
+      setReducedMotion(false)
+      renderInWidget()
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(scrollTo).toHaveBeenCalled(), { timeout: 5000 })
+      fireEvent.wheel(window)
+      await new Promise((resolve) => setTimeout(resolve, 2500))
+      expect(scrollIntoView).not.toHaveBeenCalled()
+    })
+
+    it('does nothing when the day has no weather', async () => {
+      fetchMock.mockResolvedValue({ ok: true, json: async () => ({ day: null }) })
+      await loadedTab()
+      expect(scrollIntoView).not.toHaveBeenCalled()
+    })
+
+    it('does nothing for an ordinary link', async () => {
+      window.history.replaceState(null, '', PAGE)
+      await loadedTab()
+      expect(scrollIntoView).not.toHaveBeenCalled()
+    })
+
+    it('scrolls after a dated link whose redirect dropped the hash, and only for that zone', async () => {
+      window.history.replaceState(null, '', '/weather/forecast/2026-09-14')
+      const link = render(<ZoneWeatherLink href={`${PAGE}/2026-09-14`}>Olympics</ZoneWeatherLink>)
+      const click = () => fireEvent.click(screen.getByRole('link', { name: 'Olympics' }))
+      expect(screen.getByRole('link', { name: 'Olympics' })).toHaveAttribute(
+        'href',
+        `${PAGE}/2026-09-14#mountain-weather`,
+      )
+
+      click()
+      window.history.replaceState(null, '', '/forecasts/avalanche/mt-hood#/mt-hood/')
+      const other = renderInWidget()
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(shadowMount(other.container)).not.toBeNull())
+      expect(scrollIntoView).not.toHaveBeenCalled()
+      other.unmount()
+
+      click()
+      link.unmount()
+      window.history.replaceState(null, '', `${PAGE}#/forecast/1/2`)
+      renderInWidget()
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1))
+    })
   })
 })
