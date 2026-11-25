@@ -1003,7 +1003,7 @@ sig = "eef97067a5b42a38"
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
 target = "src/middleware.ts"
-sig = "4d32a8e4e521b1a1"
+sig = "7cd9c3eccca48654"
 
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
@@ -1013,7 +1013,7 @@ sig = "76d25f34cc58b62c"
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
 target = "src/middleware.ts"
-sig = "4d32a8e4e521b1a1"
+sig = "7cd9c3eccca48654"
 
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
@@ -1063,7 +1063,7 @@ sig = "0ce7dd3d375aa0fe"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/middleware.ts"
-sig = "4d32a8e4e521b1a1"
+sig = "7cd9c3eccca48654"
 
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
@@ -1583,7 +1583,7 @@ sig = "a5ad3b592de08694"
 [[bindings]]
 doc = "docs/decisions/025-admin-served-only-from-the-apex.md"
 target = "src/middleware.ts"
-sig = "4d32a8e4e521b1a1"
+sig = "7cd9c3eccca48654"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
@@ -1793,7 +1793,7 @@ sig = "f4246a987c09c246"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/middleware.ts"
-sig = "4d32a8e4e521b1a1"
+sig = "7cd9c3eccca48654"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -1803,7 +1803,7 @@ sig = "fa777a94cd66bd94"
 [[bindings]]
 doc = "docs/not-found-report.md"
 target = "src/utilities/deadLegacyPath.ts"
-sig = "d3cd76897aad26d4"
+sig = "747446da3a07baa4"
 
 [[bindings]]
 doc = "docs/not-found-report.md"
@@ -2168,4 +2168,4 @@ sig = "9544a6019934bf12"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/middleware.ts"
-sig = "4d32a8e4e521b1a1"
+sig = "7cd9c3eccca48654"

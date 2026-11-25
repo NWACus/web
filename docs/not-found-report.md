@@ -57,7 +57,7 @@ A 30-day run takes a few minutes. The script never overwrites an existing `redir
 
 Paths are set aside, not listed in the CSV, when a redirect can't or shouldn't fix them:
 
-- `dead-legacy-path`: known-dead WordPress-era paths (`isDeadLegacyPath`, shared with #1280 — Short-circuit dead legacy URLs (old WordPress paths, RSS feeds, icons) before they reach the page pipeline).
+- `dead-legacy-path`: known-dead WordPress-era paths (`isDeadLegacyPath`, shared with #1280 — Short-circuit dead legacy URLs (old WordPress paths, RSS feeds, icons) before they reach the page pipeline). Middleware answers these with `410 Gone` before the Redirects lookup, so a Redirects row can't catch them until the pattern is removed.
 - `not-redirectable`: paths the middleware matcher skips, such as `/api/...` and root-level files like `/favicon.ico`.
 - `probe`: dotfile paths such as `/.well-known/...`, which come from browsers and scanners.
 - `live-path`: paths that exist now, so the 404 was temporary.

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { isDeadLegacyPath } from './utilities/deadLegacyPath'
 import { getURL } from './utilities/getURL'
 import {
   findCenterByDomain,
@@ -18,15 +19,25 @@ export const config = {
      * 5. /_static (inside /public)
      * 6. all root files inside /public (e.g. /favicon.ico)
      * 7. /media, /thumbnail, /assets (inside /public)
-     * 8. sitemap.xml, robots.txt, pages-sitemap.xml, posts-sitemap.xml
+     *
+     * The entries after it opt back in root files that middleware handles: sitemaps, robots.txt,
+     * and the dead legacy paths in isDeadLegacyPath.
      */
     '/((?!api|ingest|monitoring(?:/|$)|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets|images).*)',
     '/sitemap.xml',
     '/robots.txt',
     '/pages-sitemap.xml',
     '/posts-sitemap.xml',
+    '/ie-incompatible.html',
+    '/(wp-.*)', // /wp-login.php, /wp-sitemap.xml
+    '/([\\w-]+-rss\\.xml)', // /news-rss.xml
+    '/([\\w-]+\\.php)', // /xmlrpc.php
+    '/(apple-touch-icon-(?!precomposed\\.png$)[\\w-]+\\.png)', // /apple-touch-icon-120x120.png
   ],
 }
+
+const GONE_BODY =
+  '<!doctype html><html lang="en"><title>Page removed</title><p>This page no longer exists. <a href="/">Go to the home page</a>.</p></html>'
 
 /**
  * Sets the payload-tenant cookie if needed and returns whether it was set.
@@ -48,6 +59,13 @@ function setCookieIfNeeded(
 }
 
 export default function middleware(req: NextRequest) {
+  if (isDeadLegacyPath(req.nextUrl.pathname)) {
+    return new NextResponse(GONE_BODY, {
+      status: 410,
+      headers: { 'content-type': 'text/html; charset=utf-8' },
+    })
+  }
+
   const middlewareStart = performance.now()
 
   const logCompletion = (action: string) => {
