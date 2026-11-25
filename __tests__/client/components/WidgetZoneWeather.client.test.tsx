@@ -85,6 +85,18 @@ async function loadedTab() {
 // pre-commit suite shared the machine.
 jest.setTimeout(15_000)
 
+function setReducedMotion(reduced: boolean) {
+  jest.spyOn(window, 'matchMedia').mockImplementation((query) =>
+    Object.assign(new EventTarget(), {
+      matches: reduced && query === '(prefers-reduced-motion: reduce)',
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    }),
+  )
+}
+
 describe('WidgetZoneWeather', () => {
   const fetchMock = jest.fn()
 
@@ -168,14 +180,22 @@ describe('WidgetZoneWeather', () => {
   describe('opened at the weather', () => {
     const PAGE = '/forecasts/avalanche/olympics'
     const scrollIntoView = jest.fn()
+    const scrollTo = jest.fn()
 
     beforeEach(() => {
       scrollIntoView.mockReset()
+      scrollTo.mockReset()
+      window.scrollTo = scrollTo
+      // The plain jump, so these don't wait on frames; the glide has its own test.
+      setReducedMotion(true)
       Element.prototype.scrollIntoView = scrollIntoView
       window.history.replaceState(null, '', `${PAGE}#mountain-weather`)
     })
 
     afterEach(() => {
+      // Ends any glide still running.
+      fireEvent.wheel(window)
+      jest.mocked(window.matchMedia).mockRestore()
       window.history.replaceState(null, '', '/')
     })
 
@@ -184,6 +204,7 @@ describe('WidgetZoneWeather', () => {
       window.history.replaceState(null, '', '#/olympics/')
       fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
       await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1))
+      expect(scrollTo).not.toHaveBeenCalled()
       expect(scrollIntoView.mock.contexts[0]).toBe(
         container.querySelector('#nac-additional-content > div'),
       )
@@ -225,6 +246,24 @@ describe('WidgetZoneWeather', () => {
         window.removeEventListener('popstate', router)
         window.removeEventListener('hashchange', router)
       }
+    })
+
+    it('glides there, and lands on it', async () => {
+      setReducedMotion(false)
+      renderInWidget()
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(scrollTo).toHaveBeenCalled(), { timeout: 5000 })
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1), { timeout: 5000 })
+    })
+
+    it('stops gliding when the reader scrolls', async () => {
+      setReducedMotion(false)
+      renderInWidget()
+      fireNacLoaded({ zone_id: OLYMPICS, published: '2026-09-15T01:00:00Z' })
+      await waitFor(() => expect(scrollTo).toHaveBeenCalled(), { timeout: 5000 })
+      fireEvent.wheel(window)
+      await new Promise((resolve) => setTimeout(resolve, 2500))
+      expect(scrollIntoView).not.toHaveBeenCalled()
     })
 
     it('does nothing when the day has no weather', async () => {

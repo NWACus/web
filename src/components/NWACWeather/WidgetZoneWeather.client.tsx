@@ -83,9 +83,77 @@ function tabMount(): HTMLElement | null {
   })
 }
 
+const GLIDE_MS = 600
+/** The most one frame advances the glide, so frames the widget blocks don't skip it. */
+const MAX_FRAME_MS = 34
+/** When the landing happens regardless of frames, which stall where nothing is painted. */
+const GLIDE_LIMIT_MS = 2000
+/** How long the widget's late layout changes are corrected for; Safari doesn't anchor scroll. */
+const HOLD_MS = 2000
+
+/** Input that takes the scroll back from the page. */
+const READER_INPUT = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const
+
+/** Keeps `target` in place while the page above it changes height. */
+function land(target: HTMLElement, reader: AbortController) {
+  target.scrollIntoView()
+  const observer = new ResizeObserver(() => target.scrollIntoView())
+  observer.observe(document.body)
+  reader.signal.addEventListener('abort', () => observer.disconnect())
+  setTimeout(() => reader.abort(), HOLD_MS)
+}
+
+/**
+ * A smooth scroll that measures its target every frame: the widget changes height while it runs,
+ * and the browser's own (`behavior: 'smooth'`) lands where the target was when it started.
+ */
+function glideTo(target: HTMLElement) {
+  const reader = new AbortController()
+  READER_INPUT.forEach((type) =>
+    window.addEventListener(type, () => reader.abort(), { passive: true, signal: reader.signal }),
+  )
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    land(target, reader)
+    return
+  }
+
+  const px = (value: string) => parseFloat(value) || 0
+  const from = window.scrollY
+  let elapsed = 0
+  let last: number | null = null
+  let landed = false
+  function finish() {
+    if (landed || reader.signal.aborted) return
+    landed = true
+    land(target, reader)
+  }
+  const limit = setTimeout(finish, GLIDE_LIMIT_MS)
+  reader.signal.addEventListener('abort', () => clearTimeout(limit))
+
+  function step(now: number) {
+    if (landed || reader.signal.aborted) return
+    elapsed += Math.min(now - (last ?? now), MAX_FRAME_MS)
+    last = now
+    const progress = elapsed / GLIDE_MS
+    if (progress >= 1) {
+      finish()
+      return
+    }
+    const offset =
+      px(getComputedStyle(target).scrollMarginTop) +
+      px(getComputedStyle(document.documentElement).scrollPaddingTop)
+    const to = target.getBoundingClientRect().top + window.scrollY - offset
+    const eased = 1 - (1 - progress) ** 3
+    window.scrollTo({ top: from + (to - from) * eased, behavior: 'instant' })
+    requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+}
+
 function scrollToWeather(slots: Slots) {
   const root = slots.forecast?.getRootNode()
-  if (root instanceof ShadowRoot) root.host.scrollIntoView()
+  if (!(root instanceof ShadowRoot)) return
+  if (root.host instanceof HTMLElement) glideTo(root.host)
 }
 
 /** Scrolls to the weather once it mounts, when the reader came for it. */
