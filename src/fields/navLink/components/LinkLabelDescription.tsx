@@ -17,8 +17,8 @@ export const LinkLabelDescription: FieldDescriptionClientComponent = ({ path }) 
   return (
     <div className="field-description">
       {field.value === 'internal'
-        ? 'This will override the text of this nav item normally determined by the page title.'
-        : 'The text of this nav item. Required for external links.'}
+        ? 'The text shown in the menu. Leave blank to use the page title.'
+        : 'The text shown in the menu. Required for external links.'}
     </div>
   )
 }

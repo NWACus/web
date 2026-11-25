@@ -301,3 +301,55 @@
   padding-bottom: 0;
   margin-bottom: 0;
 }
+
+// The Navigation form: one compact row per menu item, with only sections shaded.
+.nav-items {
+  .array-field__draggable-rows {
+    gap: 6px;
+  }
+
+  .collapsible__toggle-wrap {
+    background: var(--theme-elevation-0);
+  }
+
+  .collapsible__toggle-wrap:has(.nav-item-label--section) {
+    background: var(--theme-elevation-50);
+  }
+
+  .nav-item-label {
+    font-size: 14px;
+  }
+
+  // Payload rules off the link group, which only adds empty space inside a row
+  .group-field {
+    border: 0;
+    padding-block: 0;
+  }
+
+  .collapsible__content {
+    padding-block: calc(var(--base) * 0.75);
+  }
+}
+
+// Sub-items sit straight under their section's name
+.nav-sub-items {
+  margin-left: calc(var(--base) * 1.2);
+
+  > .array-field__header {
+    display: none;
+  }
+}
+
+// The only document of its kind, so its ID says nothing
+.template-default:has(.collection-edit--navigations) .doc-header .id-label {
+  font-size: 0;
+  padding: 0;
+  background: none;
+
+  &::before {
+    content: 'Navigation';
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--theme-text);
+  }
+}

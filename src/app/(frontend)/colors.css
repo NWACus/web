@@ -384,6 +384,50 @@
 
   --nav-underline: var(--callout);
 }
+/* Eastern Wyoming Avalanche Info Exchange — Jackalope Ember */
+.ewyaix {
+  --brand-50: hsl(24 55% 97%);
+  --brand-100: hsl(24 55% 94%);
+  --brand-200: hsl(24 55% 88%);
+  --brand-300: hsl(24 66% 76%);
+  --brand-400: hsl(24 76% 62%);
+  --brand-500: hsl(24 85% 48%);
+  --brand-600: hsl(24 85% 38%);
+  --brand-700: hsl(24 79% 29%);
+  --brand-800: hsl(24 61% 20%);
+  --brand-900: hsl(24 55% 13%);
+  --brand-950: hsl(24 55% 8%);
+
+  --brand-foreground-50: hsl(240 10% 3.9%);
+  --brand-foreground-100: hsl(240 10% 3.9%);
+  --brand-foreground-200: hsl(240 10% 3.9%);
+  --brand-foreground-300: hsl(240 10% 3.9%);
+  --brand-foreground-400: hsl(240 10% 3.9%);
+  --brand-foreground-500: hsl(240 10% 3.9%);
+  --brand-foreground-600: hsl(0 0% 100%);
+  --brand-foreground-700: hsl(0 0% 100%);
+  --brand-foreground-800: hsl(0 0% 100%);
+  --brand-foreground-900: hsl(0 0% 100%);
+  --brand-foreground-950: hsl(0 0% 100%);
+
+  --primary: hsl(22 85% 36%);
+  --primary-hover: hsla(22 85% 36% / 0.85);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(30 40% 80%);
+  --secondary-hover: hsla(30 40% 80% / 0.85);
+  --secondary-foreground: hsl(0 0% 7%);
+  --header: hsl(20 50% 9%);
+  --header-foreground: hsl(30 20% 96%);
+  --header-foreground-highlight: hsl(24 90% 60%);
+  --footer: hsl(20 50% 9%);
+  --footer-foreground: hsl(30 20% 94%);
+  --footer-foreground-highlight: hsl(24 90% 68%);
+  --callout: hsl(24 90% 55%);
+  --callout-hover: hsla(24 90% 55% / 0.85);
+  --callout-foreground: hsl(0 0% 7%);
+  --nav-underline: hsl(24 90% 55%);
+  --link: hsl(20 80% 33%);
+}
 
 /* --link must pass on white and brand-100/200; darker shades use the block's
    own contrasting text color. Rich-text links stay underlined either way. */

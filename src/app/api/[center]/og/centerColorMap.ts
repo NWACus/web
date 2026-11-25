@@ -25,6 +25,10 @@ export const centerColorMap = {
     header: 'hsl(0 0% 100%)',
     headerForeground: 'hsl(240 10% 3.9%)',
   },
+  ewyaix: {
+    header: 'hsl(20 50% 9%)',
+    headerForeground: 'hsl(30 20% 96%)',
+  },
   default: {
     header: 'hsl(0 0% 100%)',
     headerForeground: 'hsl(240 10% 3.9%)',

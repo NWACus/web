@@ -52,8 +52,11 @@ import { OnboardingChecklist as OnboardingChecklist_e43d4b78209dd849b6f9ccc557d9
 import { SyncTenantsOnSave as SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1 } from '@/collections/Tenants/components/SyncTenantsOnSave'
 import { DeleteTenantModal as DeleteTenantModal_4179c7e18c353aeb4f324f76e2ac1d6e } from '@/collections/Tenants/components/DeleteTenantModal'
 import { AutoFillNameFromSlug as AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10 } from '@/collections/Tenants/components/AutoFillNameFromSlug'
-import { default as default_82dc161b944e4ac13e65d7b8b57c6182 } from '@/components/Navigations/DisplayModePicker'
+import { LinkTypeRadio as LinkTypeRadio_f602c7e48f266292bdd6f31f7cc365d8 } from '@/fields/navLink/components/LinkTypeRadio'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
+import { LinkLabelField as LinkLabelField_8aeee7844bf821987a6f49df933017ed } from '@/fields/navLink/components/LinkLabelField'
+import { ItemTypePicker as ItemTypePicker_afdfb8cff718c5dd75720b5701bd2030 } from '@/components/Navigations/ItemTypePicker'
+import { NavItemRowLabel as NavItemRowLabel_6817042e2277f40fe8e173f2b7e19ac1 } from '@/components/Navigations/NavItemRowLabel'
 import { BannerDescription as BannerDescription_3edfb41266bd8db9320658009eba5899 } from '@/components/BannerDescription'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
@@ -135,8 +138,11 @@ export const importMap = {
   "@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave": SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1,
   "@/collections/Tenants/components/DeleteTenantModal#DeleteTenantModal": DeleteTenantModal_4179c7e18c353aeb4f324f76e2ac1d6e,
   "@/collections/Tenants/components/AutoFillNameFromSlug#AutoFillNameFromSlug": AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10,
-  "@/components/Navigations/DisplayModePicker#default": default_82dc161b944e4ac13e65d7b8b57c6182,
+  "@/fields/navLink/components/LinkTypeRadio#LinkTypeRadio": LinkTypeRadio_f602c7e48f266292bdd6f31f7cc365d8,
   "@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription": LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
+  "@/fields/navLink/components/LinkLabelField#LinkLabelField": LinkLabelField_8aeee7844bf821987a6f49df933017ed,
+  "@/components/Navigations/ItemTypePicker#ItemTypePicker": ItemTypePicker_afdfb8cff718c5dd75720b5701bd2030,
+  "@/components/Navigations/NavItemRowLabel#NavItemRowLabel": NavItemRowLabel_6817042e2277f40fe8e173f2b7e19ac1,
   "@/components/BannerDescription#BannerDescription": BannerDescription_3edfb41266bd8db9320658009eba5899,
   "@/collections/Settings/components/AvalancheCenterName#AvalancheCenterName": AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
   "@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription": USFSLogoDescription_d2eea91290575f9a545768dce25713f4,

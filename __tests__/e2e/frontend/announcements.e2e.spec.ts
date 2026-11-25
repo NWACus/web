@@ -1,11 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
 import { tenantBaseUrl } from '../helpers/tenant-url'
 
-const TENANT_BASE_URL = tenantBaseUrl('nwac')
+const TENANT_BASE_URL = tenantBaseUrl('dvac')
 
 /** Resolves once the browser has read the announcements, which it does after hydration. */
 function announcementsRead(page: Page) {
-  return page.waitForResponse((response) => response.url().endsWith('/api/nwac/announcements'))
+  return page.waitForResponse((response) => response.url().endsWith('/api/dvac/announcements'))
 }
 
 /** Marks popups as dismissed so they don't overlay banner tests. */
@@ -125,7 +125,7 @@ test.describe('Announcement popups', () => {
   })
 })
 
-// Seeded nwac banners: one for all devices ("Backcountry Access Road Closure"),
+// Seeded dvac banners: one for all devices ("Backcountry Access Road Closure"),
 // one mobile-only ("Text Alerts for Forecast Updates"), one desktop-only
 // ("Explore the Interactive Danger Map") and one expired. The split is at
 // 1024px (Tailwind `lg`). The banners are fetched in the browser after mount,

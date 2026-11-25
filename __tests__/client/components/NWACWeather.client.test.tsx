@@ -18,7 +18,7 @@ describe('Overall', () => {
     render(<Overall parts={overallParts(afternoon)} />)
     for (const title of [
       'Precipitation and Snow (in)',
-      "5000' Temperatures (°F)",
+      "Temperatures @ 5000' (°F)",
       'Snow and Freezing Level (ft)',
       'Snow Levels (ft)',
       'Ridgeline Winds (mph)',
@@ -29,7 +29,7 @@ describe('Overall', () => {
     expect(screen.getAllByText('Hurricane Ridge').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Olympics').length).toBeGreaterThan(0)
     // 53 / 47 °F for Olympics on Night 1, as entered.
-    const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
+    const temps = screen.getByRole('region', { name: "Temperatures @ 5000' (°F)" })
     const [olympics] = within(temps)
       .getAllByRole('rowheader', { name: 'Olympics' })
       .map((label) => label.closest('tr'))
@@ -239,28 +239,67 @@ describe('Overall extended section', () => {
     expect(screen.queryByRole('heading', { name: 'Outlook' })).toBeNull()
     expect(screen.getByRole('heading', { name: 'Snow Levels (ft)' })).toBeInTheDocument()
   })
+
+  it('treats an outlook with no text, as the editor leaves it, as none', () => {
+    render(<Overall parts={overallParts({ ...afternoon, extendedOutlook: '<p></p>' })} />)
+    expect(screen.queryByRole('heading', { name: 'Outlook' })).toBeNull()
+    expect(screen.getByRole('heading', { name: 'Snow Levels (ft)' })).toBeInTheDocument()
+  })
 })
 
 describe('Overall table descriptions', () => {
-  it('explains each table, with a legend where its cells need one', () => {
+  const showButton = (table: string) => screen.getByRole('button', { name: `More about ${table}` })
+  it("shows each explanation's first line, with a legend where its cells need one", () => {
     render(<Overall parts={overallParts(afternoon)} />)
 
     // The main and extended snow level tables share their explanation.
-    expect(
-      screen.getAllByText(/^The snow level forecast represents the general snow level/),
-    ).toHaveLength(2)
-    expect(
+    const levels = screen.getAllByText(/^The snow level forecast represents the general snow level/)
+    expect(levels).toHaveLength(2)
+    for (const text of [
+      ...levels,
       screen.getByText(/^The low and high temperature at 5000’ over a 12 hr period/),
-    ).toBeInTheDocument()
-    expect(
       screen.getByText(/^Ridgeline winds represent the average wind speed/),
-    ).toBeInTheDocument()
-    // The 12 and 24 hour tables both carry it; one is hidden.
-    expect(
-      screen.getAllByText(/^Precipitation: Water Equivalent \(WE\) .* presented in a range\.$/),
-    ).toHaveLength(2)
-    expect(screen.getByText('VAR: variable')).toBeInTheDocument()
-    expect(screen.queryByText('Points downwind')).toBeNull()
+      // The 12 and 24 hour tables both carry it.
+      ...screen.getAllByText(/^Precipitation: Water Equivalent \(WE\) .* presented in a range\.$/),
+    ]) {
+      expect(text).toHaveClass('truncate')
+    }
+    for (const button of screen.getAllByRole('button', { name: /^More about/ })) {
+      expect(button).toHaveAttribute('aria-expanded', 'false')
+    }
+    expect(screen.getByText('VAR: variable')).toBeVisible()
+  })
+
+  it('opens and closes each table’s description on its own', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const wind = showButton('Ridgeline Winds')
+    const description = screen.getByText(/^Ridgeline winds represent the average wind speed/)
+
+    fireEvent.click(wind)
+    expect(wind).toHaveAttribute('aria-expanded', 'true')
+    expect(wind).toHaveAccessibleName('Less about Ridgeline Winds')
+    expect(wind).toHaveAttribute('aria-controls', description.id)
+    expect(description).not.toHaveClass('truncate')
+    expect(screen.getByText(/^The low and high temperature/)).toHaveClass('truncate')
+
+    fireEvent.click(wind)
+    expect(wind).toHaveAttribute('aria-expanded', 'false')
+    expect(description).toHaveClass('truncate')
+  })
+
+  it('keeps the precipitation description open when switching to 24 hours', () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const [precip12] = screen.getAllByRole('button', {
+      name: 'More about Precipitation and Snow',
+    })
+    fireEvent.click(precip12)
+    fireEvent.click(screen.getByRole('radio', { name: '24 hours' }))
+    // Only the 24-hour table's button is shown now, and it is open too.
+    const precip24 = screen.getByRole('button', {
+      name: 'Less about Precipitation and Snow',
+    })
+    expect(precip24).not.toBe(precip12)
+    expect(precip24).toHaveAttribute('aria-expanded', 'true')
   })
 })
 
@@ -268,11 +307,39 @@ describe('OverallSectionTabs', () => {
   it('links each section the issuance has', () => {
     render(<OverallSectionTabs parts={overallParts(afternoon)} />)
     const nav = screen.getByRole('navigation', { name: 'Forecast sections' })
-    expect(within(nav).getByRole('link', { name: 'Zone Summary' })).toHaveAttribute(
+    expect(within(nav).getByRole('link', { name: 'Weather Summary by Zone' })).toHaveAttribute(
       'href',
       '#afternoon-sensible',
     )
     expect(within(nav).getByRole('link', { name: 'Extended' })).toBeInTheDocument()
+  })
+
+  it.each([
+    ['side by side', 100, ["Temperatures @ 5000'", 'Ridgeline Winds']],
+    ['stacked', -400, ['Ridgeline Winds']],
+  ])('marks the sections at the top of the viewport when %s', (_, tempsTop, expected) => {
+    const tops: Record<string, number> = {
+      'afternoon-temps': tempsTop,
+      'afternoon-wind': 100,
+      'afternoon-extended': 900,
+    }
+    const headings = Object.entries(tops).map(([id, top]) => {
+      const el = document.createElement('h3')
+      el.id = id
+      el.getBoundingClientRect = () => new DOMRect(0, top, 0, 0)
+      document.body.append(el)
+      return el
+    })
+    const shown = jest
+      .spyOn(HTMLElement.prototype, 'offsetParent', 'get')
+      .mockReturnValue(document.body)
+    render(<OverallSectionTabs parts={overallParts(afternoon)} />)
+
+    const current = screen.getAllByRole('link').filter((l) => l.hasAttribute('aria-current'))
+    expect(current.map((l) => l.textContent)).toEqual(expected)
+
+    shown.mockRestore()
+    headings.forEach((h) => h.remove())
   })
 
   it('leaves out Extended on a morning issuance', () => {
@@ -368,7 +435,7 @@ describe('levelFill', () => {
 describe('the paired temperature and wind tables', () => {
   it('shows a phone every date of the temperatures, with no date switch', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const temps = screen.getByRole('region', { name: "5000' Temperatures (°F)" })
+    const temps = screen.getByRole('region', { name: "Temperatures @ 5000' (°F)" })
     expect(within(temps).queryByRole('tab')).not.toBeInTheDocument()
   })
 
@@ -385,35 +452,43 @@ describe('the paired temperature and wind tables', () => {
 
   it('keeps the picked date when a phone switches the precipitation to 24 hours', () => {
     render(<Overall parts={overallParts(afternoon)} />)
-    const pickSecond = (trigger: HTMLElement) => {
-      fireEvent.keyDown(trigger, { key: 'Enter' })
-      fireEvent.keyDown(screen.getAllByRole('option')[1], { key: 'Enter' })
-    }
-    const dates = () => screen.getAllByRole('combobox', { name: /^Precipitation and Snow date$/ })
-    pickSecond(dates()[0])
-    const second = dates()[0].textContent
+    const picked = () =>
+      within(screen.getByRole('region', { name: /^Precipitation and Snow/ })).getByRole('tab', {
+        selected: true,
+      })
+    const tabs = within(screen.getByRole('region', { name: /^Precipitation and Snow/ }))
+    fireEvent.click(tabs.getAllByRole('tab')[1])
+    const second = picked().textContent
 
-    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
-    fireEvent.keyDown(screen.getByRole('option', { name: '24 hours' }), { key: 'Enter' })
+    fireEvent.click(screen.getByRole('radio', { name: '24 hours' }))
 
     // The 24-hour dates are ranges: the first one covering the picked date is kept.
-    const [date24] = dates()
-    expect(date24.textContent).not.toBe(second)
-    expect(date24.textContent).toContain(second)
+    const date24 = picked().textContent
+    expect(date24).not.toBe(second)
+    expect(date24).toContain(second)
 
-    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Period length' }), { key: 'Enter' })
-    fireEvent.keyDown(screen.getByRole('option', { name: '12 hours' }), { key: 'Enter' })
+    fireEvent.click(screen.getByRole('radio', { name: '12 hours' }))
     // Back to 12 hours: the range's last date.
-    expect(dates()[0].textContent).toBe(date24.textContent?.split(' – ').at(-1))
+    expect(picked().textContent).toBe(date24?.split(' – ').at(-1))
+  })
+
+  it("shortens the precipitation tabs' dates, keeping the full ones for screen readers", () => {
+    render(<Overall parts={overallParts(afternoon)} />)
+    const region = screen.getByRole('region', { name: /^Precipitation and Snow/ })
+    const tabs = within(region).getAllByRole('tab')
+
+    expect(tabs[0].textContent).toMatch(/^\w{3} \w{3} \d+$/)
+    expect(tabs[0].querySelector('.sr-only')).toHaveTextContent(/^\w{3}$/)
+    expect(tabs.at(-1)).toHaveTextContent('Total')
   })
 })
 
 describe('windFill', () => {
   it('shades wind by its strength, and leaves calm and missing wind alone', () => {
-    expect(windFill(8)).toContain('bg-violet-100')
+    expect(windFill(8)).toContain('bg-[#f8f7ff]')
     expect(windFill(12)).toBe(windFill(15))
-    expect(windFill(30)).toContain('bg-pink-100')
-    expect(windFill(60)).toContain('bg-pink-300')
+    expect(windFill(30)).toContain('bg-[#cdbffd]')
+    expect(windFill(60)).toContain('bg-[#a78bfa]')
     expect(windFill(3)).toBeUndefined()
     expect(windFill(null)).toBeUndefined()
   })
