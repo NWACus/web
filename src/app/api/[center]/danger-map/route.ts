@@ -15,7 +15,7 @@ import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Reads query params, so it must not be cached at the route level — the upstream fetch is where
-// caching happens (30 minutes live, 24 hours for a past day).
+// caching happens (5 minutes live, 24 hours for a past day).
 export const dynamic = 'force-dynamic'
 
 /** `YYYY-MM-DD`. Anything else is ignored rather than passed upstream. */

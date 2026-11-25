@@ -4,7 +4,7 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
-import { afpFetch, nacFetch } from '@/services/nac/nac'
+import { afpFetch, getMapLayer, nacFetch } from '@/services/nac/nac'
 
 const ONE_DAY_IN_SECONDS = 24 * 60 * 60
 
@@ -70,5 +70,28 @@ describe.each([
 
     expect(initFor().cache).toBe('no-store')
     expect(initFor().next).toBeUndefined()
+  })
+})
+
+describe('services: getMapLayer cache options', () => {
+  beforeEach(() => {
+    fetchSpy.mockImplementation(
+      async () => new Response(JSON.stringify({ type: 'FeatureCollection', features: [] })),
+    )
+  })
+
+  it('caches the live layer for 5 minutes under the tag the freshness check purges', async () => {
+    await getMapLayer('sac')
+
+    expect(initFor().next).toEqual({ revalidate: 300, tags: ['map-layer:sac:current'] })
+  })
+
+  it('caches a past day for a day under its own tag', async () => {
+    await getMapLayer('sac', { day: '2026-01-14' })
+
+    expect(initFor().next).toEqual({
+      revalidate: ONE_DAY_IN_SECONDS,
+      tags: ['map-layer:sac:2026-01-14'],
+    })
   })
 })
