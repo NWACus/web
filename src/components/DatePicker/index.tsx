@@ -2,17 +2,9 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { addYears, endOfYear, format, setMonth, setYear, startOfYear, subYears } from 'date-fns'
+import { addYears, endOfYear, format, startOfYear, subYears } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
-import { DropdownProps, useDayPicker } from 'react-day-picker'
 
 const YEARS_BEFORE_CURRENT = 5
 const YEARS_AFTER_CURRENT = 1
@@ -22,50 +14,6 @@ type DatePickerFieldProps = {
   value: string
   id: string
   onChange: (date: string) => void
-}
-
-type CalendarSelectProps = DropdownProps & {
-  onValueChange: (value: number) => void
-}
-
-const CalendarSelect = ({
-  options,
-  value,
-  disabled,
-  onValueChange,
-  'aria-label': ariaLabel,
-}: CalendarSelectProps) => (
-  <Select
-    value={String(value)}
-    disabled={disabled}
-    onValueChange={(next) => onValueChange(Number(next))}
-  >
-    <SelectTrigger aria-label={ariaLabel} className="h-8 w-fit gap-1 px-2 text-sm font-medium">
-      <SelectValue />
-    </SelectTrigger>
-    <SelectContent className="max-h-64">
-      {options?.map((option) => (
-        <SelectItem key={option.value} value={String(option.value)} disabled={option.disabled}>
-          {option.label}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-)
-
-// react-day-picker's handlers expect a native select change event, so navigate via the context instead
-const MonthsDropdown = (props: DropdownProps) => {
-  const { months, goToMonth } = useDayPicker()
-  const current = months[0]?.date ?? new Date()
-  return (
-    <CalendarSelect {...props} onValueChange={(month) => goToMonth(setMonth(current, month))} />
-  )
-}
-
-const YearsDropdown = (props: DropdownProps) => {
-  const { months, goToMonth } = useDayPicker()
-  const current = months[0]?.date ?? new Date()
-  return <CalendarSelect {...props} onValueChange={(year) => goToMonth(setYear(current, year))} />
 }
 
 export const DatePickerField = ({ label, value, id, onChange }: DatePickerFieldProps) => {
@@ -113,7 +61,6 @@ export const DatePickerField = ({ label, value, id, onChange }: DatePickerFieldP
             startMonth={startMonth}
             endMonth={endMonth}
             defaultMonth={parseDate(value)}
-            components={{ MonthsDropdown, YearsDropdown }}
             onSelect={handleDateSelect}
           />
         </PopoverContent>
