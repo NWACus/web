@@ -281,8 +281,11 @@ export function mapLayerCacheTag(centerSlug: string, day?: string): string {
   return `map-layer:${center}:${day ?? 'current'}`
 }
 
-/** How long a live map layer is cached. Forecasts publish roughly daily. */
-const MAP_LAYER_CACHE_SECONDS = 30 * 60
+/**
+ * How long a live map layer is cached, matching the native forecast fetch. On a widget center
+ * nothing purges it, so this bounds how long a link preview can miss a newly published rating.
+ */
+const MAP_LAYER_CACHE_SECONDS = 300
 /** A past day's ratings can no longer change, so hold them for a day. */
 const DATED_MAP_LAYER_CACHE_SECONDS = 24 * 60 * 60
 
