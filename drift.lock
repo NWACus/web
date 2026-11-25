@@ -903,7 +903,7 @@ sig = "785a6e42047c6a52"
 [[bindings]]
 doc = "docs/claude-github-issues.md"
 target = ".github/workflows/claude.yml"
-sig = "4b19bdb031c653bd"
+sig = "f45be886a9ef77cb"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
