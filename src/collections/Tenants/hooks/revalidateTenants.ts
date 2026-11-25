@@ -1,3 +1,4 @@
+import { centerSettingsTag } from '@/utilities/centerSettingsTag'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
@@ -11,6 +12,7 @@ export const revalidateTenantsAfterChange: CollectionAfterChangeHook = async ({
 
   try {
     revalidateTag('tenants')
+    revalidateTag(centerSettingsTag(doc.slug))
     payload.logger.info(
       `Successfully revalidated tenants cache after ${operation} on tenant: ${
         doc?.slug || doc?.id
@@ -42,6 +44,7 @@ export const revalidateTenantsAfterDelete: CollectionAfterDeleteHook = async ({
 
   try {
     revalidateTag('tenants')
+    revalidateTag(centerSettingsTag(doc.slug))
     req.payload.logger.info(
       `Successfully revalidated tenants cache after delete on tenant: ${doc?.slug || doc?.id}`,
     )

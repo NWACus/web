@@ -1,6 +1,7 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 import type { Media } from '@/payload-types'
+import { revalidateTenantSettings } from '@/utilities/revalidateCenterSettings'
 import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 
 async function revalidate(docId: number) {
@@ -23,4 +24,5 @@ export const revalidateMediaDelete: CollectionAfterDeleteHook<Media> = async ({
   if (context.disableRevalidate) return
 
   await revalidate(doc.id)
+  await revalidateTenantSettings(doc.tenant)
 }

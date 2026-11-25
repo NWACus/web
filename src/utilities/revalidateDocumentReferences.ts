@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import type { PayloadLogger } from 'payload'
 import { getPayload } from 'payload'
 import { findDocumentsWithReferences, ReferenceQuery } from './findDocumentsWithReferences'
+import { revalidateSettingsReferencing } from './revalidateCenterSettings'
 import {
   DocumentForRevalidation,
   DocumentReference,
@@ -77,6 +78,8 @@ export async function revalidateDocumentReferences(
   payload.logger.info(
     `Starting document reference revalidation for ${reference.collection} ID ${reference.id}`,
   )
+
+  await revalidateSettingsReferencing(reference.collection, reference.id)
 
   try {
     const visited = new Set<string>()

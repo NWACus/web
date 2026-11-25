@@ -6,6 +6,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Page } from '@/payload-types'
 import { normalizePath } from '@/utilities/path'
+import { revalidateTenantSettings } from '@/utilities/revalidateCenterSettings'
 import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 
 const revalidatePagePaths = async ({
@@ -113,4 +114,5 @@ export const revalidatePageDelete: CollectionAfterDeleteHook<Page> = async ({
     payload,
     logPrefix: 'Revalidating deleted page',
   })
+  await revalidateTenantSettings(doc.tenant)
 }

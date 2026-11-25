@@ -78,7 +78,7 @@ sig = "9dcd658f517de266"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/revalidation.md"
-sig = "959a8f80c76bee2e"
+sig = "69381753d34136f7"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -823,7 +823,7 @@ sig = "6c3a3a51ca5aed8f"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/utilities/getNativeProductFlag.ts"
-sig = "57e7a21fa3322a1a"
+sig = "cbd90f29f6344acc"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -913,7 +913,7 @@ sig = "93856d4c3ca3e5cd"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/app/(frontend)/[center]/blog/[slug]/page.tsx"
-sig = "00ac0fccf4640f0e"
+sig = "7a63c35c0da636bb"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -1148,7 +1148,7 @@ sig = "40e884154478bb43"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/components/Footer/Footer.tsx"
-sig = "6f294cd17dcdfd2c"
+sig = "2d189a401e7f493d"
 
 [[bindings]]
 doc = "docs/decisions/018-forecast-glossary.md"
@@ -1828,7 +1828,7 @@ sig = "8b1d5aafca5bcb3c"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/(frontend)/[center]/layout.tsx"
-sig = "30caf44356c0595d"
+sig = "a2a36c554db132eb"
 
 [[bindings]]
 doc = "docs/onboarding.md"
@@ -1868,12 +1868,12 @@ sig = "6032ba50c3ac85a7"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/components/Footer/Footer.tsx"
-sig = "6f294cd17dcdfd2c"
+sig = "2d189a401e7f493d"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/components/Header/Header.tsx"
-sig = "19bc42f27f6a23b5"
+sig = "d74cf219ce2db90b"
 
 [[bindings]]
 doc = "docs/onboarding.md"
@@ -1943,12 +1943,12 @@ sig = "0c9912ade9c804eb"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/collections/Media/hooks/revalidateMedia.ts"
-sig = "2f208868c49a8afc"
+sig = "deb5deb2930fd40e"
 
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/collections/Pages/hooks/revalidatePage.ts"
-sig = "2a005752996b0bbd"
+sig = "fdbfad9d5a8c9667"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -1978,12 +1978,12 @@ sig = "e6cf116c6510d7a3"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/components/Header/Header.tsx"
-sig = "19bc42f27f6a23b5"
+sig = "d74cf219ce2db90b"
 
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/components/Header/utils.ts"
-sig = "61fad0d43fefe660"
+sig = "be7f5d9a0b5a03d1"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -2017,8 +2017,18 @@ sig = "3b9b1daf53f8e500"
 
 [[bindings]]
 doc = "docs/revalidation.md"
+target = "src/utilities/getCenterSettings.ts"
+sig = "f80468b6e850657f"
+
+[[bindings]]
+doc = "docs/revalidation.md"
 target = "src/utilities/queries/getActiveAnnouncements.ts"
 sig = "d08bd35888f4d468"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/utilities/revalidateCenterSettings.ts"
+sig = "0fcd31807be76a11"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -2028,7 +2038,7 @@ sig = "6f8054bf1acd2807"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/utilities/revalidateDocumentReferences.ts"
-sig = "4b37baed692be3f7"
+sig = "038b5e9395031f94"
 
 [[bindings]]
 doc = "docs/shared-content.md"
