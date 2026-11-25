@@ -8,7 +8,9 @@ import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
+import { cache } from 'react'
 
+import { contentPopulate } from '@/utilities/contentPopulate'
 import { generateMetaForPost } from '@/utilities/generateMeta'
 import { publishedFilter } from '@/utilities/publishedFilter'
 
@@ -56,7 +58,7 @@ type PathArgs = {
 export default async function Post({ params: paramsPromise }: Args) {
   const { center, slug } = await paramsPromise
   const url = '/blog/' + slug
-  const post = await queryPostBySlug({ center: center, slug: slug })
+  const post = await queryPostBySlug(center, slug)
 
   if (!post) return <Redirects center={center} url={url} />
 
@@ -106,12 +108,12 @@ export async function generateMetadata(
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const parentMeta = (await parent) as Metadata
   const { center, slug = '' } = await paramsPromise
-  const post = await queryPostBySlug({ center: center, slug: slug })
+  const post = await queryPostBySlug(center, slug)
 
   return generateMetaForPost({ center: center, doc: post, parentMeta })
 }
 
-const queryPostBySlug = async ({ center, slug }: { center: string; slug: string }) => {
+const queryPostBySlug = cache(async (center: string, slug: string) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
@@ -138,14 +140,11 @@ const queryPostBySlug = async ({ center, slug }: { center: string; slug: string 
     draft,
     limit: 1,
     pagination: false,
-    populate: {
-      tenants: {
-        slug: true,
-        name: true,
-      },
-    },
+    select: { tags: false },
+    populate: contentPopulate,
+    context: { skipPopulateAuthors: true },
     where: { and: conditions },
   })
 
   return result.docs?.[0] || null
-}
+})

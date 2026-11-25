@@ -12,6 +12,7 @@ import { getPayload, Where } from 'payload'
 import { cache } from 'react'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
+import { contentPopulate } from '@/utilities/contentPopulate'
 import { generateMetaForPage } from '@/utilities/generateMeta'
 import { normalizePath } from '@/utilities/path'
 import { publishedFilter } from '@/utilities/publishedFilter'
@@ -72,10 +73,7 @@ export default async function Page({ params: paramsPromise }: Args) {
     return <Redirects center={center} url={fullPath} />
   }
 
-  const page = await queryPageBySlug({
-    center: center,
-    slug: segments[segments.length - 1],
-  })
+  const page = await queryPageBySlug(center, segments[segments.length - 1])
 
   if (!page) {
     return <Redirects center={center} url={fullPath} />
@@ -118,15 +116,12 @@ export async function generateMetadata(
     return parentMeta
   }
 
-  const page = await queryPageBySlug({
-    center: center,
-    slug: segments[segments.length - 1],
-  })
+  const page = await queryPageBySlug(center, segments[segments.length - 1])
 
   return generateMetaForPage({ center, doc: page, slugs: segments, parentMeta })
 }
 
-const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
+const queryPageBySlug = cache(async (center: string, slug: string) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
@@ -154,12 +149,8 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
     limit: 1,
     pagination: false,
     depth: 99,
-    populate: {
-      tenants: {
-        slug: true,
-        name: true,
-      },
-    },
+    populate: contentPopulate,
+    context: { skipPopulateAuthors: true },
     where: {
       and: conditions,
     },
