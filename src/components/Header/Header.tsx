@@ -52,6 +52,7 @@ export async function Header({ center }: { center: string }) {
               resource={banner}
               loading="eager"
               priority={true}
+              pictureClassName="my-2"
               imgClassName="h-[80px] object-contain w-fit"
               sizes={getImageWidthFromMaxHeight(banner, 80)}
             />
@@ -60,6 +61,7 @@ export async function Header({ center }: { center: string }) {
                 resource={usfsLogo}
                 loading="eager"
                 priority={true}
+                pictureClassName="my-2"
                 imgClassName="h-[80px] object-contain w-fit"
                 sizes={getImageWidthFromMaxHeight(usfsLogo, 80)}
               />

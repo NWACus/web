@@ -1,4 +1,5 @@
 import colorPickerField from '@/fields/color'
+import { layoutField } from '@/fields/layout'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { Block, RadioFieldValidation } from 'payload'
 import { radio } from 'payload/shared'
@@ -56,35 +57,6 @@ export const SponsorsBlock: Block = {
   interfaceName: 'SponsorsBlock',
   imageURL: '/thumbnail/SponsorsThumbnail.jpg',
   fields: [
-    colorPickerField('Background color'),
-    {
-      type: 'radio',
-      name: 'sponsorsLayout',
-      label: 'Choose a layout for the sponsors logos',
-      defaultValue: 'static',
-      required: true,
-      admin: {
-        components: {
-          Description:
-            '@/blocks/Sponsors/components/SponsorsLayoutDescription#SponsorsLayoutDescription',
-        },
-      },
-      options: [
-        {
-          label: 'Static',
-          value: 'static',
-        },
-        {
-          label: 'Carousel',
-          value: 'carousel',
-        },
-        {
-          label: 'Banner',
-          value: 'banner',
-        },
-      ],
-      validate: validateSponsorsLayout,
-    },
     {
       name: 'sponsors',
       type: 'relationship',
@@ -94,5 +66,36 @@ export const SponsorsBlock: Block = {
       required: true,
       filterOptions: getTenantFilter,
     },
+    layoutField([
+      colorPickerField('Background color'),
+      {
+        type: 'radio',
+        name: 'sponsorsLayout',
+        label: 'Choose a layout for the sponsors logos',
+        defaultValue: 'static',
+        required: true,
+        admin: {
+          components: {
+            Description:
+              '@/blocks/Sponsors/components/SponsorsLayoutDescription#SponsorsLayoutDescription',
+          },
+        },
+        options: [
+          {
+            label: 'Static',
+            value: 'static',
+          },
+          {
+            label: 'Carousel',
+            value: 'carousel',
+          },
+          {
+            label: 'Banner',
+            value: 'banner',
+          },
+        ],
+        validate: validateSponsorsLayout,
+      },
+    ]),
   ],
 }

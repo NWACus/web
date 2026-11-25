@@ -38,6 +38,7 @@ export const MINIMAL_CONTENT_BLOCK = {
   blockType: 'content',
   backgroundColor: 'transparent',
   layout: '1_1',
+  verticalAlignment: 'top',
   columns: [{ richText: MINIMAL_LEXICAL }],
 }
 

@@ -2,114 +2,55 @@
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { FieldLabel, useField } from '@payloadcms/ui'
-import { Columns2, Columns3, Columns4, Square } from 'lucide-react'
-import { Field, SelectFieldClientProps } from 'payload'
-import { useEffect, useMemo, useState } from 'react'
-import { Columns112, Columns12, Columns121, Columns21, Columns211 } from './icons'
+import { mergeFieldStyles } from '@payloadcms/ui/shared'
+import { SelectFieldClientProps } from 'payload'
+import { ColumnsIcon } from './icons'
+import { columnCount, layoutOptions } from './layouts'
 
-type ColumnLayoutPickerProps = {
-  sb: Field
-} & SelectFieldClientProps
-
-const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
-  const layoutOptions = useMemo(
-    () => [
-      { label: 'full', value: '1_1', icon: Square },
-      { label: '1:1', value: '2_11', icon: Columns2 },
-      { label: '1:2', value: '2_12', icon: Columns12 },
-      { label: '2:1', value: '2_21', icon: Columns21 },
-      { label: '1:1:1', value: '3_111', icon: Columns3 },
-      { label: '1:1:2', value: '3_112', icon: Columns112 },
-      { label: '1:2:1', value: '3_121', icon: Columns121 },
-      { label: '2:1:1', value: '3_211', icon: Columns211 },
-      { label: '1:1:1:1', value: '4_1111', icon: Columns4 },
-    ],
-    [],
-  )
-
-  const { path, field } = props
-  const { value, setValue, showError, errorMessage } = useField<string>({ path })
-  const [layoutSelection, setLayoutSelection] = useState(value || '1_1')
+export const ColumnLayoutPicker = (props: SelectFieldClientProps) => {
+  const { path, field, readOnly } = props
+  const { value, setValue, showError, errorMessage, disabled } = useField<string>({ path })
 
   const parentPath = path.split(`.${field.name}`)[0]
   const columnsPath = `${parentPath}.columns`
 
   const { value: numColumns } = useField<number>({ path: columnsPath })
 
-  useEffect(() => {
-    if (value) {
-      setLayoutSelection(value)
-    }
-  }, [value])
+  // A single column has only one layout, so there's nothing to choose
+  if (!numColumns || numColumns < 2) return null
 
-  // Auto-select valid layout when columns change
-  useEffect(() => {
-    if (numColumns && numColumns > 0) {
-      const currentColCount = parseInt(layoutSelection.split('_')[0])
-      // If current selection doesn't match column count, find the first valid option
-      if (currentColCount !== numColumns) {
-        const validOption = layoutOptions.find(
-          (opt) => parseInt(opt.value.split('_')[0]) === numColumns,
-        )
-        if (validOption) {
-          setValue(validOption.value)
-          setLayoutSelection(validOption.value)
-        }
-      }
-    }
-  }, [numColumns, layoutSelection, setValue, layoutOptions])
-
-  // When value is null/undefined (e.g., from bad seed data), auto-heal in the UI
-  useEffect(() => {
-    if (!value && numColumns && numColumns > 0) {
-      const validOption = layoutOptions.find(
-        (opt) => parseInt(opt.value.split('_')[0]) === numColumns,
-      )
-      if (validOption) {
-        setValue(validOption.value)
-        setLayoutSelection(validOption.value)
-      }
-    }
-  }, [value, numColumns, setValue, layoutOptions])
-
-  if (numColumns === 0) return null
+  const options = layoutOptions.filter((opt) => columnCount(opt.value) === numColumns)
 
   return (
-    <div className="mb-6">
+    <div className="mb-6" style={mergeFieldStyles(field)}>
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
       <ToggleGroup
         type="single"
-        value={layoutSelection}
+        value={value || ''}
+        disabled={readOnly || disabled}
         onValueChange={(newValue: string) => {
-          if (newValue) {
-            setLayoutSelection(newValue)
-            setValue(newValue)
-          }
+          if (newValue) setValue(newValue)
         }}
         variant="outline"
-        className="justify-start"
+        size="sm"
+        className="flex-wrap justify-start"
       >
-        {layoutOptions.map((option) => {
-          const Icon = option.icon
-          const colCount = parseInt(option.value.split('_')[0])
-          if (colCount !== numColumns) return null
-
+        {options.map((option) => {
+          const label = option.parts.join(':')
           return (
             <ToggleGroupItem
               key={option.value}
               value={option.value}
-              aria-label={option.label}
-              className="cursor-pointer"
+              aria-label={`${label} column widths`}
+              className="cursor-pointer gap-1.5 px-2 [&_svg]:size-5"
             >
-              <Icon style={{ width: '20px', height: '20px' }} />
+              <ColumnsIcon parts={option.parts} />
+              {label}
             </ToggleGroupItem>
           )
         })}
       </ToggleGroup>
-      <div className="field-description">Options update based on the number of columns.</div>
       {showError && <div className="mt-2 text-sm text-red-500">{errorMessage}</div>}
     </div>
   )
 }
-
-export default ColumnLayoutPicker

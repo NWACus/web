@@ -103,6 +103,7 @@ export const MobileNav = ({
                 resource={banner}
                 loading="eager"
                 priority={true}
+                pictureClassName="my-2"
                 imgClassName="h-[36px] object-contain w-fit"
                 sizes={getImageWidthFromMaxHeight(banner, 36)}
               />
@@ -111,6 +112,7 @@ export const MobileNav = ({
                   resource={usfsLogo}
                   loading="eager"
                   priority={true}
+                  pictureClassName="my-2"
                   imgClassName="h-[36px] object-contain w-fit"
                   sizes={getImageWidthFromMaxHeight(usfsLogo, 36)}
                 />

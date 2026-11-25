@@ -169,7 +169,7 @@ export const EventPreview = (props: {
             <ImageMedia
               imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               resource={thumbnailImage}
-              pictureClassName="w-full h-full overflow-hidden rounded"
+              pictureClassName="my-2 w-full h-full overflow-hidden rounded"
               sizes={imageSizes}
             />
           )}

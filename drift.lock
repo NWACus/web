@@ -8,7 +8,7 @@ sig = "a22268d0b63eeadc"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/coding-guide.md"
-sig = "e7ea670bb0ff121d"
+sig = "6e3e7035b276a43e"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -957,6 +957,11 @@ sig = "dfe26edde8cbef93"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
+target = "src/fields/layout.ts"
+sig = "9cec6009ddd7aedc"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
 target = "src/utilities/relationships.ts"
 sig = "1511a3263c81daf8"
 
@@ -1083,7 +1088,7 @@ sig = "336fd5a031686c5d"
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "6032ba50c3ac85a7"
+sig = "87edaf45aa7ca99c"
 
 [[bindings]]
 doc = "docs/decisions/015-national-course-catalog.md"
@@ -1123,7 +1128,7 @@ sig = "9f139eb3ec8427a2"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/blocks/FormEmbed/config.ts"
-sig = "c42ac43d05f5c632"
+sig = "34d222e25d387cd0"
 
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
@@ -1148,7 +1153,7 @@ sig = "40e884154478bb43"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/components/Footer/Footer.tsx"
-sig = "2d189a401e7f493d"
+sig = "f8b4544cf095ed7f"
 
 [[bindings]]
 doc = "docs/decisions/018-forecast-glossary.md"
@@ -1573,7 +1578,7 @@ sig = "d411242eea928047"
 [[bindings]]
 doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "6032ba50c3ac85a7"
+sig = "87edaf45aa7ca99c"
 
 [[bindings]]
 doc = "docs/decisions/024-info-exchange-derived-from-nac-platforms.md"
@@ -1678,17 +1683,17 @@ sig = "172d7ca57e49497a"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/blocks/EventList/config.ts"
-sig = "b2a77f5589152ab4"
+sig = "3688323a7656bdde"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/blocks/EventTable/config.ts"
-sig = "42518ac26ff407a6"
+sig = "c10ec3628a3ec5d6"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/blocks/SingleEvent/config.ts"
-sig = "9fea7eae9c72b62e"
+sig = "c7802f87581d0daf"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -1773,7 +1778,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "606830e7f6ffa9df"
+sig = "efbb4580936748cf"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -1863,22 +1868,22 @@ sig = "c5dd4dda38e40915"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/collections/Tenants/endpoints/provisionTenant.ts"
-sig = "6032ba50c3ac85a7"
+sig = "87edaf45aa7ca99c"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/components/Footer/Footer.tsx"
-sig = "2d189a401e7f493d"
+sig = "f8b4544cf095ed7f"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/components/Header/Header.tsx"
-sig = "d74cf219ce2db90b"
+sig = "95084f0eff47e7a7"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/components/Header/MobileNav.client.tsx"
-sig = "1b8b927a6f225970"
+sig = "dfd0b5ef1a6d83d3"
 
 [[bindings]]
 doc = "docs/onboarding.md"
@@ -1978,7 +1983,7 @@ sig = "e6cf116c6510d7a3"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/components/Header/Header.tsx"
-sig = "d74cf219ce2db90b"
+sig = "95084f0eff47e7a7"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -2158,7 +2163,7 @@ sig = "b6c0c9c3e420014d"
 [[bindings]]
 doc = "docs/testing.md"
 target = "__tests__/e2e/helpers/create-doc.ts"
-sig = "909ddfdaacfe4994"
+sig = "a465174c4f23ccc8"
 
 [[bindings]]
 doc = "docs/testing.md"

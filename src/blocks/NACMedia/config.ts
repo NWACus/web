@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
+import { layoutField } from '@/fields/layout'
 
 export const NACMediaBlock: Block = {
   slug: 'nacMediaBlock',
@@ -11,7 +12,6 @@ export const NACMediaBlock: Block = {
   },
   imageURL: '/thumbnail/NACMediaBlockThumbnail.jpg',
   fields: [
-    colorPickerField('Background color'),
     {
       name: 'mode',
       type: 'radio',
@@ -22,5 +22,6 @@ export const NACMediaBlock: Block = {
       required: true,
       defaultValue: 'carousel',
     },
+    layoutField([colorPickerField('Background color')]),
   ],
 }

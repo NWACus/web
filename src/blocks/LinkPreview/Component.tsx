@@ -53,7 +53,7 @@ export const LinkPreviewBlockComponent = (props: LinkPreviewBlockProps) => {
                   {image && (
                     <CardHeader className="overflow-hidden">
                       <Media
-                        pictureClassName="w-full flex justify-center bg-muted"
+                        pictureClassName="my-2 w-full flex justify-center bg-muted"
                         imgClassName="h-[200px] w-full object-cover"
                         resource={image}
                       />
