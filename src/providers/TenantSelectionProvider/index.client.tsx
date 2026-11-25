@@ -118,7 +118,6 @@ export const TenantSelectionProviderClient = ({
   const router = useRouter()
   const userID = useMemo(() => user?.id, [user?.id])
   const prevUserID = useRef(userID)
-  const userChanged = userID !== prevUserID.current
   const [tenantOptions, setTenantOptions] = useState<OptionObject[]>(() => initialTenantOptions)
   const selectedTenantLabel = useMemo(
     () => tenantOptions.find((option) => option.value === selectedTenantSlug)?.label,
@@ -214,7 +213,11 @@ export const TenantSelectionProviderClient = ({
     [syncTenants],
   )
 
+  // Must not depend on tenantOptions: syncTenants replaces it, so a lasting cookie mismatch would
+  // refetch forever.
   useEffect(() => {
+    const userChanged = userID !== prevUserID.current
+
     if (userChanged || (initialValue && initialValue !== getTenantCookie())) {
       if (userID) {
         // user logging in
@@ -223,14 +226,12 @@ export const TenantSelectionProviderClient = ({
         // user logging out
         setSelectedTenantSlug(undefined)
         deleteTenantCookie()
-        if (tenantOptions.length > 0) {
-          setTenantOptions([])
-        }
+        setTenantOptions((prev) => (prev.length > 0 ? [] : prev))
         router.refresh()
       }
       prevUserID.current = userID
     }
-  }, [userID, userChanged, syncTenants, tenantOptions, initialValue, router])
+  }, [userID, syncTenants, initialValue, router])
 
   /**
    * A cookie with no matching initial value is stale (unknown slug, or one this
