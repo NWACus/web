@@ -176,7 +176,7 @@ function CalendarSelect({
       >
         <SelectValue />
       </SelectTrigger>
-      <SelectContent className="max-h-64">
+      <SelectContent className="z-[60] max-h-64 md:z-50">
         {options?.map((option) => (
           <SelectItem key={option.value} value={String(option.value)} disabled={option.disabled}>
             {option.label}
