@@ -6,7 +6,7 @@ import { dayGroups, fmtQpf, hasSnowAmounts, precipPeriods } from '@/services/nac
 import { mapV3NWACWeatherForecastDay } from '@/services/nac/sources/v3/nwacWeatherMappers'
 import { nwacWeatherForecastsResponseSchema } from '@/services/nac/types/nwacWeatherSchemas'
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import fixture from '../../server/fixtures/nwac-weather-forecasts.json'
 
 const day = mapV3NWACWeatherForecastDay(nwacWeatherForecastsResponseSchema.parse(fixture))
@@ -273,6 +273,30 @@ describe('OverallSectionTabs', () => {
       '#afternoon-sensible',
     )
     expect(within(nav).getByRole('link', { name: 'Extended' })).toBeInTheDocument()
+  })
+
+  it('scrolls smoothly for the click only', async () => {
+    render(<OverallSectionTabs parts={overallParts(afternoon)} />)
+    const { style } = document.documentElement
+    fireEvent.click(screen.getByRole('link', { name: 'Zone Summary' }))
+    expect(style.scrollBehavior).toBe('smooth')
+    await waitFor(() => expect(style.scrollBehavior).toBe(''))
+  })
+
+  it('jumps for a reader who prefers reduced motion', () => {
+    const matchMedia = jest.spyOn(window, 'matchMedia').mockImplementation((query) =>
+      Object.assign(new EventTarget(), {
+        matches: true,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      }),
+    )
+    render(<OverallSectionTabs parts={overallParts(afternoon)} />)
+    fireEvent.click(screen.getByRole('link', { name: 'Zone Summary' }))
+    expect(document.documentElement.style.scrollBehavior).toBe('')
+    matchMedia.mockRestore()
   })
 
   it('leaves out Extended on a morning issuance', () => {
