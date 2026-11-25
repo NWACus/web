@@ -1,8 +1,9 @@
 import type { Setting } from '@/payload-types'
+import { centerSettingsTag } from '@/utilities/centerSettingsTag'
 import { removeNonDeterministicKeys } from '@/utilities/removeNonDeterministicKeys'
 import crypto from 'crypto'
 import stringify from 'json-stable-stringify'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import type { CollectionAfterChangeHook } from 'payload'
 
 export const revalidateSettings: CollectionAfterChangeHook<Setting> = async ({
@@ -45,6 +46,8 @@ export const revalidateSettings: CollectionAfterChangeHook<Setting> = async ({
 
   // Settings affect all pages since they appear in global components (header/footer)
   payload.logger.info(`Revalidating all paths for tenant ${tenant.slug} due to settings change`)
+
+  revalidateTag(centerSettingsTag(tenant.slug))
 
   // Revalidate the tenant's root path and all nested paths
   revalidatePath(`/${tenant.slug}`, 'layout')

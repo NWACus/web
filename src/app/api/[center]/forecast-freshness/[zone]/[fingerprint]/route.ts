@@ -5,7 +5,12 @@
 // fallow-ignore-file dynamic-segment-name-conflicts
 import { forecastPageFingerprint, productFingerprint } from '@/services/nac/forecastFingerprint'
 import type { ForecastResult, WarningProduct } from '@/services/nac/model/forecast'
-import { forecastCacheTag, warningCacheTag, weatherCacheTag } from '@/services/nac/nac'
+import {
+  forecastCacheTag,
+  mapLayerCacheTag,
+  warningCacheTag,
+  weatherCacheTag,
+} from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import {
   getForecastSource,
@@ -49,7 +54,7 @@ const NOTHING_PUBLISHED = forecastPageFingerprint(null, null)
  * what the shared cache is actually serving, never to the caller's fingerprint, so freshness spam
  * cannot evict the caches. Per product rather than per page, so a warning-only change costs no
  * upstream forecast re-fetch; a changed forecast additionally purges the weather product it points
- * at, so a refresh renders the two together.
+ * at and the center's map layer, so a refresh renders them together.
  *
  * Also settles which warning the answer is built from. An alert that has gone missing upstream is
  * indistinguishable from a failed lookup for that zone, so neither is trusted: the cached alert is
@@ -78,6 +83,8 @@ async function reconcileCaches({
 
   if (productFingerprint(cachedForecast) !== productFingerprint(freshForecast)) {
     revalidateTag(forecastCacheTag(center, zoneId))
+    // The link preview image draws its rating from the map layer.
+    revalidateTag(mapLayerCacheTag(center))
     const weatherProductId = freshForecast.weather_data?.weather_product_id
     if (weatherProductId) revalidateTag(weatherCacheTag(weatherProductId))
   }
@@ -105,7 +112,7 @@ async function reconcileCaches({
  *      amplify upstream load). Per product, not per page: a warning-only change purges the warning
  *      tag alone, so it doesn't cost an upstream forecast re-fetch it has no reason to. Either tag
  *      also invalidates the page's route cache, and a changed forecast additionally purges the
- *      weather product it points at, so a refresh renders forecast + weather together.
+ *      weather product it points at and the center's map layer, so a refresh renders them together.
  *   2. Refresh THIS viewer? When the fresh page fingerprint differs from the one they rendered →
  *      `changed: true` so their router.refresh() re-renders; otherwise `changed: false`.
  *

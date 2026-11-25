@@ -2,6 +2,7 @@
 
 import { InlineFiltersPanel } from '@/components/filters/InlineFiltersPanel'
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
+import type { StartDateBounds } from '@/utilities/queries/getStartDateBounds'
 import { CoursesFilters, FilterProvider, FilterState } from './CoursesFilters'
 
 type Props = {
@@ -10,6 +11,7 @@ type Props = {
   hasActiveFilters: boolean
   startDate: string
   endDate: string
+  dateBounds: StartDateBounds
 }
 
 export const CoursesMobileFilters = ({
@@ -18,6 +20,7 @@ export const CoursesMobileFilters = ({
   hasActiveFilters,
   startDate,
   endDate,
+  dateBounds,
 }: Props) => {
   const { total } = useFiltersTotalContext()
 
@@ -26,6 +29,7 @@ export const CoursesMobileFilters = ({
       <CoursesFilters
         startDate={startDate}
         endDate={endDate}
+        dateBounds={dateBounds}
         states={states}
         providers={providers}
       />

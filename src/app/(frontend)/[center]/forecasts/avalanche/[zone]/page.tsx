@@ -23,8 +23,8 @@ import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { htmlToDescription } from '@/utilities/htmlToDescription'
 import { notFound } from 'next/navigation'
 
-// `main`'s 30 min for the widget. A native render reads the forecast through a 300s fetch, which
-// lowers this render's window to 5 min; see "Rebuild cadence" in docs/afp-products/architecture.md.
+// A ceiling. Metadata reads the map layer through a 300s fetch, which lowers the window to 5 min in
+// both modes; see "Rebuild cadence" in docs/afp-products/architecture.md.
 export const revalidate = 1800
 
 /**

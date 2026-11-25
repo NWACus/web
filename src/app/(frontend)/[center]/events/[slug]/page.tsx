@@ -4,10 +4,12 @@ import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
+import { cache } from 'react'
 
 import { ButtonLink } from '@/components/ButtonLink'
 import { EventInfo } from '@/components/EventInfo'
 import { Media } from '@/components/Media'
+import { contentPopulate } from '@/utilities/contentPopulate'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { generateMetaForEvent } from '@/utilities/generateMeta'
 import { cn } from '@/utilities/ui'
@@ -64,7 +66,7 @@ export default async function Event({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center, slug } = await paramsPromise
   const url = '/events/' + slug
-  const event = await queryEventBySlug({ center: center, slug: slug })
+  const event = await queryEventBySlug(center, slug)
 
   if (!event) return <Redirects center={center} url={url} />
 
@@ -163,12 +165,12 @@ export async function generateMetadata(
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const parentMeta = (await parent) as Metadata
   const { center, slug = '' } = await paramsPromise
-  const event = await queryEventBySlug({ center: center, slug: slug })
+  const event = await queryEventBySlug(center, slug)
 
   return generateMetaForEvent({ center: center, doc: event, parentMeta })
 }
 
-const queryEventBySlug = async ({ center, slug }: { center: string; slug: string }) => {
+const queryEventBySlug = cache(async (center: string, slug: string) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
@@ -199,14 +201,10 @@ const queryEventBySlug = async ({ center, slug }: { center: string; slug: string
     draft,
     limit: 1,
     pagination: false,
-    populate: {
-      tenants: {
-        slug: true,
-        name: true,
-      },
-    },
+    populate: contentPopulate,
+    context: { skipPopulateAuthors: true },
     where: { and: conditions },
   })
 
   return result.docs?.[0] || null
-}
+})

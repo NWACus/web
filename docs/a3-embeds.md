@@ -182,6 +182,7 @@ Multiple filters (Rec 1 and Rec 2 courses for women):
 
 - By default, only shows courses starting after today's date (upcoming courses)
 - If `startDate` and/or `endDate` are provided, those override the default "upcoming only" behavior
+- With `showFilters=true`, the custom date range pickers run from the month of the earliest published course to the month of the latest (always including the current month)
 - Courses are paginated with 10 items per page
 - Infinite scroll loads more courses as the user scrolls
 - Past courses display a "Past Course" badge

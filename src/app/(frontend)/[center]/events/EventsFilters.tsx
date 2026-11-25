@@ -5,6 +5,7 @@ import { DateRangeFilter } from '@/components/filters/DateRangeFilter'
 import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
 import { EventType } from '@/constants/eventTypes'
 import { QUICK_DATE_FILTERS_EVENTS } from '@/constants/quickDateFilters'
+import type { StartDateBounds } from '@/utilities/queries/getStartDateBounds'
 
 export type FiltersEventGroup = { label: string; value: string }
 export type FiltersEventTag = { label: string; value: string }
@@ -12,6 +13,7 @@ export type FiltersEventTag = { label: string; value: string }
 export const EventsFilters = ({
   startDate,
   endDate,
+  dateBounds,
   types,
   groups,
   tags,
@@ -21,12 +23,14 @@ export const EventsFilters = ({
   tags: FiltersEventTag[]
   startDate: string
   endDate: string
+  dateBounds: StartDateBounds
 }) => {
   return (
     <>
       <DateRangeFilter
         startDate={startDate}
         endDate={endDate}
+        dateBounds={dateBounds}
         quickFilters={QUICK_DATE_FILTERS_EVENTS}
         title="Filter by date"
         defaultOpen={true}

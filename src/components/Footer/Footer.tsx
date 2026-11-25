@@ -1,4 +1,3 @@
-import configPromise from '@payload-config'
 import Link from 'next/link'
 import invariant from 'tiny-invariant'
 
@@ -6,27 +5,11 @@ import { FormBlockComponent } from '@/blocks/Form/Component'
 import { FormEmbedBlockComponent } from '@/blocks/FormEmbed/Component'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Icons } from '@/components/ui/icons'
+import { getCenterSettings } from '@/utilities/getCenterSettings'
 import { getImageWidthFromMaxHeight } from '@/utilities/getImageWidthFromMaxHeight'
-import { getPayload } from 'payload'
 
-export async function Footer({ center }: { center?: string }) {
-  const payload = await getPayload({ config: configPromise })
-
-  const settingsRes = await payload.find({
-    collection: 'settings',
-    depth: 99,
-    populate: {
-      tenants: {
-        name: true,
-      },
-    },
-    where: {
-      'tenant.slug': {
-        equals: center,
-      },
-    },
-  })
-  const settings = settingsRes.docs[0]
+export async function Footer({ center }: { center: string }) {
+  const settings = await getCenterSettings(center)
 
   invariant(settings, `Settings for center value ${center} not found.`)
 
@@ -45,11 +28,6 @@ export async function Footer({ center }: { center?: string }) {
     tenant,
   } = settings
 
-  invariant(
-    typeof tenant === 'object',
-    `Depth not set correctly when querying settings. Tenant for center value ${center} not an object.`,
-  )
-  invariant('name' in tenant, `'name' field not on the tenant object when querying settings.`)
   invariant(
     typeof terms === 'object',
     `Depth not set correctly when querying settings. Terms for tenant ${center} not an object.`,

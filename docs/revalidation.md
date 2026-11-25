@@ -125,6 +125,22 @@ Add three fields and one hook to any collection that needs reference tracking:
 - **Global data**: `getCachedGlobal()` with tags like `global_{slugName}`
 - **Routable collection data**: `getCachedDocument()` with tags like `{collection}_{slug}` (this isn't currently used very much since we need to make query documents based on center + slug typically -- might be a good function to update as we go forward)
 - **Navigation data**: Cached with tenant-specific tags
+- **Center settings**: `getCenterSettings()` holds a center's settings and tenant for the layout, header, footer and native product flags. See [Center settings](#center-settings)
+
+### Center settings
+
+Every render needs the center's settings, so `getCenterSettings` serves them from one entry tagged `settings-{center}`. The entry embeds other documents, so more than a settings save has to clear it:
+
+- **Settings and tenant saves** clear it from their own hooks.
+- **Media, forms and pages** that settings point at (logo, icon, banner, USFS logo, footer form, terms, privacy) clear it through `revalidateDocumentReferences`, which looks up the settings using the document. A delete clears the document's own center instead, because the settings row no longer points at it by then.
+
+The tag is also on every page rendered with the entry, so clearing it re-renders that center's pages. That is why unrelated media saves must not clear it.
+
+The key includes the deployment, so a migration that changes settings takes effect on release without a save.
+
+**🧑‍💻 Code to update**: a new relationship on Settings needs an entry in `SETTINGS_REFERENCE_FIELDS` in `revalidateCenterSettings.ts`.
+
+Page, post and event bodies are deliberately not cached this way. Their hourly regeneration is the fallback for references the tracking misses, and a tag-only entry would remove it.
 
 ### Never cache a miss
 
@@ -144,6 +160,7 @@ One exception: a cached function nested inside another cached function should le
 - **Sitemap data**: `{collection}-sitemap-{center}` (for routable collections)
 - **Forecast glossary**: `glossary`
 - **Navigation data**: `navigation-{center}`
+- **Center settings**: `settings-{center}`
 
 ## Context Controls
 

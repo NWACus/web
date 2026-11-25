@@ -4,6 +4,7 @@ import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { getCourses } from '@/utilities/queries/getCourses'
 import { getCoursesStates } from '@/utilities/queries/getCoursesStates'
 import { getProviders } from '@/utilities/queries/getProviders'
+import { getCoursesStartDateBounds } from '@/utilities/queries/getStartDateBounds'
 import Script from 'next/script'
 import { createLoader, parseAsBoolean, parseAsString, SearchParams } from 'nuqs/server'
 import { CoursesFilters } from './CoursesFilters'
@@ -53,6 +54,9 @@ export default async function CoursesEmbedPage({
 
   const { providers: providersList } = showFilters ? await getProviders() : { providers: [] }
   const { states: statesList } = showFilters ? await getCoursesStates() : { states: [] }
+  const dateBounds = showFilters
+    ? await getCoursesStartDateBounds()
+    : { earliest: null, latest: null }
 
   const hasActiveFilters = Boolean(
     types || providers || states || affinityGroups || modesOfTravel || startDate || endDate,
@@ -77,6 +81,7 @@ export default async function CoursesEmbedPage({
                 hasActiveFilters={hasActiveFilters}
                 startDate={startDate || ''}
                 endDate={endDate || ''}
+                dateBounds={dateBounds}
               />
             </div>
           )}
@@ -91,6 +96,7 @@ export default async function CoursesEmbedPage({
                   <CoursesFilters
                     startDate={startDate || ''}
                     endDate={endDate || ''}
+                    dateBounds={dateBounds}
                     states={statesList}
                     providers={providersList}
                   />

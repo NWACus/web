@@ -34,7 +34,7 @@ export function CurrentForecastRedirect({
 
     let cancelled = false
     void isLiveProductDate(endpoint, date).then((isLive) => {
-      if (isLive && !cancelled) router.replace(liveHref)
+      if (isLive && !cancelled) router.replace(`${liveHref}${window.location.hash}`)
     })
 
     return () => {

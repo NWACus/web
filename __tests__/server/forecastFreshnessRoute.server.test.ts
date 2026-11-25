@@ -43,6 +43,8 @@ jest.mock('../../src/services/nac/sources', () => ({
 jest.mock('../../src/services/nac/nac', () => ({
   forecastCacheTag: (centerId: string, zoneId: number) =>
     `forecast:${centerId === 'dvac' ? 'nwac' : centerId}:${zoneId}`,
+  mapLayerCacheTag: (centerId: string) =>
+    `map-layer:${centerId === 'dvac' ? 'nwac' : centerId}:current`,
   weatherCacheTag: (id: number) => `weather:${id}`,
   warningCacheTag: (centerId: string, zoneId: number) =>
     `warning:${centerId === 'dvac' ? 'nwac' : centerId}:${zoneId}`,
@@ -157,6 +159,14 @@ describe('forecast-freshness route', () => {
     expect(mockRevalidateTag).toHaveBeenCalledWith('weather:555')
   })
 
+  it('also revalidates the map layer when the forecast changed, so the link preview image follows', async () => {
+    upstreamAndCacheHold({ ...forecast, bottom_line: 'CORRECTED' })
+
+    await check(etag)
+
+    expect(mockRevalidateTag).toHaveBeenCalledWith('map-layer:nwac:current')
+  })
+
   it('does NOT purge or blank on a failed/absent fresh fetch, and never caches that answer', async () => {
     // A transient upstream error surfaces as null — must not evict the last-known-good forecast,
     // and must not be cached as "you're current" for every viewer at that POP.
@@ -231,6 +241,7 @@ describe('forecast-freshness route', () => {
 
     expect(mockRevalidateTag).toHaveBeenCalledWith('warning:nwac:123')
     expect(mockRevalidateTag).not.toHaveBeenCalledWith('forecast:nwac:123')
+    expect(mockRevalidateTag).not.toHaveBeenCalledWith('map-layer:nwac:current')
   })
 
   it('does NOT blank a live alert that has gone missing upstream, and never caches that answer', async () => {
