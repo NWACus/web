@@ -77,7 +77,7 @@ const defaultNacWidgetsConfig = {
   requiredFields: {
     version: '20261014',
     baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
-    devMode: false,
+    devMode: true,
   },
 }
 
@@ -110,9 +110,9 @@ const nativeProductsByTenant: Record<
     stationMap: boolean
   }
 > = {
-  snfac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
-  nwac: { forecast: true, warning: true, dangerMap: true, weather: true, stationMap: true },
-  sac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: true },
+  snfac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: false },
+  nwac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: false },
+  sac: { forecast: false, warning: false, dangerMap: false, weather: false, stationMap: false },
 }
 
 // Next.js revalidation errors are normal when seeding the database without a server running
