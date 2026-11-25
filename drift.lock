@@ -648,7 +648,7 @@ sig = "753d056d3881b84c"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/archiveDates.ts"
-sig = "dbc49848db09a192"
+sig = "25b29a76559714c5"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

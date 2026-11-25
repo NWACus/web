@@ -4,11 +4,19 @@ import { ForecastErrorBoundary } from '@/components/forecast/ForecastErrorBounda
 import { ForecastHeader } from '@/components/forecast/ForecastHeader'
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
 import { Card, CardContent } from '@/components/ui/card'
-import { initialArchiveWindow } from '@/services/nac/archiveDates'
+import {
+  buildZoneArchiveDates,
+  initialArchiveWindow,
+  zoneForecastPath,
+} from '@/services/nac/archiveDates'
 import { todayInTimezone } from '@/services/nac/forecastArchive'
 import { nwacWeatherFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
 import type { NWACWeatherIssuance } from '@/services/nac/model/nwacWeather'
-import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/nac/nac'
+import {
+  fetchProductArchive,
+  getActiveForecastZones,
+  getAvalancheCenterMetadata,
+} from '@/services/nac/nac'
 import { currentNWACWeatherDay, isPastNWACWeatherDate } from '@/services/nac/nwacWeatherCurrent'
 import {
   fmtCalendarDate,
@@ -17,7 +25,7 @@ import {
   issueTime,
 } from '@/services/nac/nwacWeatherFormat'
 import { getNWACWeatherSource } from '@/services/nac/sources'
-import { addMonths, endOfMonth, format, parseISO, subDays } from 'date-fns'
+import { addDays, addMonths, endOfMonth, format, parseISO, subDays } from 'date-fns'
 import { ArrowRight, History } from 'lucide-react'
 import Link from 'next/link'
 
@@ -28,11 +36,30 @@ import { sanitizeIssuance } from './sanitizeIssuance'
 
 const HEADING = <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Mountain Weather</h1>
 
-/** Each active zone's avalanche forecast page: for `date` when one is picked, else the current. */
-async function zonePathsOf(centerSlug: string, date: string | undefined) {
+/**
+ * Each active zone's avalanche forecast for the weather's own date. Today's page (no `date`) can
+ * still be on that date once the evening's forecast for the next day is live.
+ */
+async function zonePathsOf(
+  centerSlug: string,
+  date: string | undefined,
+  shown: string,
+  timezone: string | null | undefined,
+) {
   const paths: ZonePaths = {}
-  for (const { slug, zone } of await getActiveForecastZones(centerSlug)) {
-    paths[zone.id] = date ? `/forecasts/avalanche/${slug}/${date}` : `/forecasts/avalanche/${slug}`
+  const zones = await getActiveForecastZones(centerSlug)
+  if (date) {
+    for (const { slug, zone } of zones) paths[zone.id] = `/forecasts/avalanche/${slug}/${date}`
+    return paths
+  }
+  // The archive filters by publish time, so the window runs past the day to catch what replaced it.
+  const archive = await fetchProductArchive(centerSlug, {
+    from: initialArchiveWindow(shown).from,
+    to: format(addDays(parseISO(shown), 2), 'yyyy-MM-dd'),
+  })
+  for (const { slug, zone } of zones) {
+    const dates = buildZoneArchiveDates(archive, zone.id, timezone)
+    paths[zone.id] = zoneForecastPath(slug, dates, shown, timezone)
   }
   return paths
 }
@@ -117,12 +144,12 @@ export async function ForecastPage({ centerSlug, date }: { centerSlug: string; d
   const window = pickerWindow(date ?? today, today)
   // Either read throws on an upstream failure, so ISR keeps the last good page instead of caching
   // "nothing published".
-  const [{ day, shown }, dates, zonePaths, past] = await Promise.all([
+  const [{ day, shown }, dates, past] = await Promise.all([
     readShown(date, today),
     getNWACWeatherSource().getDates(window.from, window.to, { historical: window.to < today }),
-    zonePathsOf(centerSlug, date),
     isPast(date, today),
   ])
+  const zonePaths = day ? await zonePathsOf(centerSlug, date, shown, metadata.timezone) : {}
   const picker = (
     <DatePicker date={shown} today={today} initialDates={dates} initialRange={window} />
   )
